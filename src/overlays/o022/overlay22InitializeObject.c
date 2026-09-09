@@ -20,15 +20,19 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
-/* Workbench: mixed(constant:3,schedule:11); 5/172 words remain, first +0xCC, with frame and register lanes exact.
- * Lever: aggregate/array-tail carrier probes after prior flag, lifetime, declaration, volatile, nested, and permuter work; each grew or disturbed the frame.
- * Remains: objectPosition home sp+0x28 versus target sp+0x30 and reversed D_A7C stores; canonical assembly stays.
- * Tier-2 trace revisit (2026-08-28): proc 0 retained 17 allocator webs, but
- * trace-stack-homes and trace-frame reported no producer-emitted virtual/final
- * home fields. A scoped objectPosition lifetime variant kept frame -0x58 but
- * worsened the operand residual to 6/172 words by moving the planes carrier to
- * sp+0x30; the target home pair remained unreachable. The grounded family is
- * parked pending calibrated stack-home producer evidence. */
+/* Configured remeasurement retains the exact 172-word/0x58-frame shape with
+ * five instruction differences: objectPosition uses sp+0x28 instead of target
+ * sp+0x30, and the D_A7C home/outgoing stores are reversed. The prior ten
+ * declared-local/carrier forms remain exhausted. Stock IDO's itable listing
+ * now identifies objectPosition's declared home at the target offset; CFE
+ * instead copy-propagates the pointer expression, whose surviving value spills
+ * at sp+0x28. A byte-array spelling and a source-line tie are flat. Ordered
+ * three- and five-member aggregates regress, while a late D_0 carrier grows
+ * the frame to 0x60. Volatile and address-exposed copy-propagation barriers,
+ * each composed with the source-line tie, add one instruction and trigger a
+ * structural cascade. All 21 candidate relocations remain present. Preserve
+ * the assembly fallback pending an instruction-neutral copy-propagation
+ * barrier or authenticated original declaration shape. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -106,3 +110,13 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22InitializeObject/func_overlay_022_F0000000_1878108.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:start
+ * symbol: func_overlay_022_F0000000_1878108
+ * score: 167/172 words
+ * frame: 0x58
+ * relocations: 21
+ * first-mismatch: +0xCC
+ * summary: Workbench mixed(constant:3,schedule:11), lever stack-home; stock itable isolates copy propagation, but legal barriers add one instruction; attempts 5-7 stalled.
+ * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
+ */

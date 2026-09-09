@@ -66,3 +66,13 @@ void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83DrawStrip/func_overlay_083_F0000850_18D0010.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay83DrawStrip:start
+ * symbol: overlay83DrawStrip
+ * score: 4/77 words
+ * frame: frameless
+ * relocations: 2
+ * first-mismatch: +0x4
+ * summary: Authorized JFG packet-order form regressed from 73 to 74 differences and shifted both relocations; baseline remains best and donor has no C body.
+ * PLATEAU-HANDOFF:overlay83DrawStrip:end
+ */

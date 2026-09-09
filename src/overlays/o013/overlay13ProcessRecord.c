@@ -98,3 +98,13 @@ loop_fade:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13ProcessRecord/func_overlay_013_F0000284_186ED9C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay13UpdateRecord:start
+ * symbol: overlay13UpdateRecord
+ * score: 65/161 words
+ * frame: 0x20
+ * relocations: 5
+ * first-mismatch: +0x20
+ * summary: Authorized V0 reproduces 96 differences; current tooling still cannot authenticate the overlay13Prepare call proxy.
+ * PLATEAU-HANDOFF:overlay13UpdateRecord:end
+ */

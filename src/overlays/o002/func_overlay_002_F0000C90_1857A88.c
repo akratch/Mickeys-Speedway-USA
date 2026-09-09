@@ -255,3 +255,13 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0000C90_1857A88/func_overlay_002_F0000C90_1857A88.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:start
+ * symbol: func_overlay_002_F0000C90_1857A88
+ * score: 257/355 words
+ * frame: 0x60
+ * relocations: 65
+ * first-mismatch: +0x0
+ * summary: Exact 1,420-byte geometry; 98 words and an 8-byte frame gap remain. Prior flags, scoping, copy, and permutation are exhausted; seek new local-home evidence.
+ * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
+ */

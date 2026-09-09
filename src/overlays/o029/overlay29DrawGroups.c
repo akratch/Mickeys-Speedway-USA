@@ -38,16 +38,18 @@ typedef struct Overlay29Context {
     u8 *nodeTable;
 } Overlay29Context;
 
-extern void func_overlay_029_F0000000_187D2B0(
-    Gfx **, s32, Overlay29Group *, f32, f32);
-#define overlay29DrawReloc func_overlay_029_F0000000_187D2B0
-extern void overlay29FlushReloc(Gfx **);
-extern void overlay29FinishReloc(Gfx **);
+extern void camPushModelMtx(Gfx **, s32, Overlay29Group *, f32, f32);
+extern void camRestoreModelMtx(Gfx **);
+extern void func_80034920(Gfx **);
 
 #ifdef NON_MATCHING
-/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized at 48/129 words,
- * first +0x50; sinking groupIndex improves the preheader. Ten CFG/offset forms
- * and a 40-minute permuter (1370 to 880, no zero) leave the phase unresolved. */
+/* Workbench: structure-mismatch, 47 raw differences / 82 of 129 words
+ * match, first +0x4C. Instruction count/frame and all three relocation
+ * identities are exact; pre-loop setup retains 12 structural gaps. The
+ * 2026-09-04 reshape named the E700 command beside the existing FB command
+ * before the enabled branch, but IDO folded it back to byte-identical output
+ * (SHA-1 031c8c9a3c86). The remaining gap is scheduler/source statement order;
+ * this candidate is not permuter-ready. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
     Overlay29RenderState *render;
@@ -69,19 +71,19 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
     alphaMask = -0x100;
     fillCommand = 0xFB000000;
     if (render->enabled != 0) {
+        groupIndex = 3;
         gfx = *dl;
         *dl = gfx + 1;
-        gfx->w0 = 0xE7000000;
         gfx->w1 = 0;
+        gfx->w0 = 0xE7000000;
 
         gfx = *dl;
         nodeOffset = 0xC;
         *dl = gfx + 1;
         segmentBase = 0x80000000;
         triangleCommand = 0xBF000000;
-        gfx->w0 = fillCommand;
         gfx->w1 = alphaMask;
-        groupIndex = 3;
+        gfx->w0 = fillCommand;
 
         do {
             if (groupIndex == 3) {
@@ -109,7 +111,7 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
             *dl = gfx + 1;
             gfx->w0 = 0xFA000000;
             gfx->w1 = (group->selector & 0xFF) | alphaMask;
-            overlay29DrawReloc(dl, drawContext, group, 1.0f, 0.0f);
+            camPushModelMtx(dl, drawContext, group, 1.0f, 0.0f);
 
             gfx = *dl;
             *dl = gfx + 1;
@@ -125,13 +127,13 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
             *dl = gfx + 1;
             gfx->w1 = 0;
             gfx->w0 = triangleCommand;
-            overlay29FlushReloc(dl);
+            camRestoreModelMtx(dl);
 
             node->consumed = 0;
             nodeOffset -= 4;
         } while (groupIndex--);
 
-        overlay29FinishReloc(dl);
+        func_80034920(dl);
         gfx = *dl;
         *dl = gfx + 1;
         gfx->w1 = 0xFFFFFFFF;
@@ -141,3 +143,13 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29DrawGroups/func_overlay_029_F00014C8_187E778.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay29DrawGroups:start
+ * symbol: overlay29DrawGroups
+ * score: 82/129 words
+ * frame: 0x58
+ * relocations: 3
+ * first-mismatch: +0x4C
+ * summary: Naming the pre-branch E700 command is byte-flat; exact 129-word/frame/relocation geometry still leaves 47 pre-loop scheduling differences.
+ * PLATEAU-HANDOFF:overlay29DrawGroups:end
+ */

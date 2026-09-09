@@ -75,12 +75,22 @@ and never need a job ceiling to avoid stepping on each other
   match claim is scheduling information, never match proof.
 - The primary/coordinating agent's job is to keep the ready queue populated
   and assign disjoint targets to free lanes, not to police a slot count. Run
-  `tools/lane_status.py --symbol <name>` before assigning a target.
+  `tools/lane_status.py --symbol <name>` before assigning a target and proceed
+  only on its zero-exit `base-only` verdict. `active`,
+  `already-integrated/exhausted`, and `stale-ledger` fail closed.
 - Every non-interactive lane has an explicit soft deadline and short hard-stop
   grace period. Reserve the end for an exact commit or plateau handoff; do not
   start a bounded tool call that cannot fit in the remaining budget. The
   budget follows work class and may grow as the queue hardens (ADR 0011).
 - Full two-phase `gmake verify` run against a SHARED worktree (not a lane) goes through `tools/with_verify_lock.sh`, now in `campaign/unchain`. A lane's own `gmake verify` needs no lock: each lane already has its own `build/`.
+
+Raw compiler-output `asm` blocks and standing permuter sweeps follow ADR 0016.
+Carve and ROM-prove the TU before decompiling a contained function.
+An explicitly recorded causal exploration packet follows ADR 0017: one owned
+family anchor, 60–90 minutes, falsifiable hypotheses and a proved baseline
+feedback loop, stopping on the ADR 0018 stall rule rather than a count. Its source/handoff pins must
+still pass the ADR 0011 assignment gate. This packet can investigate structural
+or wider allocation deficits; it does not waive any matching acceptance proof.
 
 ### Three-session interactive crew
 
@@ -135,7 +145,7 @@ an equivalent coherent unit.
 - Source reconstruction is the start of a decomp task, not its completion.
   A function isn't done until it's compiled, byte-compared, and given a
   clear verdict: matched (ADR 0001), `NON_MATCHING`, `NON_EQUIVALENT`, or a
-  recorded plateau after the attempt cap (ADR 0009).
+  recorded plateau once the ADR 0018 stall rule is met.
 - Normal in-scope validation doesn't need repeated permission prompts:
   compilation, assembly, linking, ELF inspection, section extraction,
   object/byte comparison, hashing, donor/provenance scans, atlas/progress
@@ -215,9 +225,19 @@ an equivalent coherent unit.
 5. Iterate with coherent hypotheses, preserving semantics, widths,
    signedness, and call order. Don't improve a score by inventing guards,
    merging unproved identities, or patching object bytes.
-6. Stop at ~10 attempts without an exact match and record a plateau: best
-   candidate, score, first mismatch, and what's blocking it
-   (`docs/adr/0009-model-routing-and-agent-operation.md`).
+   ADR 0017 separately permits labelled, defined and semantically inert
+   source-shaping diagnostics inside an authorized causal packet. Nonexact
+   diagnostics stay ignored; an exact inert spelling needs semantic review,
+   disclosure and the cleanup queue before normal promotion proofs.
+6. Stop on absence of new information, not on a count
+   (`docs/adr/0018-progress-based-stopping.md`). Keep going while attempts
+   still produce a better residual, a newly proved identity, or an eliminated
+   hypothesis; stop after three consecutive attempts that produce none of
+   those, and record the plateau: best candidate, score, first mismatch,
+   what's blocking it, and the stall evidence. A monotonically improving
+   series is a reason to continue within the wall-clock budget. Stop early,
+   with zero attempts if warranted, when committed evidence already rules out
+   the mechanism available to you.
 7. Promote an exact result into the canonical split as its own commit.
    Rebuild the configured object and re-prove the function, boundary,
    relocation table, linked overlay, and full ROM.

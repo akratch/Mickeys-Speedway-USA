@@ -212,9 +212,9 @@ pieces of evidence.
 - Objects: 2546 total (157 libultra, 100 engine lib, 232 game, 2044 assets,
   13 misc). 467 mined.
 - **Yield: 3 adopted translation units, 3 names**. `osGbpakCheckConnector`,
-  `osGbpakGetStatus`, `__osGbpakSelectBank` at ROM 0x6B3D0-0x6C040. Small, and
-  not replaceable: PD is the only one of the five references whose libultra
-  contains the Transfer Pak driver at all. PD also **corroborates 25** of the
+  `osGbpakGetStatus`, and `__osGbpakSelectBank` at ROM 0x6B3D0-0x6C040.
+  Small, and not replaceable: PD is the reference whose mined objects adopted
+  these three Transfer Pak translation units. PD also **corroborates 25** of the
   87 adopted TUs and **re-confirms 52** subsegments Phase 1 had already named.
 
 ## Banjo-Kazooie
@@ -340,3 +340,69 @@ farm that matches the lock is a farm that mines to the same names.
 `tools/reference_build_digest.py` computes it, in stdlib Python off the ELF
 section headers, so it runs wherever a farm is and does not need a MIPS
 cross-toolchain to check one.
+
+## Auditing a Jet Force Gemini advance: count pragmas, not commits
+
+A donor-evidence reopen on 2026-09-08 justified itself by running
+`git log <old>..<new> -- src/<tu>.c` in the JFG checkout and treating a
+non-empty result as "this counterpart advanced". That is wrong, and it
+overstated the evidence for several translation units.
+
+The `c82afff..efd5abb` range in that repository is largely a **symbol rebase**:
+assembly placeholders were renamed from `func_<kioskVram>` to
+`func_<usVram>_<usRom>` with uniform per-file deltas. Every renamed pragma is a
+commit touching the file, so a commit count reports a rename wave as new
+matched work.
+
+Measured properly, by `#pragma GLOBAL_ASM` count at each end plus added C
+definitions, those four files gained nothing at all:
+
+| JFG file | GLOBAL_ASM at c82afff | at efd5abb | real gain |
+|---|---:|---:|---:|
+| `src/fx.c` | 74 | 74 | 0 |
+| `src/particles.c` | 42 | 42 | 0 |
+| `src/shadows.c` | 12 | 12 | 0 |
+| `src/anim.c` | 34 | 34 | 0 |
+
+The files that genuinely gained matched C in that range are `joy.c` and
+`runLink.c` and `subtitles.c` (each from all-assembly to fully matched),
+`weather.c` (3 C bodies to 19), `camera.c` and `level.c` (both to fully
+matched, and both already swept here).
+
+So: audit a donor advance with the pragma count and the added function
+definitions. A commit count is not evidence, and a reopen that cites one is
+citing a rename.
+
+### The stronger check: does the counterpart contain any C at all?
+
+Auditing the *advance* still assumes there is something to advance from. On
+the same day, a sweep of all 83 donor-citing reopen authorizations found 20 of
+them — every one in `src/main/fx.c` — pointing at a counterpart that has never
+had a single C body in it. JFG's `src/fx.c` is 156 lines, of which 74 are
+`GLOBAL_ASM` pragmas and **zero** are function bodies. `src/spranim.c` is the
+same shape: 90 lines, 43 pragmas, no bodies. So is every one of JFG's 315
+overlay translation units.
+
+A lane handed "re-derive from that donor" for one of those spends its budget
+proving a negative before it can start. One did, and reported back that "the
+JFG donor lever is empty here" as a finding.
+
+The cheap discriminator is a count of lines that are exactly `}` in column
+zero. A function body closes that way; an aggregate initializer closes `};`
+and does not. Against known files it is exact — `camera.c` 58 bodies / 0
+pragmas, `level.c` 26 / 0, `joy.c` 19 / 0, against `fx.c` 0 / 74.
+
+`tools/check_donor_claims.py` runs this over every donor-citing authorization
+and is wired into `gmake check-docs`. It reports per translation unit rather
+than per symbol: whether *this specific function* has a donor body needs a
+symbol correspondence the tool does not have, but whether the file it would
+come from contains any C at all is enough to catch the whole failure class.
+The reference farm lives outside the repository, so a clone without it skips
+the check rather than failing, as `check-fixtures` does without a baserom.
+
+Run it with `--list` for the inverse and more useful view — where the donor
+lever is *strong*. `camera.c`, `saves.c` (42 bodies), `level.c`, `font.c`,
+`gameVi.c`, `memory.c`, `sched.c`, `runlink.c`, `joy.c`, `weather.c` and
+`diprint.c` are all counterparts that are fully or nearly fully matched
+upstream. Those are where a donor lane is worth opening; `anim.c` (3 bodies
+against 34 pragmas), `audiomgr.c` and `rcpFast3d.c` (2 each) are not.

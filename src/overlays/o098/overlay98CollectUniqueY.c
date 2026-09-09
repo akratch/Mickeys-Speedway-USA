@@ -42,12 +42,16 @@ extern s16 overlay98UniqueYReloc[15];
 
 /* Exact DKR v77/v80 and JFG scans are negative for this routine. */
 /*
- * Plateau (2026-08-25): ten source attempts plus one bounded permuter batch.
+ * Plateau (2026-08-25 plus retained-base reshape): ten source attempts plus
+ * one bounded permuter batch and a focused array-base pass.
  * The best safe C is exact-size with the retail frame and control flow; the
  * flag lattice reports 32 of 81 words different, first at +0x68. IDO still
  * coalesces the array-address roles and schedules the count/vertex loads
- * differently. A lower-scoring permuter result relied on unsequenced
- * evaluation and was rejected.
+ * differently. An indexed scan grows by 26 instructions; inner pointer scope
+ * shrinks to 77 instructions and a 0x8 frame; removing the byte destination
+ * carrier keeps 81 instructions but grows the frame to 0x18. Volatile array
+ * qualification is byte-neutral. A lower-scoring permuter result relied on
+ * unsequenced evaluation and was rejected.
  */
 #ifdef NON_MATCHING
 void overlay98CollectUniqueY(Overlay98Group *group) {
@@ -110,3 +114,13 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CollectUniqueY/func_overlay_098_F0000000_18D89C0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay98CollectUniqueY:start
+ * symbol: overlay98CollectUniqueY
+ * score: 49/81 words
+ * frame: 0x10
+ * relocations: 8
+ * first-mismatch: +0x68
+ * summary: Array-base reshape exhausted: natural index/scope/carrier forms miss geometry; exact-size baseline still CSEs three target roots into one.
+ * PLATEAU-HANDOFF:overlay98CollectUniqueY:end
+ */

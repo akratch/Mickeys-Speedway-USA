@@ -12,9 +12,9 @@
  * src/camera.c, as permitted by docs/CLEANROOM.md. Mickey's own bytes decide
  * every name and body: docs/modules.md records which names are tier A, which
  * are tier B role/order arguments, and which functions remain unresolved.
- * The matched functions below carry adapted JFG bodies, each with its own
- * PROVENANCE note at the point of use; everything else in this split is
- * still GLOBAL_ASM.
+ * The matched functions below carry adapted bodies from the named permitted
+ * JFG or DKR public decomps, each with its own PROVENANCE note at the point of
+ * use; everything else in this split is still GLOBAL_ASM.
  *
  * Flags: -O2 -mips2 -32 -Wab,-r4300_mul; the projection-depth dot product
  * fixes the TU's multiply scheduler mode.
@@ -365,6 +365,18 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
  * with Mickey's camera-state mirror and region-specific projection scaling.
  */
+/*
+ * Retained evidence (audited 2026-08-29): configured C owns 0x214 bytes /
+ * 133 words at .text+0x224 with a 0x28 frame and 43 candidate relocation
+ * tuples. All 90 non-relocation words agree with the retained linked ELF;
+ * the other 43 object-to-linked differences occur exactly at those tuples.
+ * The linked function, complete 0x3D40-byte camera TU, and resident .main
+ * section are byte-identical to ROM.
+ *
+ * The executable source tokens are unchanged since this object. The exact
+ * retained full .bin predates it, and no independent target relocation
+ * object survives, so one fresh target/object/link/full-bin reproof remains.
+ */
 void func_80021504(f32 fov, s32 force) {
     Camera *camera;
     s32 videoMode;
@@ -404,6 +416,18 @@ void func_80021504(f32 fov, s32 force) {
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:cam_reset_fov.
+ * Retained evidence (reviewed 2026-08-29): configured C owns 37 words
+ * with a 0x28 frame and 14 candidate relocation tuples. Applying those
+ * tuples at the linked symbol addresses reproduces all 37 words in the
+ * retained post-object ELF; ROM 0x22318..0x223AC and the complete camera
+ * TU are byte-identical to the baserom.
+ *
+ * No source/object reference, resident direct jump, main-reloc entry,
+ * overlay SYMBOL relocation, or absolute pointer is retained. ROM-table
+ * row 453 merely exports resident offset +0x212C8; it is not inbound
+ * evidence. The exact full .bin predates the object, and no independent
+ * target relocation object survives, so run one fresh target/object/link/
+ * full-bin reproof.
  */
 void func_80021718(void) {
     func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
@@ -509,6 +533,18 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
  * the camUserViewTick role while Mickey supplies the six-camera bound.
+ *
+ * Retained evidence (audited 2026-08-29): the pre-comment configured object
+ * owns 0x1A0 bytes / 104 words at .text+0x6F0, uses an 0x8 frame saving s0,
+ * and carries eight HI16/LO16 records: two pairs for D_80079D48 and one pair
+ * each for D_80079C10 and D_80079D58. Its linked range and complete camera TU
+ * are byte-identical to ROM. The current executable source tokens are
+ * unchanged; fresh current-source object/link/full-bin proof remains due.
+ *
+ * D_80079D48 initializes to zero and is toggled only here, so port spans
+ * 10..20. Linked storage gives D_80079D58 exactly twenty Vp entries and places
+ * D_80079E98 immediately afterward; port 20 therefore resolves to
+ * D_80079E98[0]. The physical alias is proven, but original intent is not.
  */
 void func_800219D0(void) {
     s32 width;
@@ -1023,9 +1059,9 @@ void func_80022E80(CameraScaledTransform *transform) {
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
  * this substantially different body is reconstructed from Mickey-only data.
  *
- * Workbench plateau: structure-mismatch; 365/369 instructions, exact 0xB0 frame, 216 positional words, first +0x2C.
- * Levers: matrix-scale lifetime split corrected the FP pool; phase, mask, tail-idiom, and stack variants regressed.
- * Remaining: twelve-byte coordinate-home shift, four-instruction deficit, final Gfx schedule, and ten relocation shifts.
+ * Workbench plateau: structure-mismatch; 369/369 instructions, 0xB8 candidate versus 0xB0 target frame, 203 positional words, first +0x0.
+ * Levers: an explicit default-color else and gDPSetPrimColor were strict gains; the bounded permuter improved 7104 to 5720 without zero.
+ * Remaining: eight-byte frame excess, twenty-byte transformed-coordinate home shift, and 55/58 relocations with 53 exact identities.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
@@ -1141,18 +1177,15 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
             color = D_8007C85C;
         }
     } else {
-        color = 255;
         if (opacity != NULL) {
             color = *opacity * 255.0f;
+        } else {
+            color = 255;
         }
     }
 
     color &= 0xFF;
-    cmd = *dlist;
-    *dlist = cmd + 1;
-    cmd->words.w0 = 0xFA000000;
-    cmd->words.w1 = (color << 24) | (color << 16) | (color << 8) |
-                    (alpha & 0xFF);
+    gDPSetPrimColor((*dlist)++, 0, 0, color, color, color, alpha);
 
     cmd = *dlist;
     *dlist = cmd + 1;
@@ -1773,10 +1806,10 @@ f32 camGetProjZ(f32 x, f32 y, f32 z) {
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camCopyOrthoMatrix.
  *
- * Plateau: workbench structure-mismatch, 84 candidate instructions versus 83
- * target instructions, first mismatch +0x5C.
- * Levers tried: data-aggregate struct plus split-symbol/end-pointer and peeled-loop variants; none improved stock.
- * Remaining: target same-TU data layout and relocation identities; extern-array source retains one extra address materialization.
+ * Fresh workbench: 84 candidate instructions versus 83 target, exact 0x30
+ * frame, 66 masked differences first at +0x8, and 11/12 target relocations exact.
+ * Prior flags, aggregate/split/end-pointer, loop, and bounded-permuter forms are exhausted.
+ * Remaining: same-TU data layout still retains one extra address materialization.
  */
 void func_80024978(MtxF matrix) {
     s32 i;
@@ -1945,3 +1978,33 @@ f32 D_80079F48 = 1.0f;
 f32 D_80079F4C = 1.0f;
 f32 D_80079F50 = 0.0f;
 f32 D_80079F54 = 0.0f;
+
+/* PLATEAU-HANDOFF:func_80022FD4:start
+ * symbol: func_80022FD4
+ * score: 203/369 words
+ * frame: 0xB8
+ * relocations: 55
+ * first-mismatch: +0x0
+ * summary: JFG efd5abb camDoSprite is unchanged from the donor already exhausted by this plateau; next lever is Mickey-authenticated original source context.
+ * PLATEAU-HANDOFF:func_80022FD4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80024978:start
+ * symbol: func_80024978
+ * score: 66 differing words
+ * frame: 0x30
+ * relocations: 13
+ * first-mismatch: +0x8
+ * summary: JFG efd5abb body is unchanged from exhausted 24d61fe; next lever is Mickey-authenticated original matrix declaration/layout evidence.
+ * PLATEAU-HANDOFF:func_80024978:end
+ */
+
+/* PLATEAU-HANDOFF:func_80023598:start
+ * symbol: func_80023598
+ * score: 263 differing words
+ * frame: 0xA0
+ * relocations: 32
+ * first-mismatch: +0x0
+ * summary: JFG efd5abb adds no counterpart for Mickey's high-level sprite path beyond the donor already exhausted here; next lever is Mickey-authenticated source context.
+ * PLATEAU-HANDOFF:func_80023598:end
+ */

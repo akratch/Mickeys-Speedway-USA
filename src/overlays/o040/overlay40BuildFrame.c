@@ -8,9 +8,8 @@ typedef struct Overlay40FrameRecord {
     u32 color;
 } Overlay40FrameRecord;
 
-extern void overlay40SubmitFrameReloc(void *displayList, s32 count,
-                                      Overlay40FrameRecord *records,
-                                      s32 flags);
+extern void frontDrawRectangles(void *displayList, s32 count,
+                                Overlay40FrameRecord *records, s32 translucent);
 
 /* Workbench: structure-mismatch, 75 differing words, first mismatch +0x04.
  * Exact 81-instruction frame/record count; record construction is semantically shaped.
@@ -97,8 +96,18 @@ void overlay40BuildFrame(void *displayList, s32 x, s32 y, s32 width,
     frame.records[7].color = color;
 
 #line 149
-    overlay40SubmitFrameReloc(displayList, 8, frame.records, 0);
+    frontDrawRectangles(displayList, 8, frame.records, 0);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40BuildFrame/func_overlay_040_F00001A0_1886A50.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay40BuildFrame:start
+ * symbol: overlay40BuildFrame
+ * score: 6/81 words
+ * frame: 0xB0
+ * relocations: 1
+ * first-mismatch: +0x4
+ * summary: Exact 324-byte geometry; resident call identity repaired, but 75 structural/register words remain; natural array is 3 words short; next lever is carrier layout.
+ * PLATEAU-HANDOFF:overlay40BuildFrame:end
+ */

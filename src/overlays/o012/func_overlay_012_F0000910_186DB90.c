@@ -244,3 +244,13 @@ void func_overlay_012_F0000910_186DB90(Overlay12Gfx **displayListPtr,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o012/func_overlay_012_F0000910_186DB90/func_overlay_012_F0000910_186DB90.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_012_F0000910_186DB90:start
+ * symbol: func_overlay_012_F0000910_186DB90
+ * score: 581 differing words
+ * frame: -0x138
+ * relocations: 36
+ * first-mismatch: +0x0
+ * summary: Fresh V0 retains a five-instruction, 16-byte-frame deficit; missing target f30 lifetime cascades through saved-FPR, stack, and register allocation.
+ * PLATEAU-HANDOFF:func_overlay_012_F0000910_186DB90:end
+ */

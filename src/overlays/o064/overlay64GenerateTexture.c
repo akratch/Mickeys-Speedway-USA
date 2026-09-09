@@ -219,3 +219,13 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o064/overlay64GenerateTexture/func_overlay_064_F0000000_18C3B28.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_064_F0000000_18C3B28:start
+ * symbol: func_overlay_064_F0000000_18C3B28
+ * score: 19/420 words
+ * frame: 0x78
+ * relocations: 18
+ * first-mismatch: +0x0
+ * summary: Exact geometry; target frame 0x70 versus candidate 0x78. Even-row temporaries and early flag read remain best; pointer schedule and relocations unresolved.
+ * PLATEAU-HANDOFF:func_overlay_064_F0000000_18C3B28:end
+ */

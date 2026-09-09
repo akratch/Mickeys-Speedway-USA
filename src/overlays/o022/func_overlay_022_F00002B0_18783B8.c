@@ -291,3 +291,13 @@ void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/func_overlay_022_F00002B0_18783B8/func_overlay_022_F00002B0_18783B8.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_022_F00002B0_18783B8:start
+ * symbol: func_overlay_022_F00002B0_18783B8
+ * score: 69/499 words
+ * frame: 0xE0
+ * relocations: 29
+ * first-mismatch: +0x4
+ * summary: Adjacent exact cross-term rotation and explicit dereference forms are compiler-flat; frame and size drift remain.
+ * PLATEAU-HANDOFF:func_overlay_022_F00002B0_18783B8:end
+ */

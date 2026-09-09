@@ -46,7 +46,7 @@ extern s32 D_8007A650;
 extern s32 D_8007A654;
 extern s8 D_8007A658;
 extern s32 D_8007A65C;
-extern u64 D_8007A660;
+u64 D_8007A660 = 0;
 extern char D_80082350[];
 extern char D_80082354[];
 extern char D_80082368[];
@@ -295,9 +295,10 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Workbench p7: structure-mismatch; 194/192 instructions, target/candidate frames -0x98/-0x90, 148 raw words, first +0x0.
- * Lever: the home census confirms message +0x70/+0x78 and next-command +0x4C/+0x48; prior layout/permutation probes remain eliminated.
- * Remains: the 8-byte non-save frame gap and scheduler temp web; GLOBAL_ASM stays canonical. */
+/* Workbench: structure-mismatch; 193/192 instructions, target/candidate frames
+ * -0x98/-0x90, 113 raw and 112 relocation-masked differences, first +0x0.
+ * Direct second-command opcode addressing is the sole natural gain; six of
+ * thirteen relocation identities align. The frame and base/counter webs remain. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {
@@ -327,7 +328,7 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
         displayList->w1 = 0;
         displayList->w0 = 0xE9000000;
         (displayList + 1)->w1 = 0;
-        nextCommand->w0 = 0xB8000000;
+        (displayList + 1)->w0 = 0xB8000000;
 
         osWritebackDCacheAll();
         osSpTaskLoad(&sc->curRSPTask->list);
@@ -468,11 +469,12 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
     diRcpPrintDL((SchedGfx *) startAddress, displayList, 0x50);
     return displayList;
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scHandleRetrace. */
-/* Workbench: structure-mismatch, 408/409 instructions/frame -232; 84 words from +0x3B4 with five alignment gaps.
- * Levers: diagnostic counter/store scheduling, source-line grouping, and explicit diagnosticY narrowing; no improvement.
- * Remains: clearRDPTask write scheduling and u64 retrace-counter materialisation; asm stays canonical. */
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRetrace at efd5abb. Mickey's counter occupies the
+ * existing initialized data slot. The donor's separate read name is a weak
+ * alias of that same storage, preserving IDO's load/store materialization. */
+extern u64 schedRetraceCounterRead;
+#pragma weak schedRetraceCounterRead = D_8007A660
 void __scHandleRetrace(OSSched *sc) {
     OSScTask *rspTask = NULL;
     OSScClient *client;
@@ -480,13 +482,7 @@ void __scHandleRetrace(OSSched *sc) {
     OSScTask *sp = NULL;
     OSScTask *dp = NULL;
     u8 clearRSPTask = FALSE;
-    struct {
-        u8 pad[2];
-        union {
-            u8 normal;
-            volatile u8 write;
-        } value;
-    } clearRDPTask;
+    u8 clearRDPTask = FALSE;
     SchedGfx *spGfx;
     SchedGfx *dpGfx;
     s32 spC4;
@@ -508,9 +504,7 @@ void __scHandleRetrace(OSSched *sc) {
     SchedGfx *dlist;
     s32 yPos;
     s32 pad;
-    u16 diagnosticY;
 
-    clearRDPTask.value.normal = FALSE;
     if (sc->curRSPTask != NULL) {
         D_8007A650++;
     }
@@ -548,7 +542,7 @@ void __scHandleRetrace(OSSched *sc) {
             }
             D_800D2D44 = 0;
         }
-        clearRDPTask.value.normal = TRUE;
+        clearRDPTask = TRUE;
         sc->frameCount = 0;
         D_8007A654 = 0;
         __osSpSetStatus(0xAAAA82);
@@ -600,13 +594,11 @@ void __scHandleRetrace(OSSched *sc) {
             diPrintfSetXY(30, yPos);
             diPrintf(D_800823B8);
             yPos += 10;
+            clearRDPTask = FALSE;
         }
-        diagnosticY = yPos + 10;
-        clearRDPTask.value.write = FALSE;
-        clearRDPTask.value.write = TRUE;
         spGfx = NULL;
         dpGfx = NULL;
-        diPrintfSetXY(30, diagnosticY);
+        diPrintfSetXY(30, yPos + 10);
         diPrintf(D_800823CC, D_80082350);
         diPrintfAll(&dlist);
         __osSpSetStatus(0xAAAA82);
@@ -631,7 +623,7 @@ void __scHandleRetrace(OSSched *sc) {
     if (clearRSPTask) {
         sc->curRSPTask = NULL;
     }
-    if (clearRDPTask.value.normal) {
+    if (clearRDPTask) {
         sc->curRDPTask = NULL;
     }
 
@@ -644,7 +636,7 @@ void __scHandleRetrace(OSSched *sc) {
         __scExec(sc, sp, dp);
     }
 
-    D_8007A660++;
+    D_8007A660 = schedRetraceCounterRead + 1;
     sc->frameCount++;
     if ((sc->unkTask != NULL) && (sc->frameCount >= 2)) {
         unkTask = sc->unkTask;
@@ -674,9 +666,6 @@ void __scHandleRetrace(OSSched *sc) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
-#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scHandleRSP. */
 void __scHandleRSP(OSSched *sc) {
@@ -702,6 +691,8 @@ void __scHandleRSP(OSSched *sc) {
             do {
             } while (0);
         }
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if ((task->flags & 7) != 3) {
         }
     } else {
@@ -824,12 +815,8 @@ void __scYield(OSSched *sc) {
         osSpTaskYield();
     }
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scSchedule. */
-/* Workbench verdict: relocation-layout mismatch; exact 122-instruction/frame -40 code shape, 0 masked words, 15 raw reloc words.
- * Lever tried: structure-buckets exposed shared jtbl_800823F4 and local-branch relocation ownership; source shape is already exact.
- * Remains: shared scheduler rodata and local-label relocation identity; asm stays canonical. */
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
     s32 avail = availRCP;
     OSScTask *gfx = sc->gfxListHead;
@@ -907,6 +894,13 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
     }
     return avail;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scSchedule.s")
-#endif
+
+/* PLATEAU-HANDOFF:func_80030610:start
+ * symbol: func_80030610
+ * score: 112/192 words
+ * frame: 0x90
+ * relocations: 13
+ * first-mismatch: +0x0
+ * summary: Direct second-command opcode addressing is the sole gain. Candidate is 193 words with 113 raw differences and six exact relocations; the frame gap remains.
+ * PLATEAU-HANDOFF:func_80030610:end
+ */

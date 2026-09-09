@@ -51,15 +51,149 @@ extern ControlCollisionState D_800CB2C0;
 extern ControlCameraState *D_800CB300;
 extern u8 D_8007BF10;
 extern f32 D_80081840;
+extern f32 D_80081844;
+extern f32 D_80081848;
+extern f32 D_8008184C;
+extern f32 D_80081850;
+extern f32 D_80081854;
+extern f32 D_80081858;
+extern f32 D_8008185C;
+extern f32 D_80081860;
+extern f32 D_800CB304;
+
+typedef struct CharControlEffectDefinition {
+    u8 kind;
+    u8 index;
+    s16 angle;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+    u8 arg14;
+    u8 arg15;
+    u8 arg16;
+    u8 arg17;
+} CharControlEffectDefinition;
+
+typedef struct CharControlEffectList {
+    s32 count;
+    CharControlEffectDefinition *entries;
+} CharControlEffectList;
+
+typedef struct CharControlParticleDefinition {
+    u8 kind;
+    u8 index;
+    s8 angle;
+    s8 angleLow;
+    s16 arg4;
+    s16 arg6;
+    s16 arg8;
+    s16 argA;
+    s16 argC;
+    s16 argE;
+} CharControlParticleDefinition;
+
+typedef struct CharControlParticleList {
+    s32 count;
+    CharControlParticleDefinition *entries;
+} CharControlParticleList;
+
+typedef struct CharControlIndex {
+    u16 offset;
+    u16 value;
+} CharControlIndex;
+
+typedef struct CharControlCharacterData {
+    u8 pad00[0x1C];
+    s16 *positions;
+    u8 pad20[0x2D - 0x20];
+    u8 count;
+    u8 pad2E[2];
+    CharControlIndex *indexTable;
+} CharControlCharacterData;
+
+typedef struct CharControlParticleSlot {
+    u8 kind;
+    u8 active;
+    u8 index;
+    s8 model;
+    u8 unk4;
+    u8 pad05;
+    s16 unk6;
+    void *handle;
+} CharControlParticleSlot;
+
+typedef struct CharControlLevelDescription {
+    u8 pad00[0x0A];
+    u8 characterLow;
+    u8 characterHigh;
+    s8 nextLevel;
+    u8 pad0D[0x16 - 0x0D];
+    s8 animGroup;
+    u8 pad17[0x1A - 0x17];
+    s8 camera;
+} CharControlLevelDescription;
+
+typedef struct CharControlLevelRequest {
+    u8 pad00[0x3C];
+    CharControlLevelDescription *description;
+} CharControlLevelRequest;
+
+typedef struct CharControlSpawnSetup {
+    s16 kind;
+    s8 arg02;
+    s8 arg03;
+    s16 arg04;
+    s16 arg06;
+    s16 arg08;
+    s8 arg0A;
+    s8 arg0B;
+    void *owner;
+} CharControlSpawnSetup;
+
+typedef struct CharControlGroundRecord {
+    void *hitObject;
+    u8 pad04[0x10 - 0x04];
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    u8 pad1C[0x38 - 0x1C];
+    s32 unk38;
+    u8 unk3C;
+    u8 unk3D;
+    u8 pad3E[0x40 - 0x3E];
+} CharControlGroundRecord;
+
+extern CharControlEffectList D_8007980C[];
+extern CharControlParticleList D_8007987C[];
+extern CharControlParticleList D_800798DC[];
+extern CharControlParticleList D_8007992C[];
+extern CharControlParticleList D_8007996C[];
+extern CharControlParticleList D_800799AC[];
+extern u8 D_8007BEF8;
+extern u8 D_8007BEFC;
+extern u8 D_8007BF04;
+extern f32 D_80081864;
+extern f32 D_80081868;
+extern f32 D_8008186C;
+extern f32 D_80081870;
+extern f32 D_80081874;
+extern f32 D_80081878;
+extern f32 D_800CB2D8;
 
 typedef struct ControlCollisionNormal {
     f32 x;
     f32 y;
     f32 z;
 } ControlCollisionNormal;
-extern ControlCollisionNormal D_800CB2C4;
+extern f32 D_800CB2C4;
+extern f32 D_800CB2C8;
+extern f32 D_800CB2CC;
 extern ControlCollisionNormal D_800CB2D0;
-extern ControlCollisionNormal D_800CB2DC;
+extern f32 D_800CB2D4;
+extern f32 D_800CB2DC;
+extern f32 D_800CB2E0;
+extern f32 D_800CB2E4;
 extern s32 D_800CB2F8;
 extern u8 D_800CB2FC;
 extern u8 D_800CB2FD;
@@ -80,6 +214,19 @@ void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
+#pragma weak charControlEffectSpawnTrap = TrapDanglingJump
+extern void *charControlEffectSpawnTrap(
+    ControlActor *actor, u8 kind, s16 angle, u8 index,
+    f32 x, f32 y, f32 z, f32 w,
+    u8 arg14, u8 arg15, u8 arg16, u8 arg17);
+void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
+                     s32 nextCamera, s32 fadeOut, s32 flags);
+s32 mainGetNextCharacter(void);
+void mainSetAnimGroup(s32 group);
+u8 frontGetMode(void);
+void func_800214AC(void);
+void func_8001F09C(ControlPlayer *player, s32 updateRate);
+void func_800031C0(void *soundHandle, f32 x, f32 y, f32 z);
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z);
 void *func_80053420(s32 index, void *target);
@@ -91,7 +238,9 @@ void func_800479D4(void *cone, s16 angle, f32 x, f32 y, s32 length);
 void partUpdateTriggers(void *object, s32 updateRate);
 void changeLightIntensity(void *light, u8 intensity);
 s32 func_8002A204(s16 angle);
-void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
+void camSetNo();
+ControlCameraState *camGetPtr(void);
+s32 camGetMode(void);
 ControlCameraState *camGetListPtr(void);
 ControlTrackState *trackGetTrack(void);
 ControlLevelState *levelGetLevel(void);
@@ -100,6 +249,23 @@ s32 func_800299E8(s32 minimum, s32 maximum);
 ControlActor **func_8000572C(s32 *start, s32 *end);
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, ControlActor **hitActor);
 void func_800282C8(void);
+void func_8005AD64(void *instance, s32 frame, s32 arg2, f32 value);
+void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
+                    f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9,
+                    s32 argA);
+f32 Powerf(f32 value, s32 exponent);
+void trackMakePolylist(s32 count, ControlVector3 *start,
+                       ControlVector3 *end, f32 *radius, s32 arg4, s32 arg5);
+s32 func_80010654(ControlVector3 *start, ControlVector3 *end,
+                  ControlVector3 *result, f32 *maximum);
+s32 func_80010B4C(s32 count, void *start, void *points, void *radius,
+                  void *records, void *actorPosition, void *actor);
+s32 func_80010900(ControlVector3 *start, ControlVector3 *end, f32 radius,
+                  s32 actor, void *callback);
+void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
+                   f32 arg3, ControlCollisionPlane *arg4);
+u8 levelGetType(void);
+u8 *func_80028F54(void);
 u32 joyGetButtons(s32 playerIndex);
 u32 joyGetPressed(s32 playerIndex);
 u32 joyGetReleased(s32 playerIndex);
@@ -114,9 +280,9 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
-/* Workbench verdict: structure-mismatch, 38 differing words, first mismatch +0x0. */
-/* Candidate: 150/150 instructions with exact relocation identities; frame is -0x30 versus target -0x38, so it is not shape-exact. */
-/* Shape status: instruction count and call/branch surface are exact; stack-frame constants and allocator residuals remain. */
+/* Bounded plateau: 150/150 instructions, 38 differing words, first mismatch +0x0. */
+/* The 0x30 frame is eight non-save bytes short of the 0x38 target; all 18 relocation offsets/types align. */
+/* All 119 flags and ten coherent forms are nonexact; resume with a natural eight-byte local-layout mechanism. */
 /* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
  * all field offsets, calls, and the body below are reconstructed from Mickey. */
 #ifdef NON_MATCHING
@@ -184,7 +350,50 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
+/* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role; fields and body are reconstructed from Mickey. */
+void func_8001BE0C(ControlActor *actor, ControlPlayer *player) {
+    s32 i;
+
+    D_800CB300 = camGetPtr();
+    D_800CB300->unk4 = 0;
+    D_800CB300->unk2 = 0;
+    D_800CB300->unk0 = 0;
+    D_800CB300->unk24 = 600.0f;
+    D_800CB300->unk28 = 150.0f;
+    D_800CB300->unk3D = 0;
+    D_800CB300->unk44 = 0xFF;
+    D_800CB300->unk45 = 0xFF;
+    D_800CB300->unk46 = 0xFF;
+    D_800CB300->unk47 = 0xFF;
+    D_800CB300->unk40 = 0.0f;
+    D_800CB300->y = actor->y + 80.0f;
+    D_800CB300->unk18 = D_800CB300->x;
+    D_800CB300->unk1C = D_800CB300->y;
+    D_800CB300->unk20 = D_800CB300->z;
+    D_800CB300->unk49 = 1;
+    if (camGetMode() >= 2) {
+        D_800CB300->unk24 = 400.0f;
+    }
+    if ((player->playerIndex >= 0) && (player->playerIndex < 4)) {
+        D_800CB368[player->playerIndex].object = 0;
+        D_800CB368[player->playerIndex].unk08 = 0.0f;
+        D_800CB368[player->playerIndex].unk0C = 0.0f;
+        D_800CB368[player->playerIndex].unk10 = 1.0f;
+        D_800CB368[player->playerIndex].unk14 = 1.0f;
+        D_800CB368[player->playerIndex].unk18 = 0.0f;
+        D_800CB368[player->playerIndex].unk1C = 0.0f;
+        D_800CB368[player->playerIndex].unk20 = 0.0f;
+        D_800CB368[player->playerIndex].unk24 = 1.0f;
+        D_800CB368[player->playerIndex].unk28 = 0.0f;
+    }
+    player->unk16F = 0;
+    i = 0;
+    do {
+        func_8001BBB4(actor, player, 1.0f);
+        i++;
+    } while (i != 8);
+    player->unk16F = 1;
+}
 void func_8001C054(CameraTrackedObject *value) {
     if (D_80079BCC < 24) {
         D_800CB308[D_80079BCC] = value;
@@ -212,13 +421,6 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench plateau (2026-08-28): the separate search-local candidate is
- * size-exact at 108/108 instructions and matches 100/108 words; its frame is
- * -24 and the first residual is the register-only pool swap at +0xF4.
- * Target and candidate relocation identities remain exact. Cursor/end,
- * index-only, cached-count, and positive-count lifetime probes either caused
- * structural regressions or returned to the 99/108 baseline. */
-#ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
     CameraTrackedObject *object;
@@ -255,8 +457,7 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
                 CameraTrackedObject **current;
                 s32 index;
 
-                current = D_800CB308;
-                index = 0;
+                index = 0, current = D_800CB308;
                 do {
                     searchObject = *current;
                     bounds = searchObject->bounds;
@@ -279,9 +480,6 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
-#endif
 void func_8001C2C4(void) {
 }
 void func_8001C2CC(void) {
@@ -357,7 +555,261 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45C = saved45C;
     player->unk45D = saved45D;
 }
+/* Bounded plateau: 401/403 words, 386 differing words, first mismatch +0x0. */
+/* Candidate frame is -0xB0 versus target -0xA8; candidate/target relocations are 40/38. */
+/* The typed direct effect-spawn alias is proven; remaining particle/effect lifetimes miss the target register web. */
+/* Frame split, measured: target 0x24 save + 0x84 non-save, candidate 0x1C save
+ * + 0x94 non-save. The two axes pull opposite ways -- the declaration census
+ * that closed func_8001CB84 and func_8001D960 removed 8 non-save bytes here
+ * (one redundant s8 copy of player->playerIndex, one redundant loop bound),
+ * but the target ALSO holds two more values in callee-saved registers than
+ * this candidate does, so the save area is 8 bytes short. Removing further
+ * declarations (pointIndex, effectCount, packetIndex, stateCursor) was flat.
+ * The `register` qualifiers previously carried here were no-ops: dropping them
+ * produced a byte-identical object, so the next lever is the uopt callee-saved
+ * tie-break, not more source-level pruning.
+ * Named, 2026-09-09: the target uses s0-s6, this candidate only s0-s4. Both
+ * agree on the two obvious carriers -- the target holds `player` in s5 and
+ * `actor` in s6, this candidate in s3 and s4 -- so the two missing saved webs
+ * are the ones the target puts in s3 and s4, and they are the effect/particle
+ * list walk. The target reads TWO pointers with `lw sN,0(v0)` from different
+ * bases and keeps both across the spawn calls; this candidate reads
+ * `lw s0,4(v0)` and `lw s2,0(v0)` and keeps one fewer. Work the list walk's
+ * shape, not the register names. */
+/* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
+#ifdef NON_MATCHING
+void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
+    ControlPlayer *player;
+    CharControlEffectList *effectList;
+    CharControlEffectDefinition *effect;
+    CharControlParticleList *particleList;
+    CharControlParticleDefinition *particle;
+    CharControlCharacterData *characterData;
+    CharControlParticleSlot *slot;
+    CharControlSpawnSetup packet;
+    f32 *output;
+    s16 *position;
+    void **effectOwner;
+    void *stateCursor;
+    s32 effectIndex;
+    s32 effectCount;
+    s32 effectSlot;
+    s32 pointIndex;
+    s32 particleCount;
+    s32 particleSlotCount;
+    s32 packetIndex;
+
+    player = actor->player;
+    player->unk1B8 = 0x2000;
+    player->playerIndex = *((u8 *) state + 0x10);
+    player->unk10 = 0.0f;
+    player->unk1 = *((u8 *) state + 0x11);
+    actor->rotationX = state->arg4;
+    actor->rotationY = state->arg5;
+    actor->rotationZ = state->arg6;
+    player->unkF0 = actor->rotationX;
+    player->unkF2 = actor->rotationY;
+    player->unkFE = 0;
+    player->unkF4 = actor->rotationZ;
+    player->unkDC = (s16) (0x8000 - actor->rotationX);
+    func_8005AD64(actor, 0, -1, 0.0f);
+    player->unk50 = 1.0f;
+    player->unk54 = 1.0f;
+
+    output = &player->unk2C0[0];
+    if (D_8007BF10 != 0) {
+        player->unk2BC = 4;
+        player->unk2B8 = (ControlGravityVector *) &D_800799AC;
+    } else {
+        player->unk2BC = 4;
+        if (D_8007BF1C & 8) {
+            player->unk2B8 = (ControlGravityVector *) &D_8007996C;
+        } else {
+            player->unk2B8 = (ControlGravityVector *) &D_8007992C;
+        }
+    }
+    player->unk33C = 0;
+    player->unk340 = 0;
+    pointIndex = 0;
+    if (player->unk2BC > 0) {
+        effectSlot = 0;
+        do {
+            effectSlot++;
+            output += 3;
+            output[-3] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex));
+            output[-2] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex + 4));
+            output[-1] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex + 8));
+            pointIndex += 0x10;
+        } while (effectSlot < player->unk2BC);
+    }
+    func_8001EFFC(actor, player, &player->unk2F0);
+
+    effectIndex = (s32) player->unk1;
+    if ((player->unk1 < 0) || (player->unk1 >= 10)) {
+        effectIndex = 0;
+    }
+    if (player->playerIndex < (D_8007BEF8 - D_8007BEFC)) {
+        effectList = &D_8007980C[effectIndex];
+        effect = effectList->entries;
+        if (effect != 0) {
+            effectCount = effectList->count;
+            effectSlot = 0;
+            effectOwner = (void **) player;
+            if (effectCount > 0) {
+                do {
+                    if (effectOwner[0x134 / 4] == 0) {
+                        effectOwner[0x134 / 4] =
+                            charControlEffectSpawnTrap(
+                                actor, effect->kind, effect->angle, effect->index,
+                                effect->x, effect->y, effect->z, effect->w,
+                                effect->arg14, effect->arg15, effect->arg16,
+                                effect->arg17);
+                    }
+                    effectSlot++;
+                    effectOwner++;
+                    effect++;
+                } while (effectSlot != effectCount);
+            }
+        }
+    }
+
+    characterData = (CharControlCharacterData *)
+        *(*(actor->unk68 + actor->unk3A));
+    particleCount = effectIndex * 8;
+    particleSlotCount = 0;
+    if (levelGetType() == 3) {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_8007987C + particleCount);
+    } else if (D_8007BF04 != 0) {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_800798DC + particleCount);
+    } else {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_8007987C + particleCount);
+    }
+    particleCount = particleList->count;
+    particle = particleList->entries;
+    slot = (CharControlParticleSlot *) player->particles;
+    if (particleCount != 0) {
+        particleCount--;
+        do {
+            if (slot->handle == 0) {
+                if (particle->index < characterData->count) {
+                    slot->kind = particle->kind;
+                    slot->index = particle->index;
+                    position = (s16 *) ((u8 *) characterData->positions +
+                        (characterData->indexTable[particle->index].offset * 10));
+                    slot->model = (s8)
+                        characterData->indexTable[particle->index].value;
+                    slot->handle = func_80046EC4(
+                        position[0], position[1], position[2],
+                        (s16) (particle->angle << 8),
+                        (s16) (particle->angleLow << 8),
+                        (f32) particle->arg4, (f32) particle->arg6,
+                        (f32) particle->arg8, particle->argA, particle->argC,
+                        particle->argE);
+                }
+            }
+            slot->active = 0;
+            slot->unk4 = 0;
+            slot->unk6 = 0;
+            particle++;
+            slot++;
+            particleSlotCount++;
+        } while (particleCount-- != 0);
+    }
+    if (particleSlotCount < 4) {
+        do {
+            particleSlotCount++;
+            slot->handle = 0;
+            slot++;
+        } while (particleSlotCount < 4);
+    }
+
+    player->unk38 = actor->x;
+    player->unk3C = actor->y;
+    player->unk40 = actor->z;
+    player->unk44 = actor->x;
+    player->unk48 = actor->y;
+    player->unk190 = 0xFF;
+    player->unk18D = 0;
+    player->unk338 = 0;
+    player->unk348 = 0;
+    player->unk456 = 0;
+    player->unk387 = 0xFF;
+    player->unk388 = 0;
+    player->unk183 = 0x80;
+    player->unk184 = 0;
+    player->unk185 = 0;
+    player->unk186 = 0;
+    player->unk187 = 0;
+    player->unk188 = 0.0f;
+    player->unk4C = actor->z;
+    if (player->playerIndex != -1) {
+        camSetNo(player->playerIndex, 0, &D_800CB300);
+        func_8001BE0C(actor, player);
+    }
+    player->unk16C = 0;
+    player->unk2 = 0;
+    player->unk3 = 0;
+    player->unk16D = 0;
+    if (player->actions == 0) {
+        player->unk19A = 0xFF;
+        player->unk19B = 0;
+        player->unk19C = 0;
+        player->actions = 0;
+    }
+    player->unk1A4 = 0;
+    player->unk1A5 = 0;
+    player->unk1A6 = 0;
+    player->unk172 = 0;
+    player->unk173 = 0;
+    stateCursor = (u8 *) player;
+    player->unk174 = 1.0f;
+    player->unk178 = 2.0f;
+    player->unk17C = 1.0f;
+    particleSlotCount = 0;
+    do {
+        packetIndex = particleSlotCount * 8;
+        particleSlotCount++;
+        stateCursor = (u8 *) stateCursor + 1;
+        *((u8 *) stateCursor + 0x12B) = 0;
+        *((u8 *) stateCursor + 0x12F) = (u8) packetIndex;
+    } while (particleSlotCount < 4);
+    player->unk3EC = 0.0f;
+    player->unk3F0 = D_80081844;
+    player->unk43C = actor->rotationX;
+    player->unk43E = actor->rotationY;
+    player->unk440 = actor->rotationZ;
+    player->unk444 = actor->unk8;
+    player->unk448 = actor->x;
+    player->unk44C = actor->y;
+    player->unk3BA = 0xFF;
+    player->unk450 = actor->z;
+    if (levelGetType() == 3) {
+        packetIndex = 0;
+        if (mode != 0) {
+            packet.kind = 0x124;
+            packet.arg04 = 0;
+            packet.arg06 = 0;
+            packet.arg08 = 0;
+            packet.owner = actor;
+            do {
+                packet.arg0A = packetIndex;
+                func_8000590C((ControlSpawnPacket *) &packet, 1);
+                packetIndex++;
+            } while (packetIndex != 3);
+        }
+    }
+    if ((D_8007BF1C & 2) && (*func_80028F54() != 1)) {
+        player->unk192 = 0xA;
+        return;
+    }
+    player->unk192 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C4C0.s")
+#endif
 void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     player->unk2BC = 1;
     if (D_8007BF1C & 8) {
@@ -372,52 +824,268 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     player->unk2C0[2] = player->unk2B8->z;
     func_8001EFFC(transform, player, &player->unk2C0[12]);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
-/*
- * Workbench: structure-mismatch, best 96/95 instructions, 3 masked words, first +0xE0.
- * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
- * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
- */
-#ifdef NON_MATCHING
-void func_8001D2A0(ControlActor *actor, s32 arg1) {
+/* PROVENANCE: JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPost-adjacent character-control routine, but publishes
+ * assembly only; this body is reconstructed from Mickey's fields, calls,
+ * and branch conditions. */
+/* Frame law used here (see docs/ido-learnings.md): declared locals occupy the
+ * TOP of the local region in declaration order, first-declared highest; every
+ * value written as an expression instead of a named local is homed in the
+ * compiler-temp region below them.  sp7C/sp70/character keep their m2c names
+ * because those are the target's own displacements. */
+/* var_f12 is ONE scratch float reused twice, and that is what closed this
+ * function.  Naming the ballistic step keeps it in a coloured web where the
+ * inline expression spent floating-point ring temps, which cost 40 register
+ * words; declaring a *new* local for it instead of reusing var_f12 pushed
+ * every compiler temp 4 bytes down the frame and cost 25 displacement words.
+ * Both halves are needed: 53 -> 39 -> 0. */
+void func_8001CB84(ControlActor *actor, s32 updateRate) {
+    f32 sp7C;
+    f32 var_f12;
+    f32 temp_f2_2;
+    CharControlLevelDescription *sp70;
     ControlPlayer *player;
-    s32 cameraIndex;
+    CharControlSpawnSetup packetD0;
+    CharControlSpawnSetup packetD8;
+    s32 temp_v1_3;
+    s32 character;
 
     player = actor->player;
-    player->unk43C = actor->rotationX;
-    player->unk43E = actor->rotationY;
-    player->unk440 = actor->rotationZ;
-    player->unk444 = actor->unk8;
-    player->unk448 = actor->x;
-    player->unk44C = actor->y;
-    player->unk450 = actor->z;
+    player->unk3 = player->unk2;
+    if (player->unkC8 != NULL) {
+        sp70 = ((CharControlLevelRequest *) player->unkC8)->description;
+        character = sp70->characterLow;
+        if (sp70->characterHigh != 0xFF) {
+            character |= sp70->characterHigh << 8;
+        }
+        mainChangeLevel(character, mainGetNextCharacter(),
+                        sp70->nextLevel, frontGetMode(),
+                        sp70->camera, 0);
+        if (sp70->animGroup != -1) {
+            mainSetAnimGroup(sp70->animGroup);
+        }
+        func_80006EA0(player->unkC8);
+        player->unkC8 = NULL;
+    }
+    if (player->unk1A6 != 0) {
+        if (player->unk1A5 == 0) {
+            player->unk1A5 = 1;
+            if (player->unk1A4 == 1) {
+                camSetNo(player->playerIndex);
+                func_800214AC();
+            }
+        }
+        player->unk1A6 = (s16) (player->unk1A6 - updateRate);
+        if (player->unk1A6 <= 0) {
+            player->unk1A6 = 0;
+            if (player->unk1A4 == 1) {
+                camSetNo(player->playerIndex);
+                func_800214AC();
+            }
+        }
+    }
+    if (player->unk18D != 0) {
+        player->unk18D = (s8) (player->unk18D - updateRate);
+        if (player->unk18D <= 0) {
+            player->unk18D = 0;
+            player->unk54 = 1.0f;
+            if ((player->unk338 != NULL) && (player->unk338->unk44 == 0x52)) {
+                *(s16 *) player->unk338->state &= 0xFFFD;
+                player->unk338->unk20 = (f32) player->unk338->state->unk18;
+                player->unk338 = NULL;
+            }
+        }
+    }
+    if (player->unk50 != player->unk54) {
+        func_8001F09C(player, updateRate);
+    }
+    actor->unk48->unk54 = 0.0f;
     if (player->unk158 != 0) {
-        player->unk43C += player->unk160;
-        player->unk43E += player->unk164;
-        player->unk440 += player->unk162;
-        player->unk44C += player->unk154 + player->unk14C;
+        if (player->unk158 & 0x8000) {
+            if (player->unkB4 != NULL) {
+                func_800031E8(player->unkB4);
+            }
+            func_80002FE0(0x21, actor->x, actor->y, actor->z, 4,
+                          &player->unkB4);
+            player->unk158 = (s16) (player->unk158 & 0x7FFF);
+        }
+        var_f12 = (player->unk150 * (f32) updateRate) -
+                  (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate);
+        player->unk154 = player->unk154 + var_f12;
+        player->unk150 = player->unk150 - (D_800CB304 * (f32) updateRate);
+        if (player->unk154 < 0.0f) {
+            player->unk154 = -player->unk154;
+            player->unk158 = (s16) (player->unk158 - 1);
+            player->unk150 = -player->unk150 * 0.5f;
+        }
+        if ((player->unk158 >= 2) ||
+            ((player->unk158 == 1) && (player->unk150 > 0.0f))) {
+            player->unk160 = (s16) (player->unk160 + player->unk15A * updateRate);
+            player->unk164 = (s16) (player->unk164 + player->unk15E * updateRate);
+            player->unk162 = (s16) (player->unk162 + player->unk15C * updateRate);
+        } else if (player->unk158 == 1) {
+            sp7C = Powerf(D_80081848, updateRate);
+            player->unk160 = dAngle(player->unk160, 0, sp7C);
+            player->unk164 = dAngle(player->unk164, 0, sp7C);
+            player->unk162 = dAngle(player->unk162, 0, sp7C);
+        } else if (player->unk158 == 0) {
+            player->unk160 = 0;
+            player->unk164 = 0;
+            player->unk162 = 0;
+            player->unk154 = 0.0f;
+            player->unk150 = 0.0f;
+        }
+        temp_f2_2 = func_8002A8BC(player->unk162) * func_8002A8BC(player->unk164);
+        if (temp_f2_2 < 0.0f) {
+            var_f12 = 0.0f;
+        } else {
+            var_f12 = temp_f2_2 * temp_f2_2;
+        }
+        player->unk14C = 30.0f - (30.0f * var_f12);
+        actor->unk48->unk54 = player->unk154;
+        player->unk185 = 0;
+        player->unk188 = 0.0f;
+    }
+    if (D_8007BF10 != 0) {
+        if (player->unk191 == 0) {
+            TrapDanglingJump(actor, updateRate);
+        }
+        TrapDanglingJump(actor, updateRate);
+    } else if (player->flags1A8 & 1) {
+        TrapDanglingJump(actor, player, updateRate);
+        if (player->unk191 == 0) {
+            TrapDanglingJump(actor, updateRate);
+        }
+    } else {
+        if (player->unk191 == 0) {
+            if ((player->unk1 == 0) || (player->unk1 == 1) ||
+                (player->unk1 == 2) || (player->unk1 == 3)) {
+                TrapDanglingJump(actor, updateRate);
+            } else {
+                TrapDanglingJump(actor, updateRate);
+            }
+        }
+        TrapDanglingJump(actor, updateRate);
+    }
+    if ((player->unk168 != 0) && (player->unk3FA == 0)) {
+        player->unk168 = (s16) (player->unk168 - updateRate);
+        if (player->unk168 < 0) {
+            player->unk168 = 0;
+        }
+        if (player->unk168 & 8) {
+            player->unk190 = 0x40;
+        } else {
+            player->unk190 = 0xFF;
+        }
+    }
+    if (player->unk16A != 0) {
+        player->unk16A = (s16) (player->unk16A - updateRate);
+        if (player->unk16A <= 0) {
+            player->unk16A = 0;
+        } else if (player->unkD0 == NULL) {
+            packetD0.kind = 0xB8;
+            packetD0.arg04 = 0;
+            packetD0.arg06 = 0xE;
+            packetD0.arg08 = 7;
+            packetD0.arg0A = 0x14;
+            packetD0.arg0B = 0x14;
+            packetD0.owner = actor;
+            player->unkD0 = func_8000590C(
+                (ControlSpawnPacket *) &packetD0, 1);
+            if (player->unkD0 != NULL) {
+                ((ControlSpawned *) player->unkD0)->unk3C = 0;
+            }
+        }
     }
     if (!(player->flags1A8 & 1)) {
-        TrapDanglingJump(actor, player, arg1);
+        if ((player->unkD8 == NULL) &&
+            (TrapDanglingJump((void *) player->playerIndex) != 0)) {
+            packetD8.kind = 0x14C;
+            packetD8.arg02 = 0x10;
+            packetD8.arg03 = 0;
+            packetD8.arg04 = 0;
+            packetD8.arg06 = 0xE;
+            packetD8.arg08 = 7;
+            packetD8.owner = actor;
+            player->unkD8 = func_8000590C(
+                (ControlSpawnPacket *) &packetD8, 1);
+            if (player->unkD8 != NULL) {
+                ((ControlSpawned *) player->unkD8)->unk3C = 0;
+            }
+        } else if ((player->unkD8 != NULL) &&
+                   (TrapDanglingJump((void *) player->playerIndex) == 0)) {
+            func_80006EA0(player->unkD8);
+        }
     }
-    if (player->unkD4 != 0) {
-        TrapDanglingJump(player->unkD4, arg1);
+    controlDisableJoypad(player, 0);
+    if (player->unk3FA != 0) {
+        if ((s32) player->unk190 > 0) {
+            temp_v1_3 = player->unk190 - (updateRate * 4);
+            if (temp_v1_3 <= 0) {
+                if (player->unkAC != NULL) {
+                    func_800031E8(player->unkAC);
+                    actor->unk80 = 0;
+                }
+                player->unk191 = 1;
+                player->unk190 = 0;
+                actor->x = player->unk44;
+                actor->y = player->unk48 + D_8008184C;
+                actor->z = player->unk4C;
+            } else {
+                player->unk190 = (u8) temp_v1_3;
+            }
+        }
     }
-    D_800CB300 = camGetListPtr();
-    cameraIndex = mainGetNumberOfCameras() - 1;
-    if (player->playerIndex < cameraIndex) {
-        cameraIndex = player->playerIndex;
-    }
-    D_800CB300 = (ControlCameraState *)
-        ((u8 *) D_800CB300 + (cameraIndex * sizeof(ControlCameraState)));
-    camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
-    if ((player->unk190 != 0) || (player->unk3FA == 0)) {
-        func_8001BBB4(actor, player, (f32) arg1);
+    if (player->unkA4 != NULL) {
+        func_800031C0(player->unkA4, actor->x, actor->y, actor->z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
-#endif
+/*
+ * Workbench: structure-mismatch, 96/95 instructions, 40 raw/9 normalized differences, first +0xE0; frame exact.
+ * Levers tried: prior flags/commutative/volatile/prototype forms plus fresh pointer scope, lvalue, and typed-stride forms.
+ * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
+ */
+void func_8001D2A0(ControlActor *actor, s32 arg1)
+{
+  s32 cameraIndex;
+  ControlPlayer *player;
+  player = actor->player;
+  player->unk43C = actor->rotationX;
+  player->unk43E = actor->rotationY;
+  player->unk440 = actor->rotationZ;
+  player->unk444 = actor->unk8;
+  player->unk448 = actor->x;
+  player->unk44C = actor->y;
+  player->unk450 = actor->z;
+  if (player->unk158 != 0)
+  {
+    player->unk43C += player->unk160;
+    player->unk43E += player->unk164;
+    player->unk440 += player->unk162;
+    player->unk44C += player->unk154 + player->unk14C;
+  }
+  if (!(player->flags1A8 & 1))
+  {
+    TrapDanglingJump(actor, player, arg1);
+    D_800CB300 = D_800CB300;
+  }
+  if (player->unkD4 != 0)
+  {
+    TrapDanglingJump(player->unkD4, arg1);
+  }
+  D_800CB300 = camGetListPtr();
+  cameraIndex = mainGetNumberOfCameras() - 1;
+  if (player->playerIndex < cameraIndex)
+  {
+    cameraIndex = player->playerIndex;
+  }
+  D_800CB300 = (ControlCameraState *) ((cameraIndex * (sizeof(ControlCameraState))) + ((u8 *) D_800CB300));
+  camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
+  if ((player->unk190 != 0) || (player->unk3FA == 0))
+  {
+    func_8001BBB4(actor, player, (f32) arg1);
+  }
+}
 void func_8001D41C(ControlActor *actor, ControlPlayer *player, s32 updateRate) {
     ControlPlayerActions *actions;
     ControlPlayerAction action;
@@ -548,27 +1216,22 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* Workbench: mixed(structural:2, register:28), exact 36 instructions/29 words, first +0x4.
- * Levers: table type, pointer aliasing, final-expression forms, and flag/source-shape sweep; none matched.
- * Remains: divisor-load scheduling and FP/int pool coloring. */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
     f32 base;
     f32 value;
     s32 index;
-    f32 *entry;
 
     arg1 *= 10.0f;
     index = (s32) arg1;
-    entry = table + index;
-    base = entry[0];
-    value = ((entry[1] - base) * (arg1 - (f32) index)) + base;
+    base = table[index];
+    value = table[index + 1];
+    value = ((value - base) * (arg1 - (f32) index)) + base;
     arg0 *= 10.0f;
     index = (s32) arg0;
-    entry = table + index;
-    base = entry[0];
-    return (value - (base + ((entry[1] - base) * (arg0 - (f32) index)))) / divisor;
+    base = table[index];
+    return (value - (base + ((table[index + 1] - base) * (arg0 - (f32) index)))) / divisor;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
@@ -601,49 +1264,50 @@ typedef struct ControlFlameParticle {
     s16 value24;
 } ControlFlameParticle;
 
-/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
-/* Candidate: 221/220 instructions with a -0x70 frame versus target -0x60; three instruction/stack and state-machine residuals remain. */
-/* Shape status: four-slot state machine, signed phase/intensity arithmetic, and cone calls are reconstructed, but it is not shape-exact. */
+/* Workbench verdict: register-only residual, 16 differing words, first mismatch +0x164. */
+/* Candidate: 220/220 instructions, frame -0x60 on both sides, all six relocations
+ * at the target's own instruction indexes, and every stack displacement equal. */
+/* Four source facts recovered from the target:
+ *  - the loop counter is ONE variable spilled to its own home each iteration,
+ *    not an m2c sp5C/var_v0 pair; declaring it first is what puts its home at
+ *    the target's displacement and keeps the frame at 0x60,
+ *  - case 1 re-reads the particle's angle field rather than reading the value
+ *    already in var_s6; that CSE is what makes IDO keep the loaded value in a
+ *    caller-saved register and copy it into the saved one,
+ *  - case 2 spells the scaled angle inline, exactly as case 3 does. Naming the
+ *    call result in a local made it a uopt-coloured web where the target pops a
+ *    ugen ring temp, and that one class crossing rotated twelve downstream webs,
+ *  - case 2 performs actor->unk80 |= arg2 AFTER the whole var_s6 product, so
+ *    the product's four ring temps are drawn before the or's two loads.
+ * The last two are one composition: neither alone is an improvement. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
  * the state-machine order; no external body is copied into this reconstruction. */
-#ifdef NON_MATCHING
 void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
                    s32 arg4) {
-    s32 sp5C;
-    f32 var_f20;
-    f32 var_f22;
-    s16 temp_v1;
-    s16 var_s3;
-    s16 var_s6;
-    s32 *temp_v0;
-    s32 temp_a0;
-    s32 temp_s2;
-    s32 temp_t7;
-    s32 temp_t9;
-    s32 var_s5;
     s32 var_v0;
-    s32 var_s0;
-    u8 temp_v0_2;
     ControlFlameSlot *var_s1;
     void *temp_s7;
+    s32 var_s5;
+    s32 var_s0;
+    s32 var_s3;
+    s32 var_s6;
+    f32 var_f20;
+    f32 var_f22;
 
     var_v0 = 0;
     var_s5 = 1;
     var_s1 = (ControlFlameSlot *) ((u8 *) player + 0x34C);
     do {
         temp_s7 = var_s1->particle;
-        sp5C = var_v0;
         if (temp_s7 != NULL) {
-            temp_v1 = *(s16 *) ((u8 *) temp_s7 + 0x24);
+            var_s6 = *(s16 *) ((u8 *) temp_s7 + 0x24);
             var_s0 = var_s1->intensity;
             var_s3 = var_s1->phase;
             var_f20 = *(f32 *) ((u8 *) temp_s7 + 0x18);
             var_f22 = *(f32 *) ((u8 *) temp_s7 + 0x1C);
-            var_s6 = temp_v1;
             if (var_s1->state == 2) {
-                temp_t7 = arg4 << 5;
                 if (var_s1->mode == 0) {
-                    var_s0 -= temp_t7;
+                    var_s0 -= arg4 << 5;
                     if (var_s0 < 0) {
                         var_s0 = 0;
                     }
@@ -652,7 +1316,7 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 2;
                     }
                 } else {
-                    var_s0 += temp_t7;
+                    var_s0 += arg4 << 5;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
@@ -663,19 +1327,21 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 }
                 var_f20 *= (f32) var_s0 / 255.0f;
                 var_f22 *= (f32) var_s0 / 255.0f;
-                temp_v0 = actor->unk70;
-                if (temp_v0 != NULL) {
-                    temp_a0 = *temp_v0;
+                if (actor->unk70 != NULL) {
+                    s32 temp_a0;
+
+                    temp_a0 = *actor->unk70;
                     if (temp_a0 != 0) {
                         changeLightIntensity((void *) temp_a0, var_s0);
                     }
                 }
             } else {
-                temp_v0_2 = var_s1->mode;
-                switch (temp_v0_2) {
+                switch (var_s1->mode) {
                 case 0:
                     var_s0 = 0;
                     if (player->unk186 & var_s5) {
+                        s32 temp_s2;
+
                         temp_s2 = actor->unk80;
                         actor->unk80 = arg3;
                         partUpdateTriggers(actor, 2);
@@ -685,7 +1351,7 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                     break;
                 case 1:
                     var_s0 += arg4 << 5;
-                    var_s6 = (s16) ((s32) (temp_v1 * var_s0) >> 7);
+                    var_s6 = (s32) (*(s16 *) ((u8 *) temp_s7 + 0x24) * var_s0) >> 7;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                         if (player->unk186 & var_s5) {
@@ -701,9 +1367,9 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s0 = 0xFF;
                     }
                     var_s3 += arg4 << 0xC;
-                    temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
+                    var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                    ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     actor->unk80 |= arg2;
-                    var_s6 = (s16) ((s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
                     if (!(player->unk186 & var_s5)) {
                         var_s1->mode = 3;
                     }
@@ -715,8 +1381,8 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 0;
                     } else {
                         var_s3 += arg4 << 0xC;
-                        var_s6 = (s16) ((s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
-                                              ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
+                        var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                        ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                         if (player->unk186 & var_s5) {
                             var_s1->mode = 2;
                         }
@@ -731,14 +1397,11 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 func_800479D4(temp_s7, var_s6, var_f20, var_f22, var_s1->intensity);
             }
         }
-        var_v0 = sp5C + 1;
         var_s5 *= 2;
         var_s1++;
+        var_v0++;
     } while (var_v0 != 4);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
-#endif
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;
@@ -755,15 +1418,484 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     *pitch = Arctanf(-pitchX, y);
     *yaw = Arctanf(transformedX, y);
 }
+s16 dAngle(s16 arg0, s16 arg1, f32 arg2);
+void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
+/* PROVENANCE: JFG's public charControl.c and hit.c identify the related
+ * ground-hit and polygon-edge control family, but publish assembly only;
+ * this body is reconstructed from Mickey's collision records and fields. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 433 differing words, first mismatch +0x0. */
+/* Candidate shape: 533 instructions and frame -0x268, both exact; 260 alignment gaps. */
+/* The 0x38-byte frame excess this candidate used to carry was a declaration
+ * census, not an allocation problem: fourteen m2c-only carriers (the
+ * horizontal/vertical aliases of normalX/normalZ, the write-only spC0 and
+ * sp84 slots, the dead `remainder`, the rotation-clamp temporaries, the
+ * one-use scale factors, the sp8C alias of &player->unk2F0, the `dot`
+ * carrier and the two velocity carriers) sized the local block in 8-byte
+ * steps.  Removing them left the instruction count untouched and took the
+ * frame -0x2A0 -> -0x268.  The last pair costs +3 words, which is the price
+ * of reading actor->velocityX/Z directly; that is the next thing to buy back.
+ * Remaining gap: 260 alignment gaps and 238 opcode differences -- the block
+ * geometry inside the collision loop, not the frame. */
+s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
+    s16 spA2;
+    s16 spA0;
+    s32 pointIndex;
+    u32 collisionMask;
+    u32 bit;
+    s32 collisionIndex;
+    u8 *pointSource;
+    u8 *pointDest;
+    u32 temp_v0;
+    f32 spD4;
+    u8 points[0x30];
+
+    func_8001EFFC((ControlTransform *) actor, player, (f32 *) points);
+    {
+        const s32 spB8 = player->unk2BC;
+        s32 spAC;
+
+        {
+        f32 radius[4];
+        u8 records[0x100];
+        CharControlGroundRecord *record;
+        u8 *player320;
+        u8 *player324;
+        f32 spE8;
+        f32 spE4;
+        f32 spE0;
+        s16 spA8;
+        s16 spA6;
+        s16 spA4;
+        f32 normalZ;
+        f32 normalX;
+        f32 directionX;
+        f32 directionZ;
+        f32 temp_f14;
+        f32 var_f18;
+        f32 var_f4;
+        u8 temp_v0_2;
+
+        pointIndex = 0;
+        while (pointIndex != spB8) {
+            radius[pointIndex] = player->unk2B8[pointIndex].w;
+            pointIndex += 1;
+        }
+        trackMakePolylist(spB8, (ControlVector3 *) &player->unk2F0, points, radius,
+                          player->unk33C, 1);
+        temp_v0 = (u32) func_80010B4C(
+            spB8, &player->unk2F0, points, radius, records, &actor->x, actor);
+        spAC = 0;
+        if ((temp_v0 >> 30) != 0) {
+            actor->x = player->unk38;
+            actor->y = player->unk3C;
+            actor->z = player->unk40;
+            spAC = 2;
+        } else {
+            player->unk349 = 0;
+            player->unk34A = 0;
+            player->unk34B = 0;
+            player->unk18E = 0;
+            player->unk334 = NULL;
+            player->unk344 = 0;
+            bit = 1;
+            collisionMask = temp_v0 & 0x3FFFFFFF;
+            collisionIndex = 0;
+            record = (CharControlGroundRecord *) records;
+            if (spB8 > 0) {
+                player320 = (u8 *) player;
+                player324 = (u8 *) player;
+                do {
+                    if ((collisionMask & 1) != 0) {
+                        if (record->unk3D & 0x12) {
+                            player->unk349 = (u8) (player->unk349 | bit);
+                            if ((record->unk3D & 0x10) &&
+                                (record->hitObject != NULL)) {
+                                player->unk334 = record->hitObject;
+                            }
+                        }
+                        if (record->unk3D & 0x48) {
+                            player->unk34B = (u8) (player->unk34B | bit);
+                        }
+                        if (record->unk3D & 0x24) {
+                            spE0 = 0.0f;
+                        spE4 = 0.0f;
+                        spE8 = -1.0f;
+                        spA6 = 0;
+                        spA8 = 0;
+                        spA4 = actor->rotationX;
+                        mathOneFloatRPY((ControlTransform *) &spA4, &spE0);
+                        spD4 = sqrtf((record->unk18 * record->unk18) +
+                                     (record->unk10 * record->unk10));
+                        normalZ = record->unk18 / spD4;
+                        normalX = record->unk10 / spD4;
+                        player->unk90 = (normalZ * spE0) -
+                                        (spE8 * normalX);
+                        var_f18 = (spE8 * normalZ) +
+                                  (spE0 * normalX);
+                        player->unk8C = var_f18;
+                        if (var_f18 < 0.0f) {
+                            var_f18 = -var_f18;
+                        }
+                        var_f4 = sqrtf((actor->velocityX * actor->velocityX) +
+                                       (actor->velocityZ * actor->velocityZ));
+                        if (var_f4 > 0.0f) {
+                            directionX = actor->velocityX / var_f4;
+                            directionZ = actor->velocityZ / var_f4;
+                        }
+                        temp_v0_2 = player->unk198;
+                        if ((temp_v0_2 == 0) && (var_f4 > 8.0f) &&
+                            ((((normalX * directionX) + (normalZ * directionZ)) < D_80081850) ||
+                             (D_80081854 < ((normalX * directionX) + (normalZ * directionZ))))) {
+                            player->unk78 = 0.0f;
+                            player->unk74 = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalX) +
+                                            directionX;
+                            player->unk7C = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalZ) +
+                                            directionZ;
+                            temp_f14 = ((D_80081858 * var_f18) + 0.5f) *
+                                       var_f4;
+                            player->unk80 = temp_f14;
+                            player->unk84 = temp_f14;
+                            player->unk181 = 1;
+                            player->unk4 *= 0.5f;
+                            player->unk88 = D_8008185C;
+                            player->unk8 *= 0.5f;
+                        } else if (player->flags1A8 & 1) {
+                            var_f4 = (f32) temp_v0_2;
+                            if ((s32) temp_v0_2 < 0) {
+                                var_f4 += 4294967296.0f;
+                            }
+                            if (var_f4 < 240.0f) {
+                                player->unk198 = (u8) (temp_v0_2 +
+                                                       (s32) updateRate);
+                            } else {
+                                player->unk198 = 0;
+                                player->unk166 = 1;
+                            }
+                        } else {
+                            player->unk198 = 1;
+                        }
+                            spAC |= 1;
+                            player->unk34A = (u8) (player->unk34A | bit);
+                        }
+                    }
+                    player320[0x320] = record->unk3C;
+                    *(s32 *) (player324 + 0x324) = record->unk38;
+                    player->unk344 |= record->unk38;
+                    record += 1;
+                    collisionIndex += 1;
+                    player320 += 1;
+                    player324 += 4;
+                    bit = (bit * 2) & 0xFF;
+                    collisionMask >>= 1;
+                } while (collisionIndex != spB8);
+            }
+        }
+    }
+    {
+        volatile f32 sp118;
+        volatile f32 sp114;
+        f32 sp110;
+        f32 spEC;
+        f32 spF0;
+        f32 spF4;
+        f32 sp10C;
+        f32 sp108;
+        f32 sp104;
+
+        sp110 = 0.0f;
+        sp114 = 0.0f;
+        sp118 = 0.0f;
+        if (player->unk16C != 1) {
+            ControlVector3 endpoint;
+
+            sp104 = 0.0f;
+            sp10C = 0.0f;
+            sp108 = -50.0f;
+            mathOneFloatRPY((ControlTransform *) actor, &sp104);
+            collisionIndex = 0;
+            if (spB8 > 0) {
+                do {
+                    ControlVector3 *point;
+
+                    point = (ControlVector3 *)
+                        ((u8 *) points + (collisionIndex * 0x0C));
+                    endpoint.x = sp104 + point->x;
+                    endpoint.y = sp108 + point->y;
+                    endpoint.z = sp10C + point->z;
+                    spD4 = 1.0f;
+                    if (func_80010654(point, &endpoint,
+                                      (ControlVector3 *) &spEC, &spD4) != 0) {
+                        sp110 += spEC;
+                        sp114 += spF0;
+                        sp118 += spF4;
+                    }
+                    collisionIndex += 1;
+                } while (collisionIndex != spB8);
+            }
+        }
+        pointSource = (u8 *) points;
+        if (player->unk173 == 0) {
+            func_8001DCD0(actor->rotationX, (ControlVector3 *) &sp110,
+                          &spA2, &spA0);
+            actor->rotationZ = dAngle(
+                actor->rotationZ, spA2,
+                1.0f - Powerf(D_80081860, (s32) updateRate));
+            actor->rotationY = dAngle(
+                actor->rotationY, spA0,
+                1.0f - Powerf(D_80081860, (s32) updateRate));
+        }
+    }
+    if (actor->rotationZ >= 0x3001) {
+        actor->rotationZ = 0x3000;
+    } else if (actor->rotationZ < -0x3000) {
+        actor->rotationZ = -0x3000;
+    }
+    if (actor->rotationY >= 0x3001) {
+        actor->rotationY = 0x3000;
+    } else if (actor->rotationY < -0x3000) {
+        actor->rotationY = -0x3000;
+    }
+    if (player->unk349 != 0) {
+        actor->velocityY = (actor->y - player->unk3C) / updateRate;
+    }
+    if (player->unk34A == 0) {
+        player->unk198 = 0;
+    }
+    pointIndex = 0;
+    pointDest = (u8 *) &player->unk2F0;
+    while (pointIndex != spB8) {
+        *(f32 *) (pointDest + 0x00) = *(f32 *) (pointSource + 0x00);
+        *(f32 *) (pointDest + 0x04) = *(f32 *) (pointSource + 0x04);
+        *(f32 *) (pointDest + 0x08) = *(f32 *) (pointSource + 0x08);
+        pointDest += 0x0C;
+        pointSource += 0x0C;
+        pointIndex += 1;
+    }
+        return spAC;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
+#endif
+/* PROVENANCE: JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPrior routine, but publishes assembly only; this body is
+ * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 410 differing words, first mismatch +0x0. */
+/* Candidate shape: 412 instructions/frame -0xE0 versus target 416/-0xD0. */
+/* Explicit vector locals repair semantics; loop/frame allocation remains.
+ * Declaration census, 2026-09-09: nine m2c-only carriers went into the stack
+ * slots the target already writes (sp64, sp68/sp6C, sp50) or straight into
+ * their uses, taking the frame -0x100 -> -0xE0 at 410 -> 408 words with the
+ * instruction count untouched.  The exact target frame -0xD0 is reachable
+ * from here -- reading actor->velocityX/Z directly and inlining var_f8 lands
+ * it -- but it is NOT the binding constraint: that spelling costs +4 words,
+ * 46 more alignment gaps and takes the instruction count from 4 short of the
+ * target to 6 short.  A frame that is too LARGE while the instruction count
+ * is too SMALL means this candidate homes locals the target does not and
+ * misses spills the target has; close the four missing instructions first. */
+s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
+    s16 sp40;
+    s16 sp3E;
+    s16 sp3C;
+    s16 sp3A;
+    s16 sp38;
+    s32 sp44;
+    ControlVector3 spBC;
+    ControlVector3 spB0;
+    ControlVector3 spA4;
+    ControlVector3 sp98;
+    f32 sp94;
+    f32 sp90;
+    f32 sp8C;
+    ControlVector3 sp80;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    s32 sp2C;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f16_2;
+    f32 temp_f2;
+    f32 var_f8;
+    s32 *var_v1;
+    s32 var_a2;
+    u32 temp_v0;
+    var_v1 = (s32 *) &D_800CB2C0;
+    var_a2 = 0xF;
+    do {
+        *var_v1 = 0;
+        var_v1++;
+        var_a2--;
+    } while (var_a2 != 0);
+    pointListRPY(player->unk2BC, (s16 *) actor, player->unk2C0, &spB0.x);
+    spBC.x = spB0.x + actor->x;
+    spBC.y = spB0.y + actor->y;
+    spBC.z = spB0.z + actor->z;
+    sp70 = player->unk2B8->w;
+    sp2C = (s32) &player->unk2F0;
+    trackMakePolylist(1, (ControlVector3 *) sp2C,
+                      &spBC, &sp70,
+                      player->unk33C, 1);
+    temp_v0 = (u32) func_80010900(
+        (ControlVector3 *) sp2C, &spBC, sp70,
+        (s32) actor, (void *) func_8001EC44);
+    actor->x = spBC.x - spB0.x;
+    actor->y = spBC.y - spB0.y;
+    actor->z = spBC.z - spB0.z;
+    sp44 = 0;
+    if ((temp_v0 >> 0x1E) != 0) {
+        actor->x = player->unk38;
+        actor->y = player->unk3C;
+        actor->z = player->unk40;
+        sp44 = 2;
+    } else {
+        player->unk349 = 0;
+        player->unk34A = 0;
+        player->unk34B = 0;
+        player->unk18E = 0;
+        player->unk334 = 0;
+        player->unk344 = 0;
+        if ((temp_v0 & 1) != 0) {
+            if (D_800CB2FD & 0x12) {
+                player->unk349 = 1;
+                if ((D_800CB2FD & 0x10) &&
+                    (D_800CB2C0.hitObject != 0)) {
+                    player->unk334 = D_800CB2C0.hitObject;
+                }
+            }
+            if (D_800CB2FD & 0x48) {
+                player->unk34B = (u8) (player->unk34B | 1);
+            }
+            if (D_800CB2FD & 0x24) {
+                sp74 = 0.0f;
+                sp78 = 0.0f;
+                sp7C = -1.0f;
+                sp3E = 0;
+                sp40 = 0;
+                sp3C = actor->rotationX;
+                mathOneFloatRPY((ControlTransform *) &sp3C, &sp74);
+                sp64 = sqrtf((D_800CB2D8 * D_800CB2D8) +
+                             (D_800CB2D0.x * D_800CB2D0.x));
+                sp6C = D_800CB2D0.x / sp64;
+                sp68 = D_800CB2D8 / sp64;
+                player->unk90 = (sp68 * sp74) -
+                                (sp7C * sp6C);
+                sp50 = (sp7C * sp68) +
+                       (sp74 * sp6C);
+                player->unk8C = sp50;
+                if (sp50 < 0.0f) {
+                    sp50 = -sp50;
+                }
+                temp_f0_2 = actor->velocityX;
+                temp_f2 = actor->velocityZ;
+                temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
+                                  (temp_f2 * temp_f2));
+                if (temp_f0_3 > 0.0f) {
+                    sp58 = temp_f0_2 / temp_f0_3;
+                    sp54 = temp_f2 / temp_f0_3;
+                }
+                temp_f16_2 = (sp6C * sp58) + (sp68 * sp54);
+                if ((player->unk198 == 0) && (temp_f0_3 > 8.0f) &&
+                    ((temp_f16_2 < D_80081864) ||
+                     (D_80081868 < temp_f16_2))) {
+                    player->unk78 = 0.0f;
+                    player->unk74 = ((2.0f * -temp_f16_2) * sp6C) + sp58;
+                    player->unk7C = ((2.0f * -temp_f16_2) * sp68) + sp54;
+                    player->unk80 = ((D_8008186C * sp50) + 0.5f) *
+                                    temp_f0_3;
+                    player->unk84 = player->unk80;
+                    player->unk181 = 1;
+                    player->unk4 = (f32) (player->unk4 * 0.5f);
+                    player->unk88 = D_80081870;
+                    player->unk8 = (f32) (player->unk8 * 0.5f);
+                } else {
+                    var_f8 = (f32) player->unk198;
+                    if (var_f8 < 240.0f) {
+                        player->unk198 = (u8) (player->unk198 +
+                                                (s32) updateRate);
+                    } else {
+                        player->unk198 = 0;
+                        player->unk166 = 1;
+                    }
+                    sp44 = 1;
+                }
+                player->unk34A = (u8) (player->unk34A | 1);
+            }
+        }
+        player->unk320 = D_800CB2FC;
+        player->unk324 = D_800CB2F8;
+        player->unk344 = (s32) (player->unk344 | D_800CB2F8);
+    }
+    spA4.x = 0.0f;
+    spA4.y = 0.0f;
+    spA4.z = 0.0f;
+    if (player->unk16C != 1) {
+        sp98.x = 0.0f;
+        sp98.y = -50.0f;
+        sp98.z = 0.0f;
+        mathOneFloatRPY((ControlTransform *) actor, &sp98.x);
+        sp8C = sp98.x + spBC.x;
+        sp90 = sp98.y + spBC.y;
+        sp64 = 1.0f;
+        sp94 = sp98.z + spBC.z;
+        if (func_80010654(&spBC, (ControlVector3 *) &sp8C,
+                          &sp80, &sp64) != 0) {
+            spA4.x += sp80.x;
+            spA4.y += sp80.y;
+            spA4.z += sp80.z;
+        }
+    }
+    if (player->unk173 == 0) {
+        sp2C = (s32) updateRate;
+        func_8001DCD0(actor->rotationX, &spA4,
+                      &sp3A, &sp38);
+        actor->rotationZ = dAngle(
+            actor->rotationZ, sp3A,
+            1.0f - Powerf(D_80081874, sp2C));
+        actor->rotationY = dAngle(
+            actor->rotationY, sp38,
+            1.0f - Powerf(D_80081878, sp2C));
+    }
+    if (actor->rotationZ >= 0x3001) {
+        actor->rotationZ = 0x3000;
+    } else if (actor->rotationZ < -0x3000) {
+        actor->rotationZ = -0x3000;
+    }
+    if (actor->rotationY >= 0x3001) {
+        actor->rotationY = 0x3000;
+    } else if (actor->rotationY < -0x3000) {
+        actor->rotationY = -0x3000;
+    }
+    if (player->unk349 != 0) {
+        actor->velocityY = (actor->y - player->unk3C) / updateRate;
+    }
+    if (player->unk34A == 0) {
+        player->unk198 = 0;
+    }
+    player->unk2F0 = spBC.x;
+    player->unk2F4 = spBC.y;
+    player->unk2F8 = spBC.z;
+    return sp44;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
+#endif
 /* PROVENANCE -- JFG's public charControl.c identifies the corresponding
  * controlSquashCheckPrior routine, but publishes assembly only; this body is
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 236 differing words, first mismatch +0x0. */
-/* Target 238 instructions/frame -160; candidate 240 instructions/frame -208. */
-/* Remaining gap is FP spill/branch scheduling and a 48-byte frame excess; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 231 differing words, first mismatch +0x0. */
+/* Target 238 instructions/frame -160; candidate 241 instructions/frame -224. */
+/* Scalar relocation identities are repaired; common-prefix sinking and FP allocation remain. */
 void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
                    f32 arg3, ControlCollisionPlane *arg4) {
     f32 sp94;
@@ -833,20 +1965,25 @@ void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
         } else {
             arg1->y = (-(sp58 + sp50 + sp70) / normalY) + D_80081884;
         }
-        D_800CB2C4.x = normalX;
-        D_800CB2C4.y = normalY;
-        D_800CB2C4.z = normalZ;
+        D_800CB2C4 = normalX;
+        D_800CB2C8 = normalY;
+        D_800CB2CC = normalZ;
         D_800CB2FD |= 2;
     } else if (normalY <= D_80081888) {
         delta = D_8008188C - value;
         arg1->x = pointX + (delta * normalX);
         arg1->y = pointY + (delta * normalY);
         arg1->z = pointZ + (delta * normalZ);
-        D_800CB2DC.x = normalX;
-        D_800CB2DC.y = normalY;
-        D_800CB2DC.z = normalZ;
+        D_800CB2DC = normalX;
+        D_800CB2E0 = normalY;
+        D_800CB2E4 = normalZ;
         D_800CB2FD |= 8;
     } else {
+        f32 planeX;
+        f32 planeZ;
+
+        planeX = normalX;
+        planeZ = normalZ;
         sp54 = pointX;
         delta = D_80081890 - value;
         sp4C = pointY;
@@ -863,18 +2000,18 @@ void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
         if (value != 0.0f) {
             delta = sp8C / value;
             sp6C = delta;
-            distance = sqrtf((normalY * normalY) +
-                             (arg4->z * arg4->z));
-            arg1->x += delta * (normalY / distance);
-            arg1->z += delta * (arg4->z / distance);
+            distance = sqrtf((planeX * planeX) +
+                             (planeZ * planeZ));
+            arg1->x += delta * (planeX / distance);
+            arg1->z += delta * (planeZ / distance);
         } else {
             arg1->x = crossX;
             arg1->y = crossY;
             arg1->z = crossZ;
         }
-        D_800CB2D0.x = normalY;
-        D_800CB2D0.y = arg4->y;
-        D_800CB2D0.z = arg4->z;
+        D_800CB2D0.x = planeX;
+        D_800CB2D4 = arg4->y;
+        D_800CB2D8 = planeZ;
         D_800CB2FD |= 4;
     }
     D_800CB2F8 = arg4->flags;
@@ -1013,3 +2150,55 @@ s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3) {
 void controlClearPlayerSetup(void) {
     D_80079BF8 = 0;
 }
+
+
+/* PLATEAU-HANDOFF:func_8001EC44:start
+ * symbol: func_8001EC44
+ * score: 231 differing words
+ * frame: 0xE0
+ * relocations: 45
+ * first-mismatch: +0x0
+ * summary: Target 238w, frame 0xA0, 47 relocs. The 0x40 frame excess is a declaration census and the exact target frame IS reachable -- dropping the three cross-product carriers hits -0xA0 -- but that spelling duplicates the sub-expressions and costs 24 instructions (265 versus 241 against a 238 target). So the target drops those three carriers WITHOUT duplicating the terms; find that spelling. Reassigning them into the crossY/crossZ slots instead is 230 words but 242 instructions.
+ * PLATEAU-HANDOFF:func_8001EC44:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001E5C4:start
+ * symbol: func_8001E5C4
+ * score: 408/416 words
+ * frame: 0xE0
+ * relocations: 53
+ * first-mismatch: +0x0
+ * summary: Nine m2c-only carriers folded into the stack slots the target already writes took the frame 0x100 -> 0xE0 at an unchanged instruction count. The exact 0xD0 frame is reachable but costs +4 words and 46 more gaps, so the frame is not the binding constraint -- the candidate is four instructions SHORT of the target while its frame is too large, which means missing spills. Close the instruction count first.
+ * PLATEAU-HANDOFF:func_8001E5C4:end
+ */
+
+
+/* PLATEAU-HANDOFF:func_8001C4C0:start
+ * symbol: func_8001C4C0
+ * score: 386/403 words
+ * frame: 0xB0
+ * relocations: 40
+ * first-mismatch: +0x0
+ * summary: Declaration census removed 8 non-save frame bytes; the target holds two more callee-saved values so the save area is 8 bytes short
+ * PLATEAU-HANDOFF:func_8001C4C0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001D880:start
+ * symbol: func_8001D880
+ * score: 28/36 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x4
+ * summary: Indexing the table closed the address operand order (a2,t7 both sides) and naming the upper table entry in `value` before the lerp takes it to 28. The residual is a uopt colour rotation: the target colours only 10.0f from {f16,f18} and runs a five-wide FP ring, this candidate colours both and runs four. Twenty-five source forms plus 210 permuter candidates were flat or worse.
+ * PLATEAU-HANDOFF:func_8001D880:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001DD70:start
+ * symbol: func_8001DD70
+ * score: 433 differing words
+ * frame: 0x268
+ * relocations: 23
+ * first-mismatch: +0x0
+ * summary: Frame and instruction count are both exact now; the 0x38-byte excess was fourteen m2c-only declared carriers, and removing them also cut the alignment gaps 260 -> 86. Remaining: block geometry in the collision loop (238 opcode differences).
+ * PLATEAU-HANDOFF:func_8001DD70:end
+ */

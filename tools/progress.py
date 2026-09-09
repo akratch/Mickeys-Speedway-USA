@@ -32,6 +32,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
@@ -50,7 +51,7 @@ def find_objdump(tools_dir):
     return "objdump"  # fall back to the host's; works for MIPS ELF on macOS/Linux
 
 
-def get_elf_functions(elf_path, objdump, adopted_addrs):
+def get_elf_functions(elf_path, objdump, adopted_addrs, identity_records=None):
     """Returns (all_funcs, func_addrs, placeholders, overlay_aliases).
 
     all_funcs: {name: size} for every resident STT_FUNC symbol that has real
@@ -129,12 +130,16 @@ def get_elf_functions(elf_path, objdump, adopted_addrs):
                 continue
             all_funcs[name] = size
             func_addrs[name] = adopted_addrs[name]
+            if identity_records is not None:
+                identity_records.append((name, adopted_addrs[name], size))
             continue
         if section.startswith(".overlay_"):
             continue
         all_funcs[name] = size
         try:
             func_addrs[name] = int(tokens[0], 16)
+            if identity_records is not None:
+                identity_records.append((name, func_addrs[name], size))
         except ValueError:
             pass
 
@@ -165,6 +170,164 @@ def get_asm_labelled_names(asm_dir):
                     if m:
                         names.add(m.group(1))
     return names
+
+
+def stale_extract_names(asm_dir, src_dir="src"):
+    """Names still labelled under asm/ that no GLOBAL_ASM pragma references.
+
+    A function is counted matched when its name no longer appears as a
+    glabel/alabel under asm/. splat stops emitting a function's .s once a C
+    definition exists for it -- but only when `gmake extract` is re-run. The
+    splat stamp is a timestamp, so promoting a function and building without
+    re-extracting leaves the stale .s in place and the function is counted
+    UNMATCHED. The scoreboard then moves bytes out of "decompiled" and into
+    "GLOBAL_ASM remaining", and `--check-readme` happily confirms the wrong
+    numbers, because both sides read the same stale tree.
+
+    Observed on 2026-09-09: a promotion of 1372 bytes reported as a 1372-byte
+    regression. Detect it rather than report it: a labelled name that no
+    `#pragma GLOBAL_ASM` in src/ still references cannot legitimately be
+    awaiting assembly, so the extract is stale.
+    """
+    # Only splat's per-function output can be stale in this sense.
+    # asm/main/*.s and asm/libultra/*.s are whole-file dumps of ORIGINAL
+    # hand-written assembly -- no pragma ever references them and they are
+    # counted as verified asm, not as awaiting decompilation. Scanning them
+    # here reported 235 false positives on a freshly extracted tree.
+    nonmatchings = os.path.join(asm_dir, "nonmatchings")
+    if not os.path.isdir(nonmatchings):
+        return set()
+    labelled = get_asm_labelled_names(nonmatchings)
+    if not labelled:
+        return set()
+    referenced = set()
+    pragma = re.compile(r'GLOBAL_ASM\("([^"]*)"\)')
+    for root, _dirs, files in os.walk(src_dir):
+        for name in files:
+            if not name.endswith((".c", ".h")):
+                continue
+            path = os.path.join(root, name)
+            with open(path, "r", errors="replace") as handle:
+                for hit in pragma.findall(handle.read()):
+                    referenced.add(os.path.splitext(os.path.basename(hit))[0])
+    return {name for name in labelled if name not in referenced}
+
+
+def resident_guarded_fallbacks(text):
+    """Read direct NON_MATCHING definition/fallback pairs, not a search queue.
+
+    Multiple definitions in one guard and renamed fallback symbols are valid.
+    Declarations alone are not C coverage. Unsupported/ambiguous pairs refuse
+    accounting instead of silently treating them as missing source.
+    """
+    noise = re.compile(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', re.S)
+    blank = lambda value: "".join("\n" if c == "\n" else " " for c in value)
+    text = re.sub(r"\\\r?\n", "", text)
+    text = noise.sub(lambda m: blank(m[0]) if m[0].startswith(("//", "/*")) else m[0], text)
+    directive = re.compile(r"^[ \t]*#[ \t]*(if|ifdef|ifndef|elif|else|endif)\b([^\n]*)", re.M)
+    pragma = re.compile(r'^[ \t]*#[ \t]*pragma\s+GLOBAL_ASM\s*\(\s*"([^"\n]+)"\s*\)[ \t]*$', re.M)
+    definition = re.compile(r"^[ \t]*(?:[A-Za-z_][A-Za-z0-9_]*[ \t*]+)+([A-Za-z_][A-Za-z0-9_]*)\s*\([^;{}]*\)\s*\{", re.M)
+    stack = []
+    result = []
+    for match in directive.finditer(text):
+        kind, argument = match[1], match[2].strip()
+        if kind in {"if", "ifdef", "ifndef"}:
+            target = kind == "ifdef" and argument == "NON_MATCHING"
+            if re.search(r"\bNON_MATCHING\b", argument) and not target:
+                raise RuntimeError("unsupported resident NON_MATCHING guard")
+            stack.append({"target": target, "start": match.end(), "branches": [],
+                          "nested": bool(stack)})
+        elif not stack:
+            raise RuntimeError("unbalanced resident source guards")
+        elif kind in {"else", "elif"}:
+            stack[-1]["branches"].append((kind, match.start(), match.end()))
+        else:
+            guard = stack.pop()
+            if not guard["target"]:
+                continue
+            branches = guard["branches"]
+            body_end = branches[0][1] if branches else match.start()
+            body = text[guard["start"]:body_end]
+            body = noise.sub(lambda m: blank(m[0]), body)
+            conditionals = list(directive.finditer(body))
+            body = re.sub(r"^[ \t]*#[^\n]*", lambda m: blank(m[0]), body, flags=re.M)
+            definitions = list(definition.finditer(body))
+            # A nested statement must not masquerade as a top-level definition.
+            names = []
+            for defined in definitions:
+                if body[:defined.start()].count("{") != body[:defined.start()].count("}"):
+                    continue
+                depth = 0
+                for conditional in conditionals:
+                    if conditional.start() >= defined.end():
+                        break
+                    if conditional.start() >= defined.start():
+                        raise RuntimeError("conditional resident function definition")
+                    if conditional[1] in {"if", "ifdef", "ifndef"}:
+                        depth += 1
+                    elif conditional[1] == "endif":
+                        depth -= 1
+                if depth:
+                    raise RuntimeError("conditional resident function definition")
+                names.append(defined[1])
+            has_fallback = "GLOBAL_ASM" in text[body_end:match.start()]
+            if not names and not has_fallback:
+                continue  # ordinary declaration-only feature guard
+            brace_depth = 0
+            for brace in re.findall(r"[{}]", body):
+                brace_depth += 1 if brace == "{" else -1
+                if brace_depth < 0:
+                    raise RuntimeError("unbalanced resident function body")
+            if brace_depth:
+                raise RuntimeError("unbalanced resident function body")
+            if guard["nested"] or len(branches) != 1 or branches[0][0] != "else":
+                raise RuntimeError("ambiguous resident NON_MATCHING branches")
+            fallback = text[branches[0][2]:match.start()]
+            paths = pragma.findall(fallback)
+            if (not names or len(names) != len(set(names)) or len(paths) != len(names)
+                    or pragma.sub("", fallback).strip()):
+                raise RuntimeError("resident guard requires definitions and exact fallback pairs")
+            result.extend(paths)
+    if stack:
+        raise RuntimeError("unterminated resident source guard")
+    return result
+
+
+def get_resident_nonmatching_functions(root, all_funcs, func_addrs,
+                                      matched_funcs, verified_asm_funcs,
+                                      identity_records):
+    """Reclassify existing resident ELF extents; never add matching credit."""
+    root = Path(root)
+    owners = {}
+    for source in sorted((root / "src").rglob("*.c")):
+        if "overlays" in source.relative_to(root / "src").parts:
+            continue
+        for spelling in resident_guarded_fallbacks(source.read_text(encoding="utf-8")):
+            path = Path(spelling)
+            if (path.is_absolute() or ".." in path.parts or path.suffix != ".s"
+                    or path.parts[:2] != ("asm", "nonmatchings")):
+                raise RuntimeError(f"invalid resident fallback path: {spelling}")
+            target = root / path
+            if target.is_symlink() or not target.is_file() or not target.resolve().is_relative_to(root.resolve()):
+                raise RuntimeError(f"missing or nonregular resident fallback: {spelling}")
+            name = path.stem
+            labels = [m[1] for line in target.read_text(encoding="utf-8").splitlines()
+                      if (m := LABEL_RE.match(line))]
+            if labels.count(name) != 1 or {n for n in labels if n in all_funcs} != {name}:
+                raise RuntimeError(f"ambiguous resident fallback identity: {spelling}")
+            records = [r for r in identity_records if r[0] == name]
+            if (len(records) != 1 or name not in all_funcs or name not in func_addrs
+                    or records[0] != (name, func_addrs[name], all_funcs[name])
+                    or all_funcs[name] <= 0 or all_funcs[name] % 4 or func_addrs[name] % 4):
+                raise RuntimeError(f"missing or ambiguous resident ELF identity: {name}")
+            if name in owners or name in matched_funcs or name in verified_asm_funcs:
+                raise RuntimeError(f"duplicate or conflicting resident category: {name}")
+            start, end = func_addrs[name], func_addrs[name] + all_funcs[name]
+            for other, address, size in identity_records:
+                if other != name and size > 0 and start < address + size and address < end:
+                    raise RuntimeError(f"overlapping resident function identities: {name}, {other}")
+            owners[name] = source
+    return set(owners)
 
 
 def count_named_symbols(symbol_addrs_path):
@@ -756,13 +919,33 @@ def main(args):
     build_dir = os.path.join(ROOT_DIR, "build")
     elf_path = os.path.join(build_dir, f"mickey.{args.version}.elf")
     asm_dir = os.path.join(ROOT_DIR, "asm")
+
+    # Refuse to report against a stale extract. Every number below is derived
+    # from which names still carry a glabel under asm/, so a promotion that
+    # was not followed by `gmake extract` is counted backwards -- and
+    # --check-readme confirms it, because both sides read the same stale tree.
+    stale = stale_extract_names(asm_dir, os.path.join(ROOT_DIR, "src"))
+    if stale:
+        listed = ", ".join(sorted(stale)[:6])
+        more = f" (and {len(stale) - 6} more)" if len(stale) > 6 else ""
+        print(
+            f"scoreboard: FAIL  the extract is stale for {len(stale)} "
+            f"promoted function(s): {listed}{more}.\n"
+            f"  Each still has assembly under asm/nonmatchings/ that no "
+            f"GLOBAL_ASM pragma references, so it would be counted as NOT "
+            f"matched and the totals would move backwards.\n"
+            f"  Run `gmake extract`, rebuild, then re-run this.",
+            file=sys.stderr,
+        )
+        return 1
     symbol_addrs_path = os.path.join(ROOT_DIR, f"symbol_addrs.{args.version}.txt")
     tools_dir = os.path.join(ROOT_DIR, "tools")
     objdump = find_objdump(tools_dir)
 
     adopted_addrs = get_adopted_symbol_addresses(symbol_addrs_path)
+    identity_records = []
     all_funcs, func_addrs, abs_placeholders, overlay_aliases = get_elf_functions(
-        elf_path, objdump, adopted_addrs
+        elf_path, objdump, adopted_addrs, identity_records
     )
     if not all_funcs:
         print(f"Error: no function symbols found in {elf_path}", file=sys.stderr)
@@ -799,27 +982,21 @@ def main(args):
     resolved_bytes = matched_bytes + verified_asm_bytes + overlay_matched_bytes
     resolved_pct = resolved_bytes / whole_text_bytes * 100 if whole_text_bytes else 0.0
 
-    # DKR's five-line report (docs/acceleration-survey.md sec.13.1):
-    # tools/python/score.py there rewrites any `#ifdef NON_MATCHING ... #else
-    # GLOBAL_ASM ... #endif` block back to a bare GLOBAL_ASM before counting,
-    # so a NON_MATCHING function counts as unmatched, same as extracted
-    # assembly it has not been given a C body for at all. `decompiled` below
-    # is therefore exactly resident matched_bytes (unaffected -- no resident
-    # object has been converted yet) plus the overlay atlas's
-    # matched_overlay_c_bytes, which tools/overlay_atlas.py already excludes
-    # any range whose owning .c carries "#ifdef NON_MATCHING" from (see its
-    # mechanically-derived `nonmatching` field). `global_asm_remaining` is
-    # whatever text neither matched nor is explicitly NON_MATCHING: resident
-    # asm still glabel'd under asm/, plus every overlay range that is either
-    # raw unreviewed "asm" ownership or GLOBAL_ASM'd without a NON_MATCHING
-    # C body. NON_EQUIVALENT has no functions yet (no NON_EQUIVALENT-guarded
-    # branch exists in the tree); the line is still reported so the report
-    # shape matches DKR's even before one is needed.
+    # ADR 0003 categories, not candidate quality or scratch-draft coverage.
+    # Resident guarded functions retain their existing ELF denominator/extent;
+    # identify them by the actual fallback, which may differ from the C name.
+    # Overlay categories remain the atlas's TU-level accounting (including
+    # mixed-TU exact islands), not a per-function guarded-source census.
+    resident_nonmatching = get_resident_nonmatching_functions(
+        ROOT_DIR, all_funcs, func_addrs, matched_funcs, verified_asm_funcs,
+        identity_records,
+    )
+    resident_nonmatching_bytes = sum(all_funcs[name] for name in resident_nonmatching)
     dkr_decompiled_bytes = matched_bytes + overlay_matched_bytes
     dkr_handwritten_asm_bytes = verified_asm_bytes
-    dkr_non_matching_bytes = overlay_nonmatching_bytes  # resident: none yet
+    dkr_non_matching_bytes = overlay_nonmatching_bytes + resident_nonmatching_bytes
     dkr_global_asm_bytes = (
-        (total_bytes - matched_bytes - verified_asm_bytes)
+        (total_bytes - matched_bytes - verified_asm_bytes - resident_nonmatching_bytes)
         + (overlay_text_bytes - overlay_matched_bytes - overlay_nonmatching_bytes)
     )
     dkr_non_equivalent_bytes = 0

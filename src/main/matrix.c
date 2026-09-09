@@ -30,35 +30,27 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 92 differing words, first mismatch +0x0.
- * Structural gap: 93 instructions/frame -0x48 versus target 74/-0x8; 29 relocation sites also differ.
- * Not shape-exact or permuter-ready; the scaled rotation body retains ABI-induced spills. */
+/* Workbench: structure-mismatch, 90 differing words, first mismatch +0x0.
+ * Structural gap: 91 instructions/frame -0x48 versus target 74/-0x8; 27 aligned relocation sites differ.
+ * Word-copying the fixed fields is the bounded best; six call results still spill around the ABI. */
 /* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
  * Mickey's own field offsets and call targets remain authoritative here. */
 void func_8002AA50(MatrixTransform *trans, MtxF dest) {
-    f32 cosX;
-    f32 sinX;
-    f32 cosY;
-    f32 sinY;
-    f32 cosZ;
-    f32 sinZ;
-    f32 scale;
+    f32 cosX = func_8002A8C0(trans->rotation0);
+    f32 sinX = func_8002A8BC(trans->rotation0);
+    f32 cosY = func_8002A8C0(trans->rotation1);
+    f32 sinY = func_8002A8BC(trans->rotation1);
+    f32 cosZ = func_8002A8C0(trans->rotation2);
+    f32 sinZ = func_8002A8BC(trans->rotation2);
+    f32 scale = trans->scale;
 
-    cosX = func_8002A8C0(trans->rotation0);
-    sinX = func_8002A8BC(trans->rotation0);
-    cosY = func_8002A8C0(trans->rotation1);
-    sinY = func_8002A8BC(trans->rotation1);
-    cosZ = func_8002A8C0(trans->rotation2);
-    sinZ = func_8002A8BC(trans->rotation2);
-    scale = trans->scale;
-
-    dest[0][3] = 0.0f;
-    dest[1][3] = 0.0f;
-    dest[2][3] = 0.0f;
-    dest[3][0] = trans->x;
-    dest[3][1] = trans->y;
-    dest[3][2] = trans->z;
-    dest[3][3] = 1.0f;
+    ((u32 *)dest)[3] = 0;
+    ((u32 *)dest)[7] = 0;
+    ((u32 *)dest)[11] = 0;
+    ((u32 *)dest)[12] = ((u32 *)trans)[3];
+    ((u32 *)dest)[13] = ((u32 *)trans)[4];
+    ((u32 *)dest)[14] = ((u32 *)trans)[5];
+    ((u32 *)dest)[15] = 0x3F800000;
     dest[0][0] = (((sinZ * sinX) + ((cosZ * cosX) * cosY)) * scale);
     dest[0][1] = (cosZ * sinY) * scale;
     dest[0][2] = (((sinX * cosZ) * cosY) - (sinZ * cosX)) * scale;
@@ -115,8 +107,8 @@ void func_8002AB78(MatrixTransform *trans, MtxF dest) {
 #endif
 #ifdef NON_MATCHING
 /* Workbench: structure-mismatch, 118 differing words, first mismatch +0x0. */
-/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; not permuter-ready. */
-/* Remaining structural gap: IDO FP-register spills and saved argument pointers add 20 instructions. */
+/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; six call relocations each. */
+/* The exact JFG donor is hand-written assembly. Its odd-register allocation is outside stock IDO. */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/hasm/math_matrix.s matrix_XYZ_YPR_SCL; Mickey's field offsets and
  * helper call targets remain authoritative here. */
@@ -328,13 +320,13 @@ void func_8002AE10(MatrixTransform *trans, MtxF dest) {
  * instruction count and kinds exactly, differing only in register names. Do
  * not rewrite them from scratch.
  *
- * func_8002B040 (MatrixRotateVec3) does not belong to this discussion at all:
- * it uses no odd registers. Its blocker is ugen's expression scheduling, and
- * with the stock toolchain at uopt -O3 -- reachable only through
- * tools/ido-phases.py, since `cc -O3` dies in uld -- and the m[i][j]*x operand
- * order it is 16 of 34 instructions from a match, with two systematic
- * residuals: the final add.s operand order (the ROM writes the accumulator
- * first) and the third mul.s's placement in rows 2 and 3.
+ * func_8002B040 does not use odd FP registers. A fresh ownership-aware reproof
+ * instead isolates one structural ABI-lowering difference: IDO spills the
+ * second f32 formal and reloads it, while the 34-word target moves all three
+ * incoming GPR bit patterns directly into FP registers. No stock flag or
+ * source-faithful type/expression spelling tested below removes that extra
+ * instruction; the public DKR/JFG matrix-transform assembly is donor context,
+ * not evidence that this target was compiled from C.
  */
 #ifdef NON_MATCHING
 /*
@@ -360,6 +352,9 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
     dst[2] = x * m[2][0] + y * m[2][1] + z * m[2][2] + w * m[2][3];
     dst[3] = x * m[3][0] + y * m[3][1] + z * m[3][2] + w * m[3][3];
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AF6C.s")
+#endif
 /*
  * Rotate a direction by the matrix's upper 3x3, the other way round from
  * MatrixMultiplyVec4: the input scales whole *rows* rather than being dotted
@@ -372,12 +367,60 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
  * floating-point argument register is used at all. The three destinations are
  * the stack arguments at 0x10/0x14/0x18(sp).
  */
-void MatrixRotateVec3(MtxF m, f32 x, f32 y, f32 z, f32 *dstX, f32 *dstY, f32 *dstZ) {
-    *dstX = x * m[0][0] + y * m[1][0] + z * m[2][0];
-    *dstY = x * m[0][1] + y * m[1][1] + z * m[2][1];
-    *dstZ = x * m[0][2] + y * m[1][2] + z * m[2][2];
+#ifdef NON_MATCHING
+/* Workbench: canonical C is 1/34 positional words, first mismatch +0x0. */
+/* Structural gap: target 34 instructions versus candidate 35; the a2 spill/reload is the extra word. */
+/* All 119 flag rows are nonexact; -O2/-mips1 improves only to 2/34 and is still one word long. */
+/* Bounded type, matrix-shape, temporary, K&R, register, operand-order, and uopt-O3 forms were nonexact. */
+void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
+                   f32 *arg4, f32 *arg5, f32 *arg6) {
+    f32 *flatMatrix;
+
+    flatMatrix = (f32 *)matrix;
+    *arg4 = arg1 * flatMatrix[0] + arg2 * flatMatrix[4] + arg3 * flatMatrix[8];
+    *arg5 = arg1 * flatMatrix[1] + arg2 * flatMatrix[5] + arg3 * flatMatrix[9];
+    *arg6 = arg1 * flatMatrix[2] + arg2 * flatMatrix[6] + arg3 * flatMatrix[10];
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AF6C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8002AA50:start
+ * symbol: func_8002AA50
+ * score: 90 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Target retains six call results in odd caller-saved FP registers; stock IDO cannot emit this hand-assembly pattern.
+ * PLATEAU-HANDOFF:func_8002AA50:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002AB78:start
+ * symbol: func_8002AB78
+ * score: 83 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Unique JFG hand-assembly donor; six call results live in odd caller-saved FP registers, which stock IDO cannot emit; retain fallback.
+ * PLATEAU-HANDOFF:func_8002AB78:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002AC84:start
+ * symbol: func_8002AC84
+ * score: 118 differing words
+ * frame: 0x80
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Target 99w/frame 0x8; 1/6 call identities aligns. Exact JFG donor is hand-written assembly; odd-FP subset is outside stock IDO/MIPSpro.
+ * PLATEAU-HANDOFF:func_8002AC84:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002AE10:start
+ * symbol: func_8002AE10
+ * score: 138 differing words
+ * frame: 0xA0
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: JFG-identical hand assembly uses odd FP registers and frame 0x8. Reopen only for reservation-aware patched codegen or a proven matching C donor.
+ * PLATEAU-HANDOFF:func_8002AE10:end
+ */

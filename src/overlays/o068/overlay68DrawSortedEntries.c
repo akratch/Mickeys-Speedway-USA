@@ -62,13 +62,15 @@ extern void overlay68SubmitEntryReloc(u32 **displayList, s32 arg1, s32 arg2,
                                       s32 mode, s32 objectMode);
 
 /*
- * PLATEAU: canonical -O2/-mips2 is the exact 0x354-byte size, with 148 of
+ * PLATEAU: canonical -O2/-mips2 is the exact 0x354-byte size, with 146 of
  * 213 owned words differing first at +0x0.  The best C frame is -0x128 while
  * retail is -0x108; the saved-register surface is exact and the extra 0x20 is
  * non-save local space.  Correcting the descriptor's mode field to +0x6 and
- * separating the final vector web improved the residual, but typed aggregate,
- * array-size, loop-bound, and bounded-permuter forms did not recover retail's
- * stack allocation.
+ * separating the final vector web improved the residual.  Target CFG confirms
+ * the s16 index sort used by Overlay 69/88 rather than Overlay 99's in-place
+ * swaps; target-supported display-list assignment order gains two words, but
+ * typed aggregate, array-size, loop-bound, and bounded-permuter forms did not
+ * recover retail's stack allocation.
  */
 #ifdef NON_MATCHING
 void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
@@ -94,8 +96,8 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
 
     command = *displayList;
     *displayList = command + 2;
-    command[1] = 0xFFFFFF00;
     command[0] = 0xFB000000;
+    command[1] = 0xFFFFFF00;
 
     entry = object->entries;
     count = 0;
@@ -155,3 +157,13 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68DrawSortedEntries/func_overlay_068_F0000EFC_18C805C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68DrawSortedEntries:start
+ * symbol: overlay68DrawSortedEntries
+ * score: 67/213 words
+ * frame: 0x128
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: Target CFG confirms the s16 index sort and rejects in-place sibling swaps; macro assignment order gains two words, while the 0x20 local-frame drift persists.
+ * PLATEAU-HANDOFF:overlay68DrawSortedEntries:end
+ */

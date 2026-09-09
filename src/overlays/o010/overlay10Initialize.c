@@ -146,8 +146,6 @@ void overlay10Initialize(void) {
     gOverlay10LargeBlock += 0x10;
     angle = 0;
     offset = 0;
-    if (((!offset) && (!offset)) && (!offset)) {
-    }
     do {
         ((volatile Overlay10Entry *)((u8 *)gOverlay10Entries + offset))->marker = 0xFF;
         ((volatile Overlay10Entry *)((u8 *)gOverlay10Entries + offset))->state0 = 0;
@@ -189,3 +187,13 @@ void overlay10Initialize(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o010/overlay10Initialize/func_overlay_010_F0000000_1868450.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay10Initialize:start
+ * symbol: overlay10Initialize
+ * score: 131/172 words
+ * frame: 0x68
+ * relocations: 41
+ * first-mismatch: +0x0
+ * summary: Required -Wo,-loopunroll,0 gives exact geometry; target frame is 0x58. Residual is stack-home/pool allocation; static relocation identities remain unresolved.
+ * PLATEAU-HANDOFF:overlay10Initialize:end
+ */

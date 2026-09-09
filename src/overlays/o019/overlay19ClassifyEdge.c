@@ -2,22 +2,29 @@
 
 /*
  * Classify an edge against a candidate edge, accepting either orientation.
- * Plateau (2026-08-25, cx-ov-2-a-r4): canonical -O2 -mips2 is exact-size at
- * 0x1E0 bytes, with 10 differing words and the first mismatch at +0x138.
- * Equivalent promoted-s16 `>= value + 1` tests reduce the original 14-word
- * deficit, and the bounded ten-minute permuter improves score 110 to 90. The
- * remaining reversed-coordinate block splits queryStartX's target $t3 live
- * range into $v1; explicit coordinate temporaries disturb the full register
- * web instead of preserving that allocation.
- * Follow-up plateau (2026-08-27, CREW-O19-EDGE-PIPE-07): the configured
- * object compare is still allocation-mismatch (schedule: 4, register: 6),
- * with 110/120 aligned instructions exact, 480-byte exact size, and the
- * first mismatch at +0x138. A `-g0` compile is unchanged; context lint has
- * no findings. The overlay-aware ten-minute single-thread batch reports
- * best permuter score 50 (zero is exact), with no zero-score candidate and
- * no promotion. Its retained scratch contains no candidate source suitable
- * for a real-TU rebuild, so the six-site `$t3` to `$v1` web and four final
- * schedule sites remain unresolved.
+ * PROVENANCE: Mickey-derived. The exact-donor ledger is negative. A retained
+ * structural scan found JFG assembly-only
+ * func_overlay_30_000012F0_1F4A3C0 at 0.443 and DKR public
+ * src/object_models.c:func_80060C58, a five-argument edge classifier, at 0.227;
+ * neither is an exact donor and no external C is adapted here.
+ * Bounded full-TU reproof (2026-08-29): configured V0 is exact-sized at
+ * 120 words / 0x1E0, frameless, and has no relocations or owned padding. It
+ * matches 110/120 positional words, first +0x138. Six sites are one visible
+ * carrier web at +0x138/+0x140/+0x148/+0x154/+0x15C/+0x164; two final y/z
+ * load pairs account for +0x194/+0x198 and +0x1B0/+0x1B4. Candidate `.text`
+ * SHA-256 is cbc6e4fc4f6b5b810bc239c6cef0ea183c1084cf4c2eafa35269ee3d04acbca5.
+ * The sole inbound is overlay19FindAdjacent+0xD8; this function is unexported.
+ *
+ * The complete 119-configuration lattice is nonexact; thirteen O2/MIPS-II
+ * rows tie V0. One instrumented uopt/ugen trace is fidelity-clean and confirms
+ * separate zero-cost pool-carrier and temporary-lane choices. Direct DKR-style
+ * fields regress to 108/120; staged y/z values regress to 98/120; reversing
+ * the final equality checks stays 110/120 and only trades schedule sites for
+ * register sites. No strict gain authorized a combination or generic batch.
+ * Preserve the GLOBAL_ASM fallback; linked range/module/ROM equality proves
+ * only that fallback. Resume only with a new natural pool-to-temporary or
+ * line-association mechanism; do not repeat flags, these three forms, forced
+ * colors, or the old broad batch.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(

@@ -109,3 +109,13 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58DrawLargePointQuad/func_overlay_058_F00050C8_18B42B0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
+ * symbol: overlay58DrawLargePointQuad
+ * score: 34/104 words
+ * frame: 0x18
+ * relocations: 11
+ * first-mismatch: +0x30
+ * summary: Sibling reproof has the same pool/temp signature; dead physical-address/color reuse is byte-flat. Prior flags and bounded permutation are exhausted.
+ * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
+ */

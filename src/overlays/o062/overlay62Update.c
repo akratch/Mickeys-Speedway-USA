@@ -75,16 +75,32 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
     packet_->word1 = (value_); \
 } while (0)
 
-#ifdef NON_MATCHING
-/* Workbench plateau: seven bounded source-faithful probes preserve the target
- * 294-instruction shape and 0x88-byte frame, but leave four register/opcode
- * differences. The configured C baseline emits 71 relocations versus the
- * target's 29; no instrumented globalcolor/UGEN trace is available. */
+/* Exact C: 294 words, the 0x88 frame, and all 71 relocation records.
+ *
+ * Two spellings are load-bearing and each was proved against the object.
+ * First, the two fading colour components are *multiplications* by negative
+ * constants, not shifts of a negated operand. The target negates the timer
+ * into the assembler temporary, and `ugen` never allocates that register
+ * outside its own `.set noat` sequences, so the word can only come from the
+ * `as1` expansion of a constant multiply -- and two such expansions in one
+ * block share a single negation into it.
+ *
+ * Second, `red` and `green` are two separate full expressions, not one chained
+ * assignment. A chained `red = green = X` leaves the pair a single web, so
+ * `red & 0xFF` reads back green's reloaded copy, `blue` takes a colour ahead
+ * of green's instead of behind it, and the whole colour lane rotates for the
+ * rest of the function. Writing each component out gives `red` its own pool
+ * colour and puts `blue` after `green` in colour order.
+ *
+ * `screenBase` keeps a `volatile` qualifier it does not need semantically: the
+ * value is the same constant on all three paths and IDO folds it away without
+ * the qualifier, costing six words. Recorded in docs/cleanup-queue.md as a
+ * naturalization candidate. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
     s32 intensity;
-    register s32 red;
+    s32 red;
     s32 green;
     s32 blue;
     Overlay62Transform transform;
@@ -98,11 +114,12 @@ void overlay62Update(s32 updateRate) {
         alpha = 0xFF - gOverlay62Value8 * 8;
         screenBase = 0xF8;
         intensity = 0x78 + ((gOverlay62Value8 * 0xDC) >> 5);
-        red = green = 0x40 + (((-gOverlay62Value8) << 6) >> 5);
-        blue = 0x80 + (((-gOverlay62Value8) << 7) >> 5);
+        red = 0x40 + ((gOverlay62Value8 * -0x40) >> 5);
+        green = 0x40 + ((gOverlay62Value8 * -0x40) >> 5);
+        blue = 0x80 + ((gOverlay62Value8 * -0x80) >> 5);
 
         overlay62SetHandleAlphaReloc(gOverlay62Handle14, alpha);
-        overlay62EntryColorReloc((red | 0) & 0xFF, green & 0xFF, blue & 0xFF,
+        overlay62EntryColorReloc(red & 0xFF, green & 0xFF, blue & 0xFF,
                                  green);
     } else if ((gOverlay62ValueC != 0) || (gOverlay62Value10 != 0)) {
         gOverlay62ValueC -= updateRate;
@@ -116,9 +133,7 @@ void overlay62Update(s32 updateRate) {
         screenBase = 0xF8;
         intensity = 0x154 + ((gOverlay62ValueC * -0xDC) >> 5);
         red = (gOverlay62ValueC << 6) >> 5;
-        if ((gOverlay62ValueC << 6) >> 5) {
-        }
-        green = red;
+        green = (gOverlay62ValueC << 6) >> 5;
         blue = (gOverlay62ValueC << 7) >> 5;
     } else {
         alpha = 0xFF;
@@ -184,6 +199,3 @@ void overlay62Update(s32 updateRate) {
                             gOverlay62Values, 0x74, 0xCC,
                             0xFF, 0xFF, 0xFF, alpha);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o062/overlay62Update/func_overlay_062_F00000D4_18C22F4.s")
-#endif

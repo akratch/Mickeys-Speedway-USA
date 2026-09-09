@@ -183,6 +183,8 @@ void func_overlay_057_F0000954_18A454C(s32 updateRate) {
             break;
         }
 
+        /* Inert allocation aid retained by the exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (O57_config0954.field08) {}
 
         if (((((O57_config0954.field08 & 0xFFFF) & 0x1C0) >> 6) >= 3) &&

@@ -76,6 +76,9 @@ extern s32 func_overlay_046_F0000874_188EC6C();
 /* Workbench verdict=allocation-mismatch; 54 masked/70 raw words differ in the exact 317-word frame, first real mismatch +0x78.
  * Flag lattice, temp/materialization variants, and the bounded -mips2 permuter were tried; mixed residual is schedule/register allocation.
  * Remains: packet-carrier lifetime at temp slot 7 and pool slot 58, with overlay relocation aliases. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x364..+0x378 .rodata range;
+ * linked promotion is text-differs with 315 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0000120_188E518(s32 amount) {
     s32 matched;
@@ -223,3 +226,13 @@ compare_name:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46UpdateSequence/func_overlay_046_F0000120_188E518.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:start
+ * symbol: func_overlay_046_F0000120_188E518
+ * score: 54 differing words
+ * frame: -0x30
+ * relocations: 118
+ * first-mismatch: +0x4
+ * summary: Exact 317-word geometry; allocation/schedule residual remains, while candidate relocation identity proof is partial.
+ * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
+ */

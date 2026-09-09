@@ -69,9 +69,9 @@ extern Overlay48S16At5A gOverlay48Finished;
 extern void func_overlay_048_F0000000_1895408();
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x00.
- * Target field offsets are recovered, but the candidate is 4 words shorter.
- * Structural gap: IDO seed-load/record scheduling and four target instructions. */
+/* Bounded plateau: 10/57 positional words, first mismatch +0x0; candidate
+ * 53 words versus target 57. Natural array/loop/BSS forms cannot retain the
+ * target's unrolled index setup without changing its direct-store schedule. */
 void overlay48InitializeState(void) {
     register volatile s16 *initial;
     s32 index;

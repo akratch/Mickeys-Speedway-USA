@@ -225,3 +225,13 @@ void func_overlay_101_F000895C_18E417C(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F000895C_18E417C/func_overlay_101_F000895C_18E417C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F000895C_18E417C:start
+ * symbol: func_overlay_101_F000895C_18E417C
+ * score: 461 differing words
+ * frame: 0x40
+ * relocations: 61
+ * first-mismatch: +0x4
+ * summary: V0: 524/525 words, exact 0x40 frame, 461 positional and 464 raw diffs. Relocs 61 versus 59; 32 sites and 9 identities align. Retained-node/root web persists.
+ * PLATEAU-HANDOFF:func_overlay_101_F000895C_18E417C:end
+ */

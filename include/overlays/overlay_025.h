@@ -123,9 +123,9 @@ extern u16 gOverlay25GlobalFlagsReloc;
 extern const u8 gOverlay25ColorsReloc[];
 extern f32 gOverlay25Threshold;
 
-extern f32 overlay25SinReloc(s32 angle);
-extern f32 overlay25CosReloc(s32 angle);
-extern s32 overlay25RandomReloc(s32 lower, s32 upper);
+extern f32 func_8002A8C0(s32 angle);
+extern f32 func_8002A8BC(s32 angle);
+extern s32 func_800299E8(s32 lower, s32 upper);
 extern void overlay25SetVectorFlagsReloc(void);
 extern void overlay25DestroyReloc(Overlay25Object *object);
 extern void overlay25MoveReloc(Overlay25Object *object, f32 x, f32 y, f32 z);
@@ -140,8 +140,9 @@ extern s32 overlay25QueryObjectsReloc(f32 x, f32 y, s32 z, f32 radius,
                                       s32 mode, Overlay25Object **objects);
 extern s32 overlay25CanHitReloc(Overlay25Object *object,
                                 Overlay25EntityState *state);
-extern void overlay25ApplyHitReloc(Overlay25Object *owner,
-                                   Overlay25Object *object);
+/* Overlay 25 table-1 record 15 resolves through ORT 1471 to Overlay 7 +0x894. */
+extern void overlay7DispatchModesReloc(Overlay25Object *owner,
+                                       Overlay25Object *object);
 extern Overlay25Status *overlay25GetStatusReloc(void);
 extern void overlay25NotifyHitReloc(Overlay25Object *object);
 

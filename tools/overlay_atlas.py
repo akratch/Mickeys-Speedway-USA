@@ -21,11 +21,13 @@ offset)`` throughout the atlas; the synthetic VMA is never reported as if it
 were a loaded address.
 
 Usage:
-    tools/overlay_atlas.py                 # concise summary
-    tools/overlay_atlas.py --write         # refresh manifest and YAML block
-    tools/overlay_atlas.py --check         # fail if either artifact is stale
-    tools/overlay_atlas.py --overlay 61    # one detailed module row
-    tools/overlay_atlas.py --relocations 61  # decoded records for one module
+    python3 tools/overlay_atlas.py                 # concise summary
+    python3 tools/overlay_atlas.py --write         # refresh manifest and YAML block
+    python3 tools/overlay_atlas.py --check         # fail if either artifact is stale
+    python3 tools/overlay_atlas.py --delta HEAD^    # ref versus worktree
+    python3 tools/overlay_atlas.py --delta A B --format json
+    python3 tools/overlay_atlas.py --overlay 61    # one detailed module row
+    python3 tools/overlay_atlas.py --relocations 61  # one module's records
 """
 
 import argparse
@@ -34,6 +36,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -43,22 +46,30 @@ import overlay_tables
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_ROM = REPO / "baseroms" / "mickey.us.z64"
 NON_MATCHING_RE = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
+GLOBAL_ASM_RE = re.compile(r"^\s*#\s*pragma\s+GLOBAL_ASM\b", re.MULTILINE)
+
+
+def is_nonmatching_text(text):
+    """Whether source text contains any compiler-unmatched function."""
+    return bool(NON_MATCHING_RE.search(text) or GLOBAL_ASM_RE.search(text))
 
 
 def is_nonmatching_source(overlay, source_name):
-    """Whether overlays/oNNN/<source_name>.c wraps its definition in
-    `#ifdef NON_MATCHING` -- the DKR/docs/acceleration-survey.md sec.13.2
-    convention this project adopted for objects whose compiled instructions
-    used to be edited after the fact. Mechanically derived from the C source
-    every run, never hand-maintained, so it cannot drift from the tree.
+    """Whether overlays/oNNN/<source_name>.c contains unmatched code.
+
+    Both a guarded candidate and a bare ``GLOBAL_ASM`` fallback make the
+    broad translation-unit owner conservative. Reviewed exact functions in
+    such a TU are credited separately through ``MIXED_TU_EXACT_C_RANGES``.
+    The signal is mechanically derived from source every run.
     """
     path = REPO / "src" / "overlays" / f"o{overlay:03d}" / f"{source_name}.c"
     if not path.is_file():
         return False
     with open(path, encoding="utf-8", errors="replace") as fh:
-        return bool(NON_MATCHING_RE.search(fh.read()))
+        return is_nonmatching_text(fh.read())
 DEFAULT_MANIFEST = REPO / "config" / "overlays.us.json"
 DEFAULT_YAML = REPO / "mickey.us.yaml"
+MANIFEST_REPO_PATH = "config/overlays.us.json"
 
 YAML_BEGIN = "  # BEGIN GENERATED OVERLAY SEGMENTS -- tools/overlay_atlas.py"
 YAML_END = "  # END GENERATED OVERLAY SEGMENTS -- tools/overlay_atlas.py"
@@ -106,6 +117,38 @@ DATA_RODATA_OWNERSHIP = {
     79: [(0x0, 0x60, "func_overlay_079_F0000134_18CD0D4")],
 }
 
+# Reviewed initialized subranges emitted by a C owner's non-.data section.
+# Offsets are relative to the module's combined initialized data range.  Unlike
+# DATA_RODATA_OWNERSHIP, these ranges may be interior to the raw range; the
+# YAML projection therefore emits the raw fragments on either side and a
+# typed subsegment for the owning TU.  The four-byte subalignment below is
+# required for IDO's literal-pool and jump-table placement.  A sixth tuple
+# field marks a pool whose candidate object is externalized back onto the
+# retained raw slice; that trial leaves the raw bytes in place rather than
+# carving them a second time.
+FIXED_DATA_RODATA_OWNERSHIP = {
+    # The fifth field identifies the guarded C definition that emits this
+    # range. Consolidated TUs also contain candidates whose promotion does not
+    # emit the owner's compiler data, so trial projection must be function-
+    # scoped rather than merely source-file-scoped.
+    1: [(0x274, 0x294, "overlay_001_tail", ".rodata", "overlay1DispatchMode", True)],
+    7: [(0x934, 0x950, "overlay_007_tail", ".rodata", "overlay7DispatchModes")],
+    8: [(0x27C, 0x2AC, "overlay_008", ".rodata", "func_overlay_008_F0004CF0_1862A48")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C", True)],
+    14: [
+        (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata", "overlay14LoadRelocatedValue"),
+        (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata", "func_overlay_014_F0001830_1871108"),
+    ],
+    25: [(0x20, 0x40, "overlay_025", ".rodata", "overlay25UpdateEffect")],
+    41: [
+        (0x0, 0x3C, "overlay41SampleCurve", ".rodata", "func_overlay_041_F00002AC_18875E4"),
+        (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata", "func_overlay_041_F0000854_1887B8C"),
+    ],
+    46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata", "func_overlay_046_F0000120_188E518")],
+    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance", True)],
+    86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata", "func_overlay_086_F0000474_18D22AC")],
+}
+
 # When a C owner's initialized input follows its text, IDO's measured .text
 # alignment can emit the intervening zero padding without a separate asm row.
 # Keep the row in the atlas so padding is never counted as executable C credit.
@@ -142,9 +185,10 @@ TEXT_SUBSEGMENTS = {
         (0x0000, "c", "overlay_001"),
         (0x07B0, "c", "overlay_001_build"),
         (0x0BD4, "c", "overlay_001_head"),
-        (0x1D78, "asm", "overlay_001_middle_c1a0"),
+        (0x1D78, "c", "func_overlay_001_F0001D78_184E158"),
         (0x2744, "c", "overlay_001_middle"),
-        (0x2B4C, "asm", "overlay_001_middle_c1b_a"),
+        (0x2B4C, "c", "func_overlay_001_F0002B4C_184EF2C"),
+        (0x3258, "c", "func_overlay_001_F0003258_184F638"),
         (0x3578, "c", "overlay_001_tail"),
         (0x7BDC, "c", "overlay_001_create"),
         (0x7D6C, "c", "overlay_001_end"),
@@ -489,7 +533,7 @@ TEXT_SUBSEGMENTS = {
         (0x3C0, "c", "overlay61DrawEntry"),
         (0x7C4, "c", "overlay61DrawList"),
         (0x968, "c", "overlay61InitResources"),
-        (0xB84, "asm", "overlay_061_tail"),
+        (0xB84, "c", "func_overlay_061_F0000B84_18BFF4C"),
         (0x1578, "c", "overlay61ReleaseResources"),
         (0x1648, "c", "func_overlay_061_F0001648_18C0A10"),
         (0x17B8, "c", "overlay61WriteCharacter"),
@@ -554,7 +598,7 @@ TEXT_SUBSEGMENTS = {
     ],
     73: [
         (0x000, "c", "overlay73Initialize"),
-        (0x190, "asm", "overlay_073"),
+        (0x190, "c", "func_overlay_073_F0000190_18CAC50"),
         (0xD70, "c", "overlay73Draw"),
         (0xEA8, "asm", "overlay_073_padding"),
     ],
@@ -729,7 +773,7 @@ TEXT_SUBSEGMENTS = {
         (0x638, "c", "overlay99BuildHeightGrid"),
         (0x800, "c", "overlay99RenderSortedEntries"),
         (0xBA4, "c", "overlay99RenderSegments"),
-        (0xDDC, "asm", "overlay_099_tail_c"),
+        (0xDDC, "c", "func_overlay_099_F0000DDC_18DA38C"),
     ],
     100: [
         (0x000, "c", "overlay100InitializeMotion"),
@@ -773,7 +817,7 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay52Initialize"),
         (0x4F0, "c", "overlay52PatchIndices"),
         (0x540, "c", "overlay52CopyOffsetEntries"),
-        (0x63C, "asm", "overlay_052_tail_b"),
+        (0x63C, "c", "overlay52TailB"),
         (0x2098, "c", "overlay52Cleanup"),
         (0x2128, "asm", "overlay_052_padding"),
     ],
@@ -790,7 +834,7 @@ TEXT_SUBSEGMENTS = {
         (0x3CC, "c", "overlay54PatchIndices"),
         (0x41C, "c", "overlay54CopyOffsetRecords"),
         (0x504, "c", "overlay54GetOffsets"),
-        (0x5AC, "asm", "overlay_054_tail_a"),
+        (0x5AC, "c", "overlay54TailA"),
         (0x1E94, "c", "overlay54ReleaseResources"),
         (0x1EE4, "asm", "overlay_054_padding"),
     ],
@@ -799,7 +843,7 @@ TEXT_SUBSEGMENTS = {
         (0x954, "c", "overlay57UpdateInterface"),
         (0x1020, "c", "func_overlay_057_F0001020_18A4C18"),
         (0x1978, "c", "overlay57ReleaseAll"),
-        (0x1AE8, "asm", "overlay_057_prefix_a"),
+        (0x1AE8, "c", "func_overlay_057_F0001AE8_18A56E0"),
         (0x28B4, "c", "overlay57EaseAndLatch"),
         (0x2C28, "c", "overlay57SmoothAndCheckDistance"),
         (0x2F48, "c", "overlay57CheckDistance"),
@@ -814,7 +858,7 @@ TEXT_SUBSEGMENTS = {
         (0x4460, "c", "func_overlay_057_F0004460_18A8058"),
         (0x4C18, "c", "overlay57UpdateModeTrigger"),
         (0x4D90, "c", "overlay57InitializeMode"),
-        (0x4E18, "asm", "overlay_057_middle_b"),
+        (0x4E18, "c", "func_overlay_057_F0004E18_18A8A10"),
         (0x60F8, "c", "func_overlay_057_F00060F8_18A9CF0"),
         (0x67DC, "c", "overlay57SetNodeValue"),
         (0x6878, "c", "overlay57ApplyTable"),
@@ -933,7 +977,7 @@ TEXT_SUBSEGMENTS = {
     ],
     60: [
         (0x0000, "c", "overlay60Initialize"),
-        (0x0334, "asm", "overlay_060_prefix"),
+        (0x0334, "c", "overlay60Prefix"),
         (0x2EC8, "c", "overlay60ReleaseResources"),
         (0x2F54, "c", "func_overlay_060_F0002F54_18BCD2C"),
         (0x32CC, "c", "overlay60DrawBorder"),
@@ -1079,11 +1123,41 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x0154, 0x01AC, "overlay1SignedOffset"),
         (0x02D4, 0x0330, "overlay1GetLinkedActive"),
         (0x0330, 0x0378, "overlay1GetRecord"),
+        (
+            0x0378,
+            0x0414,
+            "overlay1FindType5ByKey",
+            "canonical mixed-TU object, one runtime relocation, and linked ROM bytes exact",
+        ),
         (0x0758, 0x07B0, "overlay1TestDirection"),
+        (
+            0x0BD4,
+            0x0CA8,
+            "overlay1InitMotionScale",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x0DF4,
+            0x0F84,
+            "overlay1ResolveMotionPoint",
+            "canonical mixed-TU object, 11 runtime relocations, and linked bytes exact",
+        ),
         (0x10C0, 0x10C8, "overlay1Noop"),
         (0x19B8, 0x1A54, "overlay1InitializeModeState"),
         (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),
         (0x1D58, 0x1D78, "overlay1CallReset"),
+        (
+            0x2744,
+            0x280C,
+            "overlay1FindNextAngle",
+            "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact",
+        ),
+        (
+            0x280C,
+            0x28D4,
+            "overlay1FindPreviousAngle",
+            "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact",
+        ),
         (0x28D4, 0x293C, "overlay1RefreshMode"),
         (0x293C, 0x296C, "overlay1CallGlobal"),
         (
@@ -1092,20 +1166,98 @@ MIXED_TU_EXACT_C_RANGES = {
             "overlay1AdvanceObjectGauges",
             "canonical mixed-TU object and linked bytes exact",
         ),
+        (
+            0x3578,
+            0x36A0,
+            "overlay1InitializeGaugeObjects",
+            "canonical mixed-TU object, all three runtime relocations, and linked ROM bytes exact",
+        ),
+        (
+            0x36A0,
+            0x3750,
+            "overlay1AssignRecordIndex",
+            "canonical mixed-TU object, seven runtime relocations, and linked ROM bytes exact",
+        ),
         (0x3E48, 0x3E74, "overlay1SubmitGlobals"),
         (0x3E74, 0x3EB8, "overlay1SubmitAll"),
         (0x3EB8, 0x3F38, "overlay1AngleBetweenSamples"),
         (0x3F38, 0x3FD8, "overlay1RelativeAngles"),
         (0x5BA4, 0x5BC0, "overlay1InitTimedState"),
         (0x5BC0, 0x5BF4, "overlay1ConsumeTimer"),
+        (
+            0x5BF4,
+            0x5CD4,
+            "overlay1StartTimerCallbacks",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x5CD4,
+            0x5ECC,
+            "overlay1FindDirectionalObject",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
+        (
+            0x5ED4,
+            0x61F0,
+            "overlay1DispatchMode",
+            "canonical mixed-TU object, 61 runtime relocations, and linked bytes exact",
+        ),
+        (
+            0x6270,
+            0x63CC,
+            "overlay1ChooseModeObject",
+            "canonical mixed-TU object, 13 runtime relocations, and linked bytes exact",
+        ),
         (0x63CC, 0x6424, "overlay1UpdateCountdown"),
         (0x6424, 0x64F8, "overlay1ReadSelection"),
         (0x6724, 0x6788, "overlay1UpdateModeSound"),
         (0x6788, 0x67C0, "overlay1CopyBytes"),
         (0x69A0, 0x6A14, "overlay1InitMotion"),
         (0x6B28, 0x6B6C, "overlay1InitRange"),
+        (
+            0x6B6C,
+            0x6CE8,
+            "overlay1SearchNearby",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x6CE8, 0x6D4C, "overlay1SelectMaskedMode"),
+        (
+            0x7130,
+            0x72A4,
+            "overlay1UpdateTransient",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x72A4,
+            0x7344,
+            "overlay1AllocateRecord",
+            "canonical mixed-TU object, 10 runtime relocations, and linked bytes exact",
+        ),
+        (
+            0x7344,
+            0x73A0,
+            "overlay1CloneRecord",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x73A0,
+            0x7580,
+            "overlay1UpdateValueCache",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x7580,
+            0x7730,
+            "overlay1AppendPathPoint",
+            "canonical mixed-TU object, all eight relocation records, and linked ROM bytes exact",
+        ),
+        (
+            0x7B64,
+            0x7BDC,
+            "overlay1FindBestRecord",
+            "canonical mixed-TU object, both runtime relocations, and linked ROM bytes exact",
+        ),
         (0x7FCC, 0x8008, "overlay1ModeChecks"),
         (0x8008, 0x8048, "overlay1DistanceFromCurrent"),
         (0x8048, 0x80BC, "overlay1DistanceFromSelected"),
@@ -1114,7 +1266,25 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x000, 0x138, "overlay4InitializeObjectMotion"),
         (0x4D0, 0x52C, "overlay4AttachObject"),
         (0x52C, 0x5D0, "overlay4RemoveObject"),
+        (
+            0x5D0,
+            0x710,
+            "overlay4UpdateGroupSpacing",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x710, 0x734, "overlay4GroupCount"),
+        (
+            0x734,
+            0x8F4,
+            "overlay4FindCategory2Object",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x8F4,
+            0xCAC,
+            "overlay4FindSearchPosition",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
     ],
     5: [
         (0x2E4, 0x31C, "overlay5InitSequence"),
@@ -1129,24 +1299,85 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x228, 0x298, "overlay7CreateEntry"),
         (0x298, 0x324, "overlay7AppendEntry"),
+        (
+            0x894,
+            0xAA0,
+            "overlay7DispatchModes",
+            "canonical mixed-TU object, 23 text plus seven switch-table runtime relocations, and linked bytes exact",
+        ),
+        (
+            0xCCC,
+            0xDBC,
+            "overlay7DispatchSelection",
+            "canonical mixed-TU object, all 13 runtime relocations, and linked bytes exact",
+        ),
+        (
+            0xDBC,
+            0xEDC,
+            "overlay7CommitSelection",
+            "canonical mixed-TU object, 17 runtime relocations with two declared metadata filters, and linked bytes exact",
+        ),
         (0xEDC, 0xF08, "overlay7FillValues"),
         (0xF08, 0xFB8, "overlay7InitPool"),
     ],
     8: [
         (0x000, 0x008, "overlay8Ignore"),
         (0x008, 0x058, "overlay8GetIndexed"),
+        (
+            0x894,
+            0xE88,
+            "func_overlay_008_F0000894_185E5EC",
+            "canonical mixed-TU object and linked ROM bytes exact",
+        ),
         (0xE88, 0xF1C, "overlay8StartMotion"),
         (0xF1C, 0x1000, "overlay8Activate"),
+        (
+            0x291C,
+            0x2EC0,
+            "func_overlay_008_F000291C_1860674",
+            "canonical mixed-TU object and linked ROM bytes exact",
+        ),
         (0x2EC0, 0x3018, "overlay8UpdateChild"),
-        (0x3018, 0x3278, "overlay8UpdateChannels"),
+        (
+            0x3018,
+            0x3278,
+            "overlay8UpdateChannels",
+            "canonical mixed-TU object, 16 runtime relocations, and linked bytes exact",
+        ),
         (0x3278, 0x3368, "overlay8ApplyColors"),
+        (
+            0x3368,
+            0x34A0,
+            "overlay8ScaleOutputs",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x49A4, 0x49B4, "overlay8SetBuffer"),
         (0x49B4, 0x49DC, "overlay8WriteCommand"),
         (0x49DC, 0x49E8, "overlay8SetValue"),
         (0x49E8, 0x4CF0, "overlay8UpdateMotionOutput"),
     ],
     9: [
+        (
+            0x09BC,
+            0x0CE4,
+            "func_overlay_009_F00009BC_1867034",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x0F6C,
+            0x10A4,
+            "func_overlay_009_F0000F6C_18675E4",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x10A4, 0x10B4, "overlay9Ignore"),
+    ],
+    45: [
+        (
+            0x764,
+            0x1158,
+            "func_overlay_045_F0000764_188CBBC",
+            "canonical object, 24 runtime relocations, and linked bytes exact",
+        ),
     ],
     12: [
         (0x000, 0x0C4, "overlay12Initialize"),
@@ -1165,6 +1396,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x1A8, 0x1E0, "overlay16ReleaseBuffer"),
     ],
     25: [
+        (
+            0x000,
+            0x17C,
+            "overlay25InitializeEffect",
+            "canonical mixed-TU object, nine runtime relocations, and linked bytes exact",
+        ),
         (0x588, 0x608, "overlay25SetVectorFlags"),
     ],
     27: [
@@ -1180,6 +1417,70 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     49: [
         (0x354, 0x374, "refractOutput"),
+    ],
+    51: [
+        (
+            0x000,
+            0x080,
+            "overlay51Initialize",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x080,
+            0x0D0,
+            "overlay51PatchIndices",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x858,
+            0x8AC,
+            "overlay51ReleaseState",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+    ],
+    56: [
+        (
+            0x000,
+            0x05C,
+            "overlay56OffsetCoordinates",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x05C,
+            0x0B8,
+            "overlay56CenterCoordinates",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x0B8,
+            0x10C,
+            "overlay56SplitTime",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x10C,
+            0x118,
+            "overlay56SetMode",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x118,
+            0x168,
+            "overlay56LoadResource",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x168,
+            0x1A0,
+            "overlay56ReleaseResource",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0xAB4,
+            0xAF4,
+            "overlay56UnpackColor",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
     ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),
@@ -1205,8 +1506,389 @@ def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
 
 
+class AtlasDeltaError(ValueError):
+    """An atlas state cannot be compared without guessing at ownership."""
+
+
+def _atlas_int(value, field, state):
+    if isinstance(value, bool):
+        raise AtlasDeltaError(f"{state}: {field} is not an integer")
+    try:
+        if isinstance(value, str):
+            parsed = int(value, 0)
+        elif isinstance(value, int):
+            parsed = value
+        else:
+            raise TypeError
+    except (TypeError, ValueError) as exc:
+        raise AtlasDeltaError(f"{state}: invalid {field} {value!r}") from exc
+    if parsed < 0:
+        raise AtlasDeltaError(f"{state}: negative {field} {value!r}")
+    return parsed
+
+
+def _exact_c_row(overlay, row, state, mixed=False):
+    try:
+        start = _atlas_int(row["offset"], "offset", state)
+        end = _atlas_int(row["end_offset"], "end_offset", state)
+        size = _atlas_int(row["size"], "size", state)
+    except KeyError as exc:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C row lacks {exc.args[0]}"
+        ) from exc
+    if start >= end or size != end - start:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range {hx(start)}..{hx(end)} "
+            f"has inconsistent size {hx(size)}"
+        )
+    source = row.get("source")
+    if not isinstance(source, str) or not source:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range at {hx(start)} "
+            "has no source"
+        )
+    label = row.get("label") if mixed else source.rsplit("/", 1)[-1]
+    if not isinstance(label, str) or not label:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range at {hx(start)} "
+            "has no label"
+        )
+    return {
+        "key": f"overlay:{overlay}:text:{hx(start)}",
+        "overlay": overlay,
+        "section": "text",
+        "offset": start,
+        "end_offset": end,
+        "size": size,
+        "label": label,
+        "source": source,
+        "kind": "mixed_tu_range" if mixed else "ownership_row",
+    }
+
+
+def exact_c_index(atlas, state="atlas"):
+    """Return exact C ranges keyed by canonical overlay/text offset.
+
+    Release deltas must not infer identity from a synthetic VMA, source name,
+    or row order. Duplicate modules, duplicate starts, overlapping exact-C
+    ranges, inconsistent extents, and a total that disagrees with the atlas
+    all fail closed.
+    """
+    modules = atlas.get("modules")
+    if not isinstance(modules, list):
+        raise AtlasDeltaError(f"{state}: modules is not a list")
+    index = {}
+    seen_overlays = set()
+    by_overlay = collections.defaultdict(list)
+    for module in modules:
+        if not isinstance(module, dict) or "overlay" not in module:
+            raise AtlasDeltaError(f"{state}: malformed module row")
+        overlay = _atlas_int(module["overlay"], "overlay", state)
+        if not 1 <= overlay <= overlay_tables.HEADER_COUNT:
+            raise AtlasDeltaError(f"{state}: overlay {overlay} is out of range")
+        if overlay in seen_overlays:
+            raise AtlasDeltaError(f"{state}: duplicate overlay {overlay} module")
+        seen_overlays.add(overlay)
+        ownership = module.get("text_ownership", [])
+        mixed_ranges = module.get("mixed_tu_exact_c_ranges", [])
+        if not isinstance(ownership, list) or not isinstance(mixed_ranges, list):
+            raise AtlasDeltaError(
+                f"{state}: overlay {overlay} ownership rows are not lists"
+            )
+        candidates = []
+        parsed_ownership = []
+        for row in ownership:
+            if not isinstance(row, dict):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} has a malformed ownership row"
+                )
+            if row.get("type") != "c":
+                continue
+            if row.get("matched") is not True or not isinstance(
+                row.get("nonmatching"), bool
+            ):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} C ownership row at "
+                    f"{row.get('offset')!r} has ambiguous matching status"
+                )
+            parsed = _exact_c_row(overlay, row, state)
+            parsed_ownership.append((parsed, row["nonmatching"]))
+            if not row["nonmatching"]:
+                candidates.append(parsed)
+        for row in mixed_ranges:
+            if not isinstance(row, dict):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} has a malformed mixed-TU row"
+                )
+            candidate = _exact_c_row(overlay, row, state, mixed=True)
+            containers = [
+                owner
+                for owner, nonmatching in parsed_ownership
+                if nonmatching
+                and owner["offset"] <= candidate["offset"]
+                and candidate["end_offset"] <= owner["end_offset"]
+            ]
+            if len(containers) != 1:
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} mixed-TU exact range "
+                    f"text+{hx(candidate['offset'])} is not inside exactly "
+                    "one nonmatching C owner"
+                )
+            candidates.append(candidate)
+        for candidate in candidates:
+            key = (candidate["overlay"], candidate["offset"])
+            if key in index:
+                raise AtlasDeltaError(
+                    f"{state}: ambiguous exact-C identity overlay {overlay} "
+                    f"text+{hx(candidate['offset'])}"
+                )
+            index[key] = candidate
+            by_overlay[overlay].append(candidate)
+
+    for overlay, rows in by_overlay.items():
+        previous = None
+        for row in sorted(rows, key=lambda item: item["offset"]):
+            if previous is not None and row["offset"] < previous["end_offset"]:
+                raise AtlasDeltaError(
+                    f"{state}: overlapping exact-C identities in overlay {overlay}: "
+                    f"text+{hx(previous['offset'])}..{hx(previous['end_offset'])} "
+                    f"and text+{hx(row['offset'])}..{hx(row['end_offset'])}"
+                )
+            previous = row
+
+    extracted_total = sum(row["size"] for row in index.values())
+    totals = atlas.get("totals")
+    if not isinstance(totals, dict) or "matched_overlay_c_bytes" not in totals:
+        raise AtlasDeltaError(f"{state}: atlas lacks an exact-C byte total")
+    declared_total = _atlas_int(
+        totals["matched_overlay_c_bytes"],
+        "totals.matched_overlay_c_bytes",
+        state,
+    )
+    if declared_total != extracted_total:
+        raise AtlasDeltaError(
+            f"{state}: exact-C rows total {extracted_total} bytes, "
+            f"atlas declares {declared_total}"
+        )
+    return index
+
+
+def _reviewed_mixed_repartition(atlas, owner, mixed, state):
+    """Recognize an exact whole owner deliberately narrowed to proven subranges."""
+    if owner["kind"] != "ownership_row" or mixed["kind"] != "mixed_tu_range":
+        return False
+    if owner["overlay"] != mixed["overlay"] or owner["source"] != mixed["source"]:
+        return False
+    if not (
+        owner["offset"] <= mixed["offset"]
+        and mixed["end_offset"] <= owner["end_offset"]
+    ):
+        return False
+    modules = atlas.get("modules", [])
+    module = next(
+        (
+            item
+            for item in modules
+            if isinstance(item, dict)
+            and _atlas_int(item.get("overlay"), "overlay", state) == owner["overlay"]
+        ),
+        None,
+    )
+    if module is None:
+        return False
+    for row in module.get("text_ownership", []):
+        if not isinstance(row, dict) or row.get("type") != "c":
+            continue
+        parsed = _exact_c_row(owner["overlay"], row, state)
+        if (
+            row.get("matched") is True
+            and row.get("nonmatching") is True
+            and parsed["offset"] == owner["offset"]
+            and parsed["end_offset"] == owner["end_offset"]
+            and parsed["source"] == owner["source"]
+        ):
+            return True
+    return False
+
+
+def _uncovered_exact_segments(row, blockers):
+    """Split one exact row into the physical byte ranges absent from blockers."""
+    cursor = row["offset"]
+    segments = []
+    for blocker in sorted(blockers, key=lambda item: item["offset"]):
+        if blocker["end_offset"] <= cursor:
+            continue
+        if blocker["offset"] >= row["end_offset"]:
+            break
+        if blocker["offset"] > cursor:
+            segments.append((cursor, min(blocker["offset"], row["end_offset"])))
+        cursor = max(cursor, blocker["end_offset"])
+        if cursor >= row["end_offset"]:
+            break
+    if cursor < row["end_offset"]:
+        segments.append((cursor, row["end_offset"]))
+    result = []
+    for start, end in segments:
+        segment = dict(row)
+        segment.update(
+            key=f"overlay:{row['overlay']}:text:{hx(start)}",
+            offset=start,
+            end_offset=end,
+            size=end - start,
+        )
+        result.append(segment)
+    return result
+
+
+def compare_exact_c_atlases(
+    base_atlas, target_atlas, base_name="base", target_name="target"
+):
+    """Compute an auditable exact-C ownership transition between atlases."""
+    base = exact_c_index(base_atlas, base_name)
+    target = exact_c_index(target_atlas, target_name)
+    base_rows = list(base.values())
+    target_rows = list(target.values())
+    for before in base_rows:
+        for after in target_rows:
+            if before["overlay"] != after["overlay"]:
+                continue
+            if (
+                before["end_offset"] <= after["offset"]
+                or after["end_offset"] <= before["offset"]
+            ):
+                continue
+            if (
+                before["offset"] == after["offset"]
+                and before["end_offset"] == after["end_offset"]
+            ):
+                continue
+            if _reviewed_mixed_repartition(
+                target_atlas, before, after, target_name
+            ) or _reviewed_mixed_repartition(base_atlas, after, before, base_name):
+                continue
+            raise AtlasDeltaError(
+                f"ambiguous identity overlay {before['overlay']} "
+                f"text+{hx(before['offset'])} has extent "
+                f"{hx(before['end_offset'])} in {base_name} and overlapping "
+                f"text+{hx(after['offset'])}..{hx(after['end_offset'])} "
+                f"in {target_name}"
+            )
+
+    promotions = []
+    for row in target_rows:
+        blockers = [item for item in base_rows if item["overlay"] == row["overlay"]]
+        promotions.extend(_uncovered_exact_segments(row, blockers))
+    retractions = []
+    for row in base_rows:
+        blockers = [item for item in target_rows if item["overlay"] == row["overlay"]]
+        retractions.extend(_uncovered_exact_segments(row, blockers))
+    promotions.sort(key=lambda row: (row["overlay"], row["offset"]))
+    retractions.sort(key=lambda row: (row["overlay"], row["offset"]))
+    promoted_bytes = sum(row["size"] for row in promotions)
+    retracted_bytes = sum(row["size"] for row in retractions)
+    return {
+        "schema_version": 1,
+        "promotions": promotions,
+        "retractions": retractions,
+        "totals": {
+            "base_exact_c_bytes": sum(row["size"] for row in base.values()),
+            "target_exact_c_bytes": sum(row["size"] for row in target.values()),
+            "promotion_count": len(promotions),
+            "promotion_bytes": promoted_bytes,
+            "retraction_count": len(retractions),
+            "retraction_bytes": retracted_bytes,
+            "net_exact_c_bytes": promoted_bytes - retracted_bytes,
+        },
+    }
+
+
+def _decode_atlas(payload, state):
+    try:
+        atlas = json.loads(payload)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise AtlasDeltaError(f"{state}: invalid atlas JSON: {exc}") from exc
+    if not isinstance(atlas, dict):
+        raise AtlasDeltaError(f"{state}: atlas root is not an object")
+    return atlas
+
+
+def load_atlas_state(spec, repo=REPO):
+    """Load an atlas file/tree path or a Git tree-ish without checking it out."""
+    path = Path(spec)
+    if path.exists():
+        atlas_path = path / MANIFEST_REPO_PATH if path.is_dir() else path
+        if not atlas_path.is_file():
+            raise AtlasDeltaError(f"{spec}: tree has no {MANIFEST_REPO_PATH}")
+        payload = atlas_path.read_text(encoding="utf-8")
+        digest = hashlib.sha256(payload.encode()).hexdigest()
+        return _decode_atlas(payload, spec), {
+            "input": spec,
+            "kind": "tree" if path.is_dir() else "manifest",
+            "resolved": f"sha256:{digest}",
+        }
+
+    try:
+        tree = subprocess.run(
+            ["git", "rev-parse", "--verify", f"{spec}^{{tree}}"],
+            cwd=repo,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.strip()
+        payload = subprocess.run(
+            ["git", "show", f"{spec}:{MANIFEST_REPO_PATH}"],
+            cwd=repo,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        detail = exc.stderr.strip() or "not a path or Git tree-ish"
+        raise AtlasDeltaError(f"{spec}: {detail}") from exc
+    return _decode_atlas(payload, spec), {
+        "input": spec,
+        "kind": "git",
+        "resolved": tree,
+    }
+
+
+def load_worktree_atlas(path=DEFAULT_MANIFEST):
+    payload = path.read_text(encoding="utf-8")
+    digest = hashlib.sha256(payload.encode()).hexdigest()
+    return _decode_atlas(payload, "WORKTREE"), {
+        "input": "WORKTREE",
+        "kind": "worktree",
+        "resolved": f"sha256:{digest}",
+    }
+
+
+def render_exact_c_delta(delta):
+    lines = [
+        f"base:   {delta['base']['input']} ({delta['base']['resolved']})",
+        f"target: {delta['target']['input']} ({delta['target']['resolved']})",
+    ]
+    for heading, marker, rows, byte_key in (
+        ("promotions", "+", delta["promotions"], "promotion_bytes"),
+        ("retractions", "-", delta["retractions"], "retraction_bytes"),
+    ):
+        lines.append(
+            f"{heading}: {len(rows)} ranges, {delta['totals'][byte_key]} bytes"
+        )
+        for row in rows:
+            lines.append(
+                f"  {marker} overlay {row['overlay']:03d} "
+                f"text+{hx(row['offset'])}..{hx(row['end_offset'])} "
+                f"{row['size']} bytes {row['label']}"
+            )
+    net = delta["totals"]["net_exact_c_bytes"]
+    lines.append(f"net exact C: {net:+d} bytes")
+    return "\n".join(lines)
+
+
 def data_rodata_ownership_rows(overlay, data_size, text_ownership):
-    """Reviewed leading initialized ranges emitted by existing C objects."""
+    """Reviewed initialized ranges emitted by existing C objects."""
     rows = []
     previous_end = 0
     previous_text_index = -1
@@ -1242,6 +1924,47 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         )
         previous_end = end
         previous_text_index = text_index
+    for fixed in FIXED_DATA_RODATA_OWNERSHIP.get(overlay, []):
+        if len(fixed) not in (4, 5, 6):
+            raise ValueError(
+                f"invalid overlay {overlay} fixed data/rodata owner tuple"
+            )
+        start, end, source_name, section = fixed[:4]
+        trial_function = fixed[4] if len(fixed) >= 5 else None
+        externalized = fixed[5] if len(fixed) == 6 else False
+        if not isinstance(externalized, bool):
+            raise ValueError(
+                f"invalid overlay {overlay} externalized ownership flag"
+            )
+        if (
+            start < 0
+            or start >= end
+            or end > data_size
+            or start % 4
+            or end % 4
+            or section not in (".data", ".rodata")
+        ):
+            raise ValueError(
+                f"invalid overlay {overlay} fixed data/rodata ownership range"
+            )
+        if source_name not in text_sources:
+            raise ValueError(
+                f"overlay {overlay} fixed data/rodata owner {source_name} "
+                "does not own a C text row"
+            )
+        row = {
+            "offset": hx(start),
+            "end_offset": hx(end),
+            "size": hx(end - start),
+            "type": "c",
+            "section": section,
+            "source": f"overlays/o{overlay:03d}/{source_name}",
+        }
+        if trial_function is not None:
+            row["trial_function"] = trial_function
+        if externalized:
+            row["externalized"] = True
+        rows.append(row)
     return rows
 
 
@@ -1619,7 +2342,50 @@ def render_manifest(atlas):
     return json.dumps(atlas, indent=1) + "\n"
 
 
-def render_yaml_block(atlas):
+TRIAL_SOURCE_ENV = "PROMOTION_TRIAL_SOURCE"
+TRIAL_FUNCTION_ENV = "PROMOTION_TRIAL_FUNCTION"
+
+
+def trial_sources(cli=None):
+    """Translation units whose fixed data/rodata ownership a trial may carve.
+
+    A carve is only correct while the owning TU actually emits those bytes,
+    which happens only when that TU's NON_MATCHING candidate is promoted. A
+    carve applied to any *other* trial leaves the range unclaimed: splat drops
+    the covered bytes from the module's raw `bin`, the module shrinks, and
+    every module behind it slides -- which is what made all 174 `text-differs`
+    rows report the whole remainder of the overlay region as out-of-range.
+
+    So the projection carves nothing unless the trial names the TU it is
+    promoting, by `--trial-source` or by PROMOTION_TRIAL_SOURCE (the env form
+    exists because the build's own `overlay_atlas.py --check` has to agree with
+    the yaml the trial wrote). Function-scoped trials additionally pass
+    `--trial-function` / PROMOTION_TRIAL_FUNCTION; a fixed row with a producer
+    function is carved only for that definition. Values are source stems or
+    bare basenames.
+    """
+    raw = list(cli or [])
+    if not raw:
+        raw = re.split(r"[,\s]+", os.environ.get(TRIAL_SOURCE_ENV, ""))
+    return frozenset(
+        part.rsplit("/", 1)[-1] for part in raw if part
+    )
+
+
+def trial_functions(cli=None):
+    """C definitions whose compiler-owned data a trial may carve."""
+    raw = list(cli or [])
+    if not raw:
+        raw = re.split(r"[,\s]+", os.environ.get(TRIAL_FUNCTION_ENV, ""))
+    return frozenset(part for part in raw if part)
+
+
+def render_yaml_block(
+    atlas,
+    trial_ownership=False,
+    trial_sources=frozenset(),
+    trial_functions=frozenset(),
+):
     lines = [YAML_BEGIN]
     lines += [
         "  #",
@@ -1641,6 +2407,22 @@ def render_yaml_block(atlas):
             continue
         ov = row["overlay"]
         name = f"overlay_{ov:03d}"
+        def fixed_data_matches_trial(part):
+            if "section" not in part:
+                return False
+            if part.get("externalized"):
+                # The candidate POSTPROCESS removes its duplicate section and
+                # anchors references to this retained raw range.  Keeping the
+                # bin row avoids dropping the bytes before the link.
+                return False
+            if trial_functions:
+                return part.get("trial_function") in trial_functions
+            return part["source"].rsplit("/", 1)[-1] in trial_sources
+
+        carved = trial_ownership and any(
+            fixed_data_matches_trial(part)
+            for part in row.get("data_rodata_ownership", [])
+        )
         lines += [
             "",
             f"  - name: {name}",
@@ -1649,7 +2431,7 @@ def render_yaml_block(atlas):
             f"    vram: {hx(SYNTHETIC_VMA)}",
             f"    bss_size: {row['bss_size']}",
             "    align: 0x8",
-            "    subalign: 0x1",
+            f"    subalign: {'0x4' if carved else '0x1'}",
             f"    dir: overlays/o{ov:03d}",
             f"    exclusive_ram_id: {OVERLAY_RAM_CLASS}",
             "    symbol_name_format: $SEG_$VRAM_$ROM",
@@ -1684,11 +2466,54 @@ def render_yaml_block(atlas):
                 f"{part['type']}, {source_name}]"
             )
         data_row = row["sections"]["data_rodata"]
-        owned_end = (
-            int(owned_data[-1]["end_offset"], 16) if owned_data else 0
-        )
         data_size = int(data_row["size"], 16)
-        if owned_end < data_size:
+        fixed_data = [
+            part
+            for part in owned_data
+            if fixed_data_matches_trial(part)
+        ] if carved else []
+        leading_data = [part for part in owned_data if "section" not in part]
+        owned_end = (
+            int(leading_data[-1]["end_offset"], 16) if leading_data else 0
+        )
+        if fixed_data:
+            # Every raw slice needs its own asset name. splat writes one file
+            # per `bin` row, so two rows sharing `{name}_data_rodata` write the
+            # same path and the later, shorter slice wins: overlay 1 lost
+            # 0x274 of its 0x2C0 data bytes that way, shrinking the module and
+            # sliding every module behind it. Only the first slice keeps the
+            # canonical name, so a projection with no carve is byte-identical
+            # to the tracked yaml.
+            emitted = 0
+
+            def raw_slice(offset):
+                nonlocal emitted
+                suffix = "" if emitted == 0 else f"_{offset:x}"
+                emitted += 1
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + offset)}, "
+                    f"bin, {name}_data_rodata{suffix}]"
+                )
+
+            cursor = owned_end
+            for part in sorted(fixed_data, key=lambda item: int(item["offset"], 16)):
+                fixed_start = int(part["offset"], 16)
+                fixed_end = int(part["end_offset"], 16)
+                if fixed_start < cursor:
+                    raise ValueError(
+                        f"overlay {ov} fixed data/rodata ownership overlaps "
+                        "a leading C-owned range or another fixed range"
+                    )
+                if cursor < fixed_start:
+                    raw_slice(cursor)
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + fixed_start)}, "
+                    f"{part['section']}, {part['source'].rsplit('/', 1)[1]}]"
+                )
+                cursor = fixed_end
+            if cursor < data_size:
+                raw_slice(cursor)
+        elif owned_end < data_size:
             lines.append(
                 f"      - [{hx(int(data_row['start'], 16) + owned_end)}, "
                 f"bin, {name}_data_rodata]"
@@ -1785,15 +2610,117 @@ def main():
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--write", action="store_true")
     action.add_argument("--check", action="store_true")
+    action.add_argument(
+        "--trial-yaml",
+        action="store_true",
+        help="write only the temporary fixed-data projection used by promotion trials",
+    )
+    action.add_argument(
+        "--trial-projection",
+        action="store_true",
+        help="write the temporary manifest and fixed-data YAML projection used by promotion trials",
+    )
+    action.add_argument(
+        "--delta",
+        nargs="+",
+        metavar="STATE",
+        help=(
+            "compare exact C ownership in BASE [TARGET]; a state is an atlas "
+            "JSON path, a checkout path, or a Git tree-ish, and TARGET "
+            "defaults to the current worktree atlas"
+        ),
+    )
     action.add_argument("--overlay", type=int)
     action.add_argument("--relocations", type=int, metavar="OVERLAY")
+    parser.add_argument(
+        "--trial-source",
+        action="append",
+        metavar="STEM",
+        help=(
+            "translation unit being promoted by this trial; only its fixed "
+            "data/rodata ownership is carved out of the raw bin (repeatable, "
+            "defaults to $PROMOTION_TRIAL_SOURCE)"
+        ),
+    )
+    parser.add_argument(
+        "--trial-function",
+        action="append",
+        metavar="FUNCTION",
+        help=(
+            "C definition whose compiler-owned data this trial emits; only "
+            "its fixed data/rodata ownership is carved (repeatable, defaults "
+            "to $PROMOTION_TRIAL_FUNCTION)"
+        ),
+    )
+    parser.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format for --delta (default: text)",
+    )
     args = parser.parse_args()
+
+    if args.delta:
+        if len(args.delta) not in (1, 2):
+            parser.error("--delta requires BASE or BASE TARGET")
+        try:
+            base_atlas, base_state = load_atlas_state(args.delta[0])
+            if len(args.delta) == 2:
+                target_atlas, target_state = load_atlas_state(args.delta[1])
+            else:
+                target_atlas, target_state = load_worktree_atlas(args.manifest)
+            delta = compare_exact_c_atlases(
+                base_atlas,
+                target_atlas,
+                base_state["input"],
+                target_state["input"],
+            )
+            delta["base"] = base_state
+            delta["target"] = target_state
+        except (AtlasDeltaError, OSError) as exc:
+            parser.exit(2, f"error: {exc}\n")
+        if args.format == "json":
+            print(json.dumps(delta, indent=2, sort_keys=True))
+        else:
+            print(render_exact_c_delta(delta))
+        return
+
+    if args.format != "text":
+        parser.error("--format is only valid with --delta")
 
     rom = args.rom.read_bytes()
     atlas, records_by_overlay = build_atlas(rom)
     manifest = render_manifest(atlas)
     yaml_text = args.yaml.read_text()
-    generated_yaml = splice_yaml(yaml_text, render_yaml_block(atlas))
+    trial_ownership = args.trial_yaml or args.trial_projection or (
+        os.environ.get("PROMOTION_TRIAL", "") not in ("", "0")
+    )
+    generated_yaml = splice_yaml(
+        yaml_text,
+        render_yaml_block(
+            atlas,
+            trial_ownership=trial_ownership,
+            trial_sources=trial_sources(args.trial_source),
+            trial_functions=trial_functions(args.trial_function),
+        ),
+    )
+
+    if args.trial_yaml:
+        if write_if_changed(args.yaml, generated_yaml):
+            print(f"updated temporary {args.yaml.relative_to(REPO)}")
+        else:
+            print("temporary ownership projection current")
+        return
+
+    if args.trial_projection:
+        changed = []
+        if write_if_changed(args.manifest, manifest):
+            changed.append(str(args.manifest.relative_to(REPO)))
+        if write_if_changed(args.yaml, generated_yaml):
+            changed.append(str(args.yaml.relative_to(REPO)))
+        print("updated temporary " + ", ".join(changed)
+              if changed else "temporary ownership projection current")
+        return
 
     if args.write:
         changed = []

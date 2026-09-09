@@ -184,3 +184,13 @@ void func_overlay_044_F0000580_188BDE0(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o044/func_overlay_044_F0000580_188BDE0/func_overlay_044_F0000580_188BDE0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_044_F0000580_188BDE0:start
+ * symbol: func_overlay_044_F0000580_188BDE0
+ * score: 330 differing words
+ * frame: 0x130
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: Two words short; target frame 0x100 versus candidate 0x130. Constant/OR/macro, carrier, width and helper-arity routes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_044_F0000580_188BDE0:end
+ */

@@ -12,9 +12,12 @@ Usage:
     add_elf_relocations.py OBJECT SECTION SIZE SHA256 \
         OFFSET:TYPE:SYMBOL[:ADDEND] [...]
 
-TYPE accepts ``R26``/``4``, ``HI16``/``5``, and ``LO16``/``6``. ADDEND defaults to zero and
+TYPE accepts ``R26``/``4``, ``HI16``/``5``, ``LO16``/``6``, and ``PC16``/``10``. ADDEND defaults to zero and
 must equal the instruction's existing immediate field. This keeps nonzero
 retail relocation addends explicit and fail-loud at every call site.
+PC16 is limited to an already resolved conditional branch: its symbol must
+name the branch site itself in the same section, so linking preserves the
+compiler's displacement. The destination must remain in the hashed prefix.
 """
 
 import hashlib
@@ -22,15 +25,21 @@ import pathlib
 import struct
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import postprocess_guard as guard
+
 
 SHT_NOBITS = 8
 SHT_REL = 9
 SHT_SYMTAB = 2
-RELOCATION_TYPES = {"R26": 4, "4": 4, "HI16": 5, "LO16": 6, "5": 5, "6": 6}
+RELOCATION_TYPES = {"R26": 4, "4": 4, "HI16": 5, "LO16": 6, "5": 5, "6": 6,
+                    "PC16": 10, "10": 10}
 
 
 def fail(message):
-    raise SystemExit(message)
+    # Under PROMOTION_TRIAL the guard reports and skips instead of
+    # aborting the build; see tools/postprocess_guard.py.
+    guard.fail(message)
 
 
 def c_string(data, offset, context):
@@ -140,6 +149,7 @@ if string_table_index >= section_count:
 string_table = headers[string_table_index]
 strings = data[string_table[4] : string_table[4] + string_table[5]]
 symbols = {}
+symbol_locations = {}
 for index, entry_offset in enumerate(
     range(symbol_table[4], symbol_table[4] + symbol_table[5], symbol_entry_size)
 ):
@@ -149,6 +159,10 @@ for index, entry_offset in enumerate(
         if name in symbols:
             fail(f"duplicate symbol name {name!r}")
         symbols[name] = index
+        symbol_locations[name] = (
+            struct.unpack_from(">I", data, entry_offset + 4)[0],
+            struct.unpack_from(">H", data, entry_offset + 14)[0],
+        )
 
 entries = []
 occupied = set()
@@ -173,6 +187,15 @@ for instruction_offset, (relocation_type, symbol, expected_addend) in requests.i
         fail(f"R26 relocation site {instruction_offset:#x} is not JAL")
     if relocation_type == 5 and opcode != 0x0F:
         fail(f"HI16 relocation site {instruction_offset:#x} is not LUI")
+    if relocation_type == 10:
+        if opcode not in (4, 5, 20, 21):
+            fail(f"PC16 relocation site {instruction_offset:#x} is not BEQ/BNE or a likely variant")
+        if symbol_locations[symbol] != (instruction_offset, target_index):
+            fail("PC16 symbol must name the branch site in its own section")
+        displacement = immediate - 0x10000 if immediate & 0x8000 else immediate
+        destination = instruction_offset + 4 + displacement * 4
+        if not 0 <= destination < hash_size:
+            fail("PC16 branch destination escapes the hashed prefix")
     # Retail proves direct LO16 relocation of address operands on SWC1
     # (Overlay 2 +0x6E0) and SW (Overlay 57 +0x4C18). The command still names
     # the exact expected addend, so broad opcode support cannot silently admit

@@ -26,70 +26,70 @@ typedef struct Overlay29Owner {
     Overlay29PathState *state;
 } Overlay29Owner;
 
-extern f32 gOverlay29MinimumYReloc;
+extern u8 gOverlay29MinimumYReloc[];
 extern f32 overlay29SqrtReloc(f32 value);
 
-/* Workbench allocation-mismatch: 121/121 instructions, 29 normalized/30 raw words;
- * frame -0x70 versus -0x68, with 31 aligned residuals (17 constant, 10 register).
- * Delta lifetime/register-hint probes were neutral; FP-pool slot 10 remains. */
-#ifdef NON_MATCHING
-void func_overlay_029_F0000EE0_187E190(
-    s32 unused, Vec3f *output, Vec3f *axis, f32 height,
-    Overlay29Transform *transform, Overlay29Owner *owner) {
-    Overlay29PathState *state;
-    f32 dirX;
-    f32 dirY;
-    f32 dirZ;
-    f32 crossX;
-    f32 crossY;
-    f32 crossZ;
-    f32 projectedX;
-    f32 projectedY;
-    f32 projectedZ;
-    f32 lengthSquared;
-    f32 length;
-    f32 delta;
-
-    dirY = transform->direction.y;
-    dirX = transform->direction.x;
-    dirZ = transform->direction.z;
-    state = owner->state;
-    if ((gOverlay29MinimumYReloc <= dirY) ||
-        ((transform->flags & 0x10000000) != 0)) {
-        crossX = (axis->z * dirY) - (axis->y * dirZ);
-        crossY = (axis->x * dirZ) - (axis->z * dirX);
-        crossZ = (axis->y * dirX) - (axis->x * dirY);
-        projectedX = (crossY * dirZ) - (crossZ * dirY);
-        projectedY = (crossZ * dirX) - (crossX * dirZ);
-        projectedZ = (crossX * dirY) - (crossY * dirX);
-        lengthSquared = (projectedX * projectedX) +
-                        (projectedY * projectedY) +
-                        (projectedZ * projectedZ);
-        if (lengthSquared > 0.0f) {
-            length = overlay29SqrtReloc(lengthSquared);
-            projectedY /= length;
-            projectedX /= length;
-            projectedZ /= length;
-            delta = height - transform->height;
-            output->x = transform->position.x + (delta * projectedX);
-            output->y = transform->position.y + (delta * projectedY);
-            output->z = transform->position.z + (delta * projectedZ);
-        } else {
-            output->x = transform->position.x;
-            output->y = transform->position.y;
-            output->z = transform->position.z;
-        }
-        state->flags |= 2;
-    } else {
-        output->x = transform->position.x;
-        output->y = transform->position.y;
-        output->z = transform->position.z;
-        state->direction.x = dirX;
-        state->direction.y = dirY;
-        state->direction.z = dirZ;
-        state->flags |= 4;
+/* Exact configured IDO output: 121 words, a 0x68 frame, and all three
+ * static relocation identities. The linked owned range and full US ROM
+ * are byte-identical.
+ * Keep the apparently redundant single-precision multiply by 1.0f:
+ * in the proved context it changes one product's emitted operand order
+ * without adding an instruction. Its optimization-pass mechanism is
+ * untraced; this is not a general floating-point simplification rule.
+ * Retain this spelling until a naturalized form repeats the full proof. */
+void func_overlay_029_F0000EE0_187E190(s32 unused, Vec3f *output, Vec3f *axis, f32 height, Overlay29Transform *transform, Overlay29Owner *owner)
+{
+  Overlay29PathState *state;
+  f32 dirX;
+  f32 dirY;
+  f32 dirZ;
+  f32 projectedX;
+  f32 projectedY;
+  f32 projectedZ;
+  f32 lengthSquared;
+  f32 crossX;
+  f32 crossY;
+  f32 crossZ;
+  dirY = transform->direction.y;
+  dirX = transform->direction.x;
+  dirZ = transform->direction.z;
+  state = owner->state;
+  if (((*((f32 *) (gOverlay29MinimumYReloc + 0x14))) <= dirY) || ((transform->flags & 0x10000000) != 0))
+  {
+    crossX = (dirY * axis->z) - ((lengthSquared = axis->y) * dirZ);
+    crossY = ((dirZ * 1.0f) * axis->x) - (axis->z * dirX);
+    crossZ = (dirX * lengthSquared) - (axis->x * dirY);
+    projectedX = (crossY * dirZ) - (crossZ * dirY);
+    projectedY = (crossZ * dirX) - (crossX * dirZ);
+    projectedZ = (crossX * dirY) - (crossY * dirX);
+    lengthSquared = ((projectedX * projectedX) + (projectedY * projectedY)) + (projectedZ * projectedZ);
+    if (lengthSquared > 0.0f)
+    {
+      lengthSquared = overlay29SqrtReloc(lengthSquared);
+      projectedY /= lengthSquared;
+      projectedX /= lengthSquared;
+      projectedZ /= lengthSquared;
+      lengthSquared = height - transform->height;
+      output->x = transform->position.x + (lengthSquared * projectedX);
+      output->y = transform->position.y + (lengthSquared * projectedY);
+      output->z = transform->position.z + (lengthSquared * projectedZ);
     }
+    else
+    {
+      output->x = transform->position.x;
+      output->y = transform->position.y;
+      output->z = transform->position.z;
+    }
+    state->flags |= 2;
+  }
+  else
+  {
+    output->x = transform->position.x;
+    output->y = transform->position.y;
+    output->z = transform->position.z;
+    state->direction.x = dirX;
+    state->direction.y = dirY;
+    state->direction.z = dirZ;
+    state->flags |= 4;
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29ProjectPoint/func_overlay_029_F0000EE0_187E190.s")
-#endif

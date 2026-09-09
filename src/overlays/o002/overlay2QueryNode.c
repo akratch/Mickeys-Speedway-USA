@@ -47,7 +47,38 @@ extern s32 overlay2IntersectSegments(f32 x0, f32 y0, f32 x1, f32 y1,
 extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
                                       f32 *outX, f32 *outY);
 
-/* Mickey-local reconstruction; pinned DKR/JFG object scans found no donor. */
+/* Mickey-local reconstruction; pinned DKR/JFG object scans found no donor.
+ *
+ * 214/253 relocation-masked words, exact 0x3F4 size, exact 0x68 frame, 51 of
+ * 51 relocations.  The 39 differing words are six sites, and every one of them
+ * is a carrier colour rather than a structure: at each, the shipped code
+ * spends `a0` (or one lower ring temp) where this candidate spends the next
+ * one.  `a0` and `a1` are pure scratch in this function -- every call here
+ * passes its first two floats in f12/f14, so no argument ever lands in them.
+ *
+ * The frame is closed.  T = frame = 0x68 and the declaration chain runs
+ * count/remaining/leafResult at 0x64/0x60/0x5C, hitX 0x58, hitY 0x54, line
+ * 0x50, recursiveResult 0x4C, so S = 0x1C and an eighth local moves the frame
+ * to 0x70.  That is why every attempt to name the short-circuit boolean in a
+ * fresh local collapses, and why the L88 "name it and drop another local"
+ * composition has nowhere to go: the seven that are there are all live.
+ *
+ * Eliminated by earlier lanes: leaf-zero return (151), a scalar in place of
+ * the one-element array (99), all four or-operand orders (byte-identical --
+ * uopt normalises them), naming the short-circuit boolean in five carriers
+ * (78-107), and a 48-cell composition cross flooring at 39.  Added here, all
+ * flat at 39 or size-changing: the ternary and short-circuit-or spellings of
+ * both short-circuit blocks (93-97 where they compile); 42 adjacent
+ * source-line joins across the whole body; a 25-cell cross of five leaf-head
+ * and five leaf-tail spellings (including `count = remaining--`, the comma
+ * operator in the loop condition, and an explicit post-loop reset); 20
+ * named-boolean carrier x branch-polarity forms, every one of which changes
+ * the size; a 1,115-cell randomised cross of declaration order, local
+ * qualifiers and types, five or-block spellings and four node-selection forms;
+ * and the callee return-type lattice that closed overlay 5 -- making
+ * `overlay2IntersectBoundary` non-void, `overlay2IntersectSegments` void, or
+ * changing this function's own return type -- which is inert here.
+ */
 #ifdef NON_MATCHING
 s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
                       Overlay2Node *node) {
@@ -101,7 +132,7 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
     D_50 = ((node->index == 0) ? y0 : x0) < node->data.boundary;
     D_54 = ((node->index == 0) ? y1 : x1) < node->data.boundary;
 
-    if (D_54 == D_50) {
+    if (D_50 == D_54) {
         if (D_50 != 0) {
             node = node->side1;
         } else {
@@ -141,3 +172,13 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2QueryNode/func_overlay_002_F00016A0_1858498.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay2QueryNode:start
+ * symbol: overlay2QueryNode
+ * score: 214/253 words
+ * frame: 0x68
+ * relocations: 51
+ * first-mismatch: +0x40
+ * summary: Six carrier-colour sites; the frame admits exactly seven locals, so no boolean can be named. 1,200 new cells flat at 39.
+ * PLATEAU-HANDOFF:overlay2QueryNode:end
+ */

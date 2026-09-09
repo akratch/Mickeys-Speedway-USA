@@ -235,3 +235,13 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F00060F8_18A9CF0/func_overlay_057_F00060F8_18A9CF0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_057_F00060F8_18A9CF0:start
+ * symbol: func_overlay_057_F00060F8_18A9CF0
+ * score: 263 differing words
+ * frame: 0x68
+ * relocations: 175
+ * first-mismatch: +0x0
+ * summary: Candidate 437 words/frame 0x68 versus target 441/0x60; 278 raw differences. Relocations 175/171, with 122 sites and 70 identities aligned.
+ * PLATEAU-HANDOFF:func_overlay_057_F00060F8_18A9CF0:end
+ */

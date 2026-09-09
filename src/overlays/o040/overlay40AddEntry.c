@@ -18,7 +18,8 @@ extern Overlay40Entry gOverlay40Entries[8];
  * pool-color swap starting at +0x20. Seven explicit loop-counter lifetime
  * and declaration variants left that allocation unchanged. The retained
  * output-20-1 permuter source adds constant intermediates and a no-op green
- * expression, reaching the target register allocation.
+ * expression, reaching the target register allocation; that expression is
+ * tracked in docs/cleanup-queue.md.
  *
  * The real-TU object is 33 instructions (0x84 bytes) with four relocations:
  * gOverlay40Count HI16/LO16 at 0x00/0x04 and gOverlay40Entries HI16/LO16 at

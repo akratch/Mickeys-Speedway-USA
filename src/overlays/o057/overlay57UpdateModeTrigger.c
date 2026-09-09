@@ -51,6 +51,7 @@ extern void overlay57AdvanceReloc(s32 updateRate);
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 trigger;
+    volatile s32 framePad[2];
 
     gOverlay57ModeFlag = 1;
 
@@ -112,3 +113,13 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeTrigger/func_overlay_057_F0004C18_18A8810.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57UpdateModeTrigger:start
+ * symbol: overlay57UpdateModeTrigger
+ * score: 23/94 words
+ * frame: 0x28
+ * relocations: 35
+ * first-mismatch: +0x10
+ * summary: Two unused volatile frame words restore the target frame; 23 normalized differences remain in setup-state shape with three fewer candidate relocations.
+ * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
+ */

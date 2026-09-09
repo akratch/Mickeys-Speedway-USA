@@ -216,3 +216,13 @@ done:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0002510_18DDD30/func_overlay_101_F0002510_18DDD30.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F0002510_18DDD30:start
+ * symbol: func_overlay_101_F0002510_18DDD30
+ * score: 276 differing words
+ * frame: 0xD0
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: V0: 280/293 words, frame 0xD0 versus 0xE8, 276 raw diffs. Relocs 6 each; 1 site and 0 identities align. Prior dimension, lifetime, and clip forms closed.
+ * PLATEAU-HANDOFF:func_overlay_101_F0002510_18DDD30:end
+ */

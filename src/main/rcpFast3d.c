@@ -63,6 +63,15 @@ typedef struct RcpGradientColour {
         cmd->w1 = 0; \
     }
 
+#ifdef NON_MATCHING
+#define RCP_WRITE_COMMAND(command, word0, word1) \
+    { \
+        RcpCommand *writeCmd = (command)++; \
+        writeCmd->w0 = (word0); \
+        writeCmd->w1 = (word1); \
+    }
+#endif
+
 #define RCP_SET_COLOR_IMAGE(command, width, address) \
     { \
         RcpCommand *cmd = (command); \
@@ -77,14 +86,12 @@ typedef struct RcpGradientColour {
         cmd->w1 = (address); \
     }
 
-#ifdef NON_MATCHING
 #define RCP_SET_FILL_CYCLE(command) \
     { \
         RcpCommand *cycleCmd = (command); \
         cycleCmd->w0 = 0xEF30000F; \
         cycleCmd->w1 = 0; \
     }
-#endif
 
 extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
@@ -117,7 +124,7 @@ extern OSMesgQueue D_800D2CD0;
 extern OSMesg D_800D2CE8[];
 extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
-extern s32 D_800D2FAC;
+extern u16 *D_800D2FAC;
 extern OSScTask D_800D2910[];
 extern OSScTask D_800D29F0[];
 extern OSScTask D_800D2AD0[];
@@ -367,11 +374,6 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
-#ifdef NON_MATCHING
-/* Workbench: register-ring-only; 4/107 words differ first at +0x74, with frame and relocations exact.
- * Levers: context parity, direct masks, full flag lattice, FIFO 14-16, and bounded permutation.
- * Six source-faithful declaration/mask/lifetime probes preserve this residual;
- * no instrumented globalcolor/UGEN trace is available in this lane. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
@@ -381,10 +383,10 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
 
     if ((D_800D2FAC != 0) && (arg3 < arg5) && (arg4 < arg6)) {
         alignedX1 = arg3 & ~3;
+        dlist = *arg0;
         alignedX2 = (arg5 + 3) & ~3;
         arg3 = alignedX1;
         arg5 = alignedX2;
-        dlist = *arg0;
         RCP_PIPE_SYNC(dlist++);
         gDPSetScissor(dlist++, G_SC_NON_INTERLACE, 0, 0, arg1 - 1,
                       arg2 - 1);
@@ -397,9 +399,6 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
         *arg0 = dlist;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
-#endif
 /* PROVENANCE: display-list command spelling adapted from Diddy Kong Racing's
  * public decomp, src/rcp_dkr.c:bgdraw_render. Mickey's enable flag, helpers,
  * coordinates, and branch structure decide the implementation; JFG supplies
@@ -475,194 +474,128 @@ void rcpInit(OSSched *scheduler) {
     osCreateMesgQueue(&D_800D2D08, D_800D2D20, 8);
 }
 #ifdef NON_MATCHING
-/* No external donor body was used; the command stream and field offsets are
- * reconstructed from Mickey's target assembly and local RCP idioms. */
-/* Workbench verdict: structure-mismatch; 312 differing words, first mismatch +0x34.
- * Target 327 instructions/frame -64; candidate 288 instructions/frame -64.
- * Remaining gap is IDO's collapsed command-pointer/store schedule; not shape-exact. */
+/* PROVENANCE -- the indexed texture loop is adapted from Diddy Kong Racing's
+ * public src/rcp_dkr.c:texrect_draw. Mickey's command stream, extra texture
+ * fields, and helper calls remain the controlling evidence. */
+/* Workbench verdict: structure-mismatch; 279 differing words, first mismatch +0x34.
+ * Target 327 instructions/frame -64; candidate 328 instructions/frame -64.
+ * Four of six relocation identities align. The target preserves an early
+ * zero-index web, but natural indexed forms grow the frame to 0x58. */
 void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                    s32 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
-    RcpCommand *temp_s0;
-    RcpCommand *temp_s0_2;
-    RcpCommand *temp_s0_3;
-    RcpCommand *temp_s0_4;
-    RcpCommand *temp_s0_5;
-    RcpCommand *temp_s0_6;
-    RcpCommand *temp_s0_7;
-    RcpCommand *temp_s0_8;
-    RcpCommand *temp_s0_9;
-    RcpCommand *temp_s0_10;
-    RcpCommand *temp_s0_11;
-    RcpCommand *temp_s0_12;
-    RcpCommand *temp_s0_13;
-    RcpCommand *temp_s0_14;
-    RcpCommand *temp_s0_15;
-    RcpCommand *temp_s0_16;
-    RcpCommand *temp_s0_17;
-    RcpCommand *temp_s0_18;
-    RcpCommand *var_s0_2;
-    RcpCommand *temp_v1;
-    RcpCommand *var_s0;
-    RcpCommand *var_a0;
-    RcpTextureInfo *temp_v0;
-    RcpTextureInfo *var_s1;
-    RcpTextureNode *var_s2;
-    s32 temp_a0;
-    s32 temp_a1;
-    s32 temp_fp;
-    s32 temp_s7;
-    s32 temp_t0;
-    s32 var_a2;
-    s32 var_a2_2;
-    s32 var_s3;
-    s32 var_s4;
-    s32 var_s5;
-    s32 var_s6;
+    RcpTextureInfo *tex;
+    RcpTextureInfo *alternate;
+    RcpCommand *dlist;
+    RcpCommand *lastCmd;
+    RcpTextureNode *element;
+    s32 i;
+    s32 uly;
+    s32 ulx;
+    s32 lry;
+    s32 lrx;
+    s32 t;
+    s32 s;
+    s32 loadCount;
 
+    i = 0;
     if (arg1->texture != NULL) {
-        temp_s0 = *arg0;
+        dlist = *arg0;
         if (arg1->alternate != NULL) {
-            var_a0 = (RcpCommand *)D_8007A540;
+            lastCmd = (RcpCommand *)D_8007A540;
         } else {
-            var_a0 = (RcpCommand *)D_8007A4F8;
+            lastCmd = (RcpCommand *)D_8007A4F8;
         }
-        temp_s0_2 = temp_s0 + 1;
-        temp_s0->w0 = 0x06000000;
-        temp_s0->w1 = (u32)var_a0;
-        temp_s0_2->w0 = 0xFA000000;
-        var_s0 = temp_s0_2 + 1;
-        temp_s0_2->w1 = ((u32)arg4 << 24) | ((u32)arg5 << 16) |
-                        ((u32)arg6 << 8) | arg7;
-        var_s1 = arg1->texture;
-        var_s2 = arg1;
+
+        RCP_DISPLAY_LIST(dlist++, lastCmd);
+        gDPSetPrimColor((Gfx *)dlist++, 0, 0, arg4, arg5, arg6, arg7);
+
         arg2 *= 4;
         arg3 *= 4;
-        if (var_s1 != NULL) {
-            do {
-                var_s3 = (var_s2->x * 4) + arg2;
-                var_s4 = (var_s2->y * 4) + arg3;
-                temp_s7 = (var_s1->width * 4) + var_s3;
-                temp_fp = (var_s1->height * 4) + var_s4;
-                if (temp_s7 > 0) {
-                    var_s5 = 0;
-                    if (temp_fp > 0) {
-                        var_s6 = 0;
-                        if (var_s3 < 0) {
-                            var_s5 = -(var_s3 * 8);
-                            var_s3 = 0;
-                        }
-                        if (var_s4 < 0) {
-                            var_s6 = -(var_s4 * 8);
-                            var_s4 = 0;
-                        }
-                        temp_v0 = var_s2->alternate;
-                        if (temp_v0 != NULL) {
-                            var_s0->w0 = 0xFD100000;
-                            temp_s0_3 = var_s0 + 1;
-                            temp_s0_4 = temp_s0_3 + 1;
-                            temp_s0_5 = temp_s0_4 + 1;
-                            temp_s0_6 = temp_s0_5 + 1;
-                            var_a2 = 0x7FF;
-                            var_s0->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
-                                                var_s1->tileRows) +
-                                               (s32)var_s1 + 0x20);
-                            temp_s0_3->w1 = 0x07020080;
-                            temp_s0_3->w0 = 0xF5100000;
-                            temp_s0_4->w1 = 0;
-                            temp_s0_4->w0 = 0xE6000000;
-                            temp_s0_5->w0 = 0xF3000000;
-                            temp_s0_7 = temp_s0_6 + 1;
-                            temp_t0 = (var_s1->width * var_s1->height) - 1;
-                            if (temp_t0 < 0x7FF) {
-                                var_a2 = temp_t0;
-                            }
-                            temp_s0_5->w1 = ((var_a2 & 0xFFF) << 12) |
-                                             0x07000000;
-                            temp_s0_6->w1 = 0;
-                            temp_s0_6->w0 = 0xE7000000;
-                            temp_s0_7->w0 = (((((var_s1->width * 2) + 7) >> 3) &
-                                              0x1FF) << 9) | 0xF5100000;
-                            temp_s0_7->w1 = 0x20080;
-                            temp_s0_8 = temp_s0_7 + 1;
-                            temp_s0_8->w0 = 0xF2000000;
-                            temp_s0_9 = temp_s0_8 + 1;
-                            temp_s0_8->w1 = (((((var_s1->width - 1) * 4) &
-                                               0xFFF) << 12) |
-                                              (((var_s1->height - 1) * 4) &
-                                               0xFFF));
-                            temp_s0_9->w0 = 0xFD900000;
-                            temp_s0_10 = temp_s0_9 + 1;
-                            temp_s0_11 = temp_s0_10 + 1;
-                            temp_s0_12 = temp_s0_11 + 1;
-                            temp_s0_13 = temp_s0_12 + 1;
-                            var_a2_2 = 0x7FF;
-                            temp_s0_9->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
-                                                  temp_v0->tileRows) +
-                                                 (s32)temp_v0 + 0x20);
-                            temp_s0_10->w1 = 0x07020080;
-                            temp_s0_10->w0 = 0xF5900100;
-                            temp_s0_11->w1 = 0;
-                            temp_s0_11->w0 = 0xE6000000;
-                            temp_s0_12->w0 = 0xF3000000;
-                            temp_s0_14 = temp_s0_13 + 1;
-                            temp_s0_15 = temp_s0_14 + 1;
-                            temp_a1 = (((s32)(temp_v0->width * temp_v0->height) +
-                                        3) >> 2) - 1;
-                            if (temp_a1 < 0x7FF) {
-                                var_a2_2 = temp_a1;
-                            }
-                            temp_s0_12->w1 = ((var_a2_2 & 0xFFF) << 12) |
-                                             0x07000000;
-                            temp_s0_13->w1 = 0;
-                            temp_s0_13->w0 = 0xE7000000;
-                            temp_s0_14->w0 = ((((((s32)temp_v0->width >> 1) + 7) >>
-                                                3) & 0x1FF) << 9) |
-                                              0xF5800100;
-                            temp_s0_14->w1 = 0x01020080;
-                            temp_s0_15->w0 = 0xF2000000;
-                            temp_s0_15->w1 = (((((temp_v0->width - 1) * 4) &
-                                               0xFFF) << 12) |
-                                              0x01000000 |
-                                              (((temp_v0->height - 1) * 4) &
-                                               0xFFF));
-                            var_s0_2 = temp_s0_15 + 1;
-                        } else {
-                            var_s0->w0 = *var_s1->data;
-                            var_s0->w1 = (u32)(func_800348D4(
-                                var_s1, var_s2->packedOffset) + 0x80000000U);
-                            temp_s0_16 = var_s0 + 1;
-                            temp_a0 = var_s1->count - 1;
-                            temp_s0_16->w0 = (((temp_a0 & 0xFF) << 16) |
-                                               0x07000000 |
-                                               ((temp_a0 * 8) & 0xFFFF));
-                            temp_s0_16->w1 = (u32)var_s1->data + 0x80000008U;
-                            var_s0_2 = temp_s0_16 + 1;
-                        }
-                        var_s0_2->w0 = ((temp_s7 & 0xFFF) << 12) |
-                                        0xE4000000 | (temp_fp & 0xFFF);
-                        var_s0_2->w1 = ((var_s3 & 0xFFF) << 12) |
-                                        (var_s4 & 0xFFF);
-                        temp_s0_17 = var_s0_2 + 1;
-                        temp_s0_17->w0 = 0xB3000000;
-                        temp_s0_18 = temp_s0_17 + 1;
-                        var_a0 = temp_s0_18;
-                        temp_s0_17->w1 = (var_s5 << 16) | (var_s6 & 0xFFFF);
-                        var_a0->w0 = 0xB2000000;
-                        var_a0->w1 = 0x04000400;
-                        var_s0 = temp_s0_18 + 1;
-                    }
+        tex = arg1[i].texture;
+        element = &arg1[i];
+        while (tex != NULL) {
+            ulx = (element->x * 4) + arg2;
+            uly = (element->y * 4) + arg3;
+            lrx = (tex->width * 4) + ulx;
+            lry = (tex->height * 4) + uly;
+            if (lrx > 0 && lry > 0) {
+                s = 0;
+                t = 0;
+                if (ulx < 0) {
+                    s = -(ulx * 8);
+                    ulx = 0;
                 }
-                var_s1 = var_s2[1].texture;
-                var_s2++;
-            } while (var_s1 != NULL);
+                if (uly < 0) {
+                    t = -(uly * 8);
+                    uly = 0;
+                }
+
+                alternate = element->alternate;
+                if (alternate != NULL) {
+                    gDPSetTextureImage(
+                        (Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1,
+                        ((((s32)element->packedOffset >> 16) * tex->tileRows) +
+                         (s32)tex + 0x20));
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                               0, 0, G_TX_LOADTILE, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                               8, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, 8,
+                               G_TX_NOLOD);
+                    gDPLoadSync((Gfx *)dlist++);
+                    gDPLoadBlock((Gfx *)dlist++, G_TX_LOADTILE, 0, 0,
+                                 (tex->width * tex->height) - 1, 0);
+                    gDPPipeSync((Gfx *)dlist++);
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                               ((tex->width * 2) + 7) >> 3, 0, G_TX_RENDERTILE,
+                               0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPSetTileSize((Gfx *)dlist++, G_TX_RENDERTILE, 0, 0,
+                                   (tex->width - 1) * 4,
+                                   (tex->height - 1) * 4);
+                    gDPSetTextureImage(
+                        (Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_16b, 1,
+                        ((((s32)element->packedOffset >> 16) *
+                          alternate->tileRows) + (s32)alternate + 0x20));
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_16b, 0,
+                               0x100, G_TX_LOADTILE, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPLoadSync((Gfx *)dlist++);
+                    gDPLoadBlock(
+                        (Gfx *)dlist++, G_TX_LOADTILE, 0, 0,
+                        (((s32)(alternate->width * alternate->height) + 3) >> 2) - 1,
+                        0);
+                    gDPPipeSync((Gfx *)dlist++);
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_4b,
+                               (((s32)alternate->width >> 1) + 7) >> 3, 0x100,
+                               1, 0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPSetTileSize((Gfx *)dlist++, 1, 0, 0,
+                                   (alternate->width - 1) * 4,
+                                   (alternate->height - 1) * 4);
+                } else {
+                    dlist->w0 = *tex->data;
+                    dlist->w1 = (u32)(func_800348D4(
+                        tex, element->packedOffset) + 0x80000000U);
+                    dlist++;
+                    loadCount = tex->count - 1;
+                    dlist->w0 = (((loadCount & 0xFF) << 16) | 0x07000000 |
+                                 ((loadCount * 8) & 0xFFFF));
+                    dlist->w1 = (u32)tex->data + 0x80000008U;
+                    dlist++;
+                }
+
+                gSPTextureRectangle((Gfx *)dlist++, ulx, uly, lrx, lry,
+                                    G_TX_RENDERTILE, s, t, 1024, 1024);
+                lastCmd = dlist - 1;
+            }
+            element++;
+            tex = element->texture;
         }
-        var_s0->w0 = 0xE7000000;
-        var_s0->w1 = 0;
-        temp_v1 = var_s0 + 1;
-        temp_v1->w1 = -1;
-        temp_v1->w0 = 0xFA000000;
-        *arg0 = temp_v1 + 1;
-        func_80034910(var_a0);
+
+        gDPPipeSync((Gfx *)dlist++);
+        gDPSetPrimColor((Gfx *)dlist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+        *arg0 = dlist;
+        func_80034910(lastCmd);
     }
 }
 #else
@@ -672,13 +605,14 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
 /* PROVENANCE -- the scaled rectangle loop is adapted from Diddy Kong Racing's
  * public src/rcp_dkr.c:texrect_draw_scaled. Mickey's target field offsets,
  * helper calls, and command layout are retained as the controlling evidence. */
-/* Workbench verdict: structure-mismatch; 358 differing words, first mismatch +0x0.
- * Target 359 instructions/frame -224; candidate 355 instructions/frame -200.
- * Remaining gap is command-pointer schedule and 24-byte frame layout; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 272 differing words, first mismatch +0x40.
+ * Target 359 instructions/frame -224; candidate 354 instructions/frame -224.
+ * Both objects have nine relocations, seven with exact identity; the remaining
+ * gap is texture/command live-range allocation and a five-instruction deficit. */
 void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
                    f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7) {
     RcpTextureInfo *tex;
-    RcpCommand *cmd;
+    RcpCommand *dlist;
     RcpCommand *rectCmd;
     RcpCommand *scissorCmd;
     RcpTextureNode *element;
@@ -700,9 +634,11 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
     f32 xScale;
     f32 yScale;
     u8 *dmaDlist;
+    void *helperArg;
 
     width = 0;
     height = 0;
+    dlist = *arg0;
     viGetCurrentSize(&width, &height);
     height *= 4;
     width *= 4;
@@ -712,100 +648,137 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
         dmaDlist = D_8007A600 + ((arg7 & 0xFF) * 0x10);
     }
 
-    cmd = *arg0;
-    cmd->w0 = 0x06000000;
-    cmd->w1 = (u32)D_8007A588;
-    cmd++;
-    cmd->w0 = 0x07020010;
-    cmd->w1 = (u32)dmaDlist + 0x80000000U;
-    cmd++;
-    cmd->w0 = 0xFA000000;
-    cmd->w1 = (u32)arg6;
-    cmd++;
-
-    bFlipX = arg7 & 0x1000;
-    bFlipY = arg7 & 0x2000;
     xScale = arg4 * 4.0f;
     yScale = arg5 * 4.0f;
-    xPos4x = (s32)(arg2 * 4.0f);
-    yPos4x = (s32)(arg3 * 4.0f);
+    RCP_DISPLAY_LIST(dlist++, D_8007A588);
+    {
+        RcpCommand *dmaCmd = dlist++;
+        dmaCmd->w1 = (u32)dmaDlist + 0x80000000U;
+        dmaCmd->w0 = 0x07020010;
+    }
+    {
+        RcpCommand *colourCmd = dlist++;
+        colourCmd->w0 = 0xFA000000;
+        colourCmd->w1 = (u32)arg6;
+    }
 
-    for (element = arg1; (tex = element->texture) != NULL; element++) {
-        if (!bFlipX) {
-            ulx = (s32)((f32)element->x * xScale) + xPos4x;
-        } else {
-            lrx = xPos4x - (s32)((f32)element->x * xScale);
-            ulx = lrx - (s32)(tex->width * xScale);
-        }
-        if (!bFlipY) {
-            uly = (s32)((f32)element->y * yScale) + yPos4x;
-        } else {
-            lry = yPos4x - (s32)((f32)element->y * yScale);
-            uly = lry - (s32)(tex->height * yScale);
-        }
-        if ((ulx < width) && (uly < height)) {
+    tex = arg1->texture;
+    helperArg = NULL;
+    if (tex != NULL) {
+        element = arg1;
+        bFlipX = arg7 & 0x1000;
+        bFlipY = arg7 & 0x2000;
+        xPos4x = (s32)(arg2 * 4.0f);
+        yPos4x = (s32)(arg3 * 4.0f);
+        do {
             if (!bFlipX) {
-                lrx = (s32)(tex->width * xScale) + ulx;
+                ulx = (s32)((f32)element->x * xScale) + xPos4x;
+            } else {
+                lrx = xPos4x - (s32)((f32)element->x * xScale);
+                ulx = lrx - (s32)(tex->width * xScale);
             }
             if (!bFlipY) {
-                lry = (s32)(tex->height * yScale) + uly;
+                uly = (s32)((f32)element->y * yScale) + yPos4x;
+            } else {
+                lry = yPos4x - (s32)((f32)element->y * yScale);
+                uly = lry - (s32)(tex->height * yScale);
             }
-            if ((lrx > 0) && (lry > 0) && (ulx < lrx) && (uly < lry)) {
-                dsdx = ((tex->width - 1) << 12) / (lrx - ulx);
-                if (bFlipX) {
-                    s = (tex->width - 1) << 5;
-                    dsdx = -dsdx;
-                } else {
-                    s = 0;
+            if ((ulx < width) && (uly < height)) {
+                if (!bFlipX) {
+                    lrx = (s32)(tex->width * xScale) + ulx;
                 }
-                dtdy = ((tex->height - 1) << 12) / (lry - uly);
-                if (bFlipY) {
-                    t = (tex->height - 1) << 5;
-                    dtdy = -dtdy;
-                } else {
-                    t = 0;
+                if (!bFlipY) {
+                    lry = (s32)(tex->height * yScale) + uly;
                 }
-                if (ulx < 0) {
-                    s += (-ulx * dsdx) >> 7;
-                    ulx = 0;
+                if ((lrx > 0) && (lry > 0) && (ulx < lrx) && (uly < lry)) {
+                    dsdx = ((tex->width - 1) << 12) / (lrx - ulx);
+                    if (bFlipX) {
+                        s = (tex->width - 1) << 5;
+                        dsdx = -dsdx;
+                    } else {
+                        s = 0;
+                    }
+                    dtdy = ((tex->height - 1) << 12) / (lry - uly);
+                    if (bFlipY) {
+                        t = (tex->height - 1) << 5;
+                        dtdy = -dtdy;
+                    } else {
+                        t = 0;
+                    }
+                    if (ulx < 0) {
+                        s += (-ulx * dsdx) >> 7;
+                        ulx = 0;
+                    }
+                    if (uly < 0) {
+                        t += (-uly * dtdy) >> 7;
+                        uly = 0;
+                    }
+                    dlist->w0 = *tex->data;
+                    dlist->w1 = func_800348D4(tex, element->packedOffset, helperArg,
+                                              (void **)element) + 0x80000000U;
+                    dlist++;
+                    countMinusOne = tex->count - 1;
+                    dlist->w0 = (((countMinusOne & 0xFF) << 16) |
+                                 0x07000000 | ((countMinusOne * 8) & 0xFFFF));
+                    dlist->w1 = (u32)(tex->data + 2) + 0x80000000U;
+                    dlist++;
+                    rectCmd = dlist;
+                    rectCmd->w0 = ((lrx & 0xFFF) << 12) |
+                                   0xE4000000 | (lry & 0xFFF);
+                    rectCmd->w1 = ((ulx & 0xFFF) << 12) | (uly & 0xFFF);
+                    dlist++;
+                    scissorCmd = dlist;
+                    scissorCmd->w0 = 0xB3000000;
+                    scissorCmd->w1 = (s << 16) | (t & 0xFFFF);
+                    dlist++;
+                    dlist->w0 = 0xB2000000;
+                    dlist->w1 = (dsdx << 16) | (dtdy & 0xFFFF);
+                    dlist++;
                 }
-                if (uly < 0) {
-                    t += (-uly * dtdy) >> 7;
-                    uly = 0;
-                }
-                cmd->w0 = *tex->data;
-                cmd->w1 = func_800348D4(tex, element->packedOffset, NULL,
-                                        (void **)element) + 0x80000000U;
-                cmd++;
-                countMinusOne = tex->count - 1;
-                cmd->w0 = (((countMinusOne & 0xFF) << 16) |
-                           0x07000000 | ((countMinusOne * 8) & 0xFFFF));
-                cmd->w1 = (u32)(tex->data + 2) + 0x80000000U;
-                cmd++;
-                rectCmd = cmd;
-                rectCmd->w0 = ((lrx & 0xFFF) << 12) |
-                               0xE4000000 | (lry & 0xFFF);
-                rectCmd->w1 = ((ulx & 0xFFF) << 12) | (uly & 0xFFF);
-                cmd++;
-                scissorCmd = cmd;
-                scissorCmd->w0 = 0xB3000000;
-                scissorCmd->w1 = (s << 16) | (t & 0xFFFF);
-                cmd++;
-                cmd->w0 = 0xB2000000;
-                cmd->w1 = (dsdx << 16) | (dtdy & 0xFFFF);
-                cmd++;
             }
-        }
+            tex = element[1].texture;
+            element++;
+        } while (tex != NULL);
     }
-    cmd->w0 = 0xE7000000;
-    cmd->w1 = 0;
-    cmd++;
-    cmd->w0 = 0xFA000000;
-    cmd->w1 = -1;
-    cmd++;
-    *arg0 = cmd;
-    func_80034910((void *)(s32)countMinusOne, rectCmd, scissorCmd, element);
+    RCP_PIPE_SYNC(dlist++);
+    {
+        RcpCommand *colourCmd = dlist++;
+        colourCmd->w1 = -1;
+        colourCmd->w0 = 0xFA000000;
+    }
+    *arg0 = dlist;
+    func_80034910((void *)(s32)countMinusOne);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8002EBE0:start
+ * symbol: func_8002EBE0
+ * score: 218 differing words
+ * frame: 0x58
+ * relocations: 2
+ * first-mismatch: +0x0
+ * summary: Exact-sized C keeps a 0x58 versus 0x88 frame after RGB aggregate and lifetime forms; next lever is an authentic early-live-web source shape.
+ * PLATEAU-HANDOFF:func_8002EBE0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002FB34:start
+ * symbol: func_8002FB34
+ * score: 272 differing words
+ * frame: 0xE0
+ * relocations: 9
+ * first-mismatch: +0x40
+ * summary: Five-word deficit and command/texture live-range allocation remain; seven of nine relocation identities align.
+ * PLATEAU-HANDOFF:func_8002FB34:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002F618:start
+ * symbol: func_8002F618
+ * score: 279/327 words
+ * frame: 0x40
+ * relocations: 6
+ * first-mismatch: +0x34
+ * summary: Candidate is 328 words with 4/6 exact relocation identities; next lever is the target zero-index web without indexed-form frame growth.
+ * PLATEAU-HANDOFF:func_8002F618:end
+ */

@@ -123,14 +123,9 @@ void viInit(void *scheduler) {
     D_8007A6A8 = 1;
     D_800D2F99 = 1;
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viChangeMode. */
-/* Workbench: structure-mismatch, exact 195 instructions/frame -40; 71 words with 42 alignment gaps.
- * Levers: pointer carriers, a fake source boundary, and the existing flag lattice; no improvement.
- * Remains: early global-carrier allocation around conditional third-framebuffer setup; asm stays canonical. */
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/gameVi.c:viChangeMode (efd5abb). */
 void func_800336A8(s32 videoMode) {
     s32 bufferSize;
-    s8 tripleBufferRequested;
     ResolutionSettings *resolution;
 
     D_800D2F98 = (videoMode & 3) & ~D_8007A6A8;
@@ -163,17 +158,17 @@ void func_800336A8(s32 videoMode) {
     D_8007A690[1] = NULL;
     D_8007A690[2] = NULL;
     if (((D_800D2F98 & 3) != 2) && ((D_800D2F98 & 3) != 3)) {
+        if (1) {} /* Inert donor spelling retained for exact IDO allocation; see cleanup queue. */
         D_8007A690[1] = (s32 *) ((u8 *) D_8007A690[0] + bufferSize);
     } else {
         D_8007A680[1] = (s32 *) func_8002B280(bufferSize + 0x30, 0x92);
         D_8007A690[1] = (s32 *) (((s32) D_8007A680[1] + 0x3F) & ~0x3F);
     }
-    tripleBufferRequested = D_800D2F96;
-    if (tripleBufferRequested) {
+    if (D_800D2F96) {
         D_8007A680[2] = (s32 *) func_8002B280(bufferSize + 0x30, 0x92);
         D_8007A690[2] = (s32 *) (((s32) D_8007A680[2] + 0x3F) & ~0x3F);
     }
-    D_800D2F95 = tripleBufferRequested;
+    D_800D2F95 = D_800D2F96;
     if (D_800D2F97) {
         func_80034018((u8 *) D_8007A690[0], bufferSize);
         func_80034018((u8 *) D_8007A690[1], bufferSize);
@@ -191,9 +186,6 @@ void func_800336A8(s32 videoMode) {
     D_8007A6A4 = 1;
     D_800D2FC0 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viReset. */
 void func_800339B4(void) {
     s32 *screen;

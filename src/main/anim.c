@@ -467,73 +467,36 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Type pass: shared aggregate boundaries are neutral; structure-mismatch,
- * 87/87 instructions, 15 normalized words; first +0x34.
- * s16, for-loop, while/bound, and pointer-order forms were neutral or worse.
- * The target clear-loop branch shape and repeated global-address schedules remain.
+ * Matched ordinary C: 87 words, frame 0x18, and all 41 relocation identities.
+ * Retained-seed search preserved the declarations and complete loop bodies.
+ * Physical source grouping is code-generation-sensitive; keep it intact.
+ * Configured untouched output is checked against the owned linked ROM range.
  */
-#ifdef NON_MATCHING
-void func_80050BF4(void) {
-    s32 emptyIndex;
-    s32 offset;
-    u8 *cursor;
-
-    D_800D6B04 = piRomLoad(0x3D);
-    D_800D6B00 = func_8002B280(0x400, 0x81);
-    offset = 0;
-    do {
-        *(s32 *) ((u8 *) D_800D6B00 + offset) = 0;
-        offset += 4;
-    } while (offset < 0x400);
-
-    cursor = (u8 *) D_800D6B08;
-    do {
-        cursor += 4;
-        *(void **) (cursor - 4) = NULL;
-    } while ((u32) cursor < (u32) D_800D6B18);
-
-    cursor = (u8 *) D_800D6B18;
-    do {
-        cursor += 4;
-        *(void **) (cursor - 4) = NULL;
-    } while ((u32) cursor < (u32) D_800D6B58);
-
-    cursor = (u8 *) D_800D6B58;
-    do {
-        cursor += 0x14;
-        cursor[-0x14] = 0xFF;
-        *(s32 *) (cursor - 0x10) = 0;
-        *(s32 *) (cursor - 8) = 0;
-    } while ((u32) cursor < (u32) D_800D6BF8);
-
-    emptyIndex = -1;
-    cursor = D_800D6BF8;
-    do {
-        cursor += 8;
-        *(s8 *) (cursor - 8) = emptyIndex;
-    } while ((u32) cursor < (u32) D_800D6C38);
-
-    D_8007D6B0 = 0;
-    cursor = (u8 *) D_800D6C58;
-    do {
-        cursor += 0x40;
-        *(s32 *) (cursor - 0x40) = 0;
-        *(s32 *) (cursor - 0x30) = 0;
-        *(s32 *) (cursor - 0x20) = 0;
-        *(s32 *) (cursor - 0x10) = 0;
-    } while (cursor != (u8 *) D_800D6D18);
-
-    D_800D6C3E = 0;
-    D_800D6C44 = 0;
-    D_800D6C48 = 0;
-    D_800D6C52 = 0xFF;
-    D_800D6C54 = D_800D6C52;
-    D_800D6C4C = 0;
-    func_800534C0();
+void func_80050BF4(void)
+{
+  s32 emptyIndex;
+  s32 offset;
+  int new_var;
+  u8 *cursor;
+  D_800D6B04 = piRomLoad(0x3D);
+  D_800D6B00 = func_8002B280(0x400, 0x81);
+  offset = 0;
+  new_var = 4;
+  do
+  {
+ *((s32 *) (((u8 *) D_800D6B00) + offset)) = 0; offset += new_var; } while (offset < 0x400); cursor = (u8 *) D_800D6B08; do { cursor += new_var; *((void **) (cursor - new_var)) = (void *) 0; } while (((u32) cursor) < ((u32) D_800D6B18)); cursor = (u8 *) D_800D6B18; do { cursor = cursor + new_var; *((void **) (cursor - new_var)) = (void *) 0; } while (((u32) cursor) < ((u32) D_800D6B58)); cursor = (u8 *) D_800D6B58; do { cursor += 0x14; cursor[-0x14] = 0xFF; *((s32 *) (cursor - 0x10)) = 0; *((s32 *) (cursor - 8)) = 0; new_var += 0; } while (((u32) cursor) < ((u32) D_800D6BF8)); emptyIndex = -1; cursor = D_800D6BF8; do {
+    cursor += 8;
+    *((s8 *) (cursor - 8)) = emptyIndex;
+  }
+  while (((u32) cursor) < ((u32) D_800D6C38));
+  D_8007D6B0 = 0;
+ cursor = (u8 *) D_800D6C58; do { cursor += 0x40; *((s32 *) (cursor - 0x40)) = 0; *((s32 *) (cursor - 0x30)) = 0; *((s32 *) (cursor - 0x20)) = 0; *((s32 *) (cursor - 0x10)) = 0; } while (cursor != ((u8 *) D_800D6D18)); D_800D6C3E = 0; D_800D6C44 = 0;
+  D_800D6C48 = 0;
+  D_800D6C52 = 0xFF;
+  D_800D6C54 = D_800D6C52;
+  D_800D6C4C = 0;
+  func_800534C0();
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
-#endif
 void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;
     do {
@@ -585,12 +548,9 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Type pass: shared aggregate boundaries plus raw cursor traversal improve the
- * candidate from structure-mismatch (46 words) to allocation-mismatch (14
- * words), with the exact 90-instruction shape; target end/base address order
- * and three register webs remain.
+ * Preserve the same-line cursor setup and the integer identity expressions:
+ * together they retain the stock compiler's exact temporary allocation.
  */
-#ifdef NON_MATCHING
 void func_80050E9C(void) {
     s32 emptyIndex;
     u8 *cursor;
@@ -613,31 +573,27 @@ void func_80050E9C(void) {
         do {
             func_800502CC((u8) pathIndex);
             pathIndex++;
-        } while ((pathIndex < 0x100) != 0);
+        } while ((pathIndex ^ 0) < 0x100);
 
-        cursor = (u8 *) D_800D6B08;
-        do {
+        cursor = (u8 *) D_800D6B08; do {
             cursor += 4;
             *(void **) (cursor - 4) = NULL;
         } while ((u32) cursor < (u32) D_800D6B18);
 
-        cursor = (u8 *) D_800D6B58;
-        do {
+        cursor = (u8 *) D_800D6B58; do {
             cursor += 0x14;
             cursor[-0x14] = 0xFF;
             *(s32 *) (cursor - 0x10) = 0;
             *(s32 *) (cursor - 8) = 0;
         } while ((u32) cursor < (u32) D_800D6BF8);
 
-        cursor = D_800D6BF8;
-        do {
+        cursor = D_800D6BF8; do {
             cursor += 8;
             *(s8 *) (cursor - 8) = emptyIndex;
         } while ((u32) cursor < (u32) D_800D6C38);
 
         D_8007D6B0 = 0;
-        cursor = (u8 *) D_800D6C58;
-        do {
+        cursor = (u8 *) D_800D6C58; do {
             cursor += 0x40;
             *(s32 *) (cursor - 0x40) = 0;
             *(s32 *) (cursor - 0x30) = 0;
@@ -645,7 +601,7 @@ void func_80050E9C(void) {
             *(s32 *) (cursor - 0x10) = 0;
         } while (cursor != (u8 *) D_800D6D18);
 
-        D_800D6C3E = 0;
+        D_800D6C3E = (pathIndex < 0x100) * 0;
         D_800D6C44 = 0;
         D_800D6C48 = 0;
         D_800D6C52 = 0xFF;
@@ -655,10 +611,6 @@ void func_80050E9C(void) {
         func_800534C0();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
-#endif
-
 /*
  * PROVENANCE: adapted from JFG's public animseqSetupGroup assembly. Mickey's
  * directory layout, level-header field, globals, and calls are authoritative.
@@ -823,9 +775,14 @@ extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
  * globals, sound-object offset, and final compiler output are independently
  * established from Mickey's ROM.
  *
- * Workbench p7: structure-mismatch, 287/287 instructions, frame -72 vs target -64, 192 raw words from +0x0.
- * Save slots agree but the candidate has 8 extra non-save bytes; command-state and direct-global probes regress.
- * Prior flag, clock/type/lifetime, and canonical-permuter levers remain exhausted; retain NON_MATCHING. */
+ * Workbench wave 7: structure-mismatch after ten coherent attempts,
+ * 287/287 instructions, frame -72 vs target -64, and 192 raw words from
+ * +0x0. Reordering the interpolation update retained the headline score but
+ * reduced aligned structural differences from 44 to 38 and gaps from 38 to
+ * 32. The target retains playback-state and television-mode addresses in
+ * saved registers; explicit source carriers regress geometry or alignment.
+ * Prior flag, clock/type/lifetime, and canonical-permuter levers remain
+ * exhausted; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_80051364(s32 updateRate) {
     AnimStreamEntry *command;
@@ -875,8 +832,8 @@ void func_80051364(s32 updateRate) {
             } while (camera < (AnimCameraSource **) D_800D6B18);
             if (D_8007D6BC != 0) {
                 if (updateRate < D_8007D6BC) {
-                    D_8007D6BC -= updateRate;
                     D_8007D6B4 += D_8007D6B8 * (f32) updateRate;
+                    D_8007D6BC -= updateRate;
                 } else {
                     D_8007D6B4 += D_8007D6B8 * (f32) D_8007D6BC;
                     D_8007D6BC = 0;
@@ -896,9 +853,9 @@ void func_80051364(s32 updateRate) {
             if (D_8007D6A4 == 1) {
                 func_800517E0();
             }
-            TrapDanglingJump(updateRate);
-            TrapDanglingJump(updateRate);
-            TrapDanglingJump(updateRate);
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x000 */
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x124 */
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x1B00 */
             offset = 0;
             do {
                 path = *(AnimPath **) ((u8 *) D_800D6B00 + offset);
@@ -930,7 +887,1006 @@ void func_80051364(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #endif
+
+/*
+ * PROVENANCE: the command-interpreter role and switch organization are
+ * adapted from JFG's public animseqProcessCommandList assembly. Mickey's
+ * command widths, globals, object offsets, call targets, and body below are
+ * established independently from Mickey's ROM and remain authoritative.
+ */
+#ifdef NON_MATCHING
+struct AnimCommandSub;
+struct AnimCommandSubState;
+struct AnimCommandAnimation;
+struct AnimCommandFrameReference;
+struct AnimCommandFrameReferenceEntry;
+
+typedef struct AnimCommandModel {
+    u8 pad0[0x1E];
+    s8 animationKinds[4];
+    s8 animationCount;
+    u8 pad23[5];
+    s8 tableCount28;
+    u8 tableCount29;
+    u8 pad2A[0x32];
+    f32 scale5C;
+    u8 pad60[0x70];
+    f32 animationValues[4];
+} AnimCommandModel;
+
+typedef struct AnimCommandObject {
+    u8 pad0[6];
+    s16 flags6;
+    u8 pad8[4];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    f32 animationValue;
+    u8 pad2C[0xD];
+    u8 state39;
+    s8 animationIndex;
+    u8 pad3B;
+    s32 unk3C;
+    AnimCommandModel *model;
+    u8 pad44[8];
+    struct AnimCommandSub *sub;
+    u8 pad50[0x18];
+    struct AnimCommandAnimation **animations;
+    void **table70;
+    void **table74;
+    u8 pad78[8];
+    s32 flags80;
+    void *soundHandle;
+    s32 unk88;
+    u8 pad8C[4];
+    u8 unk90;
+} AnimCommandObject;
+
+typedef struct AnimCommandSub {
+    f32 unk0;
+    f32 unk4;
+    u8 pad8[8];
+    u8 type10;
+    s8 type11;
+    u8 pad12[8];
+    struct AnimCommandSubState *next1C;
+} AnimCommandSub;
+
+typedef struct AnimCommandSubState {
+    f32 unk0;
+    f32 unk4;
+    u8 pad8[8];
+    u8 type10;
+    s8 type11;
+    u8 pad12[0x9A];
+    f32 unkAC;
+    u8 padB0[0xA];
+    u8 unkBA;
+} AnimCommandSubState;
+
+typedef struct AnimCommandAnimationHeader {
+    u8 pad0[0x10];
+    u8 count10;
+    u8 pad11[7];
+    struct AnimCommandFrameReferenceEntry *recordTable;
+} AnimCommandAnimationHeader;
+
+typedef struct AnimCommandFrameRecord {
+    u8 pad0[4];
+    s32 flags;
+} AnimCommandFrameRecord;
+
+typedef struct AnimCommandFrameReference {
+    u8 pad0[4];
+    s16 flags;
+    u8 pad6[0xC];
+    s16 speed12;
+} AnimCommandFrameReference;
+
+typedef struct AnimCommandFrameReferenceEntry {
+    AnimCommandFrameReference *reference;
+    u32 unk4;
+} AnimCommandFrameReferenceEntry;
+
+typedef struct AnimCommandAnimation {
+    AnimCommandAnimationHeader *header;
+    u8 pad4[0x48];
+    AnimCommandFrameRecord *records;
+} AnimCommandAnimation;
+
+/* The scroll command fills the fields left opaque by AnimScrollReset. */
+typedef struct AnimCommandScroll {
+    u8 textureIndex;
+    u8 pad1;
+    s16 duration;
+    s32 x;
+    s32 stepX;
+    s32 y;
+    s32 stepY;
+} AnimCommandScroll;
+
+typedef struct AnimCommandTrackEntry {
+    u8 pad0[0x12];
+    s16 speed12;
+} AnimCommandTrackEntry;
+
+typedef struct AnimCommandTrackTexture {
+    AnimCommandTrackEntry *texture;
+    u32 unk4;
+} AnimCommandTrackTexture;
+
+typedef struct AnimCommandTrack {
+    AnimCommandTrackTexture *entries;
+    u8 pad4[0x14];
+    s16 count18;
+} AnimCommandTrack;
+
+/* Tier B: resident relocation entries resolve these calls to overlay 100
+ * motion creation and overlay 41 slot insertion. Typed trampoline aliases
+ * preserve the destination ABI without default float promotion. */
+#pragma weak animCommandMotionTrap = TrapDanglingJump
+extern void *animCommandMotionTrap(f32 x, f32 y, f32 z, s32 count,
+                                  s32 colorB0, s32 colorB1, s32 colorB2,
+                                  s32 colorA0, s32 colorA1, s32 colorA2,
+                                  f32 duration);
+#pragma weak animCommandSlotTrap = TrapDanglingJump
+extern void animCommandSlotTrap(void *object, s32 red, s32 green, s32 blue,
+                               s32 alpha, f32 duration, s32 alternateColors);
+
+extern u8 D_8007BF0C;
+extern s16 D_800D6C4E;
+extern s16 D_800D6C50;
+
+void func_80000510(u8 sequenceId);
+void func_800005CC(f32 fade, u8 volume);
+void amTuneResetFade(void);
+void amTuneSetVolume(u8 volume);
+void amAmbientPlay(u8 sequenceId);
+void amAmbientResetFade(void);
+void amAmbientSetFade(f32 fade, u8 volume);
+void amAmbientSetVolume(u8 volume);
+void amSndPlay(u16 soundId, void **handle);
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                   void **handle);
+void changeWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                   s32 arg5);
+void func_80014BAC(s32 fogIndex, s32 red, s32 green, s32 blue, s32 near,
+                   s32 far, f32 timer);
+void func_800498FC(s32 index, f32 duration, f32 delay, s32 red,
+                   s32 green, s32 blue, s32 flags);
+void func_8004EED0(u8 arg0);
+void func_8004E99C(void);
+f32 func_8002A8BC(s32 angle);
+f32 func_8002A8C0(s32 angle);
+void camStartShake(s32 camNo, f32 attack, f32 sustain, f32 decay,
+                   s32 magnitude);
+void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
+void *trackGetTrack(void);
+void func_8005AD64(void *instance, s32 frame, s32 arg2, f32 value);
+void mainSyncNextLevel(void);
+void func_80029084(s32 arg0, s32 arg1);
+u8 frontGetMode(void);
+void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
+                     s32 frontMode, s32 arg4, s32 arg5);
+void mainSetAnimGroup(s32 arg0);
+void joyDisable(s32 player);
+void joyEnable(s32 player);
+
+/* NON_MATCHING: Mickey-led call/type reconstruction. Shared loop carriers
+ * and handler dataflow still differ; see the symbol-owned handoff. */
+void func_800517E0(void) {
+    AnimPath **paths;
+    AnimStreamEntry *cursor;
+    u16 currentCommand;
+    u16 commandDuration;
+    u16 duration;
+    s32 opcode;
+    s32 pathIndex;
+    f32 commandTime;
+    f32 hundred;
+    f32 delta;
+    f32 value;
+    f32 value2;
+    f32 factor;
+    f32 unit;
+    f32 scale;
+    f32 target;
+    f32 start;
+    f32 end;
+    f32 color;
+    f32 normalized;
+    s32 packed;
+    s32 packed2;
+    s32 high;
+    s32 low;
+    s32 high2;
+    s32 low2;
+    s32 targetValue;
+    s32 index;
+    s32 frame;
+    s32 timer;
+    s32 state;
+    s32 flagsValue;
+    u32 objectFlags;
+    s16 signedValue;
+    AnimPath *path;
+    AnimCommandObject *object;
+    AnimCommandSub *sub;
+    AnimCommandSubState *next;
+    AnimCommandAnimation *animation;
+    AnimCommandAnimationHeader *header;
+    AnimCommandFrameRecord *record;
+    AnimCommandFrameReference *reference;
+    AnimCommandTrack *track;
+    AnimCommandTrackEntry *trackEntry;
+    void **soundSlot;
+    void *sound;
+    void *entry;
+    u8 type;
+    s32 motionAngle;
+    s32 motionCount;
+    s32 colorB0;
+    s32 colorB1;
+    s32 colorB2;
+    s32 colorA0;
+    s32 colorA1;
+    s32 packedField;
+    f32 motionDuration;
+    f32 radius;
+    f32 height;
+    f32 motionX;
+    f32 motionZ;
+
+    cursor = D_8007D69C;
+    paths = D_800D6B00;
+    if (cursor != NULL) {
+        hundred = 100.0f;
+        scale = 60.0f;
+        factor = 0.01f;
+        while ((currentCommand = cursor->command) != 0x7F00 &&
+               (commandTime = (f32) (commandDuration = cursor->duration) /
+                              hundred) < D_8007D6AC && D_8007D6A4 == 1) {
+            opcode = (currentCommand >> 8) & 0xFF;
+            pathIndex = currentCommand & 0xFF;
+            delta = D_8007D6AC - commandTime;
+            switch (opcode) {
+                case 0: {
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    animseqStartPath(pathIndex);
+                    animResetTrap(paths[pathIndex], delta, 0, 0);
+                    break;
+                }
+                case 1:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    animseqStopPath(pathIndex);
+                    break;
+                case 2: {
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if (path != NULL) {
+                        if (path->flags & 1) {
+                            func_8005055C(pathIndex);
+                            animseqStartPath(pathIndex);
+                            animResetTrap(paths[pathIndex], delta, 0, 0);
+                        } else {
+                            func_8005055C(pathIndex);
+                        }
+                    }
+                    break;
+                }
+                case 3:
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if (path != NULL) {
+                        path->flags |= 2;
+                        object = (AnimCommandObject *) path->unk8;
+                        if ((object != NULL) && (path->flags & 5)) {
+                            D_800D6B08[0] = (AnimCameraSource *) object;
+                        }
+                    }
+                    break;
+                case 4:
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if (path != NULL) {
+                        path->flags &= ~2;
+                    }
+                    break;
+                case 5:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    animseqHoldPath(pathIndex);
+                    break;
+                case 6:
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (path != NULL) {
+                        path->unk15 = (s8) (packed >> 8);
+                        path->unk1 = packed & 0xFF;
+                    }
+                    break;
+                case 7:
+                    path = paths[pathIndex];
+                    value = (f32) (*((u16 *) ((u8 *) cursor + 4))) * 0.001f;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (path != NULL) {
+                        path->unk10 = value;
+                    }
+                    break;
+                case 8:
+                    path = paths[pathIndex];
+                    start = (f32) (*((u16 *) ((u8 *) cursor + 4)));
+                    end = (f32) (*((u16 *) ((u8 *) cursor + 6)));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if (path != NULL) {
+                        start *= factor;
+                        path->unk2A = (s16) (s32) (end * scale * factor);
+                        if (path->unk2A == 0) {
+                            path->unk2C = start;
+                        } else {
+                            path->unk30 =
+                                (start - path->unk2C) /
+                                (f32) path->unk2A;
+                        }
+                    }
+                    break;
+                case 9:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    animseqLockPath(pathIndex);
+                    break;
+                case 0xA:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    animseqUnLockPath(pathIndex);
+                    break;
+                case 0x20:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    amSndPlay(packed, NULL);
+                    break;
+                case 0x21:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    func_80000510(pathIndex);
+                    amTuneResetFade();
+                    break;
+                case 0x22:
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    func_800005CC(value / hundred - delta,
+                                  pathIndex);
+                    break;
+                case 0x23:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amTuneSetVolume(pathIndex);
+                    amTuneResetFade();
+                    break;
+                case 0x24:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amAmbientPlay(pathIndex);
+                    amAmbientResetFade();
+                    break;
+                case 0x25:
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    amAmbientSetFade(value / hundred - delta,
+                                     pathIndex);
+                    break;
+                case 0x26:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amAmbientSetVolume(pathIndex);
+                    amAmbientResetFade();
+                    break;
+                case 0x27:
+                    soundSlot = &D_800D6B18[pathIndex];
+                    sound = *soundSlot;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (sound != NULL) {
+                        amSndStop(sound);
+                        *soundSlot = NULL;
+                    }
+                    amSndPlay(packed, soundSlot);
+                    break;
+                case 0x28:
+                    soundSlot = &D_800D6B18[pathIndex];
+                    sound = *soundSlot;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if (sound != NULL) {
+                        amSndStop(sound);
+                        *soundSlot = NULL;
+                    }
+                    break;
+                case 0x29:
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (object->soundHandle != NULL) {
+                            func_800031E8(object->soundHandle);
+                            object->soundHandle = NULL;
+                        }
+                        func_80002FE0(packed & 0xFFFF, object->x,
+                                      object->y, object->z, 1,
+                                      &object->soundHandle);
+                    }
+                    break;
+                case 0x2A:
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (object->soundHandle != NULL) {
+                            func_800031E8(object->soundHandle);
+                            object->soundHandle = NULL;
+                        }
+                    }
+                    break;
+                case 0x2B:
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (path != NULL) {
+                        path->unk28 = packed >> 8;
+                        path->unk29 = packed & 0xFF;
+                    }
+                    break;
+                case 0x40:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    index = pathIndex;
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    high2 = (packed2 >> 8) & 0xFF;
+                    low2 = packed2 & 0xFF;
+                    value = (f32) (*((u16 *) ((u8 *) cursor + 8)));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    target = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    if ((index & 0xF) == 7) {
+                        packed = low != 0 ? 0 : 0xFF;
+                        TrapDanglingJump(high, high2, low2, packed,
+                                         (s32) (value * factor * scale));
+                    } else {
+                        color = target != 65535.0f ?
+                            target / hundred : -1.0f;
+                        if (low != 0) {
+                            index |= 0x80;
+                        }
+                        normalized = value / hundred;
+                        func_800498FC(4, normalized, color, high,
+                                      high2, low2, index);
+                    }
+                    break;
+                case 0x41:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    func_8004EED0(pathIndex);
+                    break;
+                case 0x42:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    func_8004E99C();
+                    break;
+                case 0x43:
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value = (f32) duration;
+                    color = (f32) (pathIndex);
+                    color = (color / 255.0f) * 65535.0f;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    changeWeather(0, 0, 0, (s32) color, 0xFFFF,
+                                  (s32) (value * factor * scale));
+                    break;
+                case 0x44:
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value = (f32) duration;
+                    signedValue = *((s16 *) ((u8 *) cursor + 6));
+                    packed = *((s16 *) ((u8 *) cursor + 8));
+                    packed2 = *((s16 *) ((u8 *) cursor + 0xA));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    unit = 0.00390625f;
+                    changeWeather((s32) ((f32) signedValue * unit),
+                                  (s32) ((f32) packed * unit),
+                                  (s32) ((f32) packed2 * unit), 1, 1,
+                                  (s32) value);
+                    break;
+                case 0x45:
+                    duration = *((u16 *) ((u8 *) cursor + 6));
+                    value = (f32) duration;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 8));
+                    index = *((u16 *) ((u8 *) cursor + 0xA));
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    func_80014BAC(0, pathIndex, high, low,
+                                  packed2, index, value / hundred - delta);
+                    break;
+                case 0x46: {
+                    packedField = *((u16 *) ((u8 *) cursor + 8));
+                    radius = *((s16 *) ((u8 *) cursor + 4));
+                    height = *((s16 *) ((u8 *) cursor + 6));
+                    motionDuration = packedField & 0xFF;
+                    motionCount = packedField >> 8;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xA));
+                    colorB0 = packedField >> 8;
+                    colorB1 = packedField & 0xFF;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xC));
+                    colorB2 = packedField >> 8;
+                    colorA0 = packedField & 0xFF;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xE));
+                    colorA1 = packedField >> 8;
+                    packedField &= 0xFF;
+                    motionAngle = currentCommand << 8;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0x10);
+                    motionX = func_8002A8C0(motionAngle) * radius;
+                    motionZ = func_8002A8BC(motionAngle) * radius;
+                    animCommandMotionTrap(motionX, height, motionZ,
+                                          motionCount * 2, colorB0, colorB1,
+                                          colorB2, colorA0, colorA1, packedField,
+                                          motionDuration / hundred);
+                    break;
+                }
+                case 0x47:
+                    pathIndex = currentCommand & 0xFF;
+                    value = (f32) *((u16 *) ((u8 *) cursor + 4));
+                    value2 = (f32) *((u16 *) ((u8 *) cursor + 6));
+                    target = (f32) *((u16 *) ((u8 *) cursor + 8));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xA);
+                    camStartShake(0, value / hundred, value2 / hundred,
+                                  target / hundred, pathIndex);
+                    if (D_8007BF0C == 0) {
+                        rumbleStart(0, 0x4B, 2.0f);
+                    }
+                    break;
+                case 0x48:
+                    index = *((u16 *) ((u8 *) cursor + 4));
+                    frame = *((u16 *) ((u8 *) cursor + 6));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    track = (AnimCommandTrack *) trackGetTrack();
+                    if ((track != NULL) && (index < track->count18)) {
+                        trackEntry = track->entries[index].texture;
+                        if (trackEntry != NULL) {
+                            trackEntry->speed12 = (s16) ((frame << 8) /
+                                                           6000);
+                        }
+                    }
+                    break;
+                case 0x49: {
+                    AnimCommandScroll *scroll;
+                    s32 scrollX;
+                    s32 scrollY;
+                    f32 scrollDuration;
+
+                    index = *((u16 *) ((u8 *) cursor + 4));
+                    scrollX = *((s16 *) ((u8 *) cursor + 6));
+                    scrollY = *((s16 *) ((u8 *) cursor + 8));
+                    scrollDuration = *((u16 *) ((u8 *) cursor + 0xA));
+                    scrollX = (s32) ((u32) scrollX << 16) / 6000;
+                    scrollY = (s32) ((u32) scrollY << 16) / 6000;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    scroll = (AnimCommandScroll *)
+                        &D_800D6B58[currentCommand & 7];
+                    scroll->textureIndex = index;
+                    scroll->duration = (s16) (s32) (scrollDuration *
+                                               (60.0f * 0.01f));
+                    timer = scroll->duration;
+                    scroll->stepX = (scrollX - scroll->x) / timer;
+                    scroll->stepY = (scrollY - scroll->y) / timer;
+                    break;
+                }
+                case 0x4A:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    index = pathIndex;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if ((packed >> 8) != 0) {
+                        TrapDanglingJump(index, packed & 0xFF,
+                                         (packed2 >> 8) & 0xFF,
+                                         packed2 & 0xFF, packed >> 8);
+                    } else {
+                        TrapDanglingJump(index);
+                    }
+                    break;
+                case 0x4B:
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    timer = (s32) (value * scale * factor);
+                    D_800D6C4E = timer;
+                    D_800D6C4C = timer;
+                    D_800D6C50 = D_800D6C54;
+                    D_800D6C52 = pathIndex;
+                    break;
+                case 0x4C:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    timer = *((u16 *) ((u8 *) cursor + 8));
+                    frame = *((u16 *) ((u8 *) cursor + 0xA));
+                    duration = *((u16 *) ((u8 *) cursor + 0xC));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
+                    TrapDanglingJump(pathIndex,
+                                     (packed >> 8) & 0xFF, packed & 0xFF,
+                                     packed2 & 0xFF00,
+                                     (packed2 & 0xFF) << 8,
+                                     timer & 0xFF00, (timer & 0xFF) << 8,
+                                     frame, duration);
+                    break;
+                case 0x4D:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    duration = *((u16 *) ((u8 *) cursor + 6));
+                    value = (f32) duration;
+                    packed2 = *((u16 *) ((u8 *) cursor + 8));
+                    timer = *((u16 *) ((u8 *) cursor + 0xA));
+                    frame = *((u16 *) ((u8 *) cursor + 0xC));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
+                    TrapDanglingJump(packed, (s32) value,
+                                     packed2, timer, frame >> 8,
+                                     frame & 0xFF, pathIndex);
+                    break;
+                case 0x60:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    frame = *((u16 *) ((u8 *) cursor + 6));
+                    value = (f32) frame / 16384.0f;
+                    duration = *((u16 *) ((u8 *) cursor + 8));
+                    value2 = (f32) duration / 16384.0f;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xA);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (object->model->animationKinds[object->animationIndex] == 1) {
+                            object->animationValue = value;
+                        } else {
+                            func_8005AD64(object, high, -1, value);
+                        }
+                        path->unkC = value2;
+                        path->unk14 = low;
+                    }
+                    break;
+                case 0x61:
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (frame < object->model->animationCount) {
+                            object->animationIndex = frame;
+                        }
+                    }
+                    break;
+                case 0x62:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    objectFlags = ((u32) packed << 16) | (u32) packed2;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        object->flags80 |= objectFlags;
+                    }
+                    break;
+                case 0x63:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    objectFlags = ((u32) packed << 16) | (u32) packed2;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        object->flags80 &= ~objectFlags;
+                    }
+                    break;
+                case 0x64:
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        object->flags6 &= ~0x400;
+                    }
+                    break;
+                case 0x65:
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        object->flags6 |= 0x400;
+                    }
+                    break;
+                case 0x66:
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (path != NULL) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (object != NULL) {
+                            object->unk88 = frame;
+                        }
+                    } else {
+                        D_800D6C48 = frame;
+                    }
+                    break;
+                case 0x67:
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if (frame != 0) {
+                            object->flags6 |= 4;
+                        } else {
+                            object->flags6 &= ~4;
+                        }
+                    }
+                    break;
+                case 0x68:
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    duration = *((u16 *) ((u8 *) cursor + 6));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        type = path->unk25;
+                        path->unk25 = frame;
+                        path->unk27 = 0;
+                        path->unk24 = type;
+                        path->unk26 = (u8) (s32) ((f32) duration /
+                                            hundred * scale);
+                        object->state39 = type;
+                    }
+                    break;
+                case 0x6A: {
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    frame = *((u16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    high2 = (packed2 >> 8) & 0xFF;
+                    low2 = packed2 & 0xFF;
+                    value = (f32) duration;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        entry = object->table70;
+                        if ((entry != NULL) &&
+                            (high < object->model->tableCount28)) {
+                            entry = *(void **)
+                                ((u8 *) entry + high * 4);
+                            animCommandSlotTrap(
+                                entry, low, high2, low2, frame, value, 1);
+                        }
+                    }
+                    break;
+                }
+                case 0x6B: {
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    frame = *((u16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    high2 = (packed2 >> 8) & 0xFF;
+                    low2 = packed2 & 0xFF;
+                    value = (f32) duration;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        entry = object->table74;
+                        if ((entry != NULL) &&
+                            (high < object->model->tableCount29)) {
+                            entry = *(void **)
+                                ((u8 *) entry + high * 4);
+                            animCommandSlotTrap(
+                                entry, low, high2, low2, frame, value, 0);
+                        }
+                    }
+                    break;
+                }
+                case 0x6C:
+                    path = paths[pathIndex];
+                    type = *((u8 *) cursor + 5);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        ((AnimCommandObject *) path->unk8)->unk90 = type;
+                    }
+                    break;
+                case 0x6D:
+                    type = *((u8 *) cursor + 5);
+                    signedValue = *((s16 *) ((u8 *) cursor + 6));
+                    packed = *((s16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    value = (f32) signedValue * 0.00390625f;
+                    value2 = (f32) packed * 0.00390625f;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        sub = object->sub;
+                        if (sub != NULL) {
+                            switch (type) {
+                                case 0:
+                                    sub->type10 = 0;
+                                    break;
+                                case 1:
+                                    sub->type10 = 5;
+                                    object->sub->type11 = 1;
+                                    break;
+                                case 2:
+                                case 3:
+                                case 4:
+                                    sub->type10 = 1;
+                                    object->sub->type11 = type - 1;
+                                    break;
+                                case 5:
+                                case 6:
+                                case 7:
+                                case 8:
+                                    sub->type10 = type == 5 ? 0xD : 9;
+                                    next = object->sub->next1C;
+                                    if ((next != NULL) &&
+                                        (next->type10 & 8)) {
+                                        next->unkBA = duration;
+                                        next->type11 = type == 5 ?
+                                            1 : type - 5;
+                                        if (duration == 0) {
+                                            next->unk0 = object->sub->unk0;
+                                            next->unk4 = object->sub->unk4;
+                                            next->unkAC =
+                                                object->model->scale5C;
+                                        } else if (duration == 2) {
+                                            next->unk0 = value;
+                                            next->unk4 = value;
+                                            next->unkAC = value2;
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+                case 0x6E:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    timer = *((u16 *) ((u8 *) cursor + 8));
+                    frame = *((u16 *) ((u8 *) cursor + 0xA));
+                    duration = *((u16 *) ((u8 *) cursor + 0xC));
+                    value = (f32) duration;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        TrapDanglingJump(path->unk8, (packed >> 8) & 0xFF,
+                                         packed & 0xFF, packed2, timer,
+                                         frame, (s32) (value * factor *
+                                                       scale));
+                    }
+                    break;
+                case 0x6F:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    high = (packed >> 8) & 0xFF;
+                    low = packed & 0xFF;
+                    frame = *((u16 *) ((u8 *) cursor + 6));
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
+                    if ((path != NULL) && (path->unk8 != NULL)) {
+                        object = (AnimCommandObject *) path->unk8;
+                        if ((object->animationIndex >= 4) ||
+                            (object->model->animationValues[object->animationIndex] ==
+                             0.0f)) {
+                            state = object->model->animationKinds[0];
+                        } else {
+                            state = object->model->animationKinds[object->animationIndex];
+                        }
+                        if (state == 1) {
+                            object->animationValue = high;
+                            path->unkC = (f32) frame / scale;
+                        } else if (state == 0) {
+                            animation = object->animations[
+                                object->animationIndex];
+                            if (high < animation->header->count10) {
+                                record = animation->records + high;
+                                flagsValue = record->flags;
+                                header = animation->header;
+                                reference = header->recordTable[flagsValue & 0xFF].reference;
+                                record->flags = flagsValue & 0xFF1FFFFF;
+                                reference->flags = reference->flags &
+                                    0xFF1FFFFF;
+                                reference->speed12 =
+                                    (s16) ((frame << 8) / 6000);
+                                if (low == 1) {
+                                    record->flags |= 0x800000;
+                                    reference->flags |= 0x800000;
+                                } else if (low == 2) {
+                                    record->flags |= 0x400000;
+                                    reference->flags |= 0x400000;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case 0x74:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    TrapDanglingJump(1);
+                    break;
+                case 0x75:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    TrapDanglingJump(0);
+                    break;
+                case 0x76:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    mainSyncNextLevel();
+                    break;
+                case 0x78:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    func_80029084(packed, pathIndex);
+                    break;
+                case 0x79:
+                    value = (f32) (pathIndex);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
+                    value2 = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    timer = (s32) (value2 * scale * factor);
+                    D_8007D6BC = timer;
+                    if (timer > 0) {
+                        D_8007D6B8 = (value - D_8007D6B4) /
+                                     (f32) timer;
+                    } else {
+                        D_8007D6B4 = value;
+                    }
+                    break;
+                case 0x7A:
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    index = packed & 0xFFF;
+                    high = (currentCommand >> 4) & 0xF;
+                    low = (packed >> 12) & 0xF;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    if (index == 0xFFF) {
+                        index = 0;
+                    }
+                    mainChangeLevel(index, high, low, frontGetMode(), 1,
+                                     0);
+                    mainSetAnimGroup(currentCommand & 0xF);
+                    break;
+                case 0x7B:
+                    D_8007D6A8 = ((s32) commandDuration * 0x3C) / 100;
+                    duration = cursor->duration;
+                    value = (f32) duration;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    D_8007D6AC = value * factor;
+                    D_8007D6A4 = (s8) *((u16 *) ((u8 *) cursor - 2));
+                    break;
+                case 0x7C:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    joyDisable(currentCommand & 3);
+                    break;
+                case 0x7D:
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    joyEnable(currentCommand & 3);
+                    break;
+                case 0x7E:
+                    D_8007D6A8 -= ((s32) commandDuration * 0x3C) / 100;
+                    duration = cursor->duration;
+                    value2 = (f32) duration;
+                    cursor = D_8007D698;
+                    D_8007D6AC = D_8007D6AC - value2 * factor;
+                    break;
+                default:
+                    break;
+            }
+        }
+        D_8007D69C = cursor;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
+#endif
 /*
  * PROVENANCE: JFG's public src/anim.c supplies the ordered animseqCamera
  * comparison; the body and local layouts are reconstructed from Mickey.
@@ -994,21 +1950,20 @@ void mathOneFloatRPY(ControlTransform *transform, f32 *output);
  * the structural comparison. Mickey's ABI, field offsets, branches, and
  * generated code remain independently established from Mickey's ROM.
  *
- * Workbench: operand-mismatch; exact 198 words/-0x78 frame, 16 operands, first +0xA4.
- * Saved-pointer carrier worsened structurally; prior flag/type/lifetime/workspace variants and bounded permutation found no exact form.
- * Remaining: target stack homes differ for offset vector and call-live pointer; assembly fallback stays canonical.
+ * Workbench: exact; 198 instructions, -0x78 frame, zero differing words.
+ * The local offset vector precedes the model locals, and the live hit pointer
+ * follows the model declaration, reproducing the target stack homes.
  */
-#ifdef NON_MATCHING
 void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
                    s16 rotationY, s16 rotationZ, f32 radius, f32 height,
                    f32 arg8, f32 arg9, s32 collisionType, u16 flags) {
-    HitInitRecord *hit;
+    f32 offset[3];
     HitInitModel *model;
+    HitInitRecord *hit;
     HitInitHeader *header;
     HitInitDescriptor *descriptor;
     HitInitEntry *entry;
     f32 *floatPosition;
-    f32 offset[3];
     s16 *vertex;
     s32 entryCount;
     s32 remaining;
@@ -1090,182 +2045,998 @@ void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
-#endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
+typedef struct Func538Shape Func538Shape;
+typedef struct Func538Object Func538Object;
+typedef struct Func538Model Func538Model;
+typedef struct Func538Vertex Func538Vertex;
+typedef struct Func538Pair Func538Pair;
+
+struct Func538Shape {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u16 unk6;
+    u8 pad8;
+    u8 unk9;
+    u8 padA[2];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 previous[3];
+    f32 position[3];
+    f32 displacement[3];
+    f32 minimum[3];
+    f32 maximum[3];
+    f32 unk54;
+    f32 unk58;
+    f32 unk5C;
+    s8 unk60;
+    u8 unk61;
+    u8 unk62;
+    u8 unk63;
+    f32 unk64;
+    u8 pad68[8];
+    Func538Object *unk70;
+};
+
+struct Func538Vertex {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+};
+
+struct Func538Model {
+    u8 pad0[0x40];
+    Func538Vertex *unk40;
+};
+
+struct Func538Object {
+    u8 pad0[0xC];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x22];
+    s8 unk3A;
+    u8 pad3B[9];
+    s16 unk44;
+    u8 pad46[2];
+    Func538Shape *unk48;
+    u8 pad4C[0x1C];
+    Func538Model **unk68;
+    u8 pad6C[0x25];
+    u8 unk91;
+};
+
+struct Func538Pair {
+    Func538Object *first;
+    Func538Object *second;
+    f32 fraction;
+    AnimVec3f normal;
+};
+
 typedef struct AnimCollisionShape {
     u8 pad0[6];
     u16 flags;
-    u8 pad8[0x10];
+    u8 shape;
+    u8 pad9[0xF];
     AnimVec3f position;
     AnimVec3f edge;
     AnimVec3f vector;
     u8 pad3C[0x1C];
     f32 radius;
+    f32 height;
 } AnimCollisionShape;
 
 typedef struct AnimCollisionResult {
     s32 object;
     s32 value;
     f32 fraction;
+    AnimVec3f normal;
 } AnimCollisionResult;
+
+extern Func538Object *D_800D6D60[0x100];
+extern Func538Object *D_800D7160[0x100];
+extern Func538Pair D_800D7560[];
+
+#define FUNC538_PAIR(index) (&D_800D7560[index])
+
+extern Func538Object **func_8000572C(s32 *start, s32 *end);
+s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
+                  s32 arg2, AnimCollisionShape *arg3,
+                  AnimCollisionResult *arg4);
+void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale);
+void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_800560D0(HitCopyState *first, HitCopyState *second, f32 unused);
+s32 func_800563B4(s32 object, AnimCollisionShape *first, s32 value,
+                  AnimCollisionShape *second, AnimCollisionResult *result);
+void func_80056DD8(HitCopyState *first, HitCopyState *second,
+                   AnimVec3f *normal, f32 timeStep);
+void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
+                   f32 timeStep);
+void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
+                   HitOverlapState *trigger, HitOverlapVolume *volume);
+
+/*
+ * PROVENANCE: JFG's public hit-update assembly supplies the broad collision
+ * update role and case ordering; Mickey's fields, globals, and call targets
+ * remain authoritative for this reconstruction.
+ */
+#ifdef NON_MATCHING
+/* NON_MATCHING: collision-update reconstruction; Mickey-only field/ABI audit. */
+void func_80053868(s32 updateRate) {
+    f32 offset[3];
+    s32 firstIndex;
+    s32 objectCount;
+    s32 fixedCount;
+    s32 movingCount;
+    s32 iteration;
+    f32 updateTime;
+    f32 remainingTime;
+    f32 fraction;
+    f32 low;
+    f32 high;
+    f32 extent;
+    f32 heightExtent;
+    f32 z;
+    s32 i;
+    s32 j;
+    s32 axis;
+    s32 pairCount;
+    s32 pairIndex;
+    s32 overlaps;
+    s32 remainder;
+    s32 result;
+    s16 firstKind;
+    s16 secondKind;
+    u8 kind;
+    Func538Object **objects;
+    Func538Object **objectCursor;
+    Func538Object **otherCursor;
+    Func538Object **movingCursor;
+    Func538Object **movingStart;
+    Func538Object **listEnd;
+    Func538Object *firstObject;
+    Func538Object *secondObject;
+    Func538Shape *firstShape;
+    Func538Shape *secondShape;
+    Func538Vertex *vertex;
+    Func538Pair *pairCursor;
+    Func538Pair *selectedPair;
+
+    updateTime = (f32) updateRate;
+    remainingTime = updateTime;
+    objects = func_8000572C(&firstIndex, &objectCount);
+    fixedCount = 0;
+    movingCount = 0;
+    i = firstIndex;
+    if (firstIndex < objectCount) {
+        objectCursor = &objects[firstIndex];
+        do {
+            firstObject = *objectCursor;
+            firstShape = firstObject->unk48;
+            if ((firstObject->unk91 == 0) && (firstShape != NULL)) {
+                kind = firstShape->unk9;
+                if ((kind == 2) || (kind == 1)) {
+                    if (firstShape->unk60 != -1) {
+                        firstShape->previous[0] = firstShape->position[0];
+                        firstShape->previous[1] = firstShape->position[1];
+                        vertex = firstObject->unk68[firstObject->unk3A]->unk40 + firstShape->unk60;
+                        firstShape->previous[2] = firstShape->position[2];
+                        firstShape->position[0] = vertex->unk0;
+                        firstShape->position[1] = vertex->unk4;
+                        firstShape->position[2] = vertex->unk8;
+                    } else {
+                        firstShape->previous[0] = firstShape->position[0];
+                        firstShape->previous[1] = firstShape->position[1];
+                        firstShape->previous[2] = firstShape->position[2];
+                        firstShape->position[0] = firstObject->unkC;
+                        firstShape->position[1] = firstObject->unk10;
+                        firstShape->position[2] = firstObject->unk14;
+                        if ((firstShape->unk0 | firstShape->unk2 | firstShape->unk4) != 0) {
+                            offset[0] = firstShape->unkC;
+                            offset[1] = firstShape->unk10;
+                            offset[2] = firstShape->unk14;
+                            mathOneFloatRPY((ControlTransform *) firstObject, &offset[0]);
+                            firstShape->position[0] += offset[0];
+                            firstShape->position[1] += offset[1];
+                            firstShape->position[2] += offset[2];
+                        }
+                        firstShape->position[1] += firstShape->unk54;
+                    }
+                    kind = firstShape->unk9;
+                    if (kind == 2) {
+                        extent = firstShape->unk58 + 5.0f;
+                        for (axis = 0; axis < 3; axis++) {
+                            low = firstShape->previous[axis];
+                            high = firstShape->position[axis];
+                            if (low < high) {
+                                firstShape->minimum[axis] = low;
+                                firstShape->maximum[axis] = high;
+                            } else {
+                                firstShape->minimum[axis] = high;
+                                firstShape->maximum[axis] = low;
+                            }
+                            firstShape->minimum[axis] -= extent;
+                            firstShape->maximum[axis] += extent;
+                        }
+                    } else if (kind == 1) {
+                        low = firstShape->position[0];
+                        z = firstShape->position[2];
+                        extent = firstShape->unk58 + 5.0f;
+                        high = firstShape->position[1];
+                        firstShape->minimum[0] = (low - extent);
+                        firstShape->maximum[0] = (low + extent);
+                        firstShape->minimum[2] = (z - extent);
+                        heightExtent = firstShape->unk5C + 5.0f;
+                        firstShape->maximum[2] = (z + extent);
+                        firstShape->minimum[1] = (high - heightExtent);
+                        firstShape->maximum[1] = (high + heightExtent);
+                    }
+                }
+                if (firstShape->unk6 & 1) {
+                    kind = firstShape->unk9;
+                    if (((kind == 0) || (kind == 1)) && (fixedCount < 0x100)) {
+                        D_800D6D60[fixedCount] = firstObject;
+                        fixedCount += 1;
+                    } else if ((kind == 2) && (movingCount < 0x100)) {
+                        D_800D7160[movingCount] = firstObject;
+                        movingCount += 1;
+                    }
+                }
+                firstShape->unk61 = 0;
+                firstShape->unk62 = 0;
+                firstShape->unk63 = 0;
+                firstShape->unk64 = 0.0f;
+            }
+            i += 1;
+            objectCursor++;
+        } while (i < objectCount);
+    }
+    iteration = 0;
+    while (remainingTime > 0.0f) {
+        fraction = 1.0f;
+        pairCount = 0;
+        i = 0;
+        pairIndex = -1;
+        if (movingCount > 0) {
+            movingCursor = D_800D7160;
+            do {
+                firstShape = (*movingCursor)->unk48;
+                firstShape->displacement[0] = firstShape->position[0] - firstShape->previous[0];
+                firstShape->displacement[1] = firstShape->position[1] - firstShape->previous[1];
+                firstShape->displacement[2] = firstShape->position[2] - firstShape->previous[2];
+                extent = firstShape->unk58 + 5.0f;
+                for (axis = 0; axis < 3; axis++) {
+                    low = firstShape->previous[axis];
+                    high = firstShape->position[axis];
+                    if (low < high) {
+                        firstShape->minimum[axis] = low;
+                        firstShape->maximum[axis] = high;
+                    } else {
+                        firstShape->minimum[axis] = high;
+                        firstShape->maximum[axis] = low;
+                    }
+                    firstShape->minimum[axis] -= extent;
+                    firstShape->maximum[axis] += extent;
+                }
+                i += 1;
+                movingCursor++;
+            } while (i < movingCount);
+            i = 0;
+        }
+        movingCursor = D_800D7160;
+        if (movingCount > 0) {
+            do {
+                firstObject = *movingCursor;
+                j = 0;
+                firstShape = firstObject->unk48;
+                if (fixedCount > 0) {
+                    otherCursor = D_800D6D60;
+                    do {
+                        secondObject = *otherCursor;
+                        secondShape = secondObject->unk48;
+                        if ((firstShape->unk6 & 1) && (secondShape->unk6 & 1) && (secondObject != firstShape->unk70)) {
+                            if (firstObject != secondShape->unk70) {
+                                axis = 0;
+                                overlaps = 1;
+                                do {
+                                    high = firstShape->minimum[axis];
+                                    low = secondShape->minimum[axis];
+                                    if ((high < low) && (firstShape->maximum[axis] < low)) {
+                                        overlaps = 0;
+                                    } else {
+                                        low = secondShape->maximum[axis];
+                                        if ((low < high) && (low < firstShape->maximum[axis])) {
+                                            overlaps = 0;
+                                        }
+                                    }
+                                    axis++;
+                                } while ((axis < 3) && overlaps);
+                                if (overlaps != 0) {
+                                    result = func_800563B4((s32) firstObject, (AnimCollisionShape *) firstShape, (s32) secondObject, (AnimCollisionShape *) secondShape, (AnimCollisionResult *) FUNC538_PAIR(pairCount));
+                                    if ((result == 0) && (secondShape->unk9 == 1)) {
+                                        func_800573C8((HitOverlapState *) firstObject, (HitOverlapVolume *) firstShape, (HitOverlapState *) secondObject, (HitOverlapVolume *) secondShape);
+                                    } else if (result == 1) {
+                                        if (pairCount < 0xF) {
+                                            pairCount += 1;
+                                        }
+                                    } else if (result == 2) {
+                                        firstKind = firstObject->unk44;
+                                        if (firstKind == 0x40) {
+                                            TrapDanglingJump(firstObject, 1);
+                                        } else if (firstKind == 0x39) {
+                                            TrapDanglingJump(firstObject, 5);
+                                        } else if (firstKind == 0x3A) {
+                                            TrapDanglingJump(firstObject, 5);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        j += 1;
+                        otherCursor++;
+                    } while (j < fixedCount);
+                }
+                j = i + 1;
+                if (j < movingCount) {
+                    otherCursor = &D_800D7160[j];
+                    do {
+                        secondObject = *otherCursor;
+                        secondShape = secondObject->unk48;
+                        if ((firstShape->unk6 & 1) && (secondShape->unk6 & 1) && (secondObject != firstShape->unk70)) {
+                            if (firstObject != secondShape->unk70) {
+                                axis = 0;
+                                overlaps = 1;
+                                do {
+                                    high = firstShape->minimum[axis];
+                                    low = secondShape->minimum[axis];
+                                    if ((high < low) && (firstShape->maximum[axis] < low)) {
+                                        overlaps = 0;
+                                    } else {
+                                        low = secondShape->maximum[axis];
+                                        if ((low < high) && (low < firstShape->maximum[axis])) {
+                                            overlaps = 0;
+                                        }
+                                    }
+                                    axis++;
+                                } while ((axis < 3) && overlaps);
+                                if ((overlaps != 0) && (func_80054B3C((s32) firstObject, (AnimCollisionShape *) firstShape, (s32) secondObject, (AnimCollisionShape *) secondShape, (AnimCollisionResult *) FUNC538_PAIR(pairCount)) != 0) && (pairCount < 0xF)) {
+                                    pairCount += 1;
+                                }
+                            }
+                        }
+                        j += 1;
+                        otherCursor++;
+                    } while (j < movingCount);
+                }
+                i++;
+                movingCursor++;
+            } while (i < movingCount);
+            i = 0;
+        }
+        if (pairCount > 0) {
+            remainder = pairCount & 3;
+            if (remainder != 0) {
+                pairCursor = FUNC538_PAIR(i);
+                do {
+                    low = pairCursor->fraction;
+                    if (low <= fraction) {
+                        fraction = low;
+                        pairIndex = i;
+                    }
+                    i += 1;
+                    pairCursor++;
+                } while (i < remainder);
+            }
+            if (i < pairCount) {
+                pairCursor = FUNC538_PAIR(i);
+                do {
+                    low = pairCursor->fraction;
+                    if (low <= fraction) {
+                        fraction = low;
+                        pairIndex = i;
+                    }
+                    if (pairCursor[1].fraction <= fraction) {
+                        fraction = pairCursor[1].fraction;
+                        pairIndex = i + 1;
+                    }
+                    if (pairCursor[2].fraction <= fraction) {
+                        fraction = pairCursor[2].fraction;
+                        pairIndex = i + 2;
+                    }
+                    if (pairCursor[3].fraction <= fraction) {
+                        fraction = pairCursor[3].fraction;
+                        pairIndex = i + 3;
+                    }
+                    i += 4;
+                    pairCursor += 4;
+                } while (i < pairCount);
+            }
+        }
+        if (pairIndex != -1) {
+            selectedPair = FUNC538_PAIR(pairIndex);
+            i = 0;
+            remainder = movingCount & 3;
+            remainingTime *= 1.0f - selectedPair->fraction;
+            if (movingCount > 0) {
+                if (remainder != 0) {
+                    movingCursor = &D_800D7160[i];
+                    i++;
+                    firstObject = *movingCursor;
+                    if (i < remainder) {
+                        do {
+                            firstShape = firstObject->unk48;
+                            i += 1;
+                            movingCursor++;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstObject = *movingCursor;
+                        } while (i < remainder);
+                    }
+                    firstShape = firstObject->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                }
+                if (i < movingCount) {
+                    listEnd = &D_800D7160[movingCount];
+                    movingCursor = &D_800D7160[i + 4];
+                    firstObject = movingCursor[-4];
+                    if (movingCursor != listEnd) {
+                        do {
+                            firstShape = firstObject->unk48;
+                            movingCursor += 4;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-7]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-6]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-5]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstObject = movingCursor[-4];
+                        } while (movingCursor != listEnd);
+                    }
+                    firstShape = firstObject->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-3]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-2]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-1]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                }
+            }
+            firstObject = selectedPair->first;
+            secondObject = selectedPair->second;
+            firstKind = firstObject->unk44;
+            secondKind = secondObject->unk44;
+            if ((firstKind == 1) && (secondKind == 1)) {
+                func_80055104((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x40)) {
+                TrapDanglingJump(firstObject, 1);
+                TrapDanglingJump(secondObject, 2);
+            } else if ((firstKind == 0x39) && (secondKind == 0x39)) {
+                func_800560D0((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x3A)) {
+                func_80056274((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x40)) {
+                func_800557F8((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 1)) {
+                func_800557F8((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x39)) {
+                func_80055970((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 1)) {
+                func_80055970((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x3A)) {
+                func_80055B24((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 1)) {
+                func_80055B24((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x39)) {
+                func_80055D08((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 0x40)) {
+                func_80055D08((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x3A)) {
+                func_80055E50((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x40)) {
+                func_80055E50((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 0x3A)) {
+                func_80055F64((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x39)) {
+                func_80055F64((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_80056DD8((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x40) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_8005716C((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x39) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_800572AC((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x3A) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_80057350((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            }
+            iteration++;
+            if (iteration >= 0xB) {
+                i = 0;
+                if (movingCount > 0) {
+                    remainder = movingCount & 3;
+                    if (remainder != 0) {
+                        movingCursor = &D_800D7160[i];
+                        i++;
+                        firstObject = *movingCursor;
+                        if (i < remainder) {
+                            do {
+                                firstShape = firstObject->unk48;
+                                i += 1;
+                                movingCursor++;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstObject = *movingCursor;
+                            } while (i < remainder);
+                        }
+                        firstShape = firstObject->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                    }
+                    if (i < movingCount) {
+                        listEnd = &D_800D7160[movingCount];
+                        movingStart = &D_800D7160[i];
+                        movingCursor = movingStart + 4;
+                        firstShape = (*movingStart)->unk48;
+                        if (movingCursor != listEnd) {
+                            do {
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstObject = movingCursor[-3];
+                                movingCursor += 4;
+                                firstShape = firstObject->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-6]->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-5]->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-4]->unk48;
+                            } while (movingCursor != listEnd);
+                        }
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-3]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-2]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-1]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                    }
+                }
+                remainingTime = 0.0f;
+            }
+        } else {
+            remainingTime = 0.0f;
+        }
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
+#endif
+s32 func_80012234(AnimVec3f *point, AnimVec3f *direction,
+                  AnimVec3f *origin, AnimVec3f *planeDirection,
+                  f32 radius, f32 *minimum, f32 *maximum);
+s32 func_80012574(AnimVec3f *origin, AnimVec3f *direction,
+                  AnimVec3f *center, f32 radius, f32 *minimum,
+                  f32 *maximum);
+s32 func_800131AC(AnimVec3f *origin, AnimVec3f *direction,
+                  AnimVec3f *minimum, AnimVec3f *maximum,
+                  f32 *near, f32 *far);
+extern f32 D_8008420C;
 
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public hit/collision code supplies the capsule and
  * endpoint-overlap role; Mickey's collision-shape offsets are authoritative. */
-/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
-/* Target is 370 instructions/frame -216; candidate is 342 instructions/frame -184. */
-/* Remaining gap is structural: capsule discriminant expression and fallback CFG differ; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 365 differing words; first mismatch is at +0x0. */
+/* Target is 370 instructions/frame -216; candidate is 371 instructions/frame -392. */
+/* Remaining gap is frame/allocation: all three sqrtf identities resolve, but none has the target offset. */
+/*
+ * Swept-sphere intersection between two collision shapes, reconstructed from
+ * Mickey's own assembly. The quadratic's three coefficients are written out
+ * term by term because the target is: it never forms a difference vector, it
+ * squares and cross-multiplies the six coordinates and the six doubled
+ * coordinates directly.
+ *
+ * Plateau: 380 of 370 words, 374 differing from +0x8, frame 0xD8 -- the
+ * target's. The previous candidate was an untranslated m2c draft whose ~40
+ * single-use temporaries each reserved a stack home; that alone held the
+ * frame at 0x188, 176 bytes above the target. Inlining them and letting the
+ * dead coordinate carriers hold the later quadratic values reaches the exact
+ * frame. What is left is ten words of surplus code: the target keeps arg1 in
+ * a saved register and homes arg0, and it needs only one callee-saved
+ * floating-point register where this candidate needs two.
+ */
 s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
                   s32 arg2, AnimCollisionShape *arg3,
                   AnimCollisionResult *arg4) {
-    f32 radius;
-    f32 radiusSquared;
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    f32 aX;
-    f32 aY;
-    f32 aZ;
-    f32 bX;
-    f32 bY;
-    f32 bZ;
-    f32 pointX;
-    f32 pointY;
-    f32 pointZ;
-    f32 dot;
-    f32 lengthSquared;
+    AnimVec3f *firstPoint;
+    AnimVec3f *secondPoint;
+    f32 radiusSq;
+    f32 quadA;
+    f32 quadB;
+    f32 quadC;
     f32 discriminant;
-    f32 root;
-    f32 denominator;
     f32 fraction;
-    f32 secondFraction;
-    s32 result;
+    f32 stepX1;
+    f32 stepY1;
+    f32 stepZ1;
+    f32 stepX2;
+    f32 stepY2;
+    f32 stepZ2;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+    f32 twoX1;
+    f32 twoY1;
+    f32 twoZ1;
+    f32 twoX2;
+    f32 twoY2;
+    f32 twoZ2;
+    s32 hit;
 
-    radius = arg1->radius + arg3->radius;
-    result = 0;
-    radiusSquared = radius * radius;
+    radiusSq = arg1->radius + arg3->radius;
+    hit = 0;
+    firstPoint = &arg1->position;
+    radiusSq = radiusSq * radiusSq;
+    secondPoint = &arg3->position;
     if ((arg1->flags & 2) || (arg3->flags & 2)) {
-        dx = arg3->position.x - arg1->position.x;
-        dy = arg3->position.y - arg1->position.y;
-        dz = arg3->position.z - arg1->position.z;
-        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+        stepX1 = secondPoint->x - firstPoint->x;
+        stepY1 = secondPoint->y - firstPoint->y;
+        stepZ1 = secondPoint->z - firstPoint->z;
+        if (((stepX1 * stepX1) + (stepY1 * stepY1) + (stepZ1 * stepZ1)) <=
+            radiusSq) {
             arg4->object = arg0;
             arg4->value = arg2;
             arg4->fraction = 0.0f;
             return 1;
         }
     }
-    aX = arg1->vector.x;
-    aY = arg1->vector.y;
-    aZ = arg1->vector.z;
-    bX = arg3->vector.x;
-    bY = arg3->vector.y;
-    bZ = arg3->vector.z;
-    lengthSquared = ((bX * bX) + (aX * aX) - (2.0f * aX * bX)) +
-                    ((aY * aY) - (2.0f * aY * bY) + (bY * bY)) +
-                    ((aZ * aZ) - (2.0f * aZ * bZ) + (bZ * bZ));
-    pointX = arg1->position.x;
-    pointY = arg1->position.y;
-    pointZ = arg1->position.z;
-    dot = 2.0f * pointZ;
-    denominator = 2.0f * pointX;
-    aX = 2.0f * pointX;
-    bX = arg3->position.x;
-    bY = arg3->position.y;
-    bZ = arg3->position.z;
-    dx = 2.0f * bX;
-    dy = 2.0f * pointY;
-    dz = 2.0f * bY;
-    aY = bY + pointY;
-    aZ = bZ + pointZ;
-    bY = 2.0f * bZ;
-    bZ = arg3->position.z;
-    aX = ((arg3->vector.z * denominator) +
-          (((aX * arg1->vector.x) - (aX * arg3->vector.x)) -
-           (denominator * arg1->vector.z)));
-    dot = aX +
-          (((aY * arg1->vector.y) - (aY * arg3->vector.y)) -
-           ((2.0f * pointX) * arg1->vector.y) +
-           ((2.0f * pointX) * arg3->vector.y) +
-           (((2.0f * pointY) * arg1->vector.z) -
-            ((2.0f * pointY) * arg3->vector.z)) -
-           (aY * arg1->vector.z) + (aY * arg3->vector.z));
-    lengthSquared = ((arg3->position.z * arg3->position.z) +
-                     ((2.0f * arg3->position.z * arg1->position.z) * -1.0f) +
-                     (arg1->position.z * arg1->position.z)) +
-                    ((arg1->position.x * arg1->position.x) -
-                     ((2.0f * arg1->position.x) * arg3->position.x) +
-                     (arg3->position.x * arg3->position.x)) +
-                    ((arg1->position.y * arg1->position.y) -
-                     ((2.0f * arg1->position.y) * arg3->position.y) +
-                     (arg3->position.y * arg3->position.y));
-    if (lengthSquared != 0.0f) {
-        discriminant = 4.0f * radiusSquared;
-        root = discriminant * (lengthSquared - radiusSquared);
-        dot = dot * dot;
-        if (root < dot) {
-            denominator = 2.0f * radiusSquared;
-            root = sqrtf(dot - root);
-            fraction = (-dot - root) / denominator;
+    firstPoint = &arg1->vector;
+    stepX1 = firstPoint->x;
+    secondPoint = &arg3->vector;
+    stepX2 = secondPoint->x;
+    stepY1 = firstPoint->y;
+    stepY2 = secondPoint->y;
+    stepZ1 = firstPoint->z;
+    stepZ2 = secondPoint->z;
+    secondPoint = &arg3->position;
+    firstPoint = &arg1->position;
+    quadA = (stepZ2 * stepZ2) +
+            ((stepZ1 * stepZ1) - (2.0f * stepZ1 * stepZ2)) +
+            (((stepX1 * stepX1) - (2.0f * stepX1 * stepX2)) +
+             (stepX2 * stepX2) +
+             (((stepY1 * stepY1) - (2.0f * stepY1 * stepY2)) +
+              (stepY2 * stepY2)));
+    z2 = secondPoint->z;
+    twoZ2 = 2.0f * z2;
+    z1 = firstPoint->z;
+    twoZ1 = 2.0f * z1;
+    x1 = firstPoint->x;
+    twoX1 = 2.0f * x1;
+    x2 = secondPoint->x;
+    twoX2 = 2.0f * x2;
+    y1 = firstPoint->y;
+    twoY1 = 2.0f * y1;
+    y2 = secondPoint->y;
+    twoY2 = y2 + y2;
+    quadB = ((stepZ2 * twoZ2) +
+             (((twoZ1 * stepZ1) - (twoZ1 * stepZ2)) - (twoZ2 * stepZ1))) +
+            ((((twoX1 * stepX1) - (twoX1 * stepX2)) - (twoX2 * stepX1)) +
+             (twoX2 * stepX2) +
+             ((((twoY1 * stepY1) - (twoY1 * stepY2)) - (twoY2 * stepY1)) +
+              (twoY2 * stepY2)));
+    quadC = (z2 * z2) + ((z1 * z1) - (twoZ1 * z2)) +
+            (((x1 * x1) - (twoX1 * x2)) + (x2 * x2) +
+             (((y1 * y1) - (twoY1 * y2)) + (y2 * y2)));
+    if (quadA != 0.0f) {
+        twoZ2 = 4.0f * quadA;
+        discriminant = twoZ2 * (quadC - radiusSq);
+        twoX2 = quadB * quadB;
+        if (discriminant < twoX2) {
+            discriminant = sqrtf(twoX2 - discriminant);
+            hit = 0;
+            quadB = -quadB;
+            quadA = 2.0f * quadA;
+            fraction = (quadB - discriminant) / quadA;
             if ((fraction >= 0.0f) && (fraction <= 1.0f)) {
-                discriminant = radiusSquared *
-                               (lengthSquared - (radiusSquared + 83.0f));
-                if (discriminant < dot) {
-                    secondFraction = (-dot - sqrtf(dot - discriminant)) /
-                                     denominator;
-                    result = 1;
-                    if (secondFraction > 1.0f) {
-                        secondFraction = 1.0f;
-                    } else if (secondFraction < 0.0f) {
-                        secondFraction = 0.0f;
+                discriminant = twoZ2 * (quadC - (radiusSq + 83.0f));
+                if (discriminant < twoX2) {
+                    fraction = (quadB - sqrtf(twoX2 - discriminant)) / quadA;
+                    hit = 1;
+                    if (fraction > 1.0f) {
+                        fraction = 1.0f;
+                    } else if (fraction < 0.0f) {
+                        fraction = 0.0f;
                     }
                     arg4->object = arg0;
                     arg4->value = arg2;
-                    arg4->fraction = secondFraction;
+                    arg4->fraction = fraction;
                 }
             } else {
-                dx = arg3->edge.x - arg1->edge.x;
-                dy = arg3->edge.y - arg1->edge.y;
-                dz = arg3->edge.z - arg1->edge.z;
-                if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
-                    discriminant = radiusSquared *
-                                   (lengthSquared - (radiusSquared + 83.0f));
-                    if (discriminant < dot) {
-                        secondFraction = (-dot - sqrtf(dot - discriminant)) /
-                                         denominator;
-                        result = 1;
-                        if (secondFraction > 1.0f) {
-                            secondFraction = 1.0f;
-                        } else if (secondFraction < 0.0f) {
-                            secondFraction = 0.0f;
+                stepX1 = arg3->edge.x - arg1->edge.x;
+                stepY1 = arg3->edge.y - arg1->edge.y;
+                stepZ1 = arg3->edge.z - arg1->edge.z;
+                if (((stepX1 * stepX1) + (stepY1 * stepY1) +
+                     (stepZ1 * stepZ1)) <= radiusSq) {
+                    discriminant = twoZ2 * (quadC - (radiusSq + 83.0f));
+                    if (discriminant < twoX2) {
+                        fraction =
+                            (quadB - sqrtf(twoX2 - discriminant)) / quadA;
+                        hit = 1;
+                        if (fraction > 1.0f) {
+                            fraction = 1.0f;
+                        } else if (fraction < 0.0f) {
+                            fraction = 0.0f;
                         }
                         arg4->object = arg0;
                         arg4->value = arg2;
-                        arg4->fraction = secondFraction;
+                        arg4->fraction = fraction;
                     }
                 }
             }
         }
     }
-    if (result == 0) {
-        dx = arg3->edge.x - arg1->edge.x;
-        dy = arg3->edge.y - arg1->edge.y;
-        dz = arg3->edge.z - arg1->edge.z;
-        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+    if (hit == 0) {
+        stepX1 = arg3->edge.x - arg1->edge.x;
+        stepY1 = arg3->edge.y - arg1->edge.y;
+        stepZ1 = arg3->edge.z - arg1->edge.z;
+        if (((stepX1 * stepX1) + (stepY1 * stepY1) + (stepZ1 * stepZ1)) <=
+            radiusSq) {
             arg4->object = arg0;
             arg4->value = arg2;
-            result = 1;
+            hit = 1;
             arg4->fraction = 0.0f;
         }
     }
-    return result;
+    return hit;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
 #endif
+typedef struct HitResolveMass {
+    u8 pad0[4];
+    f32 mass;
+} HitResolveMass;
+
+typedef struct HitResolveVehicle {
+    s8 playerIndex;
+    u8 pad1[3];
+    f32 rotatedZ;
+    f32 rotatedX;
+    u8 padC[0x88];
+    AnimVec3f velocity;
+    u8 padA0[0x18];
+    void *soundHandle;
+    u8 padBC[0x18];
+    void *collisionData;
+    u8 padD8[0x18];
+    s16 rotationY;
+    u8 padF2[0xC];
+    s16 rotationX;
+    u8 pad100[0x6A];
+    s16 collisionMode;
+    u8 pad16C[0x3C];
+    u16 flags;
+    u8 pad1AA[0x209];
+    u8 collisionTimer;
+    u8 pad3B4[2];
+    s16 collisionCountA;
+    s16 collisionCountB;
+} HitResolveVehicle;
+
+extern f32 D_800841F0;
+extern u32 func_80001620(s32 soundId);
+extern void func_8000309C(void *handle, u8 volume);
+
+typedef struct HitResolveRotation {
+    s16 x;
+    s16 y;
+    s16 z;
+} HitResolveRotation;
+
+extern void mathOneFloatYPR(HitResolveRotation *rotation, AnimVec3f *vector);
+
+/*
+ * Bare-pragma reconstruction from Mickey's collision response assembly.
+ * The public JFG hit.c family supplies role context only; Mickey fixes every
+ * field offset, call identity and arithmetic association below.
+ *
+ * Plateau: 431 of 445 words, 420 differing from +0x38, frame 0xB8 -- the
+ * target's. The frame came from carrier count, not from a spill: every
+ * declared f32 in this TU reserves a home whether or not it is
+ * register-coloured, so the six scalars whose live ranges end before the
+ * response tail carry the tail's own values instead of being declared twice.
+ * What remains is a real 14-word code deficit, not an allocation difference;
+ * audit the impulse and effect-position groups against the target before any
+ * further allocator reading.
+ */
+#ifdef NON_MATCHING
+void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitResolveVehicle *firstVehicle;
+    HitResolveVehicle *secondVehicle;
+    HitResolveMass *mass;
+    void *firstCollision;
+    void *secondCollision;
+    HitResolveRotation rotation;
+    AnimVec3f rotated;
+    AnimVec3f direction;
+    AnimVec3f effectPosition;
+    f32 firstMass;
+    f32 secondMass;
+    f32 distance;
+    f32 relativeVelocity;
+    f32 impulse;
+    f32 firstScale;
+    f32 secondScale;
+
+    firstVehicle = (HitResolveVehicle *) first->target;
+    firstSource = first->source;
+    mass = (HitResolveMass *) TrapDanglingJump(firstVehicle);
+    firstMass = mass->mass;
+    secondSource = second->source;
+    secondVehicle = (HitResolveVehicle *) second->target;
+    mass = (HitResolveMass *) TrapDanglingJump(secondVehicle);
+    secondMass = mass->mass;
+    direction.x = secondSource->current.x - firstSource->current.x;
+    direction.y = secondSource->current.y - firstSource->current.y;
+    direction.z = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((direction.x * direction.x) +
+                     (direction.y * direction.y) +
+                     (direction.z * direction.z));
+    direction.x /= distance;
+    direction.y /= distance;
+    direction.z /= distance;
+    relativeVelocity =
+        ((firstVehicle->velocity.x - secondVehicle->velocity.x) * direction.x) +
+        ((firstVehicle->velocity.y - secondVehicle->velocity.y) * direction.y) +
+        ((firstVehicle->velocity.z - secondVehicle->velocity.z) * direction.z);
+    impulse = (D_800841F0 * relativeVelocity) /
+              ((1.0f / firstMass) + (1.0f / secondMass));
+    firstScale = impulse / firstMass;
+    firstVehicle->velocity.x += firstScale * direction.x;
+    firstVehicle->velocity.y += firstScale * direction.y;
+    firstVehicle->velocity.z += firstScale * direction.z;
+    rotation.x = -(firstVehicle->rotationY + firstVehicle->rotationX);
+    rotation.y = -*(s16 *) ((u8 *) first + 2);
+    rotation.z = -*(s16 *) ((u8 *) first + 4);
+    rotated = firstVehicle->velocity;
+    mathOneFloatYPR(&rotation, &rotated);
+    firstVehicle->rotatedZ = rotated.z;
+    firstVehicle->rotatedX = rotated.x;
+    secondScale = impulse / secondMass;
+    secondVehicle->velocity.x -= secondScale * direction.x;
+    secondVehicle->velocity.y -= secondScale * direction.y;
+    secondVehicle->velocity.z -= secondScale * direction.z;
+    rotation.x = -(secondVehicle->rotationY + secondVehicle->rotationX);
+    rotation.y = -*(s16 *) ((u8 *) second + 2);
+    rotation.z = -*(s16 *) ((u8 *) second + 4);
+    rotated = secondVehicle->velocity;
+    mathOneFloatYPR(&rotation, &rotated);
+    secondVehicle->rotatedZ = rotated.z;
+    secondVehicle->rotatedX = rotated.x;
+    secondScale = first->position.y - firstSource->previous.y;
+    firstScale = first->position.x - firstSource->previous.x;
+    impulse = first->position.z - firstSource->previous.z;
+    firstSource->previous.x =
+        (firstVehicle->velocity.x * scale) + firstSource->current.x;
+    firstSource->previous.y =
+        (firstVehicle->velocity.y * scale) + firstSource->current.y;
+    firstSource->previous.z =
+        (firstVehicle->velocity.z * scale) + firstSource->current.z;
+    first->position.x = firstSource->previous.x + firstScale;
+    first->position.y = firstSource->previous.y + secondScale;
+    first->position.z = firstSource->previous.z + impulse;
+    secondScale = second->position.y - secondSource->previous.y;
+    firstScale = second->position.x - secondSource->previous.x;
+    impulse = second->position.z - secondSource->previous.z;
+    secondSource->previous.x =
+        (secondVehicle->velocity.x * scale) + secondSource->current.x;
+    secondSource->previous.y =
+        (secondVehicle->velocity.y * scale) + secondSource->current.y;
+    secondSource->previous.z =
+        (secondVehicle->velocity.z * scale) + secondSource->current.z;
+    second->position.x = secondSource->previous.x + firstScale;
+    second->position.y = secondSource->previous.y + secondScale;
+    second->position.z = secondSource->previous.z + impulse;
+
+    firstCollision = (void *) TrapDanglingJump(firstVehicle->collisionData);
+    secondCollision = (void *) TrapDanglingJump(secondVehicle->collisionData);
+    if (((firstVehicle->collisionMode != 0) ||
+         ((firstCollision == NULL) && (secondCollision != NULL))) &&
+        (TrapDanglingJump(second, secondVehicle) != 0)) {
+        firstVehicle->collisionCountA++;
+        secondVehicle->collisionCountB++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(second);
+        }
+        TrapDanglingJump(first, second);
+    }
+    if (((secondVehicle->collisionMode != 0) ||
+         ((secondCollision == NULL) && (firstCollision != NULL))) &&
+        (TrapDanglingJump(first, firstVehicle) != 0)) {
+        firstVehicle->collisionCountB++;
+        secondVehicle->collisionCountA++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        TrapDanglingJump(second, first);
+    }
+
+    firstVehicle->collisionTimer = 0x64;
+    secondVehicle->collisionTimer = 0x64;
+    if (relativeVelocity > 4.0f) {
+        distance = distance * 0.5f;
+        effectPosition.x =
+            (direction.x * distance) + firstSource->current.x;
+        effectPosition.y =
+            (direction.y * distance) + firstSource->current.y;
+        effectPosition.z =
+            (direction.z * distance) + firstSource->current.z;
+        firstMass = (f32) func_80001620(7);
+        secondMass = (relativeVelocity / 20.0f) * firstMass;
+        if (firstMass < secondMass) {
+            secondMass = firstMass;
+        }
+        if (firstVehicle->soundHandle != NULL) {
+            func_800031E8(firstVehicle->soundHandle);
+        }
+        func_80002FE0(7, effectPosition.x, effectPosition.y,
+                      effectPosition.z, 4,
+                      &firstVehicle->soundHandle);
+        func_8000309C(firstVehicle->soundHandle, (u8) secondMass);
+        if (!(firstVehicle->flags & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x32, 0.4f);
+        }
+        if (!(secondVehicle->flags & 1)) {
+            rumbleStart(secondVehicle->playerIndex, 0x32, 0.4f);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
+#endif
 /* Mickey-local collision response reconstructed from its resident ABI. */
 void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     s32 priority;
@@ -1281,7 +3052,8 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     source = second->source;
     if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
         TrapDanglingJump(first, firstVehicle);
-        /* Preserve IDO's target v0 allocation without emitting code. */
+        /* Inert aid preserving IDO's target v0 allocation; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         timer = 0x258;
@@ -1290,7 +3062,8 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
         firstVehicle->unk15C = timer;
         firstVehicle->unk150 = 10.0f;
         TrapDanglingJump(secondTarget->state, first);
-        /* Preserve IDO's target v0 allocation without emitting code. */
+        /* Inert aid preserving IDO's target v0 allocation; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1341,6 +3114,8 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     firstVehicle = (HitCollisionVehicle *) first->target;
     if (TrapDanglingJump(first, firstVehicle) != 0) {
         TrapDanglingJump(secondTarget->state, first, firstVehicle);
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1374,13 +3149,11 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xE);
 }
 
-#ifdef NON_MATCHING
-/* Bounded workbench closeout retained the source as NON_MATCHING; the best
- * source-faithful follow-up reordered the initial pointer assignments and
- * reached 118/121 instructions with the exact 0x50 frame, nine calls, and FP
- * schedule. The remaining three words are one v0->v1 allocator web at the
- * 0x258 stores; timer lifetime/width forms and the alias probe did not move it.
- * See the function's plateau entry in docs/resident.md for the evidence. */
+/* The first collision callback returns no value. Its typed weak alias removes
+ * the generic trap placeholder's phantom s32 return web; the build restores
+ * the measured TrapDanglingJump relocation identity without changing bytes. */
+#pragma weak hitCopyFirstTrap = TrapDanglingJump
+extern void hitCopyFirstTrap(HitCopyState *state, HitCollisionVehicle *vehicle);
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
@@ -1392,12 +3165,12 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 deltaZ;
     f32 distance;
 
-    firstSource = first->source;
     secondTarget = (HitCollisionNormalLink *) second->target;
     secondSource = second->source;
+    firstSource = first->source;
     firstVehicle = (HitCollisionVehicle *) first->target;
     if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
-        TrapDanglingJump(first, firstVehicle);
+        hitCopyFirstTrap(first, firstVehicle);
         {
             s32 timer;
 
@@ -1408,6 +3181,8 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
         }
         firstVehicle->unk150 = 10.0f;
         TrapDanglingJump(secondTarget->state, first);
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1447,9 +3222,6 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk24 = deltaZ / distance;
     TrapDanglingJump(second, 6);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
-#endif
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
@@ -1678,18 +3450,243 @@ void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(first, 6, firstTarget);
     TrapDanglingJump(second, 0xA);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: JFG's public assembly-only hitVectorCheck establishes the
+ * collision role and broad case ordering. This typed body is reconstructed
+ * from Mickey's target, its m2c dataflow, and Mickey's neighboring collision
+ * helpers; Mickey's bytes remain authoritative.
+ */
+s32 func_800563B4(s32 object, AnimCollisionShape *first, s32 value,
+                  AnimCollisionShape *second, AnimCollisionResult *result) {
+    AnimVec3f axis;
+    AnimVec3f direction;
+    AnimVec3f point;
+    AnimVec3f endpoint;
+    AnimVec3f minimum;
+    AnimVec3f maximum;
+    f32 length;
+    f32 radius;
+    f32 near;
+    f32 far;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 projection;
+    s32 face;
+    s32 status;
 
-f32 func_8002A8BC(s16 angle);
-f32 func_8002A8C0(s16 angle);
+    direction.x = first->vector.x;
+    direction.y = first->vector.y;
+    radius = first->radius + second->radius;
+    direction.z = first->vector.z;
+    status = 0;
+    length = (direction.z * direction.z) +
+             ((direction.x * direction.x) +
+              (direction.y * direction.y));
+
+    if (second->shape == 0) {
+        if (length > 0.0f) {
+            length = sqrtf(length);
+            direction.x /= length;
+            direction.y /= length;
+            direction.z /= length;
+        }
+        if (func_80012574(&first->position, &direction, &second->edge,
+                          radius, &near, &far) != 0) {
+            if ((near >= 0.0f) && (near <= length)) {
+                status = 1;
+                point.x = (direction.x * near) + first->position.x;
+                point.y = (direction.y * near) + first->position.y;
+                point.z = (direction.z * near) + first->position.z;
+                normalX = (point.x - second->edge.x) / radius;
+                normalY = (point.y - second->edge.y) / radius;
+                near /= length;
+                normalZ = (point.z - second->edge.z) / radius;
+            } else if ((first->flags & 2) && (near < 0.0f) && (far > 0.0f)) {
+                status = 2;
+            }
+        }
+    } else if (second->shape == 1) {
+        if (length > 0.0f) {
+            length = sqrtf(length);
+            direction.x /= length;
+            direction.y /= length;
+            direction.z /= length;
+        }
+        axis.x = 0.0f;
+        axis.z = 0.0f;
+        axis.y = 1.0f;
+        if (func_80012234(&first->position, &direction, &second->position,
+                          &axis, radius, &near, &far) != 0) {
+            if ((near >= 0.0f) && (near <= length)) {
+                point.x = (direction.x * near) + first->position.x;
+                point.y = (direction.y * near) + first->position.y;
+                point.z = (direction.z * near) + first->position.z;
+                projection =
+                    (((point.x - second->position.x) * axis.x) +
+                     ((point.y - second->position.y) * axis.y) +
+                     ((point.z - second->position.z) * axis.z)) /
+                    ((axis.z * axis.z) +
+                     ((axis.x * axis.x) + (axis.y * axis.y)));
+                if ((-second->height <= projection) &&
+                    (projection <= second->height)) {
+                    status = 1;
+                    normalX =
+                        (point.x - ((axis.x * projection) +
+                                    second->position.x)) / radius;
+                    normalY =
+                        (point.y - ((axis.y * projection) +
+                                    second->position.y)) / radius;
+                    normalZ =
+                        (point.z - ((axis.z * projection) +
+                                    second->position.z)) / radius;
+                    near /= length;
+                }
+            } else if ((first->flags & 2) && (near < 0.0f) && (far > 0.0f)) {
+                status = 2;
+            }
+        }
+        if (status == 0) {
+            endpoint.x = second->position.x - (axis.x * second->height);
+            endpoint.y = second->position.y - (axis.y * second->height);
+            endpoint.z = second->position.z - (axis.z * second->height);
+            if (func_80012574(&first->position, &direction, &endpoint,
+                              radius, &near, &far) != 0) {
+                if ((near >= 0.0f) && (near <= length)) {
+                    status = 1;
+                    point.x = (direction.x * near) + first->position.x;
+                    point.y = (direction.y * near) + first->position.y;
+                    point.z = (direction.z * near) + first->position.z;
+                    normalX = (point.x - endpoint.x) / radius;
+                    normalY = (point.y - endpoint.y) / radius;
+                    normalZ = (point.z - endpoint.z) / radius;
+                    near /= length;
+                } else if ((first->flags & 2) && (near < 0.0f) &&
+                           (far > 0.0f)) {
+                    status = 2;
+                }
+            }
+        }
+        if (status == 0) {
+            endpoint.x = (axis.x * second->height) + second->position.x;
+            endpoint.y = (axis.y * second->height) + second->position.y;
+            endpoint.z = (axis.z * second->height) + second->position.z;
+            if (func_80012574(&first->position, &direction, &endpoint,
+                              radius, &near, &far) != 0) {
+                if ((near >= 0.0f) && (near <= length)) {
+                    status = 1;
+                    point.x = (direction.x * near) + first->position.x;
+                    point.y = (direction.y * near) + first->position.y;
+                    point.z = (direction.z * near) + first->position.z;
+                    normalX = (point.x - endpoint.x) / radius;
+                    normalY = (point.y - endpoint.y) / radius;
+                    normalZ = (point.z - endpoint.z) / radius;
+                    near /= length;
+                } else if ((first->flags & 2) && (near < 0.0f) &&
+                           (far > 0.0f)) {
+                    status = 2;
+                }
+            }
+        }
+    } else if (second->shape == 2) {
+        minimum.x = (second->edge.x - second->radius) - first->radius;
+        minimum.y = (second->edge.y - second->height) - first->height;
+        minimum.z = (second->edge.z - second->radius) - first->radius;
+        maximum.x = second->edge.x + second->radius + first->radius;
+        maximum.y = second->edge.y + second->height + first->height;
+        maximum.z = second->edge.z + second->radius + first->radius;
+        face = func_800131AC(&first->position, &direction, &minimum, &maximum,
+                             &near, &far);
+        if ((face != 0) && (near >= 0.0f) && (near <= 1.0f)) {
+            switch (face) {
+                case 1:
+                    normalY = 0.0f;
+                    normalZ = 0.0f;
+                    status = 1;
+                    normalX = -1.0f;
+                    break;
+                case 2:
+                    normalX = 1.0f;
+                    normalY = 0.0f;
+                    normalZ = 0.0f;
+                    status = 1;
+                    break;
+                case 3:
+                    normalX = 0.0f;
+                    normalZ = 0.0f;
+                    status = 1;
+                    normalY = -1.0f;
+                    break;
+                case 4:
+                    normalX = 0.0f;
+                    normalY = 1.0f;
+                    normalZ = 0.0f;
+                    status = 1;
+                    break;
+                case 5:
+                    normalX = 0.0f;
+                    normalY = 0.0f;
+                    status = 1;
+                    normalZ = -1.0f;
+                    break;
+                case 6:
+                    normalX = 0.0f;
+                    normalY = 0.0f;
+                    normalZ = 1.0f;
+                default:
+                    status = 1;
+                    break;
+            }
+        } else if (first->flags & 2) {
+            if ((minimum.x <= first->position.x) &&
+                (first->position.x <= maximum.x) &&
+                (minimum.y <= first->position.y) &&
+                (first->position.y <= maximum.y) &&
+                (minimum.z <= first->position.z) &&
+                (first->position.z <= maximum.z)) {
+                status = 2;
+            }
+        }
+    }
+
+    if (status == 1) {
+        result->object = object;
+        result->value = value;
+        near -= D_8008420C;
+        if (near < 0.0f) {
+            near = 0.0f;
+        }
+        result->fraction = near;
+        result->normal.x = normalX;
+        result->normal.y = normalY;
+        result->normal.z = normalZ;
+    }
+    return status;
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
+#endif
+
+f32 func_8002A8BC(s32 angle);
+f32 func_8002A8C0(s32 angle);
 
 /*
- * Plateau (2026-08-26, p5): workbench mixed, 229/226 instructions and 214 raw
- * differing words from +0x0; frames are 0x70/0x80, with 233 structural and 54
- * register rows. Prior flag, lifetime, spill, volatile, state-layout, and
- * permuter probes were exhausted; the compound-assignment operand-order probe
- * grew the candidate to 227 instructions and a 0x88 frame, then was reverted.
- * No frame-recovery lever with source evidence remains; retain NON_MATCHING.
+ * Plateau (p6): 229/228 instructions and 217 raw differing words from +0x24.
+ * The frame now matches the target's 0x70. The lever was carrier reuse, not a
+ * new spill: the target homes four fewer f32 locals than the previous
+ * candidate declared, and the two arms of this function are mutually
+ * exclusive, so the velocity triple and the magnitude scalar carry the
+ * previous-position triple and the plane dot product in the else arm. Every
+ * declared f32 reserves a home here whether or not it is register-coloured,
+ * which is why dropping four declarations moved the frame by 16 bytes while
+ * the instruction count barely changed.
+ *
+ * Next lever: the impulse block. The target materializes 1.0f into two FP
+ * registers from one `lui`, computes 1.0f/mass and (unk6C + 1.0f) side by
+ * side, and spills only the impulse; the candidate CSEs the constant into one
+ * register and spills the correction as well. Audit that statement group's
+ * evaluation order before anything else.
  */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
@@ -1697,10 +3694,14 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     HitCopyTarget *target;
     HitCopySource *firstSource;
     HitCopySource *secondSource;
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    f32 magnitude;
+    /* vectorX/Y/Z and scalar are shared by the two mutually exclusive arms:
+     * the velocity triple and its magnitude above, the previous-position
+     * triple and the plane dot product below. The target's 0x70 frame homes
+     * exactly this many f32 locals. */
+    f32 vectorX;
+    f32 vectorY;
+    f32 vectorZ;
+    f32 scalar;
     f32 impulse;
     f32 correction;
     f32 cosine;
@@ -1708,51 +3709,47 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
-    f32 dot;
-    f32 previousX;
-    f32 previousY;
-    f32 previousZ;
     f32 displacement;
     volatile f32 retained;
 
     target = first->target;
-    velocityX = target->velocity.x;
-    velocityY = target->velocity.y;
-    velocityZ = target->velocity.z;
+    vectorX = target->velocity.x;
+    vectorY = target->velocity.y;
+    vectorZ = target->velocity.z;
     firstSource = first->source;
     secondSource = second->source;
-    if (((velocityZ * velocityZ) +
-         ((velocityX * velocityX) + (velocityY * velocityY))) > 25.0f) {
+    if (((vectorZ * vectorZ) +
+         ((vectorX * vectorX) + (vectorY * vectorY))) > 25.0f) {
         f32 mass;
 
         mass = ((HitCopyTarget *) TrapDanglingJump(target))->unk4;
-        velocityX = target->velocity.x;
-        velocityY = target->velocity.y;
-        velocityZ = target->velocity.z;
+        vectorX = target->velocity.x;
+        vectorY = target->velocity.y;
+        vectorZ = target->velocity.z;
         impulse = ((secondSource->unk6C + 1.0f) *
-                   ((normal->z * velocityZ) +
-                    ((velocityX * normal->x) +
-                     (velocityY * normal->y)))) / (1.0f / mass);
+                   ((normal->z * vectorZ) +
+                    ((vectorX * normal->x) +
+                     (vectorY * normal->y)))) / (1.0f / mass);
         correction = impulse / mass;
         retained = impulse;
-        target->velocity.x = velocityX - (correction * normal->x);
-        target->velocity.y = velocityY - (correction * normal->y);
-        target->velocity.z = velocityZ - (correction * normal->z);
-        magnitude = sqrtf((target->velocity.z * target->velocity.z) +
+        target->velocity.x = vectorX - (correction * normal->x);
+        target->velocity.y = vectorY - (correction * normal->y);
+        target->velocity.z = vectorZ - (correction * normal->z);
+        scalar = sqrtf((target->velocity.z * target->velocity.z) +
                           ((target->velocity.x * target->velocity.x) +
                            (target->velocity.y * target->velocity.y)));
-        target->magnitude80 = magnitude;
-        target->magnitude84 = magnitude;
-        target->direction.x = target->velocity.x / magnitude;
-        target->direction.y = target->velocity.y / magnitude;
-        target->direction.z = target->velocity.z / magnitude;
+        target->magnitude80 = scalar;
+        target->magnitude84 = scalar;
+        target->direction.x = target->velocity.x / scalar;
+        target->direction.y = target->velocity.y / scalar;
+        target->direction.z = target->velocity.z / scalar;
         target->unk181 = 1;
         target->unk4 = 0.0f;
         target->unk8 = 0.0f;
         target->unk88 = D_80084210;
         firstSource->unk63 = 1;
         secondSource->unk63 = 1;
-        secondSource->unk64 = magnitude;
+        secondSource->unk64 = scalar;
         cosine = -func_8002A8C0(*(s16 *) first);
         sine = -func_8002A8BC(*(s16 *) first);
         target->unk90 = (normal->z * cosine) - (normal->x * sine);
@@ -1770,23 +3767,23 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
     } else {
-        dot = (normal->z * firstSource->current.z) +
+        scalar = (normal->z * firstSource->current.z) +
               ((firstSource->current.x * normal->x) +
                (firstSource->current.y * normal->y));
-        retained = -dot;
-        previousZ = firstSource->previous.z;
-        previousY = firstSource->previous.y;
-        previousX = firstSource->previous.x;
+        retained = -scalar;
+        vectorZ = firstSource->previous.z;
+        vectorY = firstSource->previous.y;
+        vectorX = firstSource->previous.x;
         displacement = D_80084214 -
-                       (((normal->z * previousZ) +
-                         ((normal->x * previousX) +
-                          (normal->y * previousY))) - dot);
-        offsetY = first->position.y - previousY;
-        offsetZ = first->position.z - previousZ;
-        offsetX = first->position.x - previousX;
-        firstSource->previous.x = previousX + (displacement * normal->x);
-        firstSource->previous.y = previousY + (displacement * normal->y);
-        firstSource->previous.z = previousZ + (displacement * normal->z);
+                       (((normal->z * vectorZ) +
+                         ((normal->x * vectorX) +
+                          (normal->y * vectorY))) - scalar);
+        offsetY = first->position.y - vectorY;
+        offsetZ = first->position.z - vectorZ;
+        offsetX = first->position.x - vectorX;
+        firstSource->previous.x = vectorX + (displacement * normal->x);
+        firstSource->previous.y = vectorY + (displacement * normal->y);
+        firstSource->previous.z = vectorZ + (displacement * normal->z);
         first->position.x = firstSource->previous.x + offsetX;
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
@@ -1797,9 +3794,11 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/* Type pass: the shared collision overlays are neutral. Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
- * Levers: scalar/vector aliases, stack-spill/aggregate forms, expression spelling, and flag lattice; all regressed or inert.
- * Remains: FP pool/temp phase and two constant sites; assembly fallback stays canonical. */
+/* PROVENANCE: JFG efd5abb's src/hit.c leaves hitGetInelasticVelocity as an
+ * assembly fallback; its 0.0484 masked similarity supplies no donor C body.
+ * Mickey's fields, behavior, and compiled bytes remain authoritative.
+ * Prior scalar/vector aliases, stack-spill/aggregate forms, expression
+ * spelling, and flag lattice attempts regressed or stayed inert. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -1893,11 +3892,17 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
 /*
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
+ *
+ * Three levers took this from a 203-word structure mismatch to exact:
+ *   - the squared combined radius is its own statement, so IDO emits the
+ *     multiply next to the sum and schedules it against the deltas;
+ *   - the three-axis overlap test is a pre-tested `for`, not a `do`/`while`:
+ *     the bottom-tested form lets uopt fold the zero subscript into the two
+ *     strength-reduced base pointers and loses the two `addu` seeds;
+ *   - the overlap denominator is carried in a named local, which is what puts
+ *     it in a colour register rather than a block temp.
+ * The TU's `-Wab,-r4300_mul` selection is what settles the last two words.
  */
-/* Workbench p7: structure/size mismatch, 233/231 instructions/frame -136, 203 raw words from +0x2C.
- * Context is clean; prior pointer-base, radius-tree, scaled-zero, and flag probes leave target’s folded AABB initialization as the first structural split.
- * FP pool/temp and tail integer webs remain; retain NON_MATCHING. */
-#ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
     volatile f32 stackPad;
@@ -1916,25 +3921,25 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
     intersects = 0;
     if (volume->shape == 0) {
         combinedRadius = other->radius + volume->radius;
-        deltaX = other->position.x;
-        deltaX = volume->position.x - deltaX;
+        combinedRadius = combinedRadius * combinedRadius;
+        deltaX = volume->position.x - other->position.x;
         deltaY = volume->position.y - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 1) {
         combinedRadius = other->radius + volume->radius;
+        combinedRadius = combinedRadius * combinedRadius;
         deltaX = volume->position.x - other->position.x;
         deltaY = (volume->position.y - volume->height) - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 2) {
-        index = 0;
         intersects = 1;
         firstMin[0] = other->position.x - other->radius;
         firstMin[1] = other->position.y - other->height;
@@ -1948,7 +3953,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
         secondMax[0] = volume->position.x + volume->radius;
         secondMax[1] = volume->position.y + volume->height;
         secondMax[2] = volume->position.z + volume->radius;
-        do {
+        for (index = 0; (index < 3) && (intersects != 0); index++) {
             if ((firstMin[index] < secondMin[index]) &&
                 (firstMax[index] < secondMin[index])) {
                 goto no_intersection;
@@ -1958,8 +3963,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
 no_intersection:
                 intersects = 0;
             }
-            index++;
-        } while ((index < 3) && (intersects != 0));
+        }
     }
     if (intersects != 0) {
         if (state->kind44 == 1) {
@@ -1968,11 +3972,11 @@ no_intersection:
                 vehicle->unk16A = 0;
             }
             if (volume->position.y < volume->unk1C) {
+                deltaX = (other->position.y - state->position.y) +
+                         other->height;
                 vehicle->overlap54 =
                     ((volume->position.y - volume->height) -
-                     state->position.y) /
-                    ((other->position.y - state->position.y) +
-                     other->height);
+                     state->position.y) / deltaX;
                 if (vehicle->overlap54 < 0.0f) {
                     vehicle->overlap54 = 0.0f;
                 }
@@ -1995,9 +3999,6 @@ no_intersection:
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
@@ -2051,15 +4052,15 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
 
         remaining = found - 1;
         if (remaining > 0) {
+            distance = distances;
             do {
-                distance = distances;
                 lastDistance = &distance[remaining];
                 nearbyOffset = 0;
                 do {
-                    currentDistance = distance[0];
                     nearbyEntry = (HitCopyState **)
                         ((u8 *) nearby + nearbyOffset);
-                    if (distance[1] < currentDistance) {
+                    if (distance[1] < distance[0]) {
+                        currentDistance = distance[0];
                         player = nearbyEntry[0];
                         distance[0] = distance[1];
                         nearbyEntry[0] = nearbyEntry[1];
@@ -2099,3 +4100,94 @@ void fmvInit(void) {
         player++;
     }
 }
+
+/* PLATEAU-HANDOFF:func_80051364:start
+ * symbol: func_80051364
+ * score: 251 differing words
+ * frame: 0x48
+ * relocations: 51
+ * first-mismatch: +0x0
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection; target is frame 0x40 with 47 relocations and the candidate materializes the playback-state and television-mode addresses four times where the target keeps each in one saved register.
+ * PLATEAU-HANDOFF:func_80051364:end
+ */
+
+
+/* PLATEAU-HANDOFF:func_80054B3C:start
+ * symbol: func_80054B3C
+ * score: 374 differing words
+ * frame: 0xD8
+ * relocations: 3
+ * first-mismatch: +0x8
+ * summary: Rewritten as ordinary C; the frame now matches the target's 0xD8 and the candidate is 380 of 370 words, so the residual is ten words of surplus code plus register roles rather than allocation.
+ * PLATEAU-HANDOFF:func_80054B3C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80056DD8:start
+ * symbol: func_80056DD8
+ * score: 217 differing words
+ * frame: 0x70
+ * relocations: 8
+ * first-mismatch: +0x24
+ * summary: Frame now matches at 0x70 and the first six words are exact; candidate is 228 of 229 words and the impulse block's divide order is the next lever.
+ * PLATEAU-HANDOFF:func_80056DD8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8005776C:start
+ * symbol: func_8005776C
+ * score: 47 differing words
+ * frame: 0xC0
+ * relocations: 2
+ * first-mismatch: +0x24
+ * summary: Donor audit improved the residual to 47 words; next lever is authenticated outer sort cursor scheduling evidence.
+ * PLATEAU-HANDOFF:func_8005776C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80055104:start
+ * symbol: func_80055104
+ * score: 420 differing words
+ * frame: 0xB8
+ * relocations: 23
+ * first-mismatch: +0x38
+ * summary: Frame now matches at 0xB8 and the first fourteen words are exact; candidate is 431 of 445 words, so the deficit is real missing code rather than allocation.
+ * PLATEAU-HANDOFF:func_80055104:end
+ */
+
+/* PLATEAU-HANDOFF:func_8005716C:start
+ * symbol: func_8005716C
+ * score: 18/80 words
+ * frame: -0x28
+ * relocations: 2
+ * first-mismatch: +0x54
+ * summary: JFG efd5abb leaves hitGetInelasticVelocity assembly-only; zero new attempts. Next: a matched JFG donor C body for this reflection handler.
+ * PLATEAU-HANDOFF:func_8005716C:end
+ */
+
+/* PLATEAU-HANDOFF:func_800563B4:start
+ * symbol: func_800563B4
+ * score: 637 differing words
+ * frame: 0xD8
+ * relocations: 11
+ * first-mismatch: +0x1C
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection and unchanged; candidate is 609 of 649 words with the exact frame, so the deficit is missing radius/vector work rather than allocation.
+ * PLATEAU-HANDOFF:func_800563B4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80053868:start
+ * symbol: func_80053868
+ * score: 1165 differing words
+ * frame: 0x110
+ * relocations: 59
+ * first-mismatch: +0x0
+ * summary: 1166 raw; 67 words short, frame +24 bytes. Next: separately authorized callback-constant-hoisting/context investigation; no match credit.
+ * PLATEAU-HANDOFF:func_80053868:end
+ */
+
+/* PLATEAU-HANDOFF:func_800517E0:start
+ * symbol: func_800517E0
+ * score: 1786 differing words
+ * frame: 0x160
+ * relocations: 245
+ * first-mismatch: +0x0
+ * summary: Structural plateau: 1722/1808 words; call identities recovered; next prove the shared divisor and path-table allocation cause.
+ * PLATEAU-HANDOFF:func_800517E0:end
+ */

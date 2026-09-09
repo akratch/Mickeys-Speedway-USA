@@ -15,16 +15,25 @@ typedef struct Overlay7SelectionRow {
 
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
-/*
- * Plateau (trace-retested 2026-08-28): exact 131-word size with two differing
- * words, first at +0x44. UGEN allocates t3 for the global address, frees it,
- * then takes t4 for the value and t5 for the masked shift. The stock as1 trace
- * receives that allocation unchanged, and uopt records no copy decision, so a
- * zero-code copy-fact barrier has no applicable site. Function- and block-
- * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
- * to this retained 129/131 candidate.
- */
-#ifdef NON_MATCHING
+/* Bounded reproof 2026-08-29: the identity-correct masked spelling is 128/131
+ * raw and 129/131 after runtime relocation normalization, with exact 0x20C
+ * size, 0x20 frame, and first substantive mismatch +0x44. The two residual
+ * sites at +0x44/+0x64 are one t4-versus-target-t3 flags carrier; the raw
+ * +0xA4 switch-table LO16 addend normalizes away. Runtime metadata proves all
+ * 23 text plus seven table offsets, types, and identities, including mathRnd
+ * at +0x124/+0x1BC. Clean unmasked V0 regressed to 121/131. All 119 flag rows
+ * were nonexact; a proc-0 trace found every uopt pool assignment exact and the
+ * temp FIFO diverging only at slot 4. Two natural scalar/scope forms regressed
+ * to 112/131 and shifted a relocation. ORT 1471 and all six callers are
+ * authenticated. The TU's +0x934..+0x950 rodata ownership clears module
+ * growth; the function owns +0x894..+0xAA0 with no padding. The fallback
+ * remains canonical; retry only after a new natural temp-FIFO phase/reuse
+ * spelling, not more flags, explicit carriers, or a generic batch. */
+/* Matching reproof 2026-09-08: extracting the unsigned flags sign bit through
+ * the right shift below restores the target temp-FIFO phase. Untouched IDO
+ * output owns all 0x20C bytes with the exact 0x20 frame and all 23 text plus
+ * seven switch-table runtime relocations. The linked owned range and full ROM
+ * are byte-identical. */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -37,7 +46,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((gOverlay7DispatchFlagsReloc << 22) >> 31) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {
@@ -53,7 +62,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7AppendEntry(first, record->first, 3);
             break;
         case 4:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 overlay7AppendEntry(second, record->second, 3);
             } else {
@@ -67,7 +76,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7CreateEntry(second, record->second, 3);
             break;
         case 6:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 break;
             }
@@ -76,16 +85,16 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000894_185C71C.s")
-#endif
 
-/*
- * Plateau: exact size and opcode schedule, but 81 words still differ from
- * +0x10. The remaining mismatch is a temp-FIFO/register-allocation phase;
- * failed and base now have the target stack homes, and the O2 flag lattice
- * does not change the result.
- */
+/* Bounded reproof 2026-08-30: configured full-TU C remains exact-sized at
+ * 139 words with the exact 0x30 frame and opcode schedule, but 81 register
+ * words differ from +0x10. All 23 runtime relocation offsets/types align;
+ * ten identities resolve and agree while thirteen mixed-fallback identities
+ * remain unresolved. All 119 flag rows and ten natural declaration, scope,
+ * loop-bound, initializer, register, and cursor forms are nonexact. The
+ * nearest permitted skeleton is only 5.12% similar; JFG's best is 4.86%.
+ * The baseline remains best. Resume only with new allocator evidence that
+ * moves the loop index/bound from a0/t0 to v1/a3 without changing schedule. */
 #ifdef NON_MATCHING
 void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
     Overlay7CheckState *state;
@@ -151,23 +160,23 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/*
- * Plateau (retested 2026-08-28): exact 60-word size with two differing words,
- * first at +0x4. The 119-case flag lattice, volatile/signed/array global
- * types, local flag and table-offset webs, and cast placement do not coalesce
- * the initial flag load with the later table offset; typed web reuse widens
- * the diff. A fresh Tier-2 trace preserves the stock text but records no UGEN
- * FIFO events, only five already-aligned global-color webs, so it cannot
- * diagnose or promote a force for the remaining t6-to-t7 temp web.
- */
-#ifdef NON_MATCHING
+/* Matched 2026-09-09. The flags test is the same idiom overlay7DispatchModes
+ * uses above: `(flags << 22) >> 31` on the unsigned global, not a mask and a
+ * signed compare. Both spellings give ugen `lw $14,sym; and $15,$14,1023;
+ * sll $24,...`, and as1 folds the redundant `and` either way -- but with the
+ * masked spelling it folds it forward, renaming the load's destination to $15
+ * (`lui t6; lw t7,0(t6)`), and with the shift-pair spelling it folds it
+ * backward onto the shift, leaving the load on its own register
+ * (`lui t6; lw t6,0(t6)`). That one temp was the whole two-word residual; the
+ * previous plateau's "temp-FIFO phase" reading was right about the symptom and
+ * wrong about the owner -- uopt's numbering never moved. */
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
     s8 mapped;
 
     state = owner->state;
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((gOverlay7DispatchFlagsReloc << 22) >> 31) {
         if (selection >= 14 && selection < 17) {
             override = &gOverlay7DispatchOverride[state->index];
             if (*override == 0) {
@@ -183,74 +192,86 @@ create:
         }
     } else {
 query:
-        if (overlay7QueryReloc() == 0) {
+        if (camGetModeReloc() == 0) {
             mapped = gOverlay7DispatchMap[selection];
             if (mapped != -1) {
-                overlay7ApplyReloc(0, state->index, mapped, state->field45D);
+                overlay59AppendValueReloc(0, state->index, mapped,
+                                          state->field45D);
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
-#endif
 
-/*
- * Plateau (2026-08-25 rerun): exact size with three differing words, first at
- * +0xBC. A typed six-byte selection row fixes the default table-index temp
- * rotation. The 119-case flag lattice and explicit/cast/temporary narrowing
- * forms still keep the post-call u16 result in a2 instead of target a3/t2.
+/* Exact ordinary C: the configured mixed-TU build and linked ROM prove all
+ * 72 owned words (288 bytes), with a 48-byte frame and no instruction edits.
+ * Fresh raw compiler output has all 17 runtime relocation offsets, types,
+ * and identities. The configured object retains 15 static records after
+ * two explicitly declared, runtime-owned BSS metadata filters.
+ * The removed HI/LO pair is at function offsets +0xF0/+0xF8, corresponding
+ * to TU offsets +0x618/+0x620. Both independently resolve to overlay 7's
+ * runtime identity +0x1BA0: original BSS base +0x1910 plus addend +0x290.
+ * The configured recipe changes relocation metadata, not instruction bytes.
+ * Absent-object rebuilding, owned linked bytes, and the full ROM are exact;
+ * neighboring functions and data remain unchanged by this function's C.
  */
-#ifdef NON_MATCHING
-void overlay7CommitSelection(s32 selection) {
-    u16 value;
-    Overlay7Pair *pair;
-    s32 remaining;
+void overlay7CommitSelection(s32 selection)
+{
+  u16 value;
+  Overlay7Pair *pair;
+  s32 remaining;
+  if (gOverlay7DispatchModeReloc & 1)
+  {
+    switch (selection)
+    {
+      case 29:
+        value = 0xCF;
+        break;
 
-    if (gOverlay7DispatchModeReloc & 1) {
-        switch (selection) {
-        case 29:
-            value = 0xCF;
-            break;
-        case 30:
-            value = 0xF5;
-            break;
-        case 31:
-            value = 0x116;
-            break;
-        default:
-            value = ((Overlay7SelectionRow *)&gOverlay7DispatchData[0x754])
-                        [selection]
-                            .values[overlay7LookupReloc(0, 2)];
-            break;
-        }
-        pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
-        remaining = 11;
-        do {
-            if (pair->key == value) {
-                value += overlay7LookupReloc(0, pair->value);
-                break;
-            }
-            pair++;
-        } while (remaining--);
-        if (value != 0) {
-            if (gOverlay7DispatchObject != 0) {
-                overlay7ObjectReloc(gOverlay7DispatchObject);
-                func_overlay_007_F0000CCC_185CB54(gOverlay7Selected);
-            }
-            overlay7CommitReloc(value, &gOverlay7CommitArgument);
-        }
+      case 30:
+        value = 0xF5;
+        break;
+
+      case 31:
+        value = 0x116;
+        break;
+
+      default:
+        value = ((Overlay7SelectionRow *) (&gOverlay7DispatchData[0x754]))[selection].values[mathRnd(0, 2)];
+        break;
+
     }
-}
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000DBC_185CC44.s")
-#endif
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+    pair = (Overlay7Pair *) (&gOverlay7DispatchData[0x8F4]);
+    remaining = 11;
+    do
+    {
+      if (pair->key == value)
+      {
+        value += mathRnd(0, pair->value);
+        break;
+      }
+      pair++;
+    }
+    while (remaining--);
+    if (value)
+    {
+      if (gOverlay7DispatchObject != 0)
+      {
+        func_800031E8(gOverlay7DispatchObject);
+        overlay7ReleaseEntry(gOverlay7Selected);
+      }
+      amSndPlay(value, &gOverlay7CommitArgument);
+    }
+  }
+}
+
+/* Pinned DKR v77/v80 and JFG object scans found no exact donor. Exact but
+ * non-natural: the empty condition and dummy comma-expression operand are
+ * semantically inert allocation aids preserving IDO's 11-word coloring.
+ * Tracked in docs/cleanup-queue.md. */
 s32 overlay7FillValues(s16 *value) {
     s32 remaining;
 
-    /* Preserves the original IDO register coloring without emitted code. */
     if (((!value) & 0xFFFFU) && (!value)) {
     }
     value = &gOverlay7ValuesEnd;
@@ -277,3 +298,4 @@ void overlay7InitPool(void) {
     gOverlay7ActiveTail = 0;
     gOverlay7Selected = 0;
 }
+

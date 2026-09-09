@@ -6,7 +6,8 @@
  * and provenance are recorded in docs/modules.md section 3.4. Functions stay
  * under GLOBAL_ASM until their C compiles to Mickey's bytes exactly.
  *
- * Flags: -O2 -mips2 -32, via the shared src/main rule.
+ * Flags: -O2 -mips2 -32 -Wo,-loopunroll,0. The game-code ISA and
+ * menu-specific no-unroll override are selected by Makefile.
  */
 
 #include "PR/ultratypes.h"
@@ -40,6 +41,7 @@ extern s32 D_800D314C;
 extern s32 D_800D3150[];
 extern s32 D_800D3168[];
 extern u8 D_800826C0[];
+extern u8 D_800826D0[];
 extern u16 D_800D312A;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
@@ -317,9 +319,16 @@ void func_80038750(s32 language) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench plateau: structure-mismatch, 54 words; 85/86 instructions, frame -24, first +0x14.
- * Lever: an address-alias mark improved the initial global web but added one instruction; a call-result local was inert.
- * Remains: separate initial store/base materialization, later loop webs, and relocation bindings. */
+/* Fresh configured V0 is exact-size at 85 instructions with frame 0x18,
+ * 66/85 differing words, and first mismatch +0x14. The target/candidate own
+ * 33/34 relocations; eight offsets/types and five effective identities align.
+ * All 119 flag modes are nonexact. Block scopes, direct loop bounds, scalar
+ * global typing, donor-local result lifetimes, and line grouping were flat or
+ * regressed. A preceding-global pointer form reached 55 masked differences
+ * but uses unproved cross-object pointer arithmetic and is rejected, as is the
+ * historical empty condition. Resume with an authenticated aggregate BSS
+ * declaration or allocator-trace mechanism that separates the initial store
+ * and loop-base webs while delaying the later D_800D3498 address web. */
 /* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
 void func_80038878(void) {
     s32 *buffer;
@@ -330,7 +339,6 @@ void func_80038878(void) {
     u8 *loadedEnd;
 
     D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
-    if (&D_800D3150[0]);
     buffer = D_800D3150;
     bufferEnd = D_800D3168;
     value = buffer[-1];
@@ -562,16 +570,15 @@ u8 frontGetMode(void) {
     return D_8007C0A0;
 }
 #ifdef NON_MATCHING
-/* PLATEAU (2026-08-26): workbench structure-mismatch; best 248/279 words, first +0x24.
- * Flag lattice, dense 0-18 switch coverage, and branch-shape variants did not improve the retained candidate.
- * Fade pool/register web and switch relocation identities remain. */
+/* NON_MATCHING NOTE: exact 279-word extent and 0x28 frame; 219/279 words differ, first +0xD8.
+ * Compound fade/title-timer updates recover the target's early address webs and the distinct second trace string.
+ * The early-exit CFG and later pool/temp allocation remain; target and C each carry 95 external relocations. */
 s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
     s32 sp24;
     u8 *sp20;
     u16 sp1E;
     u16 sp1C;
     u16 sp1A;
-    s32 temp_t1;
     s32 temp_t4;
     s32 temp_v0;
     u8 temp_v0_2;
@@ -583,23 +590,22 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
         }
         D_8007C1AC = 0x7F;
     } else if (D_8007C1AC > 0) {
-        temp_t1 = D_8007C1AC - (updateRate * 3);
-        D_8007C1AC = temp_t1;
-        if (temp_t1 <= 0) {
+        D_8007C1AC -= updateRate * 3;
+        if (D_8007C1AC <= 0) {
             if (D_8007C1A4 != 0) {
                 amSndStop(D_8007C1A4);
             }
         } else {
-            amSndSetVol(0xA, D_8007C1A4, temp_t1 & 0xFF, &D_8007C1A4);
+            amSndSetVol(0xA, D_8007C1A4, D_8007C1AC & 0xFF, &D_8007C1A4);
         }
     }
     func_80039720(updateRate);
     if (TrapDanglingJump() != 0) {
-    } else {
+        goto done;
+    }
         if (func_8003A550() != 0) {
             func_8003A544(0);
-            temp_t4 = D_8007C09C - updateRate;
-            D_8007C09C = temp_t4;
+            temp_t4 = (D_8007C09C -= updateRate);
             if ((temp_t4 < 0) ||
                 (sp1A = joyGetPressed(2), sp1C = joyGetPressed(1),
                  sp1E = joyGetPressed(0),
@@ -677,7 +683,7 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             TrapDanglingJump(updateRate);
             break;
         }
-        func_80044BC8(D_800D3140, D_800826C0, 0x2C5);
+        func_80044BC8(D_800D3140, D_800826D0, 0x2C5);
         *arg0 = D_800D3140;
         *arg1 = D_800D3144;
         *arg2 = D_800D3148;
@@ -687,10 +693,10 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             D_8007BF70 -= updateRate;
             if (D_8007BF70 <= 0) {
                 D_8007BF70 = -1;
-                func_80000510(D_800D3050, -1);
+                func_80000510(D_800D3050, D_8007BF70);
             }
         }
-    }
+done:
     return 0;
 }
 #else
@@ -805,27 +811,12 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     *bottom = limits[3];
     viConvertXY(right, bottom);
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
- * Workbench: canonical TU is 20/37 words; a no-loop-unroll sweep is word-exact but has 18 relocation identities differing.
- * Levers: flag lattice, scalar/unrolled labels, and BSS bindings; the needed TU-wide flag damages neighboring func_80038878. */
-void func_8003968C(void) {
-    D_800D31A0 = -1;
-    D_800D3198 = 0x14;
-    D_800D319C = 0xF;
-    D_800D31A4 = -1;
-    D_800D3199 = 0x14;
-    D_800D319D = 0xF;
-    D_800D31A8 = -1;
-    D_800D319A = 0x14;
-    D_800D319E = 0xF;
-    D_800D31AC = -1;
-    D_800D319B = 0x14;
-    D_800D319F = 0xF;
+void func_8003968C(void)
+{
+  int new_var;
+  int new_var2;
+ do { new_var2 = ((((1 & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu; D_800D31A0 = -(new_var2 & 0xFFFFFFFFFFFFFFFFu); D_800D3198 = 0x14; D_800D319C = 0xF; D_800D31A4 = -1; new_var = 0xF; D_800D3199 = 0x14; D_800D319D = new_var; if ((!new_var) && (!new_var)) { } D_800D31A8 = -1; D_800D319A = 0x14; D_800D319E = 0xF; D_800D31AC = -1; D_800D319B = 0x14; D_800D319F = new_var; } while (new_var * 0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
-#endif
 void func_80039720(s32 updateRate) {
     s32 controller;
     s8 repeatXNegative;
@@ -1029,11 +1020,11 @@ void setupFrontEndObject(s32 objectId) {
     destination->pad1C[3] = source->pad1C[3];
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, target 262 vs candidate 264 instructions; 190 words differ, first +0x14, frame exact.
- * Constant audit, base/caching, pointer-scope, and inline forms left the candidate's two extra words or regressed.
- * Remains: D_800D31C8 base temp t2 versus target t5 and the unresolved switch schedule. */
+/* Workbench: structure-mismatch, exact 262-word geometry and 0xB8 frame;
+ * 161 differ, first +0x14, with 28 of 42 relocation identities exact.
+ * Volatile copy accesses help; the D_800D31C8 t2-vs-t5 web still cascades. */
 void func_80039E34(s32 index) {
-    MenuDrawStack stack;
+    volatile MenuDrawStack stack;
     s16 flags;
     MenuFrontObject *renderObject;
     MenuCurrentObject *current;
@@ -1042,14 +1033,14 @@ void func_80039E34(s32 index) {
     current = &D_800D3550[index];
     if ((D_800D31C8[current->index] != NULL) &&
         ((D_8007C1B8[current->index] & 0xC000) != 0xC000)) {
-        stack.sp7C = current->unk0;
-        stack.sp7E = current->unk2;
-        stack.sp80 = current->unk4;
-        stack.sp88 = current->unkC;
-        stack.sp8C = current->unk10;
-        stack.sp90 = current->unk14;
-        stack.sp84 = current->unk8;
-        flags = D_8007C1B8[current->index];
+        stack.sp7C = *(volatile s16 *)&current->unk0;
+        stack.sp7E = *(volatile s16 *)&current->unk2;
+        stack.sp80 = *(volatile s16 *)&current->unk4;
+        stack.sp88 = *(volatile f32 *)&current->unkC;
+        stack.sp8C = *(volatile f32 *)&current->unk10;
+        stack.sp90 = *(volatile f32 *)&current->unk14;
+        stack.sp84 = *(volatile f32 *)&current->unk8;
+        flags = D_8007C1B8[*(volatile s16 *)&current->index];
         if (flags & 0x4000) {
             MenuCurrentObject *drawObject =
                 (MenuCurrentObject *)D_800D31C8[current->index];
@@ -1120,16 +1111,17 @@ void func_80039E34(s32 index) {
             stack.spAC = renderObject;
             camPushModelMtx(&D_800D3140, &D_800D3144, &stack.sp7C, 1.0f,
                           0.0f);
+            renderObject = stack.spAC;
             command = D_800D3140;
             D_800D3140 = command + 1;
-            command->w0 = (((stack.spAC->unkC[stack.spAC->indexA] +
+            command->w0 = (((renderObject->unkC[renderObject->indexA] +
                             0x80000000) &
                             0xFFFFFF) | 0xBF000000);
-            command->w1 = stack.spAC->unk4 + 0x80000000;
+            command->w1 = renderObject->unk4 + 0x80000000;
             command = D_800D3140;
             D_800D3140 = command + 1;
             command->w0 = 0x06000000;
-            command->w1 = (s32)stack.spAC->resource->unk68 + 0x80000000;
+            command->w1 = (s32)renderObject->resource->unk68 + 0x80000000;
             command = D_800D3140;
             D_800D3140 = command + 1;
             command->w1 = 0;
@@ -1176,27 +1168,42 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 32-instruction shape, five register words from +0xC.
- * Fresh pool-position probes and a four-variant basin census kept 5/32 best; the target's
- * v1/v0 pool order versus the candidate's v0/v1 order remains, with one ring-only t6 web.
- * No instrumented IDO is configured in this lane, so the assembly fallback stays canonical. */
-/* PROVENANCE: mask, state guard, and order compared with JFG's public
- * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+
+
+
+
+
+
+
+/* Allocation plateau (reproved 2026-09-04): the alias-backed modeBits lifetime
+ * is exact-sized and matches 31/32 words, with first mismatch +0x14, no frame or
+ * padding, and all six relocations exact. Its complete pool and temp lanes match;
+ * only the equality branch reads v0 where the target reads v1. A ten-minute
+ * bounded sweep improved score 60 to 10, and the reseeded sweep reached 5 but
+ * no zero; the clean score-5 source remains 31/32. Splitting the repeated mask
+ * regresses to 27/32. Earlier flags, declaration orders, direct-global, width,
+ * and shared-carrier forms remain closed. ORT 606 and its three callers remain
+ * authenticated. Linked equality proves fallback only; JFG's ordered peer is
+ * role evidence, not donor C. */
+/* PROVENANCE: ordered accessor-family role rechecked against JFG efd5abb's
+ * assembly-backed src/menu.c::frontSetScreenMode; mask, guard, and packed fields
+ * are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
+    u8 *modeBitPtr;
     u8 *modeState;
-    s32 mode;
     u8 modeBits;
 
     modeState = &D_8007C090;
-    mode = (modeBits = screenMode & 3);
-    if (*modeState != mode) {
+    modeBitPtr = &modeBits;
+    if (*modeState != (modeBits = screenMode & 3)) {
         D_8007C090 = screenMode & 3;
-        if (modeBits & (1 ^ 0)) {
+        if (*modeBitPtr & 1) {
             D_800D3128.bits.modeBit0 = 1;
         } else {
-            D_800D3128.bits.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+            D_800D3128.bits.modeBit0 = 0;
         }
-        if ((screenMode & 3) & (2 & 0xFFFFFFFFu)) {
+        modeBits = screenMode & 3;
+        if (modeBits & 2) {
             D_800D3128.bits.modeBit1 = 1;
         } else {
             D_800D3128.bits.modeBit1 = 0;
@@ -1325,3 +1332,43 @@ void func_8003A55C(s32 value) {
 void func_8003A590(void) {
     D_8007BF70 = -1;
 }
+
+/* PLATEAU-HANDOFF:func_80038E1C:start
+ * symbol: func_80038E1C
+ * score: 219 differing words
+ * frame: 0x28
+ * relocations: 95
+ * first-mismatch: +0xD8
+ * summary: Compound global updates recover the first 54 words; shared-exit CFG and the title/tail pool-to-temp webs remain.
+ * PLATEAU-HANDOFF:func_80038E1C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003A2C8:start
+ * symbol: func_8003A2C8
+ * score: 31/32 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x14
+ * summary: The equality operand and the global address register are coupled: comparing the int fixes the branch and moves the address one colour later, never both.
+ * PLATEAU-HANDOFF:func_8003A2C8:end
+ */
+
+/* PLATEAU-HANDOFF:func_80039E34:start
+ * symbol: func_80039E34
+ * score: 161 differing words
+ * frame: 0xB8
+ * relocations: 42
+ * first-mismatch: +0x14
+ * summary: Exact geometry; volatile copy order helps, but the initial table-base temp allocation still cascades.
+ * PLATEAU-HANDOFF:func_80039E34:end
+ */
+
+/* PLATEAU-HANDOFF:func_80038878:start
+ * symbol: func_80038878
+ * score: 66 differing words
+ * frame: 0x18
+ * relocations: 34
+ * first-mismatch: +0x14
+ * summary: Exact size and frame remain blocked by initial store and loop base web separation plus late address lifetime.
+ * PLATEAU-HANDOFF:func_80038878:end
+ */

@@ -37,7 +37,10 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
 
 /* Plateau: 80/96 linked words are exact; 16 tail words remain, first +0x104.
  * Tail caching fixes a0/a1 but disrupts the null CFG; aliases regress size.
- * The full flag lattice and 40-minute permuter (best 5135) found no exact. */
+ * The full flag lattice and 40-minute permuter (best 5135) found no exact.
+ * A 2026-09-04 explicit null-return reshape kept the exact size/frame but
+ * regressed to 74/96 words and expanded the structural residual to 13 opcode
+ * differences; the authorized tail-CFG reshape is exhausted. */
 #ifdef NON_MATCHING
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *entry;
@@ -132,3 +135,13 @@ void overlay7AppendEntry(void *owner, u16 value, u8 type) {
         }
     }
 }
+
+/* PLATEAU-HANDOFF:overlay7AcquireEntry:start
+ * symbol: overlay7AcquireEntry
+ * score: 80/96 words
+ * frame: 0x30
+ * relocations: 13
+ * first-mismatch: +0x104
+ * summary: explicit null-return reshape regressed to 74/96; tail-CFG structural trial is exhausted
+ * PLATEAU-HANDOFF:overlay7AcquireEntry:end
+ */

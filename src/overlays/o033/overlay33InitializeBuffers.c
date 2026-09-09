@@ -16,10 +16,12 @@ extern s32 overlay33InitializeBufferReloc(s32 *context, s32 *status, s32 mode);
 extern void overlay33AllocationFailedReloc(void);
 
 /*
- * Plateau (10 source-shape attempts): the best candidate has the exact
- * 81-instruction size and 56-byte frame, with 14 positional words differing
- * and the first mismatch at +0x74.  The remaining blocker is the allocation
- * alignment delay-slot schedule and its v0/v1 temporary register web.
+ * Plateau (2026-09-04): the exact-sized 81-word, 0x38-frame candidate is
+ * 75/81 words with six relocation-masked differences. A fidelity-clean as1
+ * trace finds two line-key decisions, both in already-exact blocks; the
+ * store/branch/copy cluster is instead decided by besttime. Both relevant
+ * line joins and the addition commutation are byte-flat; declaration changes
+ * are flat/regressing, and all 25 relocation offsets/types align.
  */
 #ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
@@ -42,8 +44,8 @@ void overlay33InitializeBuffers(void) {
         gOverlay33Allocation = allocation;
         if (allocation != 0) {
             original = allocation;
-            if (allocation & 0x3F) {
-                allocation = (allocation & ~0x3F) + 0x40;
+            if (original & 0x3F) {
+                allocation = (original & ~0x3F) + 0x40;
             } else {
                 allocation = original;
             }
@@ -66,3 +68,13 @@ void overlay33InitializeBuffers(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33InitializeBuffers/func_overlay_033_F0000000_18807E8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay33InitializeBuffers:start
+ * symbol: overlay33InitializeBuffers
+ * score: 75/81 words
+ * frame: 0x38
+ * relocations: 25
+ * first-mismatch: +0x74
+ * summary: verdict=structure-mismatch; lever=none-known; stalled 3/3. Next: forward as1 besttime model tied to ugen emission order.
+ * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
+ */

@@ -210,9 +210,9 @@ there continues as 3.x.
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **96 named subsegments,
-including 95 measured whole-`.text` file boundaries plus one exact
-function-tail carve, and 123 named functions**, all tier A. The yaml carries
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **101 named subsegments,
+including 100 measured whole-`.text` file boundaries plus one exact
+function-tail carve, and 130 named functions**, all tier A. The yaml carries
 the boundary argument at both ends and
 `symbol_addrs.us.txt` carries the per-function names.
 
@@ -224,31 +224,16 @@ candidates. Those runs are not drifted copies of DKR's libultra; they are a
 *different build*. Run the finder over Jet Force Gemini's libultra and **eight
 of the ten runs fall**, in fifteen whole-`.text` matches.
 
-The remaining unnamed code is `0x920`, **7.5% of the corridor**, in two
-contiguous runs:
-
-| ROM | Size | Note |
-|---|---|---|
-| `0x70AF0`–`0x70E20` | `0x330` | Between `dpsetstat` and `pfsdeletefile` |
-| `0x74090`–`0x74680` | `0x5F0` | Between `timerintr` and the exact `__osEepStatus` tail |
-
-Neither matches any object in any of the five reference builds, whole or
-per-function: five negatives, two of them from byte-perfect builds.
-
-**Read these two runs rather than mining them further.** "Unnamed code inside
-the corridor is libultra-shaped" was a fair assumption at 78% identified
-against a single build; at 90.6% against five it is carrying more weight than
-it has earned, and the plainest reading of `0x920` that five libultra builds do
-not contain is that some of it **is not libultra**. Two more reference builds
-would be a sixth and seventh negative; a disassembly would be an answer.
-Disassemble `0x70AF0`–`0x70E20` and `0x74090`–`0x74680` before running the
-finder over anything else.
+The remaining unnamed code is `0x0`, **0.0% of the corridor**, in zero runs.
+Every executable byte in the corridor now has an authenticated owner; the
+last gap closed with Mickey-specific reconstructions of the adjacent EEPROM
+read and write translation units.
 
 `__osPiGetAccess` ("the same 17 instructions as DKR's, scheduled differently")
 is named from JFG's whole `io/piacs.c` TU at `0x80071B80`. `libultra/piacs`
 was the one corridor subsegment named without a measured boundary; JFG measures
-it, which is why the original 95 whole-TU subsegments all carry measured
-boundaries. The 96th named subsegment is explicitly narrower:
+it, which is why all 100 whole-TU subsegments now carry measured boundaries.
+The exact function-tail carve is explicitly narrower:
 `__osEepStatus` is byte-exact to DKR's `io/conteepwrite.c`, while the preceding
 functions in that donor TU are not, so no larger file-boundary claim is made.
 
@@ -432,8 +417,8 @@ donor scan, and the retired normalization notes) moved to
 | Project default | `-O2 -mips1 -32` | splat/IDO preset; not measured |
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have |
 | overlay game code, except overlay 5 | `-O2 -mips2 -32` | **Measured** across tranche-A leaves and structural pilots |
-| selected overlay TUs | `-O2 -mips2 -32 -Wab,-r4300_mul` | **Measured per object** where the R4300 hazard schedule changes emitted words; kept as narrow Makefile overrides |
-| overlay 5 audio-bank TUs | `-O3 -mips2 -32` | **Measured.** DKR supplies the source/flag crosswalk; Mickey's own text fixes six separate boundaries |
+| selected overlay TUs | `-O2 -mips2 -32 -Wab,-r4300_mul` | **Measured per object** where the R4300 hazard schedule changes emitted words; kept as narrow `mk/overlays.mk` overrides |
+| six overlay 5 audio-bank patcher TUs | `-O3 -mips2 -32` | **Measured.** DKR supplies the source/flag crosswalk; Mickey's own text fixes six separate boundaries. The game-code `overlay_005.c` TU remains `-O2` |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions |
 | 49 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them |
 | 23 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
@@ -721,9 +706,9 @@ Where the boundary comes from:
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
 - **rodata order follows text order exactly.** The pre-carve inventory held
-  forty-four jump tables. The 18 tables still emitted in `asm/`, from
+  forty-four jump tables. The 17 tables still emitted in `asm/`, from
   `jtbl_80080D2C` through `jtbl_800841F4`, remain monotonic in text and rodata
-  order with **zero inversions**. The other 26 are now owned by C, including
+  order with **zero inversions**. The other 27 are now owned by C, including
   five in `n_csplayer`, one in `n_reverb`, one in `main/font`, and the table
   promoted with `xprintf`. This leaves the per-TU carve strategy intact.
 
@@ -766,8 +751,10 @@ Two toolchain facts govern the per-TU split:
   only their text. In particular `0x1FC9C` is *not* a model/sprite anchor:
   `func_8001F09C` is a float routine that steps a value at `+0x50` toward a
   bound at `+0x54` and clamps it, with no connection to either string.
-- **7.5% of the libultra corridor** (§4.1): `0x70AF0`–`0x70E20` and
-  `0x74090`–`0x74680`, `0x920` between them, matching nothing in any of the
+- **4.1% of the libultra corridor** (§4.1): `0x70C30`–`0x70E20` and
+  `0x74090`–`0x743A0`, `0x500` between them, matching nothing in any of the
+- **2.4% of the libultra corridor** (§4.1): `0x743A0`–`0x74680`, `0x2E0`,
+  matching nothing in any of the
   five reference builds. **It may not be libultra at all**: the label is
   inherited from a map made when the corridor was 78% identified against one
   build, and five builds' worth of silence is now the more informative fact.
@@ -798,12 +785,11 @@ Two toolchain facts govern the per-TU split:
 - **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak
   routines. Almost certainly more of the same driver; PD's build does not
   contain whatever it is.
-- **The object system.** The `"setting up"` / `"freeing"` / `"processing"` /
-  `"exploding"` phase names sit in a 5-entry pointer table at `0x8007A220`, whose first
-  entry is `"null"`, immediately followed by four function pointers
-  (`0x8002B280`, `0x8002B314`, `0x8002B768`, `0x8002B524`) which are exactly
-  the memory routines the linker calls. Something at `0x8007A214` is a
-  descriptor combining phase names with allocator entry points. The only
-  resident reader of the phase table is the crash reporter at `0x80046548`, so
-  the phases are what a fault is reported *during*. That is as far as the
-  evidence goes; no struct is asserted for it.
+- **The object system.** The `"null"` / `"setting up"` / `"freeing"` /
+  `"processing"` / `"exploding"` phase names occupy five pointers beginning at
+  `0x8007A220`. They are followed by a separate five-function patch table at
+  `0x8007A234`–`0x8007A244`, including `func_8002B280`, `func_8002B314`,
+  `mmFree`, and `func_8002B524`. `RevealReturnAddresses` consumes the function
+  table to patch return-address sentinels, while the crash reporter consumes the
+  phase names. Something at `0x8007A214` relates the two surfaces, but the
+  evidence does not justify a combined struct or stronger intent claim.

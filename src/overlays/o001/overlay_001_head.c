@@ -36,35 +36,62 @@ typedef struct O1PathOffsetOwner { u8 pad00[0x398]; f32 pathOffset; } O1PathOffs
 extern O1ControlTable *D_1D60;
 extern O1ControlTable *D_1D68;
 extern O1ControlTable *D_1D6C;
-extern O1ControlTable *overlay1NextControlTable(O1ControlTable *table);
-extern f32 overlay1CubicInterpolate(f32 a, f32 b, f32 c, f32 d, f32 t);
+extern u8 *overlay1NextPointer(u8 *pointer);
+extern f32 splinePos(f32 a, f32 b, f32 c, f32 d, f32 t);
 
+/* Fresh configured plateau: exact 83-word size and 0x68 frame; 81/83 compiler
+ * words agree after relocation masking. The only codegen residual is the saved
+ * integral position at sp+0x38 instead of the target sp+0x40. Direct D_1D6C
+ * anchoring and declaration order recover the target register lanes and the
+ * other two call-crossing homes. All 119 flag rows and a bounded two-thread
+ * permuter search are nonexact. A fidelity-clean allocator trace confirms the
+ * uopt register pools; a padding-free state aggregate regresses to 77/83, while
+ * implicit conversion and chained assignment forms are byte-flat. */
 #ifdef NON_MATCHING
+/* Plateau 2026-09-09, two words, one spill slot. The frame is exact at 0x68 and
+ * every allocator lane is identical (pool 30/30, temp 8/8, shared 6/6, FP 7/7
+ * and 4/4); the whole residual is that `originalWhole` spills to sp+0x38 where
+ * the target uses sp+0x40, at the store before the loop and the load after it.
+ * The other five raw words are lever 50 phantoms: the target bakes the
+ * overlay-local `%lo` addends (7584, 7520, 7524, 7528, 7532) that the candidate
+ * emits as HI16/LO16 relocation pairs with a zero addend.
+ * Eliminated this pass: the full single-move declaration-order lattice, all 90
+ * one-local relocations of the ten declarations -- every one flat at two words
+ * with the frame and the 83 instructions unchanged, so this home is a spill
+ * slot the allocator chose and not a declared home. Adding a declared local of
+ * any type grows the frame to 0x70 (14 words); adding two, 0x70 as well.
+ * Dropping the twin counter (`while (--whole != 0)`) or the `while` form costs
+ * an instruction and 46 words; dropping `originalWhole` and recomputing
+ * `(f32)(s32)position` keeps 83 instructions and the frame but costs four.
+ * Next lever: the workbench's stack-home playbook wants the declared count one
+ * lower with the instruction count unchanged, and no existing local here is
+ * dead across the loop to carry the value. That needs the spill-owner identity
+ * from a CDX_SYMTAB frame ladder, not another declaration permutation. */
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
+    f32 position;
     O1ControlTable *table3Base;
-    O1ControlPoint *point0;
     O1ControlPoint *point1;
+    O1ControlPoint *point0;
     O1ControlPoint *point2;
     O1ControlPoint *point3;
-    f32 position;
+    s32 originalWhole;
     f32 fraction;
     s32 whole;
-    s32 originalWhole;
     s32 remaining;
 
     position = ((O1PathOffsetOwner *)D_1DA0)->pathOffset + offset;
     point0 = &D_1D60->points[path];
     point1 = &((O1ControlTable *)D_1D64)->points[path];
     point2 = &D_1D68->points[path];
+    point3 = &D_1D6C->points[path];
     table3Base = D_1D6C;
-    point3 = &table3Base->points[path];
     whole = (s32) position;
     originalWhole = whole;
     remaining = whole - 1;
 
     if (whole != 0) {
         do {
-            table3Base = overlay1NextControlTable(table3Base);
+            table3Base = (O1ControlTable *)overlay1NextPointer((u8 *)table3Base);
             point0 = point1;
             point1 = point2;
             point2 = point3;
@@ -75,10 +102,10 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     }
 
     fraction = position - (f32) originalWhole;
-    *outX = overlay1CubicInterpolate(point0->x, point1->x, point2->x,
-                                     point3->x, fraction);
-    *outZ = overlay1CubicInterpolate(point0->z, point1->z, point2->z,
-                                     point3->z, fraction);
+    *outX = splinePos(point0->x, point1->x, point2->x,
+                                  point3->x, fraction);
+    *outZ = splinePos(point0->z, point1->z, point2->z,
+                                  point3->z, fraction);
 }
 
 #else
@@ -91,22 +118,20 @@ typedef struct O1PathOwner { s16 angle; u8 pad02[0xA]; f32 x; f32 y; f32 z; } O1
 extern s32 D_0;
 extern f32 D_B4;
 extern f32 D_B8;
-extern s32 overlay1HasPathData(void);
+extern s32 overlay1ActivateObject(void *owner);
 extern void overlay1InterpolatePath(f32 *x, f32 *z, s32 path, f32 offset);
-extern f32 overlay1SinAngle(s16 angle);
-extern f32 overlay1CosAngle(s16 angle);
-extern f32 overlay1SquareRoot(f32 value);
-/* Workbench: structure-mismatch, 37 raw differing words, first mismatch +0x1C.
- * Exact 100-row frame/CFG and call structure; one z-scale scheduling hunk remains.
- * Structural gap: target schedules z scaling after the x store; other residuals are FP allocation/relocations. */
-#ifdef NON_MATCHING
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+extern f32 sqrtf(f32 value);
+/* Assigning the measured distance through scale preserves the original FP
+ * carrier web; the configured build emits all 100 instruction words exactly. */
 void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
                                 f32 *outY, f32 *outZ) {
     f32 dx;
     f32 dz;
     f32 distance;
     f32 scale;
-    if (overlay1HasPathData() == 0) {
+    if (overlay1ActivateObject(owner) == 0) {
         *outX = 0.0f;
         *outY = 0.0f;
         *outZ = 0.0f;
@@ -116,9 +141,10 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         overlay1InterpolatePath(outX, outZ, path, 1.0f);
         dx = *outX - owner->x;
         dz = *outZ - owner->z;
-        distance = overlay1SquareRoot((dx * dx) + (dz * dz));
-        if (distance > 0.0f) {
-            scale = 1.0f / distance;
+        distance = sqrtf((dx * dx) + (dz * dz));
+        scale = distance;
+        if (scale > 0.0f) {
+            scale = 1.0f / scale;
             dx *= scale;
             dz *= scale;
         }
@@ -126,23 +152,22 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         *outY = owner->y + D_B4;
         *outZ = owner->z + (dz * 150.0f);
     } else {
-        *outX = owner->x + (overlay1SinAngle(owner->angle) * 150.0f);
+        *outX = owner->x + (func_8002A8C0(owner->angle) * 150.0f);
         *outY = owner->y + D_B8;
-        *outZ = owner->z + (overlay1CosAngle(owner->angle) * 150.0f);
+        *outZ = owner->z + (func_8002A8BC(owner->angle) * 150.0f);
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000DF4_184D1D4.s")
-#endif
 
 /* ---- overlay1MeasureCurves ---- */
 
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
-/* Workbench: schedule-mismatch, 27 differing words, first mismatch +0x0C.
- * Exact 79-word frame/CFG and instruction multiset; calls and guards only reorder.
- * Shape-exact and permuter-ready; no structural gap remains. */
+/* Retained plateau: schedule-only at 52/79 positional words, first mismatch
+ * +0x0C, with the exact 79-word extent, 0x70 frame, CFG, and instruction
+ * multiset. All 119 flag rows are nonexact. A bounded two-thread permuter
+ * improves its private score only through an inert comma expression, which is
+ * rejected; traditional declaration/assignment separation is byte-flat.
+ * Resume only with a source-authentic statement-line or grouping model. */
 #ifdef NON_MATCHING
 f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
                           volatile f32 endX, volatile f32 endY,
@@ -201,7 +226,7 @@ typedef struct Overlay1PackedRecord {
     s16 value8;
     u8 group;
     u8 slot;
-    u8 link;
+    u16 link;
 } Overlay1PackedRecord;
 
 typedef struct Overlay1Point {
@@ -231,6 +256,11 @@ typedef struct Overlay1LargeRecord {
     u8 pad00[0x14];
     Overlay1Metric metrics[8];
 } Overlay1LargeRecord;
+
+typedef struct Overlay1MetricCursor {
+    u8 pad00[0x14];
+    Overlay1Metric metric;
+} Overlay1MetricCursor;
 
 extern void overlay1LoadPackedRecordsReloc(
     Overlay1PackedRecord **records, s32 *size, s32 resource);
@@ -287,10 +317,12 @@ extern f32 func_overlay_001_F0000F84_184D364(
     f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3,
     s32 scale);
 
-/* Plateau (2026-08-24): all 119 flag combinations preserve the same best
- * -O2 -mips2 shape.  It is 0x5C bytes short, differs in 470 of 572 words,
- * and first diverges at +0x34.  The missing scheduling/frame structure is
- * broader than a bounded temporary-order permutation. */
+/* Plateau reproof (2026-08-31): configured V0 remains 0x5C bytes short,
+ * differs in 470/572 masked positional words, and first diverges at +0x34.
+ * Correcting the packed link width and metric-window layout reduces aligned
+ * constant differences by eight, but local-data ownership still emits 114
+ * candidate relocations against the target's 32. Consolidate that owner
+ * before further source-level scheduling work. */
 #ifdef NON_MATCHING
 void overlay1LoadBuildRecords(void) {
     Overlay1PackedRecord *records;
@@ -510,10 +542,10 @@ void overlay1LoadBuildRecords(void) {
             Overlay1LargeRecord *sourceB;
             Overlay1LargeRecord *sourceC;
             Overlay1LargeRecord *large;
-            Overlay1Metric *metric;
-            Overlay1Metric *metricA;
-            Overlay1Metric *metricB;
-            Overlay1Metric *metricC;
+            Overlay1MetricCursor *metric;
+            Overlay1MetricCursor *metricA;
+            Overlay1MetricCursor *metricB;
+            Overlay1MetricCursor *metricC;
 
             gOverlay1ModeConstant = 1;
             D_1D5C = &D_1D58[D_1D8C - 1];
@@ -530,18 +562,18 @@ void overlay1LoadBuildRecords(void) {
                         sourceB = overlay1GetMetricSourceBReloc(sourceA);
                         sourceC = overlay1GetMetricSourceCReloc(large);
                         index = 7;
-                        metric = &large->metrics[7];
-                        metricA = &sourceA->metrics[7];
-                        metricB = &sourceB->metrics[7];
-                        metricC = &sourceC->metrics[7];
+                        metric = (Overlay1MetricCursor *)((u8 *)large + 0x70);
+                        metricA = (Overlay1MetricCursor *)((u8 *)sourceA + 0x70);
+                        metricB = (Overlay1MetricCursor *)((u8 *)sourceB + 0x70);
+                        metricC = (Overlay1MetricCursor *)((u8 *)sourceC + 0x70);
                         do {
                             score = func_overlay_001_F0000F84_184D364(
-                                metricC->x, metricC->y,
-                                metric->x, metric->y,
-                                metricA->x, metricA->y,
-                                metricB->x, metricB->y, 0x10);
-                            metric->score = score;
-                            if (metric->rank != 0) {
+                                metricC->metric.x, metricC->metric.y,
+                                metric->metric.x, metric->metric.y,
+                                metricA->metric.x, metricA->metric.y,
+                                metricB->metric.x, metricB->metric.y, 0x10);
+                            metric->metric.score = score;
+                            if (metric->metric.rank != 0) {
                                 if (maximum < score) {
                                     maximum = score;
                                 }
@@ -550,27 +582,27 @@ void overlay1LoadBuildRecords(void) {
                                 }
                             }
                             loopValue = index;
-                            metric--;
-                            metricA--;
-                            metricB--;
-                            metricC--;
+                            metric = (Overlay1MetricCursor *)((u8 *)metric - 0x10);
+                            metricA = (Overlay1MetricCursor *)((u8 *)metricA - 0x10);
+                            metricB = (Overlay1MetricCursor *)((u8 *)metricB - 0x10);
+                            metricC = (Overlay1MetricCursor *)((u8 *)metricC - 0x10);
                             index--;
                         } while (loopValue != 0);
                         if (maximum != minimum) {
                             scale = 51.0f / (maximum - minimum);
                             index = 7;
-                            metric = &large->metrics[7];
+                            metric = (Overlay1MetricCursor *)((u8 *)large + 0x70);
                             do {
-                                if (metric->rank != 0) {
-                                    metric->rank = (s8)(s32)(
-                                        (f32)metric->rank +
-                                        ((maximum - metric->score) * scale));
+                                if (metric->metric.rank != 0) {
+                                    metric->metric.rank = (s8)(s32)(
+                                        (f32)metric->metric.rank +
+                                        ((maximum - metric->metric.score) * scale));
                                     if (index == 3) {
-                                        metric->rank += 5;
+                                        metric->metric.rank += 5;
                                     }
                                 }
                                 loopValue = index;
-                                metric--;
+                                metric = (Overlay1MetricCursor *)((u8 *)metric - 0x10);
                                 index--;
                             } while (loopValue != 0);
                         }
@@ -691,10 +723,10 @@ extern u8 gOverlay1RankBase;
 extern u8 gOverlay1RankLimit;
 extern u8 D_8[];
 
-/* Plateau (2026-08-24): the complete flag lattice ties at -O2 -mips2; the
- * candidate is 0x10 bytes short, differs in 114 of 148 words, and diverges
- * at +0x0.  The object/rank mapping loops need a structural rewrite before
- * register-order work can be meaningful. */
+/* Plateau reproof (2026-08-31): the complete flag lattice still selects
+ * -O2 -mips2. The retained candidate is 0xC bytes short, differs in 88 of
+ * 148 words, and first diverges at +0x0; source structure and allocation
+ * remain nonexact, and the consolidated relocation identities fail closed. */
 #ifdef NON_MATCHING
 void overlay1BuildObjectMappings(volatile s32 unused) {
     s32 count;
@@ -703,6 +735,7 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
     Overlay1BuildObject *object;
     Overlay1BuildData *data;
     s32 remaining;
+    s32 innerStart;
     s32 inner;
     Overlay1BuildObject **innerCursor;
     Overlay1BuildObject *innerObject;
@@ -710,8 +743,8 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
 
     base = overlay1GetBuildObjectsReloc(&count);
     if (gOverlay1BuildGate != 0) {
-        remaining = count - 1;
         if (count != 0) {
+            remaining = count - 1;
             outerCursor = base + remaining;
             do {
                 object = *outerCursor;
@@ -731,18 +764,20 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
                 ((Overlay1BuildState *)D_1DA0)->word400 = 0;
                 *(s16 *)((u8 *)D_1DA0 + 0x3BA) = 0xFF;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D0) = object->x;
+                innerStart = count - 1;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D4) = object->y;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D8) = object->x;
                 *(f32 *)((u8 *)D_1DA0 + 0x3DC) = object->y;
                 if (gOverlay1BuildGate == 1) {
                     func_overlay_001_F00019B8_184DD98(0);
+                    inner = 1;
                     ((Overlay1BuildState *)D_1DA0)->word404 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word404 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word408 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word40C = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word410 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word404 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word408 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word40C = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word410 = 0;
                 }
-                inner = count - 1;
+                inner = innerStart;
                 if (count != 0) {
                     innerCursor = base + inner;
                     do {
@@ -758,12 +793,6 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
             } while (remaining--);
         }
     }
-}
-
-s32 overlay1BuildScheduleCarrier(s32 first, s32 second) {
-    first += 1;
-    first <<= 2;
-    return first + second;
 }
 
 #else
@@ -818,3 +847,43 @@ extern void overlay1ResetReloc(void);
 void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
+
+/* PLATEAU-HANDOFF:overlay1InterpolatePath:start
+ * symbol: overlay1InterpolatePath
+ * score: 81/83 words
+ * frame: 0x68
+ * relocations: 13
+ * first-mismatch: +0x94
+ * summary: stack-home: three carrier and birth-order forms were byte-flat; next capture authenticated spill-owner identity for the preserved integer
+ * PLATEAU-HANDOFF:overlay1InterpolatePath:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1MeasureCurves:start
+ * symbol: overlay1MeasureCurves
+ * score: 27 differing words
+ * frame: 0x70
+ * relocations: 5
+ * first-mismatch: +0x0C
+ * summary: Exact instruction multiset remains schedule only after all flags and a bounded search rejected an inert best mutation
+ * PLATEAU-HANDOFF:overlay1MeasureCurves:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1BuildObjectMappings:start
+ * symbol: overlay1BuildObjectMappings
+ * score: 88 differing words
+ * frame: 0x78
+ * relocations: 16
+ * first-mismatch: +0x0
+ * summary: 145/148-word size; target frame 0x70; structure/allocation remain after 119 flags, ten forms, and one bounded batch; identities unresolved
+ * PLATEAU-HANDOFF:overlay1BuildObjectMappings:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1LoadBuildRecords:start
+ * symbol: overlay1LoadBuildRecords
+ * score: 470 differing words
+ * frame: 0xD8
+ * relocations: 114
+ * first-mismatch: +0x34
+ * summary: Exact frame; 23 words short. Local-data ownership creates 114 candidate versus 32 target relocations; consolidate the owner before further source matching.
+ * PLATEAU-HANDOFF:overlay1LoadBuildRecords:end
+ */

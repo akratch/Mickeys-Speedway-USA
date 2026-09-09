@@ -52,3 +52,13 @@ void overlay60ReassignChoiceSlots(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60ReassignChoiceSlots/func_overlay_060_F0003488_18BD260.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:start
+ * symbol: overlay60ReassignChoiceSlots
+ * score: 18/53 words
+ * frame: 0x20
+ * relocations: 8
+ * first-mismatch: +0x4
+ * summary: Fidelity-clean CDX maps the choice pointer to first p2 web w0; forcing its zero-cost v1 tie cuts 35 to 13 words, proving retail needs earlier web formation, not a priority change.
+ * PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:end
+ */

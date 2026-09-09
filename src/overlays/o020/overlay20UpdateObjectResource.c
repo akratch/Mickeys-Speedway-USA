@@ -9,8 +9,13 @@ typedef struct Overlay20LookupResult {
     s16 y1;
 } Overlay20LookupResult;
 
+typedef struct Overlay20Entry {
+    void *owner;
+    void *unk04;
+} Overlay20Entry;
+
 typedef struct Overlay20Context {
-    void **entries;
+    Overlay20Entry *entries;
     u8 pad04[0x14];
     s16 count;
 } Overlay20Context;
@@ -51,24 +56,11 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
-/*
- * Plateau (2026-08-25, 10 source attempts plus a bounded permuter batch):
- * the best -O2 candidate has the exact 98-word size, differs in 8 words, and
- * agrees through +0xAC before first diverging at +0xB0.  A block-scoped s16
- * count recovers the fallback pointer, index scaling, address calculation,
- * and long-call argument web; IDO still colors that count and the entries
- * pointer one register apart from the target.  The full flag lattice found no
- * better group, and hoisting the count assignment loses both size and CFG.
- */
-/*
- * Trace-guided plateau (2026-08-28): untouched IDO output is 98 words with
- * a 0x70 frame and four calls; the raw code residual is eight register words.
- * Paired globalcolor traces isolate the count web that naturally takes v1.
- * Direct-count forms remove it but enter a 25-word UGEN temp-ring basin; a
- * forced split grows to 100 words and a 0x78 frame.  No natural block or
- * condition lifetime spelling closed that pool-to-temp transition.
- */
-#ifdef NON_MATCHING
+/* Two coupled allocator facts fix the temp ring. The bound check reads
+ * context->count directly, so the value is a ugen temp rather than a uopt-
+ * coloured web, which pops t6 before the owner load; and the entry table is an
+ * array of eight-byte pairs, so the index scales in one step instead of the
+ * multiply-then-scale pair that popped a second, invisible temp. */
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
     s32 baseX;
@@ -96,15 +88,11 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
         height = config->height;
     }
 
-    {
-        s16 count;
-
-        if ((config->entryIndex >= 0) &&
-            (config->entryIndex < (count = context->count))) {
-            owner = context->entries[config->entryIndex * 2];
-        } else {
-            owner = *object->fallbackEntry;
-        }
+    if ((config->entryIndex >= 0) &&
+        (config->entryIndex < context->count)) {
+        owner = context->entries[config->entryIndex].owner;
+    } else {
+        owner = *object->fallbackEntry;
     }
 
     object->resource = overlay20ConfigureResourceReloc(
@@ -115,6 +103,3 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
     object->radius = overlay20SqrtReloc((f32)((width * width) +
                                                (height * height)));
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20UpdateObjectResource/func_overlay_020_F0000204_18767DC.s")
-#endif

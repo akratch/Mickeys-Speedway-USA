@@ -1,6 +1,8 @@
 #include "ultra64.h"
 #include "game/font.h"
 #include "game/gameVi.h"
+#include "game/level.h"
+#include "game/memory.h"
 #include "game/menu.h"
 #include "game/sched_internal.h"
 #include "n_audio/mbi.h"
@@ -243,7 +245,6 @@ extern void osSetTime(OSTime);
 extern OSTime osGetTime(void);
 extern u16 joyGetButtons(s32);
 extern u16 joyGetPressed(s32);
-extern void func_8003A2C8(s32);
 extern void mainFrontInit(s32, s32, s32);
 extern void RevealReturnAddresses(void);
 extern void mmInit(void);
@@ -272,7 +273,6 @@ extern s32 func_80037664(void);
 extern s32 levelGetTune(s32);
 extern s32 levelGetScreenMode(s32);
 extern u32 levelGetGfxIndex(s32);
-extern void levelInit(s32, s32, s32, s32);
 extern void levelFreeAll(void);
 extern void rumbleRumbles(s32);
 extern void rumbleUpdate(void);
@@ -330,7 +330,6 @@ extern void func_8004D32C(void);
 extern void func_8000D1B8(void);
 extern void func_8000D978(s32, s32);
 extern void runlinkTick(void);
-extern void func_8002B7AC(void);
 extern void func_80027628(s32);
 extern void func_80027EC0(s32);
 extern void func_80027FB8(s32);
@@ -504,9 +503,14 @@ void mainInitGame(void) {
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
  *
- * Workbench structure-mismatch: scoped-index candidate is 419 vs 413 instructions, 207 positional words, first +0x48; frame remains -0x28.
- * Lever: a block-local pointer for the D_8007A1B8 toggle cut the prior 388-word floor to 207; display, flag, permuter, constant, and splice variants were regressive.
- * Remains: 52 structural and 55 register words, six extra instructions, and the final display-command schedule prevent exactness.
+ * Fresh configured V0 reproduces the retained structure mismatch at 419 vs
+ * 413 instructions, 207 differing words, first +0x48, and exact frame -0x28.
+ * Target/candidate own 290/298 relocations; 200 offsets/types and 172 effective
+ * identities align. The block-local D_8007A1B8 pointer remains the best natural
+ * form. Nine structural/display-command hypotheses, the full flag lattice, and
+ * a bounded permuter batch are already exhausted; do not repeat them without a
+ * new compiler mechanism. The remaining six words concentrate in final display
+ * command scheduling and register allocation.
  */
 void func_80026FB4(void) {
     s32 drawTransition;
@@ -1456,10 +1460,19 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame -24.
- * The three call relocations are exact at +0x14/+0x30/+0x4c. Six additional
- * raw/boolean result webs tied this body or grew to 29 words; retained boolean
- * materialization before each branch remains the unresolved source mechanism. */
+/*
+ * PROVENANCE: Jet Force Gemini src/main.c::mainAnyoneHas at upstream commit
+ * efd5abb remains GLOBAL_ASM and supplies only an assembly/object structural
+ * analogue and TU-role comparison; no C body was adapted. Mickey establishes
+ * this boundary, ABI, calls, Boolean normalization, and candidate body.
+ *
+ * The authorized donor update advanced other shared-engine work but did not
+ * provide a new C spelling for this function. The prior shared-result probe
+ * regressed to 25 words and moved the second and third calls, so it did not
+ * unlock another flag lattice or trace. This retained early-return spelling
+ * is the best source-faithful form: exact 108-byte size/frame 0x18 and calls
+ * at +0x14/+0x30/+0x4C. ORT 663 has no authenticated caller.
+ */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;
@@ -1584,9 +1597,11 @@ u8 func_80029240(s32 index) {
  * Remains: the arg1-to-FP move schedule cascades into swapped FP webs; no TU-wide flag promotion is justified.
  */
 #ifdef NON_MATCHING
-/* PROVENANCE: structural comparison uses Jet Force Gemini
- * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
- * so this body is reconstructed from Mickey-only control-flow evidence. */
+/* PROVENANCE: structural comparison uses Jet Force Gemini's public decomp,
+ * src/overlays/o3/overlay_3.c::GetSmoothAcceleration. Rechecked at upstream
+ * efd5abb1c79636e297b831f7c2d5bf47eac39c0c, JFG retains assembly, so no body
+ * was adapted from that revision. This body is reconstructed from Mickey-only
+ * control-flow evidence, and Mickey byte identity remains decisive. */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
     f32 temp_f16;
@@ -1695,3 +1710,43 @@ void func_800293D0(void) {
         }
     }
 }
+
+/* PLATEAU-HANDOFF:func_80028FCC:start
+ * symbol: func_80028FCC
+ * score: 17/27 words
+ * frame: 0x18
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: JFG efd5abb still leaves mainAnyoneHas as GLOBAL_ASM; next lever is a later permitted donor C body.
+ * PLATEAU-HANDOFF:func_80028FCC:end
+ */
+
+/* PLATEAU-HANDOFF:func_80029274:start
+ * symbol: func_80029274
+ * score: 48/87 words
+ * frame: 0x10
+ * relocations: 0
+ * first-mismatch: +0x8
+ * summary: JFG efd5abb keeps donor assembly-only; verdict structure-mismatch, lever authenticated matched donor C or source-lifetime evidence.
+ * PLATEAU-HANDOFF:func_80029274:end
+ */
+
+/* PLATEAU-HANDOFF:func_80026FB4:start
+ * symbol: func_80026FB4
+ * score: 207 differing words
+ * frame: 0x28
+ * relocations: 298
+ * first-mismatch: +0x48
+ * summary: Fresh V0 reproduces the exhausted main loop plateau. Resume only with a new display command scheduling or allocator mechanism.
+ * PLATEAU-HANDOFF:func_80026FB4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80028564:start
+ * symbol: func_80028564
+ * score: 426 differing words
+ * frame: 0x58
+ * relocations: 245
+ * first-mismatch: +0x4
+ * summary: V0: 492/489 words, exact 0x58 frame, 426 positional and 427 raw diffs. Relocs 245 versus 201; 59 sites and 25 identities align. Saved-register web persists.
+ * PLATEAU-HANDOFF:func_80028564:end
+ */

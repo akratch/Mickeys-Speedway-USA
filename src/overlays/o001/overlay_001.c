@@ -136,15 +136,15 @@ typedef struct Overlay1ScanObject {
     Overlay1ScanData *data;
 } Overlay1ScanObject;
 
-extern Overlay1ScanObject **overlay1GetAngleObjectsReloc(
-    s32 *start, s32 *end);
+extern void **func_8000572C(s32 *start, s32 *end);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
 extern f32 gOverlay1PhaseScale;
 
 /* Plateau (batch 14): diagnostic -Wab,-r4300_mul is exact-size with 10 words, first at +0x08.
  * Dead-array reuse fixed 17 words; start a0/v1 and angle/scale f22/f24 webs remain.
- * Canonical flags are worse; the bounded 40-minute permuter found no zero. */
+ * Canonical flags are worse; the bounded 40-minute permuter found no zero.
+ * Direct func_8000572C naming now proves all six relocation identities. */
 #ifdef NON_MATCHING
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
@@ -158,7 +158,7 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     f32 scale;
     s32 index;
 
-    objects = overlay1GetAngleObjectsReloc(&start, &end);
+    objects = (Overlay1ScanObject **)func_8000572C(&start, &end);
     bestDifference = gOverlay1ScanLimit;
     best = NULL;
     index = start;
@@ -246,40 +246,32 @@ typedef struct Overlay1SearchRecord {
     s32 key;
 } Overlay1SearchRecord;
 
-extern Overlay1SearchRecord **overlay1SearchRangeReloc(s32 *start, s32 *end);
 
-/* The pinned DKR v77/v80 and JFG object scans contain no exact donor.
- * Workbench p1 plateau: allocation mismatch. Six source-faithful lifetime,
- * traversal, and key-spelling forms were neutral or regressed; one bounded
- * report-only permuter pass had no comparable base or zero. GLOBAL_ASM remains
- * canonical. */
-#ifdef NON_MATCHING
+/* Mickey-only reconstruction; the pinned DKR/JFG scans found no exact donor.
+ * Evaluate the bounds before offsetting the cursor: this orders IDO's initial
+ * temporary demands. The single-execution do/while and packed statement lines
+ * below are inert source-shaping forms retained for exact compiler output;
+ * see docs/cleanup-queue.md for the natural-spelling follow-up. */
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
-    s32 start;
-    s32 end;
-    s32 wantedKey;
-    Overlay1SearchRecord *record;
-    Overlay1SearchRecord **cursor;
+  s32 start;
+  s32 end;
+  int typeMatches;
 
-    cursor = overlay1SearchRangeReloc(&start, &end) + start;
-    if (start < end) {
-        do {
-            record = *cursor++;
-            start++;
-            if (record->type == 5) {
-                wantedKey = *key;
-                if (wantedKey == record->key) {
-                    return record;
-                }
-            }
-        } while (start < end);
+  Overlay1SearchRecord *record;
+  Overlay1SearchRecord **cursor;
+  cursor = ((Overlay1SearchRecord **) func_8000572C(&start, &end));
+  if (start < end)
+  {
+    cursor += start; do
+    {
+      record = *(cursor++);
+      start++;
+ do { typeMatches = record->type == 5; if (typeMatches) { ; if ((*key) == (*record).key) { return record; } } } while (0);
     }
-    return NULL;
+    while (end > start);
+  }
+  return (void *) 0;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001/func_overlay_001_F0000378_184C758.s")
-#endif
 
 /* ---- overlay1FindPreviousUsable ---- */
 
@@ -481,3 +473,23 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
     angle = overlay1DirectionReloc(x - direction->x, z - direction->z);
     return overlay1CompareDirectionReloc(angle, direction->angle) > 0;
 }
+
+/* PLATEAU-HANDOFF:overlay1FindPreviousUsable:start
+ * symbol: overlay1FindPreviousUsable
+ * score: 12 differing words
+ * frame: frameless
+ * relocations: 4
+ * first-mismatch: +0x4
+ * summary: structure-mismatch; lever none-known. Raw/masked 14/12, masked first +0x14; attempts 9-13 stalled. Next: fidelity-pinned CFE copy/coalescing trace.
+ * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1FindType47ByAngle:start
+ * symbol: overlay1FindType47ByAngle
+ * score: 18 differing words
+ * frame: 0x78
+ * relocations: 6
+ * first-mismatch: +0x8
+ * summary: Diagnostic r4300_mul reaches 64/74; all six relocation identities are exact, while angle/scale and start allocation webs remain.
+ * PLATEAU-HANDOFF:overlay1FindType47ByAngle:end
+ */

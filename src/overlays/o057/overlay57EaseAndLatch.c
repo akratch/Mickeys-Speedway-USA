@@ -120,3 +120,13 @@ void overlay57EaseAndLatch(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57EaseAndLatch/func_overlay_057_F00028B4_18A64AC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57EaseAndLatch:start
+ * symbol: overlay57EaseAndLatch
+ * score: 129/221 words
+ * frame: 0x28
+ * relocations: 36
+ * first-mismatch: +0x2C
+ * summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
+ * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
+ */

@@ -169,3 +169,13 @@ Overlay20InitGrid *func_overlay_020_F000038C_1876964(Overlay20InitGrid *grid) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/func_overlay_020_F000038C_1876964/func_overlay_020_F000038C_1876964.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_020_F000038C_1876964:start
+ * symbol: func_overlay_020_F000038C_1876964
+ * score: 256 differing words
+ * frame: -0x38
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: Target is 270 words/frame 0x40 versus 264/frame 0x38; all three call relocation sites remain shifted.
+ * PLATEAU-HANDOFF:func_overlay_020_F000038C_1876964:end
+ */

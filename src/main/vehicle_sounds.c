@@ -34,7 +34,7 @@ typedef struct VehicleSoundProfile {
 typedef struct VehicleRacerState {
     /* 0x000 */ s8 playerIndex;
     /* 0x001 */ s8 characterId;
-    /* 0x002 */ s8 vehicleId;
+    /* 0x002 */ u8 vehicleId;
     /* 0x003 */ u8 pad003;
     /* 0x004 */ f32 speed;
     /* 0x008 */ u8 pad008[0xA0 - 0x008];
@@ -127,9 +127,18 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26 candidate/22 target instructions, 19 raw words from +0x0.
- * Lever: aggregate and target-order store probes confirmed the stock named globals remain best; target high-half reuse is not source-reached.
- * Remains: original BSS ownership and relocation layout; assembly fallback stays canonical. */
+/* Bounded plateau: owns ROM 0x58E50..0x58EA8, 22 frameless words with no
+ * padding. Configured full-TU C is 26 words, matches 3/22 positionally, first
+ * +0x0, and carries 24 relocations against the target's 20. The four-word
+ * excess is one redundant high-half load per slot: the target uses two direct
+ * absolute bases for three stores while retaining separately named LO16s.
+ * The previous 119-row lattice, aggregate/volatile-slot families, and this
+ * pass's target ordering, TU-local-scalar, comma-expression, racer-base pointer,
+ * and volatile split-tail forms are all nonexact; none strictly improves V0.
+ * The sole caller is func_80004FE0+0x54C and no credible donor exists. Resume
+ * only with an original declaration/TU model that naturally emits that mixed
+ * relocation shape, or evidence that this initializer was handwritten; do
+ * not repeat flags or these storage forms. Assembly remains canonical. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;
@@ -169,9 +178,11 @@ void func_800582A8(void) {
  * offsets, tables, control flow, constants and positional-audio calls decide
  * this body.
  *
- * Workbench p5: structure-mismatch; 758/762 candidate/target instructions, 699 differing words from +0x0, frame -0x110 vs -0x118.
- * No new safe lever: stock flags and pointer/lifetime/loop variants are exhausted; DKR organization remains provenance-only.
- * Remains: broad BSS/FP/register structure mismatch and 8-byte frame deficit.
+ * Fresh p10 workbench: 758/762 candidate/target instructions, 699 relocation-
+ * masked differences from +0x0, and frame 0x110 versus 0x118. Ten bounded
+ * type, ABI, statement-order and lifetime probes remain nonexact. The retained
+ * unsigned vehicle ID and pointer setup order reduce opcode mismatches without
+ * changing the positional score; DKR organization remains provenance-only.
  */
 void func_8005830C(s32 updateRate) {
     s32 racerCount;
@@ -180,7 +191,7 @@ void func_8005830C(s32 updateRate) {
     s32 cameraIndex;
     s32 scanIndex;
     s16 bestPriority;
-    s16 secondarySoundId;
+    s32 secondarySoundId;
     s32 volume;
     f32 speed;
     f32 minimumSpeed;
@@ -214,10 +225,10 @@ void func_8005830C(s32 updateRate) {
     engineIntensity = storedEngineIntensity;
     racerIndex = racerCount - 1;
     if (racerCount != 0) {
+        racerPtr = racers + racerIndex;
         volumeScale = storedVolumeScale;
         minimumSpeed = storedMinimumSpeed;
         maximumSpeed = storedMaximumSpeed;
-        racerPtr = racers + racerIndex;
         do {
             object = *racerPtr;
             racer = object->racer;
@@ -546,3 +557,13 @@ f32 func_80058EF4(f32 arg0) {
     }
     return result * (s32)2;
 }
+
+/* PLATEAU-HANDOFF:func_8005830C:start
+ * symbol: func_8005830C
+ * score: 699 differing words
+ * frame: 0x110
+ * relocations: 88
+ * first-mismatch: +0x0
+ * summary: Target is 762 words/frame 0x118; only 18 relocation tuples and 12 identities align after ten bounded type, ABI, order, and lifetime probes.
+ * PLATEAU-HANDOFF:func_8005830C:end
+ */

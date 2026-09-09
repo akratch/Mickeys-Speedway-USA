@@ -52,7 +52,14 @@ the segment, carrying 194 function names.
 | `0x4BC40`–`0x4E1E0` | `0x8004B040` | `main/font` | A/D | JFG's `font.c`: six exact function anchors plus source-order and adjacent-function evidence establish the provisional C split; §3.4 |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | Compiler/link-exact C adapted from DKR `src/gzip.c` |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
-| `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
+| `0x4F4E0` | `0x8004E8E0` | `func_8004E8E0` | D | Matched C adapted from DKR `src/game_text.c` `init_dialogue_text`: exact 188 B / 47 words, frame `0x18`, all 28 relocation identities exact, linked ROM exact |
+| `0x4F59C` | `0x8004E99C` | `func_8004E99C` | D | Matched C: exact 80 B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F5EC` | `0x8004E9EC` | `func_8004E9EC` | D | Matched C: exact 12 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F5F8` | `0x8004E9F8` | `func_8004E9F8` | D | Matched C adapted from DKR: exact 616 B and 24/24 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F9A8` | `0x8004EDA8` | `func_8004EDA8` | D | Matched C: exact 296 B and 25/25 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4FC20` | `0x8004F020` | `func_8004F020` | D | Matched C: exact 8 executable B and zero relocations at `-O2 -mips2 -32`, linked ROM exact; following 8 B are target padding |
+| `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x506D0`–`0x50820` after it is a separate unknown |
+| `0x505E0` | `0x8004F9E0` | `osCreateThread` | B; JFG `libultra/src/os/createthread.c` body, with Mickey's measured MIPS-II TU flag | Matched C: exact 232 executable B and 6/6 relocation identities at `-O2 -mips2 -32`; following 8 B are target padding |
 | `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
 | `0x58E50`–`0x59B90` | `0x80058250` | `main/vehicle_sounds` | B + D | Four-function positional racer-sound block. Calls the resident XYZ sound API to maintain engine handles and derives pitch/volume from racer speed and listener distance. No exact JFG skeleton hit; the name is descriptive and the existing splat boundary is not claimed as measured |
 | `0x59B90`–`0x59BF0` | `0x80058F90` | `main/osBootRamTest` | A | Measured file boundary and byte-exact C (JFG): both IPL3 6105 RAM checks compile to the complete 96-byte target object. |
@@ -138,6 +145,19 @@ inside `main/matrix`) clear the bar but are **not** written into
 `symbol_addrs.us.txt`: their C is parked non-matching, and 1.5 forbids naming
 a symbol whose C is not in the ROM. They are recorded instead in §6.2.
 
+The adjacent anonymous `func_8002B040` is separately authenticated over ROM
+`0x2BC40..0x2BCD0`: 34 frameless words, no padding before `mmInit`, and no
+relocations. Its configured guarded C emits 35 words and matches 1/34
+positionally from `+0x0`; IDO spills and reloads the second `f32` formal where
+the target transfers all three incoming GPR bit patterns directly to FP
+registers. The complete 119-row flag lattice is nonexact (`-O2 -mips1 -32`
+improves only to 2/34 while remaining one word long), as are ten bounded
+source-faithful type, matrix-shape, temporary, K&R, register, operand-order,
+and uopt-O3 forms. Four shipped callers in Overlays 69,
+88, and 94 authenticate the scalar-vector ABI. DKR/JFG matrix-transform
+assembly supplies structural context only; it does not justify a friendly
+name or a C-origin claim. The assembly fallback remains canonical.
+
 Of the 68 adopted, 46 carry a real JFG/BK function name (adopted verbatim,
 `symbol_addrs.us.txt`); 22 are JFG placeholder names (`func_8xxxxxxx`), which
 1.5 forbids importing, so Mickey's own `func_<VRAM>` stands and the comment
@@ -215,16 +235,11 @@ overlay callers/callees outside the range were observed.
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | D, matched C | leaf; text-setup callers |
 | `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
-| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | D, matched C | leaf; text-setup callers |
-| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B, matched C | calls `0x4BD3C` |
-| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B, matched C | calls `0x4BDDC` |
-| `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B | calls `0x4DF9C`; ext callers |
 | `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D, plateau | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; ext callers |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, reproof | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlays 41 and 45 |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
@@ -252,14 +267,14 @@ overlay callers/callees outside the range were observed.
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D, matched C | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, matched C | leaf; in-range callers |
-| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
+| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | A, matched C | exact words, frame, relocations, and linked bytes |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | A, matched C | IDO C exact; SDK calls; ext callers |
 | `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | A, matched C | IDO C exact; allocator call; ext caller |
 | `0x4E378` | `0x30` | `byteswap32` | DKR `byteswap32`; JFG `rzipUncompressSize` | A, matched C | leaf; ext callers |
 | `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | A, matched C | IDO C exact; calls `byteswap32`, ext |
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | A, matched C | IDO C exact; calls `gzip_inflate_block`; ext callers |
-| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B, NON_MATCHING shape-exact | DKR `src/gzip.c`; 2 register words remain; called by `main/gzip_asm` |
+| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | Tier B, matched C | DKR `src/gzip.c`; all 390 words, frame, relocations, and linked bytes exact; called by `main/gzip_asm` |
 
 `func_8004B1DC` has a readable DKR-JP-derived candidate under
 `NON_MATCHING`. Its best stock-flag build has the target's 128-byte frame and
@@ -272,15 +287,39 @@ ranges across the scissor and glyph loops, not a compiler-flag mismatch.
 Levers covered flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
 Remaining: initial pool setup and saved-header copy schedule.
 
-`func_8004D40C`: workbench structure-mismatch; 109 words, two differences (down from five), rows 24/41.
-The CDX allocator trace fixed every branch-operand order (a copy-propagated variable prints before a
-constant, so the scans must be expression-direct on `*text`), and a `CDX_FORCE` swap proved the earlier
-residual was one variable web the target splits. What remains is the target's `move t2,a3` carrier for
-the third test -- a non-variable temp no C spelling reached -- so assembly stays canonical.
+`func_8004D40C` is Evidence A exact C: all 109 instruction words, its `0x18`
+frame, relocation identities, and linked ROM bytes match after bounded
+permutation resolved the final temp web.
 
-`func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
-Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
-Fresh explicit byte-offset and base-pointer forms regress the schedule, so assembly stays canonical.
+`func_8004BA8C` owns VRAM `0x8004BA8C..0x8004BB44`, ROM
+`0x4C68C..0x4C744`: 184 bytes/46 words, frame `0x30`, and no target padding.
+The isolated object's trailing eight alignment bytes are outside the function.
+Historical policy-defective configured isolated and full-TU C are byte-identical
+at 38/46 raw and relocation-normalized words, first `+0x30`; that body used an
+artificial stack pad and empty condition. Clean current C is uncompiled, so its
+score, frame, extent, first mismatch, and emitted tuples are unknown. Ordinary
+46/46 object and linked equality are assembly fallback only. The historical
+eight residual sites are the `fontData` carrier, `fontData`/`spacing` spill
+homes, and two equivalent operand orders.
+
+All nine target tuples were exact in the historical C: pairs to `D_800D60E4` at
+`+0x04/+0x08`, `D_800D6628` at `+0x14/+0x28`, and `D_800D6644` at
+`+0x34/+0x38` and `+0x48/+0x54`, plus the `func_8004D39C` call at `+0x40`.
+ORT 880 exports resident offset `0x4B63C`. Its five callers are
+`func_8004B1DC+0x1E4/+0x294`, `func_8004BCC4+0x12C`,
+`overlay41DrawItem+0x4C`, and `overlay45ConfigureLayout+0x9C`; there are no
+other direct, runtime-table, overlay-SYMBOL, or stored-pointer inbounds. The
+existing Overlay 41 rename and Overlay 45 proxy preserve the runtime carriers;
+current candidate tuples still await configured V0.
+
+The retained 38/46 score is diagnostic: `stackPad` and its empty condition were
+artificial frame/allocation aids and are now removed, leaving clean V0
+uncompiled. JFG's same-sized function is an assembly-backed NON_EQUIVALENT
+draft and DKR's Japanese structural branch was not the built US producer.
+Retain exactly 119 flags, capture one allocator trace, try a replacing scoped
+`glyphIndex` and one trace-selected `fontData`/`spacing` lifetime form, then
+combine only independent gains. Hard cap 122 stock builds plus one trace; no
+generic permutation without a policy-clean natural gain.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -323,7 +362,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80018544` | `0x110` | `shadowYHeight` | comparison only: unique nearest 4-gram skeleton, 0.919; remains `func_80018544` |
 | `0x80018654` | `0xBC` | `shadowMakeYs` | Tier-A candidate: 47/47 unmasked words, ROM-wide unique; assembly pending a function-sized naming commit |
 | `0x80018710` | `0x8C` | `freeLights` | tier-B comparison: three frees and the JFG TU position; C still `func_80018710` |
-| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison; `NON_MATCHING` plateau at 75/76 linked words, first mismatch +`0x98` from commutative `addu` operand order |
+| `0x8001879C` | `0x130` | `setupLights` | Tier B: JFG-adapted C is compiler/link exact at 76/76 words |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | placeholder names are prohibited by §1.5; remains `func_800188CC` |
 | `0x8001897C` | `0x238` | `addRomdefLight` | tier-B comparison from TU order and light-update callees; C still `func_8001897C` |
 | `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
@@ -344,7 +383,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact. |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; bounded reproof preserves full-TU/isolated C at 64 versus target 63 words, exact frame `0x38`, 19/63 raw/normalized positional matches, first `+0x44`. The extra return-delay word is not padding; all three tuples are four bytes late. All 119 flag rows are nonexact, a fidelity-clean proc-22 trace has no source attribution, and both valueDelta-first forms regress. Linked equality is fallback-only; ORT 358 has three direct callers and no runtime inbound. JFG's role is assembly-backed structural evidence only. |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
@@ -380,21 +419,95 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, exact size, 14/116 words differ, first `+0xE0`; workbench mixed constant/structure/register |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocator; retained pre-cleanup C is diagnostic 102/116 raw/normalized words, frame `0x58`, first `+0xE0`, with all 12 tuples exact. Artificial volatile pad is removed; clean V0 is uncompiled and linked equality is fallback-only. ORT 547 has nine calls plus one stored pointer. |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; plateau, 62/63 words, first `+0x4`; workbench mixed structure/register after owned BSS leaves the target's saved base in `s0` |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; historical same-body configured full-TU/isolated C was measured at 62 versus 63 words, frame `0x30`, with 62 raw/normalized positional differences from `+0x4`. No candidate object/report survives and current-HEAD C is uncompiled. Historical prose reports all 12 identities with no exact-offset tuple; linked equality proves `GLOBAL_ASM` only. |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; allocation plateau, exact size, 30/72 register-only words differ, first `+0x8C` |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: JFG role/call-graph donor; canonical C is exact for all 72 frameless words, all eight relocation tuples, and the linked resident range. Four direct callers; no export/runtime/pointer inbound. |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
+
+`func_8002B524` owns VRAM `0x8002B524..0x8002B6F4`, ROM
+`0x2C124..0x2C2F4`: 464 bytes/116 words, frame `0x58`, saves `s0` through
+`s3` and `ra`, and has no target padding. Retained pre-cleanup full-TU and
+isolated C agree at diagnostic 102/116 raw/normalized words, first `+0xE0`;
+ordinary object/TU/ROM equality is assembly fallback only. Its `volatile pad`
+was an artificial stack-home aid and is restored to JFG's plain unused local,
+leaving clean V0 uncompiled. The return-address sentinel remains authentic:
+`RevealReturnAddresses` rewrites it from the function patch table.
+
+All 12 target tuples were exact in diagnostic C: pairs to `D_8007A278` at
+`+0x04/+0x08`, `D_8007A270` at `+0x1C/+0x3C`, `D_8007A27C` at
+`+0x4C/+0x50`, and `D_800D1C60` at `+0x90/+0x94`; a
+`runlinkGetAddressInfo` call at `+0x74`; and `func_8002BB40` calls at
+`+0x134,+0x160,+0x180`. ORT 547 exports offset `0x2B0D4`. Resident calls are
+`runlinkSuspendCode+0xB4`, `runlinkResumeCode+0xD8`, and
+`func_80034448+0x12C/+0x1D0`; Overlay 2/18/19/35 provide five more calls, and
+ROM `0x7AE40` stores one function pointer used by `RevealReturnAddresses`.
+No resident runtime-table record targets the export.
+
+The clean body uses ordinary `-O2 -mips2 -32`; pinned JFG authenticates its
+role and plain local but is a larger MIPS-I structural donor, not exact C.
+Retain clean V0 and 119 flags, try scoped direct slot-data and split-guard forms
+plus an independently improving combination, then one trace-selected natural
+lifetime form. Hard cap 123 stock builds plus one trace; no generic batch.
+
+`func_8002B7AC` owns VRAM `0x8002B7AC..0x8002B8A8`, ROM
+`0x2C3AC..0x2C4A8`: 252 bytes/63 words, frame `0x30`, saves `s0` through
+`s5` and `ra`, and has no target padding. Historical same-body configured
+full-TU/isolated C was measured one instruction short at 62 words: only 1/63
+words agreed positionally, first `+0x04`. No candidate object/report survives,
+so current-HEAD C size, score, frame, and tuples are unknown. Ordinary object,
+complete memory TU, and linked-ROM equality are assembly fallback only.
+
+The target owns 12 records. Pairs are `D_800D21B0` at `+0x08/+0x0C`,
+`D_800D21A8` at `+0x44/+0x48`, first `D_800D20A8` at `+0x50/+0x5C`, second
+`D_800D20A8` at `+0x60/+0x6C`, and `D_800D1CA8` at `+0x64/+0x68`; calls are
+`ReleaseUnusedLinkSlots` at `+0x3C` and `func_8002B8A8` at `+0x8C`. Historical
+prose reports the same identities, with eleven records four bytes early and the
+first `D_800D20A8` LO16 twelve bytes early; conflicting old-source claims count
+ten or eleven aligned residual rows, and neither has an attributable report.
+ORT 593 exports resident offset `0x2B35C` but has no
+runtime-table or overlay inbound; `func_80026FB4+0x5F8` is the sole direct
+caller. The friendly `ReleaseUnusedLinkSlots` name remains tier-D/invented.
+
+The current C is policy-clean and uses ordinary `-O2 -mips2 -32`. JFG
+`mmFreeTick` and DKR `mempool_free_queue_clear` are structural relatives with
+different size/control flow, not exact donors. Retain fresh V0, all 119 flags,
+and one allocator trace; try JFG-faithful lexical layout and distinct scoped
+early-base/later-delay-cursor lifetimes, combining only independent gains.
+Hard cap 122 deterministic builds plus one trace; no generic batch absent a
+policy-clean natural gain.
+
+`func_8002BB40` owns VRAM `0x8002BB40..0x8002BC60`, ROM
+`0x2C740..0x2C860`: 288 bytes/72 words, frameless, with no padding before
+`align16`. Canonical `-O2 -mips2 -32` C reproduces all 72 instruction words
+and the linked owned range; there is no target padding to inflate the credit.
+
+All eight tuples are exact in canonical C: `D_8007A270` at
+`+0x08/+0x64`, `D_800D21B0` at `+0x14/+0x18`, and two `D_800D1C60` pairs at
+`+0x28/+0x2C` and `+0x40/+0x44`; count, offset, type, and symbol identity agree
+with the assembled target. The serialized ELF row order differs for the second
+`D_800D1C60` pair, but relocation order is not part of link identity and the
+linked bytes are exact. There is no resident runtime record, ORT export,
+overlay inbound, or stored pointer. Direct callers are
+`func_8002B3A8+0xE0` and `func_8002B524+0x134/+0x160/+0x180`.
+
+The former 42/72 body first becomes exact through three source-authentic
+mechanisms: dead `slotIsTaken` carries the slot count, array-equivalent 20-byte
+indexing preserves one temporary chain, and dead `slotSize` carries the
+remainder link. A fidelity-gated allocator capture identified that final web;
+no forced-color output enters the canonical object. JFG's genuine
+`mempool_slot_assign` and DKR's related allocator remain structural donors with
+different sizes and control flow, not exact Mickey donors.
 
 Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
 The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
@@ -457,17 +570,35 @@ reproduce Mickey's target and both call relocations.
 extended-RAM choice, main-pool construction, deferred-free delay, and queue
 reset reproduce all 30 words and the linked global/call relocations.
 
-`func_8002B524`: 116/116 words, 14 positional differences, first `+0xE0`,
-with an exact frame. Workbench reports mixed constant/structure/register;
-the `constant-audit` lever did not close the slot/data-pointer allocation.
+`func_8002B524`: the retained configured `NON_MATCHING` full-TU object and
+isolated candidate are byte-identical and represent the current function body.
+They own 116 words with the exact `0x58` frame, all 12 target relocation
+tuples, and 102 exact raw and relocation-normalized words. The fourteen
+differences are
+`+0xE0,+0xE8,+0xEC,+0xF0,+0xF4,+0xF8,+0x104,+0x110,+0x114,+0x118,+0x138,
++0x13C,+0x150,+0x1A4`: ten slot-record/data-carrier sites, two lower-bound
+branch/delay-slot sites, and the call-live record home at candidate `sp+0x38`
+versus target `sp+0x3C`. The ordinary object, linked owned range, complete
+memory TU, and exact ROM contain `GLOBAL_ASM`; no linked C candidate survives.
+Use the bounded five-build cache/guard/combination/spill ladder and park if
+flat.
 
-`func_8002BB40`: 72/72 words, 30 register differences, first `+0x8C`.
-Workbench reports allocation mismatch; `pool-position`/temp-FIFO trials did
-not close the allocator web split.
+`func_8002BB40` is exact canonical C for all 72 frameless words. Its eight
+HI16/LO16 tuples bind `D_8007A270`, `D_800D21B0`, and two references to
+`D_800D1C60` at the target offsets. The linked owned resident range and full
+ROM are byte-identical; this is no longer assembly-fallback evidence.
 
-`func_8002B7AC`: 62/63 words, first `+0x4`; the target preserves the initial
-`D_800D21B0` base in `s0` while the candidate folds it through `t6`. Workbench
-reports mixed structure/register; `structure-buckets` did not close it.
+`func_8002B7AC`: historical same-body configured full-TU/isolated C was
+measured at 62 versus 63 words, frame `0x30`, and 1/63 raw/normalized
+positional words, first `+0x4`. No candidate object/report survives and current
+C metrics are unknown. Historical prose reports the same 12 identities with no
+exact-offset tuple: eleven records four bytes early and the first
+`D_800D20A8` LO16 at `+0x50` versus target `+0x5C`; old commits conflict on ten
+versus eleven aligned residual rows. Ordinary equality proves fallback only.
+Reprove configured V0; if it reproduces, run 119 configurations including V0,
+one allocator trace, JFG-faithful lexical layout, and scoped early-base/later-
+cursor lifetimes, combining only independent strict gains. Hard cap 122
+deterministic builds plus one trace; no generic batch absent a legal gain.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
@@ -546,12 +677,31 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` is exact-size with 13/48 positional words differing, first `+0x38`; workbench verdict: register-ring-only residual.
-Assembler-folded narrowing masks improved 17 to 13; combinations regressed, and the corrected-flag 30-minute permutation found no exact form.
-The remaining temp-FIFO web requires ring-only registers; the assembly fallback stays canonical.
-`func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
-Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
-Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.
+`func_80020D8C` owns ROM `0x2198C..0x21A4C`, 48 words with no padding before
+`func_80020E4C`. Policy-clean configured full-TU C has its exact 48-word body,
+frame `0x8`, and zero relocations, with 31/48 raw and normalized words matching
+and first mismatch `+0x38`. All seventeen residuals are register fields;
+the earlier UGEN-only/FIFO attribution is withdrawn. All 119 flag combinations
+were attempted; canonical `-O2 -mips2` ties for best. Natural texture-table,
+frame-count, single-loop-count, and staged-
+multiply forms regressed to 51, 51, 122, and 50 instructions. None improved, so
+no combination or permutation batch was authorized. ORT 374 authenticates
+resident `func_8001BB10+0x60`, Overlay 57
+`overlay57ApplyValue+0x50`, Overlay 60
+`func_overlay_060_F0000334_18BA10C+0x1F34`, and six sites in `overlay82Update`,
+for nine calls across four functions. The resident caller passes owner/context
+in `a3`, which the callee overwrites without consuming. Linked function, TU,
+and ROM equality proves fallback only; the guarded C remains the bounded
+plateau.
+The September 6 four-case carrier matrix reproduces the old retained
+12-word residual without a new gain. Only combined product staging and later
+constant-index reuse changes initial register reservation. Product-only keeps
+baseline initial membership and coloring but changes downstream allocation;
+constant-only is byte-identical to baseline. Meaningful-section, symbol and
+relocation fidelity passes for every stock/trace-off/trace-on control; no target
+compiler trace or complete dynamic FIFO proof exists. The per-symbol
+`docs/matching-triage-handoffs/func_80020D8C.md` records the source-bound
+evidence and stop condition. The canonical body remains unchanged.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
@@ -606,6 +756,26 @@ byte-identical.
 `viSetWideAdjust` is canonical C as well. The adapted clamp/store/timing-call
 body emits all 16 instruction words and its HI16, LO16 and call relocations
 exactly under the resident flags.
+
+`func_800336A8` is canonical C at tier A (Mickey byte identity), retaining its
+address label. The owned range is ROM `0x342A8`–`0x345B4`, VRAM
+`0x800336A8`–`0x800339B4`: 780 executable bytes, no padding before
+`func_800339B4`, and a `0x28` frame. The configured full TU emits all 195 words
+and all 77 static relocation records exactly, including offset, type and
+identity; the linked owned range and full ROM are byte-identical.
+
+**PROVENANCE:** the mode body follows Jet Force Gemini's public
+`src/gameVi.c:viChangeMode` at `efd5abb`. Mickey's extra PAL subcase,
+allocation constants and final state writes remain ROM-derived. The reopened
+baseline had 71 differing words and 75 candidate relocations against 77.
+Removing its cached triple-buffer local alone regressed to 110 differing words
+and 196 words, despite restoring the relocation count. Adding the donor's
+empty `if (1) {}` immediately before the non-widescreen framebuffer assignment
+then made the entire function exact. The empty statement evaluates only a
+constant and has no memory access or side effect; its spelling is disclosed
+in source and recorded in the cleanup queue. The triple-buffer flag is read
+again after the conditional allocation, as Mickey's relocation surface requires.
+No flag or post-compile instruction change was used.
 
 The placeholder-retaining `func_80034018` is canonical C. JFG's public decomp
 provides the framebuffer-fill body but not a descriptive function name, so
@@ -688,6 +858,36 @@ HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
 same-address Mickey caller pins that public name and the body is below the
 tier-A threshold, so the address label remains canonical.
 
+| Function | Exact result |
+|---|---|
+| `func_80036A80` | 48 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetColourCycle` body, all 12 instruction words and zero relocations exact. |
+| `func_80036C60` | 76 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetMixCycle` body, all 19 instruction words and zero relocations exact. |
+| `func_80036CAC` | 292 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::updateMixCycle` body, all 73 instruction words and zero relocations exact. |
+| `func_80036DD0` | 312 bytes under `-O2 -mips2 -32`; JFG `src/screen.c::screenLoad` body, all 78 instruction words and ten relocation identities exact. |
+| `func_80036F08` | 576 executable bytes plus 8-byte target padding under `-O2 -mips2 -32`; JFG `src/screen.c::screenDraw` body with Mickey command data, all 144 instruction words exact. |
+| `func_80037150` | 108 bytes under `-O2 -mips2 -32`; buffer-release body, all 27 instruction words and its relocation surface exact. |
+| `func_80037658` | 12 bytes under `-O2 -mips2 -32`; direct store-only body, all 3 instruction words and one HI16/LO16 relocation identity exact. |
+| `func_80037664` | 104 bytes under `-O2 -mips2 -32`; state predicate body, all 26 instruction words and eight relocation identities exact. |
+| `func_80037A78` | 116 bytes under `-O2 -mips2 -32`; frontend transition body, all 29 instruction words and its relocation surface exact. |
+| `func_8003A680` | 48 bytes under `-O2 -mips2 -32`; bounded character-buffer append body, all 12 instruction words and four relocation identities exact. |
+| `func_8003A6B0` | 80 bytes under `-O2 -mips2 -32`; character-code mapping body, all 20 instruction words and zero relocations exact. |
+| `func_8003A700` | 84 bytes under `-O2 -mips2 -32`; inverse character-code mapping body, all 21 instruction words and zero relocations exact. |
+
+| Candidate | Verdict |
+|---|---|
+| `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
+| `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
+| `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |
+| `func_800371BC` | Structure-mismatch, 148 differing words, first `+0x28`; target 150/candidate 159 words and 0x38-byte frames, with grid induction and record-store schedule unresolved. |
+| `func_80037414` | Structure-mismatch, 59 differing words, first `+0x10`; target 145/candidate 146 words, target frame 0x30 versus candidate 0x40. |
+| `func_800376CC` | Structure-mismatch, 95 differing words, first `+0x0`; target 118/candidate 119 words, target frame 0x18 versus candidate 0x20. |
+| `func_800378A4` | Structure-mismatch candidate: 103 differing words, first `+0x14`; target 117 instructions/0x68 frame versus candidate 112/0x68, with radial-gradient FP lifetimes and clamp/control-flow shape unresolved. |
+| `func_80037AEC` | Allocation-mismatch, 7 differing words, first `+0x54`; target/candidate 66 words and 0x40-byte frames, with only register allocation unresolved. |
+| `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x40`, interpolation multiply/call scheduling shape unresolved. |
+| `func_80037C74` | Structure-mismatch, 324 differing words, first `+0x0`; target 327/candidate 308 words, with Gfx emission and render-loop shape unresolved. |
+| `func_80038190` | Structure-mismatch, 365 differing words, first `+0x0`; target 368/candidate 342 words and 0xE8-byte frames, with Gfx emission, relocation web, and render-loop shape unresolved. |
+
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
 This 0x97F0-byte, 66-function block is one resident translation unit. The
@@ -728,6 +928,7 @@ Matched C in this TU:
 | Function | ROM | Bytes | Flags | Donor and verdict |
 |---|---:|---:|---|---|
 | `func_8000BD50` | `0xC950` | 0x64 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `trackUpdateFX` three-module structure at the established tier-D TU position, with Mickey's module IDs and unresolved calls; public name deliberately not adopted; 25/25 instruction words and all six call relocations exact, linked ROM exact |
+| `func_8000BDB4` | `0xC9B4` | 0x64C | `-O2 -mips2 -32 -Wab,-r4300_mul` | Tier A byte-identity: JFG `src/track.c:trackDraw` at `efd5abb` supplies the texture loop, display-list macros, camera loop and explicit sky-mask carriers. Mickey's revised branches, fields and call order remain authoritative. All 403 words, the 0x38 frame and 100 relocation offsets/types are exact; 93 identities resolve statically and seven through the unchanged resident runtime table plus exact linked ROM bytes. The owned range ends at ROM `0xD000`, with no padding credit. |
 | `func_8000C400` | `0xD000` | 0x140 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG texture-animation loop at the established tier-D TU position, revised to Mickey's segment, batch, texture, and flag layout; donor placeholder deliberately not adopted; 80/80 instruction words and all five relocation records exact, linked ROM exact |
 | `func_8000C540` | `0xD140` | 0xA8 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `initSky` body structure at the established tier-D TU position, with Mickey's player-count guard and object layout; public name deliberately not adopted; 42/42 instruction words and all 11 relocation records exact, linked ROM exact |
 | `trackSkySet` | `0xD1E8` | 0xC | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `src/track.c` body; tier B role and tier D TU position; 3/3 instruction words and relocation layout exact, linked ROM exact |
@@ -743,6 +944,7 @@ Matched C in this TU:
 | `func_8000D768` | `0xE368` | 0x90 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction of the colour-ramp loop; JFG's assembly-only `trackLightColour` supplies tier-D role/TU context and its public name is deliberately not adopted; 36/36 instruction words, no relocation records, linked ROM exact |
 | `func_8000D7F8` | `0xE3F8` | 0x28 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction; JFG's corresponding `trackLightMove` is tier D only and its public name is deliberately not adopted; 10/10 instruction words, no relocation records, linked ROM exact |
 | `func_8000D978` | `0xE578` | 0x1BC | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG's assembly-only `trackUpdateLighting` supplies tier-D role/TU and the alternating segment-lighting structure; Mickey proves the revised module path, fields, and calls, so the public name is deliberately not adopted; 111/111 instruction words and all 28 relocation records exact, linked ROM exact |
+| `func_8000DDE4` | `0xE9E4` | 0x1D8 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction of the priority-record filter and adjacent-swap ordering; the reference scan found no credible donor and the placeholder is retained. All 119 flag combinations were nonexact, while one codegen-faithful allocator trace identified the cross-phase carrier; reusing dead `recordIndex` for `passCount` produces 118/118 instruction words, the exact `0x28` frame, and exact R_MIPS_26 records for `runlinkIsModuleLoaded` at `+0x114` and `TrapDanglingJump` at `+0x128`. Runtime record 157 resolves the latter role through ORT 1315 to Overlay 21 `+0x10C`; the owned range and linked ROM are exact. |
 | `func_8000F57C` | `0x1017C` | 0x2B0 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction of the bounded visible-segment distance list and adjacent-swap ordering; JFG's assembly-only `trackGetBlockList` supplies tier-D role/TU context and its public name is deliberately not adopted; 172/172 instruction words and all eight relocation records exact, linked ROM exact |
 | `func_8000F82C` | `0x1042C` | 0x200 | `-O2 -mips2 -32 -Wab,-r4300_mul` | DKR `traverse_segments_bsp_tree` body adapted to Mickey's global camera/result state; JFG independently supplies tier-D TU-position context, but neither donor name is adopted; 128/128 instruction words and all 18 relocation records exact, linked ROM exact |
 | `func_8000FA2C` | `0x1062C` | 0xB4 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction of the camera/BSP range setup wrapper; the reference scan found no credible donor and the placeholder is retained; 45/45 instruction words and all 19 relocation records exact, linked ROM exact |
@@ -768,27 +970,51 @@ Matched C in this TU:
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 | `func_80014ECC` | `0x15ACC` | 0x668 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction using the SDK GBI display-list macros; JFG's assembly-only final `track.c.o` helper supplies tier-D TU-position and structural context, but its placeholder is deliberately not adopted; 410/410 instruction words and all 22 relocation records exact, linked ROM exact |
 
+The 2026-09-08 `func_8000BDB4` donor packet re-derived a configured full-TU
+baseline of 402 versus 403 words, frame `0x38`, 301 raw and masked differences,
+first `+0x48`, and 100 relocations with 51 stable identities aligned. Three
+source attempts produced successively 151, 1 and 0 differing words. JFG's
+texture loop and lexical display-list macro temporaries recovered exact
+geometry; reusing its explicit width/height mask carrier removed the remaining
+register differences; its unsigned scroll-enable flag agreed with Mickey's
+byte load. Mickey keeps its own early overlay dispatch, culling branches,
+camera-count thresholds and update-rate choices. The flag sweep initially
+failed closed on the missing sized owner and compiled no configurations;
+no flag change or permuter was used. The final sized symbol row, unguarded C,
+`tools/promotion_proof.py` receipt, extracted linked range and `gmake verify`
+prove 1,612 new executable bytes. Seven generic trap calls retain distinct
+retail runtime identities: Overlay 66 `+0x34` and `+0x40`, Overlay 71 `+0x7A8`,
+Overlay 100 `+0x318` and `+0x50C`, and Overlay 40 `+0x2E4` and `+0x534`.
+Source snapshots, objects and comparison receipts for all attempts remain in
+ignored lane evidence; the retired plateau is preserved in Git history.
+
 Current matching plateau:
 
 | Function | Target | Best attempt | First mismatch and blocker |
 |---|---:|---|---|
-| `func_80010B4C` | 0xA98 / 678 words | Four serious source forms reconstructed the full JFG `trackGetPlayerIntersect` role from Mickey's m2c draft. The closest was 0xA60 / 664 words under `-O2 -mips2 -32`; the required flag sweep found no exact compiler mode. | `+0x0`: target frame is `0x148`, versus `0x128`; the target also retains two additional FP live ranges and uses a different pointer-variable ordering for its unrolled copy/initialization loops. JFG's public body is assembly-only, so another attempt needs new source/declaration evidence. The bounded permuter could not run because this lane has no `tools/permuter/import.py`. |
-| `func_80012574` | 0xE4 / 57 words | JFG's assembly-only `trackSphereIntersect` is the 0.316 nearest skeleton and confirms the role and 0x48 frame. Fresh configured full-TU measurement corrects the retained source to **7/57 words**, with the exact schedule, frame, and `sqrtf` relocation. A scratch-only empty-condition probe reached **2/57** by aligning the complete FP allocation, but is deliberately not retained because invented guards are forbidden. | The retained candidate first differs at `+0x50`. In the rejected two-word probe, only the call-crossing projection spill remains at `+0xA8`: store/reload use `sp+0x30` instead of `sp+0x38`. The next legitimate attempt needs an F-route declaration/save-order lever or original local-layout evidence. |
+| `func_80010B4C` | 0xA98 / 678 words | The guarded definition/fallback, its 678 contiguous generated fallback rows, the linked ELF and `src/main/track.c.o` FUNC sizes, linker-map ownership, and adjacent `func_800115E4` boundary independently authenticate VRAM `0x80010B4C..0x800115E4` / ROM `0x1174C..0x121E4` under `-O2 -mips2 -32 -Wab,-r4300_mul`. The TU's sole postprocess is a metadata-only symbol rename unrelated to this range. Configured C has exact 678-word geometry, frame `0x158` versus target `0x148`, 668 differing words, and 9/9 relocation count. The tier-D metadata adds no match credit. | `+0x0`: the recovered retry/failure CFG still needs original declaration/lifetime evidence for the 16-byte frame excess and FP web. The now-bounded skeleton scan ranks JFG's assembly-only `trackGetPlayerIntersect` first at 0.086 Jaccard, structural corroboration only; four-project coddog returns no candidate line and only its known overlay-end warnings. Preserve the fallback pending new lifetime evidence. |
+| `func_80012574` | 0xE4 / 57 words | JFG's assembly-only `trackSphereIntersect` corroborates the role/structure only. Historical pre-cleanup configured full-TU C was measured at **50/57 raw and normalized words**, first `+0x50`, frame `0x48`, with `sqrtf` at `+0xA4`; no candidate object/hash survives. Its two dead stack-home assignments were diagnostic and are removed, so clean V0's score/shape/tuple are unknown. Five retail calls come from `func_80011CDC` (two) and `func_800563B4` (three); ORT 308 has no runtime/overlay/pointer inbound. | Compile clean V0; use one historical control only on structural regression. Retain 119 configurations including V0, one trace, at most two trace-supported natural forms, and an improving-only combination. Cap 122 deterministic builds plus trace, 123 only for the control; permit one 20-minute/2,000-candidate stack-aware batch only after a legal gain. |
+| `func_80011CDC` | 0x558 / 342 words | The guarded definition/fallback, its 342 contiguous generated fallback rows, the linked ELF's `0x558` FUNC size, the linker map's `src/main/track.c.o` owner, and adjacent `func_80012234` boundary independently authenticate VRAM `0x80011CDC..0x80012234` / ROM `0x128DC..0x12E34` under `-O2 -mips2 -32 -Wab,-r4300_mul`. Configured C remains 344 words with frame `0xD0`, 15/342 positional words, and 11 relocations versus 15 target records. The metadata adds no match credit. | `+0x0`: plane-difference locals recover the target saved-register shape, but texture-global hoisting still spills the loop counter. `skeleton_scan.py similar` found no credible donor: the top result is an unrelated Conker placeholder at 0.0803 Jaccard, while JFG `hitGetLedgeCrossed` is only rank 10 at 0.0549 and is structural context. Four-project coddog returned no candidate line for the exact slice while reporting its known out-of-bounds overlay-end warnings. Preserve the fallback; resume with new declaration/lifetime evidence, not donor adoption. |
+| `func_8001291C` | 0x890 / 548 words | The guarded definition/fallback, its 548 contiguous generated fallback rows, the linked ELF and `src/main/track.c.o` FUNC sizes, linker-map ownership, and adjacent `func_800131AC` boundary independently authenticate VRAM `0x8001291C..0x800131AC` / ROM `0x1351C..0x13DAC` under `-O2 -mips2 -32 -Wab,-r4300_mul`. The TU's sole postprocess is a metadata-only symbol rename unrelated to this range. Configured C is 543 words with frame `0x2B0` versus target `0x288`, 527 differing words, and 15 relocations versus 13 target records. The tier-D metadata adds no match credit. | `+0x0`: recovered insertion, hit-cap, early-out, and distance CFG still need declaration/lifetime layout for the 40-byte frame excess and one global pair. The now-bounded skeleton scan ranks JFG's assembly-only `trackNearestIntersection` first at 0.140 Jaccard, structural corroboration only; four-project coddog returns no candidate line and only its known overlay-end warnings. Preserve the fallback pending new lifetime evidence. |
 | `func_8000FAE0` | 0xF8 / 62 words | Type pass confirms `TrackBoundingBox` as six signed 16-bit fields and leaves the 62-word, 0x10-frame candidate unchanged: 43 positional differences before and after. | Workbench verdict remains `structure-buckets`; first mismatch `+0x1C` colors the segment count into `a0` instead of target `t0`, then diverges in branch scheduling. Preserve `GLOBAL_ASM`; original local/loop declaration evidence remains missing. |
 | `func_8000D820` | 0x158 / 86 words | Type pass adds `TrackSegment.lightBatchCount` at `+0x20`, types the source/mask record, and widens `D_800C95B4` to `s32[]`; candidate size moves 112 -> 84 words versus target 86. | Workbench verdict is `structure-buckets`, first divergence at `+0x0`: target is frameless and has a different global/pointer web; residual is 57 register-class differences plus 32 structural. Preserve `GLOBAL_ASM`; original declaration/lifetime evidence is needed. |
 | `func_800133FC` | 0x180 / 96 words | Mickey's reconstructed three-point plane helper under `-O2 -mips2 -32 -Wab,-r4300_mul` reaches the exact 96-word length, 0xA0 frame, and `sqrtf` relocation. The required 119-mode flag sweep uniquely selected the R4300 multiply schedule, and a bounded ten-minute permuter plus ten source/lifetime hypotheses reduced the residual to 58 positional words. | `+0x18`: IDO loads the point coordinates in a different order and gives the retained integer coordinates and pre-normalized components different stack homes, cascading through the GPR and FP webs. The reference scan found no credible source donor; another attempt needs original declaration/lifetime evidence rather than more register-order guessing. |
+| `func_8001357C` | 0x410 / 260 words | The `NON_MATCHING` body and adjacent `func_8001398C` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; the retained configured candidate is 321 words with the exact 0x138 frame and 289 differing words. | `+0x8`: an isolated no-unroll diagnostic reaches 261 words and 229 differences, but it is not promotable without function-local flag isolation and full impact proof. The ownership row adds no match credit. |
+| `func_8001398C` | 0x528 / 330 words | The guarded definition/fallback, its 330 contiguous generated fallback rows, the linked ELF and `src/main/track.c.o` FUNC sizes, the linker-map owner, and adjacent `trackGetTrack` boundary independently authenticate VRAM `0x8001398C..0x80013EB4` / ROM `0x1458C..0x14AB4` under `-O2 -mips2 -32 -Wab,-r4300_mul`. Configured C has exact geometry and frame `0x140`, with 168/330 positional words and 21/21 relocation count; 19 identities align. The tier-D metadata adds no match credit. | `+0x60`: the remaining mismatch is allocator scheduling. The now-bounded skeleton scan ranks JFG's assembly-only `trackGetHeights` first at 0.194 Jaccard, which corroborates the structural family but supplies no adoptable source; four-project coddog returns no candidate line and only its known overlay-end warnings. Preserve the fallback pending procedure-scoped lifetime evidence. |
+| `func_8000DFBC` | 0x630 / 396 words | The `NON_MATCHING` body and adjacent `func_8000E5EC` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; the configured candidate is 398 words with the exact 0x70 frame, 304 differing words, and the same 51-record relocation count. | `+0x48`: batch/display-list initialization and register scheduling remain structurally different; 36 relocation offset/type sites and 35 stable identities align. The ownership row unlocks the flag lattice but adds no match credit. |
 | `func_8000D3B8` | 0x1B8 / 110 words | Type pass adds `TrackSegment.lightBatchCount` at `+0x20` and the two-pointer allocation record; current semantic candidate is 150 words/0x38 frame against 110 target words, so the verdict remains structural. | Workbench lever is `structure-buckets`; first hunk is the prologue/global web, with 64 structural and 47 register residual classes plus 20 relocation-site shifts. Preserve `GLOBAL_ASM`; original allocation expression/declaration evidence remains missing. |
-| `func_8000DDE4` | 0x1D8 / 118 words | Mickey's reconstructed key-filter and pointer-sort body under `-O2 -mips2 -32` reaches the exact 118-word opcode schedule, 0x28 frame, and both call relocations; the current candidate leaves 24 register-only words and is permuter-ready. | `+0x24`: the residual is a register bijection (`t1->v0`, `a0->a3`, `v1->a0`, `v0->v1`); no structural gap remains. |
+| `func_80020E4C` | 0x1C4 / 113 words | The `NON_MATCHING` body and adjacent `modResumeModelTextures` boundary authenticate the unique resident range `0x80020E4C..0x80021010` / ROM `0x21A4C..0x21C10` in `src/main/models.c.o` under `-O2 -mips2 -32`; the configured candidate has exact 113-word geometry and a 0x40 frame. | `+0xC`: 25 words differ. Explicit byte-scaled indexing remains best; pointer-cursor and declaration-order probes did not improve it, while exception-loop/pool-slot 1 and temp-slot 3 allocation remain. The ownership row unlocks flag and skeleton queries but adds no match credit. |
 | `func_8000D1B8` | 0x200 / 128 words | Mickey's packed-scroll and nested segment/batch/vertex reconstruction under `-O2 -mips2 -32` compiles to 124 instructions with a `-40` frame; workbench reports 121 differing words, 98 aligned structural, 40 register, 1 constant, and seven relocation-site differences. | `+0x04`: the candidate takes a different prologue/global-register path and then differs through the scroll-offset and vertex-update webs; target is 128 instructions, so this remains a structural candidate rather than permuter-ready. |
 | `func_80010900` | 0x24C / 147 words | Mickey's reconstructed repeated segment-intersection wrapper under `-O2 -mips2 -32 -Wab,-r4300_mul` identifies the 0x20-byte callback record and reaches the exact 147-word opcode schedule, 0xB8 frame, every stack offset, FP allocation, and all five call relocations. The 119-mode flag sweep found no better mode; a bounded ten-minute permuter and ten type, declaration, lifetime, and call-schedule hypotheses leave 17 register-only words. | `+0x14`: one clean saved-register bijection assigns the direction pointer, intersection pointer, and secondary result to `s4`, `s5`, and `s6` instead of the target's `s5`, `s6`, and `s4`. The reference scan found no credible donor, and explicit pointer/return-category variants reproduced the same allocator basin; another attempt needs original declaration or forced-color evidence rather than more register-order guessing. |
 | `func_800103D4` | 0x280 / 160 words | Evidence D: JFG's assembly-only object-alpha role, DKR's visibility helper, and Mickey's m2c draft establish the switch, fade, and plane loop. | Candidate: structure-mismatch, 177/160 instructions, 175 differing words, first `+0x0`, frame `-0x58` versus `-0x38`; switch/FP saved-register shape remains unresolved. |
 | `func_80010654` | 0x2AC / 171 words | Evidence D: DKR's collision resolver and Mickey's m2c draft establish the candidate-stream, base-plane, signed-edge, and nearest-intersection algorithm. | Candidate: structure-mismatch, 174/171 instructions, 172 differing words, first `+0x0`, frame `-0x80` versus `-0x98`; three instruction/FP-home residuals remain. |
-| `func_8000DB34` | 0x2B0 / 172 words | Evidence D: Mickey's m2c control-flow draft and resident offsets reconstruct the inverse segment-order table, descending object scan, integer AABB test, and eight-byte result records. | Candidate: structure-mismatch, 267/172 instructions, 267 differing words, first `+0x0`, frame `-0x188` versus `-0x190`; the input-map loop is over-unrolled and local/register shape remains unresolved. |
+| `func_8000DB34` | 0x2B0 / 172 words | The `NON_MATCHING` body and adjacent `func_8000DDE4` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; Mickey's m2c draft establishes the inverse segment-order table, descending object scan, integer AABB test, and eight-byte results. | The integrated candidate remains 267/172 instructions with 267 differing words, first `+0x0`, and frame `0x188` versus `0x190`; the ownership row unlocks the flag lattice but adds no match credit. |
 | `func_80012658` | 0x2C4 / 177 words | Evidence D: JFG's collision-edge builder and Mickey's typed reconstruction establish the encoded-node, three-corner, and output-stride logic. | Candidate: structure-mismatch, 174/177 instructions, 157 differing words, first `+0x0`, frame `-0x38` versus `-0x40`; three instruction/frame-padding residuals remain. |
-| `func_8000E5EC` | 0x334 / 205 words | Evidence D: Mickey's reconstruction and DKR's level-geometry renderer establish visible-segment selection, visibility-map setup, particle passes, and dispatch. | Candidate: structure-mismatch, 284/205 instructions, 284 differing words, first `+0x0`, frame `-0x78` versus `-0xD8`; stack-byte and call-signature structure remain unresolved. |
+| `func_8000E5EC` | 0x334 / 205 words | The `NON_MATCHING` body and adjacent `func_8000E920` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; Mickey's reconstruction and DKR's level-geometry renderer establish visible-segment selection, visibility-map setup, particle passes, and dispatch. | The configured candidate is 209 words with a 0xE8 frame versus target 0xD8, 185 differing words, and the same 56-record relocation count. First mismatch is `+0x0`; 14 relocation offset/type sites and 9 stable identities align. The ownership row unlocks the flag lattice but adds no match credit. |
+| `func_8000E920` | 0x878 / 542 words | The guarded definition/fallback, its 542 contiguous generated fallback rows, the linked ELF and `src/main/track.c.o` FUNC sizes, the linker-map owner, and adjacent `func_8000F198` boundary independently authenticate VRAM `0x8000E920..0x8000F198` / ROM `0xF520..0xFD98` under `-O2 -mips2 -32 -Wab,-r4300_mul`. The TU's `trackCamPosTrap` postprocess is a metadata-only symbol redefine for `func_8000D018` and does not change this owned range. The tier-D metadata adds no match credit. | The integrated configured plateau has frame `0xF8`, all 114 target relocation records, and 491 differing words from `+0x38`; reverse-pass lifetime scoping remains the next source lever. The bounded skeleton scan's top result is JFG's assembly-only `func_8001424C` placeholder at 0.1623 Jaccard; every other hit is below 0.08. Four-project exact-slice coddog emits no candidate line. No provenance-safe source donor is available; preserve the fallback and closed source plateau. |
 | `func_80012234` | 0x340 / 208 words | Evidence D: JFG's cylinder-intersection role and Mickey's m2c draft establish the interval and square-root paths. | Candidate: structure-mismatch, 175/208 instructions, 208 differing words, first `+0x0`, frame `-0xA0` versus `-0x60`; FP lifetime and cross-product schedule remain unresolved. |
 | `func_80011980` | 0x35C / 215 words | Evidence D: Mickey's encoded polygon/edge draft and JFG's same-region context establish the ray-query control flow. | Candidate: structure-mismatch, 214/215 instructions, 208 differing words, first `+0x0`, frame `-0xD8` versus `-0xC8`; FP schedule and local lifetime remain unresolved. |
-| `func_800140CC` | 0x364 / 217 words | Evidence D: DKR's shadow renderer, JFG's same-position helper, and Mickey's display-list draft establish the two-range renderer. | Candidate: structure-mismatch, 217/217 instructions, 195 differing words, first `+0x0`, frame `-0x90` versus `-0xA8`; command-field/frame structure remains unresolved. |
+| `func_800140CC` | 0x364 / 217 words | Evidence D: DKR's shadow renderer, JFG's assembly-only helper immediately before `trackSetFog`, and Mickey's display-list draft establish the two-range renderer. | Candidate: structure-mismatch, 217/217 instructions, 187 differing words, first `+0x0`, frame `-0x90` versus `-0xA8`; 3/4 relocation placements align, while frame/local layout remains unresolved. |
 | `func_800115E4` | 0x39C / 231 words | Evidence D: Mickey's collision-response draft and JFG's corresponding helper establish the three surface branches and normalization. | Candidate: structure-mismatch, 236/231 instructions, 232 differing words, first `+0x0`, frame `-0xA0` versus `-0x98`; five-instruction FP schedule residual remains. |
 
 ### 3.10 Resident camera: ROM `0x21EE0`–`0x25C20`
@@ -840,8 +1066,8 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetFOV` | `0x220A0` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `func_80021444` | `0x22044` | D — retained Mickey auto-name; paired camera-state effect only | 64 | Mickey-only bounded state setter; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `func_800214AC` | `0x220AC` | D — retained Mickey auto-name; active-camera state effect only | 56 | Mickey-only active-camera byte toggle; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
-| `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` role/order | 532 | JFG projection-update body adapted for Mickey's camera-state mirror and regional scale path; configured object, 133 instruction words and relocation layout exact. |
-| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` projection-reset role | 148 | DKR projection-reset body adapted to Mickey's matrix globals; configured object, 37 instruction words and relocation layout exact. |
+| `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` role/order | 532 | Matched-C, reproof-only. Retained configured C owns 133 words with frame `0x28` and 43 candidate relocation tuples. Its 90 non-relocation words agree with the linked ELF and the remaining differences are exactly those 43 sites; linked ROM `0x22104..0x22318`, the complete camera TU, and resident `.main` are exact. Three resident direct calls and five overlay relocation records are proven. The exact whole `.bin` predates the object and no independent target relocation object survives. |
+| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` projection-reset role | 148 | DKR projection-reset body adapted to Mickey's matrix globals. Retained configured C owns 37 words, frame `0x28`, and 14 candidate relocation tuples; applying those tuples reproduces all 37 linked ELF words, and the post-object ELF range plus complete camera TU are byte-identical to ROM. No direct, object, main-reloc, overlay-reloc, or absolute-pointer caller is proven. ROM-table row 453 exports the address but is not inbound evidence. The exact full `.bin` predates the object and no independent target relocation object survives, so one fresh reproof remains required. |
 | `func_80021838` | `0x22438` | D — retained Mickey auto-name; DKR reset role and JFG camera TU position only | 224 | DKR reset body adapted to Mickey's extended camera fields and store order; configured object, six relocations, linked range and full ROM exact. |
 | `camGetWaterLine` | `0x225A0` | D — TU order only, no per-symbol callgraph argument recorded | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetMode` | `0x22518` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
@@ -849,7 +1075,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetNo` | `0x22564` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `func_80021970` | `0x22570` | D — retained Mickey auto-name; indexed camera-array role only | 36 | Mickey-only indexed camera-array getter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camSetNo` | `0x22594` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
-| `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` body and JFG `camUserViewTick` role/order | 416 | DKR viewport-stack body adapted for Mickey's six-camera bound and output index; configured object, 104 instruction words and relocation layout exact. |
+| `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` body and JFG `camUserViewTick` role/order | 416 | Matched-C, reproof-only. Retained pre-comment ordinary and `NON_MATCHING=1` objects agree on 104 words, frame `0x8`, and eight HI16/LO16 records: `D_80079D48` twice, `D_80079C10`, and `D_80079D58`. The object-to-linked differences are exactly those eight words; linked ROM `0x225D0..0x22770`, the complete camera TU, and resident `.main` are exact. The retained whole `.bin` is exact but predates this object. Proven callers are `func_80026FB4+0x530` and `func_8000BDB4+0x390`, both assembly-backed in ordinary builds. Linked storage makes `D_80079D58[20]` resolve to adjacent `D_80079E98[0]`; intent is not independently established. |
 | `camEnableUserView` | `0x22770` | D — JFG TU role/order and viewport-flag dataflow | 116 | JFG body adapted to Mickey's viewport array; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `camDisableUserView` | `0x227E4` | D — JFG TU role/order and viewport-flag dataflow | 120 | JFG body adapted to Mickey's viewport array; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `camIsUserView` | `0x2285C` | D — JFG TU role/order | 44 | JFG body adapted to Mickey's viewport-flags symbol; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
@@ -927,7 +1153,8 @@ not the surrounding yaml block.
 The source began as 41 `GLOBAL_ASM` functions. Six already have tier-A names
 in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
-per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
+per §1.5. Flags are the resident game-code defaults, `-O2 -mips2 -32`, plus
+menu's measured `-Wo,-loopunroll,0` override.
 
 `func_80038750` adds **0x128 bytes / 74 words** at ROM `0x39350`. Matched C:
 exact object words, jump table, and linked ROM range at `-O2 -mips2 -32
@@ -940,9 +1167,14 @@ TU now owns its five-entry language jump table (`.rodata` carve moved to
 `assetIndex = language + 1` in descending case order, which the old
 JFG-adapted reversal got wrong while matching `.text` by coincidence.
 
-`func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
-Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
-Remaining: initial global-address allocation, later loop webs, and relocation bindings.
+`func_80038878` remains tier-D `NON_MATCHING`. Its retained p6 result is
+diagnostic: target 85 versus candidate 86 instructions, frame `0x18`, 66/85
+positional target-word differences, first `+0x14`. The empty address condition
+was introduced only as an allocation lever and is removed; clean V0 is
+uncompiled and historical flag/source/permuter exhaustion is scheduling
+evidence only. JFG's assembly-backed `initFront` remains a structural lead.
+Remaining work is the initial global-address allocation, later loop webs, and
+relocation identities.
 
 | Function | Exact result |
 |---|---|
@@ -1147,9 +1379,31 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: the retained workbench allocation plateau is **5/32 differing words**, first `+0xC`.
-Fresh pool-position/shape-preserving probes and a four-variant campaign basin census left the default object best (3 object basins); the target v1/v0 pool order versus candidate v0/v1 order and one ring-only t6 web remain.
-All 119 flag combinations leave the default O2/mips2 result tied for best; no instrumented IDO is configured in the lane, so assembly remains authoritative.
+`func_8003A2C8` remains guarded and exact-sized. The configured full-TU
+alias-backed mode-byte candidate matches 31/32 raw and relocation-normalized
+words, first `+0x14`, with no frame or padding. It carries
+the target's six HI16/LO16 records at `+0x00/+0x04`, `+0x24/+0x28`, and
+`+0x3C/+0x40` for `D_8007C090` and `D_800D3128`. The complete pool and temp
+lanes match; only the equality branch reads the narrowed v0 carrier instead of
+the target's v1 carrier.
+
+Exactly 119 configurations were retained. Thirteen O2/MIPS-II rows tie clean
+V0 and every other viable family regresses. A second full-TU pass reproduced
+that lattice and used an instrumented proc-20 build whose `.text`, `.data`,
+`.rodata`, symbols, and relocations all pass the stock-toolchain fidelity gate.
+The trace separates the full mode, narrowed byte, state address, and comparison
+carrier webs. All six declaration orders, direct-global access, and a narrow-
+first split assignment are byte-flat. A bounded permuter pass exposed the
+natural address alias plus refreshed-byte lifetime, improving seven words; its
+reseeded pass moved score 10 to 5 without reaching zero. Splitting the repeated
+mask regresses to 27/32, and the remaining single branch word is classified as
+an unreachable uopt coalescing tie without a forced-colour oracle. ORT 606
+exports the function;
+authenticated callers remain `func_80027EC0+0x80`,
+`overlay46ReleaseState+0x70`, and
+`func_overlay_060_F0000334_18BA10C+0x1238`. Exact ordinary-object, linked-
+function, complete-menu-TU, and ROM evidence continues to prove assembly
+fallback only.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1225,6 +1479,25 @@ no donor body or descriptive-name evidence is used. The default flags, both
 data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
+`func_8003A2C8` remains guarded `NON_MATCHING` over ROM `0x3AEC8..0x3AF48`.
+The configured alias-backed candidate matches 31/32 raw and relocation-
+normalized words, first `+0x14`, with no frame or padding and all six
+relocations exact. Its complete pool and temp lanes match; the lone difference
+is the equality branch reading v0 instead of the target's v1. A ten-minute
+bounded sweep improved score 60 to 10 and exposed the natural alias/refreshed-
+byte form; a reseeded ten-minute sweep reached score 5 but no zero. The clean
+score-5 spelling remains 31/32, while splitting the repeated mask regresses to
+27/32. Earlier flags, trace, declaration, direct-global, width, and shared-byte
+forms remain closed; the last word is an unreachable uopt coalescing tie until
+a forced-colour oracle becomes available.
+Ordinary and linked exact output remains assembly fallback only. ORT 606 and
+exactly three callers are authenticated: resident `func_80027EC0+0x80`, Overlay
+46 `overlay46ReleaseState+0x70`, and Overlay 60
+`func_overlay_060_F0000334_18BA10C+0x1238`. There are no runtime records inside
+the function, extra direct calls, stored pointers, or other overlay inbounds.
+JFG's ordered `frontSetScreenMode` peer is assembly-backed accessor-family role
+evidence, not donor C.
+
 The tier-D `func_8003A55C` adds **0x34 bytes / 13 words** at ROM `0x3B15C`.
 Its Mickey-derived body stops the active tune, stores the caller's byte, and
 sets the paired halfword timer to `0x78`. The adjacent JFG menu names do not
@@ -1269,12 +1542,19 @@ address-placeholder helper names are not imported.
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
-| `0x16C98` | `0x7F8` | `shadowGenerate` | B |
-| `0x17490` | `0x8B0` | `func_80016890` | unresolved |
-| `0x17D40` | `0x520` | `func_80017140` | unresolved |
-| `0x18260` | `0x56C` | `func_80017660` | unresolved |
-| `0x187CC` | `0x4E8` | `func_80017BCC` | unresolved |
-| `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 204/206 instructions, 179 differing words, first `+0x0`, exact `-0x90` frame, and 12 relocation-symbol sites differ; sector/block and triangle visibility structure is reconstructed but not exact |
+| `0x16C98` | `0x7F8` | `shadowGenerate` | B; `NON_MATCHING` candidate at 445 differing words, 520/510 instructions, frames `-0x150`/`-0x138` |
+| `0x17490` | `0x8B0` | `func_80016890` | D; `NON_MATCHING` resident fallback and adjacent `func_80017140` boundary establish `src/main/shadows.c.o` ownership under `-O2 -mips2 -32 -Wab,-r4300_mul`; candidate at 563 differing words, exact `-0x190` frame, first `+0x4`; its target carries eight FP multiply-hazard nops; no match credit |
+| `0x17D40` | `0x520` | `func_80017140` | D candidate: 300 differing words, 325/328 instructions, exact `-0x140` frame with the polygon buffer at the target's own offset, first `+0x44` |
+| `0x18260` | `0x56C` | `func_80017660` | **A**; exact C, 347 words, 4 relocations under `-O2 -mips2 -32 -Wab,-r4300_mul`; the owned ROM range `0x18260`-`0x187CC` is byte-identical to the baserom |
+| `0x187CC` | `0x4E8` | `func_80017BCC` | D candidate: 270 differing words, 316/314 instructions, exact `-0x108` frame after deleting four decompiler-only locals, first `+0x4`; its target carries four FP multiply-hazard nops |
+| `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 206/206 instructions, 101 differing words, first `+0x34`, exact `-0x90` frame, every stack home and 7/8 relocation identities aligned; the one open mechanism is the sector index, which the target holds in a caller-saved register and spills across `getXZCompareMask` |
+
+`src/main/shadows.c` compiles with `-Wab,-r4300_mul`. Three of its unmatched
+functions carry, in the ROM's own bytes, the scheduler nop IDO emits only under
+that flag between two adjacent single-precision multiplies; the four functions
+the TU already matches contain no such pair and are insensitive, so the ROM
+rebuild is consistent either way and the target bytes are the deciding
+evidence.
 
 There are no string references in either TU. The only resident-tail anchors
 are `D_800817A0` and `D_800817A4`, both floating-point constants. Of the four
@@ -1445,7 +1725,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
 | `0x3BE1C` | `0x2A4` | `doWeather` | B/D name; exact C, 169 words, 61 relocs |
-| `0x3C0C0` | `0x238` | `snow_render` | B/D |
+| `0x3C0C0` | `0x238` | `snow_render` | B/D name; exact C, 142 words, 18 relocs; linked ROM proved |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
 | `0x3C468` | `0x104` | `rain_set` | B/D name; exact C, 65 words, 18 relocs |
@@ -1458,7 +1738,17 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
 | `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
 | `0x3D370` | `0x9C` | `func_8003C770` | D; Mickey-only reconstruction, exact C, 39 words, 15 relocs |
-| `0x3D40C` | `0x1E4` | `func_8003C80C` | `NON_MATCHING` candidate; workbench structure-mismatch, 106 words, first `+0x14`; 117/118 instructions and exact `-56` frame, with one instruction and remaining structural/register allocation gaps |
+| `0x3D40C` | `0x1E4` | `func_8003C80C` | `NON_MATCHING` diagnostic draft; 106 positional words differ, first `+0x14`, target/candidate 118/117 instructions. Its unused eight-byte frame pad is removed; clean shape/frame are uncompiled, with structural/register gaps remaining. |
+
+`snow_render` now reproduces all **568 bytes / 142 words** at ROM
+`0x3C0C0`–`0x3C2F8`, with the exact `0x58` frame and all 18 static relocation
+identities. The JFG donor's typed texture access, early returns and scoped
+command expansions remove the prior size/frame gap; Mickey's pre-call caches
+and decrementing loop remain required by its ROM. The final matrix command
+preserves the donor macro's shared statement line. The canonical linked owned
+range and full US ROM both compare exactly. See the
+[resolved handoff](matching-triage-handoffs/snow_render.md) for the measured
+attempts and provenance.
 
 There are no string references. `snow_vertices` is the range's only function
 using odd single-precision FP registers; it and extractor-marked
@@ -1481,7 +1771,7 @@ remain authoritative for every body.
 | `0x2ECA0`–`0x2F0D0` | 1,072 | 7 | `main/pi` | **B:** the exact JFG function order `piInit`, four asset lookups/loaders, two accessors, `romCopy`; the last routine owns the `osPiStartDma` loop. |
 | `0x2F0D0`–`0x2F400` | 816 | 2 | `main/screen` | **B:** load/decompress followed by draw/VI calls, matching JFG's two-function `screen.c` order. |
 | `0x2F400`–`0x30CD0` | 6,352 | 14 | `main/rcpFast3d` | **A:** `rcpInit` and the existing border-colour routine are byte-identity anchors; masked skeletons also reproduce JFG's `rcpFast3d`/screen-colour shapes. **B:** queue/RCP calls and the ordered init helpers. |
-| `0x30CD0`–`0x323A0` | 5,840 | 21 | `main/sched` | **A:** the two queue accessors. **B:** the complete JFG scheduler call graph from `osCreateScheduler` through `__scSchedule`. **C:** `osScGetTaskType`'s seven task-name strings and `__scHandleRetrace`'s `"SP CRASHED"`/`"Version %s"`. |
+| `0x30CD0`–`0x323A0` | 5,840 | 21 | `main/sched` | **A:** the two queue accessors and the ROM-exact C reconstruction of `__scHandleRetrace`. **B:** the complete JFG scheduler call graph from `osCreateScheduler` through `__scSchedule`. **C:** `osScGetTaskType`'s seven task-name strings and `__scHandleRetrace`'s `"SP CRASHED"`/`"Version %s"`. |
 
 The function boundaries are the extracted labels cross-checked against the
 linked ELF's symbol sizes. All 86 functions were queried with
@@ -1497,7 +1787,7 @@ the A/B/C cells above carry that individual argument (`rumbleKill`: tier A;
 `piInit` and the rest of `main/pi`'s seven-function order: tier B; both
 `main/screen` functions: tier B; `rcpInit` and the border-colour routine:
 tier A, the remaining `main/rcpFast3d` functions: tier B; the two queue
-accessors and `osScGetTaskType`/`__scHandleRetrace`: tier A/A/C respectively,
+accessors and `osScGetTaskType`/`__scHandleRetrace`: tier A/A/A respectively,
 the rest of `main/sched`'s scheduler call graph: tier B). Every other
 function in these five TUs, without an individual argument beyond TU
 membership and order, is tier D. `symbol_addrs.us.txt` carries the resulting
@@ -1568,7 +1858,8 @@ no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31180`, 160 bytes),
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
-(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRSP` (ROM `0x31D4C`–
+(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRetrace` (ROM
+`0x316E8`–`0x31D4C`, 1,636 bytes), `__scHandleRSP` (ROM `0x31D4C`–
 `0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
 `__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
@@ -1603,15 +1894,21 @@ configured object ranges and the final linked ROM are byte-exact.
 |---|---:|---:|---|---|
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
-`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
-the 119-combination flag lattice, nine source-shape hypotheses, and six bounded
-source-faithful aligned-coordinate declaration, mask, and lifetime probes. The
-best no-frame full-TU candidate has the target's 107 instructions and exact
-relocations, with only four register-allocation words differing; the first
-divergence is function `+0x74`, where the two aligned-coordinate masks use the
-preceding temporary-ring slots. No instrumented globalcolor/UGEN trace is
-available in this lane, so the remaining allocation choice is unresolved. The
-assembly fallback remains canonical.
+`rcpClearZBuffer` owns ROM `0x2FBDC..0x2FD88`, 107 words with no padding before
+`rcpClearScreen`. Tier A: untouched IDO `-O2 -mips2 -32` C is frameless and
+exact over all 428 owned bytes after linking at its real address. Loading the
+display-list cursor between the two aligned-coordinate assignments closes the
+register-allocation residual without changing guards, command order, or stores.
+The existing fill-cycle macro is available in the ordinary build with its
+replacement text unchanged. Actual IDO preprocessing confirms unchanged
+prepared context; raw compiler and configured full-TU output agree, as do all
+13 neighboring function ranges and the TU's data sections. Both relocations
+(`+0x00` HI16 and `+0x04` LO16) exactly identify resident BSS `D_800D2FAC`.
+The linked owned range and full ROM are byte-identical. JFG supplies the
+existing name and ordered TU correspondence, not a C body; the source retains
+its DKR command-sequence provenance. ORT 765 and the existing callers remain
+unchanged. Earlier nonexact attempts are retained in Git history and ignored
+diagnostic artifacts.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape
@@ -1626,9 +1923,29 @@ prologue onward. A bounded permuter import selected MIPS I and was rejected as
 non-canonical; its pack-expression lead also failed when recompiled with the
 resident MIPS II flags. The assembly fallback remains canonical.
 
-`__scHandleRetrace`: workbench structure mismatch, 408/409 instructions/frame -232; 84 words differ from `+0x3B4`.
-Diagnostic counter/store scheduling, source-line grouping, and explicit narrowing did not improve the baseline.
-ClearRDPTask scheduling and u64 retrace-counter materialisation remain; assembly stays canonical.
+| Function | ROM | Bytes | Flags | Verdict |
+|---|---:|---:|---|---|
+| `__scHandleRetrace` | `0x316E8` | 1,636 | `-O2 -mips2 -32` | **A:** 409/409 owned words, 114/114 relocation offsets/types/identities, linked range and full ROM exact |
+
+`__scHandleRetrace` closes the previous 408-word, 84-difference plateau by
+re-deriving JFG's permitted `src/sched.c` body at upstream `efd5abb`.
+The donor's plain byte flag and polygon-overflow reset replace the earlier
+padded volatile diagnostic and explicit coordinate narrowing. Its separate
+counter read/write names reproduce the target's address materialization:
+`D_8007A660` owns its existing eight-byte, zero-initialized data slot, and
+`schedRetraceCounterRead` is a native weak alias of the same storage. The
+`.data` carve is exactly ROM `0x7B260..0x7B268`; only eight trailing bytes of
+compiler section padding are trimmed. The counter earns no executable credit.
+
+The original fallback object and configured C have all 114 relocation
+records at identical offsets with identical types and effective identities.
+Both frames are `0xE8`; the owned range ends exactly where `__scHandleRSP`
+begins, with no padding. Extracting that range from the linked ELF reproduces
+the same baserom offsets byte for byte, and `gmake verify` reproduces the full
+US ROM. All 21 scheduler function boundaries and the TU's BSS/rodata sizes
+remain unchanged. Raw compiler fidelity and prepared-input self-context
+checks pass. The earlier plateau and its source are retained in Git history;
+the five donor-mechanism attempts and their objects remain ignored evidence.
 
 The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
 derived `NON_MATCHING` display-list bisection body after the 119-combination
@@ -1643,17 +1960,9 @@ more instructions. JFG supplies the exact assembly skeleton and scheduler
 position but no C body. The assembly fallback remains canonical pending a
 source spelling that reproduces both stack homes without synthetic padding.
 
-`__scSchedule` retains a JFG-derived `NON_MATCHING` body whose 122 instruction
-words and 0x28-byte frame are exact under the resident flags and the full
-119-combination lattice. Perfect Dark's compiled scheduler is the closest
-independent skeleton at 0.857 similarity, while Mickey's two independent RCP
-state checks select JFG's source spelling. Promotion is blocked by rodata
-ownership rather than C: both switch relocations bind the compiler's anonymous
-late-rodata section, while Mickey's existing seven-entry `jtbl_800823F4`
-remains in the shared `0x81590` rodata object and names assembly-local case
-labels. Removing the fallback therefore leaves those seven entries undefined.
-Moving the table requires a measured YAML/shared-rodata boundary handoff
-outside this lane's assigned files, so the assembly fallback remains canonical.
+`__scSchedule` is exact at **488 bytes / 122 instruction words** under the
+resident flags. Its JFG-derived body and compiler-owned switch table are now
+owned by `main/sched` and link with the exact ROM range and relocation surface.
 
 `__scYield` is exact for all 19 instruction words after assigning scheduler's
 `0x800D2D40`–`0x800D2D50` BSS to this TU. The owned `u64` at `0x800D2D48`
@@ -1664,28 +1973,50 @@ Removing the wrapper fails the full link because `jtbl_800823D8` references seve
 The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and seven
-source/type/loop shapes. Its best faithful candidate is 29 instructions versus
-the target's 28; the first mismatch is at function `+0x0` because the longer
-branch span is followed by an extra value-preserving move at `+0x4`. That move
-changes the loop's register allocation even though the control flow and bit
-stream operations agree. The lane's `tools/permute.sh` could not run because
-the vendored `tools/permuter/import.py` is absent. The assembly fallback
-remains canonical.
-
-A fresh structural retry removed the explicit bit-test temporary and tested
-the source value directly. That form regressed to 30 instructions versus 28,
-with 30 positional differences from `+0x0`; changing only the temporary's
-signedness stayed in the existing 29-instruction, first-`+0x0` basin. The
-canonical MIPS II permuter then led to a coherent value-bit/cursor-field
-lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
-one opcode); the remaining blocker is constant/next-bit register coloring.
+`NON_MATCHING` body. Fresh configured full-TU C is exact-sized and frameless at
+17/28 raw and normalized words, with eleven register-only differences from
+`+0x10`, no padding, and no relocations (historical candidate SHA-256
+`e83f284ce9feecca2c1edc9024181320c777c70978009249393dd1374ca67b32`). All
+119 flag identities were attempted; 53 compile and thirteen O2/MIPS-II rows tie
+V0, while none is exact. A fidelity-clean procedure-11 allocator trace records
+eleven caller-saved decisions. Lane analysis reduces the residue to one
+four-web class crossing: the target retains the reset constant in the colored
+pool at `a3` and routes the value test, next bit, and shifted mask through the
+temporary ring at `t1/t4/t5`; V0 instead uses `t1/a2/a3/t4`. Named unsigned and
+signed reset-mask forms retain eleven positional differences and each replace
+the required narrowing instruction with a different opcode, so neither gains
+and no combination is eligible. The historical 10/28 body control was skipped
+because current V0 materially improves it. ORT 727 has five direct calls in
+matched `func_8002C94C` and no runtime/overlay/pointer inbound. Resume only with
+a new natural web-existence/class-crossing mechanism; do not repeat the flag
+lattice, trace, reset-mask forms, historical control, or generic permutation.
+The assembly fallback remains canonical. A subsequent source-correctness
+repair uses an unsigned initial bit and count-minus-one, defined for counts
+1..32 while preserving the zero-count no-op. The five authenticated direct
+calls use counts 4, 5 and 18. Configured full-TU text, relocations and data
+remain unchanged; this repair adds no matching credit.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
-`func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
-The p7 pipeline retry scoped a `savedFlag` reload to after the checksum call, matching the target's lifetime boundary, but it was codegen-inert: the candidate still uses a colored web where the target uses the FIFO temp ring.
-Hoisted-argument, folded-mask, and addressable-scalar levers remain exhausted; the 30-minute permuter produced only invented no-op identities. The remaining trace route requires an instrumented compiler source not configured in this lane, so the assembly fallback remains canonical.
+`func_8002CF6C` owns ROM `0x2DB6C..0x2DCCC`, 88 words with no padding before
+`packOpen`. Policy-clean configured V0 emits 85 instructions, frame `0x30`, and
+10/88 positional words, first `+0x0`. It retains all 11 relocation identities,
+but the shorter structure shifts their offsets. The complete 119-configuration
+lattice is nonexact; the `-O2 -g3 -mips2` family reaches 86 instructions but
+does not restore target structure. A single allocator trace maps the function
+to procedure 26 and shows `globalFlags`/the allocated buffer colored to `s0/s1`,
+with the saved-byte and saved-flag webs in `a2/a3`. Moving those two scalars into
+their natural lexical scope restores frame `0x48` and improves the retained body
+to 11/88 positional words, first `+0x8`, while remaining 85 instructions. A
+narrow saved-header lifetime regresses to 83 instructions, so there is no
+improving combination and no generic batch is authorized. The target records
+remain calls at `+0x0C/+0x18/+0x28/+0x54/+0x60/+0xC4/+0x120/+0x13C/+0x144`
+plus the `D_8007A304` pair at `+0x80/+0x90`. ORT 505 at ROM `0x1849F14`
+exports it; `joyRead+0x130` is the sole caller and no overlay/runtime-table or
+aligned-pointer inbound exists. The assembly fallback remains canonical. Resume
+only when a natural source model explains the target's stack-homed buffer without
+synthetic padding, volatile allocation scaffolding, false arguments, or dead
+carriers.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.
@@ -1815,8 +2146,9 @@ Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 `func_8003D4FC`: before/after no C candidate for the `0x10B0`-byte range; shared aggregate types do not change the asm-only body.
 Type lever: global and resource declarations; no C promotion is possible. Remains canonical `GLOBAL_ASM`; JFG `func_8005E3DC` is the donor label.
 
-`func_8003F5F8`: before/after one instruction short (target 276, C 275), first mismatch `+0xA4`.
-Type lever: Basic/emitter/config aggregates; branch and stack schedule are unchanged. Remains the redundant branch and flags/rotation homes; JFG `func_800608EC` is the oracle.
+`func_8003F5F8`: Evidence A exact C; all 276 instruction words, the configured
+relocation surface, and linked ROM bytes match. JFG `func_800608EC` remains the
+structural oracle, not the byte-identity authority.
 
 `func_8003F154`: before/after structure mismatch, 297 instructions and 39 raw words, first `+0x204`.
 Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the zero-vector/header-copy/FP-normalization cluster; JFG `func_80060400` is the oracle.
@@ -1825,15 +2157,57 @@ Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the 
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
 An explicit end pointer changes the frame, so asm stays canonical.
 
-`debug_text_width` is size/frame exact with 9/66 residuals, first `+0x20`.
-The donor pad/current topology moves its buffer from `sp+44` to `sp+40`, still four bytes above target.
-Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
+`debug_text_width` owns ROM `0x44DD4..0x44EDC`, 66 words with no padding before
+`debug_text_parse`. Fresh configured full-TU C is 59/66 raw and
+relocation-normalized words under canonical game-code flags, with exact frame
+`0x138` and first mismatch `+0x38`. Exact records are calls to
+`sprintfSetSpacingCodes` at `+0x18/+0x30`, `vsprintf` at `+0x28`, and the
+`D_8007CE98` pair at `+0x4C/+0x50`. All 119 flag rows were attempted; thirteen
+O2/MIPS-II rows tie and none is exact. One allocator trace and workbench isolate
+a five-site current-byte `v1`/`v0` web plus two structural newline-lowering
+words. A separate classification scalar regressed to 57/66 through a stack
+home, while an explicit newline-tail jump was flat; neither justified a
+combination or batch. ORT 862 exports the function, but exhaustive resident,
+overlay, direct-jal, literal-pointer, and source scans found no caller. Ordinary
+66/66 and linked equality prove fallback only.
 
-`func_8004054C`: before/after structure mismatch, 124/125 instructions and 33 words, first `+0x4C`.
-Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement. Remains the pool/temporary web and missing instruction; asm stays canonical.
+`func_8004054C` is an exact 125-word, frameless match over ROM
+`0x4114C..0x41340`, with both relocation identities exact. Two source
+artefacts held it at a 42-word plateau, and neither was an allocator wall:
 
-`func_8003E8D8`: before/after allocation mismatch, 140 instructions and 22 words; frame remains `0x30` vs target `0x38`.
-Type lever: point-stream/model distinction and vector aliases; opcode schedule stayed exact. Remains stack homes, two registers, and one branch target; asm stays canonical.
+- A `u32 *freeBits` local. The target reads `pool->freeBits` afresh at each of
+  the eight uses; the local pins all of them to one pool colour and forces the
+  descending scan's cursor onto that colour instead of the forward scan's.
+  Dropping the local entirely -- both scans read the field -- closes the four
+  structural words, the hoisted shift base, and seven register words at once.
+  Inlining only one of the two scans is strictly worse than either extreme.
+- `1U` versus `1` in the bit-scan test. `!(bits & (1 << bitIndex))` and
+  `!(bits & (1U << bitIndex))` are the same value and the same instruction, but
+  IDO canonicalises the `and`'s operand order on the operands' signedness, so
+  only the unsigned literal puts `bits` in `rs`. Two words, in both scans, and
+  no rewriting of the test -- `== 0`, reversed operands, a cast on `bits` --
+  reaches it; the literal's own type is the whole lever.
+
+`func_8003E8D8` reaches a bounded configured full-TU plateau at 139/140 raw
+and relocation-normalized words, first `+0x38`, with exact `0x230` size,
+`0x38` frame, no padding, and all ten target relocation tuples. Declaration
+homes now place `entry` at `sp+0x24` and `result` at `sp+0x34` around both
+calls, eliminating the prior eight call-live differences; only the zero-count
+branch target at `+0x38` remains. Exact linked function/TU/ROM evidence proves
+`GLOBAL_ASM` only.
+The sole authenticated caller is `func_8003E7B8+0xE4`; there is no ORT export,
+resident runtime record, overlay `SYMBOL` inbound, or stored-pointer inbound.
+JFG's ordered peer is assembly-backed and 0x24C bytes, so it is structural
+evidence only. The 119-configuration lattice produced seven ties at the
+131/140 V0 and otherwise regressed. One fidelity-clean allocator trace, three
+natural declaration forms, and one trace-selected CFG form completed the
+124-build cap; the declaration forms moved 9 differences to 20, 5, and 1,
+while the CFG form was byte-identical. The one gain-gated bounded permuter
+batch reported a false score-zero for an isolated 147-instruction, 0x24C-byte
+candidate with relocation drift, so it yielded no legal candidate. A future
+pass needs a source-faithful first-loop CFG spelling that retains the redundant
+pool-base reset; do not repeat flags, declaration homes, the explicit reset
+form, or this batch route.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|
@@ -1855,8 +2229,45 @@ original asm body remains canonical.
 supplies the body donor and a bounded canonical-flag permuter found the final
 loop-condition web coalescing.
 
-`func_80041CE4`: before/after allocation mismatch, 153 instructions and 27 words, exact size/frame/relocations; first `+0x48`.
-Type lever: canonical line-entry alias; the pool/register web did not move. Remains the outer count, display-list home, and pool rotation; asm stays canonical.
+`func_80041CE4` owns VRAM `0x80041CE4..0x80041F48`, ROM
+`0x428E4..0x42B48`: 612 bytes/153 words, frame `0x80`, and no target padding.
+Evidence A exact C: all 153 instruction words, the `-0x80` frame, all nine
+relocations, and the linked ROM bytes match. The isolated section's final 12
+bytes are alignment outside the function.
+
+All nine target records are exact in genuine C: pairs to `D_8007C894` at
+`+0x04/+0x08`, `D_8007C88C` at `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and
+`D_7C900` at `+0x9C/+0xA4`, plus the `func_800349A4` call at `+0x158`.
+Runtime/export evidence is empty: zero resident records, no ORT row at offset
+`0x41894`, no overlay SYMBOL inbound, and no stored pointer. `partDraw+0xEC`
+is the sole direct caller and passes typed `Gfx **`/`ParticleLineVertex **`.
+
+The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG `func_80063514`
+is a larger assembly-backed structural peer, not genuine donor C.
+
+The 27-word register residual that stood here was four separate source
+artefacts, not one allocator phase, and each is worth carrying forward:
+
+- The inner vertex fill walked `line` cast to a `ParticleLinePoint **` cursor.
+  The source indexes `line->points[j]` from the `for` counter and lets uopt
+  build the cursor itself; the vertex pointer stays a real cursor because
+  `ParticleLineVertex` is 20 bytes and indexing it costs a multiply. The loop
+  must be a `for`, not the equivalent guard-plus-`do`: the indexed access under
+  a `do` costs one instruction, under a `for` it costs none. 27 -> 24.
+- The two display-list commands are two carriers, not one reused local. A
+  single `command` coalesces them into one colour; two names give the target's
+  two. 24 -> 12 once the declaration count is paid for.
+- `vertexAddress` was never a local. Spelling `(s32)vertexStart + 0x80000000`
+  at both uses frees the tenth declaration slot the second carrier needs, and
+  the frame stays `0x80`: eleven locals move it to `0x88`.
+- `displayList` is the *fifth* declared local. Its home is the function's only
+  addressed stack slot (`&displayList` reaches `func_800349A4`), so the
+  declaration order alone moves it between `sp+104` and the target's `sp+108`;
+  only one of the ten positions is right. 12 -> 3.
+- The last three words were a redundant read: a pre-guard
+  `pointCount = line->pointCount` gives the point count a pool colour before
+  the guard. Testing `line->pointCount >= 2` directly and reading the count
+  only after the call is what puts it in the target's colour. 3 -> 0.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.
@@ -1891,12 +2302,11 @@ remains under `NON_MATCHING` and asm remains canonical.
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
 criterion.
-`func_800336A8`: workbench structure mismatch, exact 195 instructions/frame -40; 71 raw words with 42 alignment gaps.
-Pointer carriers, a fake source boundary, and the existing flag lattice did not improve the JFG-derived candidate.
-Early global-carrier allocation around conditional third-framebuffer setup remains; the candidate stays under `NON_MATCHING`.
+`func_800336A8` is now exact canonical C; see the tier-A proof in §3.8.
 
 | Function | Exact result |
 |---|---|
+| `func_800336A8` | Tier A: 780 executable bytes, 195 exact words, `0x28` frame, all 77 static relocation identities exact, no padding before `func_800339B4`; linked ROM `0x342A8`–`0x345B4` and full ROM exact. JFG `src/gameVi.c:viChangeMode` donor pair, with Mickey-specific paths retained (§3.8). |
 | `func_80034094` | 188 bytes under `-O2 -mips2 -32`; JFG `src/gameVi.c::viGetOsViMode` body, all 47 instruction words exact, with its 48-byte compiler-owned switch table in `main/gameVi` `.rodata`. |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
@@ -1955,7 +2365,7 @@ placeholders are never imported.
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | tier-D; nearest ordered `anim.c` function, placeholder retained. Matched C: exact 172 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; declaring the source scalar before the bounds pointer recovers the target spill home |
-| `0x80050E9C` | `0x168` | `animseqFreeGroup` | tier-B; before type pass: structure-mismatch, 46 words; after shared aggregate/raw traversal: allocation-mismatch, 14 words with exact 90-instruction shape; lever boundary stride/ownership, residual end/base `addiu` order and three register webs |
+| `0x80050E9C` | `0x168` | `animseqFreeGroup` | Tier A: ordinary full-TU C and linked ROM are exact over 360 executable bytes / 90 words, frame `0x20`, no padding, and all 41 relocation identities. Same-line cursor setup plus an integer XOR-zero loop test and algebraically zero reset value preserve the required allocation with unchanged configured flags and untouched compiler instructions. Tier B: JFG cleanup role correspondence remains separate from byte proof |
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Matched C: exact 228 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; explicit four-byte directory and signed level-header types resolve the scan allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
@@ -1972,7 +2382,7 @@ placeholders are never imported.
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | tier-D; GLOBAL_ASM-only, shared type pass not applicable; residual collision/vector assembly |
 | `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
 | `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; placeholder retained. Matched C: exact 436 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; uopt homes declared locals at descending offsets in declaration order, so firstVehicle declared second lands its call-crossing spill at the target `sp+0x48` |
-| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | tier-D; bounded `structure-mismatch` plateau: canonical source remains NON_MATCHING; the best source-faithful pointer-assignment order reaches 118/121 instructions at the exact `0x50` frame, nine executable call relocations, and exact FP/opcode schedule, with three register-only words remaining (first `+0x60`, target `v0` versus candidate `v1` for `0x258`). Function-scope, alias, width, initializer/direct-store, register-qualified, and wrapper-compatible `-g0` probes were inert or regressed the frame; no exact promotion. |
+| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | tier-D; matched C: exact 484 B, 121 instructions, `0x50` frame, FP schedule, and nine-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`. A typed `void` weak alias for the first collision callback removes the generic trap placeholder's phantom return web; metadata-only rebinding restores the measured `TrapDanglingJump` relocation identity. |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 364 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; declare volatile `secondZ` before `secondY` to retain the target stack home |
@@ -1980,12 +2390,26 @@ placeholders are never imported.
 | `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 320 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the Mickey-led declaration order fixes the two target-pointer spill homes without importing a donor body |
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | tier-B; GLOBAL_ASM-only, shared type pass not applicable; residual vector/cylinder/sphere assembly |
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | tier-D; before/after type pass: structure-mismatch, 214 words with 226 versus 229 instructions; lever local/frame lifetime, residual candidate `0x80` frame versus target `0x70` and FP phase |
-| `0x8005716C` | `0x140` | no unique `hit.c` candidate | tier-D; before/after type pass: structure-mismatch, 18 words at exact 80 instructions/`0x28` frame; lever FP spill, residual target `sp+4` versus candidate `sp+0` |
+| `0x8005716C` | `0x140` | no unique `hit.c` candidate | tier-D; the `NON_MATCHING` body and adjacent `func_800572AC` boundary authenticate a unique `src/main/anim.c.o` owner under `-O2 -mips2 -32 -Wo,-loopunroll,0`. The configured candidate remains exact-sized at 80 instructions with an exact `0x28` frame, 18 differing words, and an exact 2-record relocation surface; the ownership row unlocks the flag lattice but adds no match credit. |
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | tier-D; before/after type pass: structure-mismatch, 203 words at 231 versus 233 instructions and exact `0x88` frame; lever pointer/FP phase, residual two folded pointer initializations |
 | `0x8005776C` | `0x1A4` | `hitPlayer` | tier-B; before/after type pass: mixed structural/register, 51 words at exact 105 instructions/`0xC0` frame; lever radius/call/register web, residual target workspace/register rotation |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
+| `0x80057970` | `0x50` | `osFlashReInit` | A; JFG `libultra/src/flash/flashreinit.c` body. Matched C: exact 80 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800579C0` | `0xF4` | `osFlashInit` | B; JFG `libultra/src/flash/flashinit.c` name/body and flash-init call role; JFG built object is 0xF0 B with different TU scheduling. Matched C: exact 244 B and 16/16 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057AB4` | `0x90` | `osFlashReadStatus` | A; JFG `libultra/src/flash/flashreadstatus.c` body. Matched C: exact 144 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057B44` | `0xCC` | `osFlashReadId` | B; JFG `libultra/src/flash/flashreadid.c` name/body and flash-ID call role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 204 B and 21/21 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057C5C` | `0xCC` | `osFlashAllErase` | B; JFG `libultra/src/flash/flashallerase.c` name/body and chip-erase role; JFG built object is 0xD0 B with different TU scheduling. Matched C: exact 204 B and 7/7 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057D28` | `0xD4` | `osFlashSectorErase` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and sector-erase role; JFG built object is 0xD8 B with different TU scheduling. Matched C: exact 212 B and 7/7 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057E84` | `0xD0` | `osFlashWriteArray` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and page-program role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 208 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057DFC` | `0x88` | `osFlashWriteBuffer` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and DMA-write role; JFG built object is 0x84 B. Matched C: exact 136 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057F54` | `0xB4` + `0x8` pad | `osFlashReadArray` | B; JFG `libultra/src/flash/flashreadarray.c` name/body and read-DMA role; JFG built object is 0xB4 B. Matched C: exact 180 executable B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact; following eight bytes are target padding |
+| `0x80058010` | `0x6C` | `func_80058010` | D; initializes/checks the Transfer Pak connector and records presence. Matched C: exact 108 B and 12/12 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800581BC` | `0x1C` | `func_800581BC` | D; sets the Transfer Pak save-action flag. Matched C: exact 28 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800581D8` | `0x34` | `func_800581D8` | D; records one Transfer Pak save-action state triple and sets its flag. Matched C: exact 52 B and 8/8 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x8005820C` | `0x34` | `func_8005820C` | D; records the other Transfer Pak save-action state triple and sets its flag. Matched C: exact 52 B and 8/8 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80058240` | `0x10` | `func_80058240` | D; returns the resident Transfer Pak pointer slot. Matched C: exact 16 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no
@@ -2003,6 +2427,32 @@ all 88 odd-FP operands and stays assembly under §6.2; lights has none.
 PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 `src/{shadows_214A0,lights}.c` and `src/lights.h`.
 
+`func_80019DE8` owns VRAM `0x80019DE8..0x80019EE4`, ROM
+`0x1A9E8..0x1AAE4`: 252 bytes/63 words, frame `0x38`, and no padding before
+`lightSetupLightSources`. Retained genuine full-TU and isolated C agree at 64
+words and 19/63 raw/normalized positional words, first `+0x44`; the extra word
+is its shifted return delay slot. Ordinary object/TU/ROM equality is fallback
+only. Target records are `mathOneFloatRPY` at `+0xBC` and a `D_800CB290`
+HI16/LO16 pair at `+0xC8/+0xE0`; genuine C has the correct identities four
+bytes late. ORT 358 exports offset `0x19998`, with zero resident-runtime or
+overlay inbounds. Direct callers are `lightDefaultObjectLight+0x38` and
+`func_8001A008+0x74/+0xC4`; no stored pointer exists.
+
+The policy-clean body uses `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG's
+`lightSetObjectLight` is assembly-backed structural evidence, not donor C. All
+119 flag rows were attempted: 53 produced candidates, 66 failed to compile or
+extract, and seven rows tie at the 45-word residual, including the configured
+recipe. A fidelity-clean uopt trace maps the function to procedure 22 and finds
+eight low-confidence webs, but no source attribution, so it authorizes no
+allocator form. The field-first `valueDelta` form regresses to 46 residual
+words with the same 64-word/`0x38` shape; the local-first form regresses to 62
+and a `0x40` frame. Neither gains, so no combination or batch was authorized.
+The cap is exhausted at 122 stock builds plus one trace. Resume only with a
+source-faithful structural lever that removes the extra pre-call word and
+advances all three relocations together; do not repeat flags, valueDelta
+ordering, allocator guesses, or a generic batch absent a strict structural
+gain.
+
 | Mickey VRAM | Size | JFG namesake | Evidence / disposition |
 |---:|---:|---|---|
 | `0x800183F0` | `0xC4` | `shadowBoxPolyOverlap` | Tier A: 49/49 unmasked words, ROM-wide unique; already adopted |
@@ -2010,7 +2460,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80018544` | `0x110` | `shadowYHeight` | comparison only: unique nearest 4-gram skeleton, 0.919; remains `func_80018544` |
 | `0x80018654` | `0xBC` | `shadowMakeYs` | Tier-A candidate: 47/47 unmasked words, ROM-wide unique; assembly pending a function-sized naming commit |
 | `0x80018710` | `0x8C` | `freeLights` | Tier A: JFG-adapted C is compiler/link exact |
-| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison; `NON_MATCHING` plateau at 75/76 linked words, first mismatch +`0x98` from commutative `addu` operand order |
+| `0x8001879C` | `0x130` | `setupLights` | Tier B: JFG-adapted C is compiler/link exact at 76/76 words |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | Tier A: Mickey/DKR-adapted C is compiler/link exact; placeholder remains prohibited by §1.5 |
 | `0x8001897C` | `0x238` | `addRomdefLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80018BB4` | `0x200` | `addObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
@@ -2031,7 +2481,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
 | `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; bounded reproof preserves configured full-TU C at the exact `0x38` frame but 64 words versus target 63, 19/63 positional matches, 44 shared-word differences plus one trailing nop, first `+0x44`. The three relocation identities agree but candidate offsets are all `+4` late. All 119 flags are nonexact; a fidelity-clean proc-22 trace lacks source attribution, and both valueDelta-first forms regress. Assembly remains canonical; resume only with a new structural lever that removes the extra pre-call word and advances all three relocations together. |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
@@ -2180,31 +2630,64 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainThread`: exact **0xC8 bytes / 50 words** under `-Wo,-Olimit,100`; the
   literal RAM-end loop is compiled untouched, and a digest-guarded metadata
   pass restores `D_803FFFFC` HI16/LO16 at `+0x18`/`+0x28`.
-- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
-  bounded two-worker permuter batch, first mismatch `+0x24`: the best
-  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
-  slots but compiles to 60 rather than 63 instructions. IDO schedules the
-  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
-  removes three dead-looking countdown-loop register copies retained by the
-  target.
-- `levelGetCounts`: workbench `allocation-mismatch`, first `+0x13c`; the level
-  TU now owns the linked `0x40`-byte `D_800CF3E0` count table and `0x70`-byte
-  `D_800CF420` state, but three register words and the end-label relocation remain.
-- `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
-  the full 119-combination flag lattice and a bounded two-worker permuter
-  batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
-  reproduces all 516 target opcodes, the 2,064-byte boundary, `-0x80` frame,
-  stack homes and relocation identities, but 122 register operands differ.
-  The first residual is a temp-FIFO allocation (`$t4` rather than `$t7`) in
-  the fog-load delay slot; the following resource-table address starts a pool
-  allocation divergence (`$a2` rather than `$a3`). The permuter improved its
-  MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
-  canonical MIPS II recompilation added two instructions, so it was rejected.
-- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
-  Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
-  25 words, so the prior raw-return candidate remains best.
-- `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
-  and 113/117 words; only the masked resource index/table-base registers swap.
+- `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
+  instruction words, the `-0x48` frame, relocation identities, and linked ROM
+  bytes match.
+- `levelGetCounts`: historically measured pre-endpoint full-TU C owns exactly
+  259 words, frame `0x58`, and all 37 offsets/types, scoring 255/259 raw and
+  256/259 relocation-normalized; no attributable C object survives. Only 35/37
+  identities were exact: raw first `+0x50` bound the endpoint pair to
+  address-equivalent but identity-wrong `D_800CF3E0+0x40`. Normalized first
+  `+0x13C`, with `+0x148/+0x154`, was one world-value carrier. A reformatted
+  isolated import measured only 251/259 raw and 252/259 normalized. Current
+  `D_800CF420` source is uncompiled, so its score, frame, and identities are
+  unknown. ORT 518 has exactly one inbound, `overlay18Initialize+0x8`; the
+  owned ROM `0x263F0..0x267FC` has no padding. Pinned JFG keeps the body in
+  assembly; public JFG `src/level.c` is disclosed provenance input, not an
+  exact donor. Linked equality proves fallback only. Run current V0, one
+  historical control only on regression, exactly 119 configurations only if
+  the three-site carrier reproduces, then one trace and one natural carrier
+  form. A strict gain alone permits a 2,000-candidate/20-minute batch.
+- `levelInit`, ROM `0x26A18..0x27228`, owns 516 words with no following padding.
+  Retained pre-cleanup configured full-TU and isolated C reproduce 394/516 raw
+  words, frame `0x80`, first `+0x238`, and all 110 static tuples (70 calls and
+  20 HI16/LO16 pairs). That producer's unused volatile two-word stack pad makes
+  the score diagnostic; the pad is removed and seven runtime trap identities
+  now use their authenticated ABIs, so clean V0's score/frame are unknown.
+  The first retained residual is in the level-header resource-list selector
+  carrier, not a fog-load delay slot. Historical 12,975-to-12,580 MIPS-I
+  permuter numbers are objective scores, not current word evidence.
+  ORT 526 has sole caller `func_80028564+0x5F8`, with no runtime/overlay/pointer
+  inbound. Eight runtime records inside the function resolve seven overlay
+  callees; metadata-only alias rebinding preserves the shipped trap identity.
+  Pinned JFG keeps the body in assembly; later public JFG C is structural and
+  lifetime evidence only. Compile pad-free V0 and typed-alias V1, then one
+  donor-supported `s16 tune` lifetime. If still nonexact, trace once and try at
+  most one trace-supported natural form; no generic lattice/permutation absent
+  a legal gain. No linked C/ROM proof survives.
+  Proven level `.bss` ownership is `0x800CF3E0..0x800CF490`; the preceding
+  configured `bss_gap_D800CF3C0..D800CF3E0` remains unresolved.
+- `func_80028FCC`: fresh configured full-TU C with canonical
+  `-Wo,-Olimit,100` reproduces 17/27 words, exact 108-byte boundary/frame
+  `0x18`, first `+0x1C`, and all three `R_MIPS_26` calls to `func_80028FB8` at
+  `+0x14/+0x30/+0x4C`. The natural normalized-result/shared-epilogue probe
+  regressed to 25 words and moved the latter two calls, so it did not unlock
+  another flag lattice or trace. ORT 663 is real, but exhaustive resident,
+  overlay, direct-JAL, and pointer scans authenticate no caller. There is no
+  padding, and linked equality proves fallback only. JFG's pinned
+  `src/main.c::mainAnyoneHas` remains assembly and supplies only a structural
+  analogue/TU-role comparison; no C body was adapted. Park pending a new
+  source-faithful Boolean-lowering mechanism; do not repeat flags, trace, or
+  generic permutation without a strict structural gain.
+- `levelFreeAll`: fresh configured full-TU C reaches 112/117 words with the
+  exact 468-byte extent, frame `0x28`, and first mismatch `+0x13C`. The
+  `for`/parallel-indexed-array spelling closes the CFG, saved-register lanes,
+  and all 36 static relocation offset/type/identity records. The five residual
+  words are one ugen temp-FIFO swap between the resource-table base and masked
+  index. All 119 flag configurations and fifteen bounded declaration, loop,
+  join-store, expression, and temp-lifetime forms are nonexact. Linked equality
+  remains fallback-only; resume with a bounded permuter or new FIFO-trace
+  evidence, not another generic source/flag sweep.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39
@@ -2260,28 +2743,28 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | Function | Target-derived aggregate/global surface | Before → after; lever; remaining |
 |---|---|---|
 | `func_80046EC4` | `FxCone`: pointer words `+0,+4,+8,+C,+10`; bytes `+14..17`; floats `+18,+1C`; halfwords `+20..2A`; colors `+2C..32`. | GLOBAL_ASM → GLOBAL_ASM; cone aggregate; allocator/body not re-derived. |
-| `func_800470B0` | `FxCone` bytes `+14..17`, pointer/output words `+8,+C,+10,+15`; generated vertex records; `func_8002A8BC/C0`. | Evidence D candidate: structure-mismatch, 150/149 instructions, 121 differing words, first `+0x44`, exact `-0x168` frame, and seven relocation-symbol sites differ; not shape-exact. |
+| `func_800470B0` | `FxCone` bytes `+14..17`, pointer/output words `+8,+C,+10,+15`; generated vertex records; `func_8002A8BC/C0`. | Evidence D plateau: exact 149-word size and `-0x168` frame, 90 differing words, first `+0x44`; all three call identities are present but their offsets differ. The fixed-bound register web remains the next allocator lever. |
 | `func_80047304` | `FxCone` `+10,+14,+15`; generated vertex records; `D_80083DE4`; trig helpers. | Evidence D candidate: structure-mismatch, 183/185 instructions, 176 differing words, first `+0x4`, exact `-0x180` frame, and 57 structural words remain; not shape-exact. |
 | `func_800475E8` | `FxCone.texture +0`, `segmentCount +15`, `vertices +10`; `FxConeTextureInfo` `+6/+8`; `FxConeVertex` byte `+0/+1..3`, halfwords `+4..E`; `D_80083DE8`. | structure plateau → structure plateau (`440` raw words, first `+0`); structure-buckets; frame/code shape remains. |
 | `func_800479D4` | `FxCone` `+8,+15..17,+18,+1C,+20..2A`; generated vertex records; trig helpers. | Evidence D candidate: structure-mismatch plateau, 179/193 instructions, 176 differing words, first `+0x40`, exact `-0x150` frame, and 80 structural words remain. |
-| `func_80047CD8` | `FxGfx **`; `FxCone` words `+0..10`, bytes `+14..17,+2C..32`; `func_800349A4`. | diagnostic full-TU copy: allocation (`226/234` rows exact, `8` words first `+298`); temp lane exact, pool slot 28; no move/copy site and no instrumented IDO. Configured TU remains blocked by adjacent `func_800475E8` C99 declarations; assembly fallback stays canonical. |
-| `func_80048080` | Output vertex records: bytes `+6..9`, halfwords `-A,-8,-6`; trig helpers. | GLOBAL_ASM → GLOBAL_ASM; output-record widths; 65 positional words remain. |
+| `func_80047CD8` | `FxGfx **`; `FxCone` words `+0..10`, bytes `+14..17,+2C..32`; `func_800349A4`. | Tier A: ordinary full-TU C is ROM-exact at `0x80047CD8..0x80048080` / ROM `0x488D8..0x48C80`: 936 executable bytes, 234 words, frame `0x68`, no padding, and four exact call relocation identities. Preserved display-list block grouping, a white RGB XOR-zero identity and a logical-negation test close the prior eight-word allocation residual. No compiler flags or post-compile instructions changed. Tier B: JFG `fxDrawCone` role correspondence remains separate from byte proof. |
+| `func_80048080` | Output vertex records: bytes `+6..9`, halfwords `-A,-8,-6`; trig helpers. | **A**; exact C, 89 words, frame `-0x48`, 4 relocations; ROM `0x48C80`-`0x48DE4` byte-identical. Both cursors are the parameters, promoted into registers for the loop and written back at its exit; the rotated *y* component is a named local like the rotated z, and that fifth (coalesced, instruction-free) FP web is what puts x in f2 and z in f14. |
 | `wakeAllocate` | `Wake`: bytes `+0..3,+38..3B`; float `+4,+C`; halfwords `+8`; pointers `+10,+14,+18..2C,+30`; halfwords `+34,+36`; word `+3C`. | GLOBAL_ASM → GLOBAL_ASM; `Wake` layout; allocation/initialization CFG remains. |
-| `func_80048760` | `WakeRipple` 0x88-byte setup; texture/link `+70`; bytes `+74,+75`; halfwords `+76,+78,+7A`; floats `+7C,+80`; nested `Wake *+84`; source fields `+40,+54`. | `NON_MATCHING` candidate; workbench structure-mismatch, 58 words, first `+0x08`; exact 121-instruction/frame/relocation shape except 8 initialization-schedule words, with 50 register-only residuals. |
+| `func_80048760` | `WakeRipple` 0x88-byte setup; texture/link `+70`; bytes `+74,+75`; halfwords `+76,+78,+7A`; floats `+7C,+80`; nested `Wake *+84`; source fields `+40,+54`. | **A**; exact C, 121 words, frame `-0x48`, 4 relocations; ROM `0x49360`-`0x49544` byte-identical. The two texture extents are `s32` locals, which is what orders the ugen temp ring; the white-fill loop indexes the record from `i` rather than carrying a cursor, which is what orders the loop preheader. |
 | `wakeUpdate` | `Wake` `+0..14,+30,+34..3C`; `WakeRipple` texture/config `+70..84`; generated display records. | GLOBAL_ASM → GLOBAL_ASM; wake aggregate; update/draw scheduling remains. |
 | `func_80049000` | `WakeRipple` `+54` link, `+70,+74..84`; `Wake` `+80,+84`; `Arctanf`, `wakeUpdate`. | Evidence D candidate: structure-mismatch, 150/149 instructions, 125 differing words, first `+0x0`, frame `-0x30` versus `-0x38`; ripple update/call surface remains but is not shape-exact. |
 | `wakeDraw` | `Wake` `+30,+34,+38`; `FxGfx **`; `func_800349A4`. | Evidence D candidate: structure-mismatch, 163/177 instructions, 177 differing words, first `+0x0`, frame `-0x38` versus `-0x88`; command-loop structure remains unresolved. |
 | `func_80049518` | `WakeRipple` `+70,+74,+76,+78,+84`; nested `Wake +3C`; `FxGfx **`; draw helpers. | GLOBAL_ASM → GLOBAL_ASM; ripple aggregate; display-list schedule remains. |
-| `func_800498FC` | `FxRecord` `+0,+1,+2,+14,+16,+18,+1A..1F`; `D_800D5F58[5]`; camera helpers. | GLOBAL_ASM → GLOBAL_ASM; record widths; branch/FP shape remains. |
+| `func_800498FC` | `FxRecord` `+0,+1,+2,+14,+16,+18,+1A..1F`; `D_800D5F58[5]`; camera helpers. | **A**; exact C, 100 words, 5 relocations, frame `-0x30`; ROM `0x4A4FC`-`0x4A68C` byte-identical. The two packed flag tests read the `u8` fields back (`record->value1E`), not the argument (`(u8)(flags & 0x80)`): the argument form CSEs a second long-lived web into the pool and rotates four registers. |
 | `func_80049B14` | `D_800D5F50`; `FxRecord` `+0,+1,+2,+14,+16,+18,+1E,+1F`; five-record stride `0x20`. | Evidence D candidate: structure-mismatch, 219/206 instructions, 216 differing words, first `+0x8`, exact `-0x18` frame; switch-state schedule remains unresolved. |
-| `func_80049E4C` | `D_800D5F50`, `D_800D5F58`, `D_800D5FD8`; `FxRecord` bytes/halfwords; `FxGfx`; VI/scissor helpers. | Evidence D candidate: structure-mismatch, 167/169 instructions, 159 differing words, first `+0x8`, frame `-0x50` versus `-0x60`; display-list structure remains unresolved. |
+| `func_80049E4C` | `D_800D5F50`, `D_800D5F58`, `D_800D5FD8`; `FxRecord` bytes/halfwords; `FxGfx`; VI/scissor helpers. | **A**; exact C, 169 words, 9 relocations, frame `-0x60`; ROM `0x4AA4C`-`0x4ACEC` byte-identical. Three source facts, in order: the record loop is `while (count--)` over one counter, not a counter plus a separate `remaining`; `count` is declared *before* the two address-taken VI-size locals, which is what puts their homes at `sp+0x58`/`sp+0x54`; and the single-record `count = 1` lives in the `else` arm, not ahead of the display-list setup. 37 -> 7 -> 3 -> 0 words. |
 | `func_8004A10C` | `D_8007D320` u32 table, `D_8007D364` u8 glyph table; VI size; `FxGfx` command words. | Evidence D candidate: structure-mismatch, 156/157 instructions, 155 differing words, first `+0x0`, frame `-0x60` versus `-0x58`; glyph loop/VI relocation surface is preserved but not exact. |
-| `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | structure plateau → structure plateau (`65` words, first `+8`); structure-buckets; target `sp+54`/register web remains. |
+| `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | Evidence A exact C: all 76 instruction words, the `-0x80` frame, all 9 relocations, and linked ROM bytes match. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
-| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | mixed plateau → structure plateau (`18/28` words); structure-buckets; callback/trap web remains. |
-| `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | GLOBAL_ASM → GLOBAL_ASM; pool aggregate; saved-index/unroll shape remains. |
-| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D3`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
+| `func_8004ACC4` | `D_800D60A8` word; three parallel four-element slot arrays at `D_800D60B0`, `D_800D60C0` and `D_800D60D0`; `D_8007D47C` callback array; `TrapDanglingJump`. | **A**; exact C, 28 words, frameless, 12 relocations; ROM `0x4B8C4`-`0x4B934` byte-identical. The four cursors are IDO's own strength-reduced induction variables: the source indexes the three arrays with one loop variable, which is what puts the now-dead copy of that variable in the first pool colour and the synthesised trip counter in the second. |
+| `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | Tier A: ordinary full-TU C is ROM-exact at `0x8004ADE8..0x8004AF68` / ROM `0x4B9E8..0x4BB68`: 384 executable bytes / 96 words, frame `0x40`, no padding, and all 15 relocation offsets, types, and identities exact. Removing a never-read offset local recovered the JFG-homologous stack-home layout without changing semantics. Tier B: JFG `fxCpuTextureRequired` supplies the role and source-topology context, not Mickey's byte proof. |
+| `func_8004AF68` | the four parallel slot arrays `D_800D60B0`, `D_800D60C0`, `D_800D60D0` and `D_8007D47C`; `D_800D60A8`; `TrapDanglingJump`; `mmFree`. | **A**; exact C, 52 words, frame `-0x38`, 12 relocations; ROM `0x4BB68`-`0x4BC38` byte-identical. One `while (i--)` index over all four arrays; uopt builds every cursor, shares one byte offset between `D_800D60C0` and `D_8007D47C`, and keeps `D_800D60C0`'s base inside the loop. |
 
 Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
@@ -2407,33 +2890,62 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-`func_8004ACC4` remains exact-size with 14/28 positional words differing, first `+0x14`; workbench verdict: mixed structure/register residual.
-Logical-line grouping improved 18 to 14; aggregate lifetime, assignment order, and direct trap-address forms did not.
-The callback/trap address web and counter schedule remain; the assembly fallback stays canonical.
+`func_8004ACC4` is exact. Hand-written cursors were the defect: with four
+source pointers the loop's dead counter copy is compiler-generated and takes
+the *last* pool colour, and no arrangement of the setup statements moves it
+(720 statement orders x 32 physical-line groupings, all flat at ten words).
+Indexing three parallel four-element arrays from one `while (i--)` variable
+instead lets uopt build the four cursors itself as strength-reduced induction
+variables, which numbers the source index's now-dead copy first and the
+synthesised trip counter second -- the target's colouring exactly. splat had
+minted only `D_800D60D3`, the one element the assembly addresses directly;
+`symbol_addrs.us.txt` now names the `D_800D60D0` base the C needs.
 
-`func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
-Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
-Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
+`func_8004AF68` is exact, and by the same edit as `func_8004ACC4`. The
+hand-written-cursor candidate floored at 15 words: sharing one byte offset in
+source hoists `D_800D60C0`'s base into an eighth saved register and costs
+three, indexing the two arrays separately emits two shifts and costs three,
+and no arrangement of the cursors reaches the target's `move v0, s3`. Indexing
+all four arrays from one `while (i--)` variable hands the whole induction
+problem to uopt, which produces the shared offset, the in-loop base and the
+dead index copy by itself. 15 -> 0.
 
-`tier-D func_80045BBC`: 2 instruction words plus 6 relocation sites remain, first `+0x18`; size, frame, calls, and copy structure are exact.
-Workbench constant/allocation; symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers did not close it.
-Fixed-buffer relocation identities and final `packWriteFile` argument coloring remain; assembly stays canonical.
+`tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
+`0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. The
+retained body/codegen measurement is 52/60 raw words and 58/60 after resolving
+the six fixed-address fields, but no current-HEAD candidate object or hash
+survives. The remaining substantive sites at `+0xBC/+0xC0` are one
+final-argument `t6/t4` FIFO web. Ordinary object and linked equality are
+`GLOBAL_ASM` fallback only; no linked C artifact survives.
 
-The 292-byte `func_80046AA8` packed-glyph renderer reaches a loop-form plateau
-after the full flag lattice, nine coherent counter/type/source forms, and one
-bounded canonical MIPS II permuter batch. Mickey's caller supplies an `(x, y)`
-pixel position and a five-word two-bit glyph; JFG's 288-byte
-`func_800680B0_68CB0` is assembly-only but confirms the same framebuffer,
-palette, row, line, and packed-pixel loops. The best coherent candidate has
-the exact 72-byte frame, argument homes, `s0` glyph lifetime, framebuffer
-association, palette branches, and relocation identities, but emits 70 words
-against 73 in the target, with 49 positional differences beginning at
-function `+0x54`. IDO folds the target's constant five-row pretest and one
-narrowed-bit temporary move, then allocates the packed bits and pixel cursor
-to `v0`/`v1` instead of `v1`/`a0`. Lower permuter scores inserted empty guards
-only to perturb allocation and were discarded as semantically unsupported.
-The coherent candidate remains behind `NON_MATCHING` and the target assembly
-stays canonical.
+The target owns 24 static records: HI16/LO16 pairs for `D_8007CFE8` at
+`+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`, `D_8007CFE0` at
+`+0x1C/+0x24`, `D_80705018` at `+0x28/+0x30`, `D_8007CFE4` at
+`+0x2C/+0x34`, `D_8070501C` at `+0x38/+0x40`, `D_800D5D40` at
+`+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`, `D_80083A80` at
+`+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`; `_bcopy` calls at
+`+0x4C,+0x6C,+0x88`; and `packWriteFile` at `+0xD4`. The candidate carries
+the other 18 records at exact offsets/types/identities, but its literal
+`D_80705014/18/1C` lvalues omit those six pairs. Runtime evidence is empty:
+zero resident relocation records, no ORT export at resident offset `0x4576C`,
+and no overlay inbound. The sole authenticated caller is
+`func_80045CAC+0x64`, which passes its selected `OSThread *` and ignores the
+return register.
+
+The TU uses ordinary `-O2 -mips2 -32`. JFG `func_800676F8` is a disabled,
+assembly-backed structural draft, not genuine donor C. Reproduce V0, probe the
+three identities independently, combine only strict gains, run the 119-entry
+lattice on the identity-correct 60-word/frame-`0x30` baseline, capture one FIFO
+trace, and try exactly one trace-selected natural form. A gain-gated batch may
+replace unused budget only within the hard 125 deterministic-build total; it is
+not extra. Assembly stays canonical.
+
+The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
+bounded permutation: all 73 instruction words, its 72-byte frame, relocation
+identities, and linked ROM bytes match. JFG's assembly-only
+`func_800680B0_68CB0` corroborates the role and loop structure. Its inert
+permuter-forced spelling remains in `docs/cleanup-queue.md` for a readability
+follow-up, not as a matching deficit.
 
 The 300-byte `func_80044C94` trace-neighbor lookup is exact C. JFG's newly
 matched `diRcpTraceGetInfo` source supplied the original array-index loop
@@ -2487,29 +2999,29 @@ call graph isolates one namesake.
 | Mickey VRAM | Size | JFG comparison lead | Evidence / current disposition |
 |---|---:|---|---|
 | `0x8001BB90` | `0x24` | `cameraGetBlend` | D + matched C: exact 0x2C-stride float getter under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001BBB4` | `0x258` | `func_8002B378` | Evidence D candidate: 150/150 instructions, 38 differing words, first `+0x0`, exact relocation identities, frame `-0x30` versus `-0x38`; camera/track/level control flow is reconstructed but not shape-exact |
+| `0x8001BBB4` | `0x258` | `func_8002B378` | Bounded plateau: configured C is exact-sized at 150 words, with 112/150 positional words, first `+0x0`, and frame `0x30` versus target `0x38`. All 18 relocation offsets/types align; 15 identities are statically stable and the three overlay calls are runtime-authenticated. The 119-row lattice and ten coherent forms are nonexact; local structs improve to 34 differences only by overshooting the frame. Resume with a natural local/declaration layout that adds exactly eight non-save bytes, then revisit the post-decrement loop CFG. |
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` f32 `0x10/0x14`; `ControlPlayer` s8 `0`, u8 `0x16F`; `ControlCameraState` s16 `0/2/4`, f32 `0x10/0x18/0x1C/0x20/0x24/0x28/0x40`, u8 `0x3D/0x44-0x49`; `CameraOverrideSlot` ptr `0/4`, f32 `0x8-0x28`; globals `D_800CB300/D_800CB368`.<br>Lever/remains: typed the 0x54-byte camera and 0x2C-byte override records; body remains assembly. |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Type pass: before=register-permutation, 9 register-only words; after=same, 108/108, frame -24.<br>Access: `CameraOverrideSlot` ptr `0/4`; `CameraTrackedObject` f32 `0xC/0x14`, ptr `0x64`; `CameraBounds` f32 `0/4/8/0xC/0x10/0x14`, u32 `0x18`; globals `D_800CB368/D_800CB308/D_80079BCC`.<br>Lever/remains: the separate search-local candidate reaches 100/108 with the exact six target relocations and first residual `+0xF4`; cursor/end, index-only, cached-count, and positive-count lifetime probes either regress structurally or return to the 99/108 baseline. |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | D + Mickey-derived exact C: 108/108 words, frame `0x18`, and all six static relocation offsets, types, and identities agree. Grouping the zero index and array cursor initializations in one ordered expression gives IDO the target `a1`/`v1` allocation and late schedule without a forced compiler result. The function maintains a camera override by rejecting an out-of-range tracked object and selecting an eligible replacement. JFG's corresponding `func_8002F0E8` remains assembly-only, so this body is a direct clean-room candidate at that insertion point. |
 | `0x8001C2C4` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2CC` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
 | `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B + matched C: exact 104-instruction save/clear/reinitialize/restore wrapper under O2/mips2 with `-Wab,-r4300_mul`; its role and call graph mirror JFG, so the name is adopted |
 | `0x8001C4C0` | `0x64C` | `controlPlayerInit` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` s16 `0/2/4`, s8 `0x3A`, ptr `0x64/0x68`; `ControlPlayer` byte/halfword fields through `0x456`, f32 `0x10/0x38-0x54/0x174-0x17C/0x188/0x3EC/0x3F0/0x444-0x450`; `ControlGravityVector` `0/4/8` at 0x10 stride; `ControlParticleSlot` `0/1/2/3/8`.<br>Lever/remains: added the shared player, point-table, particle, level, and camera types; initializer body remains assembly. |
 | `0x8001CB0C` | `0x78` | — | Matched C: exact one-point transform setup under O2/mips2; no unique JFG comparison, so retain `func_` |
-| `0x8001CB84` | `0x71C` | `controlPlayer` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` ptr `0x48/0x64`, s32 `0x80`; `ControlPlayer` bytes `0/1/2/0x18D/0x190/0x191/0x1A4/0x1A5`, s16 `0x158-0x16A/0x1A6/0x3FA`, f32 `0x14C-0x154/0x188`, ptr `0xA4/0xAC/0xB4/0xC8/0xD0/0xD8/0x338`; `ControlParticleEffect` `0x20/0x44/0x78`; globals `D_8007BF10/D_80081848/D_8008184C/D_800CB304`.<br>Lever/remains: shared player and particle types are reconciled; controller body remains assembly. |
+| `0x8001CB84` | `0x71C` | `controlPlayer` | **A**; exact C, 455 words, 41 relocations, frame `-0x80` under `-O2 -mips2 -32 -Wab,-r4300_mul`; the owned ROM range `0x1D784`-`0x1DEA0` is byte-identical to the baserom. One scratch float local carries the ballistic step and is then reused for the cone factor; a second declared local for the step moves every compiler temp 4 bytes down the frame |
 | `0x8001D2A0` | `0x17C` | — | Type pass: before=mixed(structural:1, register:8), 96/95 instructions; after=same, first +0xE0.<br>Access: `ControlActor` s16 `0/2/4`, f32 `0x8-0x14`, ptr `0x64`; `ControlPlayer` s8 `0`, s16 `0x14C/0x154/0x158/0x160/0x162/0x164/0x3FA/0x43C-0x440`, f32 `0x444-0x450`, u16 `0x1A8`, ptr `0xD4`; global `D_800CB300` is a 0x54-byte camera record.<br>Lever/remains: typed the camera-list stride; IDO CSE still adds one address instruction before the camera-count call. |
 | `0x8001D41C` | `0x21C` | — | Matched C: exact 135-instruction timer, effect-spawn, and action-callback body under O2/mips2 with `-Wab,-r4300_mul`; the mandatory 119-combination sweep found no alternate flag improvement and no unique JFG comparison, so retain `func_` |
 | `0x8001D638` | `0x58` | `controlFrozen` | B + matched C: exact pause/input gate under O2/mips2; calls the following restart routine as JFG does; name adopted |
 | `0x8001D690` | `0x194` | `controlRestartPlayer` | B + matched C: exact 101-instruction multiplayer respawn-point search and single-player restart fallback under O2/mips2 with `-Wab,-r4300_mul`; JFG has the same role and nearest charControl skeleton, but Mickey retains `func_` because IDO's allocation changes under the public name |
 | `0x8001D824` | `0x5C` | `dAngle` | B + matched C: same wrapped-angle role/body as JFG, whose MIPS-I conversion sequence is longer; adapted Mickey C is ADR 0001 exact under O2/mips2 |
-| `0x8001D880` | `0x90` | `controlMakeV` | Type pass: before=mixed(structural:2, register:28), 36/36 instructions; after=same, first +0x4.<br>Access: scalar f32 inputs and a 4-byte-stride f32 table; no struct/global aggregate is involved.<br>Lever/remains: table typing is already width/stride exact; FP/int pool coloring remains after the source/flag sweep. |
+| `0x8001D880` | `0x90` | `controlMakeV` | Bounded plateau: fresh configured full-TU C is exact-sized and frameless at 28/36 positional words, first `+0x4`, with no padding or relocations. Indexing the table (`table[index]`) rather than walking an `entry` pointer makes the address operand order `a2,t7` on both sides, and naming the upper table entry in `value` before the lerp takes the residual to 28/36. Twenty-five further source forms and 210 permuter candidates were flat or worse. The residual is a uopt colour rotation: the target colours only `10.0f` out of {`f16`,`f18`} and hands `f18` to a five-wide FP ring, this candidate colours both and runs the ring four wide. `x * 1.0f` on an `f32` folds to no instruction under IDO 5.3 `-O2` and is fully allocation-inert here, so it is not an FP analogue of the L65 phantom mask. Thirteen natural builds plus four fidelity-clean trace diagnostics found no strict gain; the prior 119-flag sweep remains exhausted.<br>Access/ABI: `f32 (f32, f32, f32 *, f32)` with a 4-byte-stride table. ORT 405 has runtime inbounds from Overlay 26 module `+0xA0C` and Overlay 80 `+0xD0`, but their friendly caller ABIs conflict with the target FP ABI and are identity-only evidence.<br>Lever/remains: proc 21 shows the second-base FP web occupying the target constant color and cascading the final schedule. Preserve V0 and fallback; resume only with a source-authentic base pool-to-temp/web-formation mechanism. |
 | `0x8001D910` | `0x50` | `controlFSUvels` | B + matched C: JFG rotation-vector role/body with Mickey's output at player `+0x14`; adapted C is ADR 0001 exact under O2/mips2 |
-| `0x8001D960` | `0x370` | `controlUpdateJetFlames` | Evidence D candidate: 221/220 instructions, 208 differing words, first `+0x0`, frame `-0x70` versus `-0x60`; four-slot flame state machine and cone calls are reconstructed but not shape-exact |
+| `0x8001D960` | `0x370` | `controlUpdateJetFlames` | **A**; exact C, 220 words, 6 relocations, frame `-0x60` under `-O2 -mips2 -32 -Wab,-r4300_mul`; the owned ROM range `0x1E560`-`0x1E8D0` is byte-identical to the baserom |
 | `0x8001DCD0` | `0xA0` | — | Matched C after the type pass: `ControlVector3` f32 `0/4/8`, s16 rotation/output pointers; `tools/wb_compare.sh --rom` reports instruction-words-identical, 40 instructions. |
-| `0x8001DD70` | `0x854` | `controlGroundHits` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` transform f32 `0xC/0x10/0x14`; `ControlPlayer` f32 `0x38-0x40/0x74-0x90`, u8 `0x166/0x16C/0x173/0x181/0x18E/0x198/0x349-0x34B`, s32 `0x334/0x344`, point ptr `0x2B8`, count `0x2BC`; `ControlGravityVector` 0x10-byte records; globals `D_80081850-0x81860`.<br>Lever/remains: reconciled collision/player/point widths; ground-hit body remains assembly. |
-| `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlVector3` f32 `0/4/8`; `ControlPlayer` f32 `0x4/0x8/0x38-0x40/0x74-0x90/0x2F0-0x2F8`, u8 `0x166/0x16C/0x173/0x181/0x18E/0x198/0x349-0x34B`, s32 `0x334/0x344`; `ControlCollisionState` `0x00-0x3D`; globals `D_800CB2C0-0xCB2FD`.<br>Lever/remains: collision-state aggregate is typed; ledge/collision body remains assembly. |
+| `0x8001DD70` | `0x854` | `controlGroundHits` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` transform f32 `0xC/0x10/0x14`; `ControlPlayer` f32 `0x38-0x40/0x74-0x90`, u8 `0x166/0x16C/0x173/0x181/0x18E/0x198/0x349-0x34B`, s32 `0x334/0x344`, point ptr `0x2B8`, count `0x2BC`; `ControlGravityVector` 0x10-byte records; globals `D_80081850-0x81860`.<br>Lever/remains: **frame closed 2026-09-09** -- the `NON_MATCHING` candidate now matches the target at 533 instructions and frame `-0x268` exactly. The 0x38-byte excess was a declaration census, not allocation: fourteen m2c-only carriers sized the local block in 8-byte steps, and dropping them also cut the alignment gaps 260 -> 86 at 433 relocation-masked words. Remaining is block geometry inside the collision loop (238 opcode differences).
+| `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlVector3` f32 `0/4/8`; `ControlPlayer` f32 `0x4/0x8/0x38-0x40/0x74-0x90/0x2F0-0x2F8`, u8 `0x166/0x16C/0x173/0x181/0x18E/0x198/0x349-0x34B`, s32 `0x334/0x344`; `ControlCollisionState` `0x00-0x3D`; globals `D_800CB2C0-0xCB2FD`.<br>Lever/remains: collision-state aggregate is typed. Declaration census 2026-09-09 took the `NON_MATCHING` candidate frame `-0x100` -> `-0xE0` against a `-0xD0` target at 410 -> 408 relocation-masked words and an unchanged 412 instructions. The exact `-0xD0` frame is reachable but costs +4 words and 46 more alignment gaps: a frame too LARGE while the instruction count is four SHORT means this candidate homes locals the target does not and misses spills the target has, so the instruction count is the binding constraint, not the frame. |
 | `0x8001EC44` | `0x3B8` | `controlSquashCheckPrior` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlVector3` f32 `0/4/8`; `ControlCollisionPlane` f32 `0/4/8/0xC/0x10/0x14/0x18`, s32 `0x20`, u8 `0x24`; `ControlCollisionState` f32 `0x04-0x24`, s32 `0x38`, u8 `0x3D`; globals `D_8008187C-0x81890/D_800CB2C4-0xCB2FD`.<br>Lever/remains: typed the collision callback inputs/state; collision helper remains assembly. |
 | `0x8001EFFC` | `0xA0` | — | Matched C: exact point-list transform and translation loop under O2/mips2; no unique JFG comparison, so retain `func_` |
 | `0x8001F09C` | `0xB0` | `func_800370D8` | D + matched C: exact target-smoothing body under O2/mips2 with `-Wab,-r4300_mul`; JFG placeholder comparison remains structural, so retain `func_` |
@@ -2535,7 +3047,7 @@ JFG audio-manager family covers 74; the remainder has separate lineage.
 | Mickey ROM range | Functions | Attribution and evidence | Canonical treatment |
 |---|---:|---|---|
 | `0x1050`-`0x2340` | 49 | JFG `audio_manager_1050.c`: **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, `forcelink`; **tier B** API order/calls. The aligned end precedes JFG's separate `audiomgr` initializer | `src/main/audio_manager_1050.c` |
-| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | assembly; boundaries recorded |
+| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | `src/main/audiomgr.c`, `src/main/audiomgr_30E0.c`; boundaries recorded |
 | `0x3100`-`0x45F0` | 20 | JFG `audio_manager_36D0.c`; **tier B** start allocator, 20-function order, positional setters, and terminal volume calculation. `audspat_jingle_off`/JFG `amAmbientPause` is a title-specific naming divergence | `src/main/audio_manager_36D0.c` |
 | `0x45F0`-`0x4F40` | 5 | JFG `audio_manager_4C50.c`; **tier A** endpoints (`amVibratoInit`, `_depth2Cents`), five-function order, and `0xC` terminal alignment | `src/main/audio_manager_4C50.c` |
 | `0x4F40`-`0xC950` | 65 | JFG `objects.c` lineage follows the oscillator TU; **tier A** `GetRomlistInfo`, but no whole-object match or promoted boundary | assembly |
@@ -2593,6 +3105,18 @@ The final column records owned object words and relocation coverage.
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `func_80001740` | `0x2340` / `0x344` | **tier B:** DKR/JFG supply the SGI audio-manager initializer order and queue/DMA roles; Mickey's config and state fields remain authoritative | Candidate: 203 vs 209 instructions, frame -344 vs -336, first structural divergence at `+0x0` |
+| `func_80001A84` | `0x2684` / `0x11C` | **tier A:** DKR's public SGI `__amMain` body supplies the scheduler message-loop shape; Mickey's queue globals and message flow remain authoritative | Exact 71 object words and linked ROM bytes |
+| `func_80001BA0` | `0x27A0` / `0x24` | **tier B:** JFG supplies the `amGo` role and audio-manager order; the placeholder is retained | Exact 9 object words and linked ROM bytes |
+| `func_80001BC4` | `0x27C4` / `0x24` | **tier B:** JFG supplies the `amStop` role and audio-manager order; the placeholder is retained | Exact 9 object words and linked ROM bytes |
+| `func_80001BE8` | `0x27E8` / `0x0C` | **tier A:** Mickey-derived C body and linked ROM identity; placeholder retained because no external name is asserted | Exact 3 object words and linked ROM bytes |
+| `func_80001BF4` | `0x27F4` / `0x540` | **tier B:** DKR/JFG supply the SGI frame-handler/task-builder role; Mickey's manager and task globals remain authoritative | Candidate: 372 vs 336 instructions, frame -96 vs -88, structure mismatch from `+0x0` |
+| `func_80002134` | `0x2D34` / `0x54` | **tier B:** SGI audio-manager underrun-handler role and Mickey's AI/EFC state identify the body; no external name is asserted | Candidate: 9 differing words of 21, exact frame; direct EFC address lifetime remains unmatched |
+| `func_80002188` | `0x2D88` / `0x1CC` | **tier B:** DKR's public SGI `__amDMA` body supplies the DMA-list search/allocation shape; Mickey's DMA state and calls remain authoritative | Exact 115 object words, all 22 relocation records, and linked ROM bytes |
+| `audioManager_DMAInitProc` | `0x2F54` / `0x38` | **tier A:** BK `src/core1/code_1D00.c` supplies the SGI DMA-initializer body and name | Exact 14 object words and linked ROM bytes |
+| `func_8000238C` | `0x2F8C` / `0x130` | **tier A:** DKR's public SGI `__clearAudioDMA` body supplies the DMA-list cleanup shape; Mickey's queue and DMA state remain authoritative | Exact 76 object words and linked ROM bytes |
+| `func_800024E0` | `0x30E0` / `0x0C` | **tier A:** Mickey-derived C return body; the placeholder is retained because no external name is asserted | Exact 3 object words and linked ROM bytes |
+| `func_800024EC` | `0x30EC` / `0x14` | **tier A:** Mickey-derived zero-test return body; the placeholder is retained because no external name is asserted | Exact 5 object words and linked ROM bytes |
 | `func_80002500` | `0x3100` / `0xC4` | **tier B**: JFG supplies the `amInitAudioMap` role and exact audio-manager order; Mickey's externally visible placeholder is retained, while its pool sizes, point stride, handle field, and body come from Mickey-only evidence | Exact 49 object words and all sound-table, allocator, point-pool, count, and reset-call relocation identities under `-Wab,-r4300_mul` |
 | `audspat_jingle_off` | `0x31C4` / `0x28` | existing **tier A** audio-spatial object identity; JFG's `amAmbientPause` supplies the complete body while Mickey's title-specific name remains authoritative | Exact 10 object words and both call/data relocations |
 | `amAmbientRestart` | `0x31EC` / `0xC` | **tier B**: JFG supplies the complete body and official name; the paired ambient-pause flag and exact audio-manager order agree | Exact 3 object words and data relocation identity |
@@ -2618,14 +3142,51 @@ The final column records owned object words and relocation coverage.
 | `amUpdateOsc` | `0x4958` / `0x574` | **tier B**: JFG supplies the official name and exact oscillator-TU order; Perfect Dark supplies the related oscillator-update vocabulary and source shape, while Mickey's eight-case state machine and layout remain authoritative | Exact 349 object words and all sine, cents-ratio, constant, and state-field relocation identities |
 | `amStopOsc` | `0x4ECC` / `0x18` | **tier B**: JFG supplies the official name and exact oscillator-TU order; Mickey's own body returns the state to the free-list head | Exact 6 object words and both free-list relocation identities |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
+| `func_80006C40` | `0x6C40` / `0xC` | **tier D**: object-TU order and +0x58 field-store structure; placeholder retained | Exact 3 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000A6DC` | `0xA6DC` / `0xC` | **tier B**: `src/main/level.c` fixes the setter's existing `s32` call prototype; placeholder retained | Exact 3 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000485C` | `0x485C` / `0x10` | **tier D**: object-TU order and `s8` global-setter structure; placeholder retained | Exact 4 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80008118` | `0x8118` / `0x10` | **tier D**: object-TU order and byte-global initializer structure; placeholder retained | Exact 4 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005750` | `0x5750` / `0x18` | **tier B**: resident callers agree on the count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005768` | `0x5768` / `0x30` | **tier B**: `src/main/anim.c` supplies the typed `AnimPathObject *` append caller; placeholder retained | Exact 12 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005798` | `0x5798` / `0x70` | **tier D**: object-list removal loop and object-TU order; placeholder retained | Exact 28 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80009E78` | `0x9E78` / `0x90` | **tier B**: resident track/menu callers fix the display-list, matrix, vertex, and object wrapper interface; placeholder retained | Exact 36 object words, 13 relocation identities, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000A62C` | `0xA62C` / `0xB0` | **tier B**: JFG supplies the `setObjectViewNormal` body and `src/main/track.c` fixes the vector-setter interface; Mickey's target globals remain authoritative | Exact 44 object words, target relocation surface, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` |
+| `func_8000572C` | `0x572C` / `0x24` | **tier B**: resident callers agree on the start/end/list accessor role; placeholder retained | Exact 9 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `GetRomlistInfo` | `0xBC88` / `0x28` | existing **tier A** JFG identification; indexed romlist-table accessor | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_800069C0` | `0x69C0` / `0x28` | **tier D**: nested object/data field offsets and output-record initialization; placeholder retained | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000A244` | `0xA244` / `0x158` | **tier D**: object-list active/inactive partition and +0x14 header flag reconstructed from the DKR ancestor and Mickey target | Exact 86 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005808` | `0x5808` / `0x18` | **tier B**: resident callers agree on the second count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005820` | `0x5820` / `0x48` | **tier B**: resident callers across memory, weather, menu, and overlays fix the count-checked object-list lookup interface; placeholder retained | Exact 18 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_800058C0` | `0x58C0` / `0x4C` | **tier D**: nested +0x40 data pointer, byte-stride status fields, and zero-valued f32 guard reconstructed from the target and object callers; placeholder retained | Exact 19 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80007844` | `0x7844` / `0x8` | **tier D**: object-TU order and empty-leaf structure; placeholder retained | Exact 2 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_800056F0` | `0x56F0` / `0x3C` | **tier B**: `src/main/track.c` fixes the signed index/route-list lookup interface; placeholder retained | Exact 15 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80006EA0` | `0x6EA0` / `0x44` | **tier B**: resident callers in `src/main/anim.c` and `src/main/charControl.c` fix the object-registration interface; placeholder retained | Exact 17 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80004340` | `0x4340` / `0x5C` | **tier D**: object-system reset role and the target's ordered word/halfword global clears; placeholder retained | Exact 23 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000439C` | `0x439C` / `0xB8` | **tier B**: `src/main/track.c` fixes the object teardown caller and JFG supplies the surrounding object-system order; Mickey's free-list and allocation globals remain authoritative | Exact 46 object words, all 21 relocation identities, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` |
+| `func_800056A4` | `0x62A4` / `0x4C` | **tier A**: Mickey-only bounds check, record base pointer, and scaled index-table read; placeholder retained | Exact 19 object and linked ROM words, frameless, and all six fallback relocation identities; reading the index table as `&D_800C9460[1]` supplies the %hi/%lo pair splat could not recover across the early-return branch |
+| `func_800069E8` | `0x75E8` / `0x11C` | **tier A**: Mickey-only target-record initialization, aligned tail cursor, and renderer handoff; placeholder retained | Exact 71 object and linked ROM words, 40-byte frame, and all four relocation identities; reading `unk1C` back at its second use stops IDO reassociating the +4 into the size constant |
+| `func_80005868` | `0x6468` / `0x58` | **tier A**: Mickey-only table reads, signed halfword index/result, and ROM-section DMA interface; placeholder retained | Exact 22 object and linked ROM words, 224-byte frame, and all five relocation identities; carrying the final ROM offset leaves the intermediate index temporary under unchanged TU flags |
+| `func_80008A20` | `0x8A20` / `0x6C` | **tier D**: target-register ABI and +0x68 object-field dispatch into `func_8000831C`; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80008A8C` | `0x8A8C` / `0x108` | **tier D**: object-type switch, trap dispatch, and +0x44/+0x88 fields reconstructed from the target; placeholder retained | Exact 66 object words, compiler-owned switch table, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` |
+| `func_8000486C` | `0x546C` / `0x298` | **tier A**: Mickey-only cached asset-header loading, pointer fixups, and resource dispatch; placeholder retained | Exact 166 linked C words, 72-byte frame, all twenty-three relocation identities, and full ROM; adjacent offset-table words, correct texture-loader arity, success-path control flow, and redundant-local removal |
+| `func_80006C4C` | `0x784C` / `0x254` | **tier A**: Mickey-only temporary-object construction, model-loader dispatch, copy, and cleanup paths; placeholder retained | Exact 149 linked C words, 80-byte frame, all sixteen relocation identities, and full ROM; corrected post-decrement loops and call/store order, return-pointer home, typed model indexing, and destination-role reuse |
+| `func_80008128` | `0x8D28` / `0x1F4` | **tier A**: Mickey-only object movement, track bounds, and segment lookup; placeholder retained | Exact 125 linked C words, 64-byte frame, all five relocation identities, and full ROM; expanded bound locals and used movement copies recover scheduling and stack homes |
+| `func_80009220` | `0x9E20` / `0x1F4` | **tier A**: Mickey-only three-vector, sprite-segment layout, renderer calls, and literal-pool ownership; placeholder retained | Exact 125 linked C words, 112-byte frame, all nine relocation identities, and full ROM; real aggregates, consumed-argument reuse, dot-product grouping, and command-pointer post-increment remove the reconstruction residual |
+| `func_80009F74` | `0xAB74` / `0x2D0` | **tier A**: Mickey-only distance thresholds, unsigned model index, camera calls, and renderer dispatch; placeholder retained | Exact 180 object and linked ROM words, 40-byte frame, all 15 relocation identities, and full ROM under unchanged TU flags; post-call data reloads, selector-carrier reuse, and declaration order close the residual |
+| `func_8000A830` | `0xB430` / `0x208` | **tier A**: Mickey-only object-data sizing switch and caller ABI; placeholder retained | Exact 130 linked C words, frameless with no saved registers, three relocation sites/identities, 92 compiler-table destinations, and full ROM; direct switch expression removes the unnecessary allocated carrier |
+| `func_8000AA38` | `0xB638` / `0x4B4` | **tier A**: Mickey-only instruction, table-destination, runtime-call and ABI proof; placeholder retained | Exact 301 linked C words, 24-byte frame, 74 relocation sites/identities, 92 compiler-table destinations, and full ROM; caller forwards the third preserve-state parameter |
+| `func_8000AEEC` | `0xBAEC` / `0x4E0` | **tier A**: Mickey-only switch destinations, runtime calls and two-argument caller ABI; placeholder retained | Exact 312 linked C words, 32-byte frame, 69 relocation sites/identities, 89 compiler-table destinations and full ROM; direct selector restores allocation, and retail table evidence corrects four case labels |
+| `func_80009F08` | `0x9F08` / `0x6C` | **tier D**: +0x30 f32 scale input, flag gate, 250.0/2.0 clamp, and target branch structure reconstructed from the object block; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
 
 | Mickey routine | Best result | First mismatch | Remaining hypothesis |
 |---|---|---:|---|
 | `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
-| `func_80003480` | Best typed entry-update candidate is 93 instructions versus 94, with 62 differing words; its `0x40` frame remains larger than the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
-| `func_80003760` | Exact 25-word opcode schedule, relocation surface, and temp-FIFO lane under `-Wo,-loopunroll,0`; 8 register-only words remain after the flag lattice and 10 source/web hypotheses | function `+0x4` | IDO 5.3 pool ordering: the target assigns the lane count/index to `a2`/`a1` and emits the comparison through `at`, while every coherent candidate basin assigns `a1`/`a2` and a final temp. The donor peer is assembly-only; canonical output remains assembly-backed and the TU's verified flags are unchanged |
+| `func_80003480` | Fresh configured V0 is exact-size at 94 instructions, with 41/94 words matching; its `0x48` frame remains larger than the target's `0x30`, and 4/5 relocation sites align by offset, type, and identity | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; old source forms, flags, and permutation remain closed, and canonical output remains assembly-backed |
+| `func_80003760` | Evidence A exact C: all 25 words, frame, relocations, and linked ROM bytes match under `-Wo,-loopunroll,0` | none | Bounded permutation resolved the temp-FIFO allocation; the donor peer remains assembly-only role evidence |
+| `func_8000BD0C` | Shape-exact 15-instruction candidate with 2 schedule-only differing words, identical instruction multiset, frameless, and no relocations | function `+0x2C` | Permuter-ready JFG `GetRangeSquared` adaptation; preserve the guarded candidate and resolve the late scheduling tie with the bounded search |
+| `func_8000BCB0` | Shape-exact 23-instruction candidate with 2 schedule-only differing words, frameless, and exact `sqrtf` call topology | function `+0x3C` | Permuter-ready JFG `GetRange` adaptation; preserve the guarded candidate and resolve the FP scheduling tie |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
 public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted
@@ -2663,12 +3224,12 @@ placeholder name or counting padding as function text.
 | `0x5B300` / `0x8005A700` | `0x64` | `func_8005A700` | D: allocates animation table/cache storage |
 | `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
 | `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
-| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | D: loads a model's animation-ID table and allocates its animation pointer array; no per-symbol caller argument recorded |
-| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
-| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
+| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B: loads a model's animation-ID table and allocates its animation pointer array; sole proven caller is `func_8001F520+0x42C`, passing the loaded model and model ID |
+| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | B: reference-counted single-animation loader; sole proven caller is `func_8005A7A0+0x104`, passing an `lh` animation ID and consuming the returned pointer |
+| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | B: releases one reference-counted animation; direct callers are `func_80020278+0xD0` and `func_8005A7A0+0x140`, each passing an animation pointer |
 | `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
 | `0x5B7A8` / `0x8005ABA8` | `0x1BC` | `func_8005ABA8` | D: advances/clamps the current animation frame |
-| `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | D: selects an animation and establishes its frame/blend state; no per-symbol caller argument recorded |
+| `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | D: selects an animation and establishes its frame/blend state; matched C, 108 exact words, no frame or relocations |
 | `0x5BB14` / `0x8005AF14` | `0x730` | `func_8005AF14` | B: builds model matrices and transformed attachment points, then calls `camConvertMatrixList` to queue matrix conversion |
 | `0x5C244` / `0x8005B644` | `0xCC` | `func_8005B644` | D: constructs a parented matrix list for the builder |
 | `0x5C640` / `0x8005BA40` | `0x12FC` | `func_8005BA40` | A: bare `-g -mips2 -32` emits exact text and the measured `main/gsSnd` rodata split links byte-identically |
@@ -2731,33 +3292,59 @@ initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
 Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
-exact bytes under the TU's measured `-Wo,-loopunroll,0` override, bringing
-exact C in `main/models_5B300` to `0x19C` bytes. Its 51 instructions, `0x88`
-frame, calls and relocation identities match; JFG retains the corresponding
-model-matrix routine as assembly, so no donor body was adapted.
+proven exact bytes under the TU's measured `-Wo,-loopunroll,0` override,
+bringing proven exact C in `main/models_5B300` to `0x19C`. The tracked
+scoreboard carries another exact `0xB8` for raw-array `func_8005AAC0`, bringing
+proven exact C in this TU to `0x254`. A target object independently rebuilt
+from the historical pre-promotion split is instruction-identical to the
+retained configured C across all 46 words with frame `0x20`. Its seven target
+tuples exactly match the candidate: `D_800D7D04` HI/LO at `+0x14/+0x28`,
+`D_800D7CF4` HI/LO at `+0x38/+0x3C` and `+0x7C/+0x84`, and `mmFree`
+`R_MIPS_26` at `+0x74`. Linked function/TU/resident bytes are also exact. A
+fresh current-source compile through full-ROM comparison remains queued as a
+contemporaneous reproof, not as missing target evidence. JFG retains both
+corresponding routines as assembly, so no donor body was adapted.
 
-The `func_8005A948` flag lattice additionally establishes
-`-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
-to 166 instructions, while the disabled-unroll candidate has the target's 94
-instructions, frame, opcodes, CFG and relocation identities. The p7 corrected
-MIPS II permuter import identified a coherent cache-index reuse for the ROM
-table offset; in the real TU it reduces the allocation-only residual from 15
-to 11 register words, still first diverging at function offset `+0x40` when
-the cache-index shift is allocated to `t7` instead of `t8`. The remaining
-ring-only substitutions need allocator-trace evidence, so the best C is
-retained under `NON_MATCHING` and the target assembly remains canonical.
+`func_8005A948` now has fresh configured full-TU proof. V0 has the target's
+94-word size and frame `0x38`, with 62/94 raw and relocation-normalized words
+(68/94 workbench-normalized), first mismatch `+0x40`, and all 13 relocation
+tuples exact. All 119 flag
+identities were nonexact; seven O2/MIPS-II configurations tie V0. A
+fidelity-clean proc-4 allocator trace and aligned comparison show all 34
+colored-variable slots agree while the temporary FIFO first trails by one pop
+at slot 4. The sole natural boolean-normalization form fixes the downstream
+rotation and improves to 85/94 raw/relocation-normalized and 91/94
+workbench-normalized words. The remaining
+register web is `t7` versus target `t8` at `+0x40/+0x44/+0x80`; call-argument
+homes at `+0xF0/+0xFC/+0x100/+0x104/+0x120/+0x12C` are each four bytes below
+target. There are zero runtime records or exports, `func_8005A7A0+0x104` is the
+sole caller and passes an `lh` animation ID, and no overlay or stored-pointer
+inbound exists. The function owns no target padding. The bounded route is
+exhausted without a historical control or generic batch; assembly remains
+canonical.
 
-`func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
-frame against `0x38` and 73 differing positional words from the prologue;
-pointer/array loop variants and all 119 flag combinations retain the excess
-live ranges. A new pointer-induction spelling brings `func_8005AAC0` to the
-target's 46 instructions with 14 differing words, first at `+0x40`; its cache
-temporaries rotate by one register and its selected-index spill lands at
-`0x1C(sp)` instead of `0x18(sp)`. The flag lattice and bounded permutation do
-not repair that FIFO. `func_8005ABA8` emits 110 against 111 and first diverges
-at `+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
-plateau because neither Mickey's current types nor JFG's assembly-only peer
-establish its model-node and attachment layouts.
+`func_8005A7A0` has fresh unchanged current-HEAD configured full-TU evidence at
+106 words: 96/106 raw and 99/106 relocation-normalized object words, with ten
+raw sites and seven relocation-normalized positional sites. The raw sites are
+`+0x000/+0x08c/+0x0a0/+0x0bc/+0x0c0/+0x0c4/+0x0c8/+0x0dc/+0x0f4/+0x1a4`.
+Its `0x50` candidate frame remains larger than the target's `0x38`, and the
+alignment carrier uses `v1`/`sp+0x30` instead of `s0`/`sp+0x34`. All ten
+relocation identities agree as a multiset and nine tuples are exact, but the
+second `piRomLoadSection` call moves from target `+0xbc` to candidate `+0xc0`.
+The real-address linked V0 is 94/106 raw and 99/106 relocation-normalized
+words. More than ten pointer/index, size-expression, coalescing, scope, and
+mask forms plus all 119 flag groups exhausted the family. The focused reproof
+is complete; park pending a new frame/carrier allocation mechanism. Assembly
+remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
+at `+0x38` before an FP-allocation cascade. `func_8005AF14` now has a
+Mickey-derived matrix/attachment-point candidate; its source comment discloses
+the pinned JFG declaration files used only to cross-check field roles, while
+JFG's peer body remains assembly. The target is 460 instructions with a
+`-0xF8` frame versus the candidate's 463 and `-0x110`; the workbench reports
+`structure-mismatch`, 377 differing words from `+0x0`. Assembly remains
+canonical. Its `next:` routing is `constant-audit` on the earliest immediate,
+then structural repair and only then register work; the frame/local shape and
+camera-angle block are the candidate-specific structural focus.
 
 In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
@@ -2772,10 +3359,135 @@ and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
 `0xF4` bytes.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`: 26/22 words, 19 positional differences from `+0x0`; workbench reports structure-mismatch.
-The TU now owns the measured four-record `0x800D78B0`–`0x800D78F0` BSS; an array collapses to 16 words and volatile slots differ in 21/22.
-Stock `-O2 -mips2 -32` remains best after the 119-configuration flag lattice; assembly stays canonical.
+`func_80058250` has a fresh configured full-TU reproof at 26 candidate versus
+22 target words, with 3/22 positional matches and first mismatch `+0x0`. The
+target owns exactly ROM `0x58E50..0x58EA8`, is frameless, and has no padding
+before `func_800582A8`. The TU owns the measured four-record
+`0x800D78B0`–`0x800D78F0` BSS. Its twelve stores are semantically correct, but
+the candidate carries 24 relocations against 20: the target uses separate
+handle and racer-object bases for each record and reuses the latter high half
+for the preceding float's distinct LO16, eliminating exactly four HI16 loads.
+All twelve BSS identities and the sole call from `func_80004FE0+0x54C` are
+authenticated. The earlier 119-configuration lattice, array, four-slot,
+volatile and split-tail families, plus fresh target-order, TU-local-scalar,
+comma-expression, racer-base-pointer and volatile-tail probes are nonexact;
+none strictly improves the retained named-global V0. No exact or structurally
+credible permitted donor was found. Resume only with an original declaration
+or TU model that naturally emits two direct bases and three separately named
+LO16s per slot, or evidence that the initializer was handwritten. Assembly
+stays canonical.
 
 `func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
 Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.
 Its DKR organization/terminology provenance remains recorded at the body; assembly stays canonical.
+
+
+### `func_8003D4FC` structural reconstruction evidence
+
+The configured full-TU baseline reproduces 1,037 raw and relocation-masked
+differing words: 1,066 candidate words against 1,068 target words, an eight-byte
+deficit, frame `0x138`, first mismatch `+0xC`. This is compiled nonexact C;
+the guarded assembly remains canonical. The workbench compare verdict is
+`structure-mismatch`; diagnose routes the mixed residual through
+`constant-audit` before `structure-buckets`. Applicable levers are the
+constant/type audit and removal of duplicated source loops that fight IDO's
+own loop transforms. No flag or permutation search is part of this reopening.
+
+**Tier B, Mickey call and relocation evidence:** the target has fourteen
+`R_MIPS_26` calls and no global-data relocations. They name `func_800349A4`
+three times (initial material setup, batch flush, final flush),
+`func_8002A8BC` and `func_8002A8C0` five times each (two angle pairs for each
+of the first two geometry modes, one pair for the third), and `pointListRPY`
+once (the general rotation loop). The retained candidate has the same ordered
+call identities and count, but none of the call-site offsets match. That is
+call-graph agreement, not exact relocation-tuple agreement. Existing Mickey
+prototypes supply signed sixteen-bit angles, float returns, and the
+three-component input/output contract for `pointListRPY`.
+
+**Tier D, Mickey load/store and control-flow evidence:** the entry stride is
+`0x78`; the signed type discriminator is at `0x2C`, the signed alpha word at
+`0x64`, and the three colors and intensity are unsigned bytes. Batch alpha is
+a separate signed sixteen-bit local holding the masked high byte; vertex
+alpha is the signed shift result whose low byte is stored. The render-texture
+selector is an unsigned halfword at offset six, distinct from the existing
+`ParticleTexture.flags` field at offset four. The general rotation input is
+one contiguous three-float vector, not independent address-taken scalars.
+
+The draft and direct assembly review expose two retained-C correctness gaps:
+a flush must revisit the first live entry instead of consuming it, and the
+closing pipe sync belongs inside the nonempty-entry path. The entry count is
+reloaded after calls, whereas point and primitive counts are captured before
+initial material setup. These are structural reconstruction inputs, not
+allocator-only experiments.
+
+The fresh masked-skeleton oracle identifies JFG's existing placeholder sibling
+as nearest (4,956 bytes versus Mickey's 4,272); no new donor material or name
+was adopted. The generated m2c draft and scoped context stay ignored. The
+all-header context failed on unrelated incomplete types; a particle-only
+context generated successfully without changing project headers.
+
+The authorized reconstruction finished at attempt 18 with **995 of 1,068
+positional words exact**, 73 raw and relocation-masked differing words,
+first mismatch `+0x2D0`, exact 4,272-byte extent, exact frame `0x138`, and
+all fourteen offset/type/identity relocation tuples exact. Workbench `view`
+reports `register-permutation`: zero structural, schedule, or constant
+differences, with a consistent exchange of two integer temporary registers.
+This remains compiled `NON_MATCHING` C, with no new matching-byte credit.
+
+The meaningful reconstruction steps were separate batch/vertex alpha and a
+real three-float vector; flush-versus-consume control flow and post-call
+count reloads; equality-terminated point loops whose peeling and pipelining
+belong to IDO; direct signed-point conversions and the observed rotation
+expression trees; native GBI command scopes and DMA fields; local declaration
+layout recovered from observed stack homes; promoted texture-selector values;
+and batch initialization plus material-cache argument lifetimes. No artificial
+padding, inert local, flag lattice, permuter, allocator trace, or object edit
+was used. The retained source was rewritten in project idiom; the generated
+draft was not adopted verbatim.
+
+The baseline and all eighteen material attempts retain source, configured
+full-TU object, full comparison report, concise metrics, relocation surface,
+and rationale under ignored `build/wb/t2-3/attempt-*`. Attempt 7 first aligned
+all fourteen relocations; attempt 11 restored exact size and frame; attempt 12
+closed every stack offset; attempt 18 closed the remaining source schedule.
+The narrowed/intermediate alpha experiments and the sizeof-based DMA length
+regressed and are preserved as rejected evidence. Explicit cache assignments
+inside the material-call arguments reproduced the target's update schedule.
+
+**Stopping evidence:** this is a mechanism-scope handoff, not an attempt-cap
+or five-attempt-stall claim. The last attempt still improved the result, but
+it completed the authorized structural reconstruction and isolated a pure
+register exchange. Continuing into allocator or permutation work would replace
+the assignment's explicitly exclusive mechanism. The next concrete lever is
+a separately authorized `register-role-audit` of the first vertex-DMA command's
+integer temporary roles and expression evaluation order. Preserve the proven
+frame, field types, CFG, and all fourteen relocation tuples while investigating
+that residual; do not repeat the closed reconstruction or rejected type forms.
+
+Validation of this guarded result: the fresh configured full-TU comparison
+reproduced the attempt-18 metrics after source cleanup. `gmake verify` rebuilt
+the canonical tree and reproduced the expected US ROM SHA1. That ROM equality
+proves the assembly fallback and unchanged matched neighbors; it does not
+promote this nonexact candidate. The target's owned range remains resident
+ROM `0x3E0FC` through `0x3F1AC`, with no function padding credited.
+
+**Closed (Evidence A, exact).** The 73-word register exchange was not an
+allocator problem at all. The batch flush caches the texture and its scale for
+the next comparison, and the guarded source spelled both caches as assignments
+embedded in the material call's own argument list -- the shape the earlier
+attempt log records as "explicit cache assignments inside the material-call
+arguments reproduced the target's update schedule". Hoisting them out and
+writing the flush as three ordinary statements -- the call, then each carrier
+assignment on its own line -- closes the function: 1,068 of 1,068 words, frame
+`0x138`, all fourteen relocation tuples, and `gmake verify` reproducing
+`507341c0a40ca3e9a7cee969b396ee53facfb548` with the guard removed.
+
+An assignment folded into an argument keeps that value live across the call in
+addition to the argument copy, so ugen frees the two integer temporaries in the
+opposite order at the first vertex-DMA command; the ring is one position out
+from `+0x2D0` to the end of the function, and every one of the 73 words is that
+one exchange. The lesson generalizes past this function: an embedded assignment
+is a register-lifetime edit disguised as a spelling choice, and a residual that
+is a pure two-register exchange with an exact frame and exact relocations
+should be read as a liveness question about the statement *before* the first
+divergence, not as an allocator contest at it.

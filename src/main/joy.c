@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/saves.h"
 
 /*
  * Resident controller input, ROM 0x25C20-0x263F0.
@@ -58,7 +59,6 @@ extern void joySaveActionB(void);
 extern void joySaveActionC(s32 *, s32, s32 *);
 extern void joySaveActionD(void *);
 extern void joySaveActionE(void *);
-extern void joySaveActionF(void *);
 extern void joySaveActionG(void);
 extern void joySaveActionH(s32);
 
@@ -126,6 +126,9 @@ s32 joyInit(void) {
 /*
  * PROVENANCE: body structure adapted from Jet Force Gemini src/joy.c::joyRead;
  * Mickey's save-flag calls and byte identity are decisive.
+ * The authorized re-audit at JFG upstream efd5abb found this body unchanged
+ * from c82affff's src/controller.c; its header split adds no Mickey-relevant
+ * joyRead prototype that this translation unit did not already carry.
  *
  * Plateau: six loop/storage/type hypotheses preserve the target's 159
  * instructions, 636-byte boundary and -0x38 frame. The first mismatch is
@@ -342,3 +345,13 @@ void arithmeticFunction(u8 *challenge, u8 *response) {
 s32 joyCharVal(void) {
     return 1;
 }
+
+/* PLATEAU-HANDOFF:joyRead:start
+ * symbol: joyRead
+ * score: 111/159 words
+ * frame: 0x38
+ * relocations: 6
+ * first-mismatch: +0x18
+ * summary: Verdict mixed(constant/structural/register); lever none-known. JFG efd5abb leaves joyRead unchanged; next: donor with new declaration/lifetime evidence.
+ * PLATEAU-HANDOFF:joyRead:end
+ */

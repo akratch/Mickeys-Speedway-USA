@@ -146,6 +146,9 @@ typedef struct SpranimB798Target {
 extern u8 D_8007BF2C;
 extern u8 D_8007BF0C;
 extern void func_80006EA0(void *object);
+/* The exact caller passes owner/context in a3, which the target callee
+ * overwrites without consuming. Keep this four-argument declaration local;
+ * the guarded callee's three-argument definition preserves its frame. */
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_8000D16C(s16 textureIndex, s32 x, s32 y, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
@@ -201,9 +204,9 @@ void spranimOnceControl(SpranimOnceState *state, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 65 differing words, first mismatch +0x0. */
-/* Candidate: 193/193 instructions with exact relocation identities; frame is -0x98 versus target -0x80 and four opcode residuals remain. */
-/* Shape status: instruction count and hit-list control flow are exact, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 60 differing words, first mismatch +0x48. */
+/* Candidate: 193/193 instructions with an exact 0x80 frame and five exact relocation identities; four opcode residuals remain. */
+/* Shape status: the ten-entry hit list and loop extent are exact, but stack homes and the integer register web remain non-exact. */
 /* PROVENANCE: JFG's public effectboxControl assembly establishes the trigger/hit-list idiom; all Mickey offsets and calls below are reconstructed locally. */
 typedef struct SpranimEffectBox {
     u8 pad0[0xC];
@@ -229,9 +232,6 @@ extern s32 func_8002905C(u8 type, void *state);
 
 void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
     SpranimEffectState *state;
-    void *hits[16];
-    s32 hitCount;
-    s32 processed;
 
     state = arg0->state64;
     if ((state->planeIndex >= 0) && (state->planeIndex <= 0)) {
@@ -247,6 +247,10 @@ void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
     }
 
     {
+        s32 hitCount;
+        s32 processed;
+        void *hits[10];
+
         hitCount = func_8005776C(arg0->x, arg0->y, arg0->z, (f32) state->radius, 0, hits);
         if (hitCount != 0) {
             processed = 0;
@@ -288,8 +292,8 @@ void texscrollControl(TexscrollState *state, s32 updateRate) {
 }
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 131 differing words, first mismatch +0x0. */
-/* Candidate: 171/175 instructions with a -0xD0 frame versus target -0xE0; four instruction and stack-home residuals remain. */
-/* Shape status: signed plane tests, intersection arithmetic, and action dispatch are preserved, but the candidate is not shape-exact. */
+/* Candidate: 171/175 instructions, a 0xD0 frame versus target 0xE0, and 3/9 exact relocation identities. */
+/* Shape status: signed plane tests, intersection arithmetic, and action dispatch are preserved; FP lifetimes and stack homes remain non-exact. */
 /* PROVENANCE: JFG's public character-plane control role supplies the idiom; Mickey's fields, globals, and action calls are authoritative below. */
 void func_8001B798(SpranimB798Object *arg0, s32 arg1) {
     SpranimPlane *plane;
@@ -402,3 +406,23 @@ void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
     frame = (arg0->flags88 & 3) << 8;
     func_80020D8C(arg0->entries68[index], 0, frame, arg0);
 }
+
+/* PLATEAU-HANDOFF:effectboxControl:start
+ * symbol: effectboxControl
+ * score: 133/193 words
+ * frame: 0x80
+ * relocations: 5
+ * first-mismatch: +0x48
+ * summary: Exact frame and relocation identities; trigger stack homes and the hit-loop integer register web remain.
+ * PLATEAU-HANDOFF:effectboxControl:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001B798:start
+ * symbol: func_8001B798
+ * score: 44/175 words
+ * frame: 0xD0
+ * relocations: 9
+ * first-mismatch: +0x0
+ * summary: Configured O2/MIPS-II is best; target frame is 0xE0, only 3/9 relocation identities align, and the FP lifetime/stack-home web remains.
+ * PLATEAU-HANDOFF:func_8001B798:end
+ */

@@ -406,3 +406,13 @@ process_mode:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o090/overlay_090/func_overlay_090_F00000FC_18D4BF4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_090_F00000FC_18D4BF4:start
+ * symbol: func_overlay_090_F00000FC_18D4BF4
+ * score: 575 differing words
+ * frame: 0xE0
+ * relocations: 58
+ * first-mismatch: +0x0
+ * summary: Reconstruct state-machine CFG and local lifetimes to add nine instructions while reducing non-save frame use by 24 bytes.
+ * PLATEAU-HANDOFF:func_overlay_090_F00000FC_18D4BF4:end
+ */

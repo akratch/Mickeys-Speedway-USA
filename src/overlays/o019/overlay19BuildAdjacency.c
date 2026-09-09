@@ -1,8 +1,8 @@
 #include "overlays/overlay019.h"
 
-/* Plateau (batch 17): exact 0x1EC size; 41 words differ, first at +0x7C.
- * Edge-loop locals, statement order, register hints, and signedness tie or regress.
- * The blocker is the temporary-register web; flags tie and permuter setup failed. */
+/* Workbench: allocation-mismatch, 41 differing words; 123 instructions/frame 0x80 and opcode order exact.
+ * Relocation count and offset/type are exact; one object-only symbol alias remains masked.
+ * Remaining differences are register allocation in the temporary web; this candidate is permuter-ready. */
 #ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
@@ -99,3 +99,13 @@ void overlay19BuildAdjacency(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildAdjacency/func_overlay_019_F0000A30_1875C88.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay19BuildAdjacency:start
+ * symbol: overlay19BuildAdjacency
+ * score: 82/123 words
+ * frame: 0x80
+ * relocations: 1
+ * first-mismatch: +0x7C
+ * summary: Permuter batch 260 to 200, no zero; register allocation remains; retry with preserved artifacts.
+ * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
+ */

@@ -1,3 +1,4 @@
+# Historical promotion-trial surface; no active Makefile rule consumes it.
 # Rebind stored-zero call carriers only after preserving runtime identities.
 # The runtime table also owns the semantic D_EE0 LOCAL pair; its shipped low
 # addend is zero, so bind those two stored carriers to the overlay-zero symbol.

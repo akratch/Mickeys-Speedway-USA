@@ -23,39 +23,43 @@ extern const Overlay68KindPair gOverlay68KindMapInitial[];
 extern volatile const s8 gOverlay68KindMapLoop;
 
 /* The runtime relocation stream preserves these five distinct call roles. */
-extern Overlay68Probe *overlay68AllocProbeReloc(s32 size, s32 tag);
-extern void overlay68FillProbeReloc(s32 kind, Overlay68Probe *probe,
-                                    s32 totalBytes, s32 stride);
-extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
-extern s32 overlay68MapResidentIndexReloc(s32 kind);
-extern void overlay68FreeProbeReloc(void *probe);
+extern void *func_8002B280(s32 size, u32 colourTag);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address,
+                                    s32 assetOffset, s32 size);
+extern u8 *func_800291C4(void);
+extern s32 levelGetBlurEffect(s32 kind);
+extern void mmFree(void *probe);
 
 /*
- * Plateau (2026-08-25): the -O2/-mips2 candidate is size-exact but differs
- * in 18 of 80 words, first at +0x14. The residual is the local-home ordering
- * plus the zero-index probe-cursor schedule; declaration reordering moved to
- * the wrong 0x38-byte frame, and the bounded permuter found no faithful form.
- * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
- * 18/80 words with the first mismatch at +0x14. Reusing the loop index for
- * the zero cursor removed a required instruction, while ordering the four
- * homed locals by their target slots produced the wrong 0x38-byte frame.
- * Current lane structural pass (2026-08-25): reusing the homed result as the
- * zero cursor and reversing the sentinel comparison did not improve 18/80;
- * typed values-array indexing grew the body by one word and differed in 35.
- * The unresolved cause remains the local-home layout and cursor schedule.
+ * Bounded plateau (2026-08-30): a declaration-slot census reproduces the
+ * exact 0x48-byte frame and all four call-crossing stack homes, improving the
+ * configured candidate from 18 to 10 differing words. A fidelity-gated UOPT
+ * trace (2026-08-31) authenticates 13 integer allocation decisions (11 color,
+ * two split). Moving the zero-cursor lifetime across the division or calls,
+ * and splitting the pointer carrier into two statements, all reproduce V0
+ * byte-for-byte. A single hash-bound split-provenance capture (2026-09-01)
+ * identifies split webs 42 and 0, but the producer exposes no source-semantic
+ * or virtual/final stack-home fields, so it cannot select an admissible C
+ * change. The 2026-09-06 binding repair authenticates five resident callee
+ * ABIs from ROM destinations and matched C. All nine static/runtime identities
+ * and offsets/types now align through the existing mixed per-TU alias chain.
+ * Raw instructions remain unchanged: 320 bytes, frame 0x48 and ten normalized
+ * word differences, first +0x50. The 2026-09-04 byte-offset cursor reshape was
+ * byte-identical; that negative result does not prove source unreachability.
+ * Earlier flag/batch history remains; this binding repair adds no match credit.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
+    s32 amount;
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
-    Overlay68Probe *probe;
-    Overlay68ResidentEntry *entries;
     s32 currentKind;
-    s32 amount;
-    s32 threshold;
-    s32 value;
-    s32 index;
     s32 result;
+    s32 threshold;
+    Overlay68Probe *probe;
+    s32 value;
+    Overlay68ResidentEntry *entries;
+    s32 index;
     s16 *valueCursor;
     s32 cursorIndex;
 
@@ -77,13 +81,13 @@ s32 overlay68CheckKind(s32 kind) {
     }
 
     if (amount != -1) {
-        probe = overlay68AllocProbeReloc(sizeof(*probe), 0x85);
+        probe = func_8002B280(sizeof(*probe), 0x85);
         if (probe != NULL) {
-            overlay68FillProbeReloc(0x3F, probe,
+            piRomLoadSection(0x3F, (u32)probe,
                                     amount * (s32)sizeof(*probe),
                                     sizeof(*probe));
-            entries = overlay68GetResidentEntriesReloc();
-            index = overlay68MapResidentIndexReloc(kind);
+            entries = (Overlay68ResidentEntry *)func_800291C4();
+            index = levelGetBlurEffect(kind);
             threshold = entries[index].thresholdNumerator / 5;
             cursorIndex = 0;
             valueCursor = (s16 *)probe + cursorIndex;
@@ -105,7 +109,7 @@ s32 overlay68CheckKind(s32 kind) {
                 result = 1;
             }
         }
-        overlay68FreeProbeReloc(probe);
+        mmFree(probe);
     }
 
     return result;
@@ -113,3 +117,13 @@ s32 overlay68CheckKind(s32 kind) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68CheckKind/func_overlay_068_F000146C_18C85CC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68CheckKind:start
+ * symbol: overlay68CheckKind
+ * score: 70/80 words
+ * frame: 0x48
+ * relocations: 9
+ * first-mismatch: +0x50
+ * summary: Workbench verdict structure-mismatch, lever none-known; five fresh source spellings were byte-flat. Next capture a stock-fidelity UGEN ring/line-order trace.
+ * PLATEAU-HANDOFF:overlay68CheckKind:end
+ */

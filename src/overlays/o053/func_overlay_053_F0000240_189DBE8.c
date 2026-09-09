@@ -24,6 +24,9 @@ extern f32 D_290;
  * No new safe lever: all 119 flags are exhausted; unresolved call/data relocation identities block structural iteration.
  * Remains: concrete callee/data types and relocation ownership.
  */
+/* Ownership trial (2026-08-28): no initialized .data/.rodata is emitted by
+ * this TU; linked promotion remains text-differs with 634 in-range words,
+ * first +0x0. Candidate text is +0x140 bytes over the 0x9F0 target span; no ownership lever remains. */
 #ifdef NON_MATCHING
 void func_overlay_053_F0000240_189DBE8(s32 arg0) {
     O53Unknown spD0;
@@ -341,3 +344,13 @@ loop_40:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o053/func_overlay_053_F0000240_189DBE8/func_overlay_053_F0000240_189DBE8.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_053_F0000240_189DBE8:start
+ * symbol: func_overlay_053_F0000240_189DBE8
+ * score: 709/636 words
+ * frame: 0x178
+ * relocations: 61
+ * first-mismatch: +0x0
+ * summary: V0 is 713/636 words (+77), frame 0x178 vs 0xD8, and overruns its 2544-byte owner by 308 bytes; relocation identities are unavailable.
+ * PLATEAU-HANDOFF:func_overlay_053_F0000240_189DBE8:end
+ */

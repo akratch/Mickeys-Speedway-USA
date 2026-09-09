@@ -117,3 +117,13 @@ void overlay17CalculateEndpoints(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17CalculateEndpoints/func_overlay_017_F0000000_18739B8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay17CalculateEndpoints:start
+ * symbol: overlay17CalculateEndpoints
+ * score: 65/198 words
+ * frame: 0x58
+ * relocations: 3
+ * first-mismatch: +0x24
+ * summary: Fresh V0 retains 133 differences; call proxies have no exact sibling witness, zero identities resolve, and only one relocation site aligns.
+ * PLATEAU-HANDOFF:overlay17CalculateEndpoints:end
+ */

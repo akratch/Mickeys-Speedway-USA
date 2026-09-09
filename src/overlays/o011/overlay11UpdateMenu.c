@@ -37,7 +37,7 @@ extern s32 D_paramC;
 extern s32 D_paramD;
 extern s32 D_modeFlag;
 
-extern O11Status *func_overlay_011_F0000000_1868848(void);
+extern O11Status *func_80028F54(void);
 extern void func_overlay_011_F0001058_18698A0(s32 arg0);
 extern void func_overlay_011_F0001130_1869978(s32 arg0);
 extern void func_overlay_011_F0002948_186B190(void);
@@ -53,36 +53,61 @@ extern void func_800290AC(s32 arg0);
 extern void func_800291D8(s32 arg0);
 extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
-extern void func_overlay_066_F0000000(void *arg0);
+extern void overlay66Select(s32 selection);
 
-/* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
+/* Pinned exact-overlay DKR v77/v80 and JFG scans found no exact donor. */
 /*
- * Plateau (2026-08-28): canonical -O2 -mips2 is size-exact (1204 B/301 words),
- * with a 0x48-byte frame, 102 relocation roles, and 299/301 words identical;
- * the first mismatch is the reversed live index/handle spill pair at +0x138.
- * A scoped handle after the ternary and a block-scoped callback value are
- * baseline-equivalent; moving the handle before it swaps the pair but hoists
- * the zero-value setup and changes schedule. The prohibited frame/spill rewrite
- * remains non-promotable; canonical assembly stays.
+ * The 2026-08-29 bounded reproof exhausted 122 stock builds plus one
+ * codegen-faithful allocator trace. Clean V0 emitted 301 instructions with a
+ * 0x30 frame and 23 relocation-masked positional differences. All 119 flag
+ * configurations were nonexact (53 compiled; seven tied V0; 66 failed). The
+ * trace found identical uopt pool and ugen temporary lanes. An explicit
+ * current-handle form regressed to 30 differences. Keeping the three loop
+ * locals in their natural lexical block is the sole strict gain: 301
+ * instructions, exact 0x48 frame, 33 raw target-object differences and 19
+ * after masking linker-filled fields (workbench norm=4, regs=2), first +0x1C.
+ * The historical +0x138/+0x140 v0/v1 pair remains, but the removed source's
+ * 299/301 runtime-normalized score does not transfer to this clean body.
+ *
+ * A 2026-09-01 identity pass names the Overlay 66 +0 call as overlay66Select,
+ * closing all 102 relocation offsets, types, identities, and addends. Moving
+ * the existing index and semantic locals to their natural declaration homes,
+ * while narrowing action to the input block, restores every target stack home
+ * and improves the candidate to 299/301 words. Only the two spill stores at
+ * +0x138/+0x140 remain reversed around the call. Four additional loop/scope
+ * forms and one five-minute gain-gated batch were nonexact. The exact linked
+ * range remains fallback assembly; do not revive dead frame arrays, the prior
+ * flag lattice, or the exhausted loop forms.
+ *
+ * A 2026-09-04 scheduler pass exhausted ten additional declaration-order and
+ * physical-line variants without a gain. The trace-on object is byte-identical
+ * to the normal candidate; as1 assigns both spills to the call line with the
+ * same dependency and zero aftercycles, then ranks the handle spill first.
+ * Source-line scheduling and declaration order are exhausted for this pair.
+ *
+ * A 2026-09-09 phase-replay pass closed the mechanism. ugen already emits the
+ * pair in the target's order; as1 exchanges them, and feeding as1 the same
+ * listing with only that pair swapped reproduces the owned bytes with zero
+ * non-relocation differences, which proves the rest of this body exact. The
+ * exchange is triggered by the may-alias argument load in front of the pair,
+ * ugen orders spills ascending by register in 73 of 73 comparable sites, and
+ * the only barrier that stops the exchange is a debug line entry between the
+ * two stores, which ugen cannot emit inside one statement's spill group. Do
+ * not spend more order, line, loop or flag attempts here; see
+ * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
     s32 index;
-    s32 indexPadding[4];
-    O11Status *status;
-    s32 finish;
-    s32 finishPadding[1];
-    void **handle;
-    s32 handlePadding[1];
     s8 direction;
-    s16 value;
     s32 selection;
     O11Object *object;
     O11ObjectSub *sub;
+    O11Status *status;
+    s32 finish;
     volatile s32 *menuInput;
-    s32 action;
 
-    status = func_overlay_011_F0000000_1868848();
+    status = func_80028F54();
     direction = D_0[D_1C4];
     if (direction < -32) {
         if (((status->mode >= 2) && (D_1BC < 3)) ||
@@ -104,22 +129,29 @@ void overlay11UpdateMenu(s32 updateRate) {
         }
     }
 
-    handle = D_1CC;
-    index = 1;
-    do {
-        value = (index == D_1BC) ? D_1B8 : 0;
-        func_overlay_045_F0001BF4_188E04C(*handle, value);
-        index++;
-        handle++;
-    } while (index != 4);
+    {
+        void **handle;
+        s16 value;
+
+        handle = D_1CC;
+        index = 1;
+        do {
+            value = (index == D_1BC) ? D_1B8 : 0;
+            func_overlay_045_F0001BF4_188E04C(*handle, value);
+            index++;
+            handle++;
+        } while (index != 4);
+    }
 
     menuInput = (s32 *)(D_menuBase + 0x1C4);
     if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {
+        s32 action;
+
         finish = 0;
         selection = D_1BC;
         switch (selection) {
         case 1:
-            func_overlay_066_F0000000(0);
+            overlay66Select(0);
             func_800290AC(0);
             func_800291D8(0x1E);
             func_800006BC(0.5f, 0x7F);
@@ -195,3 +227,13 @@ void overlay11UpdateMenu(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/overlay11UpdateMenu/func_overlay_011_F0001398_1869BE0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay11UpdateMenu:start
+ * symbol: overlay11UpdateMenu
+ * score: 299/301 words
+ * frame: 0x48
+ * relocations: 102
+ * first-mismatch: +0x138
+ * summary: Residual fully explained and not source-reachable: ugen orders spills ascending (73/73), as1 reverses the pair, and the only barrier that stops it is unreachable from C. Reopen needs a new compile mode, not another source form.
+ * PLATEAU-HANDOFF:overlay11UpdateMenu:end
+ */

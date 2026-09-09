@@ -1,30 +1,7 @@
-#include "PR/ultratypes.h"
+#include "game/math.h"
+#include "overlays/overlay_099.h"
 
 /* Overlay 99 +0x800: sorted translucent-entry render pass. */
-
-typedef struct Overlay99Gfx {
-    u32 w0;
-    u32 w1;
-} Overlay99Gfx;
-
-typedef struct Overlay99Vec3 {
-    f32 x;
-    f32 y;
-    f32 z;
-} Overlay99Vec3;
-
-typedef struct Overlay99RenderEntry {
-    s32 id;
-    s8 tableIndex;
-    u8 pad05[3];
-    f32 scale;
-    u8 pad0C[8];
-} Overlay99RenderEntry;
-
-typedef struct Overlay99TableOwner {
-    u8 pad00[0x40];
-    Overlay99Vec3 *vectors;
-} Overlay99TableOwner;
 
 typedef struct Overlay99Transform {
     u8 pad00[0x0C];
@@ -33,73 +10,61 @@ typedef struct Overlay99Transform {
     f32 z;
 } Overlay99Transform;
 
-typedef struct Overlay99RenderState {
-    u8 pad00[0x39];
-    u8 mode39;
-    u8 pad3A[6];
-    f32 *unitScale;
-    u8 pad44[0x0C];
-    void *resource50;
-    u8 pad54[0x0C];
-    Overlay99RenderEntry *entries;
-    u8 pad64[4];
-    Overlay99TableOwner **tableOwner;
-    u8 pad6C[0x20];
-    u8 entryCount;
-} Overlay99RenderState;
+extern f32 overlay99CamGetProjZReloc(f32 x, f32 y, f32 z);
+extern Overlay99Transform *overlay99CamGetPtrReloc(void);
+extern void overlay99Func80022E80Reloc(Overlay99RenderState *state);
+extern void overlay99Func8002AA50Reloc(Overlay99RenderState *state, MtxF matrix);
+extern void overlay99MtxfTransformPointReloc(MtxF matrix, f32 x, f32 y, f32 z,
+                                             f32 *outX, f32 *outY, f32 *outZ);
+extern void overlay99Func80022FD4Reloc(Gfx **displayList, Mtx **matrices,
+                                       void *vertices,
+                                       Overlay99RenderState *state,
+                                       f32 *opacity,
+                                       Overlay99CameraSprite *sprite,
+                                       s32 mode, s32 selector);
+extern f32 gOverlay99IntensityScale;
+extern f32 gOverlay99TransformZ;
 
-typedef struct Overlay99DrawRecord {
-    s16 zeroA8;
-    s16 intensity;
-    s16 padAC;
-    s16 three;
-    f32 scaled;
-    f32 one;
-    u32 outB8;
-    s16 outBC;
-    s16 padBE;
-    u32 outC0;
-    s32 color;
-    s32 id;
-    void *matrix;
-} Overlay99DrawRecord;
-
-extern f32 overlay99Measure(f32 x, f32 y, f32 z);
-extern Overlay99Transform *overlay99GetTransform(void);
-extern void overlay99UpdateState(Overlay99RenderState *state);
-extern void overlay99BuildMatrix(Overlay99RenderState *state, void **matrix);
-extern void overlay99BuildRecord(void **matrix, f32 x, f32 y, f32 z,
-                                 u32 *outB8, s16 *outBC, u32 *outC0);
-extern void overlay99DrawEntry(Overlay99Gfx **displayList, void *arg1,
-                               void *arg2, Overlay99RenderState *state,
-                               void *resource, Overlay99DrawRecord *record,
-                               s32 mode, s32 selector);
-extern f32 D_8;
-extern f32 D_4;
-
-#ifdef NON_MATCHING
-void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
-                                  void *arg2, Overlay99RenderState *state,
+/*
+ * The declaration list is a frame census, not a style choice.  uopt homes
+ * every declared local at a descending word from the top of the 0x148 frame,
+ * in declaration order, whether or not the local is ever touched through the
+ * stack.  Reading the target's own homes back gives eighteen scalar slots
+ * around the five aggregates: three above `savedX`, five between `savedZ` and
+ * `distances`, six between `sprite` and `sorted`, four below it.  The body
+ * uses nine of them; the rest are declared as `unused*` because the census is
+ * what is known -- which scalar sat in which slot is not, and is provably
+ * free: permuting the nine live names across the eighteen slots leaves the
+ * object byte-identical.  Only the counts and the aggregate boundaries matter.
+ */
+void overlay99RenderSortedEntries(Gfx **displayList, Mtx **matrices,
+                                  void *vertices, Overlay99RenderState *state,
                                   f32 intensityScale) {
-    volatile u8 framePad[0x0C];
+    s32 count;
+    s32 i;
+    s32 j;
     f32 savedX;
     f32 savedY;
     f32 savedZ;
-    volatile u8 gapSavedDistances[0x14];
-    f32 distances[4];
-    volatile u8 gapDistancesRecord[0x3C];
-    Overlay99DrawRecord record;
-    volatile u8 gapRecordSorted[8];
-    Overlay99RenderEntry *sorted[4];
     f32 invScale;
     Overlay99RenderEntry *entry;
     Overlay99TableOwner *owner;
     Overlay99Transform *transform;
     Overlay99Vec3 *vec;
-    Overlay99Gfx *command;
-    s32 count;
-    s32 i;
-    s32 j;
+    f32 distances[4];
+    MtxF matrix;
+    Overlay99CameraSprite sprite;
+    Gfx *command;
+    s32 unused0;
+    s32 unused1;
+    s32 unused2;
+    s32 unused3;
+    s32 unused4;
+    Overlay99RenderEntry *sorted[4];
+    s32 unused5;
+    s32 unused6;
+    s32 unused7;
+    s32 unused8;
 
     entry = state->entries;
     owner = *state->tableOwner;
@@ -108,7 +73,7 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
         i = 0;
         while ((i < state->entryCount) && (i != 4)) {
             vec = &owner->vectors[entry->tableIndex];
-            distances[count] = overlay99Measure(vec->x, vec->y, vec->z);
+            distances[count] = overlay99CamGetProjZReloc(vec->x, vec->y, vec->z);
             sorted[count] = entry;
             entry++;
             i++;
@@ -133,46 +98,43 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
         }
     }
 
-    transform = overlay99GetTransform();
+    transform = overlay99CamGetPtrReloc();
     savedX = transform->x;
     savedY = transform->y;
     savedZ = transform->z;
     transform->x = 0.0f;
     transform->y = 0.0f;
-    transform->z = D_4;
-    overlay99UpdateState(state);
+    transform->z = gOverlay99TransformZ;
+    overlay99Func80022E80Reloc(state);
     transform->x = savedX;
     transform->y = savedY;
     transform->z = savedZ;
 
     invScale = 1.0f / *state->unitScale;
-    overlay99BuildMatrix(state, &record.matrix);
-    record.intensity = (s16)(s32)(intensityScale * D_8);
-    record.zeroA8 = 0;
-    record.three = 3;
-    record.color = 0x3333;
-    record.one = 1.0f;
+    overlay99Func8002AA50Reloc(state, matrix);
+    sprite.frame = (s16)(s32)(intensityScale * gOverlay99IntensityScale);
+    sprite.angle = 0;
+    sprite.divisor = 3;
+    sprite.frameCount = 0x3333;
+    sprite.matrixScale = 1.0f;
 
     command = *displayList;
     *displayList = command + 1;
-    command->w1 = 0;
-    command->w0 = 0xE7000000;
+    command->words.w1 = 0;
+    command->words.w0 = 0xE7000000;
     command = *displayList;
     *displayList = command + 1;
-    command->w1 = 0xFFFFFF00;
-    command->w0 = 0xFB000000;
+    command->words.w0 = 0xFB000000; command->words.w1 = 0xFFFFFF00;
 
     for (i = 0; i < count; i++) {
         entry = sorted[i];
         vec = &owner->vectors[entry->tableIndex];
-        record.scaled = entry->scale * invScale;
-        record.id = entry->id;
-        overlay99BuildRecord(&record.matrix, vec->x, vec->y, vec->z,
-                             &record.outB8, &record.outBC, &record.outC0);
-        overlay99DrawEntry(displayList, arg1, arg2, state, state->resource50,
-                           &record, 14, state->mode39);
+        sprite.transformScale = entry->scale * invScale;
+        sprite.spriteData = entry->spriteData;
+        overlay99MtxfTransformPointReloc(matrix, vec->x, vec->y, vec->z,
+                                         &sprite.x, &sprite.y, &sprite.z);
+        overlay99Func80022FD4Reloc(displayList, matrices, vertices, state,
+                                   state->opacity, &sprite, 14,
+                                   state->mode39);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99RenderSortedEntries/func_overlay_099_F0000800_18D9DB0.s")
-#endif

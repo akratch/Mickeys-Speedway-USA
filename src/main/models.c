@@ -5,13 +5,13 @@
  * The working TU is identified from three exact masked-skeleton matches to
  * Jet Force Gemini's built src/models.c.o, the first at the existing yaml
  * boundary, plus the allocator, texture, and matrix call graph of the rest of
- * the block. It is not a whole-object match; docs/modules.md section 3.4
+ * the block. It is not a whole-object match; docs/resident.md section 3.7
  * records the evidence and keeps uncertain JFG correspondences as comments
  * rather than adopting names.
  *
  * PROVENANCE -- JFG's public decomp was consulted for the models.c function
- * order, names, prototypes, and structure vocabulary. No body is adapted in
- * this all-GLOBAL_ASM split. Any body later adapted from JFG must retain a
+ * order, names, prototypes, and structure vocabulary. No body was adapted in
+ * the initial all-GLOBAL_ASM split. Any body later adapted from JFG must retain a
  * point-of-use PROVENANCE note, and Mickey's own bytes remain authoritative.
  *
  * Flags: -O2 -mips2 -32, via the measured src/main/ Makefile rule.
@@ -104,40 +104,32 @@ void modInitModels(void) {
     D_800CB490--;
 }
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG's public models.c supplies the cache/asset-loader role;
- * Mickey's cache tables, model offsets and loader call sequence are used. */
-/* Workbench verdict: structure-mismatch, 394 differing words; first mismatch is at +0x0. */
-/* Target is 401 instructions/frame -120; candidate is 344 instructions/frame -168. */
-/* Remaining gap is structural: cache rollback and texture/animation setup CFG differ; not permuter-ready. */
-s32 func_8001F520(s32 arg0, s32 arg1) {
+/* PROVENANCE: cache-loop and stack-home lifetimes are adapted from JFG
+ * upstream efd5abb's corresponding modLoadModel assembly. JFG retains that
+ * function as GLOBAL_ASM; Mickey's cache tables, layout, and bytes remain
+ * authority. */
+/* Workbench verdict: structure-mismatch, 365/401 words differ; first mismatch is at +0x8. */
+/* Target is 401 instructions/frame -120; candidate is 396 instructions/frame -136. */
+/* The JFG carrier pass removed five words and 0x28 frame bytes; the remaining pool web needs source provenance. */
+void *func_8001F520(s32 arg0, s32 arg1) {
     u8 *entry;
     u8 *model;
     u8 *source;
     u8 *table;
-    u8 *cursor;
-    u8 *animation;
-    u8 *animationEntry;
-    u8 *end;
     s32 highBit;
     s32 modelId;
     s32 cacheIndex;
-    s32 cacheCount;
     s32 freeIndex;
-    s32 fromFree;
-    s32 newSlot;
+    s8 fromFree;
+    s8 newSlot;
     s32 sourceStart;
     s32 sourceSize;
     s32 allocationSize;
-    s32 count;
-    s32 loaded;
     s32 i;
     s32 j;
-    s32 value;
     s32 start;
     s32 last;
-    s32 result;
-    s16 animationCount;
-    u8 textureCount;
+    void *result;
 
     highBit = arg0 & 0x8000;
     modelId = arg0 ^ highBit;
@@ -145,16 +137,15 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
         modelId = 0;
     }
     cacheIndex = 0;
-    cacheCount = D_800CB48C;
-    if (cacheCount > 0) {
+    if (D_800CB48C > 0) {
         do {
             entry = (u8 *) D_800CB484 + (cacheIndex * 8);
             if (modelId == *(s32 *) entry) {
                 model = *(u8 **) (entry + 4);
                 if (highBit != 0) {
-                    result = (s32) func_8001FBCC((void *) model);
+                    result = func_8001FBCC((void *) model);
                 } else {
-                    result = (s32) func_8001FC50((void *) model, arg1 & 3);
+                    result = func_8001FC50((void *) model, arg1 & 3);
                 }
                 if (result != 0) {
                     *(s16 *) (model + 0x4C) += 1;
@@ -162,7 +153,7 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
                 return result;
             }
             cacheIndex++;
-        } while (cacheIndex < cacheCount);
+        } while (cacheIndex < D_800CB48C);
     }
     fromFree = 0;
     newSlot = 0;
@@ -176,23 +167,34 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
         newSlot = 1;
         D_800CB48C++;
     }
-    source = (u8 *) D_800CB480 + (modelId * 8);
+    source = (u8 *) D_800CB480 + (modelId * 4);
     sourceStart = *(s32 *) source;
     sourceSize = *(s32 *) (source + 4) - sourceStart;
     allocationSize = func_8004D7A8(0x27, sourceStart) + 0x80;
     model = (u8 *) func_8002B314(allocationSize, 0x8A);
     if (model == NULL) {
-        goto load_fail;
+        if (fromFree != 0) {
+            D_800CB494++;
+        }
+        if (newSlot != 0) {
+            D_800CB48C--;
+        }
+        return 0;
     }
-    end = model + allocationSize - sourceSize;
-    piRomLoadSection(0x27, (u32) end, sourceStart, sourceSize);
-    func_8004D7E0(end, model);
-    count = *(s32 *) (model + 0x70);
-    if (count != 0) {
+    source = model + allocationSize - sourceSize;
+    piRomLoadSection(0x27, (u32) source, sourceStart, sourceSize);
+    func_8004D7E0(source, model);
+    if (*(s32 *) (model + 0x70) != 0) {
         *(void **) (model + 0x78) =
-            func_8002B314((count * 4) + 4, 0x8A);
+            func_8002B314((*(s32 *) (model + 0x70) * 4) + 4, 0x8A);
         if (*(void **) (model + 0x78) == NULL) {
-            goto load_fail;
+            if (fromFree != 0) {
+                D_800CB494++;
+            }
+            if (newSlot != 0) {
+                D_800CB48C--;
+            }
+            return 0;
         }
     } else {
         *(void **) (model + 0x78) = NULL;
@@ -232,54 +234,54 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
     *(void **) (model + 0x28) = NULL;
     *(s32 *) (model + 0x68) = 0;
     *(s32 *) (model + 0x6C) = 0;
-    textureCount = *(u8 *) (model + 0x10);
-    loaded = 0;
-    if (textureCount > 0) {
+    cacheIndex = 0;
+    if (*(u8 *) (model + 0x10) > 0) {
         table = *(u8 **) (model + 0x18);
-        cursor = table;
+        i = 0;
         do {
-            *(void **) cursor =
-                func_80034448(*(s16 *) (cursor + 6));
-            if (*(void **) cursor == NULL) {
+            *(void **) (table + i) =
+                func_80034448(*(s16 *) (table + i + 6));
+            if (*(void **) (table + i) == NULL) {
                 j = 0;
-                while (j < loaded) {
-                    func_800347A0(*(void **) (table + (j * 8)));
-                    *(void **) (table + (j * 8)) = NULL;
+                i = 0;
+                while (j < cacheIndex) {
+                    func_800347A0(*(void **) (table + i));
+                    *(void **) (table + i) = NULL;
                     j++;
+                    i += 8;
                 }
-                while (j < textureCount) {
-                    *(void **) (table + (j * 8)) = NULL;
+                while (j < *(u8 *) (model + 0x10)) {
+                    *(void **) (table + i) = NULL;
                     j++;
+                    i += 8;
                 }
                 goto load_fail;
             }
-            loaded++;
-            cursor += 8;
-        } while (loaded < textureCount);
+            cacheIndex++;
+            i += 8;
+        } while (cacheIndex < *(u8 *) (model + 0x10));
     }
-    animationCount = *(s16 *) (model + 0x16);
-    cursor = *(u8 **) (model + 0x24);
+    table = *(u8 **) (model + 0x24);
     i = 0;
-    while ((i < animationCount) &&
-           ((cursor[0] == 0xFF) || (cursor[0] < textureCount))) {
-        cursor += 0x10;
+    while ((i < *(s16 *) (model + 0x16)) &&
+           ((table[0] == 0xFF) || (table[0] < *(u8 *) (model + 0x10)))) {
+        table += 0x10;
         i++;
     }
-    if (i != animationCount) {
+    if (i != *(s16 *) (model + 0x16)) {
         goto load_fail;
     }
-    result = func_8005A7A0(model, modelId);
-    if ((result == 0) ||
+    if ((func_8005A7A0(model, modelId) == 0) ||
         ((*(u8 *) (model + 0x11) != 0) &&
          ((*(void **) (model + 0x28) =
-             func_8002B314(textureCount * 8, 0x8A)) == NULL))) {
+             func_8002B314(*(u8 *) (model + 0x10) * 8, 0x8A)) == NULL))) {
         goto load_fail;
     }
-    if (count != 0) {
+    if (*(s32 *) (model + 0x70) != 0) {
         start = 0;
         i = 0;
-        while (i < count) {
-            last = *(s32 *) (*(u8 **) (model + 0x74) + (i * 4)) - 1;
+        while (i < *(s32 *) (model + 0x70)) {
+            last = *(*(u8 **) (model + 0x74) + i) - 1;
             func_8002057C((Gfx **) (*(u8 **) (model + 0x78) + (i * 4)),
                           (ObjectModel *) model, 0, 0,
                           start, last, 0);
@@ -290,19 +292,26 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
                       (ObjectModel *) model, 0, 0,
                       start, 0xFF, 0);
     } else {
-        *(s32 *) (model + 0x2C) =
-            func_8002057C((Gfx **) (model + 0x68),
-                          (ObjectModel *) model, 0, 0,
-                          0, 0xFF, 0);
+        *(u8 *) (model + 0x2C) =
+            (u8) func_8002057C((Gfx **) (model + 0x68),
+                               (ObjectModel *) model, 0, 0,
+                               0, 0xFF, 0);
         if (*(s32 *) (model + 0x68) != 0) {
-            *(s32 *) (model + 0x6C) =
-                func_8002057C((Gfx **) (model + 0x6C),
-                              (ObjectModel *) model, 4, 0,
-                              0, 0xFF, 0);
+            func_8002057C((Gfx **) (model + 0x6C),
+                          (ObjectModel *) model, 4, 0,
+                          0, 0xFF, 0);
             if (*(s32 *) (model + 0x6C) == 0) {
                 goto load_fail;
             }
         }
+    }
+    if (highBit != 0) {
+        result = func_8001FBCC((void *) model);
+    } else {
+        result = func_8001FC50((void *) model, arg1 & 3);
+    }
+    if (result == 0) {
+        goto load_fail;
     }
     entry = (u8 *) D_800CB484 + (freeIndex * 8);
     *(s32 *) entry = modelId;
@@ -442,27 +451,24 @@ struct ModelConstructedInstance {
     s16 *stateB;
 };
 
-/* P5 plateau: workbench structure-mismatch, 300 positional words, 330 versus 333 instructions, frame -136 versus -120, first +0x0.
- * Lever: scalar mode-size storage worsened the result to 323 words and frame -144; the prior compact layout remains best.
- * Remains: target 0x78-frame allocation and register/control-flow shape; the canonical 0x88-frame C stays NON_MATCHING. */
+/* PROVENANCE: local size and alignment lifetimes are adapted from JFG upstream
+ * efd5abb's corresponding src/models.c function, func_8003BF58. JFG retains
+ * that function as GLOBAL_ASM; Mickey's layout and bytes remain authority. */
+/* Workbench structure-mismatch: 299/333 words differ, candidate 330 words,
+ * frame -128 versus target -120, first +0x0. JFG's scalar-size and cursor
+ * lifetimes are exhausted; the remaining lever is the target's constant audit. */
 #ifdef NON_MATCHING
 ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source, s32 pointCopies) {
     ModelConstructedInstance *instance;
     ModelConstructedInstance *instanceCursor;
-    ModelInstancePoint *sourcePoint;
-    ModelInstancePoint *destinationPoint;
-    s16 *state;
     s32 matrixBytes;
-    s32 doubleMatrixBytes;
     s32 pointBytes;
-    s32 copiedPointBytes;
     s32 modeBytes[1];
     s32 dataBytes44;
     s32 dataBytes48;
     s32 coordinateBytes;
     s32 extraBytes;
     s32 allocationSize;
-    s32 remainder;
     s32 i;
     s32 j;
 
@@ -477,33 +483,27 @@ ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source, s32 pointCo
     }
 
     pointBytes = source->pointCount * sizeof(ModelInstancePoint);
-    remainder = pointBytes & 7;
-    if (remainder != 0) {
-        pointBytes = pointBytes - remainder + 8;
+    if ((pointBytes & 7) != 0) {
+        pointBytes = pointBytes - (pointBytes & 7) + 8;
     }
     dataBytes44 = source->dataCount44 * 0xC;
-    remainder = dataBytes44 & 3;
-    if (remainder != 0) {
-        dataBytes44 = dataBytes44 - remainder + 4;
+    if ((dataBytes44 & 3) != 0) {
+        dataBytes44 = dataBytes44 - (dataBytes44 & 3) + 4;
     }
     dataBytes48 = source->dataCount48 * 0xC;
-    remainder = dataBytes48 & 3;
-    if (remainder != 0) {
-        dataBytes48 = dataBytes48 - remainder + 4;
+    if ((dataBytes48 & 3) != 0) {
+        dataBytes48 = dataBytes48 - (dataBytes48 & 3) + 4;
     }
     coordinateBytes = source->coordinateCount * 0xC;
-    remainder = coordinateBytes & 3;
-    if (remainder != 0) {
-        coordinateBytes = coordinateBytes - remainder + 4;
+    if ((coordinateBytes & 3) != 0) {
+        coordinateBytes = coordinateBytes - (coordinateBytes & 3) + 4;
     }
     extraBytes = 0;
     if (source->hasCopies != 0) {
         extraBytes = source->copyCount * 8 + 0xA8;
     }
 
-    copiedPointBytes = pointBytes * pointCopies;
-    doubleMatrixBytes = matrixBytes << 1;
-    allocationSize = doubleMatrixBytes + copiedPointBytes + modeBytes[0] + dataBytes44 +
+    allocationSize = (matrixBytes << 1) + (pointBytes * pointCopies) + modeBytes[0] + dataBytes44 +
                      dataBytes48 + coordinateBytes + extraBytes + 0x58;
     instance = func_8002B314(allocationSize, 0x8A);
     if (instance != NULL) {
@@ -522,7 +522,7 @@ ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source, s32 pointCo
         }
 
         if (pointCopies > 0) {
-            instance->pointsA = (ModelInstancePoint *)((u8 *)instance + doubleMatrixBytes + 0x58);
+            instance->pointsA = (ModelInstancePoint *)((u8 *)instance + (matrixBytes << 1) + 0x58);
         } else {
             instance->pointsA = source->points;
         }
@@ -532,27 +532,27 @@ ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source, s32 pointCo
             instance->pointsB = instance->pointsA;
         }
         if (source->matrixCount != 0 && modeBytes[0] != 0) {
-            instance->modeData = (u8 *)instance + doubleMatrixBytes + copiedPointBytes + 0x58;
+            instance->modeData = (u8 *)instance + (matrixBytes << 1) + (pointBytes * pointCopies) + 0x58;
         }
         if (source->dataCount44 != 0) {
-            instance->data44 = (u8 *)instance + doubleMatrixBytes + copiedPointBytes + modeBytes[0] + 0x58;
+            instance->data44 = (u8 *)instance + (matrixBytes << 1) + (pointBytes * pointCopies) + modeBytes[0] + 0x58;
         }
         if (source->dataCount48 != 0) {
-            instance->data48 = (u8 *)instance + doubleMatrixBytes + copiedPointBytes + modeBytes[0] + dataBytes44 + 0x58;
+            instance->data48 = (u8 *)instance + (matrixBytes << 1) + (pointBytes * pointCopies) + modeBytes[0] + dataBytes44 + 0x58;
         }
         if (source->coordinateCount != 0) {
-            instance->coordinates = (f32 *)((u8 *)instance + doubleMatrixBytes + copiedPointBytes + modeBytes[0] +
+            instance->coordinates = (f32 *)((u8 *)instance + (matrixBytes << 1) + (pointBytes * pointCopies) + modeBytes[0] +
                                               dataBytes44 + dataBytes48 + 0x58);
         }
         if (source->hasCopies != 0) {
             u8 *end;
+            s16 *state;
 
-            instance->copies = (ModelInstanceCopy *)((u8 *)instance + doubleMatrixBytes + copiedPointBytes +
+            instance->copies = (ModelInstanceCopy *)((u8 *)instance + (matrixBytes << 1) + (pointBytes * pointCopies) +
                                                        modeBytes[0] + dataBytes44 + dataBytes48 + coordinateBytes + 0x58);
             end = (u8 *)(instance->copies + source->copyCount);
-            remainder = (s32)end & 7;
-            if (remainder != 0) {
-                end = end - remainder + 8;
+            if (((s32)end & 7) != 0) {
+                end = end - ((s32)end & 7) + 8;
             }
             instance->stateA = (s16 *)end;
             instance->stateB = (s16 *)(end + 0x50);
@@ -578,6 +578,9 @@ state_reset_loop:
 
         i = 0;
         if (pointCopies > 0) {
+            ModelInstancePoint *sourcePoint;
+            ModelInstancePoint *destinationPoint;
+
             instanceCursor = instance;
             do {
                 sourcePoint = source->points;
@@ -604,6 +607,7 @@ state_reset_loop:
 
         if (source->mode == 0) {
             f32 *coordinate = instance->coordinates;
+            ModelInstancePoint *sourcePoint;
 
             i = 0;
             if (source->coordinateCount > 0) {
@@ -837,12 +841,14 @@ typedef struct ModelGfxSource {
 struct ModelTextureUsage;
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    struct ModelTextureUsage *usage, s32 entryIndex,
-                   volatile u32 textureBase);
+                   u32 textureBase);
 
-/* Mickey-only reconstruction; JFG supplies the tier-B makeModelGfx role and TU position, but retains assembly. */
-/* PLATEAU (2026-08-26): workbench structure-mismatch; 254/342 words differ, first +0x0.
- * Flag lattice confirmed the exact instruction count; slot, tail, and lifetime probes did not close the frame/web drift.
- * Frame remains 0xC8 vs 0xD0, with 118 register and 2 relocation-identity differences. */
+/* PROVENANCE: declaration and cursor lifetimes are adapted from JFG upstream
+ * efd5abb's corresponding makeModelGfx function. JFG retains that function as
+ * GLOBAL_ASM; Mickey's own layout, constants, and bytes remain authority. */
+/* PLATEAU (2026-08-31): workbench structure-mismatch; 249/342 words differ, first +0x0.
+ * Block-scoping the s16 texture parameter is a two-word gain; ten source forms and one bounded batch are exhausted.
+ * Exact size remains 342 words; frame is 0xC0 vs 0xD0, with 20/21 relocation identities exact. */
 #ifdef NON_MATCHING
 s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
                   s32 lowerGroup, s32 upperGroup, s32 forceSimple) {
@@ -857,7 +863,6 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
     s32 cacheEnabled;
     s32 vertexCount;
     s32 triangleCount;
-    s16 parameter;
     s32 commandCount;
     s8 slots[3];
     u32 i;
@@ -898,6 +903,7 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
 
             if (group >= lowerGroup && group <= upperGroup && !(partFlags & 0x800)) {
                 s32 combinedFlags;
+                s16 parameter;
                 s16 vertexStart = part->vertexStart;
                 s16 vertexIndex = part->vertexIndex;
                 u8 textureIndex = part->textureIndex;
@@ -1048,34 +1054,32 @@ typedef struct ModelTextureUsage {
     ModelTextureUsageEntry *entries;
 } ModelTextureUsage;
 
-/* Workbench p7: structure-mismatch; 160/159 instructions, 156 words, first +0x0, frame -0x20 vs -0x10.
- * Levers: constant audit, context lint, scoped-cache/loop-local, direct-array, register-hint, and Gfx command forms; none changed the canonical shape.
- * Remains: retail three-save register/stack web versus the candidate six-save frame; GLOBAL_ASM stays canonical. */
+/* PROVENANCE: declaration and cursor lifetimes are adapted from JFG upstream
+ * efd5abb's corresponding src/models.c function, func_8003E13C. JFG retains
+ * that function as GLOBAL_ASM; Mickey's own bytes and behavior are authority. */
+/* Workbench structure-mismatch: exact 159-word geometry, 102/159 words differ,
+ * first +0xC, and frame -0x10. JFG's cursor and scalar-type forms are
+ * exhausted; the remaining lever needs source-proven pool/line-order evidence. */
 #ifdef NON_MATCHING
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
-                   ModelTextureUsage *usage, s32 entryIndex, volatile u32 textureBase) {
-    s16 *count;
-    s16 currentCount;
-    s32 bestCount;
+                   ModelTextureUsage *usage, s32 entryIndex, u32 textureBase) {
     ModelTextureUsageEntry *entry;
     s32 usageIndex;
+    s32 slot;
+    s16 bestCount;
     s32 textureIndex;
     s32 i;
-    s8 *slotOut;
-    s8 *textureId;
-    s8 *cache;
+    s8 *slotCursor;
+    s8 *textureIdCursor;
     s8 cachedId;
-    s32 slot;
 
-    cache = D_800CB498;
     i = 0;
     do {
-        cachedId = *cache;
-        count = &D_800CB49C[i];
+        cachedId = D_800CB498[i];
         if (cachedId != -1) {
-            (*count)--;
-            if (*count <= 0) {
-                *count = 1;
+            D_800CB49C[i]--;
+            if (D_800CB49C[i] <= 0) {
+                D_800CB49C[i] = 1;
                 usageIndex = entryIndex + 1;
                 if (usageIndex < usage->entryCount) {
                     do {
@@ -1083,9 +1087,11 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                         if (cachedId == entry->textureIds[0] ||
                             cachedId == entry->textureIds[1] ||
                             cachedId == entry->textureIds[2]) {
-                            usageIndex = usage->entryCount;
+                            do {
+                                usageIndex = usage->entryCount;
+                            } while (0);
                         } else {
-                            (*count)++;
+                            D_800CB49C[i]++;
                         }
                         usageIndex++;
                     } while (usageIndex < usage->entryCount);
@@ -1093,65 +1099,59 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
             }
         }
         i++;
-        cache++;
     } while (i != 3);
 
+    slotCursor = slots;
     textureIndex = 0;
-    slotOut = slots;
-    textureId = textureIds;
+    textureIdCursor = textureIds;
     do {
-        *slotOut = -1;
+        *slotCursor = -1;
         textureIndex++;
         i = 0;
-        if (*textureId != -1) {
-            cache = D_800CB498;
+        if (*textureIdCursor != -1) {
             do {
-                if (*cache == *textureId) {
-                    *slotOut = i + 1;
+                if (D_800CB498[i] == *textureIdCursor) {
+                    *slotCursor = i + 1;
                 }
                 i++;
-                cache++;
             } while (i < 3);
 
             slot = -1;
             i = 0;
-            if (*slotOut == -1) {
-                cache = D_800CB498;
+            if (*slotCursor == -1) {
                 do {
-                    if (*cache == -1) { slot = i; } i++;
-                    cache++;
+                    if (D_800CB498[i] == -1) {
+                        slot = i;
+                    }
+                    i++;
                 } while (i < 3 && slot == -1);
 
                 if (slot == -1) {
-                    cache = D_800CB498;
                     i = 0;
                     bestCount = 0;
                     do {
-                        cachedId = *cache;
+                        cachedId = D_800CB498[i];
                         if (cachedId != textureIds[0] &&
                             cachedId != textureIds[1] &&
                             cachedId != textureIds[2]) {
-                            count = &D_800CB49C[i];
-                            currentCount = *count;
-                            if (bestCount < currentCount) {
-                                bestCount = currentCount;
+                            if (bestCount < D_800CB49C[i]) {
+                                bestCount = D_800CB49C[i];
                                 slot = i;
                             }
                         }
                         i++;
-                        cache++;
                     } while (i != 3);
                 }
 
-                D_800CB498[slot] = *textureId;
+                D_800CB498[slot] = *textureIdCursor;
                 D_800CB49C[slot] = 0;
-                *slotOut = slot + 1;
-                gSPMatrix((*displayList)++, ((*textureId << 6) + textureBase) & 0x0FFFFFFF,
-                          *slotOut | 0x80);
+                *slotCursor = slot + 1;
+                gSPMatrix((*displayList)++, ((*textureIdCursor << 6) + textureBase) & 0x0FFFFFFF,
+                          *slotCursor | 0x80);
             }
         }
-        slotOut++;
-        textureId++;
+        slotCursor++;
+        textureIdCursor++;
     } while (textureIndex != 3);
 }
 #else
@@ -1179,15 +1179,20 @@ typedef struct ModelFrameInstance {
     u16 *outputs[1];
 } ModelFrameInstance;
 
-/* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Plateau (2026-08-27, CREW-MODELS-20D8C-READY-17): workbench
- * register-ring-only, 13 register words at 48 instructions/frame -0x8; first
- * +0x38. The prior intermediate-read, normalized-condition, and bounded
- * permutation probes were followed by ten focused ABI, scope, declaration,
- * loop-condition, load-order, liveness, and register-hint variants; none
- * closed the temp-FIFO web. The four-argument definition widened the frame,
- * while count-ownership and no-copy forms unrolled the loop. Remains:
- * class-crossing ugen temp web; assembly fallback stays canonical. */
+/* PROVENANCE: the authorized audit of JFG upstream efd5abb confirms that its
+ * corresponding modSetTextureFrame remains GLOBAL_ASM, so no donor C body is
+ * adopted here. This remains a Mickey-only reconstruction. */
+/* Policy-clean configured full-TU C has the exact 48-word body, 0x8 frame,
+ * and zero relocations, with 31/48 words matching and first mismatch +0x38.
+ * Seventeen register-field residuals remain; UGEN-only ownership is unproved.
+ * All 119 flag combinations were attempted; canonical -O2 -mips2 ties for best.
+ * Faithful traces show allocation results, not complete dynamic FIFO replay.
+ * Natural texture-table, frame-count, single-loop-count, and staged-multiply
+ * forms regressed to 51, 51, 122, and 50 instructions, so no combination or
+ * batch was authorized. ORT 374 authenticates eight overlay calls across
+ * overlays 57, 60, and 82; resident func_8001BB10 passes an unused fourth
+ * owner/context argument that this callee overwrites. Linked equality proves
+ * fallback only; the guarded C remains a bounded plateau. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
@@ -1210,7 +1215,7 @@ void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
             u16 frameScale;
 
             if (index == textureIndex && frame < texture->frameCount) {
-                entry->frame = frame & 0xFFFF;
+                entry->frame = frame;
             }
             frameScale = texture->frameScale;
             nextFrame = entry->nextFrame;
@@ -1236,6 +1241,9 @@ typedef struct ModelCacheEntry {
     ObjectModel *model;
 } ModelCacheEntry;
 
+/* PROVENANCE: the authorized audit of JFG upstream efd5abb confirms that its
+ * corresponding modSuspendModelTextures remains GLOBAL_ASM, so no donor C
+ * body is adopted here. This remains a Mickey-only reconstruction. */
 /* Workbench: structure-mismatch, exact 113 instructions/frame -64; 25 words from +0xC.
  * Levers: explicit byte-scaled indexing is best; declaration/order and pointer-cursor probes did not improve it.
  * Remains: exception-loop shape plus pool slot 1/temp slot 3; asm stays canonical. */
@@ -1374,3 +1382,63 @@ void func_8002109C(ModelPointOwner *owner) {
         } while (i < source->pointCount);
     }
 }
+
+/* PLATEAU-HANDOFF:func_8002057C:start
+ * symbol: func_8002057C
+ * score: 249/342 words
+ * frame: 0xC0
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: JFG stack map is confirmed, but declaration, scope, and parameter forms were flat or regressed; matched donor C is needed.
+ * PLATEAU-HANDOFF:func_8002057C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80020B10:start
+ * symbol: func_80020B10
+ * score: 102/159 words
+ * frame: 0x10
+ * relocations: 12
+ * first-mismatch: +0xC
+ * summary: JFG cursor/type forms reached exact geometry and frame; next lever is source-proven pool/line-order evidence.
+ * PLATEAU-HANDOFF:func_80020B10:end
+ */
+
+/* PLATEAU-HANDOFF:func_80020E4C:start
+ * symbol: func_80020E4C
+ * score: 25 differing words
+ * frame: 0x40
+ * relocations: 13
+ * first-mismatch: +0xC
+ * summary: JFG efd5abb still has GLOBAL_ASM; next lever is a matched donor C body with original declaration/lifetime shape.
+ * PLATEAU-HANDOFF:func_80020E4C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80020D8C:start
+ * symbol: func_80020D8C
+ * score: 31/48 words
+ * frame: 0x8
+ * relocations: 0
+ * first-mismatch: +0x38
+ * summary: JFG efd5abb still has GLOBAL_ASM; next lever is new register-ownership evidence or a matched donor C body.
+ * PLATEAU-HANDOFF:func_80020D8C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001FC50:start
+ * symbol: func_8001FC50
+ * score: 299/333 words
+ * frame: 0x80
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: JFG size and cursor lifetimes cut the frame by 0x8; next lever is the target constant audit.
+ * PLATEAU-HANDOFF:func_8001FC50:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001F520:start
+ * symbol: func_8001F520
+ * score: 365/401 words
+ * frame: 0x88
+ * relocations: 46
+ * first-mismatch: +0x8
+ * summary: JFG count reloads and carrier reuse removed five words and 0x28 frame bytes; the remaining pool web needs source provenance.
+ * PLATEAU-HANDOFF:func_8001F520:end
+ */

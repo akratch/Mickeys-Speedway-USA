@@ -35,9 +35,9 @@ extern void o13SetupRecord(O13Command **, void *, s32, s32);
 #ifdef NON_MATCHING
 void overlay13DrawRecord(
     O13Record *record, O13Command **commands, s32 arg2, s32 arg3) {
+    f32 savedScale;
     O13RenderState *render;
     O13Command *cmd;
-    f32 savedScale;
 
     if (((record->state == 1) && (D_20 != 0)) || record->state == 2) {
         render = o13GetRenderState();
@@ -102,3 +102,13 @@ void overlay13DrawRecord(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13DrawRecord/func_overlay_013_F0000580_186F098.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay13DrawRecord:start
+ * symbol: overlay13DrawRecord
+ * score: 100 differing words
+ * frame: 0x38
+ * relocations: 18
+ * first-mismatch: +0x30
+ * summary: local declaration order fixes the frame; remaining structure/register web and unresolved relocation identities need new evidence
+ * PLATEAU-HANDOFF:overlay13DrawRecord:end
+ */

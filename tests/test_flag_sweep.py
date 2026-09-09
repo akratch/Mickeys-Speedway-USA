@@ -11,12 +11,289 @@ Run with:  .venv/bin/python -m pytest tests/test_flag_sweep.py -q
        or: .venv/bin/python tests/test_flag_sweep.py
 """
 import sys
+import struct
+import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
+import flag_sweep  # noqa: E402
 from flag_sweep import Score, rank_key, score_words  # noqa: E402
+
+
+class TestCliPaths(unittest.TestCase):
+    def test_relative_path_is_normalized_against_repository_root(self):
+        relative = Path("build/synthetic-flag-sweep/target.s")
+
+        self.assertEqual(
+            flag_sweep.repo_cli_path(relative),
+            (flag_sweep.REPO_ROOT / relative).resolve(),
+        )
+
+    def test_main_reports_relative_target_asm_after_lattice(self):
+        relative = Path("build/synthetic-flag-sweep/target.s")
+        synthetic_words = [0x11111111, 0x22222222]
+        combo = flag_sweep.Combo("synthetic", (), ("-mips2", "-32"), ())
+        failed_compile = flag_sweep.CompileResult(
+            combo, False, None, "synthetic compile skipped", 0.0
+        )
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with (
+            patch.object(flag_sweep, "configured_recipe", return_value=flag_sweep.pb.BuildRecipe(
+                (), (), (), True, ("-c", "-nostdinc"))),
+            patch.object(flag_sweep, "assembly_dependencies", return_value={}),
+            patch.object(flag_sweep, "build_lattice", return_value=[combo]),
+            patch.object(flag_sweep, "compile_combo", return_value=failed_compile),
+            patch.object(
+                flag_sweep,
+                "resolve_canonical_ownership",
+                return_value=flag_sweep.CanonicalOwnership(
+                    "resident", "synthetic owner", 0x80000000, 8
+                ),
+            ),
+            patch.object(
+                flag_sweep,
+                "assemble_target_asm",
+                return_value=(synthetic_words, {}),
+            ) as assemble,
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            status = flag_sweep.main(
+                [
+                    "tools/flag_sweep.py",
+                    "--function",
+                    "synthetic_target",
+                    "--target-asm",
+                    str(relative),
+                    "--jobs",
+                    "1",
+                ]
+            )
+
+        self.assertEqual(status, 1, "a sweep with no scored candidate must fail")
+        self.assertIn("target = asm:build/synthetic-flag-sweep/target.s", stdout.getvalue())
+        assembled_path = assemble.call_args.args[0]
+        self.assertTrue(assembled_path.is_absolute())
+        self.assertEqual(assembled_path, (flag_sweep.REPO_ROOT / relative).resolve())
+
+
+class TestSummaryReport(unittest.TestCase):
+    def test_masked_zero_is_not_promotion_proof(self):
+        combo = flag_sweep.Combo("synthetic", (), ("-mips2",), ())
+        result = flag_sweep.summary_report([(combo, Score(True, 0, 0, None), "", 0)], [], "key", 1, 1)
+        self.assertTrue(result["complete"])
+        self.assertTrue(result["ranked"][0]["masked_exact"])
+        self.assertFalse(result["promotion_proof_included"])
+
+    def test_failed_combinations_make_coverage_partial(self):
+        combo = flag_sweep.Combo("failed", (), (), ())
+        result = flag_sweep.summary_report([], [(combo, None, "failure", 0)], "key", 1, 1)
+        self.assertFalse(result["complete"])
+        self.assertEqual(result["failed_combinations"], ["failed"])
+
+    def test_json_mode_separates_human_logs(self):
+        stdout, stderr = StringIO(), StringIO()
+        def run(args, report_stream):
+            print("human log")
+            print('{"schema":"synthetic"}', file=report_stream)
+            return 0
+        with patch.object(flag_sweep, "run_sweep", side_effect=run), redirect_stdout(stdout), redirect_stderr(stderr):
+            self.assertEqual(flag_sweep.main(["synthetic.c", "--function", "f", "--json"]), 0)
+        self.assertEqual(stdout.getvalue(), '{"schema":"synthetic"}\n')
+        self.assertEqual(stderr.getvalue(), 'human log\n')
+
+
+class TestOwnedTargetRange(unittest.TestCase):
+    def test_target_symbol_excludes_post_function_zero_words(self):
+        """Regression: O22's section has 17 zero words after endlabel."""
+        section = struct.pack(">4I", 0x11111111, 0x22222222, 0, 0)
+        owner = flag_sweep.CanonicalOwnership(
+            kind="overlay",
+            description="synthetic atlas row",
+            target_start=0xD30,
+            overlay=22,
+            row_start=0xD30,
+            row_end=0xD38,
+            synthetic_vma=0xF0000000,
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            workdir = Path(temporary)
+            asm_path = workdir / "target_input.s"
+            asm_path.write_text("glabel target\nendlabel target\n")
+            with (
+                patch.object(flag_sweep.subprocess, "run"),
+                patch.object(
+                    flag_sweep, "elf_symbol", return_value=(0, 8, ".text")
+                ),
+                patch.object(flag_sweep, "dump_section", return_value=section),
+                patch.object(flag_sweep, "section_relocs", return_value={}),
+            ):
+                words, relocs = flag_sweep.assemble_target_asm(
+                    asm_path, "target", owner, workdir
+                )
+
+        self.assertEqual(words, [0x11111111, 0x22222222])
+        self.assertEqual(relocs, {})
+
+    def test_ambiguous_atlas_ownership_fails_closed(self):
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 22,
+                    "synthetic_vma": "0xF0000000",
+                    "text_ownership": [
+                        {
+                            "offset": "0xD00",
+                            "end_offset": "0xE00",
+                            "source": "overlays/o022/example",
+                        },
+                        {
+                            "offset": "0xD30",
+                            "end_offset": "0xE30",
+                            "source": "overlays/o022/example",
+                        },
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            atlas_path = Path(temporary) / "atlas.json"
+            import json
+
+            atlas_path.write_text(json.dumps(atlas))
+            with self.assertRaisesRegex(flag_sweep.OwnershipError, "2 canonical"):
+                flag_sweep.resolve_canonical_ownership(
+                    flag_sweep.REPO_ROOT / "src/overlays/o022/example.c",
+                    "func_overlay_022_F00000D30_1234567",
+                    flag_sweep.REPO_ROOT / "build/mickey.us.elf",
+                    atlas_path,
+                )
+
+
+class TestCompileCache(unittest.TestCase):
+    def test_lattice_replaces_axes_but_preserves_ordered_context(self):
+        args = ("-c", "-DVALUE=1", "-I", "first", "-O2", "-g3", "-mips2",
+                "-32", "-Wab,-r4300_mul", "-Wo,-loopunroll,2", "-woff", "835",
+                "-DVALUE=2", "-Isecond", "-woff", "649,838", "-G", "0")
+        recipe = flag_sweep.pb.BuildRecipe((), (), (), True, args)
+        self.assertEqual(flag_sweep.lattice_base_arguments(recipe),
+                         ["-c", "-DVALUE=1", "-I", "first", "-DVALUE=2",
+                          "-Isecond", "-woff", "649,838", "-G", "0"])
+        with self.assertRaisesRegex(LookupError, "refusing static fallback"):
+            flag_sweep.lattice_base_arguments(flag_sweep.pb.BuildRecipe((), (), (), False))
+
+    def test_context_cache_binds_lines_define_order_and_include_search(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "candidate.c"
+            source.write_text('#include <choice.h>\nint value = __LINE__;\n')
+            for name in ("first", "second"):
+                (root / name).mkdir()
+                (root / name / "choice.h").write_text("#define CHOICE 1\n")
+            args = ("-c", "-nostdinc", "-I", str(root / "first"), "-I", str(root / "second"))
+            recipe = flag_sweep.pb.BuildRecipe((), (), (), True, args)
+            with patch.object(flag_sweep, "_tool_inputs", return_value=[]), \
+                 patch.object(flag_sweep, "assembly_dependencies", return_value={}):
+                def key(defines=("VALUE=1", "VALUE=2"), current=recipe):
+                    return flag_sweep.compilation_cache_identity(source, defines, [], current)[0]
+                original = key()
+                self.assertEqual(original, key())
+                self.assertNotEqual(original, key(("VALUE=2", "VALUE=1")))
+                swapped = flag_sweep.pb.BuildRecipe((), (), (), True,
+                    args[:3] + (args[5], args[4], args[3]))
+                self.assertNotEqual(original, key(current=swapped))
+                header = root / "first/choice.h"
+                header.write_text("\n#define CHOICE 1\n")
+                self.assertNotEqual(original, key())
+                header.write_text("#define CHOICE 1\n")
+                source.write_text('\n#include <choice.h>\nint value = __LINE__;\n')
+                self.assertNotEqual(original, key())
+
+    def test_compile_command_uses_configured_context_and_original_path(self):
+        combo = flag_sweep.Combo("test", ("-O1",), ("-mips2", "-32"), ())
+        args = ["-c", "-DVALUE=1", "-Ifirst", "-Isecond", "-nostdinc"]
+        with tempfile.TemporaryDirectory() as temporary:
+            outdir = Path(temporary)
+            def compile(command, **kwargs):
+                (outdir / "out.o").write_bytes(b"synthetic object")
+                import subprocess
+                return subprocess.CompletedProcess(command, 0, "", "")
+            with patch.object(flag_sweep.subprocess, "run", side_effect=compile) as run:
+                flag_sweep.compile_combo(flag_sweep.REPO_ROOT / "src/example.c", combo,
+                                         outdir, ["VALUE=2"], args)
+            command = run.call_args.args[0]
+            tail = command[command.index("--", command.index("--") + 1) + 1:]
+            self.assertEqual(tail[:len(args)], args)
+            self.assertEqual(tail[len(args):len(args) + 4], ["-DVALUE=2", "-O1", "-mips2", "-32"])
+            self.assertEqual(tail[-1], "src/example.c")
+
+    def test_tu_assembly_and_nested_include_changes_invalidate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source = root / "candidate.c"
+            source.write_text('#pragma GLOBAL_ASM("sibling.s")\n')
+            (root / "sibling.s").write_text('.include "nested.inc"\n')
+            nested = root / "nested.inc"
+            nested.write_text("# synthetic initial\n")
+            with patch.object(flag_sweep, "REPO_ROOT", root):
+                initial = flag_sweep.assembly_dependencies(source)
+                self.assertEqual(set(initial), {"sibling.s", "nested.inc"})
+                nested.write_text("# synthetic changed\n")
+                self.assertNotEqual(initial, flag_sweep.assembly_dependencies(source))
+
+    def test_angle_include_does_not_use_source_parent(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source = root / "candidate.c"
+            source.write_text('#include <choice.h>\n')
+            (root / "choice.h").write_text("#error wrong search root\n")
+            headers = root / "headers"
+            headers.mkdir()
+            (headers / "choice.h").write_text("#define CHOICE 1\n")
+            self.assertEqual(set(flag_sweep._include_dependencies(source, ["-nostdinc", "-I", str(headers)])),
+                             {source, headers / "choice.h"})
+
+
+    def test_rescore_reuses_complete_cache_without_compiling(self):
+        combo = flag_sweep.Combo("cached", ("-O2",), ("-mips2", "-32"), ())
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary)
+            outdir = cache / combo.id
+            outdir.mkdir()
+            (outdir / "out.o").write_bytes(b"synthetic object")
+            flag_sweep.write_cached_result(
+                flag_sweep.CompileResult(combo, True, outdir / "out.o", "", 1.0),
+                outdir,
+            )
+            with patch.object(
+                flag_sweep, "compile_combo", side_effect=AssertionError("compiled")
+            ):
+                results, compiled = flag_sweep.collect_compile_results(
+                    Path("unused.c"), [combo], cache, [], 1, rescore=True
+                )
+
+        self.assertEqual(compiled, 0)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0].ok)
+
+    def test_rescore_fails_closed_on_incomplete_cache(self):
+        combo = flag_sweep.Combo("missing", (), ("-mips2", "-32"), ())
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch.object(
+                flag_sweep, "compile_combo", side_effect=AssertionError("compiled")
+            ):
+                with self.assertRaisesRegex(LookupError, "cache is incomplete"):
+                    flag_sweep.collect_compile_results(
+                        Path("unused.c"), [combo], Path(temporary), [], 1,
+                        rescore=True,
+                    )
 
 
 class TestScoreWords(unittest.TestCase):

@@ -39,57 +39,57 @@ extern Overlay84Object *gOverlay84ObjectRead;
 extern Overlay84Object *gOverlay84ObjectWrite;
 extern s32 overlay84Atan2(f32 x, f32 z);
 
-/* NON_MATCHING plateau (retested 2026-08-25): the nearest skeleton score is
- * 0.070 and all 119 flag combinations miss. Ten focused pad size/order,
- * declaration-order, and split node-lifetime variants leave the natural
- * exact-size result best: two of 82 words differ, first at +0xEC, because IDO
- * spills the call-live node at sp+0x24 instead of retail's sp+0x1C. A bounded
- * two-worker permuter batch improved cost only by making the current wrap
- * assignment unconditional, so that semantically invalid form was rejected. */
-#ifdef NON_MATCHING
-void overlay84AdvanceCurrent(s32 direction) {
-    Overlay84Object *object;
-    Overlay84State *state;
-    Overlay84Node *node;
-    s32 found;
-    s32 pad;
-
-    object = gOverlay84ObjectRead;
-    found = 0;
-    if (&pad);
-    if (object != 0) {
-        state = object->state;
-        if (state->last != -1) {
-            do {
-                if (direction == 1) {
-                    state->current--;
-                    if (state->current < 0) {
-                        state->current = state->last;
-                    }
-                } else {
-                    state->current++;
-                    if (state->last < state->current) {
-                        state->current = 0;
-                    }
-                }
-
-                if ((state->nodes[state->current] != 0) &&
-                    ((state->disabled & (1 << state->current)) == 0)) {
-                    found = 1;
-                }
-            } while (found == 0);
-
-            object = gOverlay84ObjectWrite;
-            node = state->nodes[*(volatile s8 *)&state->current];
-            state->angle = overlay84Atan2(node->x - object->x,
-                                          node->z - object->z);
-            state->tilt = -node->tilt;
-            state->height = node->y;
-            state->flags &= ~1;
-            state->flags |= direction;
+/* Exact C: all 82 instruction words, the -48 frame, relocations, and linked
+ * overlay range match after bounded permutation. */
+void overlay84AdvanceCurrent(s32 direction)
+{
+  Overlay84Object *object;
+  Overlay84State *state;
+  s32 found;
+  s32 pad;
+  Overlay84Node *node;
+  object = gOverlay84ObjectRead;
+  found = 0;
+  if (&pad)
+  {
+    ;
+  }
+  if (object != 0)
+  {
+    state = object->state;
+    if (state->last != (-1))
+    {
+      do
+      {
+        if (direction == 1)
+        {
+          state->current--;
+          if (state->current < 0)
+          {
+            state->current = state->last;
+          }
         }
+        else
+        {
+          state->current++;
+          if (state->last < state->current)
+          {
+            state->current = 0;
+          }
+        }
+        if ((state->nodes[state->current] != 0) && ((state->disabled & (1 << state->current)) == 0))
+        {
+          found = 1;
+        }
+      }
+      while (found == 0);
+      object = gOverlay84ObjectWrite;
+      node = state->nodes[*((volatile s8 *) (&state->current))];
+      state->angle = overlay84Atan2(node->x - object->x, node->z - object->z);
+      state->tilt = -node->tilt;
+      state->height = node->y;
+      state->flags &= ~1;
+      state->flags |= direction;
     }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84AdvanceCurrent/func_overlay_084_F0000DD0_18D12B0.s")
-#endif

@@ -161,3 +161,13 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001A94_185888C/func_overlay_002_F0001A94_185888C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_002_F0001A94_185888C:start
+ * symbol: func_overlay_002_F0001A94_185888C
+ * score: 190/217 words
+ * frame: 0x40
+ * relocations: 59
+ * first-mismatch: +0x138
+ * summary: V0 remains best after 119 flags and 10 semantic hypotheses; pool slot 16 and temp slot 12 diverge, with 52 overlay-local identities unresolved.
+ * PLATEAU-HANDOFF:func_overlay_002_F0001A94_185888C:end
+ */

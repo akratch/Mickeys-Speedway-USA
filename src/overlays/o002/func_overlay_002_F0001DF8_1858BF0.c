@@ -75,13 +75,13 @@ void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
 
     if (input->group < 2) {
         for (index = start; index < end; index++) {
-            lastCandidate = objects[index];
-            if ((lastCandidate->disabled == 0) &&
-                (lastCandidate != object) &&
-                (lastCandidate->type == 0x2B)) {
+            candidate = objects[index];
+            lastCandidate = candidate;
+            if ((candidate->disabled == 0) && (candidate != object) &&
+                (candidate->type == 0x2B)) {
                 distance = (u32)func_8000BCB0(
-                    object->x, object->y, object->z, lastCandidate->x,
-                    lastCandidate->y, lastCandidate->z);
+                    object->x, object->y, object->z, candidate->x,
+                    candidate->y, candidate->z);
                 if (distance < bestDistance) {
                     bestDistance = distance;
                     closestIndex = index;
@@ -167,3 +167,13 @@ void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001DF8_1858BF0/func_overlay_002_F0001DF8_1858BF0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_002_F0001DF8_1858BF0:start
+ * symbol: func_overlay_002_F0001DF8_1858BF0
+ * score: 73/460 words
+ * frame: 0x880
+ * relocations: 5
+ * first-mismatch: +0x28
+ * summary: Restoring the pre-crash candidate carrier cuts V0 from 448 to 387 differences and from -20 to +4 bytes; prior flag/permutation/spill work is exhausted.
+ * PLATEAU-HANDOFF:func_overlay_002_F0001DF8_1858BF0:end
+ */

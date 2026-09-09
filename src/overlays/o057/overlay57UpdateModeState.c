@@ -312,3 +312,13 @@ dispatch_done:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeState/func_overlay_057_F0003A4C_18A7644.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57UpdateModeState:start
+ * symbol: overlay57UpdateModeState
+ * score: 267/354 words
+ * frame: 0x30
+ * relocations: 59
+ * first-mismatch: +0xDC
+ * summary: Candidate emits 122 records; 58 offset/type pairs align; ten natural forms exhausted and the apparent 74-word gain breaks opcodes, alignment, and stack home.
+ * PLATEAU-HANDOFF:overlay57UpdateModeState:end
+ */

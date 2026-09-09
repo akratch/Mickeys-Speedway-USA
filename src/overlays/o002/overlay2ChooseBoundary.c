@@ -46,12 +46,11 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
 
 #ifdef NON_MATCHING
 void overlay2ChooseBoundary(Overlay2Region *region) {
+    s32 scanRemaining;
     Overlay2Line *candidateLine;
     Overlay2Line *line;
     Overlay2BoundaryCandidate *candidate;
     s32 lineRemaining;
-    s32 totalLines;
-    s32 scanRemaining;
     s32 endpoint;
     s32 axis;
     s32 side1;
@@ -64,13 +63,11 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     s32 bestScore;
     s32 savedLineCount;
 
-    totalLines = region->count;
-    scanRemaining = totalLines;
+    scanRemaining = region->count;
     candidateLine = &gOverlay2Lines[region->start];
     bestScore = 0x7FFFFFFF;
     CANDIDATE_COUNT = 0;
-    scanRemaining--;
-    if (totalLines != 0) {
+    if (scanRemaining-- != 0) {
         do {
             axis = 1;
             do {
@@ -193,3 +190,13 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ChooseBoundary/func_overlay_002_F00006E0_18574D8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay2ChooseBoundary:start
+ * symbol: overlay2ChooseBoundary
+ * score: 186/292 words
+ * frame: 0x90
+ * relocations: 64
+ * first-mismatch: +0x5c
+ * summary: Natural loop-carrier and declaration ordering cut masked differences 247 to 106 with exact size/frame and 52/64 relocation roles; direct-branch forms regress.
+ * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
+ */

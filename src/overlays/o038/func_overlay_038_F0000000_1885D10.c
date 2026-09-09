@@ -7,8 +7,7 @@ typedef struct O38Particle {
     f32 x;
     f32 y;
     f32 z;
-    s16 direction[4];
-    f32 lifetime;
+    f32 direction[3];
 } O38Particle;
 
 typedef struct O38Pool {
@@ -39,13 +38,22 @@ typedef struct O38DirectionInput {
     s16 angles[2];
 } O38DirectionInput;
 
-extern s32 o38RandomRange(s32 minimum, s32 maximum);
-extern void o38MakeDirection(s16 *source, s16 *destination);
+extern s32 mathRnd(s32 minimum, s32 maximum);
+extern void mathOneFloatPY(s16 *rotation, f32 *vector);
 
-/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, seven raw words first +0x48.
- * Candidate has seven R_MIPS_26 roles, whose target identities remain unresolved; they are not masked match credit.
- * Particle/direction declaration initializers regress to 11 words and swap s2/s3; inherited pointer-chain and init sweeps were exhausted.
- * Remains: late s0/s3 materialization, direction-pool coloring, and seven symbol identities; canonical assembly stays. */
+/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, with
+ * seven schedule words at +0x48..+0x60. The module relocation table resolves
+ * six calls to resident mathRnd and the seventh to resident mathOneFloatPY;
+ * they are not masked match credit.
+ * Particle/direction declaration initializers regress to 11 words and swap
+ * s2/s3. A fidelity-clean as1 -R trace and byte-identical stock ugen/as1
+ * replay isolate an upstream operand wall: C folds direction to pool + 0x18,
+ * while retail retains particle + 0x10. A fidelity-gated CFE/uopt boundary
+ * capture now proves that CFE emits the particle-derived chain and uopt folds
+ * it to the pool-derived chain. A 2026-09-04 pass tested stride-cursor, nested
+ * direction, particle-wrapper, pool-header, two-step, and type-erased pointer
+ * forms; all are byte-identical, so none breaks that reassociation. Preserve
+ * the natural 0x60 source absent a non-constant-offset lifetime barrier. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
@@ -53,7 +61,7 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
     O38Pool *pool = object->pool;
     O38Particle *particle;
     s32 offset;
-    s16 *direction;
+    f32 *direction;
     O38DirectionInput randomDirection;
 
     object->type = descriptor->type;
@@ -63,18 +71,28 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
     pool->count = 60;
     pool->alpha = 255;
     for (; offset != 0x230; offset += sizeof(O38Particle)) {
-        particle->x = object->x + (f32)o38RandomRange(-20, 20);
+        particle->x = object->x + (f32)mathRnd(-20, 20);
         particle->y = object->y;
-        particle->z = object->z + (f32)o38RandomRange(-20, 20);
-        particle->velocity = (f32)o38RandomRange(1, 10) / 10.0f;
-        randomDirection.angles[0] = o38RandomRange(-0x7FFF, 0x7FFF);
-        randomDirection.angles[1] = o38RandomRange(0x2000, 0x4000);
-        particle->lifetime = (f32)o38RandomRange(20, 50) / -10.0f;
-        o38MakeDirection(randomDirection.angles, direction);
+        particle->z = object->z + (f32)mathRnd(-20, 20);
+        particle->velocity = (f32)mathRnd(1, 10) / 10.0f;
+        randomDirection.angles[0] = mathRnd(-0x7FFF, 0x7FFF);
+        randomDirection.angles[1] = mathRnd(0x2000, 0x4000);
+        particle->direction[2] = (f32)mathRnd(20, 50) / -10.0f;
+        mathOneFloatPY(randomDirection.angles, direction);
         particle++;
-        direction += sizeof(O38Particle) / sizeof(s16);
+        direction += sizeof(O38Particle) / sizeof(f32);
     }
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/func_overlay_038_F0000000_1885D10/func_overlay_038_F0000000_1885D10.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:start
+ * symbol: func_overlay_038_F0000000_1885D10
+ * score: 78/85 words
+ * frame: 0x60
+ * relocations: 7
+ * first-mismatch: +0x48
+ * summary: Pointer reassociation remains flat across prior source forms; next lever is a non-constant-offset lifetime scheduling trace.
+ * PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:end
+ */

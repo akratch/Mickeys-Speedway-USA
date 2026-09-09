@@ -361,3 +361,13 @@ void func_overlay_045_F0001158_188D5B0(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o045/func_overlay_045_F0001158_188D5B0/func_overlay_045_F0001158_188D5B0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_045_F0001158_188D5B0:start
+ * symbol: func_overlay_045_F0001158_188D5B0
+ * score: 593/674 words
+ * frame: 0x178
+ * relocations: 25
+ * first-mismatch: +0x0
+ * summary: V0 overruns its 2696-byte owner by 28 bytes (681/674; 593 differences), frame 0x178 vs 0x190; relocation identity proof is unavailable.
+ * PLATEAU-HANDOFF:func_overlay_045_F0001158_188D5B0:end
+ */

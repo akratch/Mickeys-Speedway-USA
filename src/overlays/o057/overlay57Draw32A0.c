@@ -155,3 +155,13 @@ void overlay57Draw32A0(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57Draw32A0/func_overlay_057_F00032A0_18A6E98.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57Draw32A0:start
+ * symbol: overlay57Draw32A0
+ * score: 148/208 words
+ * frame: 0x78
+ * relocations: 53
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0: 60 masked/63 raw diffs; target frame 0x70 and 33 relocs; 20 excess relocs plus ambiguous mask-table identity block proof.
+ * PLATEAU-HANDOFF:overlay57Draw32A0:end
+ */

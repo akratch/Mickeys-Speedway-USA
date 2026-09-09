@@ -117,3 +117,13 @@ void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o066/overlay66SmoothAndDraw/func_overlay_066_F0000040_18C64A8.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_066_F0000040_18C64A8:start
+ * symbol: func_overlay_066_F0000040_18C64A8
+ * score: 249 differing words
+ * frame: -0x18
+ * relocations: 28
+ * first-mismatch: +0x4
+ * summary: Exact 296-word geometry; broad filter CFG/register cascade remains, and candidate relocation identity proof is partial.
+ * PLATEAU-HANDOFF:func_overlay_066_F0000040_18C64A8:end
+ */

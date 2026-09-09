@@ -123,7 +123,7 @@ typedef struct {
 extern EpcDebugObject *D_8007A214;
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
-void func_80045BBC(void *thread);
+void func_80045BBC(OSThread *thread);
 void func_80045D34();
 
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
@@ -173,16 +173,35 @@ void stop_all_threads_except_main(void) {
     }
 }
 #ifdef NON_MATCHING
-/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
- * Mickey's target fixes the dump-size calculation to use the copied range. */
-/* Workbench plateau (retested 2026-08-28): two masked code words plus six
- * relocation identities, 60 instructions/frame exact, first +0x18. Earlier
- * symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice,
- * and bounded-permutation levers remain closed. A scoped-local variant grew
- * the frame to -56; copy-size order/initializer and register-source variants
- * were baseline-equivalent. Remains: D_80705014/18/1C bindings and the final
- * packWriteFile temporary color. */
-void func_80045BBC(void *thread) {
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_800676F8. That JFG
+ * source is a disabled, assembly-backed structural draft rather than an
+ * exact-C donor; Mickey's bytes remain authoritative. Mickey's target fixes
+ * the dump-size calculation to use the copied range. */
+/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): the retained
+ * body/codegen measurement is 52/60 raw words, 58/60 after resolving six
+ * fixed-address fields, frame 0x30; no current-HEAD candidate object or hash
+ * survives. The substantive t6/t4 FIFO web is at +0xBC/+0xC0. Candidate C has
+ * 18 static relocation tuples versus target 24 because literal
+ * D_80705014/18/1C lvalues omit six HI16/LO16 records. Owned
+ * 0x80045BBC..0x80045CAC / ROM 0x467BC..0x468AC has no padding; ordinary/link
+ * equality proves fallback only. Reproduce configured V0, probe the three
+ * symbolic identities independently and combine strict gains, then run the
+ * 119-entry lattice on the identity-correct 60-word/frame-0x30 baseline. Take
+ * one fresh FIFO trace and try exactly one natural trace-supported form. Any
+ * gain-gated batch must fit inside the 125 deterministic-build total; no extra
+ * batch beyond that cap. */
+/* Trace follow-up (2026-08-28, CREW-DICPU-45BBC-READY-72): the full retail
+ * main relocation census is 375 records, with none in this resident range.
+ * UGEN's source-line trace places the final data argument allocation at line
+ * 148, emitted ordinal 60, as t4; the target lane requires t6. Globalcolor
+ * contributes only six phase-one pool decisions for this function, with no
+ * phase-two decision or alias event in the function segment. The generated
+ * D_80705014/18/1C linker symbols exist, but direct and address-cast lvalue
+ * forms changed the body to 59 instructions; a named pointer assignment,
+ * initializer, and integer-address local were baseline-identical. The five
+ * bounded forms therefore closed neither the temp-FIFO color nor the six
+ * target-only fixed-buffer relocation identities; assembly remains canonical. */
+void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;
     register u8 *destination;
@@ -525,20 +544,29 @@ void func_8004650C(s32 ticks) {
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from the SDK-style crash-display control flow in JFG
  * src/diCpu.c; Mickey's own m2c control flow, globals, and ABI are authoritative. */
-/* Workbench verdict: structure-mismatch; 328 differing words, first mismatch +0x3c.
- * Target 344 instructions/frame -80; candidate 346 instructions/frame -80.
- * Remaining gap is branch-local pointer setup; not shape-exact or permuter-ready. */
+/* Bounded plateau (2026-08-31): initializing the register-block pointer at
+ * declaration fixed its call-crossing lifetime and moved configured full-TU
+ * C from 321 to 62 differing words. Target and candidate are both 344 words
+ * with frame 0x50; first mismatch is +0x144. All 127 relocation records are
+ * present and 125 identities align. The residual diagnoses as two structural,
+ * four schedule, and 57 register-class differences. Ten natural source forms
+ * covered pointer lifetime, direct field access, context reassignment,
+ * declaration order, volatility, control boundaries, and cause-word reuse.
+ * The 119-row flag lattice was nonexact; MIPS-I gained one masked word but
+ * worsened size to +20 bytes. The only bounded permuter run found no zero and
+ * its best mutation changed a return width and injected inert branches, so it
+ * was rejected. The nearest five-project skeleton is only 0.077; JFG's
+ * same-named peer remains assembly-only and is substantially larger. */
 void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
     u32 sp4c;
     u32 sp48;
     u32 sp44;
     char *region;
     u32 value;
-    u32 *regs;
+    u32 *regs = (u32 *)((u8 *)arg0 + 0x20);
 
     func_80046E00();
     cpuXYPrintf(0x20, 0x18, D_80083B5C, arg0->unk14, D_8007CFD0);
-    regs = (u32 *)((u8 *)arg0 + 0x20);
     value = regs[0xFC / 4];
     if (value == 0) {
         cpuXYPrintf(0x20, 0x22, D_80083B78);
@@ -767,3 +795,43 @@ void func_80046E00(void) {
         *screen++ = 0;
     }
 }
+
+/* PLATEAU-HANDOFF:func_80046BCC:start
+ * symbol: func_80046BCC
+ * score: 17/106 words
+ * frame: 0x40
+ * relocations: 3
+ * first-mismatch: +0x2C
+ * summary: One loop-entry transfer keeps size +4 and shifts all three relocation sites; 10 source forms and 119 flags exhausted, with one static identity unresolved.
+ * PLATEAU-HANDOFF:func_80046BCC:end
+ */
+
+/* PLATEAU-HANDOFF:render_epc_lock_up_display:start
+ * symbol: render_epc_lock_up_display
+ * score: 62/344 words
+ * frame: 0x50
+ * relocations: 127
+ * first-mismatch: +0x144
+ * summary: Exact geometry/frame; 62 register/structure words and two relocation identities remain after 10 forms, 119 flags, and one bounded batch.
+ * PLATEAU-HANDOFF:render_epc_lock_up_display:end
+ */
+
+/* PLATEAU-HANDOFF:func_80045D34:start
+ * symbol: func_80045D34
+ * score: 439 differing words
+ * frame: 0xB0
+ * relocations: 89
+ * first-mismatch: +0x0
+ * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
+ * PLATEAU-HANDOFF:func_80045D34:end
+ */
+
+/* PLATEAU-HANDOFF:func_80045BBC:start
+ * symbol: func_80045BBC
+ * score: 58/60 words
+ * frame: 0x30
+ * relocations: 24
+ * first-mismatch: +0xBC
+ * summary: One ugen ring position: the stacked pointer argument wants t6 and gets t4, two slots early, and no source form found spends the two slots.
+ * PLATEAU-HANDOFF:func_80045BBC:end
+ */

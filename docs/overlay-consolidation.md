@@ -15,7 +15,8 @@ spending it on the harder, larger targets. Selection criteria, checked
 against `config/postprocess-audit.us.json` before starting:
 
 - every function in the overlay already matched (`matched_c: true` for
-  every row)
+  every row; `c_owned: true` alone is insufficient because mixed and guarded
+  TUs remain source-owned C while their fallback bytes are uncredited)
 - no row in the overlay has `"class": "altered"` -- i.e. no
   `normalize_elf_instructions.py`, `normalize_o63_*.py`,
   `resize_elf_function.py`, or `extend_elf_function_to_text.py` in its
@@ -36,7 +37,7 @@ All four overlays qualified: every POSTPROCESS row for them was
    function symbol lands at which address.
 
 2. **Check every function's own `POSTPROCESS`/`CFLAGS`/`OPT_FLAGS` line in
-   the Makefile.** This is the step that decides whether the overlay folds
+   `mk/overlays.mk`.** This is the step that decides whether the overlay folds
    into one TU or has to stay split:
    - If every function shares identical `CFLAGS`/`OPT_FLAGS` overrides (or
      none), the module folds into exactly one TU. `overlay_039` (both

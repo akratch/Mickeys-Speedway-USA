@@ -11,6 +11,9 @@
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
 #include "PR/os_pfs.h"
+#include "game/saves.h"
+
+s32 packCalculateGlobalFlagsChecksum(u8 *buffer);
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
@@ -29,12 +32,10 @@ extern u8 D_8007A304[];
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 extern OSPfs D_800D21C8[];
-#ifdef NON_MATCHING
 extern u8 D_800CF3B8[];
 extern f32 D_8008208C;
 s32 osMotorStart(OSPfs *pfs);
 s32 osMotorStop(OSPfs *pfs);
-#endif
 
 typedef struct SavesRecord {
     u8 pad00[0xC];
@@ -97,16 +98,6 @@ typedef struct SavesGameWriteState {
     SavesBitWriter *writer;
     s32 messageQueue;
 } SavesGameWriteState;
-
-typedef struct SavesFullWriteState {
-    s32 messageQueue;
-    s32 unused;
-    u8 *volatile buffer;
-    u8 pad0C[0xC];
-    s32 savedByte;
-    u32 savedFlag;
-    u8 pad20[8];
-} SavesFullWriteState;
 
 typedef struct RumbleState {
     u8 state;
@@ -264,22 +255,16 @@ void func_8002BF54(s32 clearMask, s32 initMask) {
         rumble++;
     } while (i != 4);
 }
-#ifdef NON_MATCHING
 /* PROVENANCE -- the state-machine organization follows Jet Force Gemini's
  * public src/saves.c:rumbleTick; Mickey's fields, helper calls, and retry
  * protocol are taken from its own target assembly and globals. */
-/* Workbench verdict: structure-mismatch; 64 differing words, first mismatch +0xF4. */
-/* Target 343 instructions/frame -88; candidate 343 instructions/frame -88. */
-/* Remaining gap is retry-mask branch layout; 14 structural words remain, so it is not shape-exact. */
 void rumbleTick(s32 updateRate) {
     RumbleState *rumble;
     s32 pfsStatus;
     s32 i;
-    s32 controllerMask;
-    s32 previousState;
     s32 retryMask;
-    s32 bit;
-    u8 decrementedFlag;
+    s32 previousState;
+    s32 controllerMask;
 
     if (D_8007A2FC != 0) {
         osPfsIsPlug(D_800D21C0, &D_8007A300);
@@ -368,10 +353,9 @@ void rumbleTick(s32 updateRate) {
                         osMotorStop(&D_800D21C8[i]);
                         rumble->rumbleTime = 0;
                         rumble->timer = 0;
-                        decrementedFlag = rumble->flag - 1;
                         rumble->pad01 = 0;
-                        rumble->flag = decrementedFlag;
-                        if ((decrementedFlag & 0xFF) == 0) {
+                        rumble->flag--;
+                        if (rumble->flag == 0) {
                             rumble->state = 0;
                         }
                         break;
@@ -405,27 +389,21 @@ void rumbleTick(s32 updateRate) {
         } while (i != 4);
         retryMask &= D_8007A2E8;
         if (retryMask != 0) {
-            bit = D_8007A2EC;
-            controllerMask = 1 << (bit + 0x1F);
-            if (bit == 0) {
+            controllerMask = 1 << (D_8007A2EC + 0x1F);
+            if (D_8007A2EC == 0) {
                 osPfsIsPlug(D_800D21C0, &D_8007A300);
-                bit = D_8007A2EC;
             } else {
                 if (retryMask & controllerMask) {
                     func_8002BF54(controllerMask, controllerMask);
-                    bit = D_8007A2EC;
                 }
             }
-            D_8007A2EC = bit + 1;
+            D_8007A2EC = D_8007A2EC + 1;
         }
         if ((retryMask == 0) || (D_8007A2EC >= 5)) {
             D_8007A2EC = 0;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
-#endif
 void func_8002C5F4(void) {
     D_8007A2E8 = 0;
     D_8007A2FC = 1;
@@ -451,9 +429,22 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Plateau (near-miss p6): workbench allocation-mismatch, 18 register-only words at 28 instructions; first +0x10.
- * Lever: target-variable spelling/type probe regressed to 29 instructions; the canonical schedule was restored.
- * Remains: pool/temp ring allocation has no consistent permutation; assembly fallback stays canonical. */
+/* Bounded plateau: configured full-TU C is exact-sized and frameless at 17/28
+ * words, first +0x10, with eleven register-only differences and no relocations.
+ * All 119 flag identities are nonexact; thirteen O2/MIPS-II rows tie V0. A
+ * fidelity-clean proc-11 trace plus lane analysis finds one four-web crossing:
+ * target keeps the reset constant in a3 and routes the value test, next bit,
+ * and shifted mask through t1/t4/t5, while V0 uses t1/a2/a3/t4. Named unsigned
+ * and signed reset-mask forms retain eleven differences and each introduce one
+ * opcode mismatch, so neither gains and no combination is eligible. The old
+ * 10/28 control was skipped because current V0 materially improves it. ORT 727
+ * has five direct callers in func_8002C94C; fallback linkage remains exact.
+ * The unsigned initial shift is defined for the writer's 1..32-bit count
+ * domain (observed direct counts: 4, 5, 18); zero remains a no-op. This
+ * correctness repair leaves configured full-TU compiler output unchanged. The
+ * authorized JFG efd5abb audit found no matching writer body; its analogous
+ * anim reader does not resolve this register permutation. Next lever is an
+ * authenticated writer donor or ownership trace. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -465,7 +456,7 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     u32 mask;
 
     if (bitCount != 0) {
-        bit = 1 << (bitCount + 0x1F);
+        bit = 1u << (bitCount - 1);
         do {
             mask = writer->mask;
             valueBit = value & bit;
@@ -474,8 +465,8 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
             bit = nextBit;
             cursorField = &writer->cursor;
             if (mask == 0) {
-                nextCursor = writer->cursor + 1;
-                writer->cursor = nextCursor;
+                writer->cursor = writer->cursor + 1;
+                nextCursor = writer->cursor;
                 *nextCursor = 0;
                 mask = writer->mask = 0x80;
             }
@@ -577,7 +568,8 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
 }
 /* Mickey-derived serialization of one 0x94-byte save window. */
 /* The `if (1)` block around the entry init is a register-scheduling nudge
- * needed to match the callee-saved slot/counter tie-break (permuter). */
+ * needed to match the callee-saved slot/counter tie-break (permuter); tracked
+ * in docs/cleanup-queue.md. */
 void func_8002C94C(s32 saveIndex) {
     SavesBitWriter *writer;
     s32 inner;
@@ -742,7 +734,7 @@ void func_8002CD6C(void) {
     }
     func_8002C79C(state.writer);
 }
-/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
+/* Mickey-derived checksum body; the surrounding save path establishes its role. */
 s32 packCalculateGlobalFlagsChecksum(buffer)
 u8 *buffer;
 {
@@ -799,11 +791,21 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p7: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
- * A lexical post-call savedFlag reload is codegen-inert; target needs a FIFO temp where this body keeps a colored web.
- * Hoisted arguments, folded masks, addressable scalars, flag probes, and two phantom-pop placements remain exhausted. */
+/* Policy-clean configured V0 is 85/88 instructions, 10/88 positional words,
+ * frame 0x30, first +0x0. All 11 relocation identities are present, but their
+ * offsets drift with the shorter body. The complete 119-configuration lattice
+ * is nonexact; -O2 -g3 reaches 86 instructions but not the target structure.
+ * One allocator trace maps the function to procedure 26: globalFlags/stateBuffer
+ * occupy s0/s1 while the saved-byte/flag webs occupy a2/a3. Moving those two
+ * saved scalars into their natural lexical scope restores frame 0x48 and gives
+ * the retained 85-instruction, 11/88-word result. A saved-header lifetime
+ * regresses to 83 instructions, so no combination or generic batch is allowed.
+ * ORT 505 and sole caller joyRead+0x130 remain authenticated. Assembly fallback
+ * is canonical; no padded state, false checksum arguments, dead carrier, or
+ * volatile allocation scaffold is retained. */
 void func_8002CF6C(u8 *globalFlags) {
-    SavesFullWriteState state;
+    s32 stateMessageQueue;
+    u8 *stateBuffer;
     s32 messageQueue;
     u8 *allocatedBuffer;
     u8 *footerBuffer;
@@ -812,26 +814,26 @@ void func_8002CF6C(u8 *globalFlags) {
     s32 count;
 
     messageQueue = joyMessageQ();
-    state.messageQueue = messageQueue;
+    stateMessageQueue = messageQueue;
     if (func_80070170(messageQueue) != 0) {
         allocatedBuffer = func_8002B280(0x200, 0x85);
-        state.buffer = allocatedBuffer;
+        stateBuffer = allocatedBuffer;
         if (allocatedBuffer != NULL) {
+            s32 savedByte;
+            u32 savedFlag;
+
             dst = allocatedBuffer;
             count = 0x1FF;
             do {
                 *dst++ = 0;
             } while (count--);
             func_8002CCE4();
-            count = packCalculateGameChecksum(state.buffer, 0x1C0);
-            footerBuffer = state.buffer;
+            count = packCalculateGameChecksum(stateBuffer, 0x1C0);
+            footerBuffer = stateBuffer;
             *(u32 *) (footerBuffer + 0x1C0) = count;
             *(u32 *) (footerBuffer + 0x1C4) = 0x12345678;
-            footerBuffer += 0x1C0;
-
-            state.savedByte = (s8) globalFlags[3];
-            state.savedFlag =
-                (u32) (*(u16 *) globalFlags << 17) >> 31;
+            savedByte = (s8) globalFlags[3];
+            savedFlag = (u32) (*(u16 *) globalFlags << 17) >> 31;
             src = D_8007A304;
             dst = globalFlags;
             count = 0x17;
@@ -839,24 +841,22 @@ void func_8002CF6C(u8 *globalFlags) {
                 *dst++ = *src++;
             } while (count--);
             *(u16 *) (globalFlags + 0x16) =
-                packCalculateGlobalFlagsChecksum(globalFlags, src,
-                                                  footerBuffer,
-                                                  state.savedFlag);
+                packCalculateGlobalFlagsChecksum(globalFlags);
             globalFlags[0] =
-                ((state.savedFlag << 6) & 0x40) |
+                ((savedFlag << 6) & 0x40) |
                 (globalFlags[0] & ~0x40);
-            globalFlags[3] = state.savedByte;
+            globalFlags[3] = savedByte;
 
             src = globalFlags;
-            dst = state.buffer + 0x1C8;
+            dst = stateBuffer + 0x1C8;
             count = 0x17;
             do {
                 *dst++ = *src++;
             } while (count--);
             count = mainResetPressed();
-            allocatedBuffer = state.buffer;
+            allocatedBuffer = stateBuffer;
             if (count == 0) {
-                func_8002C8B4(state.messageQueue, 0, allocatedBuffer, 0x200);
+                func_8002C8B4(stateMessageQueue, 0, allocatedBuffer, 0x200);
             }
             mmFree(allocatedBuffer);
         }
@@ -1438,3 +1438,33 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
     mmFree(data);
     return result;
 }
+
+/* PLATEAU-HANDOFF:packInit:start
+ * symbol: packInit
+ * score: 81/115 words
+ * frame: 0x60
+ * relocations: 20
+ * first-mismatch: 0xA0
+ * summary: donor reproof regressed; next lever is base low half materialization
+ * PLATEAU-HANDOFF:packInit:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002CF6C:start
+ * symbol: func_8002CF6C
+ * score: 11/88 words
+ * frame: 0x48
+ * relocations: 11
+ * first-mismatch: +0x8
+ * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
+ * PLATEAU-HANDOFF:func_8002CF6C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002C69C:start
+ * symbol: func_8002C69C
+ * score: 17/28 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x10
+ * summary: JFG efd5abb writer counterpart absent next lever authenticated writer donor or ownership trace
+ * PLATEAU-HANDOFF:func_8002C69C:end
+ */

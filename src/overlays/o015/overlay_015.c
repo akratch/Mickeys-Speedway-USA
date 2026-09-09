@@ -61,6 +61,8 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
                                   s32 zRange, u32 startColor, u32 endColor,
                                   s32 colorDivisor) {
     Overlay15Star *stars;
+    Overlay15Star **starsAddress;
+    Overlay15InitBounds *bounds;
     u16 *palette;
     s32 starIndex;
     s32 paletteIndex0;
@@ -80,27 +82,28 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     starIndex = count * 12;
     starCount = count;
     stars = overlay15Allocate(starIndex + 0x200, 0x87);
-    gOverlay15Stars = stars;
-    gOverlay15StarPalette = (u16 *) ((u8 *) stars + starIndex);
+    starsAddress = &gOverlay15Stars;
+    *starsAddress = stars;
+    gOverlay15StarPalette = (u16 *) ((u8 *) *starsAddress + starIndex);
 
-    gOverlay15InitBounds.xRange = (f32) xRange;
-    gOverlay15InitBounds.xMin = gOverlay15InitBounds.xRange * -0.5f;
-    xRange <<= 7;
-    gOverlay15InitBounds.xMax = gOverlay15InitBounds.xRange * 0.5f;
-    gOverlay15InitBounds.yRange = (f32) yRange;
-    gOverlay15InitBounds.yMin = gOverlay15InitBounds.yRange * -0.5f;
-    yRange <<= 7;
-    gOverlay15InitBounds.yMax = gOverlay15InitBounds.yRange * 0.5f;
-    gOverlay15InitBounds.zRange = (f32) zRange;
-    zRange = (zRange + 1) << 8;
+    bounds = &gOverlay15InitBounds;
     countAddress = &gOverlay15StarCount;
+    bounds->xRange = (f32) xRange;
+    bounds->xMin = bounds->xRange * -0.5f;
+    xRange <<= 7;
+    bounds->xMax = bounds->xRange * 0.5f;
+    bounds->yRange = (f32) yRange;
+    bounds->yMin = bounds->yRange * -0.5f;
+    yRange <<= 7;
+    bounds->yMax = bounds->yRange * 0.5f;
+    bounds->zRange = (f32) zRange;
+    zRange = (zRange + 1) << 8;
     *countAddress = starCount;
-    gOverlay15InitBounds.zero = 0;
-    gOverlay15InitBounds.colorDivisor = (f32) colorDivisor;
-    gOverlay15InitBounds.zMax = gOverlay15InitBounds.zRange + 1.0f;
-    gOverlay15InitBounds.zMin = 1.0f;
-    gOverlay15InitBounds.colorStep =
-        255.0f / gOverlay15InitBounds.colorDivisor;
+    bounds->zero = 0;
+    bounds->colorDivisor = (f32) colorDivisor;
+    bounds->zMax = bounds->zRange + 1.0f;
+    bounds->zMin = 1.0f;
+    bounds->colorStep = 255.0f / bounds->colorDivisor;
 
     starIndex = 1;
     if (starCount > 0) {
@@ -167,9 +170,15 @@ typedef struct Overlay15StarPointerView {
     Overlay15Star *stars;
 } Overlay15StarPointerView;
 
-/* Workbench: size-mismatch, +16 bytes (58 vs 54 instructions), first +0x30.
- * Target CFG/FP/call shape is recovered; four redundant BSS address producers remain.
- * Not shape-exact: contiguous bound-address reuse is unresolved. */
+/* PLATEAU-HANDOFF (2026-08-29, wave2-o15-move-stars): configured full-TU C
+ * remains 58 instructions against the exact 54-word / 0xD8 owner, frame 0x40,
+ * first mismatch +0x30. The target has 21 runtime records; C emits 25 because
+ * four extra BSS HI16 producers split the nine contiguous bound loads. Pair
+ * structs/arrays, file-static scalars, and pointer-derived adjacent fields
+ * were flat in size and worse in schedule or relocation shape, so the prior
+ * 119-row nonexact flag result was not repeated. JFG starfieldMove is the same
+ * size and role but supplies only contextual call-graph evidence. Preserve the
+ * fallback until a natural direct-load form shares one HI16 per adjacent pair. */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {
@@ -201,13 +210,13 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
 #endif
 
 /*
- * Plateau (2026-08-25, cx-ov-2-a-r4): -O2 -mips2 with
- * -Wab,-r4300_mul is exact-size at 0x1A4 executable bytes, with 13 differing
- * words and the first mismatch at +0x38. The bounded ten-minute permuter
- * improves score 935 to 580 only by aliasing inverseDepth and fadeScale,
- * which changes the shade calculation; its best simple temporary regresses
- * the full-TU oracle. The blocker is initial command/fade-load scheduling and
- * the final packed-command expression order.
+ * Plateau (2026-08-30, wave11-o15-stars): configured -O2 -mips2 with
+ * -Wab,-r4300_mul remains exact-size at 105 words with the exact 0x58 frame,
+ * 13 relocation-masked differences (14 raw), and first mismatch +0x18.
+ * Ten fresh command, fade-lifetime, and packed-expression forms were neutral
+ * or worse. Preserve this semantic baseline; the remaining blockers are the
+ * entry setup/fade-load schedule, final packed-command association, and the
+ * unauthenticated LOCAL/data relocation identities.
  */
 #ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
@@ -278,9 +287,9 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
                         u32 startColor, u32 endColor, s32 colorDivisor) {
     Overlay15Star *stars;
     u32 *colors;
-    Overlay15Star **starsAddress;
-    u32 **colorsAddress;
-    s32 *countAddress;
+    Overlay15Star *volatile *starsAddress;
+    u32 *volatile *colorsAddress;
+    volatile s32 *countAddress;
     Overlay15InitBounds *unusedBoundsAddress;
     s32 i;
     s32 startR;
@@ -306,7 +315,10 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
     gOverlay15InitBounds.zMin = gOverlay15InitBounds.zRange * -0.5f;
     gOverlay15InitBounds.zMax = gOverlay15InitBounds.zRange * 0.5f;
     gOverlay15InitBounds.colorDivisor = (f32) colorDivisor;
+    gOverlay15InitBounds.colorStep = 255.0f /
+                                     gOverlay15InitBounds.colorDivisor;
 
+    i = 0;
     colors = (u32 *) (stars + count);
     starsAddress = &gOverlay15Stars;
     colorsAddress = &gOverlay15StarColors;
@@ -318,10 +330,7 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
     *colorsAddress = colors;
     *countAddress = count;
     gOverlay15InitBounds.zero = 0;
-    gOverlay15InitBounds.colorStep = 255.0f /
-                                     gOverlay15InitBounds.colorDivisor;
 
-    i = 0;
     if (count > 0) {
         startR = (startColor >> 24) & 0xFF;
         startG = (startColor >> 16) & 0xFF;
@@ -449,3 +458,53 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000B94_1872F2C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
+ * symbol: overlay15DrawScreenStars
+ * score: 92/105 words
+ * frame: 0x58
+ * relocations: 10
+ * first-mismatch: +0x18
+ * summary: Ten source-authentic command, fade-lifetime, and packed-expression forms found no gain; entry scheduling and local-data identity proof remain.
+ * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15DrawRain:start
+ * symbol: overlay15DrawRain
+ * score: 41/54 words
+ * frame: 0x40
+ * relocations: 17
+ * first-mismatch: +0x74
+ * summary: Extern XY/Z split emitted 16/17 records and regressed to 55 words/24 masked differences; next lever is a locally defined BSS pair plus scalar.
+ * PLATEAU-HANDOFF:overlay15DrawRain:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15InitStars:start
+ * symbol: overlay15InitStars
+ * score: 89 differing words
+ * frame: 0xB8
+ * relocations: 15
+ * first-mismatch: +0x44
+ * summary: exact-size 190-word candidate; workbench structure-mismatch after carrier scheduling basin, next lever bounded p2 allocator trace/permutation
+ * PLATEAU-HANDOFF:overlay15InitStars:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15InitStarsAndPalette:start
+ * symbol: overlay15InitStarsAndPalette
+ * score: 120 differing words
+ * frame: 0x40
+ * relocations: 16
+ * first-mismatch: +0x4
+ * summary: Exact-size 247-word candidate; carrier reuse cut 230 to 120 differences, but allocator structure and two extra static records versus 14 target records remain.
+ * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15UpdateMovingStars:start
+ * symbol: overlay15UpdateMovingStars
+ * score: 19/103 words
+ * frame: 0x58
+ * relocations: 46
+ * first-mismatch: +0x30
+ * summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
+ * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
+ */

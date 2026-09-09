@@ -70,7 +70,7 @@ typedef struct Overlay75Object {
 } Overlay75Object;
 
 extern s32 gOverlay75SlotFlags[];
-extern f32 gOverlay75ThresholdReloc;
+extern f32 gOverlay75ThresholdReloc[];
 extern f32 overlay75Sin(s16 angle);
 extern f32 overlay75Cos(s16 angle);
 extern void overlay75MoveReloc(Overlay75Object *object, f32 x, f32 y, f32 z);
@@ -106,18 +106,21 @@ typedef struct Overlay75UpdateLocals {
 } Overlay75UpdateLocals;
 
 /*
- * Plateau (this run: the flag lattice plus nine structural candidates;
- * earlier work also ran a bounded 10-minute permuter batch): canonical
- * MIPS-II is exact-size with 19 differing words, first at +0x54.  Extending
- * the typed locals aggregate through the position, saved-entity, and model
- * pointer homes removed the extra stack slot and improved the prior 40-word
- * result; assigning the state pointer before the model moved the first
- * mismatch later.  All MIPS-II flag groups tie.  Moving the three local
- * initializations after the active-state test, either with a goto or a scoped
- * branch, changes the CFG, adds four bytes, and regresses to 284+ words.  The
- * remaining blocker is that prologue lifetime/scheduling boundary.
+ * Exact C: 304 words, the 0x58 frame, and all 20 relocation records.
+ *
+ * The three work flags are dead on the `cache_position` exit, so they belong
+ * *after* the inactive test, not before it. With them in front, the join block
+ * after the slot-flag update starts with `moved = 0` and `as1` fills the
+ * branch-likely delay slot with that store; the target instead starts the join
+ * block with the `active02` load, which is why it reads that field twice --
+ * once in the annulled slot and once on the fall-through. Moving the flags
+ * behind the test hands the load to the join block and the duplication follows.
+ *
+ * Order inside the moved group is load-bearing to 273 words: the saved entity
+ * is read before the tick conversion, and the three flags are cleared in
+ * reverse declaration order. Only two of the 120 orders of those five
+ * statements are exact.
  */
-#ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
                                        s32 updateRate) {
     Overlay75State *state;
@@ -137,15 +140,14 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
         f32 tick;
         f32 moveZ;
 
-        locals.moved = 0;
-        locals.eventId = -1;
-        locals.completed = 0;
-
         if (state->active02 == 0) {
             goto cache_position;
         }
-        tick = (f32)updateRate;
         locals.savedEntity = locals.model->entity00;
+        tick = (f32)updateRate;
+        locals.completed = 0;
+        locals.eventId = -1;
+        locals.moved = 0;
 
         if (state->phase04 == 0) {
             f32 limit;
@@ -175,8 +177,8 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             } else {
                 locals.moved = 1;
             }
-            if (locals.previous < gOverlay75ThresholdReloc &&
-                gOverlay75ThresholdReloc <= object->transitionValue28) {
+            if (locals.previous < gOverlay75ThresholdReloc[1] &&
+                gOverlay75ThresholdReloc[1] <= object->transitionValue28) {
                 if (object->status48->alternateEvent61 != 0) {
                     locals.eventId = 0x1BC;
                 } else {
@@ -257,6 +259,3 @@ cache_position:
     state->cachedY34 = locals.position->y;
     state->cachedZ38 = locals.position->z;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o075/overlay75UpdateMovingObject/func_overlay_075_F0000214_18CC17C.s")
-#endif

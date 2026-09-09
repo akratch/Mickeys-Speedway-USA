@@ -134,3 +134,13 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawTransformed/func_overlay_101_F00029A4_18DE1C4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101DrawTransformed:start
+ * symbol: overlay101DrawTransformed
+ * score: 104/166 words
+ * frame: 0x90
+ * relocations: 7
+ * first-mismatch: +0x64
+ * summary: Fresh exact-size V0 retains 62 raw differences; unresolved call proxy shifts raw first to +0x64, while the first nonrelocation mismatch remains +0x7C.
+ * PLATEAU-HANDOFF:overlay101DrawTransformed:end
+ */

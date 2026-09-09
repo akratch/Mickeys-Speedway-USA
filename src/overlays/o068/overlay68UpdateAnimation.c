@@ -222,3 +222,13 @@ void overlay68UpdateAnimation(Overlay68Object *object, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68UpdateAnimation/func_overlay_068_F000096C_18C7ACC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68UpdateAnimation:start
+ * symbol: overlay68UpdateAnimation
+ * score: 148/356 words
+ * frame: 0x78
+ * relocations: 15
+ * first-mismatch: +0x4
+ * summary: Exact geometry and frame; flag and permutation caps exhausted; first substantive allocator drift is +0x1C.
+ * PLATEAU-HANDOFF:overlay68UpdateAnimation:end
+ */

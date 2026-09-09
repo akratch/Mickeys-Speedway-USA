@@ -177,3 +177,13 @@ void func_overlay_050_F0000000_1896970(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o050/overlay50Initialize/func_overlay_050_F0000000_1896970.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:start
+ * symbol: func_overlay_050_F0000000_1896970
+ * score: 81/185 words
+ * frame: 0x20
+ * relocations: 58
+ * first-mismatch: +0x8
+ * summary: First substantive mismatch +0x104; p7 exhausted config/value28/fill order, end-pointer, config/copy/flag probes. Need new config-base or copy-schedule evidence.
+ * PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:end
+ */

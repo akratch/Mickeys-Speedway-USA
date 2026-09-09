@@ -56,6 +56,7 @@ typedef struct FontTextureHeader {
 
 extern DialogueTextElement D_800D60E8[32];
 extern DialogueBoxBackground D_800D64E8[];
+extern s16 D_800D64F2;
 extern DialogueBoxBackground D_800D6510[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
@@ -152,19 +153,20 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
     }
 }
 
-/* Workbench plateau: structure-mismatch, 528/556 instructions, exact 0x80 frame,
- * 509 positional words, first target divergence +0x54. Command-store, statement-order,
- * u8-spacing, and stack-home probes did not close the setup web; register/CFG drift remains. */
+/* Workbench plateau: structure-mismatch, 548/556 instructions, exact 0x80 frame,
+ * 465 positional differences (466 raw), first raw mismatch +0x30. Restoring
+ * GBI colour, sync, and fill macros closes 44 sites; register/CFG drift remains. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source-level organization was adapted from Diddy Kong
  * Racing's permitted published render_text_string body. Mickey's own
  * instructions, m2c draft, fields, control bytes, and display-list words
  * determine this candidate.
+ * Jet Force Gemini src/font.c::func_8006FD98_70998 was audited at efd5abb:
+ * its NON_EQUIVALENT body is unchanged from c82affff::func_80070518 after
+ * five symbol renames. It supplies no new spelling for the exhausted GBI,
+ * scissor, or texture forms; no donor body change is adopted by this audit.
  */
-/* Workbench blocked: the full-TU candidate stops on duplicate locals in adjacent func_8004BA8C, so no valid object was produced.
- * Levers: no function edit; repairing that unrelated translation-unit error is outside this assignment.
- * Remaining: compile the intact TU, then diagnose this function against its target object. */
 void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags) {
     s32 savedFont;
@@ -205,7 +207,7 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
         s32 x2 = window->x2;
         s32 y2 = window->y2;
 
-        if (D_800D64E8[0].x2 >= x1 && D_800D64E8[0].y2 >= y1 &&
+        if (D_800D64E8[0].x2 >= x1 && D_800D64F2 >= y1 &&
             x2 >= 0 && y2 >= 0) {
             if (x1 < 0) {
                 x1 = 0;
@@ -216,8 +218,8 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
             if (D_800D64E8[0].x2 < x2) {
                 x2 = D_800D64E8[0].x2;
             }
-            if (D_800D64E8[0].y2 < y2) {
-                y2 = D_800D64E8[0].y2;
+            if (D_800D64F2 < y2) {
+                y2 = D_800D64F2;
             }
             dList->words.w0 = 0xED000000 |
                 (((s32) ((f32) x1 * 4.0f) & 0xFFF) << 12) |
@@ -250,43 +252,26 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
     }
 
     if (window->textBGColourA != 0) {
-        dList->words.w0 = 0xFB000000;
-        dList->words.w1 = (window->textBGColourR << 24) |
-                          (window->textBGColourG << 16) |
-                          (window->textBGColourB << 8) |
-                          window->textBGColourA;
-        dList++;
+        gDPSetEnvColor(dList++, window->textBGColourR,
+                       window->textBGColourG, window->textBGColourB,
+                       window->textBGColourA);
         if (width == -1) {
             width = func_8004BA8C(current, window->font, 0);
         }
-        dList->words.w0 = 0xFA000000;
-        dList->words.w1 = (D_8007D538 << 24) |
-                          ((D_8007D53C & 0xFF) << 16) |
-                          ((D_8007D540 & 0xFF) << 8);
-        dList++;
+        gDPSetPrimColor(dList++, 0, 0, D_8007D538, D_8007D53C,
+                        D_8007D540, 0);
         dList->words.w0 = 0x07020010;
         dList->words.w1 = (u32) D_7D528;
         dList++;
-        dList->words.w0 = 0xF6000000 |
-            (((window->x1 + x + width) & 0x3FF) << 14) |
-            (((font->verticalExtent + y + window->y1) & 0x3FF) * 4);
-        dList->words.w1 = (((window->x1 + x) & 0x3FF) << 14) |
-                          (((y + window->y1) & 0x3FF) * 4);
-        dList++;
-        dList->words.w0 = 0xE7000000;
-        dList->words.w1 = 0;
-        dList++;
+        gDPFillRectangle(dList++, window->x1 + x, y + window->y1,
+                         window->x1 + x + width,
+                         font->verticalExtent + y + window->y1);
+        gDPPipeSync(dList++);
     }
 
-    dList->words.w0 = 0xFA000000;
-    dList->words.w1 = 0xFFFFFF00 | window->opacity;
-    dList++;
-    dList->words.w0 = 0xFB000000;
-    dList->words.w1 = (window->textColourR << 24) |
-                      (window->textColourG << 16) |
-                      (window->textColourB << 8) |
-                      window->textColourA;
-    dList++;
+    gDPSetPrimColor(dList++, 0, 0, 0xFF, 0xFF, 0xFF, window->opacity);
+    gDPSetEnvColor(dList++, window->textColourR, window->textColourG,
+                   window->textColourB, window->textColourA);
 
     activeColour = 0;
     first = *current;
@@ -300,39 +285,23 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
             } else {
                 if (D_800D664D != 0) {
                     if (second == 2) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0x0000FFFF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0, 0, 0xFF, 0xFF);
                         activeColour = 1;
                     } else if (second == 0xE) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0x00FF00FF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0, 0xFF, 0, 0xFF);
                         activeColour = 1;
                     } else if (second >= 0x41 && second < 0x45) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0xFFFF00FF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0xFF, 0xFF, 0, 0xFF);
                         activeColour = 1;
                     } else if (activeColour != 0) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = (window->textColourR << 24) |
-                                          (window->textColourG << 16) |
-                                          (window->textColourB << 8) |
-                                          window->textColourA;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, window->textColourR,
+                                       window->textColourG,
+                                       window->textColourB,
+                                       window->textColourA);
                         activeColour = 0;
                     }
                 }
@@ -435,19 +404,22 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG's permitted fontStringWidth assembly and DKR's Japanese get_text_width body informed organization; Mickey data and m2c remain authoritative.
- * Workbench: allocation-mismatch, 8/46 words differ first at +0x30; frame and relocations are exact, with a v0/a3 font-data web.
- * Levers: flag lattice, width/index hoists, declaration/stack-pad/alias, address/type, and spacing-order forms; the web and spill homes remain. */
+/* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
+ * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
+ * structure only; neither is genuine donor C. Mickey remains authoritative.
+ * Clean configured C is exactly 46 words with all nine relocation identities,
+ * but differs at ten words from +0x18 and has a 0x20 frame versus the target's
+ * 0x30. The full 119-mode flag lattice and natural glyph-index, declaration,
+ * width, association, and lifetime forms are non-improving. The rejected
+ * stackPad/empty-condition form is not a source lever; recover an authentic
+ * address-taken local or stack-home lifetime before reopening permutation. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
-    u8 stackPad[1];
     FontSpacingData *fontData;
     u8 *spacing;
     s32 width;
     u8 current;
     u8 defaultWidth;
     u8 glyphWidth;
-
-    if (&stackPad);
 
     fontData = &D_800D60E4[font];
     spacing = D_800D6628[font];
@@ -1085,23 +1057,8 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: structure-mismatch; 2/109 words remain (down from 5), rows 24/41.
- * Allocator-trace findings (instrumented uopt CDX, proc 34): comparison
- * operands print in itable order -- a copy-propagated variable prints first,
- * so every branch-order word demands the expression-direct spelling below.
- * CDX_FORCE p2:w23=c9,p2:w26=c6 proved the earlier 8-word state was one
- * variable web (scan1 copy + scan2 entry) that the target splits.
- * Remains: the target carries *text into the third test through a separate
- * ugen/uopt temp (move t2,a3 in test1's block, beql t3,t2 -- a non-variable
- * web, since a variable would print before the constant); every C carrier
- * tried is either senior (colored a3/t2 mirror), locally propagated away,
- * or lands the copy in the else block (words=3).
- * A bounded follow-up exhausted four source-faithful lifetime/CFG forms:
- * a segment-local const-u8 scan grew to 110 words, a block-local lead grew
- * the frame to 0x20 and the body to 112 words, a third-test-only u8 scope
- * grew to 110 words, and a switch on the unsigned byte collapsed to 106.
- * This 109-word, 0x18-frame body remains best at 107/109 exact words; its
- * four HI/LO relocations match the target's offsets and symbol identities. */
+/* Exact C: all 109 instruction words, the 0x18 frame, relocations, and linked
+ * ROM range match after bounded permutation resolved the final temp web. */
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontGetLine assembly. Mickey's own m2c draft,
@@ -1212,3 +1169,33 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart, s32 *outWi
 u8 func_8004D5C0(s32 font) {
     return D_800D60E4[font].height;
 }
+
+/* PLATEAU-HANDOFF:func_8004B1DC:start
+ * symbol: func_8004B1DC
+ * score: 465 differing words
+ * frame: 0x80
+ * relocations: 48
+ * first-mismatch: +0x30
+ * summary: JFG donor body unchanged after symbol renames; structure residual retained; reopen requires new setup or glyph-command evidence
+ * PLATEAU-HANDOFF:func_8004B1DC:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004BA8C:start
+ * symbol: func_8004BA8C
+ * score: 10 differing words
+ * frame: 0x20
+ * relocations: 9
+ * first-mismatch: +0x18
+ * summary: Donor probes exhausted; diagnostic frame aid reached 8 words but wrong spill homes; next use allocator ownership trace.
+ * PLATEAU-HANDOFF:func_8004BA8C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004C690:start
+ * symbol: func_8004C690
+ * score: 105 differing words
+ * frame: 0x70
+ * relocations: 9
+ * first-mismatch: +0x0
+ * summary: V0 is 144/146 words, relocs 9/9 with 6 aligned. Prior flags and natural forms exhausted; next lever is new allocation or saved-header copy scheduling.
+ * PLATEAU-HANDOFF:func_8004C690:end
+ */

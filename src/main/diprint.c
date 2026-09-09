@@ -912,9 +912,16 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Workbench p7: mixed structural/register; 7/66 words remain, first +0x38; frame/relocations exact.
- * Unsigned/current-byte, bottom-read, and newline-first forms were inert; scopes and a named glyph regressed.
- * Remains: target v1 versus candidate v0 current-byte web and dependent newline branch schedule. */
+/* Fresh configured full-TU C under -O2 -mips2 -32 -Wab,-r4300_mul is
+ * 59/66 raw/relocation-normalized words, frame 0x138, first +0x38, with all
+ * five relocation tuples exact and no target padding. All 119 flag rows were
+ * attempted; thirteen O2/MIPS-II rows tied this best basin and none was exact.
+ * One allocator trace and workbench isolate a five-site current-byte v1/v0 web
+ * plus the two-word branch-likely newline lowering. A separate classification
+ * scalar regressed to 57/66 by gaining a stack home; an explicit newline-tail
+ * jump was flat at 59/66, so they were not combined. ORT 862 has no caller.
+ * A 2026-09-04 diagnosis confirms prefix-exact@14 and the five-site web but
+ * reports no known lever; the lever-only test allows no mutation. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
@@ -1150,3 +1157,13 @@ void debug_text_newline(void) {
     D_800D4A5C = D_800D4A6C;
     D_800D4A5E += 11;
 }
+
+/* PLATEAU-HANDOFF:debug_text_width:start
+ * symbol: debug_text_width
+ * score: 59/66 words
+ * frame: 0x138
+ * relocations: 5
+ * first-mismatch: +0x38
+ * summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
+ * PLATEAU-HANDOFF:debug_text_width:end
+ */

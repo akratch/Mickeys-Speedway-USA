@@ -29,26 +29,20 @@ extern Overlay9YawScaleReloc gOverlay9YawScaleReloc;
 extern void func_overlay_009_F00010A4_186771C(void *object, void *state,
                                                f32 steps);
 
-/* PLATEAU (2026-08-26): workbench structure-mismatch; best 133 masked/139 raw of 336, first +0x0.
- * Typed F00010A4 f32 ABI and initializer order fixed the size excess; the flag lattice found no further gain.
- * Frame remains 0x88 vs 0x78; private temporary/GPR webs and relocation identities remain. */
+/* PLATEAU (2026-08-30): workbench structure-mismatch; best 125 masked/131 raw
+ * of 336, first +0x3C, with the exact 0x78 frame. Narrowed scalar lifetimes
+ * removed the frame excess. Static relocation proof remains closed on the
+ * ambiguous consolidated F00010A4 identity; stack order and GPR webs remain. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];
     s16 angles[3];
+    void *entryData;
     void *savedEntry;
     void *entry;
     f32 savedY;
     f32 stepFloat;
-    f32 current;
-    f32 target;
-    f32 rate;
-    f32 velocity;
     void *state;
-    void *entryData;
-    s32 remaining;
-    s32 result;
-    s8 timer;
 
     state = M2C_FIELD(object, void **, 0x64);
     D_410 = (s16 *)((u8 *)state + 0x1B8);
@@ -82,10 +76,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     M2C_FIELD(state, f32 *, 0x64) = vector[1];
     M2C_FIELD(state, f32 *, 0x5C) = vector[2];
 
-    result = ext_o0_1312c(M2C_FIELD(object, f32 *, 0xC),
-                           M2C_FIELD(object, f32 *, 0x14),
-                           (u8 *)state + 0x68, 0x10000, 0);
-    if ((result & 0x10000) &&
+    if ((ext_o0_1312c(M2C_FIELD(object, f32 *, 0xC),
+                      M2C_FIELD(object, f32 *, 0x14),
+                      (u8 *)state + 0x68, 0x10000, 0) & 0x10000) &&
         ((M2C_FIELD(object, f32 *, 0x10) - 16.0f) <
          M2C_FIELD(state, f32 *, 0x68))) {
         M2C_FIELD(state, f32 *, 0x6C) =
@@ -118,12 +111,17 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     if ((M2C_FIELD((u8 *)M2C_FIELD(object, void **, 0x40) +
                        M2C_FIELD(object, u8 *, 0x93), s8 *, 0x1E) == 0) &&
         (savedEntry != NULL) && (M2C_FIELD(savedEntry, s16 *, 8) != 0)) {
+        f32 current;
+        f32 target;
+        f32 rate;
+        s32 remaining;
+
         entryData = M2C_FIELD(savedEntry, void **, 0);
         savedY = M2C_FIELD(object, f32 *, 0x10);
-        velocity = M2C_FIELD(state, f32 *, 4);
-        if ((velocity < -2.0f) ||
+        current = M2C_FIELD(state, f32 *, 4);
+        if ((current < -2.0f) ||
             (M2C_FIELD(state, s32 *, 0x42C) < -0x14) ||
-            (velocity > 2.0f) ||
+            (current > 2.0f) ||
             (M2C_FIELD(state, s32 *, 0x42C) >= 0x15)) {
             target = 0.0f;
             rate = D_394;
@@ -164,9 +162,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
                         M2C_FIELD(object, f32 *, 0x14), 4,
                         (u8 *)state + 0xB8);
         } else {
-            timer = M2C_FIELD(state, s8 *, 0x16E);
-            if (timer > 0) {
-                M2C_FIELD(state, s8 *, 0x16E) = timer - steps;
+            if (M2C_FIELD(state, s8 *, 0x16E) > 0) {
+                M2C_FIELD(state, s8 *, 0x16E) =
+                    M2C_FIELD(state, s8 *, 0x16E) - steps;
             }
         }
     } else {
@@ -178,9 +176,36 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
 /* PROVENANCE: Mickey-derived from the assigned overlay assembly range; no donor body was imported.
- * Workbench p6: mixed constant/schedule/register; 8/129 masked words (9 raw) remain, first +0x4C; frame exact.
- * Rechecked Phase-B range, initializer/lifetime, and code-free-read levers; FP pool remains cyclically colored.
- * Remains: four FP-pool placements and standalone overlay relocation identities. */
+ * Bounded reproof (2026-08-29): unchanged configured full-TU C under canonical
+ * -O2 -mips2 -32 -Wab,-r4300_mul emits the exact 0x204-byte extent and frame
+ * 0x58. It matches 120/129 raw words and 121/129 after runtime relocation or
+ * real-offset link resolution, first +0x4C. The eight linked residual sites are
+ * +0x4C/+0x54/+0x64/+0x6C/+0xA4/+0xB4/+0x128/+0x138.
+ *
+ * All ten runtime records agree by offset, type, and identity: LOCAL pairs at
+ * +0x48/+0x4C, +0x50/+0x54, and +0x58/+0x5C use module base +0x18B0 with
+ * addends +0xC/+0x10/+0x14; SYMBOL calls at +0x80/+0xDC are ORT 707
+ * mathDiffAngle and ORT 279 func_8002A8C0; the +0x158/+0x168 LOCAL pair uses
+ * BSS base +0x1930 with addend zero. A synthetic-VMA link preserves the real
+ * F0000540 placement and reproduces the same 121/129 owned-range result.
+ * The remaining upper/lower/threshold values form the retained four-way
+ * saved-FPR color cycle. Per the reproof bound, no flag, trace, source-variant,
+ * or permutation search was run.
+ *
+ * Reproof and exhaustion (2026-09-09): all eight residual words are saved-FPR
+ * register numbers and nothing else. The allocation law was measured on this
+ * TU: a hoisted memory load and a materialized literal join different groups,
+ * loads taking the low callee-saved float registers ascending in emission
+ * order and literals the high ones descending, with the direction fixed per
+ * group. The target inverts both directions, which no partition of these five
+ * values reaches. A 15,360-point lattice (120 hoist orders x 4 declaration
+ * placements x 2 initializer styles x 16 comparison operand orders) scores
+ * only 8 or 9 and never less, every 8 carrying the identical offsets; the
+ * `register` storage class, in-loop assignment, a named zero, negation-derived
+ * literals and joined physical lines are all flat; and a 14-point compiler
+ * flag lattice makes the canonical -O2 -mips2 -32 -Wab,-r4300_mul the unique
+ * optimum. Preserve this body and assembly fallback until a new saved-FPR
+ * group-membership mechanism is proved. See the handoff shard. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
@@ -199,13 +224,13 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
         upper = 16.0f;
         lower = -16.0f;
         do {
-            delta = ext_o0_2a5bc(motion->angle, -angle->angle);
+            delta = o9P540MathDiffAngleReloc(motion->angle, -angle->angle);
             if ((delta >= -0x3F) && (delta < 0x40) &&
                 (motion->velocity > lower) && (motion->velocity < upper)) {
                 motion->velocity = 0.0f;
                 motion->angle = -angle->angle;
             } else {
-                motion->velocity += 20.0f * ext_o0_2a470(delta);
+                motion->velocity += 20.0f * o9P540CosReloc(delta);
                 motion->angle += (s32) motion->velocity;
             }
             motion->velocity *= damping;
@@ -353,6 +378,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
  * Lever: retained-float placement, scoped fractions, and block-local scale forms were rechecked.
  * Remains: the angle stack home and the local 0.65f constant-pool placement;
  * GLOBAL_ASM stays canonical. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x390..+0x3E0 .rodata range;
+ * linked promotion is text-differs after removing the TU growth; codegen remains.
+ * The retail float pool is retained as this candidate's initialized ownership. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {
@@ -448,9 +476,19 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench p7: mixed, 282/282 instructions/frame -152, 79 masked (86 raw) words; first code divergence +0x88.
- * Full-TU candidate restores the target length; context/flag, constant/home, pointer, alias, and initializer probes remain exhausted.
- * Residual is 6 structural/5 schedule/67 register rows plus 27 overlay-local relocation identities; retain NON_MATCHING. */
+/* Workbench: allocation-mismatch, 282/282 instructions/frame -152, 41 masked (48 raw)
+ * words, aligned_total 59; first code divergence +0x88. Was 52/59/70.
+ * Two levers moved it. Declaring every local on its own line and placing cross
+ * before yawB fixed the two f32 spill homes (0x4C/0x50), worth 10 words; a
+ * 344,946-evaluation iterated local search over the 22-local declaration order
+ * proves that order is a global optimum for this body. Spelling the first
+ * smoothing loop's update as `x = x + (f(...) >> 4)` instead of `x += ...`
+ * bought the ninth word; the same rewrite at the other accumulator sites is flat.
+ * Residual is now four allocation classes and nothing else: 9 words are the
+ * 0x34/0x38 GPR spill-home pair (target homes the D_388 cursor low and steps
+ * high, the candidate the reverse), 7 the tableIndex temp ring, 9 the two
+ * angle-loop temp rings, 11 the FPR ring, 5 the bank loop. Opcodes, schedule,
+ * size, frame and all 31 relocation offsets/types align. Retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -460,16 +498,27 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     s32 i;
     s32 tableIndex;
     s16 targetAngle;
-    f32 baseX, baseY, baseZ;
-    f32 crossA, dot, crossB;
-    f32 trigA, trigB, yawA, yawB;
-    f32 targetX, targetY;
-    f32 cross, targetTilt, speedTarget, blend;
+    f32 baseX;
+    f32 baseY;
+    f32 baseZ;
+    f32 crossA;
+    f32 dot;
+    f32 crossB;
+    f32 trigA;
+    f32 trigB;
+    f32 yawA;
+    f32 cross;
+    f32 yawB;
+    f32 targetX;
+    f32 targetY;
+    f32 targetTilt;
+    f32 speedTarget;
+    f32 blend;
 
     ext_o0_210b4(60.0f, 0);
     if (state->flags & 8) D_388[mode]++;
     D_388[mode] &= 3;
-    tableIndex = D_388[mode] + ((ext_o0_214c8() & 3) * 4);
+    tableIndex = (D_388[mode] & 0xFF) + ((ext_o0_214c8() & 3) * 4);
     targetX = D_300[tableIndex] + (D_2D0 * 75.0f);
     targetY = D_340[tableIndex];
     steps = (s32) stepsFloat;
@@ -478,8 +527,8 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 
     if (steps != 0) {
         do {
-            state->angle += ext_o0_2a5bc(state->angle,
-                                         0x8000 - state->angleTarget) >> 4;
+            state->angle = state->angle + (ext_o0_2a5bc(state->angle,
+                                         0x8000 - state->angleTarget) >> 4);
         } while (i--);
         i = steps - 1;
     }
@@ -551,3 +600,43 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F00010B4_186772C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:start
+ * symbol: func_overlay_009_F0000CE4_186735C
+ * score: 5 differing words
+ * frame: 0x50
+ * relocations: 8
+ * first-mismatch: +0xC8
+ * summary: Exact size; four angle-stack operands plus one pool addend remain; permuter improved 37 to 29 without zero. Reopen with new stack-slot or pool-layout evidence.
+ * PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
+ * symbol: func_overlay_009_F00010B4_186772C
+ * score: 41/282 words
+ * frame: 0x98
+ * relocations: 31
+ * first-mismatch: +0x88
+ * summary: Declaration order plus one accumulator rewrite cut 52 to 41 masked; exact size/frame/opcodes. Residual is four pure allocation classes.
+ * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F0000000_1866678:start
+ * symbol: func_overlay_009_F0000000_1866678
+ * score: 125/336 words
+ * frame: 0x78
+ * relocations: 63
+ * first-mismatch: +0x3C
+ * summary: Exact size/frame; 125 masked/131 raw. Static 52 vs runtime 63, 15 identities; F00010A4 is ambiguous. Next: local-stack order/GPR web.
+ * PLATEAU-HANDOFF:func_overlay_009_F0000000_1866678:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F0000540_1866BB8:start
+ * symbol: func_overlay_009_F0000540_1866BB8
+ * score: 8/129 words
+ * frame: 0x58
+ * relocations: 10
+ * first-mismatch: +0x4C
+ * summary: Whole residual is one saved-FPR colour cycle; an allocation law measured on this TU makes the target assignment unreachable from any source form.
+ * PLATEAU-HANDOFF:func_overlay_009_F0000540_1866BB8:end
+ */

@@ -38,16 +38,73 @@ and [`docs/adr/0010-commit-discipline.md`](adr/0010-commit-discipline.md).
 Lane isolation covers working state, not committed knowledge. A coordinator or
 read-only tool may inspect committed `refs/heads/lane/*` objects through Git's
 object database to avoid duplicate assignments and find newly matched siblings;
-it never reads a sibling worktree, index, process, or uncommitted file. Run
+it never reads a sibling worktree, index, process, or uncommitted file.
+`tools/lane_status.py` also includes fetched
+`refs/remotes/origin/lane/burn-b-*` tips, so cross-machine Session B ownership
+becomes visible after an ordinary private-origin fetch without materialising a
+remote worktree. Run
 `tools/lane_status.py --pending-only` for the fleet view or
 `tools/lane_status.py --symbol <name>` before assignment. Its rows are
 commit-message claims, not match evidence; integration repeats every normal
-proof. See [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
+proof. A symbol check also compares the exact committed definition path and
+validated `NON_MATCHING` guard with descendant lane refs, then checks any source
+`PLATEAU-HANDOFF` against that symbol's committed per-symbol shard and legacy
+triage history. It reports
+`base-only`, `active`, `already-integrated/exhausted`, or `stale-ledger` and
+returns success only for `base-only`; this makes stale pre-cleanup evidence a
+closed assignment gate instead of an implicit ready row. Subjects explicitly
+marked near-match, near-miss, plateau, candidate, or diagnostic are not trusted
+as exact-match dispositions: subjects are scheduling metadata, not proof. A
+reviewed exact or target-guard claim that canonical rejects or supersedes is
+recorded by full claim and decision commit IDs in
+`config/lane-claim-dispositions.us.json`; full reports retain that disposition,
+while `--pending-only` excludes only the reviewed claim hash. An adjudicated
+frozen tip also stops reserving its symbol, while an unrelated change to a
+different guard in the same translation unit never reserves the target. See
+[ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
+
+A genuinely new mechanism may reopen one current plateau through
+`config/lane-reopen-authorizations.us.json`. Each schema-v1 entry pins the
+symbol's full current source and handoff commit IDs plus a concise reason. The
+reason must be nonempty, at most 240 characters, and contain no newline or pipe.
+`gmake check-docs` first checks the worktree JSON structure via
+`tools/lane_status.py --check-reopen-schema`, without Git/history inspection.
+This schema-only check permits historical pins and never authorizes assignment.
+The pin may also name the exact older handoff commit reported for
+`stale-structured-evidence`; this authorizes one fresh maintenance remeasurement
+without treating the old measurements as current. A
+missing structured handoff may use `ledger_commit: null` only when the pin is
+the latest target guard or evidence commit and descends from the source plateau.
+For a source file with exactly one guarded target, the latest whole-file commit
+is the unambiguous pin; shared translation units remain symbol-history scoped.
+malformed, source-mismatched, or superseded evidence still fails closed.
+`lane_status.py` validates identity and ancestry after checking active lanes,
+and reports `base-only` only for that exact pair. The first subsequent source
+or handoff commit makes the authorization stale and the target exhausted again.
+
+[ADR 0017](adr/0017-causal-exploration-and-risk-proportional-validation.md)
+permits explicitly assigned, 60–90-minute causal exploration packets beyond
+ADR 0016's narrow residual cutoff. Each function still needs current committed
+reopen pins and a zero-exit assignment gate. Prove the actual baseline's
+self-context comparison and compiler fidelity before exploring, predict what
+each hypothesis should change, and preserve nonexact diagnostics only as ignored
+evidence. Defined inert source-shaping probes are diagnostic permission, not
+authority to adopt a nonexact body. All ordinary matching and landing gates
+remain mandatory; unchanged report-only work needs preservation and a clean
+state check rather than blanket closing rebuilds.
 
 Non-interactive workers also receive an explicit task budget. The launcher
 passes a soft deadline to the agent and tools, reserves five minutes for a
 handoff, and then interrupts the exact process it launched. Expiry preserves a
 best candidate/plateau; it never resets a lane or discards work.
+
+`codex_lane.sh` also creates an atomic heartbeat under
+`$(git rev-parse --git-common-dir)/codex-crew/heartbeats/`. Each record names
+the target and assignment base, last material progress and current lane
+commit, and soft deadline. Workers refresh it after meaningful progress and
+before long bounded calls; coordinators use `tools/crew.py heartbeat-status`
+to see current and stale work. A stale report is scheduling evidence only. It
+prints a graceful plateau/interrupt procedure and never kills a process.
 
 ### Three-session interactive crew
 
@@ -62,6 +119,7 @@ tools/crew.py init --worker worker-1=crew-worker-1 \
 tools/crew.py doctor
 tools/crew.py status
 tools/crew.py inbox worker-1
+tools/crew.py heartbeat-status --stale-after-minutes 15 --check
 ```
 
 The runtime directory is `$(git rev-parse --git-common-dir)/codex-crew/`, so
@@ -107,6 +165,11 @@ proved by a Mickey-exact result or controlled local experiment belongs in
 [`ido-learnings.md`](ido-learnings.md); function-specific attempts stay in the
 resident, overlay, and triage ledgers. See
 [ADR 0012](adr/0012-known-sources-and-reusable-knowledge.md).
+
+For allocator investigations, use the fail-closed procedure mapping and
+fidelity receipt in
+[`allocator-trace-receipts.md`](allocator-trace-receipts.md). Raw traces and
+objects remain untracked evidence; only compact findings belong in ledgers.
 
 ## The clean-room rule
 
@@ -207,6 +270,56 @@ sizes) are recomputed from the lists they summarise, never copied forward.
 `gmake check-docs` re-derives the mechanically checkable ones and fails on
 drift.
 
+### Overlay build flow
+
+Mickey uses a runtime overlay linker from the same Rare engine lineage as JFG,
+but it does **not** copy JFG's host-side overlay build. There is one build graph
+and one final linker invocation:
+
+1. `config/overlays.us.json` records each module's measured ROM ranges and
+   ownership. `tools/overlay_atlas.py` checks that data against the generated
+   overlay block in `mickey.us.yaml`.
+2. Splat turns that block into ordinary inputs under `src/overlays/oNNN/`,
+   `asm/overlays/oNNN/`, and `assets/overlays/oNNN/`, plus `mickey.us.ld`.
+3. The root Makefile's normal C, assembly, and binary-wrapper rules produce
+   objects. `mk/overlays.mk` contains only measured per-overlay-object compiler
+   flags and reviewed ELF normalization; it is an included policy table, not
+   another build graph or linker. Every non-idempotent overlay rule consisting
+   only of `objcopy --redefine-sym` is declared in
+   `config/normalizations/overlay-symbol-aliases.us.json`; the checked-in
+   `mk/overlay_aliases.generated.mk` include is its deterministic projection.
+   Rules that also trim sections or filter/rebind relocations remain explicit
+   in `mk/overlays.mk` so their ordered command chains stay visible.
+4. `build/mickey.us.elf` links all objects once through splat's script. That script
+   places each module's text, data, and original relocation-table blobs back in
+   its ROM range; `objcopy` and `n64crc` then produce the one ROM image.
+
+`src/main/runlink.c` is the reconstructed code that loads and relocates modules
+on the console at runtime. JFG is disclosed evidence for parts of that engine
+code, while Mickey's own tables, atlas, generated linker script, and exact ROM
+comparison define this repository's build. The detailed runtime mechanism is
+documented in [`overlays.md`](overlays.md); the host-build source of truth is
+the generated overlay block in `mickey.us.yaml`.
+
+For build debugging, start in the 1,100-line root Makefile: source discovery,
+generic recipes, and the sole final link are all there. Consult
+`mk/overlays.mk` only when one overlay object needs a measured flag, trim, or
+symbol/relocation normalization.
+
+After changing the pure alias manifest, refresh and verify its projection:
+
+```sh
+tools/render_overlay_aliases.py --write
+tools/render_overlay_aliases.py --check
+```
+
+The renderer rejects unknown schema fields, malformed source or destination
+symbols, duplicate object targets, duplicate sources or destinations within a
+target, and order-dependent alias chains. Do not edit the generated include
+by hand or add trim/filter/rebind commands to the manifest. `gmake check-docs`
+runs the render check, and `gmake check-tooling` includes the focused renderer
+tests.
+
 ### Overlay donor-first workflow
 
 Before naming or decompiling any overlay function:
@@ -243,6 +356,20 @@ post-compile step. See
 generated block is the current numbers; recompute rather than quoting them
 here.
 
+Resident `NON_MATCHING` bytes are classified from guarded C definitions and
+their exact assembly-fallback ELF identities, including renamed symbols and
+multiple functions in one guard. Declaration-only guards do not count. Missing,
+duplicate, overlapping or conflicting ownership refuses the report. This moves
+bytes between unmatched categories only: matched/resolved credit and the
+existing ELF function extents are unchanged.
+
+Overlay categories still use atlas TU ownership, with its explicit exact-C
+islands. They are not a function-by-function inventory of guarded bodies; a
+mixed TU may include a bare fallback in its nonmatching category. Neither
+`GLOBAL_ASM remaining` nor `NON_MATCHING` measures scratch-draft availability,
+semantic approval or experiment readiness. Use source/attempt inventories and
+the assignment gate for those questions.
+
 ### `gmake NON_MATCHING=1`: the compile-only escape hatch
 
 Every function ADR 0001/0002 demoted from "matched" to `NON_MATCHING` keeps
@@ -251,13 +378,112 @@ its C body under `#ifdef NON_MATCHING`, with the original
 guard is normally off, so the ordinary build still links the `GLOBAL_ASM`
 fallback and stays byte-identical. `gmake NON_MATCHING=1` flips it: every
 converted TU compiles its real C body instead, into a **separate build tree**
-(`build_non_matching/`, never `build/`) so those objects can never be
-mistaken for, or sit next to, the ones `gmake verify` checks. It is a
+(`build_non_matching/`, never `build/`) so that command cannot mix them with
+the objects `gmake verify` checks. As a second
+line of defense against manual full-TU experiments that write directly into
+`build/`, every successful verification receipts the canonical hashes of all
+candidate-bearing objects. The next `gmake verify` forcibly rebuilds only
+objects that no longer match that receipt; a missing receipt fails safe by
+rebuilding the complete candidate-bearing set once. It is a
 compile-only smoke test — proof the C is not obviously wrong, not a matching
 claim. `gmake verify` refuses to run under `NON_MATCHING=1` (`the error is
 literal: "verify does not run under NON_MATCHING=1"`), exactly DKR's own
 guard for the same escape hatch. Unset it and rebuild before running
 `verify`.
+
+Before sweeping flags, run `tools/function_preflight.py <symbol>`. It accepts
+either a friendly or generated overlay name and fails closed unless it can
+prove one source, one owned range, one padding boundary, and stable runtime
+relocation identities. It also selects the ordinary or `NON_MATCHING` full-TU
+build automatically and reports target-specific guarded-body Git history,
+callers, exports, the candidate ABI context,
+overlay runtime records or authenticated resident static relocation tuples,
+and the current workbench score/first mismatch without printing instruction
+text, historical bodies, or ROM bytes. Both ordinary preflight and
+`wb_compare.sh` automatically refresh missing/stale evidence through separate
+low-priority split and target phases. Preflight defaults to the machine's CPU
+count (one if unavailable), following ADR 0004; a positive `MICKEY_BUILD_JOBS`
+overrides that default for explicit workstation or crew limits. Invalid values
+fail before a build starts. `--no-build` on either command
+instead requires all artifacts to be current and fails closed. A newer
+checked-in build recipe/policy forces the target dependency graph so Make's
+recipe-insensitive freshness rules cannot hide an old object. Sparse resident
+startup-table records are reported separately and may legitimately be absent.
+See [`tools.md`](tools.md) for the report and `wb_compare.sh --diagnose` usage.
+
+After an exact promotion removes the extracted fallback, preflight admits a
+separate `post_promotion` route only when one unconditional C definition, its
+tracked symbol/overlay-atlas ownership, and the linked value and size all agree.
+It uses the ordinary object and the fully relocated ROM comparison for the
+scalar score. A missing fallback never promotes a guarded `NON_MATCHING` body,
+and absent or ambiguous tracked exact evidence remains an error.
+
+### Safe plateau finalization
+
+After a bounded attempt reaches ADR 0009's cap, preserve it with the original
+assembly fallback still active:
+
+```sh
+tools/finalize_plateau.py overlay40FadeRecords \
+  src/overlays/o040/overlay40FadeRecords.c \
+  --score "98/101 words" --frame 0x8 --relocations 10 \
+  --first-mismatch +0xC --summary "one allocator web remains"
+```
+
+The exact function must already be C under `#ifdef NON_MATCHING`, followed by
+one `#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must
+either match the C symbol or use splat's canonical generated overlay-function
+form (`func_overlay_NNN_F...s`), which is how friendly overlay names retain
+their original assembly identity. Balanced declaration-only `NON_MATCHING`
+guards elsewhere in the same translation unit are ignored; validation is tied
+to the requested symbol's own top-level guard and fallback. The command refuses
+an unguarded, nested, unterminated, or ambiguous target body, any other
+mismatched fallback, an untracked source, or worktree/index dirt outside that
+source and its handoff ledger. By default it creates or updates only
+`docs/matching-triage-handoffs/<symbol>.md`; two symbols therefore never edit a
+shared generated ledger file. Each shard has a strict one-symbol schema and
+records its exact source path. Historical blocks stay in
+`docs/matching-triage.md`; `--handoff-doc docs/<file>.md` may explicitly select
+that or another existing tracked ledger and retains the fail-closed tracked-path
+checks. The reserved shard directory cannot be selected through that option,
+so custom-ledger formatting cannot bypass the one-symbol shard schema. The
+command records only the supplied score, frame, relocation count,
+first mismatch, and one-line summary in a symbol-keyed metadata comment at the
+end of the source file and a bounded Markdown block in the selected shard or
+ledger.
+Appending the source metadata preserves every pre-existing byte and physical
+source line, including the measured guarded function. Re-running the command
+updates only that symbol's EOF block, and multiple symbols may share a source
+file. The command refuses legacy inline handoff comments because moving one
+would itself require a fresh compile and byte-comparison proof. It never
+records instruction rows or claims exactness.
+
+The finalizer runs the source-only `cleanroom` and `check-docs` gates. Those
+gates preserve a safe handoff; they do not replace configured compilation or
+ROM verification. It leaves the result uncommitted by default. Pass `--commit`
+only after reviewing the diff; that mode stages and commits only the named
+source and handoff document. The directory README is static and is never
+regenerated or touched by finalization.
+
+Audit all structured source markers against their fixed per-symbol shards with:
+
+```sh
+tools/plateau_handoff_audit.py --check
+tools/plateau_handoff_audit.py --check --json
+tools/plateau_handoff_audit.py --write
+```
+
+`--check` fails on missing or stale shards and on malformed, duplicate, or
+source-mismatched structured evidence. `--write` is the only write mode. It
+preflights the complete audit, then atomically creates or refreshes only the
+exact `docs/matching-triage-handoffs/<symbol>.md` files whose tracked source
+markers are valid and missing or stale. Existing valid detail lines are
+preserved. The audit requires one exact guarded definition and fallback in the
+recorded source path, and it copies only the marker's required metric fields;
+it never derives a metric from prose, assembly, build output, or ROM data.
+Prose-only `PLATEAU-HANDOFF` comments are reported as unstructured and are not
+write inputs. Review and commit generated shards separately; a tooling change
+must not silently mass-refresh them.
 
 ### Auditing post-compile steps: `tools/postprocess_audit.py`
 
@@ -280,13 +506,24 @@ Run it three ways:
 tools/postprocess_audit.py            # table to stdout
 tools/postprocess_audit.py --write    # refresh config/postprocess-audit.us.json
 tools/postprocess_audit.py --check    # fail if that JSON is stale
+tools/postprocess_audit.py --check-redefines # reject duplicate objcopy targets
 ```
+
+`gmake check-docs` runs the redefine check automatically. When multiple input
+symbols are present, GNU `objcopy` rejects the shared destination; even when
+only one is emitted, an accidental many-to-one mapping can erase distinct
+runtime relocation identities that happen to share an encoded addend. The
+checker therefore requires every destination to be unique within an `objcopy`
+invocation.
 
 `config/postprocess-audit.us.json` is the committed result: one row per
 object carrying a `POSTPROCESS` override, its class, tool list, and
 (where known) its `(overlay, offset, size)` ownership joined from
-`config/overlays.us.json`. As of this pass its `summary.by_class` reads
-`{"metadata": 687}` — zero `altered` objects — which is the mechanical proof
+`config/overlays.us.json`. `c_owned` means the atlas assigns the range to C;
+`nonmatching` records a guarded fallback; `matched_c` is true only when the
+range is C-owned and not `NON_MATCHING`. As of this pass its
+`summary.by_class` reads
+`{"metadata": 619}` — zero `altered` objects — which is the mechanical proof
 that the ADR 0002 conversion reached every object in the tree, not just the
 functions this lane's prose describes.
 
@@ -317,42 +554,92 @@ interrupted report without recompiling recorded identities, and repeated
 
 ### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
 
-- **`tools/new_lane.sh <name> [--no-extract] [base-branch]`** creates
-  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
-  (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
-  venv and vendored tool checkouts in rather than copying them, and (unless
-  `--no-extract`) runs the splat extract so the lane can build immediately.
+- **`tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]`** creates
+  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`. Without
+  an explicit base it compares local and `origin/` campaign integration refs,
+  selects the newer linear descendant, and fails on divergence; repositories
+  without either campaign ref use `HEAD`. It symlinks the untracked toolchain,
+  baserom, venv and vendored tool checkouts in rather than copying them. It first looks
+  for an exact-commit bootstrap published by `tools/lane_cache.py publish`;
+  that command accepts only a tracked-clean worktree, reruns `gmake verify`,
+  and stores an ignored immutable snapshot below Git's common directory. A
+  cache hit copy-on-write clones the verified split/build prerequisites into
+  the new lane without sharing writable files. A miss runs the ordinary splat
+  extract; `--no-extract` creates a source-only lane and `--no-cache` forces a
+  fresh extract.
   Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
   through Git's common directory even when invoked from another lane, and
   fails instead of installing a dirty symlink when a tracked submodule cannot
-  be initialized from the shared local module store.
+  be initialized from the shared local module store. On macOS the registered
+  worktree uses a `.noindex` directory and the established
+  `../mickey-lane-<name>` path is a compatibility symlink to it. The helper
+  also creates `.metadata_never_index` before the tracked checkout, cache
+  restoration, or extraction. This keeps duplicate source/build trees out of
+  Spotlight without changing callers' lane paths.
 - **`tools/merge_lane.sh <name>`** integrates one lane back into the current
-  branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
-  to pass there first, runs the clean-room range scan over the lane's
-  commits, merges `lane/<name>`, and resolves the two files that always
+  branch: it pins the lane's committed tip without touching the worker's
+  worktree, runs the clean-room range scan over that exact commit range,
+  merges the pinned tip, and resolves the generated files that commonly
   conflict by *regenerating* them instead of taking either side — the README
   scoreboard block and the overlay atlas — then re-runs
   `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
-  result. It exits non-zero and leaves the merge in progress if anything else
+  result. Generated overlay symbols are checked before a transaction stages
+  only the reviewed generated delta, including recreated deleted outputs.
+  Unexpected tracked edits, preexisting untracked generated inputs, index
+  changes, and commit-hook failures stop rather than silently enter a commit.
+  It exits non-zero and leaves the merge in progress if anything else
   conflicts or a gate fails, rather than guessing a resolution. Set
   `MICKEY_BUILD_JOBS` and `MICKEY_BUILD_NICE` when local workstation policy
   requires a lower compiler concurrency or priority; the three-session crew
   uses two jobs and niceness 15.
-- **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--no-extract]`**
+- **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--target SYMBOL] [--no-extract]`**
   creates a lane with `new_lane.sh` and launches a detached, non-interactive
   `codex exec` worker inside it; the worker commits on `lane/<name>` like any
   other worker. The default soft budget is 180 minutes (overridable by
   `CODEX_MINUTES` or `--minutes`), followed by a five-minute hard-stop grace
   period. `MICKEY_TASK_BUDGET_SECONDS`, `MICKEY_TASK_DEADLINE_UNIX`, and
   `MICKEY_TASK_HARD_DEADLINE_UNIX` are available to the worker and its tools.
+  `--target` defaults to the lane name. Launch, worker progress, current commit,
+  deadline, and runner exit are recorded in shared heartbeat state; the worker
+  receives the exact refresh command in its effective prompt.
   Progress, effective prompt, final message and exit status land in
   `<lane>/.codex-run.log`, `<lane>/.codex-effective-prompt.md`,
   `<lane>/.codex-last.md`, and `<lane>/.codex-status` (all gitignored).
+- **`tools/crew.py heartbeat ...` / `heartbeat-status`** atomically updates or
+  reports the Git-common-dir heartbeat records without changing the ADR 0013/
+  0014 mailbox lifecycle. A new heartbeat requires worker, target, assignment
+  base, deadline, and progress; later updates preserve assignment metadata and
+  refresh the actual lane `HEAD`. `heartbeat-status --check` exits nonzero for
+  active records whose progress age exceeds the threshold or whose deadline
+  has passed. Reporting provides graceful-stop guidance only—there is no
+  automatic kill path.
 - **`tools/lane_status.py [--base REF] [--pending-only] [--symbol NAME]`**
   reports unintegrated commits and `Match <symbol>` claims from committed lane
   refs only. `pending` means the base still has that symbol's `GLOBAL_ASM` while
   the claiming lane does not; it is a coordination hint, never a replacement
-  for integration validation.
+  for integration validation. Reviewed dispositions remain visible with their
+  canonical decision commit in the full report but never enter
+  `--pending-only`; subject wording alone never suppresses a claim. With
+  `--symbol`, the leading `assignment` row is the fail-closed scheduling
+  verdict: only `base-only` exits zero. `active` identifies a descendant lane
+  with a different committed target guard, source handoff, exact legacy-ledger
+  row, or symbol-owned shard; unrelated guarded functions and unrelated shards
+  do not reserve this symbol,
+  `already-integrated/exhausted` covers a base match or a current plateau, and
+  `stale-ledger` means exact source identity or target-specific shard/legacy
+  history is malformed, missing, source-mismatched, or older than the committed
+  plateau. A commit-pinned reopen authorization may return a current plateau,
+  or the exact related source/older-ledger pair reported for stale structured
+  evidence, to `base-only` exactly once; malformed or unrelated entries fail
+  closed and active lane ownership takes precedence. Complete ready-queue scans
+  batch source identity and committed lane path ownership, then inspect
+  shared-ledger changes only for the exact symbol;
+  the maintenance report classifies prose-only remeasurement separately from
+  structured-evidence repair. The check reads Git objects,
+  never another lane's worktree or index. Its ref query excludes branches
+  already merged into the selected base before doing target-history work, so
+  retained historical lane refs do not slow assignment checks. Candidate blobs
+  for all relevant refs are read in one object-database batch.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 

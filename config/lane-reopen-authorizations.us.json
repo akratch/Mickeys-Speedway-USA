@@ -1,0 +1,1450 @@
+{
+  "authorizations": {
+    "__scHandleRetrace": {
+      "ledger_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
+    },
+    "debug_text_width": {
+      "ledger_commit": "b33c72aea7c6557046163ad5678ef6a8789eebca",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "b33c72aea7c6557046163ad5678ef6a8789eebca"
+    },
+    "effectboxControl": {
+      "ledger_commit": "f437f4a9c47c242f173092fcd8e506741e35ff77",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "f437f4a9c47c242f173092fcd8e506741e35ff77"
+    },
+    "func_80001740": {
+      "ledger_commit": "c7546d550af3c57aad34949e51594dc2ee18ea08",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "c7546d550af3c57aad34949e51594dc2ee18ea08"
+    },
+    "func_80001BF4": {
+      "ledger_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d"
+    },
+    "func_80002134": {
+      "ledger_commit": "b4194742b8224c4d17503959fc2bbe83b40f88c7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "b4194742b8224c4d17503959fc2bbe83b40f88c7"
+    },
+    "func_80003480": {
+      "ledger_commit": "ead530b9d74b00134296017406869616909bb7b9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e4628a89827467289170f03de04393f8567098a5"
+    },
+    "func_80004454": {
+      "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "8be7d11cdf5827851c95c67cbb70bb069f032c2d"
+    },
+    "func_8000471C": {
+      "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "74069eb4a76d0f242e581605691e787dc8b28e9d"
+    },
+    "func_80004C28": {
+      "ledger_commit": "d37073eaeaf885131e5c31c518ebde420cfd7e36",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "ee7b01b74a96a9ac19e735453e645c55ec45f967"
+    },
+    "func_800056A4": {
+      "ledger_commit": "8b951352632d3c73270569960faed9cdead7c49f",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "3883ec822c8b214ef5302416149c2bc521b3c073"
+    },
+    "func_80005868": {
+      "ledger_commit": "c1855a9c48a29d11f54484b08229d6c7ccdbc125",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
+    },
+    "func_8000590C": {
+      "ledger_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd"
+    },
+    "func_8000784C": {
+      "ledger_commit": "d37073eaeaf885131e5c31c518ebde420cfd7e36",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "3564c8b10e1b2e942f00b31e7889d135bcfc819a"
+    },
+    "func_80008028": {
+      "ledger_commit": "dcb0f949d2c0bed4ed92c97e28b33f3ff171f708",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "dcb0f949d2c0bed4ed92c97e28b33f3ff171f708"
+    },
+    "func_80009AA8": {
+      "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "9da45a1126b701b376c1abe65c9b0b777e8931fd"
+    },
+    "func_8000BDB4": {
+      "ledger_commit": "1ac4ce096402051df01ff721968235046df1e373",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "1ac4ce096402051df01ff721968235046df1e373"
+    },
+    "func_8000D1B8": {
+      "ledger_commit": "77dd6b1ecedab079271e802af18e6c87c4f71f61",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "77dd6b1ecedab079271e802af18e6c87c4f71f61"
+    },
+    "func_8000D3B8": {
+      "ledger_commit": "2827cd9df816f659d014bc96019989b1db003e26",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "2827cd9df816f659d014bc96019989b1db003e26"
+    },
+    "func_8000D820": {
+      "ledger_commit": "16ad20bff6f3793b6e510a6996a524198762459b",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "16ad20bff6f3793b6e510a6996a524198762459b"
+    },
+    "func_8000DB34": {
+      "ledger_commit": "7ad2f839a02f7729f902a8adc42b252fcd978c12",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "7ad2f839a02f7729f902a8adc42b252fcd978c12"
+    },
+    "func_8000DFBC": {
+      "ledger_commit": "3d7c640e48eb6a0c0420add8d07e9c6499ff0f73",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "3d7c640e48eb6a0c0420add8d07e9c6499ff0f73"
+    },
+    "func_8000E5EC": {
+      "ledger_commit": "dd96a1af8e16103ed94d8f006e0bd55cda40803a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "dd96a1af8e16103ed94d8f006e0bd55cda40803a"
+    },
+    "func_8000E920": {
+      "ledger_commit": "b5d21c7e812518dcc0d3c3549215452d141fca10",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "b5d21c7e812518dcc0d3c3549215452d141fca10"
+    },
+    "func_8000F198": {
+      "ledger_commit": "f9854560b5ccf837cdbf47a552a3fea3eb8da08a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "f9854560b5ccf837cdbf47a552a3fea3eb8da08a"
+    },
+    "func_8000FAE0": {
+      "ledger_commit": "7a64c0f378d1d98d4bd8e823077e0d1f9ef6c07d",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "3e1e85ef44401383c34568f5784ae8d8fc8f6d1d"
+    },
+    "func_800103D4": {
+      "ledger_commit": "c3d6f12639b0e131fbffa1a3fb12047f63b25663",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "c3d6f12639b0e131fbffa1a3fb12047f63b25663"
+    },
+    "func_80010654": {
+      "ledger_commit": "6b8f32f16e0feba1f212b209779aa5c81ab716e8",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "6b8f32f16e0feba1f212b209779aa5c81ab716e8"
+    },
+    "func_80010900": {
+      "ledger_commit": "17e6b10f3a942d38aefb8f90defb8be28bd487ab",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "17e6b10f3a942d38aefb8f90defb8be28bd487ab"
+    },
+    "func_80010B4C": {
+      "ledger_commit": "6b44a39a27e1eefe70b05469cf7864125c27829a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "6b44a39a27e1eefe70b05469cf7864125c27829a"
+    },
+    "func_800115E4": {
+      "ledger_commit": "4fae65aaadfbfbecc32b63140e6822d0a6593c11",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "4fae65aaadfbfbecc32b63140e6822d0a6593c11"
+    },
+    "func_80011980": {
+      "ledger_commit": "2dd48960d8d4083cf3b69b9ff53848f8951d5097",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "2dd48960d8d4083cf3b69b9ff53848f8951d5097"
+    },
+    "func_80011CDC": {
+      "ledger_commit": "975f13829df78786cc1e06ba2bc52963063abc3e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "975f13829df78786cc1e06ba2bc52963063abc3e"
+    },
+    "func_80012234": {
+      "ledger_commit": "1ab00261ae9aeb838c8ed39768e9535000b6b9d6",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "1ab00261ae9aeb838c8ed39768e9535000b6b9d6"
+    },
+    "func_80012658": {
+      "ledger_commit": "51ca68df5cab3e55eac144899f21da38f8a2e3e3",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "51ca68df5cab3e55eac144899f21da38f8a2e3e3"
+    },
+    "func_8001291C": {
+      "ledger_commit": "6550b428aaa6dc3649c72db2821c3b66eb1a01e8",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "6550b428aaa6dc3649c72db2821c3b66eb1a01e8"
+    },
+    "func_800133FC": {
+      "ledger_commit": "fb1ad140d9169a8330fa8ba832bd9c88c34e3ef2",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "fb1ad140d9169a8330fa8ba832bd9c88c34e3ef2"
+    },
+    "func_8001357C": {
+      "ledger_commit": "48c801c51b096b2f955b862ef2892e39bd39e778",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "48c801c51b096b2f955b862ef2892e39bd39e778"
+    },
+    "func_8001398C": {
+      "ledger_commit": "5be279fb74ba06379d78c41b4252c98f961a00e1",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "5be279fb74ba06379d78c41b4252c98f961a00e1"
+    },
+    "func_800140CC": {
+      "ledger_commit": "b7a9e7ab4b12f4548676aad86bfc58908444922e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "b7a9e7ab4b12f4548676aad86bfc58908444922e"
+    },
+    "func_80016890": {
+      "ledger_commit": "0aea596a6c649bacd030c7e9167ca2236accca0e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "8b4dcb05207206d28a2d803c548c266f4c578c45"
+    },
+    "func_80017140": {
+      "ledger_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91"
+    },
+    "func_80017660": {
+      "ledger_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb"
+    },
+    "func_80017BCC": {
+      "ledger_commit": "8508607a0426420ec3052901195c5abe8c02605a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "8508607a0426420ec3052901195c5abe8c02605a"
+    },
+    "func_800180B4": {
+      "ledger_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa"
+    },
+    "func_80018F08": {
+      "ledger_commit": "02326b78b1d1ba50b38b3e33ac097e18e496ea33",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "02326b78b1d1ba50b38b3e33ac097e18e496ea33"
+    },
+    "func_8001953C": {
+      "ledger_commit": "d09352cdaa9a476ab208fd6965e169db3d64bdce",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d09352cdaa9a476ab208fd6965e169db3d64bdce"
+    },
+    "func_80019AB8": {
+      "ledger_commit": "173cab235f4fe1cf595964b0070f612463d896ae",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "173cab235f4fe1cf595964b0070f612463d896ae"
+    },
+    "func_8001BBB4": {
+      "ledger_commit": "770063553502c681e61f13366a408c249df4e797",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "770063553502c681e61f13366a408c249df4e797"
+    },
+    "func_8001C4C0": {
+      "ledger_commit": "9e4047b1e38cea0c278ce90f0ff82c467f6b125e",
+      "reason": "ADR 0018 stall rule, and at delta -8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "9e4047b1e38cea0c278ce90f0ff82c467f6b125e"
+    },
+    "func_8001CB84": {
+      "ledger_commit": "db51b4702d4e558a16f1b857f2a2a0838704dbf5",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 53 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "19f1f38fe953750c9768ee64a865439a6483950f"
+    },
+    "func_8001D880": {
+      "ledger_commit": "969886e28a6496d698bd747aadbdd60d022124e4",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "39344a3610e818e2018dde9d27d8e6e55c934309"
+    },
+    "func_8001D960": {
+      "ledger_commit": "db51b4702d4e558a16f1b857f2a2a0838704dbf5",
+      "reason": "Class is register-only at 16 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "0d16456858452f970d7d40bba889d1c8ac032e13"
+    },
+    "func_8001DD70": {
+      "ledger_commit": "53044477cdaceea811dd82a33c337ba4b5389fed",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "53044477cdaceea811dd82a33c337ba4b5389fed"
+    },
+    "func_8001E5C4": {
+      "ledger_commit": "7d552f6b24771fb6f8092b889123a021a88ece64",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "7d552f6b24771fb6f8092b889123a021a88ece64"
+    },
+    "func_8001EC44": {
+      "ledger_commit": "4fa02a80b6472f216afd857ba080218aa104a691",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "4fa02a80b6472f216afd857ba080218aa104a691"
+    },
+    "func_8001F520": {
+      "ledger_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4"
+    },
+    "func_8001FC50": {
+      "ledger_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c"
+    },
+    "func_8002057C": {
+      "ledger_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8"
+    },
+    "func_80020B10": {
+      "ledger_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8"
+    },
+    "func_80020D8C": {
+      "ledger_commit": "9157cc3bd065fcc1c39bc2c9a465f314cf076a9f",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "9157cc3bd065fcc1c39bc2c9a465f314cf076a9f"
+    },
+    "func_80020E4C": {
+      "ledger_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d"
+    },
+    "func_80022FD4": {
+      "ledger_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb"
+    },
+    "func_80023598": {
+      "ledger_commit": "a0f052fd675c8fc456237020b7b6f8fb52753066",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "a0f052fd675c8fc456237020b7b6f8fb52753066"
+    },
+    "func_80024978": {
+      "ledger_commit": "89522668e6d277f4a2321cbb82e841fcf3cf2bf7",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "89522668e6d277f4a2321cbb82e841fcf3cf2bf7"
+    },
+    "func_80026FB4": {
+      "ledger_commit": "1832e6b4c0ad5b7dd76183f03aae60b074e1cfcd",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1832e6b4c0ad5b7dd76183f03aae60b074e1cfcd"
+    },
+    "func_80028564": {
+      "ledger_commit": "d8322f2d624c58a165a8589e185b2858363b44ff",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d8322f2d624c58a165a8589e185b2858363b44ff"
+    },
+    "func_80028FCC": {
+      "ledger_commit": "ac0e88e46b459bdcbd2bbab6585942d30f464db9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "ac0e88e46b459bdcbd2bbab6585942d30f464db9"
+    },
+    "func_80029274": {
+      "ledger_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27"
+    },
+    "func_8002B524": {
+      "ledger_commit": "8740f3fb1d724dd4cc8e782f7635d0a189ac09f8",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "8740f3fb1d724dd4cc8e782f7635d0a189ac09f8"
+    },
+    "func_8002C69C": {
+      "ledger_commit": "55f1eb63ad76a3b6635718ab46c776c0e98833c5",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "55f1eb63ad76a3b6635718ab46c776c0e98833c5"
+    },
+    "func_8002CF6C": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "0edfd40076afb315269c3825e59fb9187f8a423f"
+    },
+    "func_8002EBE0": {
+      "ledger_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3"
+    },
+    "func_8002F618": {
+      "ledger_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b"
+    },
+    "func_8002FB34": {
+      "ledger_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2"
+    },
+    "func_80030610": {
+      "ledger_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9"
+    },
+    "func_800336A8": {
+      "ledger_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980"
+    },
+    "func_800347A0": {
+      "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "b67909e24fe248481ee63a92e951154885945e99"
+    },
+    "func_8003484C": {
+      "ledger_commit": "6f9e72e6fb41e2b3e351dfbc3546b6dae585a8fd",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6f9e72e6fb41e2b3e351dfbc3546b6dae585a8fd"
+    },
+    "func_80038878": {
+      "ledger_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3"
+    },
+    "func_80038E1C": {
+      "ledger_commit": "801b66f4676838484e9cc1d43ef398d5e0c5fb9e",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "801b66f4676838484e9cc1d43ef398d5e0c5fb9e"
+    },
+    "func_80039E34": {
+      "ledger_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2"
+    },
+    "func_8003A2C8": {
+      "ledger_commit": "4b455b3f123c23d2dfc98dbe2ed44a6d95719662",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "40b6805403de13aad24d173e1a7c3159c074cb58"
+    },
+    "func_8003A5A0": {
+      "ledger_commit": "126e42f288f44baa719565476bf27c9da674c728",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "126e42f288f44baa719565476bf27c9da674c728"
+    },
+    "func_8003A754": {
+      "ledger_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed"
+    },
+    "func_8003D25C": {
+      "ledger_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5",
+      "reason": "Class is register-only at 68 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "dd5725b2ce70b4a1c1632f7c57aa1f790feff8fe"
+    },
+    "func_8003D4FC": {
+      "ledger_commit": "49fef96d66a2cf3853f2603fb5dccbec89253823",
+      "reason": "Class is register-only at 73 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "49fef96d66a2cf3853f2603fb5dccbec89253823"
+    },
+    "func_8003E8D8": {
+      "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
+    },
+    "func_8003F154": {
+      "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2"
+    },
+    "func_8004054C": {
+      "ledger_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 42 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46"
+    },
+    "func_80040B88": {
+      "ledger_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 145 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "b52ed2c6e5a14173f164f2cf033471a70cbdd180"
+    },
+    "func_80041530": {
+      "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "2071dcf0bdd0b08fe13d92fc090cf1846ff39edb"
+    },
+    "func_80041CE4": {
+      "ledger_commit": "5f76c3e636011bc00a27e625a6202906ca74169d",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "5f76c3e636011bc00a27e625a6202906ca74169d"
+    },
+    "func_80045BBC": {
+      "ledger_commit": "ab5325ecb936bb7f49e0b3bd35e08f11d27236b1",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "ab5325ecb936bb7f49e0b3bd35e08f11d27236b1"
+    },
+    "func_80045D34": {
+      "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
+    },
+    "func_80046BCC": {
+      "ledger_commit": "325e5520791dd5b3014bc251c19138ee7a30901d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
+    },
+    "func_80046EC4": {
+      "ledger_commit": "e2fc4dca7255281451a16d40e37659a197c7baef",
+      "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "e2fc4dca7255281451a16d40e37659a197c7baef"
+    },
+    "func_800470B0": {
+      "ledger_commit": "46978ecbd4a2db58bca9c684091662df137f7dcb",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 90 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "46978ecbd4a2db58bca9c684091662df137f7dcb"
+    },
+    "func_80047304": {
+      "ledger_commit": "4d8130631551a8cc9d3eb2f0b6710048d769afdc",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 158 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "4d8130631551a8cc9d3eb2f0b6710048d769afdc"
+    },
+    "func_800475E8": {
+      "ledger_commit": "15ce5ff7572d8704c5c7424bdf34bad08bdae74b",
+      "reason": "ADR 0018 stall rule, and at delta 780 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "15ce5ff7572d8704c5c7424bdf34bad08bdae74b"
+    },
+    "func_800479D4": {
+      "ledger_commit": "5f0e7470fdf93e258f247ab66c98e400bc5cff44",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "5f0e7470fdf93e258f247ab66c98e400bc5cff44"
+    },
+    "func_80048080": {
+      "ledger_commit": "540726421ebc51feec66a5577cb0e6b341e9768c",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "4d2a9fb197d944061884962757290f49b5abab87"
+    },
+    "func_80048760": {
+      "ledger_commit": "11427fe2107670fd6f20f4799b3af0346c0a1dc9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "9269edbf5e7e0973fbbc6f31939f15ec67462922"
+    },
+    "func_80049000": {
+      "ledger_commit": "d9af86d27aab35b40b5017f5f5337e38a33b6fbd",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "d9af86d27aab35b40b5017f5f5337e38a33b6fbd"
+    },
+    "func_800498FC": {
+      "ledger_commit": "e71d0977dfce6dbb522aed9af75dc3c6589bee0b",
+      "reason": "Class is register-only at 9 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "e71d0977dfce6dbb522aed9af75dc3c6589bee0b"
+    },
+    "func_80049B14": {
+      "ledger_commit": "f8126f9ebcd1a6c6889471f0e00b5cb30cfa3c1f",
+      "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "f8126f9ebcd1a6c6889471f0e00b5cb30cfa3c1f"
+    },
+    "func_80049E4C": {
+      "ledger_commit": "0124e56849a0eca16f5c657a6649d9fafb2b7d4f",
+      "reason": "ADR 0018 stall rule, and at delta -8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "0124e56849a0eca16f5c657a6649d9fafb2b7d4f"
+    },
+    "func_8004A10C": {
+      "ledger_commit": "dff7db3973a8c085507452fa5168ea4275302654",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 132 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "dff7db3973a8c085507452fa5168ea4275302654"
+    },
+    "func_8004ACC4": {
+      "ledger_commit": "cb7d0ac38b50149be503d9418fc1f130f57155b6",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "cb7d0ac38b50149be503d9418fc1f130f57155b6"
+    },
+    "func_8004ADE8": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at ? masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
+      "source_commit": "b3d6581927dbe28c24c967ab1fb2e1adedaeba2a"
+    },
+    "func_8004AF68": {
+      "ledger_commit": "cb7d0ac38b50149be503d9418fc1f130f57155b6",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "cb7d0ac38b50149be503d9418fc1f130f57155b6"
+    },
+    "func_8004B1DC": {
+      "ledger_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f"
+    },
+    "func_8004BA8C": {
+      "ledger_commit": "9fa2314ec43c033254eb19b67d3494a2c67df7c9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "9fa2314ec43c033254eb19b67d3494a2c67df7c9"
+    },
+    "func_8004C690": {
+      "ledger_commit": "1d10f3d96bcce24a5dd295de5f5bf46e950660d1",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1d10f3d96bcce24a5dd295de5f5bf46e950660d1"
+    },
+    "func_8004E8E0": {
+      "ledger_commit": "e14634a8533b583479f9dcd4d8091e87625675c8",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "e14634a8533b583479f9dcd4d8091e87625675c8"
+    },
+    "func_8004EED0": {
+      "ledger_commit": "accd98037a34763b633f644f8595c2c1ccab917b",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "accd98037a34763b633f644f8595c2c1ccab917b"
+    },
+    "func_8004FAD0": {
+      "ledger_commit": "838f8ff7d18ce66f00c1ab7470b30bee06dbf5b5",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "838f8ff7d18ce66f00c1ab7470b30bee06dbf5b5"
+    },
+    "func_80051364": {
+      "ledger_commit": "e39c665934647ee79903e791dfff5076b97c6d86",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e39c665934647ee79903e791dfff5076b97c6d86"
+    },
+    "func_800517E0": {
+      "ledger_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518"
+    },
+    "func_80053868": {
+      "ledger_commit": "3dd14287b1d7bcbeac4f00adaabb7bfb5f7662d5",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240"
+    },
+    "func_80054B3C": {
+      "ledger_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61"
+    },
+    "func_80055104": {
+      "ledger_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b"
+    },
+    "func_800563B4": {
+      "ledger_commit": "b97d647cadd4e96939e6c7b99d9c853e80cb9da9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "61cf3e29a9cafb15ce767d3f0abb6fb59008a19e"
+    },
+    "func_80056DD8": {
+      "ledger_commit": "f29ffe945f62c04131c694e535878765dabb027d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
+    },
+    "func_8005716C": {
+      "ledger_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b"
+    },
+    "func_800573C8": {
+      "ledger_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "a6c5f03d43d3252a3b6bcc2f108780f99ff17c2f"
+    },
+    "func_8005776C": {
+      "ledger_commit": "78e16aa4afc99fb7b9d004cd00e25e4b55cdacba",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "78e16aa4afc99fb7b9d004cd00e25e4b55cdacba"
+    },
+    "func_8005A7A0": {
+      "ledger_commit": "817cb31be1af51d266646405e55e27db696fda78",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "817cb31be1af51d266646405e55e27db696fda78"
+    },
+    "func_8005A948": {
+      "ledger_commit": "e3412ac6bf2446227671783cfeebf56c994fc036",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "e3412ac6bf2446227671783cfeebf56c994fc036"
+    },
+    "func_overlay_001_F0003750_184FB30": {
+      "ledger_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10"
+    },
+    "func_overlay_001_F000438C_185076C": {
+      "ledger_commit": "664ad5551fe066443391c35d02455f93eb20279c",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "664ad5551fe066443391c35d02455f93eb20279c"
+    },
+    "func_overlay_002_F0001A94_185888C": {
+      "ledger_commit": "daecb33e7741645c83f713cface0a558e85bbe31",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "daecb33e7741645c83f713cface0a558e85bbe31"
+    },
+    "func_overlay_008_F0000058_185DDB0": {
+      "ledger_commit": "2f294079865eef169175e26f5d41f267efabcfd2",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "2f294079865eef169175e26f5d41f267efabcfd2"
+    },
+    "func_overlay_008_F0000894_185E5EC": {
+      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "2727781413af7208b3af46011f6f8d98107a7aec"
+    },
+    "func_overlay_008_F0001000_185ED58": {
+      "ledger_commit": "d36a01818c47d21e31873ede19cdea54c060ff01",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "12f726fe91ba2c2e332a9b422ccb8252d5f47e29"
+    },
+    "func_overlay_008_F0001294_185EFEC": {
+      "ledger_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0"
+    },
+    "func_overlay_008_F0002640_1860398": {
+      "ledger_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441"
+    },
+    "func_overlay_008_F000291C_1860674": {
+      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "a1d4f1cf4ba697c250080c1b4c3c3b913bf471d4"
+    },
+    "func_overlay_008_F00034A0_18611F8": {
+      "ledger_commit": "88873065825212fdad369c9e5c5231dcc7c6125f",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "88873065825212fdad369c9e5c5231dcc7c6125f"
+    },
+    "func_overlay_008_F00042A8_1862000": {
+      "ledger_commit": "5e995cbeeb737527af555da27e8bdba214ece1da",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "5e995cbeeb737527af555da27e8bdba214ece1da"
+    },
+    "func_overlay_008_F0004CF0_1862A48": {
+      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda"
+    },
+    "func_overlay_009_F0000540_1866BB8": {
+      "ledger_commit": "eac75fcd09cdf2a96e8703ed12240aca6b2259f6",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a"
+    },
+    "func_overlay_009_F0000CE4_186735C": {
+      "ledger_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68"
+    },
+    "func_overlay_009_F00010B4_186772C": {
+      "ledger_commit": "2ff3a8d8afae7352d3b9d009c43a8dbc0b15f0d4",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "e36d0e43bfc633ac4a43794b7028980a399a69d3"
+    },
+    "func_overlay_011_F0000150_1868998": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior call/ABI, stack-home, grid, and table-schedule forms remain closed; no body mutation, flags, trace, or permutation.",
+      "source_commit": "4c81938cb4c06f76d86768eef3a67c0ce6576117"
+    },
+    "func_overlay_011_F00022E8_186AB30": {
+      "ledger_commit": "ffe52cc803195595d6f59587ed72581721585db9",
+      "reason": "Fresh V0 + structured finalize only: exact 1068B/267w, 231 raw/227 masked diffs, first +0x4, frame 0x40, 79 candidate/39 target text relocs. Body closed.",
+      "source_commit": "ffe52cc803195595d6f59587ed72581721585db9"
+    },
+    "func_overlay_022_F0000000_1878108": {
+      "ledger_commit": "cea5665a8ecbf5f9449bd2808ac91f4a8735613e",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15"
+    },
+    "func_overlay_022_F0000D30_1878E38": {
+      "ledger_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656"
+    },
+    "func_overlay_026_F0000B18_187AF10": {
+      "ledger_commit": "61c1106606d62f2d863423e45ef5786bca2a646b",
+      "reason": "Authorize the handoff's untried calibrated producer-to-final-home hook for the two-word projectedX stack-home residual; do not repeat declaration reordering.",
+      "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b"
+    },
+    "func_overlay_026_F0000D24_187B11C": {
+      "ledger_commit": "972b1a98ece95dd0ebf00a41303aaa6e9f20f3dc",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "972b1a98ece95dd0ebf00a41303aaa6e9f20f3dc"
+    },
+    "func_overlay_029_F000042C_187D6DC": {
+      "ledger_commit": "c6e752c6eb9c8071f7eb48cce2d9d72a507f60fc",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "dd74c176a8ed7ee1966e038c180aa02cadb4994d"
+    },
+    "func_overlay_029_F00005C4_187D874": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "fd635cfd7b3c4f0a23a946776a1b3c99373b375f"
+    },
+    "func_overlay_029_F0000EE0_187E190": {
+      "ledger_commit": "973e0ad8faa87dfed5545854f2162ad762ebd6f7",
+      "reason": "Compiler-lever pass ov8: three commutative mul.s operand swaps plus an eight-byte frame excess; authorize expression-shape and declared-local changes.",
+      "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434"
+    },
+    "func_overlay_029_F00010C4_187E374": {
+      "ledger_commit": "e4b25c4de118fc4d55e0fa145873e1b7dda1c3e8",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7"
+    },
+    "func_overlay_035_F00001E0_1881EC0": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior typed-pointer and return-cursor forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
+    },
+    "func_overlay_035_F0000770_1882450": {
+      "ledger_commit": "da33e776ccab2ea1b38f486c390a232988c99295",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "ae12fc4b820ece61fea5578c6e020fd8f6fe38f1"
+    },
+    "func_overlay_035_F0000B40_1882820": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag, width, volatility, expression, and coordinate-spill forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c"
+    },
+    "func_overlay_036_F0000818_1883CD0": {
+      "ledger_commit": "01706c56fed011aa9b42c2d36d9a95db11199c44",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393"
+    },
+    "func_overlay_038_F0000000_1885D10": {
+      "ledger_commit": "1103fd9dae101a49c0909ee2fa4ceab568cb6ee0",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017"
+    },
+    "func_overlay_041_F0000124_188745C": {
+      "ledger_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea"
+    },
+    "func_overlay_041_F0001298_18885D0": {
+      "ledger_commit": "d45f06c98a0594a3ba98a774a5548ff95acce38a",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582"
+    },
+    "func_overlay_041_F0001650_1888988": {
+      "ledger_commit": "3b8d5f41db435616a519d3012547370cbe7cb68c",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "79eadb56bf372c8eb59f7c05db01e04d6b8cd7e4"
+    },
+    "func_overlay_041_F000195C_1888C94": {
+      "ledger_commit": "b7e6f7ea014de45a0b0d442ba662b51f4ab31ef6",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921"
+    },
+    "func_overlay_043_F0000324_188A2F4": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior clone-initializer, register/stack-count, and record-loop CFG forms remain closed; no body mutation, flags, trace, or permutation.",
+      "source_commit": "d6bea60c59aaa7212e048fa31b4701150b1ce3d4"
+    },
+    "func_overlay_043_F0000BE4_188ABB4": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior alpha-width, offset, statement-placement, gfx-update, and transform-lifetime forms remain closed; no body mutation or permutation.",
+      "source_commit": "18fe33ff3f9046dcb0ce072634d94e7f1a20da67"
+    },
+    "func_overlay_043_F00010A8_188B078": {
+      "ledger_commit": "da37937af8434b63072b1aea032ba4eb56f163f9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26"
+    },
+    "func_overlay_045_F0001158_188D5B0": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior scissor-width, frame, parameter, angle, operand, and flag forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+    },
+    "func_overlay_046_F0000120_188E518": {
+      "ledger_commit": "dc489f63773ea7e86b4f2aefc52e218214161537",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "dc489f63773ea7e86b4f2aefc52e218214161537"
+    },
+    "func_overlay_047_F0000000_1890E18": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag-lattice, path-copy, addressing, and BSS-alias forms remain closed; no body mutation, trace, flags, or permutation.",
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+    },
+    "func_overlay_047_F0000B30_1891948": {
+      "ledger_commit": "53d896e5d8d320162fa3cf6331a147087b28ffd4",
+      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
+      "source_commit": "2a2f18fb44cf30cce78abedaa640301b7b88556b"
+    },
+    "func_overlay_050_F0000334_1896CA4": {
+      "ledger_commit": "842beea91b50cc0aea9b7cf441dccfa974cd46a1",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1422 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "931ef30392183e4680f4502e9da56fb1f7048f9f"
+    },
+    "func_overlay_052_F000063C_189ACAC": {
+      "ledger_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f"
+    },
+    "func_overlay_053_F0000240_189DBE8": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, ownership, call/data identities, scaffold, and size-gap forms stay closed; no body mutation, trace, or permutation.",
+      "source_commit": "fadeb85368a5f27ea107c580d1c83febee5c3ba7"
+    },
+    "func_overlay_054_F00005AC_189F24C": {
+      "ledger_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8"
+    },
+    "func_overlay_055_F000031C_18A1E34": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior object-count ABI and display/transition lifetime forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea"
+    },
+    "func_overlay_057_F0000000_18A3BF8": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior packet/lifetime forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c"
+    },
+    "func_overlay_057_F0001AE8_18A56E0": {
+      "ledger_commit": "9a10121164913272bad96b8f5eb4020b4f230425",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "9a10121164913272bad96b8f5eb4020b4f230425"
+    },
+    "func_overlay_057_F0004460_18A8058": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior selection/output lifetime and declaration-order forms remain closed; no body mutation, trace, flags, or permutation.",
+      "source_commit": "30e2e151a5a48a413bd4cd071002d0bcaa76fccb"
+    },
+    "func_overlay_057_F0004E18_18A8A10": {
+      "ledger_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f"
+    },
+    "func_overlay_057_F00060F8_18A9CF0": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
+    },
+    "func_overlay_058_F000138C_18B0574": {
+      "ledger_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35",
+      "reason": "ADR 0018 stall rule, and at delta 532 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35"
+    },
+    "func_overlay_060_F0000000_18B9DD8": {
+      "ledger_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
+    },
+    "func_overlay_060_F0000334_18BA10C": {
+      "ledger_commit": "f2fdc90124a00917153474a600b1066f7e746e4f",
+      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
+      "source_commit": "95c7e0be9d14291b3b936d0e74e332f1442b4ba8"
+    },
+    "func_overlay_065_F0000C38_18C4EA0": {
+      "ledger_commit": "554ca5b60eec5c9eeafc8fefcccaa639bd4db9bd",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e9bfc8dba9d7bdccca23ba32a145c7d39d17ca83"
+    },
+    "func_overlay_071_F0000870_18CA390": {
+      "ledger_commit": "ce32c9c98b222fbd37bd593a95fa38e8593503f0",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "70b693809422ac5fce8344f54519c1c0cf92d535"
+    },
+    "func_overlay_073_F0000D70_18CB830": {
+      "ledger_commit": "12941fed0461b1ec5c79c252b990ed5494467a76",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
+    },
+    "func_overlay_079_F0000134_18CD0D4": {
+      "ledger_commit": "dadccfd4a7553cad910b1c5070d837be6ae97c81",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "dadccfd4a7553cad910b1c5070d837be6ae97c81"
+    },
+    "func_overlay_092_F0000068_18D5F88": {
+      "ledger_commit": "9d5f2205be121eef7507305c71980130a043a7bb",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8"
+    },
+    "func_overlay_101_F0002510_18DDD30": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior dimension, lifetime, clip, and flag forms remain closed; no body mutation or permutation.",
+      "source_commit": "eef574733cf1faae7e09ca9ba759b6c1232945b2"
+    },
+    "func_overlay_101_F0003A58_18DF278": {
+      "ledger_commit": "729977b0b6bdf6545706a41d8ad5eac8e3932510",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e95d41d837b59a64df9895a1128a3695b03389de"
+    },
+    "func_overlay_101_F0005E08_18E1628": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured exact-geometry baseline and refresh frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142"
+    },
+    "func_overlay_101_F00069E8_18E2208": {
+      "ledger_commit": "da87c758d7e55fd7bf27a94b43615546652b748a",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 614 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "da87c758d7e55fd7bf27a94b43615546652b748a"
+    },
+    "func_overlay_101_F00078F4_18E3114": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, owner, and bounded-permutation forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+    },
+    "func_overlay_101_F0008128_18E3948": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, node-lifetime, recompute, root, and pointer-owner forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+    },
+    "func_overlay_101_F000895C_18E417C": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, root, and register forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+    },
+    "func_overlay_101_F0009190_18E49B0": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, root, and register forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+    },
+    "func_overlay_101_F000AB4C_18E636C": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior opacity-scale, repeated-builder, FP, register, frame, and flag forms remain closed; no body mutation, trace, or permutation.",
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+    },
+    "func_overlay_101_F000BA34_18E7254": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
+    },
+    "fxSPDPRipple": {
+      "ledger_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5",
+      "reason": "ADR 0018 stall rule, and at delta 8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5"
+    },
+    "fxScreenEffect": {
+      "ledger_commit": "ceaff82fe6f7f7a8a94c08e4a1e8a7047e3dfab2",
+      "reason": "ADR 0018 stall rule, and at delta -28 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "ceaff82fe6f7f7a8a94c08e4a1e8a7047e3dfab2"
+    },
+    "joyRead": {
+      "ledger_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
+    },
+    "levelFreeAll": {
+      "ledger_commit": "585be5d936351c43b9bf022c4741ea438c880103",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "585be5d936351c43b9bf022c4741ea438c880103"
+    },
+    "levelInit": {
+      "ledger_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16"
+    },
+    "overlay101BuildBorder": {
+      "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc"
+    },
+    "overlay101DrawTransformed": {
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 664-byte/166-word candidate, 62 masked differences, first +0x7C. Old source hypotheses, flags, permutation, and C-body mutation remain closed.",
+      "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26"
+    },
+    "overlay11UpdateMenu": {
+      "ledger_commit": "af09b2d6ba31b31583ebaac7c8d6e7a7dd6f1e2b",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "cd650a80bc656d9b35176e6b01c6e7484c49a922"
+    },
+    "overlay14CreateValue": {
+      "ledger_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00"
+    },
+    "overlay14LoadRelocatedValue": {
+      "ledger_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc"
+    },
+    "overlay15DrawRain": {
+      "ledger_commit": "2c0c926020c5a480a833fd5a20b01d2008268467",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "2c0c926020c5a480a833fd5a20b01d2008268467"
+    },
+    "overlay15DrawScreenStars": {
+      "ledger_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9"
+    },
+    "overlay16ApplyGradient": {
+      "ledger_commit": "cdaec4be6246662091307e6647ccfbf43b12039d",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "cdaec4be6246662091307e6647ccfbf43b12039d"
+    },
+    "overlay17AdvanceChain": {
+      "ledger_commit": "d8ebc95ab136a3ef327822b4461fd907f6d5d885",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "d8ebc95ab136a3ef327822b4461fd907f6d5d885"
+    },
+    "overlay17DrawStrip": {
+      "ledger_commit": "47338bab572b3833056be9a0c2c41df6074032ac",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "47338bab572b3833056be9a0c2c41df6074032ac"
+    },
+    "overlay19BuildAdjacency": {
+      "ledger_commit": "af03cbe7dca43327a81a239c13ace5320869cd8a",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "af03cbe7dca43327a81a239c13ace5320869cd8a"
+    },
+    "overlay19ClassifyEdge": {
+      "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03"
+    },
+    "overlay1AdvanceGauge": {
+      "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "7232600fdac770e66ff9fd1b70b81648de11e7ad"
+    },
+    "overlay1AdvancePath": {
+      "ledger_commit": "f5db03dd5a697bab199096b92d224042e293dd59",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "f5db03dd5a697bab199096b92d224042e293dd59"
+    },
+    "overlay1AllocateRecord": {
+      "ledger_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894"
+    },
+    "overlay1AppendPathPoint": {
+      "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7d381ba27b2e08a8baae631eb22e98f500aed013"
+    },
+    "overlay1AssignRecordIndex": {
+      "ledger_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
+    },
+    "overlay1BendPathPoint": {
+      "ledger_commit": "5bd6bad7f57b7f7c70a0c407c2d40bbfe4c30dc9",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+    },
+    "overlay1ConsumeNearbyPending": {
+      "ledger_commit": "885865ac088f48d1474c533d0aefb2ece353a977",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "874fcf1766e3baf541ea1381cf5966eaadb792ff"
+    },
+    "overlay1DispatchMode": {
+      "ledger_commit": "68bbd51e4e8e3e77960d2901a283d137c824ec0f",
+      "reason": "Metadata-only link repair: replace table instruction edits with proved pool rebinding; preserve authentic local call carriers. Prove raw records, table destinations and linked ROM. No C variants or sweeps.",
+      "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03"
+    },
+    "overlay1FindBestRecord": {
+      "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "603e826a4382da40dacced247320dd341a08442c"
+    },
+    "overlay1FindNextAngle": {
+      "ledger_commit": "a10001ff4ba6b20cb30fc8b108de572ea69a14b2",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "a10001ff4ba6b20cb30fc8b108de572ea69a14b2"
+    },
+    "overlay1FindPreviousAngle": {
+      "ledger_commit": "cb961a7f6f13985a560586d292f281d721900c16",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
+    },
+    "overlay1FindPreviousUsable": {
+      "ledger_commit": "8d63f19c4f02ea1663a349b4ee5f9e9a80366880",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "8d63f19c4f02ea1663a349b4ee5f9e9a80366880"
+    },
+    "overlay1FindType47ByAngle": {
+      "ledger_commit": "53e7b17c78f73184246c2cc1eec385c052fb4795",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "329cb655dd483accfd8e8aa475c20674d2928af6"
+    },
+    "overlay1FindType5ByKey": {
+      "ledger_commit": "ab0830c6fa235eac5045d11e74ed737b5703ce56",
+      "reason": "ADR0017 causal packet: isolate unused declaration inventory, used type-predicate carrier and loop spelling in faithful four-word diagnostic. At most ten hypotheses in 70 minutes; unchanged flags, ABI and full-TU context; no generic sweep.",
+      "source_commit": "5335012b90a9c889dedcf2f645d91df5d7e1417b"
+    },
+    "overlay1HandleCachedMode": {
+      "ledger_commit": "b995bafbc314eadd108d64dcf9d5888acd878850",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "46d923f436dfb639977673c4b0c79b9d741dbfd1"
+    },
+    "overlay1InitializeGaugeObjects": {
+      "ledger_commit": "2c3007b967f3a36e71405d50757012cd0aad8fb9",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+    },
+    "overlay1InterpolatePath": {
+      "ledger_commit": "acf0b4c560d8ed35c238ff4c146ae2b71d57af57",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "acf0b4c560d8ed35c238ff4c146ae2b71d57af57"
+    },
+    "overlay1MeasureCurves": {
+      "ledger_commit": "71f3960b5aa2afb191a659f4f47393b980ef9dc5",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "334b41893e1668cd49a74775af8fe6dae79ce845"
+    },
+    "overlay1ResolvePathPoint": {
+      "ledger_commit": "9d56afd69a7ade2c50a89aa4c06378d869360fa3",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884"
+    },
+    "overlay1SolveAngleCandidates": {
+      "ledger_commit": "6f20d3ee0a624088285e8d9149c07588dc3ba45a",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "6f20d3ee0a624088285e8d9149c07588dc3ba45a"
+    },
+    "overlay1TransitionState": {
+      "ledger_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
+    },
+    "overlay1UpdateAimedTransient": {
+      "ledger_commit": "e7f4005cfdf087d8e7d97c881e827ed89222dcf9",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+    },
+    "overlay1UpdateRangeFlags": {
+      "ledger_commit": "885865ac088f48d1474c533d0aefb2ece353a977",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+    },
+    "overlay20RemoveEntry": {
+      "ledger_commit": "b5fbe47d054179212b322b9d8ac9391b1749bdda",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "e0429c682e4697af97bc099f02d721e21c6d6011"
+    },
+    "overlay27UpdateCoordinates": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "9dcc99bd2e5803e72188dea788c9e17d3373e2fb"
+    },
+    "overlay29DrawGroups": {
+      "ledger_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3"
+    },
+    "overlay2ClassifyBoundary": {
+      "ledger_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
+    },
+    "overlay2QueryNode": {
+      "ledger_commit": "bdfa55ad131586010a4a37992d5e9d0d4efa19d0",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "ed55b06b7aacd5e0509100637185c9cc0a796b2a"
+    },
+    "overlay31CreatePool": {
+      "ledger_commit": "8d7b5fe00f19f02fe091480f1032b394054fcb16",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "76e4e291acd58c4310eadab39c540d36ebaa6bdd"
+    },
+    "overlay33BuildDisplayList": {
+      "ledger_commit": "acb1f32a0ad6fa406cc118cd6b5927320de65917",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "acb1f32a0ad6fa406cc118cd6b5927320de65917"
+    },
+    "overlay33InitializeBuffers": {
+      "ledger_commit": "c799c04a4852329000f13f05c3b1aaa55460d06a",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "c799c04a4852329000f13f05c3b1aaa55460d06a"
+    },
+    "overlay33PresentAndSwap": {
+      "ledger_commit": "78918981a33b340f7d55cee244c71b6cb861626c",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "78918981a33b340f7d55cee244c71b6cb861626c"
+    },
+    "overlay34CreateRecord": {
+      "ledger_commit": "14d292bdeb81181328f4bd8db2a5c84d02d60f89",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "643bfdba2db311cf7057efff4a8c25fe29b53890"
+    },
+    "overlay34InitStorage": {
+      "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
+      "reason": "The source now postdates its structured evidence; authorize a fresh configured reproof plus a calibrated final caller-save-slot assignment trace for the four stack-offset residuals.",
+      "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610"
+    },
+    "overlay3RunCachedModeAction": {
+      "ledger_commit": "532ed474393cd09f73610cf3ad6d83849087713e",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "a723c0fc5526b506555b71da152816b506095e8c"
+    },
+    "overlay3SelectScoredObject": {
+      "ledger_commit": "b7f71f1e22535316b752eeac75b81835069b9da2",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "b7f71f1e22535316b752eeac75b81835069b9da2"
+    },
+    "overlay40FadeRecords": {
+      "ledger_commit": "a5ce82a1b815916fc8cb36e6a82c9c7599d734be",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "a5ce82a1b815916fc8cb36e6a82c9c7599d734be"
+    },
+    "overlay43FilterImage": {
+      "ledger_commit": "598cf64d96f6227c5882033610c056ebccdc629b",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "598cf64d96f6227c5882033610c056ebccdc629b"
+    },
+    "overlay4UpdateObjectMotion": {
+      "ledger_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
+      "reason": "Pool-rotation lever pass: CDX capture of the mode/timer v0 sharing and the config-field v1 webs; forced-colour reachability decides whether a source spelling reaches the target assignment.",
+      "source_commit": "04d879e6e074e11aae7f44e1e730a440a7666663"
+    },
+    "overlay57Draw32A0": {
+      "ledger_commit": "8dad2c7e42e31e3fb8ed71ea0f6dfc185a30ef35",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "8dad2c7e42e31e3fb8ed71ea0f6dfc185a30ef35"
+    },
+    "overlay57EaseAndLatch": {
+      "ledger_commit": "83c2ff225b7fd56ff0e71fd60d2d162ba0201c1d",
+      "reason": "Fresh configured V0 and structured finalize only for the exact 884-byte/221-word candidate: 101 raw/92 masked differences, raw first +0x14 and masked first +0x2C. Prior source hypotheses, flags, permutation, and body mutation remain closed.",
+      "source_commit": "83c2ff225b7fd56ff0e71fd60d2d162ba0201c1d"
+    },
+    "overlay57UpdateModeTrigger": {
+      "ledger_commit": "0cbbf56948bfa9844f0383d17f37466496759041",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d"
+    },
+    "overlay59Advance": {
+      "ledger_commit": "09e698ef6b40b1b5a454b6ac2ad5bd36e813eee3",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "7169fad4d2291d4b453b38b0c9bc2c140824d7b8"
+    },
+    "overlay59PrepareEntry": {
+      "ledger_commit": "3c7b2ad42d5c8dd2375d6801850bbf0b5dd89457",
+      "reason": "Binding/ABI repair only: use the ROM-proved integer-ID texture callee, distinct from local release. Prove unchanged owned bytes and all six identities; refresh evidence. No allocation, flag or manual variants.",
+      "source_commit": "4a75e3348dc760509befffba716637270952d8d7"
+    },
+    "overlay5InitializeAudio": {
+      "ledger_commit": "77c64beae157604d707fdfb6d76f2bc451d55aea",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c"
+    },
+    "overlay60ReassignChoiceSlots": {
+      "ledger_commit": "32f6d40207c710bd918815334434910d1f63c86f",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4"
+    },
+    "overlay62Update": {
+      "ledger_commit": "af09b2d6ba31b31583ebaac7c8d6e7a7dd6f1e2b",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "07bc92e927f72f2a7683986ac75093607efd2dd3"
+    },
+    "overlay63UpdateSequence": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. The exhausted five structural forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "2ee32511727a8abafa09665b8982c7b10565baf9"
+    },
+    "overlay65UpdateParticles": {
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, pointer/index, loop, allocator, and private-representation forms stay closed; no body mutation, trace, or permutation.",
+      "source_commit": "27d7731a7e0a4635055be8e495d692b88593a25d"
+    },
+    "overlay68CheckKind": {
+      "ledger_commit": "53852179f479112e6a8c7bea1e2677967db37552",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68"
+    },
+    "overlay74Update": {
+      "ledger_commit": "e2eb59251353c04c5914fad172c6d6806e9c8122",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "e2eb59251353c04c5914fad172c6d6806e9c8122"
+    },
+    "overlay75UpdateMovingObject": {
+      "ledger_commit": "af09b2d6ba31b31583ebaac7c8d6e7a7dd6f1e2b",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "1f405c79b2f363f0d3eb04128da8b98f487786b3"
+    },
+    "overlay7AcquireEntry": {
+      "ledger_commit": "fd8dc6f09ce734e2b7a8f68e87c2341c71785835",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7de2ffbcc24e67a50955ecb110d49d81d7c1a78a"
+    },
+    "overlay7DispatchModes": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "6d77778ac67abbfa8e054705cb7d10caa385b41c"
+    },
+    "overlay7DispatchSelection": {
+      "ledger_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee"
+    },
+    "overlay89InitializeEffect": {
+      "ledger_commit": "9ee976829662b2982548e45905a42e717f5a1e72",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "92ef79ac3de1e127fde547dc0f32634251b352bb"
+    },
+    "overlay89UpdateStateAndParticles": {
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "source_commit": "53f20114b3ef159b074a4b83fbb0cf4d8deab9a1"
+    },
+    "overlay94UpdateController": {
+      "ledger_commit": "93b43ef25a9cdf6a734efbaaff3498a2a6de6d9e",
+      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "source_commit": "93b43ef25a9cdf6a734efbaaff3498a2a6de6d9e"
+    },
+    "overlay96Unregister": {
+      "ledger_commit": "6578d03924f792f3f675c80a66e178c1bda348bd",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6578d03924f792f3f675c80a66e178c1bda348bd"
+    },
+    "overlay97InitScale": {
+      "ledger_commit": "e3419055f55ac4c337aa5737a341d7b66d606977",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "e3419055f55ac4c337aa5737a341d7b66d606977"
+    },
+    "overlay98CheckObject": {
+      "ledger_commit": "b8c80714950635c84ea5229078a13e3f3c35b7d1",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "7393797ad718d547f0c7ceb6a8fcb9b49d6228ca"
+    },
+    "overlay98CollectUniqueY": {
+      "ledger_commit": "15ee17dfbe61096560e23085d862ab1c266dbedb",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "169fa6b7f187f9b06ad478054165e34287850c9b"
+    },
+    "overlay99RenderSortedEntries": {
+      "ledger_commit": "7de78a5a8e3db434b706fd9ba3399a0fddd7bfcb",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6"
+    },
+    "packInit": {
+      "ledger_commit": "7070b12f65466923daff2d05203f7faf86a64ccb",
+      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "source_commit": "7070b12f65466923daff2d05203f7faf86a64ccb"
+    },
+    "rain_render_splashes": {
+      "ledger_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20"
+    },
+    "render_epc_lock_up_display": {
+      "ledger_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575"
+    },
+    "rumbleTick": {
+      "ledger_commit": "0145589961ffa611543420efba08f760374782fd",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "0145589961ffa611543420efba08f760374782fd"
+    },
+    "runlinkFreeCode": {
+      "ledger_commit": "2e5e61b694337403b44856af043a43da2fc6e5e9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2e5e61b694337403b44856af043a43da2fc6e5e9"
+    },
+    "runlinkInit": {
+      "ledger_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8"
+    },
+    "shadowGenerate": {
+      "ledger_commit": "662a3124339d7a605f4e3985f19c9021064f4961",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "662a3124339d7a605f4e3985f19c9021064f4961"
+    },
+    "snow_render": {
+      "ledger_commit": "4a19eaf4143fd79a7053188c64f8656016aae2cf",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "4a19eaf4143fd79a7053188c64f8656016aae2cf"
+    },
+    "wakeAllocate": {
+      "ledger_commit": "a48bdabf507785088849b78bcc499bfca96d7633",
+      "reason": "ADR 0018 stall rule, and at delta -32 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "a48bdabf507785088849b78bcc499bfca96d7633"
+    },
+    "wakeDraw": {
+      "ledger_commit": "2ecb7eb521a6bb31e198f079fe43eeb4e164abf7",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "2ecb7eb521a6bb31e198f079fe43eeb4e164abf7"
+    },
+    "wakeUpdate": {
+      "ledger_commit": "93d8d52434ceac33410e0de9ed1e87fc10b5ec1f",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "93d8d52434ceac33410e0de9ed1e87fc10b5ec1f"
+    }
+  },
+  "schema_version": 1
+}

@@ -248,3 +248,13 @@ void func_overlay_101_F000B544_18E6D64(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailB544/func_overlay_101_F000B544_18E6D64.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:start
+ * symbol: func_overlay_101_F000B544_18E6D64
+ * score: 94/316 words
+ * frame: 0x38
+ * relocations: 38
+ * first-mismatch: +0x48
+ * summary: Fresh reproof unchanged; no C caller, weak Conker donor, and ambiguous D_1C4 identity expose no new source lever.
+ * PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:end
+ */

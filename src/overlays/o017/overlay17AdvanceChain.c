@@ -20,16 +20,13 @@ extern void func_overlay_017_F0000000_18739B8(Overlay17Chain *chain,
                                                f32 *x0, f32 *y0, f32 *z0,
                                                f32 *x1, f32 *y1, f32 *z1);
 
-/*
- * Plateau (2026-08-25): the natural -O2 -mips2 candidate has the exact
- * 147-instruction boundary and is byte-identical from +0x104 onward, but 51
- * normalized words differ beginning at +0x18 in the pre-call buffer-copy
- * schedule and its private allocation web. The flag lattice was neutral;
- * register-qualified and reordered local declarations either produced the
- * same code or moved the six endpoint homes away from their exact offsets.
- * The nearest masked skeleton scored 0.062, and pinned DKR v77/v80 and JFG
- * scans found no matching chain-update body.
- */
+/* Workbench: structure-mismatch, 51 raw differences / 96 of 147 words match,
+ * first +0x18. Instruction count, frame, and the sole relocation are exact.
+ * The 2026-09-04 lever pass found the candidate pool lane one web longer than
+ * retail. Removing the short-lived newBuffer declaration and repeating the
+ * source-authentic `(u8)(oldBuffer ^ 1)` expression compiled byte-identically
+ * to this retained body, so that web is commoned before the missing decision.
+ * Pre-call buffer-copy scheduling remains divergent; the fallback is canonical. */
 #ifdef NON_MATCHING
 void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
     u8 *writeCursor;
@@ -103,3 +100,13 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17AdvanceChain/func_overlay_017_F0000668_1874020.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay17AdvanceChain:start
+ * symbol: overlay17AdvanceChain
+ * score: 96/147 words
+ * frame: 0x70
+ * relocations: 1
+ * first-mismatch: +0x18
+ * summary: Removing the named newBuffer web is byte-flat; exact 147-word/frame/relocation geometry still leaves 51 pre-call copy-schedule differences.
+ * PLATEAU-HANDOFF:overlay17AdvanceChain:end
+ */

@@ -126,7 +126,8 @@ void overlay82Update(O82Object *object, f32 updateRate) {
         index = 0;
         currentValues = (s32 *)state;
         targetValues = targetRow;
-        /* Zero-code web-priority read required by IDO 5.3. */
+        /* Inert zero-code web-priority read required by IDO 5.3; tracked in
+         * docs/cleanup-queue.md. */
         if (currentValues) {}
         do {
             currentValues++;

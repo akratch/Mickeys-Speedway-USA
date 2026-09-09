@@ -44,17 +44,33 @@ at `-O3` (`ll.c`/`ldiv.c`'s). These are not crossed against `ISA_GROUP` /
 and both pin their own ISA — so add a row to `PHASE_VARIANTS` for a third one
 rather than folding it into the cross product.
 
-119 combos total. Each compiles through `asm-processor` exactly like the
-Makefile's `%.c.o` rule (`Makefile` ~415-424): same `CFLAGS`/`ASFLAGS`, same
-`asm_processor_prelude.inc`, same two-stage `asm-processor build.py <cc> --
-<as> -- <compile args>` shape. `BASE_CFLAGS`/`ASFLAGS` are copied by hand at
-the top of the script (there is no way to `include` the Makefile's variables
-into a driver script that calls IDO's phases directly) — if the Makefile's
-own values move, this file needs the matching edit.
+119 combos total. Each uses the configured TU's complete ordered compiler
+arguments recovered from the Makefile. The sweep replaces only the declared
+optimization/debug, ISA, multiply-hazard, loop-unroll, and `-woff 835` axes;
+other options, defines, and include search order remain intact. Extra
+`--define` options follow the configured arguments in their supplied order.
+The diagnostic wrapper uses explicit assembler options and
+`asm_processor_prelude.inc`; POSTPROCESS is not applied. This is a controlled
+flag experiment, not a claim that every lattice row is the canonical build.
+
+The original source path and lines are compiled without rewriting the TU.
+A scratch or external candidate requires `--recipe-tu` naming its configured
+in-tree context. Missing or unsupported recipes fail closed; no generic SDK
+flag group silently stands in for a real TU recipe.
 
 Compiles run in parallel (`ncpu - 2` workers by default, `--jobs` to
-override) into `build/flag_sweep/<tu-stem>/<combo-id>/`, which is gitignored
-by the tree's blanket `build/` rule.
+override) into a content-addressed cache under
+`build/flag_sweep/cache/<compile-key>/<combo-id>/`, which is gitignored by
+the tree's blanket `build/` rule. Objects, logs, and failed-row records are
+retained by default; `--keep` remains only as a no-op compatibility option.
+Some lattice combinations are rejected by the installed asm-processor (for
+example, unsupported optimization/debug combinations). These retained failures
+are reported separately and never count as successfully scored combinations.
+A complete cache can therefore support compile-free reuse while search
+coverage remains partial.
+
+Relative translation-unit, `--target-asm`, and `--elf` paths are resolved
+against the repository root, independent of the caller's current directory.
 
 ## Target resolution
 
@@ -65,8 +81,16 @@ unmatched function `func_<VRAM>` until it's matched, so a `NON_MATCHING`
 draft can be named for real (`ProcessRelocationEntry`) while its ROM target
 is still `func_80031A30`.
 
-Target bytes are resolved in this order (first that resolves wins; the CLI
-never asks the caller to pick a mode):
+Before reading bytes, the tool resolves one canonical owner. An overlay
+target must map to exactly one `text_ownership` row in
+`config/overlays.us.json`; an encoded `func_overlay_NNN_Fxxxxxxx_*` offset,
+the overlay number, and the input TU's canonical source path must agree with
+that row. A resident target must have exactly one sized record in
+`symbol_addrs.us.txt`. Missing, overlapping, or contradictory ownership is a
+hard error, not a reason to guess from a candidate object's size.
+
+Target bytes are then resolved in this order (first that resolves wins; the
+CLI never asks the caller to pick a mode):
 
 1. `--target-asm PATH` — assemble this `.s` file directly.
 2. `asm/nonmatchings/**/<target-symbol>.s` — the same file
@@ -74,7 +98,10 @@ never asks the caller to pick a mode):
    -name '<target-symbol>.s'`), for a function that is still `#pragma
    GLOBAL_ASM` or sits under `#ifdef NON_MATCHING`. Assembled with the
    project's `AS`/`ASFLAGS` plus the same `.set noat` / `macro.inc` header
-   `wb_compare.sh` prepends.
+   `wb_compare.sh` prepends. The tool extracts the named ELF function symbol,
+   not the assembled file's whole `.text` section, and verifies that symbol
+   lies inside its atlas owner. Zero alignment or padding words after
+   `endlabel` therefore cannot inflate the target extent.
 3. `<target-symbol>` in `build/mickey.us.elf` — the function is already
    matched, so the linked ELF's bytes for it already *are* the ROM's bytes.
    Read straight from `baseroms/mickey.us.z64` at the symbol's ROM offset.
@@ -129,13 +156,40 @@ top row's match percentage, entirely best-effort: another lane owns
 installing `objdiff`, this one never depends on it, and the flag is silently
 a no-op if the binary isn't there.
 
+## Reusing and rescoring the compile cache
+
+Cache version 3 covers the raw TU and recursively resolved literal headers,
+ordered configured compiler arguments and additional defines, complete flag
+lattice, and tool files including the interpreter and assembler prelude.
+Line-only edits invalidate it because `__LINE__` can affect output. Assembly
+consumed by the TU's `GLOBAL_ASM` pragmas and nested literal `.include` files
+is also bound. Computed/unresolved includes and unsupported implicit or forced
+header search fail closed. Scoring-only target assembly, atlas, linked ELF,
+and baserom are not compile inputs. Changed inputs across a sweep invalidate
+its receipts. Old cache versions cannot masquerade as current measurements.
+
+A normal invocation reuses every complete cache row and compiles only missing
+rows. To guarantee that no compiler process runs, add `--rescore`:
+
+```sh
+.venv/bin/python tools/flag_sweep.py \
+    src/overlays/o022/overlay22RemoveObject.c \
+    --function func_overlay_022_F0000D30_1878E38 \
+    --jobs 2 --rescore
+```
+
+`--rescore` loads all 119 retained results, resolves current ownership and
+target bytes, and recomputes the ranking. It fails if the current compile key
+has even one missing row. This makes an atlas/range correction cheap without
+allowing stale source, header, flag, or tool inputs to masquerade as a valid
+cache hit.
+
 ## Nothing ROM-derived is ever written to a tracked file
 
-Compiled objects, assembled `.s` targets and their `objcopy`-dumped section
-bytes all live under `build/flag_sweep/`, which the tree's `build/` rule
-already gitignores; `--keep` leaves them for inspection instead of deleting
-them at exit, still under `build/`. The ranked table prints only counts and
-byte offsets — never a mnemonic, an opcode, or a raw word — so a terminal
+Compiled objects, logs, cache manifests, assembled `.s` targets, and their
+`objcopy`-dumped section bytes all live under `build/flag_sweep/`, which the
+tree's `build/` rule already gitignores. The ranked table prints only counts
+and byte offsets — never a mnemonic, an opcode, or a raw word — so a terminal
 transcript of a run is not itself ROM-derived content under
 `docs/CLEANROOM.md`'s rules, the same way `gmake progress`'s output isn't.
 
@@ -174,7 +228,7 @@ path outside the repo:
 
 ```
 .venv/bin/python tools/flag_sweep.py /path/to/contramread_demo.c \
-    --function __osContRamRead
+    --recipe-tu src/libultra/contramread.c --function __osContRamRead
 ```
 
 Top row: `-O2 -g3 -mips2 -32`, size delta -12 bytes (3 words short of the
@@ -192,20 +246,19 @@ which was not tracked.
 
 ```
 .venv/bin/python tools/flag_sweep.py \
-    src/overlays/o001/overlay1FindNextAngle.c --function overlay1FindNextAngle
+    src/overlays/o001/overlay_001_middle.c --function overlay1FindNextAngle
 ```
 
 Top row: `-O2 -mips2 -32` (the overlay directory's project default,
 `Makefile` ~615) with a correct size (delta 0) and exactly 4 masked-diff
 words, first mismatch at byte 0x3c. That is not a flags gap: the file's own
 header comment says two operand pairs are swapped at the shipped object's
-natural scheduling points, and `POSTPROCESS` runs
-`tools/normalize_elf_instructions.py` after compiling to swap them back —
-at offsets 0x3c, 0x40, 0x6c and 0x70, the same four sites this sweep flags
-independently, without having read that script. This is the sweep correctly
-reporting "flags alone don't reach this one" rather than manufacturing a
-false top rank; the next step for a case like this is the normalize/trim
-`POSTPROCESS` machinery, not another flag combination.
+natural scheduling points at offsets 0x3c, 0x40, 0x6c and 0x70. Current
+`POSTPROCESS` only renames fallback symbols and trims zero alignment; it does
+not and must not rewrite instructions. This is the sweep correctly reporting
+"flags alone don't reach this one." Eight bounded source families have also
+missed, so the current next action is an unchanged, fully annotated reproof,
+not normalization or another flag combination.
 
 ## Runtime
 

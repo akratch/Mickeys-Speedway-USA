@@ -112,12 +112,18 @@ extern O101Node20_3A58 D_200[];
 extern u8 D_340[];
 extern O101Node24_3A58 D_540[];
 
-extern void *func_overlay_101_F0000000_18DB820();
-extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
+/* Tier B: runtime relocation records distinguish the sprite and screen loaders
+ * from the overlay-local reset call. Their retail callees establish arity. */
+extern void *func_800355A0(s32 assetId, s32 flags);
+extern s32 *func_80036DD0(s32 screenIndex);
+extern void overlay101Reset(void *value);
+/* Tier B: initialized data +0x340, distinct from the BSS node pool D_340. */
+extern u8 D_o101ResetData340[];
+extern s32 overlay101ByteLength(u8 *text);
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1463 vs 1461 instructions, 1421 raw words different, exact -0x50 frame, first structural divergence +0x34.
- * Levers: exact flag/context parity and constant audit (5 sites), then macro line-assignment variants; context lint is clean.
- * Remains: node-builder macro structure/register cascade and 330 relocation-symbol differences; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING reconstruction: retail relocation records establish four callees and distinguish the reset input from the node pool.
+ * The retained candidate has the target operation census plus one extra address-loading pair; the frame is exact.
+ * GLOBAL_ASM remains canonical. Detailed structural trials and stopping evidence are in the per-symbol handoff. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0003A58_18DF278(void) {
     s32 index;
@@ -157,7 +163,7 @@ void func_overlay_101_F0003A58_18DF278(void) {
     node32->value18 = 0;                                                     \
     node32->scale = 1.0f;                                                    \
     node32->value14 = 0.0f;                                                  \
-    handle = func_overlay_101_F0000000_18DB820((imageId), 0);                \
+    handle = func_800355A0((imageId), 0);                \
     index = D_1CC;                                                           \
     node32 = (O101Node32_3A58 *)(D_340 + (index << 5));                       \
     node32->previousType = D_0.groups[group].childType;                      \
@@ -173,7 +179,7 @@ void func_overlay_101_F0003A58_18DF278(void) {
     node20->x = (nodeX);                                                     \
     node20->y = (nodeY);                                                     \
     node20->scale = 1.0f;                                                    \
-    handle = func_overlay_101_F0000000_18DB820((imageId));                   \
+    handle = func_80036DD0((imageId));                   \
     index = D_1C8;                                                           \
     node20 = &D_200[index];                                                  \
     node20->previousType = D_0.groups[group].childType;                      \
@@ -188,7 +194,7 @@ void func_overlay_101_F0003A58_18DF278(void) {
     node24 = &D_540[index];                                                  \
     node24->x = (textX);                                                     \
     node24->y = (textY);                                                     \
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.input);               \
+    length = overlay101ByteLength(D_INPUT.input);               \
     index = D_1D0;                                                           \
     node24 = &D_540[index];                                                  \
     node24->length = (u8)length;                                             \
@@ -270,7 +276,7 @@ void func_overlay_101_F0003A58_18DF278(void) {
     ADD_TEXT(10, text60, 96, 34, 0, 0, 0, 0);
     ADD_TEXT(10, text64, 96, 48, 0, 0, 0, 0);
 
-    func_overlay_101_F0000000_18DB820(D_340);
+    overlay101Reset(D_o101ResetData340);
 
 #undef ADD_TEXT
 #undef ADD_NODE20
@@ -280,3 +286,13 @@ void func_overlay_101_F0003A58_18DF278(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0003A58_18DF278/func_overlay_101_F0003A58_18DF278.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F0003A58_18DF278:start
+ * symbol: func_overlay_101_F0003A58_18DF278
+ * score: 1421/1461 words
+ * frame: 0x50
+ * relocations: 201
+ * first-mismatch: +0x34
+ * summary: Calls and reset input recovered; 1463/1461 words, 201/199 relocations. Five structural trials stalled; next: prove node-pool base liveness across loader.
+ * PLATEAU-HANDOFF:func_overlay_101_F0003A58_18DF278:end
+ */

@@ -7,9 +7,9 @@ typedef struct Overlay22ModelState {
 
 typedef struct Overlay22Object {
     u8 pad00[0xC];
-    s32 x;
-    s32 y;
-    s32 z;
+    f32 x;
+    f32 y;
+    f32 z;
     u8 pad18[0x30];
     Overlay22ModelState *model48;
     u8 pad4C[0x34];
@@ -23,13 +23,19 @@ static f32 overlay22Constants[5] = { 14.4F, 14.4F, 0.8F, 0.03F, 0.707F };
 static u8 overlay22DataTail[0xC] = { 0 };
 
 extern Overlay22Object *gOverlay22NodesEnd[];
-extern void func_overlay_022_F0000000_1878108();
+extern void partUpdateTriggers(Overlay22Object *object, s32 mode);
+extern void func_80002FE0(u16 soundId, f32 x, f32 y, f32 z, u8 priority,
+                          void **handle);
+extern void func_80006EA0(void *object);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
 /*
- * Workbench: allocation-mismatch, exact 91/-40 frame; 43 words, first +0x10; lane choices are ring-only.
- * Levers tried: flag lattice, declaration/type/global forms, 30-minute permuter, and a dead model read (reverted).
- * Remains: pool/temp FIFO placement across pointer/count/index webs; relocation identity differs diagnostically.
+ * Bounded plateau (2026-08-29): configured full-TU C has the exact 91-word
+ * extent and 0x28 frame, with 43 register-only differences from +0x10. All
+ * 12 runtime relocation tuples are exact after restoring the four typed
+ * resident callees. The 119-flag lattice, one fidelity-clean allocator trace,
+ * and three trace-supported lifetime/loop forms are nonexact; no strict gain
+ * authorized a combination or generic batch. Preserve the assembly fallback.
  */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
@@ -68,17 +74,15 @@ void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
 
     if (flags & 1) {
         object->flags80 |= 2;
-        func_overlay_022_F0000000_1878108(object, 1);
+        partUpdateTriggers(object, 1);
     }
     if (flags & 2) {
-        func_overlay_022_F0000000_1878108(0x22B, object->x, object->y,
-                                          object->z, 4, 0);
+        func_80002FE0(0x22B, object->x, object->y, object->z, 4, 0);
     }
     if (flags & 4) {
-        func_overlay_022_F0000000_1878108(0x279, object->x, object->y,
-                                          object->z, 4, 0);
+        func_80002FE0(0x279, object->x, object->y, object->z, 4, 0);
     }
-    func_overlay_022_F0000000_1878108(object);
+    func_80006EA0(object);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22RemoveObject/func_overlay_022_F0000D30_1878E38.s")

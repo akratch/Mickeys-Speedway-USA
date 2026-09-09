@@ -77,3 +77,17 @@ build only if the sweep's flat list is large enough to pay for it.
 Resident ≥ 1,100 / 1,460; resolved ≥ 45%; ≥ 20 overlays closed; ranking and
 `docs/matching-triage.md` regenerated from sweep data; public mirror synced
 after the gates.
+
+## Status at the close of the first phase (2026-08-28 evening)
+
+`campaign/unchain` a6968fff: 1,038/1,460 (71.10%), resolved 38.61%. Phase 0
+and Phase 1 are done and the Phase 2 pipeline (shape lane → sweep) has
+produced matches on both sides. Two additions changed the plan's overlay
+half: `tools/promotion_trial.py` is the only sound oracle for overlay
+candidates, and `tools/reloc_surface.py` generates the relocation surface
+(the hand-written POSTPROCESS ritual is gone), so overlay work is routed by
+trial class — ≤8 words to the annotated-target permuter or hand levers,
+`rom-size` to the rodata-ownership carve, `schedule-divergence-at-site` to
+reshape lanes. Sixteen bare resident functions remain (34 KB). The lessons
+are in `docs/lessons-ledger.md`; the running fleet and the integration
+recipe are in the private hand-off note.

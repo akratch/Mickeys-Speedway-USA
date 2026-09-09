@@ -136,24 +136,37 @@ typedef struct Overlay5Bank {
     Overlay5BankEntry entries[1];
 } Overlay5Bank;
 
+/*
+ * PROVENANCE: field names and layout adapted from Diddy Kong Racing's public
+ * decompilation (`ALSynConfig` in `include/PR/libaudio.h`, `audioMgrConfig` in
+ * `src/audiosfx.h`), whose `audio_init` is this function's counterpart.  Both
+ * are stock libaudio shapes.  `ALFxId` is a byte there, so the two-entry
+ * `fxType` array pads out to `params` and the struct is 0x24, not 0x20; the
+ * eight-byte difference is what sizes this function's frame (Tier A: the
+ * 0x98 frame, the 0x70 `soundConfig` home and the 0x4C `sequenceConfig` home
+ * only reproduce at 0x24).  Overlay 5 stores fxType[0] with an `sb`, which is
+ * the byte-typed `ALFxId` and not an `s8 field1C` tail.
+ */
+typedef u8 Overlay5FxId;
+
 typedef struct Overlay5SoundConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    s32 field0C;
-    s32 field10;
-    void *field14;
-    s32 field18;
-    s8 field1C;
+    s32 maxVVoices;
+    s32 maxPVoices;
+    s32 maxUpdates;
+    s32 maxFXbusses;
+    void *dmaproc;
+    void *heap;
+    s32 outputRate;
+    Overlay5FxId fxType[2];
+    s32 *params;
 } Overlay5SoundConfig;
 
 typedef struct Overlay5SequenceConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    void *field0C;
-    s16 field10;
-    u8 pad12[8];
+    s32 maxSounds;
+    s32 maxEvents;
+    s32 maxChannels;
+    void *heap;
+    u16 numGroups;
 } Overlay5SequenceConfig;
 
 extern u8 gOverlay5AudioHeap[];
@@ -169,20 +182,28 @@ extern void *gOverlay5Span1;
 extern void *gOverlay5Span2;
 extern u32 gOverlay5Span0Size;
 extern u32 gOverlay5Span1Size;
-extern u32 gOverlay5ScaleValue;
+extern u32 gOverlay5Span0ScaleValue;
+extern u32 gOverlay5Span1ScaleValue;
 extern Overlay5Bank *gOverlay5Bank;
 extern u32 *gOverlay5EntryValues;
 extern void *gOverlay5Player0;
 extern void *gOverlay5Player1;
-extern u8 gOverlay5SoundState[];
+extern u8 gOverlay5OwnerSoundState[];
 extern u8 gOverlay5MessageQueue[];
 extern u8 gOverlay5MessageBuffer[];
 
 extern void alHeapInit(void *heap, void *base, s32 length);
 extern Overlay5Resource *func_8002E148(s32 resourceId);
 extern void *func_8002B280(s32 size, s32 tag);
-extern void func_8002E2E0(s32 resourceId, void *dst, const void *src,
-                          s32 length);
+/*
+ * PROVENANCE: the return type follows Diddy Kong Racing's public
+ * decompilation, where this call is `s32 asset_load(u32, u32, s32, s32)`
+ * (`src/asset_loading.h`).  Tier A: overlay 5 ignores the result, but a
+ * non-void callee reserves v0 across the call, and only that reservation
+ * reproduces the shipped `v1` carrier for the `gOverlay5Span1Size` address.
+ */
+extern s32 func_8002E2E0(s32 resourceId, void *dst, const void *src,
+                         s32 length);
 extern void *func_8002E35C(s32 resourceId, const void *address);
 extern void *alHeapDBAlloc(void *file, s32 line, void *heap, s32 count,
                            s32 size);

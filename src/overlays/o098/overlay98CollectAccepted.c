@@ -10,15 +10,23 @@ typedef struct O98Entry {
     f32 value;
 } O98Entry;
 
-extern s32 overlay98AcquireContextReloc(void);
-extern s32 overlay98CheckObject(O98Object *, s32, f32 *);
+extern u8 *overlay98AcquireContextReloc(void);
+extern s32 overlay98CheckObject(O98Object *, u8 *, f32 *);
 extern s32 gOverlay98AcceptedCount;
 extern O98Entry gOverlay98AcceptedEntries[0x50];
 
+/* PROVENANCE: candidate source reproduced from the project's public mirror at
+ * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements and
+ * the ABI correction above were independently derived from Mickey's own
+ * source, object, relocation tables, and retail bytes. */
+/* Matched 2026-08-31 by tracing IDO's automatic stack-home producers. Removing
+ * two transient entry aliases and making the address-taken result the third
+ * surviving automatic reproduces the 60-word body, 0x50 frame, and all six
+ * relocation sites; the complete linked US ROM is byte-identical. */
 void overlay98CollectAccepted(s32 count, O98Object **objects) {
-    f32 value;
-    s32 context;
+    u8 *context;
     s32 index;
+    f32 value;
 
     context = overlay98AcquireContextReloc();
     gOverlay98AcceptedCount = 0;
@@ -29,16 +37,12 @@ void overlay98CollectAccepted(s32 count, O98Object **objects) {
 
             index--;
             if (overlay98CheckObject(object, context, &value) != 0) {
-                O98Entry *entry;
-                s32 next;
-
                 object->accepted = 1;
-                entry = &gOverlay98AcceptedEntries[gOverlay98AcceptedCount];
-                next = gOverlay98AcceptedCount + 1;
-                entry->object = object;
-                gOverlay98AcceptedCount = next;
-                entry->value = value;
-                if (next >= 0x50) {
+                gOverlay98AcceptedEntries[gOverlay98AcceptedCount].object =
+                    object;
+                gOverlay98AcceptedEntries[gOverlay98AcceptedCount++].value =
+                    value;
+                if (gOverlay98AcceptedCount >= 0x50) {
                     index = -1;
                 }
             } else {

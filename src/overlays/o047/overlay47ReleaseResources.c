@@ -156,11 +156,13 @@ Overlay47InitializedData gOverlay47InitializedData = {
 typedef struct Overlay47Entry {
     u8 pad00[0x24];
     void *handle;
-    u8 pad28[0x0C];
+    u8 pad28[2];
+    s8 flag;
+    u8 pad2B[9];
 } Overlay47Entry;
 
 extern Overlay47Entry D_D0;
-extern Overlay47Entry D_0_entries;
+extern Overlay47Entry D_0_entries[];
 extern void *D_30C;
 extern void *D_314;
 extern void *D_318;
@@ -174,17 +176,12 @@ extern u8 D_status1;
 extern u8 D_status2;
 extern u8 D_status3;
 extern u8 D_status4;
-extern s8 D_flag2A;
-extern s8 D_flag5E;
-extern s8 D_flag92;
-extern s8 D_flagC6;
 
 extern void func_overlay_047_F0000000_1890E18(void *arg);
 
-/* Workbench: allocation-mismatch, 88/-32 shape, 10 masked (18 raw) words from +0x54; 33 relocation sites differ.
- * Lever: constant audit after end-pointer/boolean and aggregate probes left the executable schedule unattained.
- * Remains: overlay aggregate ownership and relocation binding; assembly fallback stays canonical. */
-#ifdef NON_MATCHING
+/* The four flags are the same field in consecutive entries. Reading the first
+ * status byte in every assignment keeps the source symmetric; IDO folds its
+ * known-zero value in the first branch while retaining the temp-ring pop. */
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;
     void **slot;
@@ -195,8 +192,7 @@ void func_overlay_047_F00009D0_18917E8(void) {
     func_overlay_047_F0000000_1890E18(D_31C);
     func_overlay_047_F0000000_1890E18(D_320);
 
-    entry = &D_0_entries;
-    do {
+    entry = D_0_entries; do {
         if (entry->handle != NULL) {
             func_overlay_047_F0000000_1890E18(entry->handle);
             entry->handle = NULL;
@@ -204,30 +200,26 @@ void func_overlay_047_F00009D0_18917E8(void) {
         entry++;
     } while (entry < &D_D0);
 
-    slot = &D_38C;
-    do {
+    slot = &D_38C; do {
         if (*slot != NULL) {
             func_overlay_047_F0000000_1890E18(*slot);
             *slot = NULL;
         }
         slot++;
-    } while ((slot < &D_3B4) != 0);
+    } while (slot < &D_3B4);
 
     func_overlay_047_F0000000_1890E18(D_358);
     D_status0 = 0;
-    if (D_flag2A != 0) {
-        D_status1 = 1U;
+    if (D_0_entries[0].flag != 0) {
+        D_status1 = D_status0 | 1;
     }
-    if (D_flag5E != 0) {
+    if (D_0_entries[1].flag != 0) {
         D_status2 = D_status0 | 2;
     }
-    if (D_flag92 != 0) {
+    if (D_0_entries[2].flag != 0) {
         D_status3 = D_status0 | 4;
     }
-    if (D_flagC6 != 0) {
+    if (D_0_entries[3].flag != 0) {
         D_status4 = D_status0 | 8;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/overlay47ReleaseResources/func_overlay_047_F00009D0_18917E8.s")
-#endif

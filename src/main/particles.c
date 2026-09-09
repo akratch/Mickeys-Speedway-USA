@@ -36,14 +36,17 @@ void func_80023A08(Gfx **dList, s32 renderContext, void **vertices, CircularPart
 void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen, u8 alternateBlue);
 void func_80034E48(void);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
-void func_8003D4FC(void **dList, void **vertices, void *pool);
+struct ParticleRenderGroup;
+void func_8003D4FC(void **dList, void **vertices, struct ParticleRenderGroup *group);
+f32 func_8002A8BC(s16 angle);
+f32 func_8002A8C0(s16 angle);
 s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config);
 void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config);
-void func_80041CE4(void **dList, void **vertices);
+void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
 CircularParticle *func_8004054C(s32 type, s32 direction);
@@ -332,11 +335,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
     gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
 }
-/*
- * Workbench: allocation-mismatch, exact 153 instructions/frame -128/27 words, first +0x48.
- * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, flags, and bounded permutation; no exact.
- * Remains: outer-count pool color and later command-word web rotations; asm stays canonical.
- */
+/* Workbench: allocation-mismatch, 68 differing words, size_delta 0; first mismatch +0x50.
+ * Target and candidate are 168 instructions with the exact frame and relocation surface.
+ * Forced-color-oracle lever 19 needs an authenticated globalcolor trace; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
@@ -375,16 +376,12 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
                     camPushModelMtx(dList, renderContext, &transform, 1.0f, 0.0f);
                     gDPPipeSync((*dList)++);
                     if (particle->flags & 0x800) {
-                        intensity = particle->intensity;
+                        intensity = particle->alpha;
                         red = particle->red;
                         green = particle->green;
                         blue = particle->blue;
-                        color = (((red * intensity) >> 8) << 24) |
-                                ((((green * intensity) >> 8) & 0xFF) << 16) |
-                                ((((blue * intensity) >> 8) & 0xFF) << 8) | 0xFF;
-                        command = (*dList)++;
-                        command->words.w0 = 0xFA000000;
-                        command->words.w1 = color;
+                        gDPSetPrimColor((*dList)++, 0, 0, (red * intensity) >> 8, (green * intensity) >> 8,
+                                        (blue * intensity) >> 8, 0xFF);
                     } else {
                         gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
@@ -409,10 +406,309 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #endif
-/* Before -> after: no C candidate for the 0x10B0-byte TU range -> unchanged.
- * Type lever: shared particle globals/types were reconciled without a C body.
- * Remains: GLOBAL_ASM is canonical. */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
+typedef struct ParticleRenderDescriptor {
+    s16 rotation0;
+    s16 rotation1;
+    s16 rotation2;
+    s16 pad06;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x10];
+    f32 textureScale;
+    s16 type;
+    u8 pad2E[0x1E];
+    void *texture;
+    u32 flags;
+    u32 geometryFlags;
+    u8 pad58[0x0C];
+    s16 alphaWord;
+    u8 pad66[9];
+    u8 intensity;
+    u8 pad70;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 pad74[4];
+} ParticleRenderDescriptor;
+
+typedef struct ParticleRenderGroup {
+    u8 pad00[4];
+    s32 pointCount;
+    s32 updateRate;
+    s16 *points;
+    u8 pad10[4];
+    ParticleRenderDescriptor *entries;
+    s32 entryCount;
+    s32 active;
+    u8 pad20[0x0C];
+    s32 materialDefault;
+    s32 materialOpaque;
+    s32 materialTranslucent;
+} ParticleRenderGroup;
+
+/*
+ * PROVENANCE: the particle-buffer grouping and rotated-point idioms were
+ * cross-checked against Jet Force Gemini's public particles.c assembly;
+ * Mickey's descriptor fields, globals, thresholds, and call sequence remain
+ * authoritative for this reconstruction.
+ */
+/* Reconstructed from Mickey's call, field, and control-flow evidence.
+ * Matches: 1068/1068 words, frame 0x138, all 14 relocation tuples exact.
+ * The texture/scale carry-over is written as three statements -- the call,
+ * then the two carrier assignments. Folding either assignment into the call's
+ * argument list (the m2c spelling) costs 73 register-only words from +0x2D0:
+ * the embedded assignment keeps one extra value live across the call and
+ * rotates ugen's integer temp ring by one for the rest of the function. */
+void func_8003D4FC(void **dListArg, void **verticesArg, ParticleRenderGroup *group) {
+    s32 vertexCount;
+    s32 primitiveCount;
+    s32 index;
+    s32 scanIndex;
+    s32 emitted;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 vertexAlpha;
+    s32 pointCount;
+    s32 updateRate;
+    f32 xScaled;
+    f32 yScaled;
+    f32 rotatedZ;
+    f32 sine1;
+    f32 cosine1;
+    f32 sine0;
+    f32 point[3];
+    f32 cosine0;
+    f32 scale;
+    s32 vertexAddress;
+    s32 textureType;
+    f32 previousScale;
+    ParticleRenderDescriptor *entry;
+    ParticleVertex *vertices;
+    s16 colorAlpha;
+    s16 currentAlpha;
+    Gfx *displayList;
+    void *texture;
+    void *previousTexture;
+    ParticleVertex *vertexStart;
+    s32 material;
+    s16 *points;
+
+    currentAlpha = 0xFF;
+    previousTexture = NULL;
+    previousScale = 0.0f;
+    if ((group != NULL) && (group->active != 0)) {
+        scanIndex = 0;
+        displayList = (Gfx *)*dListArg;
+        vertices = (ParticleVertex *)*verticesArg;
+        entry = group->entries;
+        while ((scanIndex < group->entryCount) && (entry->type == 0x80)) {
+            scanIndex++;
+            entry++;
+        }
+
+        updateRate = group->updateRate;
+        pointCount = group->pointCount;
+        func_800349A4(&displayList, NULL, 0x12, 0);
+        material = group->materialDefault;
+        gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, 255);
+
+        if (scanIndex < group->entryCount) {
+            index = scanIndex;
+            texture = entry->texture;
+            scale = entry->textureScale;
+            colorAlpha = (entry->alphaWord >> 8) & 0xFF;
+            vertexStart = vertices;
+            vertexCount = 0;
+            primitiveCount = 0;
+            while (index < group->entryCount) {
+                if ((entry->type == 0x80) || (texture != entry->texture) ||
+                    (scale != entry->textureScale) ||
+                    (vertexCount + pointCount >= 0x18) ||
+                    (colorAlpha != ((entry->alphaWord >> 8) & 0xFF))) {
+                    vertexAddress = (s32)vertexStart + 0x80000000;
+                    if (colorAlpha != currentAlpha) {
+                        gDPPipeSync(displayList++);
+                        gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, colorAlpha);
+                        currentAlpha = colorAlpha;
+                    }
+                    if ((texture != previousTexture) || (scale != previousScale)) {
+                        func_800349A4(&displayList, texture, 0x12, (s32)(scale * 65536.0f));
+                        previousTexture = texture;
+                        previousScale = scale;
+                    }
+                    if (texture != NULL) {
+                        textureType = *(u16 *)((u8 *)texture + 6);
+                        if (textureType != 0x20) {
+                            if (textureType != 0x40) {
+                                material = group->materialTranslucent;
+                            } else {
+                                material = group->materialDefault;
+                            }
+                        } else {
+                            material = group->materialOpaque;
+                        }
+                    }
+                    gDma1p(displayList++, 4, vertexAddress,
+                            (vertexCount << 3) + (vertexCount << 1) + 8,
+                            (vertexCount << 3) | (vertexAddress & 6));
+                    gDma1p(displayList++, 5, material + 0x80000000,
+                            primitiveCount << 4, ((primitiveCount - 1) << 4) | 1);
+                    vertexCount = 0;
+                    primitiveCount = 0;
+                    while ((index < group->entryCount) && (entry->type == 0x80)) {
+                        index++;
+                        entry++;
+                    }
+                    if (index < group->entryCount) {
+                        texture = entry->texture;
+                        scale = entry->textureScale;
+                        colorAlpha = (entry->alphaWord >> 8) & 0xFF;
+                        vertexStart = vertices;
+                    }
+                } else {
+                    s32 geometryFlags;
+
+                    emitted = 0;
+                    points = group->points;
+                    if (entry->flags & 0x800) {
+                        red = (entry->red * entry->intensity) >> 8;
+                        green = (entry->green * entry->intensity) >> 8;
+                        blue = (entry->blue * entry->intensity) >> 8;
+                    } else {
+                        red = entry->red;
+                        green = entry->green;
+                        blue = entry->blue;
+                    }
+                    vertexCount += pointCount;
+                    geometryFlags = entry->geometryFlags;
+                    vertexAlpha = entry->alphaWord >> 8;
+                    if (geometryFlags & 1) {
+                        sine1 = func_8002A8BC(entry->rotation2);
+                        cosine1 = func_8002A8C0(entry->rotation2);
+                        sine0 = func_8002A8BC(entry->rotation0);
+                        cosine0 = func_8002A8C0(entry->rotation0);
+                        if (pointCount > 0) {
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
+                                yScaled = (f32)points[1] * entry->scale;
+                                points += 2;
+                                rotatedZ = -xScaled * cosine0;
+                                xScaled *= sine0;
+                                vertices->x = (s16)(s32)((xScaled * sine1) - (yScaled * cosine1) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) + (xScaled * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)(entry->z + rotatedZ);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = vertexAlpha;
+                                vertices++;
+                                emitted++;
+                            } while (emitted != pointCount);
+                        }
+                    } else if (geometryFlags & 2) {
+                        sine1 = func_8002A8BC(entry->rotation1);
+                        cosine1 = func_8002A8C0(entry->rotation1);
+                        sine0 = func_8002A8BC(entry->rotation0);
+                        cosine0 = func_8002A8C0(entry->rotation0);
+                        if (pointCount > 0) {
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
+                                yScaled = (f32)points[1] * entry->scale;
+                                points += 2;
+                                rotatedZ = -xScaled * cosine0;
+                                xScaled *= sine0;
+                                vertices->x = (s16)(s32)(entry->x + xScaled);
+                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedZ * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)((rotatedZ * sine1) + (yScaled * cosine1) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = vertexAlpha;
+                                vertices++;
+                                emitted++;
+                            } while (emitted != pointCount);
+                        }
+                    } else if (geometryFlags & 4) {
+                        sine1 = func_8002A8BC(entry->rotation0);
+                        cosine1 = func_8002A8C0(entry->rotation0);
+                        if (pointCount > 0) {
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
+                                points += 2;
+                                vertices->x = (s16)(s32)((xScaled * sine1) + entry->x);
+                                vertices->y = (s16)(s32)((f32)points[-1] * entry->scale + entry->y);
+                                vertices->z = (s16)(s32)((-xScaled * cosine1) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = vertexAlpha;
+                                vertices++;
+                                emitted++;
+                            } while (emitted != pointCount);
+                        }
+                    } else {
+                        if (pointCount > 0) {
+                            do {
+                                point[0] = (f32)points[0] * entry->scale;
+                                points += 2;
+                                point[1] = (f32)points[-1] * entry->scale;
+                                point[2] = 0.0f;
+                                pointListRPY(1, (s16 *)entry, &point[0], &point[0]);
+                                vertices->x = (s16)(s32)(point[0] + entry->x);
+                                vertices->y = (s16)(s32)(point[1] + entry->y);
+                                vertices->z = (s16)(s32)(point[2] + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = vertexAlpha;
+                                vertices++;
+                                emitted++;
+                            } while (emitted != pointCount);
+                        }
+                    }
+                    entry++;
+                    index++;
+                    primitiveCount += updateRate;
+                }
+            }
+
+            if (primitiveCount != 0) {
+                vertexAddress = (s32)vertexStart + 0x80000000;
+                if (colorAlpha != currentAlpha) {
+                    gDPPipeSync(displayList++);
+                    gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, colorAlpha);
+                }
+                if ((texture != previousTexture) || (scale != previousScale)) {
+                    func_800349A4(&displayList, texture, 0x12,
+                                  (s32)(scale * 65536.0f));
+                }
+                if (texture != NULL) {
+                    textureType = *(u16 *)((u8 *)texture + 6);
+                    if (textureType != 0x20) {
+                        if (textureType != 0x40) {
+                            material = group->materialTranslucent;
+                        } else {
+                            material = group->materialDefault;
+                        }
+                    } else {
+                        material = group->materialOpaque;
+                    }
+                }
+                gDma1p(displayList++, 4, vertexAddress,
+                        (vertexCount << 3) + (vertexCount << 1) + 8,
+                        (vertexCount << 3) | (vertexAddress & 6));
+                gDma1p(displayList++, 5, material + 0x80000000,
+                        primitiveCount << 4, ((primitiveCount - 1) << 4) | 1);
+            }
+            gDPPipeSync(displayList++);
+        }
+        *dListArg = displayList;
+        *verticesArg = vertices;
+    }
+}
 void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
     ParticleConfig *config;
 
@@ -518,26 +814,35 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 140-instruction shape, target frame 0x38 versus candidate 0x30; 22 raw words from +0x8.
- * Lever: stack-frame recovery, local/pad, ABI-call, flag, and bounded permutation probes left the full-TU topology unchanged.
- * Remains: target stack-home layout, two pool substitutions, and one branch displacement; assembly fallback stays canonical. */
+/* Bounded configured full-TU C reaches 139/140 raw and relocation-normalized
+ * words, first +0x38, with exact 0x230 size, 0x38 frame, no padding, and all ten
+ * target relocation tuples. Target-ranked declarations place entry at sp+0x24
+ * and result at sp+0x34 around both calls, eliminating the prior eight call-live
+ * differences. The 119-configuration lattice, one fidelity-clean allocator
+ * trace, three natural declaration forms, and one trace-selected CFG form
+ * exhaust the 124-build route. The forms moved 9 -> 20, 5, then 1 difference;
+ * the CFG form was byte-identical. The gain-gated bounded permuter batch's
+ * score-zero was an invalid isolated import (147 versus 140 instructions,
+ * 0x24C versus 0x230, with relocation drift), so no batch candidate was adopted.
+ * Only the zero-count branch target at +0x38 remains. func_8003E7B8+0xE4 is the
+ * sole caller; no runtime/export/overlay/pointer inbound exists. Linked identity
+ * proves fallback only. A future pass needs a source-faithful first-loop CFG
+ * spelling that retains the redundant pool-base reset; do not repeat this route. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
-    ParticlePointStreamEntry *entry;
+    s32 result;
     f32 *pointData;
     f32 *point;
-    s32 result;
-    s32 i;
-    ParticleModelEntry *modelEntries;
     s32 pointIndex;
+    ParticleModelEntry *entry;
+    s32 i;
     s32 frameCount;
 
     if (D_8007C898 == NULL) {
         return 0xFF;
     }
 
-    modelEntries = D_8007C898;
-    entry = (ParticlePointStreamEntry *)modelEntries;
+    entry = D_8007C898;
     result = 0xFF;
     i = 0;
     if (D_8007C890 > 0) {
@@ -551,9 +856,9 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
         } while (i < D_8007C890);
     }
 
-    entry = (ParticlePointStreamEntry *)D_8007C898;
-    i = 0;
+    entry = D_8007C898;
     if (D_8007C890 > 0) {
+        i = 0;
         do {
             if (entry->active == 0) {
                 result = i;
@@ -567,11 +872,11 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
 
     if (result != 0xFF) {
         entry->active = 2;
-        point = &entry->points[0][0];
+        point = &((ParticlePointStreamEntry *)entry)->points[0][0];
         pointIndex = 0;
-        entry->pointCount = (u32)descriptor->pointCount >> 4;
+        ((ParticlePointStreamEntry *)entry)->pointCount = (u32)descriptor->pointCount >> 4;
         pointData = D_8007CA90[(u32)descriptor->pointCount >> 4];
-        if (entry->pointCount > 0) {
+        if (((ParticlePointStreamEntry *)entry)->pointCount > 0) {
             do {
                 point[0] = pointData[0];
                 point[1] = pointData[1];
@@ -579,7 +884,7 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
                 pointIndex++;
                 pointData += 2;
                 point += 3;
-            } while (pointIndex < entry->pointCount);
+            } while (pointIndex < ((ParticlePointStreamEntry *)entry)->pointCount);
         }
         entry->animationState = descriptor->descriptorWord;
         entry->configFlags = config->flags;
@@ -699,6 +1004,8 @@ void partObjFreeTriggers(ParticleObject *object) {
                 func_8003EC8C(object, i);
             }
             offset += sizeof(ParticleTriggerSlot);
+            /* Inert allocation aid retained by exact C; tracked in
+             * docs/cleanup-queue.md. */
             if (offset) {}
         } while (++i != count);
     }
@@ -809,9 +1116,12 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/* Before -> after: structure-mismatch, 39 raw words, 297 instructions -> unchanged; first +0x204.
- * Type lever: Basic/emitter and vector aggregates; structure buckets remained unchanged.
- * Remains: zero-vector/header-copy/FP normalization; asm stays canonical.
+/* Workbench: pure FP-allocation plateau, 17 differing words, size_delta 0; first mismatch +0x20C.
+ * Target and candidate are 297 instructions with the exact 0x58 frame and 16 relocation identities.
+ * Every integer lane is exact and the schedule is exact; the residual is one fp-pool
+ * position, first visible where the emission direction's zero and its -value3C load
+ * exchange roles. The sum of squares is spelled y-first because the target's two
+ * component loads are scheduled that way; x-first costs four more words.
  * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
@@ -870,7 +1180,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     D_800D413C = particle->velocityZ;
 
     if (config->flags & 4) {
-        offset[0] = (flags = config->flags5C, 0.0f);
+        flags = config->flags5C;
+        offset[0] = 0.0f;
         offset[1] = offset[0];
         speed = config->value3C;
         offset[2] = -speed;
@@ -900,8 +1211,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
             resource = NULL;
         }
         pointIndex = trigger->index;
-        if (pointIndex != -1 && resource != NULL &&
-            (header = resource->header, header->transformedPoints != 0)) {
+        if (pointIndex != -1 && resource != NULL && resource->header->transformedPoints != 0) {
+            header = resource->header;
             if (resource->disableTransform != 0) {
                 offset[0] = 0.0f;
                 offset[1] = 0.0f;
@@ -909,10 +1220,10 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
             } else {
                 mtxf_transform_dir(
                     (u8 *)resource->matrices[resource->matrixTableIndex] +
-                        (header->transformIndices[pointIndex].matrixIndex << 6),
+                        ((header->transformIndices[pointIndex].matrixIndex << 5) << 1),
                     offset, offset, header);
-                magnitude = sqrtf((offset[2] * offset[2]) +
-                                  ((offset[0] * offset[0]) + (offset[1] * offset[1])));
+                scale = (offset[1] * offset[1]) + (offset[0] * offset[0]);
+                magnitude = sqrtf(scale + (offset[2] * offset[2]));
                 if (magnitude == 0.0f) {
                     scale = speed;
                 } else {
@@ -1304,19 +1615,12 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     }
     return particle;
 }
-#ifdef NON_MATCHING
-/* Before -> after: structure-mismatch, 124/125 instructions, 33 aligned words -> unchanged; first +0x4C.
- * Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement.
- * Remains: initial address shift, pool/temporary web, and one missing instruction. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
-    u32 *freeBits;
-    u32 *wordPtr;
     s32 bits;
-    s32 particleIndex;
     s32 wordIndex;
     s32 bitIndex;
 
@@ -1333,46 +1637,36 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             }
         } else {
             if (direction == -1) {
-                freeBits = pool->freeBits;
-                if (*freeBits == 0) {
-                    wordPtr = (u32 *)((u8 *)freeBits + (wordIndex << 2));
-                    if (pool->lastBitWord >= wordIndex) {
+                if (pool->freeBits[wordIndex] == 0) {
+                    bits = pool->lastBitWord;
+                    if (bits >= wordIndex) {
                         do {
                             wordIndex++;
-                            wordPtr++;
-                        } while (*wordPtr == 0 && wordIndex <= pool->lastBitWord);
+                        } while (pool->freeBits[wordIndex] == 0 && wordIndex <= bits);
                     }
                 }
-                wordPtr = freeBits + wordIndex;
                 if (pool->lastBitWord < wordIndex) {
                     return NULL;
                 }
-                bits = *wordPtr;
+                bits = pool->freeBits[wordIndex];
                 bitIndex = 0;
-                particleIndex = wordIndex << 5;
                 if (!(bits & 1)) {
                     do {
                         bitIndex++;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                *wordPtr = bits & ~(1 << bitIndex);
-                particleIndex += bitIndex;
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             } else {
                 wordIndex = pool->lastBitWord;
                 if (wordIndex > 0) {
-                    wordPtr = pool->freeBits;
-                    wordPtr = wordPtr + wordIndex;
-                    if (*wordPtr == 0) {
+                    if (pool->freeBits[wordIndex] == 0) {
                         do {
                             wordIndex--;
-                            wordPtr--;
-                        } while (wordIndex > 0 && *wordPtr == 0);
+                        } while (wordIndex > 0 && pool->freeBits[wordIndex] == 0);
                     }
                 }
-                freeBits = pool->freeBits;
-                wordPtr = freeBits + wordIndex;
-                bits = *wordPtr;
-                particleIndex = wordIndex << 5;
+                bits = pool->freeBits[wordIndex];
                 if (bits == 0) {
                     return NULL;
                 }
@@ -1380,25 +1674,21 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                 if (!(bits & 0x80000000)) {
                     do {
                         bitIndex--;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                bits &= ~(1 << bitIndex);
-                *wordPtr = bits;
-                particleIndex += bitIndex;
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             }
-            if (particleIndex >= pool->count) {
+            if (wordIndex >= pool->count) {
                 return NULL;
             }
-            particle = &pool->particles[particleIndex];
+            particle = &pool->particles[wordIndex];
             particle->type = type;
             pool->activeCount++;
         }
     }
     return particle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
-#endif
 /* PROVENANCE: structure cross-checked against JFG assembly function
  * func_80061B50; body reconstructed from Mickey evidence. */
 /* Workbench: mixed structural/register residual, 9/78 words, first +0x1C.
@@ -1541,9 +1831,10 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Workbench: structure-mismatch, exact 302 instructions; 160 words differ, first +0x0, frames 0x70/0x68.
- * Volatile trigger homing fixed the frame but added four instructions; width, register, and carrier levers remain eliminated.
- * Remains: target uses the entry-stack trigger home without a register carrier; temp/fp webs and local homes still diverge. */
+/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame;
+ * 145 words differ from +0x30. Reusing scale after its last original-value use
+ * removes the spurious normalization-temp home. The entry trigger carrier and
+ * integer/FP allocation webs remain. */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1555,7 +1846,6 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
     f32 scale;
     ParticleVec3f position;
     ParticleVec3f offset;
-    register f32 temp;
     s32 orientation;
     s32 pointCount;
     u8 entryIndex;
@@ -1606,10 +1896,10 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                 position.y += object->y;
                 position.z += object->z;
                 if (trigger->config->flags & 0x1000) {
-                    scale *= sqrtf((object->velocityX * object->velocityX) +
-                                   (object->velocityY * object->velocityY) +
-                                   (object->velocityZ * object->velocityZ)) *
-                             D_80082A6C;
+                    scale = scale * sqrtf((object->velocityX * object->velocityX) +
+                                          (object->velocityY * object->velocityY) +
+                                          (object->velocityZ * object->velocityZ)) *
+                            D_80082A6C;
                 }
 
                 orientation = *(u16 *)&descriptor->flags & 0xF;
@@ -1633,26 +1923,27 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     offset.x = object->velocityX;
                     offset.y = object->velocityY;
                     offset.z = object->velocityZ;
-                    temp = (offset.z * offset.z) +
-                           ((offset.x * offset.x) + (offset.y * offset.y));
-                    if (temp < D_80082A70) {
-                        temp = 1.0f;
+                    if ((offset.z * offset.z) +
+                            ((offset.x * offset.x) + (offset.y * offset.y)) <
+                        D_80082A70) {
+                        scale = 1.0f;
                     } else {
-                        temp = scale / sqrtf(temp);
+                        scale = scale / sqrtf((offset.z * offset.z) +
+                                              ((offset.x * offset.x) + (offset.y * offset.y)));
                     }
-                    offset.x *= temp;
-                    offset.y *= temp;
-                    offset.z *= temp;
+                    offset.x *= scale;
+                    offset.y *= scale;
+                    offset.z *= scale;
                     switch (orientation) {
                         case 0:
-                            temp = offset.x;
+                            scale = offset.x;
                             offset.x = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                         case 1:
-                            temp = offset.y;
+                            scale = offset.y;
                             offset.y = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                     }
                 }
@@ -1825,36 +2116,45 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p4: structure-mismatch; 280 positional/280 raw words differ,
- * 457/456 instructions, first +0x0, frame -352 versus -360. Levers: commutative
- * audit, triangle-count order/volatility, and array order; remains stack web. */
+/* Structural plateau: candidate and target are both 456 words with frame
+ * 0x168 and all four relocation identities exact; 36 raw and relocation-masked
+ * words differ, first +0x4C, while the FP schedule is exact.
+ *
+ * The declaration list below is a frame census, not a style choice. The
+ * per-particle cursor, the two display-list command scalars and the triangle
+ * list pair are declared where the target's own stack homes put them: moving
+ * the cursor out of the outer list is what puts both point arrays at their
+ * observed displacements, and placing the list pair two slots below the
+ * triangle count reproduces the eight-byte hole the target leaves between
+ * them. Nine of the twelve homes now agree. `volatile` on the command length
+ * is load-bearing -- without it IDO moves the whole frame to 0x170. What
+ * remains is the command length's own home and the cursor's. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     Gfx *displayList;
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
-    CircularParticle *particle;
-    ParticleVec3f output[8];
-    ParticleVec3f input[8];
-    ParticleVec3f *outputPtr;
+    f32 output[8][3];
+    f32 input[8][3];
+    f32 *outputPtr;
     s32 particleIndex;
     s32 i;
     s32 triangleListIndex;
-    void *triangleLists[2];
-    CircularParticle **particlePtr;
-    Gfx *command;
-    s32 vertexCount;
-    s32 triangleCount;
-    s32 vertexIndex;
-    volatile s32 vertexCommandCount;
-    volatile s32 vertexCommandLength;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
 
     if (entry->particleCount >= 2) {
+        s32 triangleCount;
+        Gfx *command;
+        s32 vertexCount;
+        void *triangleLists[2];
+        s32 vertexIndex;
+        s32 addressBase;
+        CircularParticle **particlePtr;
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
+
         displayList = *(Gfx **)arg0;
         vertexCount = entry->vertexCount;
         vertices = *(ParticleVertex **)arg1;
@@ -1873,17 +2173,21 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
         particleIndex = 0;
         particlePtr = entry->particles;
         if (entry->particleCount > 0) {
+            s32 vertexCommandCount;
+            volatile s32 vertexCommandLength;
+            CircularParticle *particle;
+
             vertexCommandLength = (vertexCount * 10) + 8;
             vertexCommandCount = vertexCount * 8;
             do {
                 particle = *particlePtr;
                 vertexStart = vertices;
-                outputPtr = output;
+                outputPtr = &output[0][0];
                 i = 0;
                 while (i < vertexCount) {
-                    input[i].x = entry->points[i].x * particle->scale;
-                    input[i].y = entry->points[i].y * particle->scale;
-                    input[i].z = entry->points[i].z * particle->scale;
+                    input[i][0] = entry->points[i].x * particle->scale;
+                    input[i][1] = entry->points[i].y * particle->scale;
+                    input[i][2] = entry->points[i].z * particle->scale;
                     i++;
                 }
 
@@ -1891,33 +2195,34 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                 green = particle->green;
                 blue = particle->blue;
                 alpha = (particle->intensity >> 8) & 0xFF;
-                pointListRPY(vertexCount, (s16 *)particle, &input[0].x, &output[0].x);
+                pointListRPY(vertexCount, (s16 *)particle, &input[0][0], &output[0][0]);
+                addressBase = 0x80000000;
                 i = 0;
                 if (vertexCount > 0) {
                     do {
-                        vertices->x = outputPtr->x + particle->renderX;
-                        vertices->y = outputPtr->y + particle->renderY;
-                        vertices->z = outputPtr->z + particle->renderZ;
+                        vertices->x = outputPtr[0] + particle->renderX;
+                        vertices->y = outputPtr[1] + particle->renderY;
+                        vertices->z = outputPtr[2] + particle->renderZ;
                         vertices->red = red;
                         vertices->green = green;
                         vertices->blue = blue;
                         vertices->alpha = alpha;
+                        outputPtr += 3;
                         vertices++;
-                        outputPtr++;
                         i++;
                     } while (i < vertexCount);
                 }
 
                 command = displayList++;
                 command->words.w0 =
-                    (((vertexCommandCount | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
+                    ((vertexCommandCount | (((s32)vertexStart + addressBase) & 6)) & 0xFF) << 16 |
                     0x04000000 | ((vertexCommandLength | (vertexIndex << 9)) & 0xFFFF);
-                command->words.w1 = (s32)vertexStart + 0x80000000;
+                command->words.w1 = (s32)vertexStart + addressBase;
                 if (particleIndex > 0) {
                     command = displayList++;
-                    command->words.w0 = ((((((triangleCount - 1) * 16) | 1) & 0xFF) << 16) |
-                                         0x05000000 | ((triangleCount * 16) & 0xFFFF));
-                    command->words.w1 = (s32)triangleLists[triangleListIndex] + 0x80000000;
+                    command->words.w0 = ((((((triangleCount - 1) << 4) | 1) & 0xFF) << 16) |
+                                         0x05000000 | ((triangleCount << 4) & 0xFFFF));
+                    command->words.w1 = (s32)triangleLists[triangleListIndex] + addressBase;
                     triangleListIndex ^= 1;
                 }
                 if (vertexIndex == 0) {
@@ -1954,31 +2259,19 @@ void func_80041C50(s32 arg0, s32 arg1) {
         }
     }
 }
-/*
- * Workbench: allocation/pool-position, 27 words, exact size/frame/relocations, first mismatch +0x48.
- * Levers: stack-home order, intensity field, dead-web/read-count routing, 119 flags, and bounded permuter; exhausted.
- * Follow-up (2026-08-28): ten source-faithful full-TU probes covered cursor
- * lifetime, pointer declaration/scoping, initialization order, and loop-local
- * order. None improved the exact-size baseline; some introduced structural or
- * constant differences. The best remains 126/153 rows with frame -0x80.
- * Remains: target colors the outer count in a3 instead of a2; later pool webs rotate through both command words.
- */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * func_80063514 sibling; body reconstructed from Mickey evidence. */
-#ifdef NON_MATCHING
-void func_80041CE4(void **dList, void **vertices) {
+void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
     Gfx *command;
+    Gfx *command2;
     ParticleLineVertex *vertex;
     ParticleLineVertex *vertexStart;
-    ParticleLinePoint *point;
     Gfx *displayList;
+    ParticleLinePoint *point;
     ParticleLineEntry *line;
     s32 i;
     s32 j;
     s32 pointCount;
-    s32 vertexAddress;
-    ParticleLinePoint **pointPtr;
-
     if (D_8007C894 != NULL) {
         displayList = *dList;
         vertex = *vertices;
@@ -1987,49 +2280,39 @@ void func_80041CE4(void **dList, void **vertices) {
         if (D_8007C88C > 0) {
             do {
                 if (line->active != 0) {
-                    pointCount = line->pointCount;
-                    vertexStart = vertex;
-                    j = 0;
-                    if (pointCount >= 2) {
-                        if (pointCount > 0) {
-                            pointPtr = (ParticleLinePoint **)line;
-                            do {
-                                point = pointPtr[1];
-                                j++;
-                                pointPtr++;
-                                vertex->x0 = point->x0;
-                                vertex->y0 = point->y0;
-                                vertex->z0 = point->z0;
-                                vertex->red0 = point->red;
-                                vertex->green0 = point->green;
-                                vertex->blue0 = point->blue;
-                                vertex->alpha0 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex->x1 = point->x1;
-                                vertex->y1 = point->y1;
-                                vertex->z1 = point->z1;
-                                vertex->red1 = point->red;
-                                vertex->green1 = point->green;
-                                vertex->blue1 = point->blue;
-                                vertex->alpha1 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex++;
-                            } while (j < line->pointCount);
+                    if (line->pointCount >= 2) {
+                        vertexStart = vertex;
+                        for (j = 0; j < line->pointCount; j++) {
+                            point = line->points[j];
+                            vertex->x0 = point->x0;
+                            vertex->y0 = point->y0;
+                            vertex->z0 = point->z0;
+                            vertex->red0 = point->red;
+                            vertex->green0 = point->green;
+                            vertex->blue0 = point->blue;
+                            vertex->alpha0 = ((u8 *)&point->intensity)[0];
+                            vertex->x1 = point->x1;
+                            vertex->y1 = point->y1;
+                            vertex->z1 = point->z1;
+                            vertex->red1 = point->red;
+                            vertex->green1 = point->green;
+                            vertex->blue1 = point->blue;
+                            vertex->alpha1 = ((u8 *)&point->intensity)[0];
+                            vertex++;
                         }
                         func_800349A4(&displayList, line->texture, 0x12,
                                       (s32)(line->textureFrame * 65536.0f));
                         pointCount = line->pointCount;
-                        vertexAddress = (s32)vertexStart + 0x80000000;
                         pointCount *= 2;
                         command = displayList++;
-                        command->words.w0 = ((((pointCount << 3) | (vertexAddress & 6)) & 0xFF) << 16) |
+                        command->words.w0 = ((((pointCount << 3) | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
                                             0x04000000 |
                                             ((((pointCount << 3) + (pointCount << 1)) + 8) & 0xFFFF);
-                        command->words.w1 = vertexAddress;
-                        command = displayList++;
-                        command->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
+                        command->words.w1 = ((s32)vertexStart + 0x80000000);
+                        command2 = displayList++;
+                        command2->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
                                             0x05000000 | (((pointCount - 2) << 4) & 0xFFFF);
-                        command->words.w1 = (s32)D_7C900;
+                        command2->words.w1 = (s32)D_7C900;
                     }
                 }
                 i++;
@@ -2041,9 +2324,6 @@ void func_80041CE4(void **dList, void **vertices) {
         *vertices = vertex;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
-#endif
 void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
     void *particle;
     ParticleModelEntry *entry;
@@ -2232,7 +2512,7 @@ void partUpdateParticles(s32 updateRate) {
 }
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partDraw.s; body reconstructed from Mickey evidence. */
 void partDraw(Gfx **dList, s32 arg1, s32 mode) {
-    void *vertices;
+    ParticleLineVertex *vertices;
     s32 pad;
 
     if (mode != 0) {
@@ -2241,17 +2521,18 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     vertices = (u8 *)D_8007C89C[D_8007C8E8] + (D_8007C8EC * 10);
     gDPPipeSync((*dList)++);
     if (mode == 1) {
-        D_8007C8EC = func_8003CE10(dList, arg1, &vertices, D_800D4128, 1);
+        D_8007C8EC = func_8003CE10(dList, arg1, (void **)&vertices,
+                                   D_800D4128, 1);
         return;
     }
     camSetNo(0);
     func_800221E8((void **)dList, arg1);
-    func_8003D4FC((void **)dList, &vertices, D_800D4120[0]);
-    func_8003D4FC((void **)dList, &vertices, D_800D4124);
-    func_80041CE4((void **)dList, &vertices);
+    func_8003D4FC((void **)dList, (void **)&vertices, D_800D4120[0]);
+    func_8003D4FC((void **)dList, (void **)&vertices, D_800D4124);
+    func_80041CE4(dList, &vertices);
     func_80041C50((s32)dList, (s32)&vertices);
-    func_8003CE10(dList, arg1, &vertices, D_800D4128, mode);
-    func_8003D25C(dList, arg1, &vertices, D_800D412C);
+    func_8003CE10(dList, arg1, (void **)&vertices, D_800D4128, mode);
+    func_8003D25C(dList, arg1, (void **)&vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }
 void partNullifyCircularParticleParents(ParticlePosition *position) {
@@ -2281,3 +2562,53 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
         } while (poolPtr != (CircularParticlePool **)&D_800D4134);
     } while (0);
 }
+
+/* PLATEAU-HANDOFF:func_8003F154:start
+ * symbol: func_8003F154
+ * score: 17 differing words
+ * frame: 0x58
+ * relocations: 16
+ * first-mismatch: +0x20C
+ * summary: 17 FP-allocation words, all one fp-pool position from the emission-direction zero. The candidate spends two fp-pool colours the target spends as ring temps, and the direction is not reversible from source: every naming and de-naming form measured is flat or worse.
+ * PLATEAU-HANDOFF:func_8003F154:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003D25C:start
+ * symbol: func_8003D25C
+ * score: 68 differing words
+ * frame: 0xB8
+ * relocations: 2
+ * first-mismatch: +0x50
+ * summary: pure allocation with exact size, frame and relocations. The temp ring is rotated by one from the very first temporary in the function, with no call in scope before the divergence, so this is not the carry-across-a-call mechanism that closed func_8003D4FC. The intensity carrier is the live surface: routing particle->alpha through one extra integer carrier buys five words when the carrier is the loop counter (which is not a legal spelling) and one word when it is a dead local, while spelling the three products against the fields directly costs ten. A 30-minute permuter run went 455 to 390 and stalled, and every one of its improvements was that same carrier insertion.
+ * PLATEAU-HANDOFF:func_8003D25C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80040B88:start
+ * symbol: func_80040B88
+ * score: 145 differing words
+ * frame: 0x68
+ * relocations: 12
+ * first-mismatch: +0x30
+ * summary: the frame size is right but its contents are not: both vector locals sit four bytes above the target's homes, and the three homes above them already agree, so the missing four bytes belong below the scale local. Flat and eliminated: reintroducing the orientation swap's own temp (any of eleven declaration positions) grows the frame to 0x70, and moving the colour table pointer later -- into the block that uses it, to the end of the list, or below scale -- keeps 0x68 but costs six words. The four relocation-symbol mismatches are an ordering fact: the target materializes the line-entry table's address one instruction earlier than we do.
+ * PLATEAU-HANDOFF:func_80040B88:end
+ */
+
+/* PLATEAU-HANDOFF:func_80041530:start
+ * symbol: func_80041530
+ * score: 36 differing words
+ * frame: 0x168
+ * relocations: 4
+ * first-mismatch: +0x4C
+ * summary: the target's command length is spelled (n<<3)+(n<<1)+8, which makes rows 19-59 exact and moves the first mismatch from +0x4C to +0xF0 -- but costs the tail, so the 36-word form is retained. The candidate CSEs vertexCount*8 across the call into a saved register; the target computes it twice. Two stack homes and that CSE are the whole residual.
+ * PLATEAU-HANDOFF:func_80041530:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003E8D8:start
+ * symbol: func_8003E8D8
+ * score: 139/140 words
+ * frame: 0x38
+ * relocations: 10
+ * first-mismatch: +0x38
+ * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead. A separate first-scan cursor -- the mechanism that closed func_80041CE4 -- reproduces the known +1-instruction wall in every form, so the coupling is not a cursor question.
+ * PLATEAU-HANDOFF:func_8003E8D8:end
+ */

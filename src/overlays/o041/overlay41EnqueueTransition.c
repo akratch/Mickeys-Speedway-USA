@@ -25,9 +25,11 @@ extern u8 gOverlay41QueueEntries[];
 
 #define entry ((volatile u8 *)cursor)
 
-/* Workbench: mixed(structural:13, register:12, constant:3), exact 105 instructions/29 words, first +0x8.
- * Levers: cursor/+12 pointer and offset rewrites; all regressed, with the target's delayed cursor web intact.
- * Remains: target block order and one-cursor address routing. */
+/* Workbench: mixed(structural:13, register:12, constant:3), exact 105
+ * instructions with 29 differing words, first +0x8. Preflight proves all 22
+ * relocation identities exactly; target block order and one-cursor allocation remain.
+ * A 2026-09-04 independent second test (removing the redundant else) was byte-flat,
+ * so that natural block-order reshape cannot delay the future-cursor web. */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
@@ -96,3 +98,13 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41EnqueueTransition/func_overlay_041_F000195C_1888C94.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:start
+ * symbol: func_overlay_041_F000195C_1888C94
+ * score: 76/105 words
+ * frame: frameless
+ * relocations: 22
+ * first-mismatch: +0x8
+ * summary: independent-if block-order reshape was byte-flat; the one-cursor allocation residual remains
+ * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
+ */

@@ -21,6 +21,8 @@ void overlay12Initialize(void) {
         entry++;
         entry[-1].active = 0;
     } while (remaining < 0x40);
+    /* Inert allocation aid retained by the exact C; tracked in
+     * docs/cleanup-queue.md. */
     if (!remaining) {
     }
 

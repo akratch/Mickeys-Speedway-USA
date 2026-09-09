@@ -145,12 +145,12 @@ segments:
     bss_size: 0x52D10
     subsegments:
       - [0x1050, c, main/audio_manager_1050]
-      - [0x2340, asm]
+      - [0x2340, c, main/audiomgr]
       - [0x30BC, c, main/amAudioMgrSetScheduleMode]
-      - [0x30E0, asm]
+      - [0x30E0, c, main/audiomgr_30E0]
       - [0x3100, c, main/audio_manager_36D0]
       - [0x45F0, c, main/audio_manager_4C50]
-      - [0x4F40, asm]
+      - [0x4F40, c, main/objects]
       # `track/track.c`: the first and last routines align with JFG's track TU,
       # 40 of 62 similarity-eligible functions place that TU in their top five,
       # two large routines reference all 14 resident `track/track.c` assert
@@ -244,21 +244,21 @@ segments:
       # measured trapDanglingJump TU and the texInitTextures-shaped function
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
-      - [0x34E60, asm]
+      - [0x34E60, c, main/textures_34E60]
       - [0x35008, c, main/texEnableModes]
-      - [0x35024, asm]
+      - [0x35024, c, main/textures_35024]
       - [0x354A0, c, main/texLoadTextureAddr]
-      - [0x354C8, asm]
+      - [0x354C8, c, main/textures_354C8]
       - [0x37650, c, main/initColourCycle]
-      - [0x37680, asm]
-      - [0x37D50, asm]
+      - [0x37680, c, main/frontend_37680]
+      - [0x37D50, c, main/frontend_37D50]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
       # frontCharSelectSetQuitMode, where the code switches to the unrelated
       # "UNKNOWN TRACK" table. Both boundaries are function starts and are
       # 16-byte aligned. See docs/modules.md section 3.4.
       - [0x39350, c, main/menu]
-      - [0x3B1A0, asm]
+      - [0x3B1A0, c, main/menu_3B1A0]
       # JFG/DKR weather lineage: initWeather leads this run, the second
       # routine weather_clip_planes is already tier A, and the tier-A
       # particles reset at 0x3D5F0 independently fixes the upper boundary.
@@ -294,10 +294,9 @@ segments:
       # an ordered-function and two-sided-boundary claim, not a whole-.text
       # claim.
       - [0x4BC40, c, main/font]
-      # The PI-manager/rzip prefix and huft builder form the C half of the
-      # inflate subsystem. DKR's src/gzip.c identifies the source unit; only
-      # byteswap32 is compiler-exact so far, and the other five functions stay
-      # as GLOBAL_ASM until independently matched.
+      # The PI-manager/rzip prefix and huft builder form the compiler-exact C
+      # half of the inflate subsystem. DKR's src/gzip.c identifies this
+      # six-function source unit; each function is independently matched.
       - [0x4E1E0, c, main/gzip]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
@@ -306,10 +305,10 @@ segments:
       # functions; the byte-identity claim covers 0x4EA60-0x4F4D4 and the
       # remaining 0xC bytes to the next split are padding.
       - [0x4EA60, asm, main/gzip_asm]
-      - [0x4F4E0, asm]
+      - [0x4F4E0, c, main/block_4F4E0]
       - [0x4FC30, asm, libultra/exceptasm]
-      - [0x505E0, asm]
-      - [0x506D0, asm]
+      - [0x505E0, c, libultra/createthread]
+      - [0x506D0, c, main/block_506D0]
       - [0x50820, asm, main/refractOutputAssembler]
       # Resident animation/collision sequence. Individual-function skeleton
       # evidence ties the leading functions to JFG anim.c, the later functions
@@ -317,10 +316,11 @@ segments:
       # internal object boundary is proven, so the existing whole block is one
       # source subsegment until stronger section evidence appears.
       - [0x50C00, c, main/anim]
-      - [0x58570, asm]
+      - [0x58570, c, main/flash_58570]
       - [0x58810, c, libultra/osFlashClearStatus]
-      - [0x5885C, asm]
-      - [0x58C10, asm]
+      - [0x5885C, c, main/flash_5885C]
+      - [0x58C0C, asm]
+      - [0x58C10, c, main/flash_58C10]
       - [0x58E50, c, main/vehicle_sounds]
       - [0x59B90, c, main/osBootRamTest]
       - [0x59BF0, asm]
@@ -375,11 +375,12 @@ segments:
       - [0x6AC10, c, main/math_acosf]
       - [0x6ACF0, c, libultra/n_resample]
       - [0x6AF90, c, main/math_arc]
-      - [0x6B1A0, asm]
-      - [0x6B3D0, asm, libultra/gbpakcheckconnector]
-      - [0x6B860, asm]
-      - [0x6BC20, asm]
-      - [0x6BDF0, asm, libultra/gbpakgetstatus]
+      - [0x6B1A0, c, libultra/gbpakinit]
+      - [0x6B3D0, c, libultra/gbpakcheckconnector]
+      - [0x6B860, c, libultra/gbpakpower]
+      - [0x6B970, c, libultra/gbpakreadid]
+      - [0x6BC20, c, libultra/gbpakreadwrite]
+      - [0x6BDF0, c, libultra/gbpakgetstatus]
       - [0x6BF70, c, libultra/gbpakselectbank]
       - [0x6C040, c, libultra/motor]
       - [0x6C450, c, libultra/pfsisplug]
@@ -398,7 +399,7 @@ segments:
       - [0x6EA30, c, libultra/pfschecker]
       # 0x40 bytes between the end of io/pfschecker.c and the corridor.
       # Matches nothing in any of the five reference builds. Unidentified.
-      - [0x6F3E0, asm]
+      - [0x6F3E0, c, libultra/block_6F3E0]
       # -----------------------------------------------------------------
       # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076110).
       #
@@ -440,10 +441,10 @@ segments:
       # matches NO object in ANY of the five reference builds, whole or
       # per-function. The DKR-only sweep left 0x1AE0 of the corridor (22.2%,
       # ten runs) unnamed; eight of those ten runs are named above from JFG's
-      # build, and what remains is 0xB50 in two runs --
-      # 0x70AF0-0x70E20 and 0x74090-0x748B0. docs/modules.md section 4.1 keeps
-      # the current list, and tools/check_derived_numbers.py recomputes the
-      # figure from this file so the two cannot drift apart.
+      # build. Mickey-specific EEPROM read/write reconstructions have now
+      # closed the final run; docs/modules.md section 4.1 records the zero
+      # remainder, and tools/check_derived_numbers.py recomputes it from this
+      # file so the two cannot drift apart.
       # -----------------------------------------------------------------
       - [0x6F420, c, libultra/recvmesg]
       - [0x6F560, c, libultra/aisetfreq]
@@ -469,9 +470,9 @@ segments:
       - [0x70A40, c, libultra/gettime]
       - [0x70AD0, c, libultra/spsetstat]
       - [0x70AE0, c, libultra/dpsetstat]
-      - [0x70AF0, asm]
-      - [0x70C30, asm]
-      - [0x70D70, asm]
+      - [0x70AF0, c, libultra/eeplongwrite]
+      - [0x70C30, c, libultra/eeplongread]
+      - [0x70D70, c, libultra/eepprobe]
       - [0x70E20, c, libultra/pfsdeletefile]
       - [0x71430, asm, libultra/invaldcache]
       - [0x714E0, asm, libultra/writebackdcacheall]
@@ -530,10 +531,10 @@ segments:
       - [0x73C20, asm, libultra/maptlbrdb]
       - [0x73C80, asm, libultra/getcause]
       - [0x73C90, c, libultra/timerintr]
-      - [0x74090, asm]
-      - [0x743A0, asm]
-      # Exact __osEepStatus tail carved from the larger SDK conteepwrite TU;
-      # the preceding non-identical functions do not gain a boundary claim.
+      - [0x74090, c, libultra/eepread]
+      - [0x743A0, c, libultra/eepwrite]
+      # Exact __osEepStatus tail is compiled separately because Mickey's
+      # EEPROM write path has a distinct authenticated TU boundary at 0x74680.
       - [0x74680, c, libultra/eepstatus]
       - [0x748B0, c, libultra/vigetcurrcontext]
       - [0x748C0, c, libultra/viswapcontext]
@@ -567,6 +568,10 @@ segments:
       # emits the 0x10-byte .data input section, so the raw tail starts at F58.
       - [0x7AB48, .data, main/camera]
       - [0x7AB58, data]
+      # Scheduler retrace counter: an initialized u64 at its ROM-proved slot.
+      # The adjacent raw data resumes immediately after its eight owned bytes.
+      - [0x7B260, .data, main/sched]
+      - [0x7B268, data]
       # n_csplayer's 127-entry timing table followed by its zero flag. The
       # 0x200-byte object section and first address are fixed by the compiled
       # candidate and Mickey's own relocations.
@@ -632,7 +637,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into C objects, the 18 jump tables still emitted in asm/
+      #      moved into C objects, the 12 jump tables still emitted in asm/
       #      remain monotonically increasing in text and table address -- ZERO
       #      INVERSIONS. They run from jtbl_80080D2C through jtbl_800841F4, so
       #      .rodata can continue to be carved TU by TU in text order.
@@ -656,12 +661,17 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # objects' five switch tables and three literal-pool floats retain
+      # their source order in an exact 0x690-byte input section.
+      - [0x81A9C, .rodata, main/objects]
+      - [0x8212C, rodata]
       # func_80019934's five-entry distance-mode switch table.
       - [0x823B4, .rodata, main/lights]
       - [0x823C8, rodata]
-      # osScGetTaskType's seven-entry switch table.
+      # osScGetTaskType's seven-entry switch table and __scSchedule's
+      # seven-entry switch table share this sched-owned rodata input section.
       - [0x82FD8, .rodata, main/sched]
-      - [0x82FF4, rodata]
+      - [0x83010, rodata]
       # func_80034094's twelve-entry video-mode switch table. The following
       # zero word is output-section padding, not owned object bytes.
       - [0x8309C, .rodata, main/gameVi]
@@ -829,9 +839,10 @@ segments:
       - [0x184C3E0, c, overlay_001]
       - [0x184CB90, c, overlay_001_build]
       - [0x184CFB4, c, overlay_001_head]
-      - [0x184E158, asm, overlay_001_middle_c1a0]
+      - [0x184E158, c, func_overlay_001_F0001D78_184E158]
       - [0x184EB24, c, overlay_001_middle]
-      - [0x184EF2C, asm, overlay_001_middle_c1b_a]
+      - [0x184EF2C, c, func_overlay_001_F0002B4C_184EF2C]
+      - [0x184F638, c, func_overlay_001_F0003258_184F638]
       - [0x184F958, c, overlay_001_tail]
       - [0x1853FBC, c, overlay_001_create]
       - [0x185414C, c, overlay_001_end]
@@ -1904,7 +1915,7 @@ segments:
       - [0x189A670, c, overlay52Initialize]
       - [0x189AB60, c, overlay52PatchIndices]
       - [0x189ABB0, c, overlay52CopyOffsetEntries]
-      - [0x189ACAC, asm, overlay_052_tail_b]
+      - [0x189ACAC, c, overlay52TailB]
       - [0x189C708, c, overlay52Cleanup]
       - [0x189C798, asm, overlay_052_padding]
       - [0x189C7A0, bin, overlay_052_data_rodata]
@@ -1947,7 +1958,7 @@ segments:
       - [0x189F06C, c, overlay54PatchIndices]
       - [0x189F0BC, c, overlay54CopyOffsetRecords]
       - [0x189F1A4, c, overlay54GetOffsets]
-      - [0x189F24C, asm, overlay_054_tail_a]
+      - [0x189F24C, c, overlay54TailA]
       - [0x18A0B34, c, overlay54ReleaseResources]
       - [0x18A0B84, asm, overlay_054_padding]
       - [0x18A0B90, bin, overlay_054_data_rodata]
@@ -2008,7 +2019,7 @@ segments:
       - [0x18A454C, c, overlay57UpdateInterface]
       - [0x18A4C18, c, func_overlay_057_F0001020_18A4C18]
       - [0x18A5570, c, overlay57ReleaseAll]
-      - [0x18A56E0, asm, overlay_057_prefix_a]
+      - [0x18A56E0, c, func_overlay_057_F0001AE8_18A56E0]
       - [0x18A64AC, c, overlay57EaseAndLatch]
       - [0x18A6820, c, overlay57SmoothAndCheckDistance]
       - [0x18A6B40, c, overlay57CheckDistance]
@@ -2023,7 +2034,7 @@ segments:
       - [0x18A8058, c, func_overlay_057_F0004460_18A8058]
       - [0x18A8810, c, overlay57UpdateModeTrigger]
       - [0x18A8988, c, overlay57InitializeMode]
-      - [0x18A8A10, asm, overlay_057_middle_b]
+      - [0x18A8A10, c, func_overlay_057_F0004E18_18A8A10]
       - [0x18A9CF0, c, func_overlay_057_F00060F8_18A9CF0]
       - [0x18AA3D4, c, overlay57SetNodeValue]
       - [0x18AA470, c, overlay57ApplyTable]
@@ -2097,7 +2108,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18B9DD8, c, overlay60Initialize]
-      - [0x18BA10C, asm, overlay_060_prefix]
+      - [0x18BA10C, c, overlay60Prefix]
       - [0x18BCCA0, c, overlay60ReleaseResources]
       - [0x18BCD2C, c, func_overlay_060_F0002F54_18BCD2C]
       - [0x18BD0A4, c, overlay60DrawBorder]
@@ -2125,7 +2136,7 @@ segments:
       - [0x18BF788, c, overlay61DrawEntry]
       - [0x18BFB8C, c, overlay61DrawList]
       - [0x18BFD30, c, overlay61InitResources]
-      - [0x18BFF4C, asm, overlay_061_tail]
+      - [0x18BFF4C, c, func_overlay_061_F0000B84_18BFF4C]
       - [0x18C0940, c, overlay61ReleaseResources]
       - [0x18C0A10, c, func_overlay_061_F0001648_18C0A10]
       - [0x18C0B80, c, overlay61WriteCharacter]
@@ -2368,7 +2379,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18CAAC0, c, overlay73Initialize]
-      - [0x18CAC50, asm, overlay_073]
+      - [0x18CAC50, c, func_overlay_073_F0000190_18CAC50]
       - [0x18CB830, c, overlay73Draw]
       - [0x18CB968, asm, overlay_073_padding]
       - [0x18CB970, bin, overlay_073_data_rodata]
@@ -2883,7 +2894,7 @@ segments:
       - [0x18D9BE8, c, overlay99BuildHeightGrid]
       - [0x18D9DB0, c, overlay99RenderSortedEntries]
       - [0x18DA154, c, overlay99RenderSegments]
-      - [0x18DA38C, asm, overlay_099_tail_c]
+      - [0x18DA38C, c, func_overlay_099_F0000DDC_18DA38C]
       - [0x18DA910, bin, overlay_099_data_rodata]
       - [0x18DA9D0, bin, overlay_099_reloc1]
       - [0x18DAB40, bin, overlay_099_reloc2]

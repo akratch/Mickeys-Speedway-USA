@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/level.h"
 
 /*
  * Resident level lifecycle and metadata, ROM 0x263F0-0x27760.
@@ -136,7 +137,6 @@ extern void amTuneVoiceLimit(u8);
 extern void func_80000450(s32);
 extern void setupLights(s32, s32, s32);
 extern void func_8000A6DC(s32);
-extern s32 TrapDanglingJump();
 extern void func_80051004(s32);
 extern void *func_80034448(s32);
 extern void *func_800355A0(s32, s32);
@@ -153,6 +153,21 @@ extern void func_80036C60(void *);
 extern void rcpSetScreenColour(u8, u8, u8);
 extern void viFrameRateReset(void);
 extern void levelTunePlay(void);
+
+#pragma weak levelTrackInitTrap = TrapDanglingJump
+extern void levelTrackInitTrap(s32, s32, s32, s32, s32, s32);
+#pragma weak levelOverlay7InitPoolTrap = TrapDanglingJump
+extern void levelOverlay7InitPoolTrap(void);
+#pragma weak levelOverlay34InitStorageTrap = TrapDanglingJump
+extern void levelOverlay34InitStorageTrap(s32);
+#pragma weak levelOverlay33InitializeBuffersTrap = TrapDanglingJump
+extern void levelOverlay33InitializeBuffersTrap(void);
+#pragma weak levelOverlay42InitTrap = TrapDanglingJump
+extern void levelOverlay42InitTrap(void);
+#pragma weak levelOverlay16InitializeBufferTrap = TrapDanglingJump
+extern void levelOverlay16InitializeBufferTrap(u8 *);
+#pragma weak levelOverlay103CheckSignatureTrap = TrapDanglingJump
+extern s32 levelOverlay103CheckSignatureTrap(void);
 extern void camSetNo(s32);
 extern void func_80021504(f32, s32);
 extern void func_8003C770(s32, s32);
@@ -173,13 +188,21 @@ extern void runlinkFlushModules(void);
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Workbench successor: allocation-mismatch; 3 masked code words plus one
- * relocation-controlled word, 259 instructions/-0x58 frame exact, first +0x13C.
- * Eight bounded lifetime, zeroing, endpoint, name-association, and relational
- * variants either collapsed here or regressed the frame/structure. The trace
- * confirms one downstream pool-web difference: a0 versus v0 for world, plus
- * the unresolved D_800CF420 zero-loop endpoint identity.
+ * PROVENANCE: body adapted from public JFG src/level.c at commits
+ * 773e313/1a92d81; the pinned JFG reference still uses GLOBAL_ASM, and Mickey
+ * byte identity is decisive. The historically measured pre-endpoint full-TU
+ * spelling was 255/259 raw and 256/259 relocation-normalized, exact 259-word
+ * size/frame 0x58, with all 37 offsets/types but only 35 identities; no
+ * attributable C object survives. Raw first +0x50 was the identity-wrong
+ * D_800CF3E0+0x40 endpoint pair; normalized first +0x13C and +0x148/+0x154
+ * were one v0/target-a0 world carrier. A reformatted isolated import measured
+ * only 251/259 raw and 252/259 normalized. Current D_800CF420 source is
+ * uncompiled, so score, frame, and all identities are unknown; linked equality
+ * proves fallback only. Run current full-TU V0 and, only on material regression,
+ * one historical 0348d2f control. If V0 reproduces only the three normalized
+ * carrier sites, retain exactly 119 configurations, trace once, and try one
+ * natural block-scoped carrier. A strict legal gain alone permits one annotated
+ * batch capped at 2,000 candidates or 20 minutes; otherwise park.
  */
 void levelGetCounts(void) {
     s32 i;
@@ -190,7 +213,7 @@ void levelGetCounts(void) {
     header = func_8002B280(sizeof(LevelHeaderSummarySource), 0x8F);
     D_800CF3C0 = piRomLoad(0x1E);
 
-    for (i = 0; i != 16; i++) { D_800CF3E0[i] = 0;
+    for (i = 0; &D_800CF3E0[i] != (s32 *)D_800CF420; i++) { D_800CF3E0[i] = 0;
     }
 
     D_800CF3D4 = 0;
@@ -302,18 +325,26 @@ u32 levelGetGfxIndex(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
-/* Workbench p7 batch 12: allocation-mismatch; exact 516 instructions/-0x80 frame, 122 register-only words, first +0x238.
- * Levers: pool-position/temp-FIFO audit plus inherited flag/storage/lifetime/permuter sweeps; no consistent local-color carrier.
- * Remains: resource-table temp/pool allocation; GLOBAL_ASM stays canonical. */
+/* PROVENANCE: pinned JFG c82afff keeps levelInit assembly-only; later public
+ * JFG 773e313/1a92d81 C provides structural and lifetime evidence only.
+ * Mickey's call graph, fields, boundaries, and bytes remain decisive. */
+/* Fresh pad-free configured V0 is exactly 516 words, 389/516 positional,
+ * frame 0x78 versus target 0x80, with all 110 offsets/types and 102 stable
+ * identities. The eight typed trap aliases retain authenticated ABIs but stay
+ * fail-closed against the target TrapDanglingJump symbol. JFG's separate s16
+ * tune lifetime is a strict gain to 394/516. A fidelity-clean proc-8 allocator
+ * trace proves the first mechanism is the eight-byte frame deficit; extending
+ * the donor's meaningful lvlCount lifetime through setupLights is byte-flat.
+ * Preserve this pad-free basin. ORT 526 has sole caller func_80028564+0x5F8;
+ * do not restore the rejected volatile pad or repeat broad search. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
+    s16 tune;
     s32 lvlStart;
     u32 lvlSize;
     s32 lvlCount;
     s32 j;
     s32 shouldPlay;
     s32 off;
-    volatile s32 stackPad[2];
     s32 freeSlot;
 
     rumbleKill(1);
@@ -369,9 +400,9 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     func_8000A6DC(arg3);
 
     mainPreNMI();
-    TrapDanglingJump(D_800CF3C8->trackArg0, D_800CF3C8->trackArg1, arg1,
-                     D_800CF3C8->trackArg3, D_800CF3C8->trackArg4,
-                     D_800CF3C8->trackArg5);
+    levelTrackInitTrap(D_800CF3C8->trackArg0, D_800CF3C8->trackArg1, arg1,
+                       D_800CF3C8->trackArg3, D_800CF3C8->trackArg4,
+                       D_800CF3C8->trackArg5);
 
     mainPreNMI();
 
@@ -410,13 +441,13 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
         runlinkDownloadCode(0x1B);
         runlinkDownloadCode(0x18);
         runlinkDownloadCode(7);
-        TrapDanglingJump();
+        levelOverlay7InitPoolTrap();
         runlinkDownloadCode(0x25);
         runlinkDownloadCode(0x26);
         if (D_8007BF0C != 0) {
-            TrapDanglingJump(0x28);
+            levelOverlay34InitStorageTrap(0x28);
         } else {
-            TrapDanglingJump(0x50);
+            levelOverlay34InitStorageTrap(0x50);
         }
     }
 
@@ -472,13 +503,13 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     mainPreNMI();
 
     if (D_800CF3C8->featureC6 != 0) {
-        TrapDanglingJump();
+        levelOverlay33InitializeBuffersTrap();
     }
     if (D_800CF3C8->screenMode != 0) {
-        TrapDanglingJump();
+        levelOverlay42InitTrap();
     }
     if (D_800CF3C8->featureFB != 0) {
-        TrapDanglingJump(D_800CF3C8);
+        levelOverlay16InitializeBufferTrap((u8 *)D_800CF3C8);
     }
     func_8003C770(0, D_800CF3C8->weatherScale * 0xF0);
     mainPreNMI();
@@ -498,22 +529,22 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
         }
     }
 
-    if (TrapDanglingJump() == 0) {
+    if (levelOverlay103CheckSignatureTrap() == 0) {
         D_800CF3C8->fogNear = 0x384;
         D_800CF3C8->fogFar = 0x398;
     }
 
     for (off = 0; off < 3; off++) {
-        shouldPlay = 1;
+        tune = 1;
         if (D_800CF3C8->tunes[off] != -1) {
             for (j = 0; j < 3; j++) {
                 if (D_800CF3C8->tunes[off] == D_8007A0EC[j]) {
-                    shouldPlay = 0;
+                    tune = 0;
                 } else if (D_8007A0EC[j] == -1) {
                     freeSlot = j;
                 }
             }
-            if (shouldPlay) {
+            if (tune) {
                 amSndPlay(D_800CF3C8->tunes[off], &D_8007A0E0[freeSlot]);
                 D_8007A0EC[freeSlot] = D_800CF3C8->tunes[off];
             }
@@ -591,15 +622,33 @@ u8 *levelGetName(s32 arg0) {
     return D_8007A0D0;
 }
 
-/* Workbench: structure-mismatch; 19 words differ, first mismatch +0xE0. */
-/* Candidate is not shape-exact: 117/117 instructions, frame -40/-40 bytes. */
-/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is branch-delay placement plus register allocation. */
+/* Workbench: allocation-mismatch; 3 words differ, first mismatch +0x13C. */
+/* Candidate is shape-exact: 117/117 instructions, frame -40/-40 bytes. */
+/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is pointer/scale temp order. */
+/* Plateau 2026-09-09, ring-order residual, three words. `cc -K` gives the law
+ * exactly: inside the loop body ugen is still in its fresh phase, so the ring
+ * numbers ARE the emission order. The arm emits mask, scale, table
+ * (`and $11; sll $12; lw $13; addu $14,$12,$13`) and the target emits mask,
+ * table, scale, which is why the object's `lui/lw` pair and the `sll` trade t4
+ * for t5 while the `andi` stays on t3. Writing the sum table-first swaps the
+ * whole order to table, mask, scale and costs five.
+ * Newly measured and eliminated this pass, all still in those two classes: a
+ * re-read of `D_8007A0F4[i]` in place of the carrier (56 words, and it costs
+ * three instructions), `(u8 *)`/`(s32)`/`(u32)` base casts, `*(p + i)`,
+ * `&p[i]`, `(u16)` on the masked value, and a hoisted `masked` local crossed
+ * with all four address spellings -- uopt folds the local straight back into
+ * the expression, so hoisting cannot separate the mask from the table.
+ * Newly proved reachable: spelling the doubling as `m + m` DOES produce the
+ * target's mask, table, scale order (`and $2; lw $11; addu $12,$2,$2`). It
+ * lands 13 words because uopt gives the twice-used mask a pool colour instead
+ * of a ring temp and the shift becomes an add. That is the first evidence that
+ * the wanted order is reachable at all: the mask must be evaluated before the
+ * table AND still live in the ring. Next lever is a spelling with those two
+ * properties, not another address form. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
-    s32 *var_s0;
-    s32 var_s1;
-    s32 var_s2;
+    s32 i;
     s8 temp_v1;
     void *temp_v0;
 
@@ -622,26 +671,18 @@ void levelFreeAll(void) {
         func_8002EBD4(0);
     }
     if (D_8007A0F4 != NULL) {
-        var_s2 = 0;
-        var_s1 = 0;
-        if (D_800CF508 > 0) {
-            var_s0 = (s32 *) D_800CF490;
-            do {
-                temp_v0_2 = *(s16 *) ((u8 *) D_8007A0F4 + var_s1);
-                if ((temp_v0_2 & 0xC000) == 0xC000) {
-                    func_800347A0((void *) *var_s0);
-                } else if (temp_v0_2 & 0x8000) {
-                    func_800359D4((void *) *var_s0);
-                } else if (temp_v0_2 & 0x4000) {
-                    func_80004B04(*(D_800C94E0 + (temp_v0_2 & 0x3FFF)));
-                } else {
-                    modFreeModel((void *) *var_s0);
-                }
-                *var_s0 = 0;
-                var_s2 += 1;
-                var_s1 += 2;
-                var_s0 += 1;
-            } while (var_s2 < D_800CF508);
+        for (i = 0; i < D_800CF508; i++) {
+            temp_v0_2 = D_8007A0F4[i];
+            if ((temp_v0_2 & 0xC000) == 0xC000) {
+                func_800347A0(D_800CF490[i]);
+            } else if (temp_v0_2 & 0x8000) {
+                func_800359D4(D_800CF490[i]);
+            } else if (temp_v0_2 & 0x4000) {
+                func_80004B04(*(s16 *) (((temp_v0_2 & 0x3FFF) << 1) + (u32) D_800C94E0));
+            } else {
+                modFreeModel(D_800CF490[i]);
+            }
+            D_800CF490[i] = NULL;
         }
         mmFree(D_8007A0F4);
         D_8007A0F4 = NULL;
@@ -695,3 +736,23 @@ s32 levelInitRegionFlags(void) {
     }
     return 0;
 }
+
+/* PLATEAU-HANDOFF:levelFreeAll:start
+ * symbol: levelFreeAll
+ * score: 114/117 words
+ * frame: 0x28
+ * relocations: 36
+ * first-mismatch: +0x13C
+ * summary: Needs ring order mask, global, shift; every single-statement spelling gives mask/shift/global or global/mask/shift and uopt normalises statement splits.
+ * PLATEAU-HANDOFF:levelFreeAll:end
+ */
+
+/* PLATEAU-HANDOFF:levelInit:start
+ * symbol: levelInit
+ * score: 122 differing words
+ * frame: 0x78
+ * relocations: 110
+ * first-mismatch: +0x0
+ * summary: The donor tune lifetime gains five words and the allocator trace isolates a natural frame lifetime deficit while eight trap aliases remain unresolved
+ * PLATEAU-HANDOFF:levelInit:end
+ */

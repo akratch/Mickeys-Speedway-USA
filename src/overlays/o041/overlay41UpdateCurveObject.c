@@ -90,6 +90,9 @@ extern f32 func_8002A878(f32, s32);
 /* Workbench p4: structure-mismatch; 222 positional/225 raw words differ,
  * 638/638 instructions, first +0x80, frame exact -224. Levers: absolute-
  * constant audit and frameAmount declaration; both regressed; remains FP homes. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x3C..+0x54 .rodata range;
+ * linked promotion is text-differs with 638 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                                         s32 updateRate, s32 argument) {
@@ -319,3 +322,13 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateCurveObject/func_overlay_041_F0000854_1887B8C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:start
+ * symbol: func_overlay_041_F0000854_1887B8C
+ * score: 416/638 words
+ * frame: 0xE0
+ * relocations: 49
+ * first-mismatch: +0x78
+ * summary: Authorized V0 remains 222 masked differences; current proxy tooling resolves none of the twelve rodata relocation records.
+ * PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:end
+ */

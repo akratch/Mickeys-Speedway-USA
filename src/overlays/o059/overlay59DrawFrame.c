@@ -27,7 +27,8 @@ void overlay59DrawFrame(s32 displayList, s32 index, s32 x, s32 y) {
     if (index >= 0 && index < 4) {
         entry = &gOverlay59Entries[index];
         x += 4;
-        /* Keeps IDO's entry/owner temporaries in the original register order. */
+        /* Inert allocation aid: keeps IDO's entry/owner temporaries in the
+         * original register order. Tracked in docs/cleanup-queue.md. */
         if (!index && !index) {
         }
         owner = entry->owner;

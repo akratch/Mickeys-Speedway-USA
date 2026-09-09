@@ -29,15 +29,12 @@ typedef struct Overlay22Owner {
     Overlay22Result *result64;
 } Overlay22Owner;
 
-extern f32 gOverlay22DataBase[];
-extern f32 func_overlay_022_F0000000_1878108(f32);
+extern f32 D_0[];
+extern f32 sqrtf(f32);
 
-/* Workbench p8 plateau: allocation mismatch. Target inspection leaves three
- * source-order encodings and call-stack homes; the documented source-faithful
- * lifetime/commutative forms and flag lattice were neutral or regressions. A
- * bounded permuter pass produced no comparable base score or zero, so
- * GLOBAL_ASM remains canonical. */
-#ifdef NON_MATCHING
+/* Reusing crossZ across exclusive branches fixes both call-stack homes.
+ * Rotating the two independent cross-product terms reproduces retail FP
+ * scheduling; the explicit dereference preserves the remaining operand order. */
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
     Overlay22Plane *plane, Overlay22Owner *owner) {
@@ -58,10 +55,10 @@ void func_overlay_022_F0000A7C_1878B84(
     ny = plane->normal.y;
     nz = plane->normal.z;
 
-    if ((gOverlay22DataBase[4] <= ny) || (((s32)plane->flags << 3) < 0)) {
-        crossX = (ny * direction->z) - (direction->y * nz);
-        crossY = (nz * direction->x) - (direction->z * nx);
-        crossZ = (nx * direction->y) - (direction->x * ny);
+    if ((D_0[4] <= ny) || (((s32)plane->flags << 3) < 0)) {
+        crossX = (ny * direction->z) - ((*direction).y * nz);
+        crossY = -(direction->z * nx) + (nz * direction->x);
+        crossZ = -(direction->x * ny) + (nx * direction->y);
 
         projectedX = (crossY * nz) - (crossZ * ny);
         projectedY = (crossZ * nx) - (crossX * nz);
@@ -71,7 +68,7 @@ void func_overlay_022_F0000A7C_1878B84(
                         (projectedZ * projectedZ);
 
         if (0.0f < lengthSquared) {
-            lengthSquared = func_overlay_022_F0000000_1878108(lengthSquared);
+            lengthSquared = sqrtf(lengthSquared);
             projectedY /= lengthSquared;
             projectedX /= lengthSquared;
             projectedZ /= lengthSquared;
@@ -96,15 +93,14 @@ void func_overlay_022_F0000A7C_1878B84(
             out->z = plane->point.z;
         } else {
             f32 dot;
-            f32 scale;
 
             dot = (direction->z * nz) +
                   ((nx * direction->x) + (ny * direction->y));
-            scale = -dot;
-            scale += scale;
-            projectedX = direction->x + (scale * nx);
-            projectedY = direction->y + (scale * ny);
-            projectedZ = direction->z + (scale * nz);
+            crossZ = -dot;
+            crossZ += crossZ;
+            projectedX = direction->x + (crossZ * nx);
+            projectedY = direction->y + (crossZ * ny);
+            projectedZ = direction->z + (crossZ * nz);
             lengthSquared = distance - plane->distance;
             out->x = plane->point.x + (lengthSquared * projectedX);
             out->y = plane->point.y + (lengthSquared * projectedY);
@@ -120,6 +116,3 @@ void func_overlay_022_F0000A7C_1878B84(
         result->flags01 |= 4;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22ResolvePlane/func_overlay_022_F0000A7C_1878B84.s")
-#endif

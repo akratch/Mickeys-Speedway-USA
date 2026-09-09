@@ -152,9 +152,6 @@ void *func_8002B314(s32 size, u32 colourTag) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
-s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
-                   s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag);
-
 void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
     s32 slotSize;
     MemoryPoolSlot *slot;
@@ -207,9 +204,17 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
-/* Workbench verdict: mixed(constant:2, structural:2, register:10); 14/116 words, exact frame.
- * Lever: volatile padding fixed two stack-home words; prior pointer/condition and declaration probes left the slot register web.
- * Remaining: target branch/data-pointer shape; assembly fallback stays canonical. */
+/*
+ * Fresh configured V0 is 102/116 raw words, 14 differing words (12 normalized),
+ * exact 0x58 frame and geometry, first +0xE0, with all 12 relocation tuples
+ * exact. The retained JFG-shaped source contains no artificial stack-home aid.
+ * Bounded direct-slot, cached-data carrier, nested/split-guard, and early-
+ * continue forms produced no strict gain; the natural cached-data forms
+ * regressed geometry and relocation offsets. Linked equality remains fallback-
+ * only. ORT 547 has four resident and five overlay calls plus one
+ * RevealReturnAddresses function pointer. Another attempt needs new evidence
+ * for the lower-bound branch/carrier lifetime and call-live stack home.
+ */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
@@ -218,7 +223,7 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 moduleId;
     s32 moduleAddress;
     volatile s32 callerAddress = 0x666;
-    volatile s32 pad;
+    s32 pad;
 
     D_8007A270 = colourTag;
     if (D_8007A278 != -1) {
@@ -294,12 +299,31 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Plateau (2026-08-28): stock -O2 remains best at 62/63 words, an exact 0x30
- * frame, the same 12 relocation identities, and 11 workbench rows away; first
- * mismatch is +0x4. Predecrement is object-identical; an inverted branch (21
- * rows), a reused BSS cursor (63 rows/10 relocations), and a block-local last
- * count (61/63 words, 26 rows) regress. The target alone keeps &D_800D21B0 in
- * s0; the 119-flag lattice and pointer forms remain exhausted. */
+/*
+ * Historical same-body configured full-TU and isolated NON_MATCHING C were
+ * measured at 0xF8 / 62 words versus the 0xFC / 63-word target, with frame
+ * 0x30. Raw and relocation-normalized positional comparison was 1/63 exact,
+ * 62 differing words including the missing target tail, first +0x4. No
+ * candidate object or comparison report survives, so the current-HEAD score,
+ * size, frame, and relocation tuples are unknown; the generated ranking row is
+ * stale until V0 is regenerated.
+ *
+ * Historical prose reports the same 12 relocation type/identity records, but
+ * no exact-offset tuple: eleven records four bytes early and the first
+ * D_800D20A8 LO16 at +0x50 versus target +0x5C. Conflicting 10- and
+ * 11-aligned-row claims survive at old source commits, with no report or
+ * variant object authenticating either count.
+ *
+ * Historical flag, permutation, pointer, branch, cursor, and block-local-count
+ * outcomes have no surviving artifacts and are scheduling evidence only.
+ * Retain fresh V0, the 119-recipe lattice, and one allocator trace, then test
+ * JFG-faithful lexical layout and explicit early-D_800D21B0/later-D_800D20A8
+ * lifetimes while preserving both D_800D20A8 pairs. Combine only independent
+ * gains; cap 122 deterministic builds plus one trace and do not run a generic
+ * batch absent a policy-clean natural gain. ORT 593 is an export; the sole
+ * authenticated direct inbound is func_80026FB4+0x5F8, with no runtime-table
+ * or overlay inbound.
+ */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
@@ -428,27 +452,18 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
- * Workbench: allocation-mismatch, exact 72 words, 30 register differences from +0x8C.
- * Lever: pool-position/temp-FIFO; owned BSS leaves the allocator web split unchanged.
- * Assembly fallback remains canonical.
+ * Canonical -O2/-mips2 C is exact for all 72 frameless words and all eight
+ * relocation tuples. Reusing dead incoming/local carriers preserves the
+ * allocator's slot-count and remainder-link webs without artificial code.
  */
-/* Workbench: allocation mismatch; exact 72-word size/opcode schedule, first +0x6C.
- * Levers: early colour scalar and scoped data local; 30-minute MIPS2 permuter scored 175.
- * Remaining: 26 register-only words from a pool/temp web-existence split. */
-#ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
     MemoryPool *pool;
     MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
-    MemoryPoolSlot *newSlot;
-    volatile s32 *colourTagIndex;
     s32 index;
-    s32 nextIndex;
     s32 slotSize;
-    s32 colourIndex;
 
-    colourTagIndex = &D_8007A270;
     if (slotIsTaken == TRUE) {
         if (poolIndex == MEMORY_POOL_MAIN) {
             D_800D21B0 -= size;
@@ -461,14 +476,15 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     slots = pool->slots;
     slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
     slot->flags = slotIsTaken;
-    slot->colourTagIndex = *colourTagIndex;
+    slot->colourTagIndex = D_8007A270;
     slotSize = slot->size;
     slot->size = size;
     slot->colourTag = colourTag;
     if (size < slotSize) {
-        index = ((MemoryPoolSlot *)((u8 *)slots +
-                                    (((pool->curNumSlots << 2) + pool->curNumSlots) << 2)))->index;
-        pool->curNumSlots++;
+        slotIsTaken = pool->curNumSlots;
+        index = ((MemoryPoolSlot *)((slotIsTaken * sizeof(MemoryPoolSlot)) +
+                                    (u8 *)slots))->index;
+        pool->curNumSlots = slotIsTaken + 1;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->data =
             slot->data + size;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->size =
@@ -476,24 +492,24 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->flags =
             newSlotIsTaken;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) +
-                            (index << 2)))->colourTagIndex = *colourTagIndex;
-        nextIndex = slot->nextIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
-            slotIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
-            nextIndex;
-        slot->nextIndex = index;
-        if (nextIndex != -1) {
-            ((MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) +
-                                (nextIndex << 2)))->prevIndex = index;
+                            (index << 2)))->colourTagIndex = D_8007A270;
+        {
+            slotSize = slot->nextIndex;
+
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
+                slotIndex;
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
+                slotSize;
+            slot->nextIndex = index;
+            if (slotSize != -1) {
+                ((MemoryPoolSlot *)((u8 *)slots + (slotSize << 4) +
+                                    (slotSize << 2)))->prevIndex = index;
+            }
         }
         return index;
     }
     return slotIndex;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
-#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAlign16. */
 u8 *align16(u8 *address) {
@@ -524,3 +540,13 @@ u8 *align4(u8 *address) {
     }
     return address;
 }
+
+/* PLATEAU-HANDOFF:func_8002B524:start
+ * symbol: func_8002B524
+ * score: 14 differing words
+ * frame: 0x58
+ * relocations: 12
+ * first-mismatch: +0xE0
+ * summary: Verdict mixed(constant:2, structural:2, register:10); lever stack-home. JFG body is identical at c82affff and efd5abb; zero attempts.
+ * PLATEAU-HANDOFF:func_8002B524:end
+ */

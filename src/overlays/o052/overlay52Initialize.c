@@ -217,3 +217,13 @@ void func_overlay_052_F0000000_189A670(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o052/overlay52Initialize/func_overlay_052_F0000000_189A670.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:start
+ * symbol: func_overlay_052_F0000000_189A670
+ * score: 115 differing words
+ * frame: -0x40
+ * relocations: 141
+ * first-mismatch: +0x20
+ * summary: Exact 316-word geometry; record-copy CFG/allocation remains, and candidate relocation count and identities are nonexact.
+ * PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:end
+ */

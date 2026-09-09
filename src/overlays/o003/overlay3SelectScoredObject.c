@@ -28,9 +28,8 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
     s32 bestIndex; s32 score; f32 dx; f32 dz; u16 timer; u8 cachedIndex;
     objects = overlay3GetSearchObjectsReloc(&count);
     result = 0;
-    timer = search->timer;
-    if ((elapsed < timer) && ((cachedIndex = search->cachedIndex) != 0x7F)) {
-        search->timer = timer - elapsed;
+    if ((elapsed < search->timer) && ((cachedIndex = search->cachedIndex) != 0x7F)) {
+        search->timer = search->timer - elapsed;
         result = objects[cachedIndex];
     } else {
         bestScore = -1000000;
@@ -68,3 +67,13 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3SelectScoredObject/func_overlay_003_F00003B0_185A0E0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay3SelectScoredObject:start
+ * symbol: overlay3SelectScoredObject
+ * score: 97/118 words
+ * frame: 0x80
+ * relocations: 5
+ * first-mismatch: +0x38
+ * summary: Timer field reshape improves 22 to 21 differences with exact size frame and relocation metadata; early cached-path allocation remains unresolved.
+ * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
+ */

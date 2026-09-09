@@ -195,3 +195,13 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawPanel/func_overlay_101_F0002EFC_18DE71C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101DrawPanel:start
+ * symbol: overlay101DrawPanel
+ * score: 189/268 words
+ * frame: 0x178
+ * relocations: 18
+ * first-mismatch: +0xB4
+ * summary: Structure and relocation residuals remain after five source probes and the full flag lattice.
+ * PLATEAU-HANDOFF:overlay101DrawPanel:end
+ */

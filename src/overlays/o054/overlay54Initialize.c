@@ -205,3 +205,13 @@ void func_overlay_054_F0000000_189ECA0(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o054/overlay54Initialize/func_overlay_054_F0000000_189ECA0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_054_F0000000_189ECA0:start
+ * symbol: func_overlay_054_F0000000_189ECA0
+ * score: 127 differing words
+ * frame: 0x78
+ * relocations: 112
+ * first-mismatch: +0x28
+ * summary: One word long; structure, predicate/order, binding, pointer, post-loop and nested-call split routes are exhausted. Relocation identity remains unresolved.
+ * PLATEAU-HANDOFF:func_overlay_054_F0000000_189ECA0:end
+ */

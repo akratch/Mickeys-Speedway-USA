@@ -8,14 +8,14 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
 #define PRIM(p) { G *m=(G *)(p); m->w0=0xFA000000; m->w1=0xFFFFFFFF; }
 #define VTX(p,a,n) { G *m=(G *)(p); m->w0=S(4,24,8)|S(((n)<<3)|((u32)(a)&6),16,8)|S(((n)<<3)+((n)<<1)+8,0,16); m->w1=(u32)(a); }
 #define STRIP(p,a,n,t) { G *m=(G *)(p); m->w0=S(5,24,8)|S((((n)-1)<<4)|(t),16,8)|S((n)<<4,0,16); m->w1=(u32)(a); }
-#define SYNC(p) { volatile G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
+#define SYNC(p) { G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
 
 /*
- * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x1DC bytes but
- * first diverges at +0x0 with 20 differing words. The candidate matches
- * +0x4 through +0x64; the remaining blocker is the target's 0x38-byte frame
- * and pre-loop count/remaining/previous live-range allocation. The flag
- * lattice was neutral, and a bounded permuter run reached score 325.
+ * Plateau: spelling the final packet through the existing pair local gives
+ * an exact-size 119-word candidate with 16 masked differences, first +0x0.
+ * The linked promotion trial also has 16 differing words and no collateral.
+ * The target frame is 0x38 versus 0x40; reshaping packet-local lifetimes can
+ * recover the frame but destabilizes the otherwise-near-exact allocation.
  */
 #ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
@@ -63,8 +63,20 @@ check_flush:
             previous=pair++;
         } while (remaining--);
     }
-    SYNC((*commands)++);
+    pair = (Pair *)(*commands)++;
+    ((G *)pair)->w1 = 0;
+    ((G *)pair)->w0 = 0xE7000000;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17DrawStrip/func_overlay_017_F00008B4_187426C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay17DrawStrip:start
+ * symbol: overlay17DrawStrip
+ * score: 103/119 words
+ * frame: 0x40
+ * relocations: 1
+ * first-mismatch: +0x0
+ * summary: Reusing pair for the final sync improves 18 to 16 differences in both the object and linked overlay, with no out-of-range differences. The remaining blocker is the 0x38 target frame versus 0x40 candidate frame; packet-local consolidation recovers the frame but destabilizes allocation.
+ * PLATEAU-HANDOFF:overlay17DrawStrip:end
+ */

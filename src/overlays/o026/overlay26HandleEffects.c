@@ -63,19 +63,15 @@ extern void func_8003EDEC(O26ObjectD24 *object, s32 mode);
 extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z,
                           s32 priority, s32 unused);
 
-/* PLATEAU (2026-08-26): workbench allocation-mismatch; 39/269 words differ, first +0x50.
- * Flag lattice, local declaration/order, aggregate/array, and scope probes left the 4-byte allocation web unchanged.
- * Exact size/frame remain; target locals sit one 4-byte slot higher and 23 relocation identities differ. */
-#ifdef NON_MATCHING
-void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
-    O26ObjectD24 *object;
+/* Removing both redundant input aliases recovers the local and temporary
+ * stack homes together without changing the effect operations. */
+void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *object, s32 mode) {
     O26StateD24 *state;
     O26EffectRecord *effect;
     O26Angles2 angles;
-    s16 elevation;
     s16 azimuth;
+    s16 elevation;
 
-    object = objectArg;
     state = object->state;
     if (mode & 1) {
         func_80006EA0(object);
@@ -87,8 +83,8 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
                   (state->sourceDirection.x * state->sourceDirection.x)),
             state->sourceDirection.y);
 
-        angles.y = elevation + 0x3000;
         angles.x = azimuth;
+        angles.y = elevation + 0x3000;
         effect = &state->effects[0];
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
@@ -184,6 +180,3 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     object->entity->flags &= ~1;
     object->flags06 |= 0x400;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26HandleEffects/func_overlay_026_F0000D24_187B11C.s")
-#endif

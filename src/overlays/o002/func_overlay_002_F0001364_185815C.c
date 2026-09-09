@@ -1,8 +1,13 @@
 #include "PR/ultratypes.h"
 
-/* Plateau (2026-08-26, p5): workbench mixed, 189/189 instructions and 125 raw differing words from +0x8; both frames are 0x60.
- * The flag lattice and prior spill, truth-check, coefficient-lifetime, declaration-order, and permuter probes leave 38 structural and 76 register rows.
- * The FP temp phase diverges at its first site; no untried source-backed lever remains; retain NON_MATCHING. */
+/* Fresh V0 remains exact-sized at 189 words with the exact 0x60 frame,
+ * 64/189 positional words, no relocations, and first mismatch +0x8. The
+ * flag lattice and prior spill, truth-check, coefficient-lifetime,
+ * declaration-order, and permuter probes remain exhausted. A later exact
+ * negated difference-of-products precedent justified three isolated forms:
+ * rotating c1 or c2 was byte-flat, while rotating denom emitted 190 words
+ * and escaped the 756-byte owner. No form gained, so combinations do not
+ * qualify; retain V0 and NON_MATCHING pending new ABI or FP-temp evidence. */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
                                       f32 x3, f32 y3, f32 x4, f32 y4,
@@ -80,3 +85,13 @@ s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001364_185815C/func_overlay_002_F0001364_185815C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_002_F0001364_185815C:start
+ * symbol: func_overlay_002_F0001364_185815C
+ * score: 64/189 words
+ * frame: 0x60
+ * relocations: 0
+ * first-mismatch: +0x8
+ * summary: Negated c1/c2 term rotations are byte-flat; denom rotation emits 190 words and escapes ownership; combinations lack a natural gain.
+ * PLATEAU-HANDOFF:func_overlay_002_F0001364_185815C:end
+ */

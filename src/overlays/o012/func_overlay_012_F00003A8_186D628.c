@@ -174,3 +174,13 @@ void func_overlay_012_F00003A8_186D628(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o012/func_overlay_012_F00003A8_186D628/func_overlay_012_F00003A8_186D628.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_012_F00003A8_186D628:start
+ * symbol: func_overlay_012_F00003A8_186D628
+ * score: 340 differing words
+ * frame: 0x110
+ * relocations: 33
+ * first-mismatch: +0x10
+ * summary: Candidate is three words long with exact frame. FP-copy, initialization/order and struct-carrier routes are exhausted; mixed structural drift remains.
+ * PLATEAU-HANDOFF:func_overlay_012_F00003A8_186D628:end
+ */

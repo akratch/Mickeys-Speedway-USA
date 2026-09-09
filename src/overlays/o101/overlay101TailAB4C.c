@@ -434,3 +434,13 @@ void func_overlay_101_F000AB4C_18E636C(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailAB4C/func_overlay_101_F000AB4C_18E636C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F000AB4C_18E636C:start
+ * symbol: func_overlay_101_F000AB4C_18E636C
+ * score: 636/638 words
+ * frame: 0x48
+ * relocations: 108
+ * first-mismatch: +0x4
+ * summary: V0 is 665/638 words (+27), frame 0x48 exact, and overruns its 2552-byte owner by 108 bytes; relocation identity proof is unavailable.
+ * PLATEAU-HANDOFF:func_overlay_101_F000AB4C_18E636C:end
+ */

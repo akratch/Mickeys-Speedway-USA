@@ -112,8 +112,7 @@ void overlay101BuildPresentationB(void) {
     s32 orderIndex;
     s32 node32IndexA;
     s32 node32IndexB;
-    s32 node20IndexA;
-    s32 node20IndexB;
+    s32 node20Index;
     s32 node24IndexA;
     s32 node24IndexB;
     s32 previousType;
@@ -185,19 +184,19 @@ void overlay101BuildPresentationB(void) {
         &gOverlay101BuilderRootChildReloc;
     gOverlay101BuilderOrderCountB = orderIndex + 1;
 
-    node20IndexA = gOverlay101BuilderNode20CountA;
-    node20A = &gOverlay101BuilderNodes20A[node20IndexA];
+    node20Index = gOverlay101BuilderNode20CountA;
+    node20A = &gOverlay101BuilderNodes20A[node20Index];
     node20A->x = 0x10;
     node20A->y = 0x16;
     node20A->scale = 1.0f;
     handle = overlay101BuilderCreateReloc(0x16, node20A, orderIndex,
                                           node32IndexB);
 
-    node20IndexB = gOverlay101BuilderNode20CountB;
-    node20B = &gOverlay101BuilderNodes20B[node20IndexB];
+    node20Index = gOverlay101BuilderNode20CountB;
+    node20B = &gOverlay101BuilderNodes20B[node20Index];
     previousType = gOverlay101BuilderRoot.childType;
     previous = gOverlay101BuilderRoot.child;
-    gOverlay101BuilderNode20CountB = node20IndexB + 1;
+    gOverlay101BuilderNode20CountB = node20Index + 1;
     gOverlay101BuilderRoot.childType = 1;
     gOverlay101BuilderRoot.child = node20B;
     node20B->handle = handle;
@@ -223,15 +222,14 @@ void overlay101BuildPresentationB(void) {
     node24B->color2 = dimColor;
     node24B->color3 = 0xFF;
 
-    previousType = *(volatile s32 *)&gOverlay101BuilderRoot.childType;
-    previous = *(void *volatile *)&gOverlay101BuilderRoot.child;
-    *(volatile s32 *)&gOverlay101BuilderNode24CountB = node24IndexB + 1;
+    previousType = gOverlay101BuilderRoot.childType;
+    previous = gOverlay101BuilderRoot.child;
+    node24B->text = gOverlay101BuilderInput130;
+    gOverlay101BuilderNode24CountB = node24IndexB + 1;
     gOverlay101BuilderRoot.child = node24B;
     gOverlay101BuilderRoot.childType = 3;
     node24B->previousType = previousType;
     node24B->previous = previous;
-    node24B->text = gOverlay101BuilderInput130;
-
     overlay101BuilderCreateFinalReloc(&gOverlay101BuilderText, node24IndexB,
                                       dimColor,
                                       &gOverlay101BuilderNode24CountB);
@@ -239,3 +237,13 @@ void overlay101BuildPresentationB(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildPresentationB/func_overlay_101_F0009D04_18E5524.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101BuildPresentationB:start
+ * symbol: overlay101BuildPresentationB
+ * score: 162 differing words
+ * frame: 0x20
+ * relocations: 52
+ * first-mismatch: +0x10
+ * summary: 209/208 words and 163 raw differences; node-text ordering improves four masked words, but the early allocator web and one extra color reload remain
+ * PLATEAU-HANDOFF:overlay101BuildPresentationB:end
+ */

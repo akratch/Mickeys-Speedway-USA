@@ -8,8 +8,10 @@
 # byte-identical verify, recomputed derived claims, check-docs, scoreboard,
 # overlay-atlas. Prints the progress lines on success.
 set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers remain:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 if git diff --name-only --diff-filter=U | grep -q .; then echo "unmerged paths remain:" >&2; git diff --name-only --diff-filter=U >&2; exit 1; fi
+.venv/bin/python tools/merge_transaction.py begin
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 gmake extract 2>&1 | tail -1
@@ -17,17 +19,39 @@ gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 .venv/bin/python tools/fix_stale_externs.py | tail -1
 .venv/bin/python tools/check_match_regression.py HEAD || { echo "a function matched at HEAD carries GLOBAL_ASM again; merge left uncommitted (resolve hunks, never whole files)" >&2; exit 1; }
+.venv/bin/python tools/check_duplicate_bodies.py || { echo "a function has both a C body and a GLOBAL_ASM pragma after the merge; drop the stale pragma line" >&2; exit 1; }
 gmake -s check-nonmatching-builds || { echo "a candidate-bearing TU no longer compiles with -DNON_MATCHING (its candidates would drop out of the permuter sweep); merge left uncommitted" >&2; exit 1; }
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
 gmake -j6 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
-out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
+# A merge that changes overlay relocation surfaces needs the generated
+# overlay symbol block regenerated before the link can succeed.
+gmake overlay-syms 2>&1 | tail -1
+gmake -j6 >/dev/null 2>&1 || true
+# `set -e` with `pipefail` would abort at this assignment when verify fails,
+# before the case below can report why -- a failure then surfaced only as a
+# bare exit status. Keep the whole log and read the reason out of it.
+verify_log=$(mktemp -t mickey-finish-verify)
+set +e
+tools/with_verify_lock.sh gmake -j6 verify >"$verify_log" 2>&1
+set -e
+out=$(tail -1 "$verify_log"); echo "$out"
+case "$out" in
+  OK*) rm -f "$verify_log" ;;
+  *) echo "verify FAILED; not committing" >&2
+     grep -iE 'error|undefined ref|defined twice|unreviewed|truncated|refus' "$verify_log" | head -8 >&2
+     echo "full log: $verify_log" >&2
+     exit 1 ;;
+esac
 .venv/bin/python tools/fix_jumptable_claim.py | tail -1
-gmake check-docs 2>&1 | tail -1
+gmake check-docs 2>&1 | tail -1 || { echo "check-docs failed; merge left uncommitted" >&2; exit 1; }
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
-git add -A README.md config/ mickey.us.yaml docs/modules.md docs/overlays.md symbol_addrs.us.txt src include Makefile
-git commit -q --no-edit 2>&1 | grep -v exempt || true
+gmake check-overlay-syms 2>&1 | tail -1
+gmake check-scoreboard 2>&1 | tail -1
+gmake cleanroom 2>&1 | tail -1
+.venv/bin/python tools/merge_transaction.py stage
+git commit -q --no-edit
+.venv/bin/python tools/merge_transaction.py clean
 git log --oneline -1
 timeout 240 gmake progress 2>&1 | grep -E '^functions|decompiled|NON_MATCH'

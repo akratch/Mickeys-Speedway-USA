@@ -1,19 +1,29 @@
 #!/usr/bin/env bash
 # Create an isolated worktree ("lane") for one worker.
 #
-#   tools/new_lane.sh <name> [--no-extract] [base-branch]
+#   tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]
 #
 # Creates ../mickey-lane-<name> on branch lane/<name> from base-branch
-# (default campaign/unchain), shares the untracked toolchain, baserom, venv and
-# vendored tool checkouts with this repository by symlink, and runs the splat
-# extract so the lane can build. Each lane has its own build/ and asm/, so
-# lanes never contend for the same objects. Prints the lane path.
+# (default: freshest linear local/remote campaign integration ref), shares the
+# untracked toolchain, baserom, venv and
+# vendored tool checkouts with this repository by symlink. When a verified
+# commit-keyed bootstrap exists below Git's common directory, it copy-on-write
+# clones the ignored split/build prerequisites into this lane; otherwise it
+# runs the splat extract. Each lane still owns its build/ and asm/. Prints the
+# lane path.
 set -euo pipefail
 name=${1:?lane name}; shift
-extract=1; base=campaign/unchain
+extract=1; cache=1; base=
 for a in "$@"; do
-  case "$a" in --no-extract) extract=0 ;; *) base=$a ;; esac
+  case "$a" in
+    --no-extract) extract=0 ;;
+    --no-cache) cache=0 ;;
+    *) base=$a ;;
+  esac
 done
+# Resolve an explicitly supplied relative ref (especially HEAD) in the calling
+# worktree before switching Git operations to the primary checkout.
+caller=$(git rev-parse --show-toplevel)
 # Always anchor lane creation in the primary checkout. When this helper is
 # invoked from an existing linked worktree, --show-toplevel names that lane and
 # its .git is a file, so "$root/.git/modules" cannot be the shared submodule
@@ -24,9 +34,35 @@ if [ "$(basename "$common")" != .git ]; then
   exit 2
 fi
 root=$(dirname "$common")
-dest=$(dirname "$root")/mickey-lane-$name
-if [ -e "$dest" ]; then echo "lane exists: $dest" >&2; exit 2; fi
-git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
+if [ -z "$base" ]; then
+  base=$(python3 "$caller/tools/integration_base.py" --repo "$root")
+  base_commit=$(git -C "$root" rev-parse --verify "$base^{commit}")
+else
+  base_commit=$(git -C "$caller" rev-parse --verify "$base^{commit}")
+fi
+display_dest=$(dirname "$root")/mickey-lane-$name
+dest=$display_dest
+# Spotlight reliably excludes the `.noindex` directory suffix;
+# `.metadata_never_index` did not stop per-lane mdworker storms on this
+# workstation. Keep the established path as a symlink while registering the
+# real macOS worktree below an
+# excluded directory name. Other platforms retain the ordinary path.
+if [ "$(uname -s)" = Darwin ]; then
+  dest=$display_dest.noindex
+fi
+if [ -e "$display_dest" ] || [ -L "$display_dest" ] || [ -e "$dest" ]; then
+  echo "lane exists: $display_dest" >&2
+  exit 2
+fi
+# Creating several full worktrees can make macOS Spotlight index every copied
+# source/build path at once. Create the registered worktree without populating
+# it, install the marker, and only then materialize the tracked tree. Other
+# platforms harmlessly ignore this git-ignored empty file.
+git -C "$root" worktree add -q --no-checkout \
+  -b "lane/$name" "$dest" "$base_commit"
+: > "$dest/.metadata_never_index"
+git -C "$dest" read-tree "$base_commit"
+git -C "$dest" checkout-index --all
 for p in baseroms tools/ido tools/binutils .venv tools/objdiff; do
   [ -e "$root/$p" ] && ln -s "$root/$p" "$dest/$p"
 done
@@ -44,8 +80,23 @@ done
 # The permuter checkout is outside the repository; tools/permute.sh expects
 # tools/permuter to point at it (git-ignored, machine-specific).
 [ -e "$root/tools/permuter" ] && ln -s "$(readlink "$root/tools/permuter" || echo "$root/tools/permuter")" "$dest/tools/permuter"
-if [ "$extract" = 1 ]; then
+restored=0
+if [ "$cache" = 1 ] && [ "$extract" = 1 ]; then
+  set +e
+  (cd "$dest" && python3 tools/lane_cache.py restore --quiet)
+  cache_status=$?
+  set -e
+  case "$cache_status" in
+    0) restored=1 ;;
+    3) ;; # no exact-commit cache: use the ordinary extraction path below
+    *) echo "verified lane-cache restore failed" >&2; exit "$cache_status" ;;
+  esac
+fi
+if [ "$extract" = 1 ] && [ "$restored" = 0 ]; then
   (cd "$dest" && gmake extract >"$dest/.lane-extract.log" 2>&1) || {
     echo "extract failed, see $dest/.lane-extract.log" >&2; exit 1; }
 fi
-echo "$dest"
+if [ "$dest" != "$display_dest" ]; then
+  ln -s "$(basename "$dest")" "$display_dest"
+fi
+echo "$display_dest"

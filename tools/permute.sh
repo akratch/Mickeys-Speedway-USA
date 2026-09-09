@@ -32,6 +32,13 @@
 #
 #   PERMUTE_MINUTES=20 ./tools/permute.sh <function>   # default cap: 20 min
 #   ./tools/permute.sh <function> -j 4                 # override -j
+#   PERMUTE_PRESERVE_MACROS='INIT_GROUP0|MY_MACRO' ./tools/permute.sh <fn>
+#       Keep a candidate's own macros unexpanded in the scratch. The settings
+#       file's [preserve_macros] covers the gfx and libultra macros only, so a
+#       macro the candidate defines itself is expanded and the scratch stops
+#       matching the real object -- 81 differing words when this was measured
+#       on overlay 101, making its permuter scores a false ceiling. The value
+#       is unioned with the settings list, never substituted for it.
 #
 # Prints the base score, the best score found, and a diff of the winning
 # source against the function's current C, if any improvement was found.
@@ -101,6 +108,31 @@ echo "C file: $c_file"
 
 # --- Locate (or regenerate) the target .s -------------------------------
 asmfile=$(find asm/nonmatchings -type f -name "$func.s" 2>/dev/null | head -1 || true)
+
+# A friendly C candidate keeps its auto-named GLOBAL_ASM fallback (for example
+# overlay18Load versus func_overlay_018_F0000000_18745B8), so the find above
+# misses it. Resolve it structurally first: the pragma inside the candidate's
+# own #ifdef NON_MATCHING guard is that function's target, however many other
+# pragmas the translation unit carries. The sole-pragma rule below is kept as a
+# fallback for units without the guard shape, but on its own it gave up on
+# every multi-function overlay unit -- overlay_001_tail.c has twelve -- which
+# left the permuter unusable there until 2026-09-09.
+if [ -z "$asmfile" ]; then
+    paired=$("$PYTHON" tools/resolve_target_asm.py "$func" "$c_file" || true)
+    if [ -n "$paired" ] && [ -f "$paired" ]; then
+        asmfile=$paired
+        echo "Using the GLOBAL_ASM fallback paired with $func: $asmfile"
+    fi
+fi
+
+if [ -z "$asmfile" ]; then
+    pragma_paths=$(sed -n 's/^[[:space:]]*#pragma GLOBAL_ASM("\([^"]*\)").*/\1/p' "$c_file")
+    pragma_count=$(printf '%s\n' "$pragma_paths" | sed '/^$/d' | wc -l | tr -d ' ')
+    if [ "$pragma_count" -eq 1 ] && [ -f "$pragma_paths" ]; then
+        asmfile=$pragma_paths
+        echo "Using sole GLOBAL_ASM fallback for friendly name: $asmfile"
+    fi
+fi
 
 restore_c=""
 cleanup() {
@@ -179,7 +211,44 @@ echo "Target asm: $asmfile"
 
 # --- Import into the permuter scratch dir -------------------------------
 rm -rf "$OUT/scratch"
-"$PYTHON" "$IMPORT" "$c_file" "$asmfile" 2>&1 | tee "$OUT/import.log"
+
+# PERMUTE_PRESERVE_MACROS extends the [preserve_macros] set in
+# tools/permuter_settings.toml for this run. import.py finds that file (it
+# probes "tools/permuter_settings.toml" under every parent, and the repo root
+# is a parent of every source file), but its list only names the gfx and
+# libultra macros. A candidate that defines its own macro -- overlay 101 used
+# an INIT_GROUP0() to hold a line tie the permuter would otherwise dissolve --
+# gets it expanded, and the scratch base then differs from the real object.
+# That was measured at 81 differing words on overlay 101, whose permuter scores
+# were consequently a false ceiling.
+#
+# --preserve-macros REPLACES the settings list rather than adding to it, so
+# passing a bare macro name here would silently drop gDP*/gSP* preservation and
+# trade one fidelity break for another. Union the caller's regex with the
+# settings file's own keys instead.
+import_args=()
+if [ -n "${PERMUTE_PRESERVE_MACROS:-}" ]; then
+    settings_macros=$("$PYTHON" - <<'PYPRESERVE'
+import re
+try:
+    text = open("tools/permuter_settings.toml").read()
+except OSError:
+    text = ""
+section = text.split("[preserve_macros]", 1)[-1].split("\n[", 1)[0]
+keys = re.findall(r'^\s*"([^"]+)"\s*=', section, re.M)
+print("|".join(keys))
+PYPRESERVE
+)
+    if [ -n "$settings_macros" ]; then
+        preserve="($settings_macros|$PERMUTE_PRESERVE_MACROS)"
+    else
+        preserve="($PERMUTE_PRESERVE_MACROS)"
+    fi
+    import_args+=(--preserve-macros "$preserve")
+    echo "Preserving macros: $preserve"
+fi
+
+"$PYTHON" "$IMPORT" "${import_args[@]}" "$c_file" "$asmfile" 2>&1 | tee "$OUT/import.log"
 imported=$(grep -oE 'Imported into \S+' "$OUT/import.log" | awk '{print $3}')
 if [ -z "$imported" ] || [ ! -d "$imported" ]; then
     echo "$0: import.py did not report a scratch directory; see $OUT/import.log" >&2
@@ -187,6 +256,16 @@ if [ -z "$imported" ] || [ ! -d "$imported" ]; then
 fi
 mv "$imported" "$OUT/scratch"
 echo "Scratch: $OUT/scratch"
+
+# import.py keys settings.toml from the target assembly's glabel.  If this
+# runner was invoked with a friendly C name backed by an auto-named fallback,
+# point the permuter at the definition that actually exists in base.c.  The
+# target object remains unchanged; this only selects the candidate function.
+import_func=$(sed -n 's/^func_name = "\([^"]*\)"/\1/p' "$OUT/scratch/settings.toml")
+if [ "$import_func" != "$func" ] && grep -qE "^[A-Za-z_][A-Za-z0-9_[:space:]\\*]*${func}[[:space:]]*\\(" "$OUT/scratch/base.c"; then
+    sed -i '' "s/^func_name = \"[^\"]*\"/func_name = \"$func\"/" "$OUT/scratch/settings.toml"
+    echo "Selected friendly candidate definition: $func (target glabel: $import_func)"
+fi
 
 # --- Correct the scratch compile flags to the project's real per-file flags ---
 # decomp-permuter's import.py infers a default (-mips1, no per-file overrides);
@@ -218,9 +297,8 @@ fi
 # (the func_8000D018 TrapDanglingJump fix). import.py's scratch runs cc only, so
 # the scratch object differs from the real per-TU object and a score-0 in the
 # scratch does NOT transfer to the real build -- a "false ceiling" that wastes
-# ~an hour per function (func_80012574 in track.c scored 0 in scratch yet was
-# 2-4 words off in the real build). Recover the same post-compile step from the
-# `gmake -n` output already captured above and append it to compile.sh, after
+# search time. Recover the same post-compile step from the `gmake -n` output
+# already captured above and append it to compile.sh, after
 # cc, retargeted from the real object path to the scratch's "$OUTPUT".
 #
 # The compile line names $obj but invokes cc/as (never objcopy), so selecting
@@ -283,7 +361,7 @@ fi
 
 echo
 echo "=== $func: summary ==="
-base=$(grep -oE 'base score = [0-9]+' "$OUT/permuter.log" | head -1 | grep -oE '[0-9]+')
+base=$(grep -oE 'base score = [0-9]+' "$OUT/permuter.log" | head -1 | grep -oE '[0-9]+' || true)
 echo "base score: ${base:-unknown}"
 
 # Every improvement permuter.py finds gets written to

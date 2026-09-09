@@ -8,6 +8,9 @@ typedef struct Overlay8IndexedObject {
     s8 index;
 } Overlay8IndexedObject;
 
+typedef struct O8P1294Owner O8P1294Owner;
+typedef struct O8P1294State O8P1294State;
+
 typedef struct O8Node {
     void *resource;
     u8 pad04[4];
@@ -585,11 +588,10 @@ typedef struct O8P34A0State {
 
 typedef struct O8P34A0Query {
     f32 **samples0;
-    u8 pad04[0x14];
-    s32 scratch18;
-    s32 scratch1C;
-    s32 scratch20;
-    s32 scratch24;
+    s32 scratch04;
+    s32 scratch08;
+    s32 scratch0C;
+    s32 scratch10;
 } O8P34A0Query;
 
 typedef struct Overlay8MotionRow {
@@ -630,6 +632,7 @@ typedef struct O8P4CF0Normal {
     volatile f32 x;
     f32 y;
     f32 z;
+    f32 w;
 } O8P4CF0Normal;
 
 typedef struct O8P4CF0Actor {
@@ -916,7 +919,8 @@ extern void o8P0058CreateReloc(s32 kind, f32 x, f32 y, f32 z, s32 mode,
 
 extern void o8P0058BounceReloc(O8P0058State *state, s32 kind, f32 scale);
 
-extern void func_overlay_008_F0001294_185EFEC(void *owner, void *state,
+extern void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
+                                              O8P1294State *state,
                                               f32 update);
 
 extern void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,

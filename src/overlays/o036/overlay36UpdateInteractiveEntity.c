@@ -52,8 +52,7 @@ struct Overlay36Found {
 typedef struct Overlay36Work {
     Overlay36FoundState *foundState;
     Overlay36Found *found;
-    u8 pad08[0x24];
-    s32 animationMode;
+    u8 pad08[0x20];
 } Overlay36Work;
 
 struct Overlay36Entity {
@@ -103,6 +102,7 @@ void overlay36UpdateInteractiveEntity(Overlay36Entity *entity,
                                        s32 elapsed) {
     Overlay36State *state;
     Overlay36Record *record;
+    s32 animationMode;
     Overlay36Work work;
     u8 alpha;
     s32 recordCount;
@@ -182,8 +182,8 @@ void overlay36UpdateInteractiveEntity(Overlay36Entity *entity,
 
     entity->scale8 = (*(f32 *)entity->model40 * (f32)alpha) * 0.0078125f;
     if ((s8)entity->model40[entity->modelIndex93 + 0x1E] == 1) {
-        work.animationMode = 9;
-        overlay36AnimateReloc(*entity->resource68, &work.animationMode, 0x14,
+        animationMode = 9;
+        overlay36AnimateReloc(*entity->resource68, &animationMode, 0x14,
                               (u8 *)entity + 0x28, elapsed);
     } else {
         entity->angle0 += elapsed << 8;
@@ -251,3 +251,13 @@ void overlay36UpdateInteractiveEntity(Overlay36Entity *entity,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36UpdateInteractiveEntity/func_overlay_036_F00001D0_1883688.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay36UpdateInteractiveEntity:start
+ * symbol: overlay36UpdateInteractiveEntity
+ * score: 235 differing words
+ * frame: 0x80
+ * relocations: 24
+ * first-mismatch: +0x18
+ * summary: Exact frame from split animation local; countdown CFG carrier remains plus one-instruction size tradeoff.
+ * PLATEAU-HANDOFF:overlay36UpdateInteractiveEntity:end
+ */

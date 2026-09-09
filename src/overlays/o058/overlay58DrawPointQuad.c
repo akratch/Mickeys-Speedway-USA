@@ -116,3 +116,13 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58DrawPointQuad/func_overlay_058_F0004F28_18B4110.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay58DrawPointQuad:start
+ * symbol: overlay58DrawPointQuad
+ * score: 34/104 words
+ * frame: 0x18
+ * relocations: 11
+ * first-mismatch: +0x30
+ * summary: Exact geometry/frame; sibling reproduces the same pool/temp divergence; flags and bounded permutation are exhausted.
+ * PLATEAU-HANDOFF:overlay58DrawPointQuad:end
+ */

@@ -219,17 +219,17 @@ measures model-guided compiler feedback rather than search throughput.
 
 | Route | Target | Attempts | Baseline | Best | Active wall time | Verdict |
 |---|---|---:|---:|---:|---:|---|
-| inherited | `func_8003A2C8` | 10 | 5 / 32 | 5 / 32 | about 5 min | plateau |
+| inherited | `func_8003A2C8` (pre-cleanup) | 10 | 5 / 32 | 5 / 32 | about 5 min | historical diagnostic |
 | inherited | `func_80012574` | 10 | 7 / 57 | 7 / 57 | about 5 min | plateau |
-| Sol/xhigh | `func_8003A2C8` | 8 | 5 / 32 | 5 / 32 | about 3 min | plateau |
+| Sol/xhigh | `func_8003A2C8` (pre-cleanup) | 8 | 5 / 32 | 5 / 32 | about 3 min | historical diagnostic |
 | Sol/xhigh | `func_80012574` | 10 | 7 / 57 | 2 / 57 | about 5.5 min | diagnostic, rejected source |
 
-Both routes finished at 0 / 2 exact. `func_8003A2C8` remained size-exact and
-frameless with all six relocations exact; the residual is the same mode-web
-`v0`/`v1` inversion plus one ring-only site. Both routes independently
-exhausted declaration-order, assignment, comparison, and dead-read spelling
-probes. Its next action is a Tier-2 pool/UGEN trace, not another uninstrumented
-source pass.
+Both routes reported 0 / 2 exact. Their attempt counts, matrices, objects, and
+traces do not survive, so the table is historical prose rather than proof of
+route exhaustion. The retained prior-layout `func_8003A2C8` C object is
+size-exact and frameless with all six relocations exact; its five sites form the
+same mode-web `v0`/`v1` inversion. Reopen with current-layout V0, a retained
+119-flag lattice, one allocator trace, and only trace-selected natural forms.
 
 Fresh measurement corrected `func_80012574`'s older six-word note to seven
 raw differing words. The inherited route did not improve it. Sol/xhigh used
@@ -264,17 +264,22 @@ close live rankings, and the new same-ROM leads:
 4. `overlay3FindClosestObject` — four-word register-only live ranking;
 5. `func_8003A2C8` — compact P! plateau and bakeoff target;
 6. `overlay40AddEntry` — four-word register-only live ranking;
-7. `overlay20UpdateObjectResource` — explicit two-pass plateau;
-8. `overlay74Update` — six-word register-only live ranking;
+7. `overlay20UpdateObjectResource` — historical two-pass claim; canonical Git retains only the isolated scalar, while one stale local V0 object lacks source/build provenance and no route-exhaustion artifacts survive;
+8. `overlay74Update` — historical six-word pre-cleanup diagnostic; current
+   policy-clean C is uncompiled;
 9. `overlay2SplitRegion` — W-route scheduler expert or park;
-10. `func_80012574` — rebaseline first because recorded scores conflict;
-11. `runlinkEnsureJumpIsValid` — large register-allocation search space; and
-12. `levelInit` — defer until the compact F-route queue is exhausted.
+10. `func_80012574` — configured 7/57 FP-web/stack-home plateau; run the
+    bounded saved-local/declaration-order ladder;
+11. `func_800320F0` (`runlinkEnsureJumpIsValid` donor alias) — since resolved
+    exact; this dated queue entry is historical only; and
+12. `levelInit` — since classified reproof-only after source, 119-flag, and
+    bounded-permuter exhaustion; this dated queue entry is historical.
 
 `overlay43SubmitChildren` was a four-word ranking at this ledger's baseline.
 It has since been matched and integrated, so it is no longer in the queue.
-`overlay20UpdateObjectResource` and `overlay2SplitRegion` have the cleanest
-explicit evidence of two independent plateaus.
+`overlay20UpdateObjectResource`'s two-pass conclusion survives only as
+historical prose; its retained artifacts prove V0, not route exhaustion.
+`overlay2SplitRegion` remains the cleaner retained plateau packet.
 
 Every expert packet should contain the exact function identity and ownership,
 configured flags/TU boundary, callers and ABI, current candidate and fallback,

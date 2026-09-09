@@ -48,7 +48,7 @@ extern f32 gO94Const24;
 extern u32 func_800254FC(s32 selector);
 extern s32 func_8002565C(s32 selector);
 extern f32 func_8002A878(f32 amount, s32 updateRate);
-extern void func_8005ABA8(Overlay94Object *object, f32 current, f32 rate);
+extern s32 func_8005ABA8(Overlay94Object *object, f32 current, f32 rate);
 extern void func_8005AF14(Overlay94Entity *entity, s32 savedValue,
                           Overlay94Object *object);
 extern void func_80019AB8(Overlay94Object *object, Overlay94Entity *entity,
@@ -57,12 +57,6 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
-/* Size-exact plateau after ten structural/lifetime forms: the ordinary
- * -O2/-mips2 build differs in 13 of 275 words, first at +0x38. Post-increment
- * command stores and clamping the target in place reproduce the retail CFG
- * and FP web; the residual is a shared spill at sp+0x38 rather than sp+0x34
- * plus the terminal negative-velocity path's private GPR coloring. */
-#ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
     Overlay94Entity *entity;
@@ -72,7 +66,6 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     f32 out0;
     f32 out1;
     f32 out2;
-    f32 target;
     f32 weight;
     s32 angle;
 
@@ -108,6 +101,8 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
         } else if ((func_800254FC(state->selector) & 0x2000) != 0) {
+            f32 target;
+
             target = (f32)func_8002565C(state->selector) / 60.0f;
             if (target > 1.0f) {
                 target = 1.0f;
@@ -163,10 +158,13 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
                     state->velocity = 500;
                 }
             } else if (weight > 0.0f) {
+                s32 minimumVelocity;
+
                 state->velocity =
-                    (s16)-(s32)(state->current * gO94Const24);
+                    (s16)-(s32)(s16)(state->current * gO94Const24);
                 if (state->velocity >= -499) {
-                    state->velocity = -500;
+                    minimumVelocity = -500;
+                    state->velocity = minimumVelocity;
                 }
             }
         }
@@ -174,6 +172,3 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
 
     state->angle = angle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o094/overlay94UpdateController/func_overlay_094_F0000110_18D6CB0.s")
-#endif

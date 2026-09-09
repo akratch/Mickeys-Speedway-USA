@@ -36,6 +36,8 @@ void func_overlay_012_F00000C4_186D344(void) {
             }
             break;
         }
+        /* Inert allocation aid retained by the exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (!i) {
         }
         gOverlay12Flag1536 = 0;

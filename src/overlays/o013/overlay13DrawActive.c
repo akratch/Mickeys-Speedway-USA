@@ -95,3 +95,13 @@ void overlay13DrawActive(s32 arg0, s32 arg1, s32 arg2) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13DrawActive/func_overlay_013_F0000874_186F38C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay13DrawActive:start
+ * symbol: overlay13DrawActive
+ * score: 162 differing words
+ * frame: 0x180
+ * relocations: 10
+ * first-mismatch: +0x0
+ * summary: Fresh V0 remains one word short with 162 masked differences; only three target identities align and displaced global proxies stay unresolved.
+ * PLATEAU-HANDOFF:overlay13DrawActive:end
+ */

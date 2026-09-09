@@ -159,3 +159,13 @@ void func_overlay_031_F0000000_187F520(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31BuildLookupTables/func_overlay_031_F0000000_187F520.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:start
+ * symbol: func_overlay_031_F0000000_187F520
+ * score: 94 differing words
+ * frame: 0x40
+ * relocations: 10
+ * first-mismatch: +0x2C
+ * summary: Authorized V0 reproduced 94 raw diffs; JFG donor is GLOBAL_ASM and exact siblings map the allocator proxy to three targets, leaving no new lever.
+ * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
+ */

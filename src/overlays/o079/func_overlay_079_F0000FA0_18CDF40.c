@@ -125,3 +125,13 @@ void func_overlay_079_F0000FA0_18CDF40(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0000FA0_18CDF40/func_overlay_079_F0000FA0_18CDF40.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_079_F0000FA0_18CDF40:start
+ * symbol: func_overlay_079_F0000FA0_18CDF40
+ * score: 41/184 words
+ * frame: 0x98
+ * relocations: 13
+ * first-mismatch: +0x3C
+ * summary: Fresh reproof unchanged; no caller, Conker donor, or proxy evidence resolves the 13-to-5 relocation mismatch.
+ * PLATEAU-HANDOFF:func_overlay_079_F0000FA0_18CDF40:end
+ */

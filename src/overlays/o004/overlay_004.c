@@ -16,92 +16,90 @@ void overlay4InitializeObjectMotion(Overlay4InitObject *object,
 }
 
 /*
- * Plateau: -O2 -mips2 -32 -Wab,-r4300_mul leaves 15 instruction-word
- * differences.  The first is +0x44 (the mode temporary is v0 instead of
- * v1); the other blockers are a second temporary-color swap and the spawn
- * packet at sp+0x40 instead of sp+0x4C.  The retail call relocations also all
- * bind to the overlay's F0000000 runtime-relocation placeholder.
+ * Exact configured C from the bounded standing sweep and full-TU promotion.
+ * The discovered context restores func_8005ABA8's integer status return.
+ * Its target implementation explicitly returns that status in the ABI result
+ * register; the overlay 79 caller also consumes it. This caller ignores it.
+ * Keeping the correct declaration resolves the selector register allocation.
+ * The spawn packet precedes the final three pointer locals as discovered.
+ * Function geometry, all runtime relocation identities, the complete overlay,
+ * and the rebuilt ROM are checked by the canonical promotion proof.
+ * PROVENANCE: Mickey-only source, target metadata, and bounded permuter output.
  */
-#ifdef NON_MATCHING
-void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
-    Overlay4MotionState *motion;
-    Overlay4Config *config;
-    Overlay4PositionOwner *positionOwner;
-    Overlay4Spawned *spawned;
-    Overlay4SpawnState *spawnState;
-    Overlay4SpawnPacket packet;
-    s32 delta;
-    s32 timer;
-
-    motion = object->motion;
-    config = object->config;
-    func_8005ABA8(object, 0.1f, (f32)updateRate);
-
-    switch (config->mode) {
+void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate)
+{
+  Overlay4MotionState *motion;
+  Overlay4Config *config;
+  Overlay4SpawnPacket packet;
+  Overlay4PositionOwner *positionOwner;
+  Overlay4Spawned *spawned;
+  Overlay4SpawnState *spawnState;
+  s16 delta;
+  s32 timer;
+  motion = object->motion;
+  config = object->config;
+  func_8005ABA8(object, 0.1f, (f32) updateRate);
+  switch (config->mode)
+  {
     case 0:
-        timer = motion->timer;
-        if (updateRate >= timer) {
-            motion->trigger = 1;
-            motion->timer =
-                (u8)((f32)func_8002997C(config->timerMinimum,
-                                         config->timerMaximum) * 6.0f);
-        } else {
-            motion->timer = timer - updateRate;
-        }
-        break;
+      timer = motion->timer;
+      if (updateRate >= timer)
+    {
+      motion->trigger = 1;
+      motion->timer = (u8) (((f32) func_8002997C(config->timerMinimum, config->timerMaximum)) * 6.0f);
+    }
+    else
+    {
+      motion->timer = timer - updateRate;
+    }
+      break;
+
     case 1:
-        delta = (s16)func_8002AA0C(object->angle, motion->targetAngle);
-        if (delta <= config->threshold && delta >= -config->threshold) {
-            motion->targetAngle = func_8002997C(-0x8000, 0x7FFF);
-            motion->trigger = 1;
-        } else {
-            delta = func_8002AA0C(object->angle, motion->targetAngle);
-            motion->increment +=
-                func_80029274(delta, motion->increment,
-                              (f32)config->threshold);
-        }
-        break;
+      delta = func_8002AA0C(object->angle, motion->targetAngle);
+      if ((delta <= config->threshold) && (delta >= (-config->threshold)))
+    {
+      motion->targetAngle = func_8002997C(-0x8000, 0x7FFF);
+      motion->trigger = 1;
     }
-
-    object->angle = (s16)((f32)object->angle + motion->increment);
-    motion->phase += updateRate * config->phaseSpeed * 10;
-    object->outputAngle =
-        (s16)((func_8002A8C0(motion->phase) * (f32)config->amplitude +
-               (f32)config->baseAngle) *
-              256.0f);
-
-    if (motion->trigger != 0) {
-        motion->trigger = 0;
-        if (func_80004590(0x21) < config->spawnChance) {
-            positionOwner = object->positionOwners[object->positionIndex];
-            packet.kind = 0x95;
-            packet.mode = 10;
-            packet.flags = 0;
-            packet.x = (s16)positionOwner->position->x;
-            packet.y = (s16)(positionOwner->position->y - 30.0f);
-            packet.z = (s16)positionOwner->position->z;
-            spawned = func_8000590C(&packet, 1);
-            if (spawned != 0) {
-                spawned->config = 0;
-                func_overlay_036_F00007B0(
-                    spawned, object->angle,
-                    (s16)(object->outputAngle + 0x1DDD),
-                    (f32)func_8002997C(config->spawnMinimum,
-                                       config->spawnMaximum));
-                spawnState = spawned->state;
-                spawnState->angle = 0;
-                spawnState->value = 0;
-                spawnState->active = 1;
-                spawnState->field07 = 0;
-                spawnState->field08 = 0;
-                spawnState->field0A = 0x80;
-            }
-        }
+    else
+    {
+      motion->increment += func_80029274(func_8002AA0C(object->angle, motion->targetAngle), motion->increment, (f32) config->threshold);
     }
+      break;
+
+  }
+
+  object->angle = (s16) (((f32) object->angle) + motion->increment);
+  motion->phase += (updateRate * config->phaseSpeed) * 10;
+  object->outputAngle = (s16) (((func_8002A8C0(motion->phase) * ((f32) config->amplitude)) + ((f32) config->baseAngle)) * 256.0f);
+  if (motion->trigger != 0)
+  {
+    motion->trigger = 0;
+    if (func_80004590(0x21) < config->spawnChance)
+    {
+      positionOwner = object->positionOwners[object->positionIndex];
+      packet.kind = 0x95;
+      packet.mode = 10;
+      packet.flags = 0;
+      packet.x = (s16) positionOwner->position->x;
+      packet.y = (s16) (positionOwner->position->y - 30.0f);
+      packet.z = (s16) positionOwner->position->z;
+      spawned = func_8000590C(&packet, 1);
+      if (spawned != 0)
+      {
+        spawned->config = 0;
+        func_overlay_036_F00007B0(spawned, object->angle, (s16) (object->outputAngle + 0x1DDD), (f32) func_8002997C(config->spawnMinimum, config->spawnMaximum));
+        spawnState = spawned->state;
+        spawnState->angle = 0;
+        spawnState->value = 0;
+        spawnState->active = 1;
+        spawnState->field07 = 0;
+        spawnState->field08 = 0;
+        spawnState->field0A = 0x80;
+      }
+    }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay_004/func_overlay_004_F0000138_185A7B0.s")
-#endif
 
 /* DKR v77/v80 and JFG contain no exact donor for this group attachment. */
 void overlay4AttachObject(Overlay4GroupObject *owner,

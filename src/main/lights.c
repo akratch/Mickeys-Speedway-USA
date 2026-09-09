@@ -151,7 +151,7 @@ typedef struct LightUpdateState {
     u8 mode0;
     u8 pad1;
     u8 flags2;
-    u8 pad3;
+    u8 flags3;
     u8 pad4[2];
     s16 index6;
     f32 inputX08;
@@ -178,38 +178,50 @@ typedef struct LightUpdateState {
     f32 directionX60;
     f32 directionY64;
     f32 directionZ68;
-    u8 pad6C[4];
+    s32 trackLight6C;
     void *table70;
 } LightUpdateState;
 
+typedef struct LightObjectState LightObjectState;
+
 typedef struct LightObjectContext {
-    void *state0;
+    LightObjectState *state0;
     s32 objectId4;
 } LightObjectContext;
 
-typedef struct LightObjectState {
+struct LightObjectState {
     u8 pad0[0x20];
     s32 environment20;
     u8 pad24[0x2B];
-    u8 mode4F;
+    s8 mode4F;
     u8 pad50[0xC];
     s32 value5C;
     s32 value60;
     s32 environment64;
-} LightObjectState;
+};
 
 typedef struct LightDescription {
     f32 scale0;
     u8 pad4[0xA];
     s16 jointCountE;
+    u8 pad10[0x10];
+    u32 packed20;
+    u8 shift24;
+    u8 red25;
+    u8 green26;
+    u8 blue27;
+    u8 pad28[8];
+    void *twoLightData30;
+} LightDescription;
+
+typedef struct LightData {
+    u8 pad0[0x10];
     u32 packed10;
     u8 shift14;
     u8 red15;
-    u8 green16;
-    u8 blue17;
-    u8 pad18[0x18];
-    void *twoLightData30;
-} LightDescription;
+    u8 blue16;
+    u8 green17;
+} LightData;
 
 typedef struct LightPosition {
     u8 pad0[0xC];
@@ -495,9 +507,9 @@ void lightUpdateLights(s32 updateRate) {
         func_80018F08(D_80079498[i], updateRate);
     }
 }
-/* Workbench verdict: structure-mismatch, 166 differing words, first mismatch +0x0. */
-/* Candidate: 199/205 instructions with a -0x60 frame versus target -0x48; six instruction and relocation-position residuals remain. */
-/* Shape status: segment lookup, three dirty-bit paths, and direction rebuild are preserved, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 75 differing words, first mismatch +0x0. */
+/* Candidate: 205/205 instructions with a -0x58 frame versus target -0x48; all seven relocation identities are exact. */
+/* Shape status: exact extent and call surface; a 0x10 non-save-frame and temporary-allocation cascade remains. */
 /* PROVENANCE: JFG's corresponding light-update role supplies the control-flow idiom; all Mickey offsets, globals, and calls below are reconstructed locally. */
 #ifdef NON_MATCHING
 void func_80018F08(UnkLight *light, s32 updateRate) {
@@ -505,24 +517,24 @@ void func_80018F08(UnkLight *light, s32 updateRate) {
     LightUpdateOwner *owner;
     s16 rotation[3];
     f32 *direction;
-    u8 value;
-    s32 index;
+    s32 value;
+    s16 index;
+    s32 offset;
     LightUpdateSegment *segment;
-    LightUpdateHeader *header;
-    f32 unsignedValue;
 
     state = (LightUpdateState *) light;
     owner = state->owner14;
     if ((owner != NULL) && (owner->disabled91 == 0)) {
-        if (state->index6 >= 0) {
+        index = state->index6;
+        if (index >= 0) {
             segment = owner->segments68[(s32) owner->segmentIndex3A];
             if ((segment != NULL) &&
-                (state->index6 < (s32) segment->header0->count2D)) {
-                index = state->index6 * 3;
-                state->x18 = segment->coordinates40[index];
-                state->y1C = segment->coordinates40[index + 1];
+                (index < (s32) segment->header0->count2D)) {
+                offset = index * 12;
+                state->x18 = *(f32 *) ((u8 *) segment->coordinates40 + offset);
+                state->y1C = *(f32 *) ((u8 *) segment->coordinates40 + offset + 4);
                 state->flags2 |= 1;
-                state->z20 = segment->coordinates40[index + 2];
+                state->z20 = *(f32 *) ((u8 *) segment->coordinates40 + offset + 8);
             }
         } else {
             pointListRPY(1, owner, &state->inputX08, &state->x18);
@@ -532,8 +544,8 @@ void func_80018F08(UnkLight *light, s32 updateRate) {
             state->z20 += owner->offsetZ14;
         }
         state->flags2 |= 4;
-        if (state->colourCycle54 != 0) {
-            func_8000D7F8(state->colourCycle54, state->x18, state->y1C, state->z20);
+        if (state->trackLight6C != 0) {
+            func_8000D7F8(state->trackLight6C, state->x18, state->y1C, state->z20);
         }
     }
     if (state->colourCycle54 != 0) {
@@ -541,11 +553,10 @@ void func_80018F08(UnkLight *light, s32 updateRate) {
         state->red40 = *(u8 *) ((u8 *) state + 0x50);
         state->green41 = *(u8 *) ((u8 *) state + 0x51);
         state->blue42 = *(u8 *) ((u8 *) state + 0x52);
-        if (!(state->mode0 & 0x10)) {
+        if (!(state->flags3 & 0x10)) {
             value = *(u8 *) ((u8 *) state + 0x53);
             state->intensity43 = value;
-            unsignedValue = (f32) (s32) value;
-            state->intensity44 = unsignedValue;
+            state->intensity44 = (f32) (u32) (value & 0xFF);
         }
         state->flags2 |= 2;
     }
@@ -554,8 +565,8 @@ void func_80018F08(UnkLight *light, s32 updateRate) {
         state->value58 = (s16) (state->value58 + (state->step5C * updateRate));
     }
     if (state->step5E != 0) {
-        state->flags2 |= 4;
         state->value5A = (s16) (state->value5A + (state->step5E * updateRate));
+        state->flags2 |= 4;
     }
     if ((state->flags2 & 1) || ((owner != NULL) && (owner->disabled91 == 0))) {
         state->lower38 = state->y1C - *(f32 *) ((u8 *) state + 0x28);
@@ -563,8 +574,8 @@ void func_80018F08(UnkLight *light, s32 updateRate) {
     }
     if (state->flags2 & 2) {
         lightCreateLightTable(state->red40, state->green41, state->blue42, state->table70);
-        if (state->colourCycle54 != 0) {
-            func_8000D768(state->colourCycle54, state->red40, state->green41,
+        if (state->trackLight6C != 0) {
+            func_8000D768(state->trackLight6C, state->red40, state->green41,
                           state->blue42, state->intensity43);
         }
     }
@@ -679,9 +690,9 @@ void lightUpdateObjects(void) {
  * layouts supply this source reconstruction.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 266 differing words, first mismatch +0x0. */
-/* Target 254 instructions/frame -160; candidate 301 instructions/frame -128. */
-/* Remaining gap is light-slot selection/control-flow expansion and a 32-byte frame deficit; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 225 differing words, first mismatch +0x0. */
+/* Target 254 instructions/frame -160; candidate 262 instructions/frame -128. */
+/* Remaining gap is FP expression association and a 32-byte local-frame deficit; not shape-exact. */
 void func_8001953C(LightingObject *arg0, s32 arg1) {
     f32 sp74;
     u8 *level;
@@ -696,13 +707,14 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
     s32 totalLightCount;
     s32 lightOffset;
     s32 slotOffset;
+    s32 slotEnd;
     s32 maximumIntensity;
     s32 candidateIntensity;
     s32 type;
     s32 index;
     s32 endOffset;
-    u8 intensity;
-    u8 minimumIntensity;
+    s32 intensity;
+    s32 minimumIntensity;
     u8 *object;
     u8 *state;
     u8 *slot;
@@ -715,8 +727,9 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
     maximumIntensity = 0;
     level = levelGetLevel();
     totalLightCount = 0;
-    lightOffset = 0;
     if (D_80079494 > 0) {
+        lightOffset = 0;
+        slotEnd = 0x80;
         do {
             light = *(UnkLight **) ((u8 *) D_80079498 + lightOffset);
             if (light->unk3 & 1) {
@@ -726,17 +739,17 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
                     candidateIntensity = intensity;
                     if (type != 0) {
                         xDifference = light->x - *(f32 *) (object + 0xC);
-                        distance = *(f32 *) (object + 0x10);
                         zDifference = light->z - *(f32 *) (object + 0x14);
                         candidateIntensity = 0;
+                        distance = *(f32 *) (object + 0x10);
                         yDifference = light->y - distance;
                         distanceXZ = (xDifference * xDifference) +
                                      (zDifference * zDifference);
                         switch (type) {
                         case 2:
                             if ((distanceXZ < light->radiusSquare) &&
-                                (light->radius2 < distance) &&
-                                (distance <= light->radius3)) {
+                                (*(f32 *) ((u8 *) light + 0x38) < distance) &&
+                                (distance <= *(f32 *) ((u8 *) light + 0x3C))) {
                                 candidateIntensity = (s32) func_80019934(
                                     light->unk44, sqrtf(distanceXZ),
                                     *(f32 *) ((u8 *) light + 0x34), light->unk1);
@@ -800,7 +813,7 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
                                     minimumIntensity = intensity;
                                 }
                                 nextSlot += 0x20;
-                            } while (slotOffset != 0x80);
+                            } while (slotOffset < slotEnd);
                             if (*(u8 *) (slot + 0x15) >= candidateIntensity) {
                                 slot = NULL;
                             }
@@ -836,7 +849,7 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
         endOffset = *(u8 *) (state + 0xC) - intensity;
     }
     if (maximumIntensity >= 0x40) {
-        intensity = (u8) ((index * intensity) >> 8);
+        intensity = (index * intensity) >> 8;
         endOffset = (index * endOffset) >> 8;
     }
     *(s8 *) (state + 0x25) = intensity + endOffset;
@@ -889,27 +902,28 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
     }
     return var_f2;
 }
-/* Workbench verdict: structure-mismatch, 178 differing words, first mismatch +0x0. */
-/* Candidate: 191/184 instructions with a -0xD0 frame versus target -0xC8; seven instruction and relocation-position residuals remain. */
-/* Shape status: light-count dispatch, colour restore path, environment pass, and call order are preserved, but it is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x20. */
+/* Candidate: 183/184 instructions with an exact -0xC8 frame; 1/28 relocation identities is exact. */
+/* Shape status: call order and the +0x20 colour block are preserved; the early pointer/carrier allocation is not shape-exact. */
 /* PROVENANCE: JFG's corresponding object-light routine supplies the role and dispatch idiom; Mickey's fields, globals, and calls are authoritative below. */
 #ifdef NON_MATCHING
 void func_80019AB8(LightPosition *position, LightObjectContext *object,
                    LightDescription *description, f32 *matrix) {
     LightObjectState *state;
     s32 count;
-    u8 *lightData;
-    u8 savedRed;
-    u8 savedGreen;
-    u8 savedBlue;
+    LightData *lightData;
+    s32 savedRed;
+    s32 savedGreen;
+    s32 savedBlue;
     s32 savedPacked;
     s32 changed;
     f32 scale;
     f32 factor;
-    s32 value;
-    u8 *localMatrix;
+    s32 redValue;
+    s32 greenValue;
+    s16 jointCount;
+    f32 local[4][4];
     f32 cameraDelta[3];
-    f32 local[0x16];
 
     state = object->state0;
     if ((description != NULL) || (state->environment64 != 0)) {
@@ -924,24 +938,29 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
         if (description != NULL) {
             changed = 0;
             scale = description->scale0;
-            if ((scale != 1.0f) ||
+            if ((1.0f != scale) ||
                 ((D_8007C854 != 0) && (D_8007C85C != 0xFF))) {
-                lightData = (u8 *) description + 0x10;
-                savedRed = lightData[5];
-                savedGreen = lightData[7];
-                savedBlue = lightData[6];
-                savedPacked = *(s32 *) (lightData + 0);
+                LightData *scaledData;
+
+                scaledData = (LightData *) ((u8 *) description + 0x10);
+                savedRed = scaledData->red15;
+                savedGreen = scaledData->green17;
+                savedBlue = scaledData->blue16;
                 factor = scale * ((f32) D_8007C85C * D_800817C8);
-                lightData[5] = (u8) ((s32) ((f32) lightData[5] * factor));
-                value = (s32) ((f32) lightData[7] * factor);
-                lightData[6] = (u8) (lightData[5] - value);
-                *(s32 *) lightData = (lightData[6] & 0xFF) << lightData[4];
-                lightData[7] = (u8) value;
+                savedPacked = scaledData->packed10;
+                redValue = (s32) ((f32) savedRed * factor);
+                scaledData->red15 = (u8) redValue;
+                greenValue = (s32) ((f32) savedGreen * factor);
+                scaledData->blue16 = (u8) (redValue - greenValue);
+                scaledData->packed10 =
+                    ((redValue - greenValue) & 0xFF) << scaledData->shift14;
+                scaledData->green17 = (u8) greenValue;
                 changed = 1;
             }
-            lightData = (u8 *) description + 0x10;
-            if (description->jointCountE > 0) {
-                lightMakeJointPositions(description->jointCountE, (f32 *) lightData,
+            jointCount = description->jointCountE;
+            lightData = (LightData *) ((u8 *) description + 0x10);
+            if (jointCount > 0) {
+                lightMakeJointPositions(jointCount, (f32 *) lightData,
                                         count, matrix, D_800794A0);
                 if (description->jointCountE == 1) {
                     lightSingleLight(object->objectId4, state->value60,
@@ -958,10 +977,10 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
                 }
             }
             if (changed != 0) {
-                lightData[5] = savedRed;
-                lightData[7] = savedGreen;
-                lightData[6] = savedBlue;
-                *(s32 *) lightData = savedPacked;
+                lightData->red15 = savedRed;
+                lightData->green17 = savedGreen;
+                lightData->blue16 = savedBlue;
+                lightData->packed10 = savedPacked;
             }
         }
         if (state->environment64 != 0) {
@@ -984,11 +1003,22 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
-/* Workbench: mixed(structural:9, register:16), 64/63 instructions, 45 words, first +0x44.
- * Levers tried: workbench structure buckets, direct-difference local, flag lattice.
- * Remains: valueDelta/colourStep ordering starts a register/temp phase shift; one instruction remains. */
+/* Bounded plateau: configured full-TU V0 and the retained isolated C are 64
+ * versus target 63 words, exact 0x38 frame, 19/63 raw/normalized positional
+ * matches, first +0x44. The extra return-delay word is not padding and all
+ * three identities are four bytes late. All 119 flag rows were attempted;
+ * seven tie at the 45-word residual, including the configured recipe. One
+ * fidelity-clean proc-22 uopt trace found eight low-confidence webs but no
+ * source attribution, so it authorized no allocator form. Field-first
+ * valueDelta regressed to 46 residual words; a local-first form regressed to
+ * 62 and a 0x40 frame. With no strict gain, no combination or batch was run.
+ * Linked equality is fallback-only. ORT 358 has direct callers
+ * lightDefaultObjectLight+0x38 and func_8001A008+0x74/+0xC4 but no runtime
+ * inbound. Resume only with a source-faithful structural lever that removes
+ * the extra pre-call word and advances all three identities together. */
 #ifdef NON_MATCHING
-/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
+/* PROVENANCE: JFG's public assembly-backed lightSetObjectLight authenticates
+ * the structural role only; Mickey's body and globals remain authoritative. */
 void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
     s16 rotation[3];
     f32 direction[3];
@@ -1107,3 +1137,33 @@ s32 lightKillGlowingLight(void) {
     camlightDelete();
     return 1;
 }
+
+/* PLATEAU-HANDOFF:func_80018F08:start
+ * symbol: func_80018F08
+ * score: 130/205 words
+ * frame: 0x58
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: Exact 205-word extent and seven relocation identities; 0x10 non-save-frame and temporary-allocation cascade remains.
+ * PLATEAU-HANDOFF:func_80018F08:end
+ */
+
+/* PLATEAU-HANDOFF:func_80019AB8:start
+ * symbol: func_80019AB8
+ * score: 155 differing words
+ * frame: 0xC8
+ * relocations: 28
+ * first-mismatch: +0x20
+ * summary: 183/184 words; early scaling-pointer hoist swaps the s1/s2 carrier; flag lattice lacks a resident size owner
+ * PLATEAU-HANDOFF:func_80019AB8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001953C:start
+ * symbol: func_8001953C
+ * score: 225 differing words
+ * frame: 0x80
+ * relocations: 14
+ * first-mismatch: +0x0
+ * summary: Target is 254 words/frame 0xA0 versus 262/0x80. Relocation identities stay ordered; next recover typed local layout, then FP expression association.
+ * PLATEAU-HANDOFF:func_8001953C:end
+ */
