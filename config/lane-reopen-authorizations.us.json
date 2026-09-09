@@ -406,7 +406,7 @@
       "source_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e"
     },
     "func_8003E8D8": {
-      "ledger_commit": null,
+      "ledger_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1 masked words is a schedule or structure defect the permuter can still move.",
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
@@ -431,7 +431,7 @@
       "source_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f"
     },
     "func_80041CE4": {
-      "ledger_commit": null,
+      "ledger_commit": "690806f1ee058922a5052ec880bca5b5064a6193",
       "reason": "Class is register-only at 27 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
       "source_commit": "690806f1ee058922a5052ec880bca5b5064a6193"
     },

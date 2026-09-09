@@ -166,6 +166,19 @@ def entry_is_valid(symbol: str, source_commit: str, ledger_commit: str | None) -
         shard_source = lane_status.validated_shard_source(shard_text, symbol)
     except RuntimeError as error:
         return f"ledger commit has invalid handoff evidence: {error}"
+    if shard_source is None:
+        # A symbol whose plateau evidence is legacy inline has no shard, and
+        # the classifier derives its ledger from that legacy evidence. Accept
+        # it here on the same terms lane_status now does; writing a null pin
+        # instead produced a silently inert authorization, because the
+        # null-ledger branch is only reached when the DERIVED ledger is null.
+        rows, blocks = lane_status.legacy_evidence_signature(
+            lane_status.show_file(ledger_commit, lane_status.LEGACY_TRIAGE_PATH),
+            symbol,
+        )
+        if not rows and not blocks:
+            return "ledger commit carries neither a handoff shard nor legacy evidence"
+        return None
     if shard_source != source_path:
         return "ledger commit does not identify the authorized source path"
     return None

@@ -1496,7 +1496,26 @@ def reopen_authorizations(base: str) -> dict[str, dict[str, str | None]]:
                     f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
                     f"ledger_commit has invalid handoff evidence: {error}"
                 ) from error
-            if shard_source != source_path:
+            if shard_source is None:
+                # No shard at that commit. `classify` derives a ledger from a
+                # structured shard OR from legacy inline evidence, so demanding
+                # a shard here rejects a ledger the deriver itself produced,
+                # and the symbol becomes structurally unauthorizable: the
+                # null-ledger branch is only reached when the DERIVED ledger is
+                # null, which it is not. That contradiction blocked
+                # func_8003E8D8 -- 560 bytes at one differing word -- until
+                # 2026-09-09. Accept a legacy-evidence ledger by the same test
+                # the deriver used.
+                rows, blocks = legacy_evidence_signature(
+                    show_file(ledger_commit, LEGACY_TRIAGE_PATH), symbol,
+                )
+                if not rows and not blocks:
+                    raise RuntimeError(
+                        f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
+                        "ledger_commit carries neither a handoff shard nor "
+                        "legacy evidence for this symbol"
+                    )
+            elif shard_source != source_path:
                 raise RuntimeError(
                     f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
                     "ledger_commit does not identify the authorized source path"
