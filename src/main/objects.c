@@ -2125,12 +2125,14 @@ void *func_8000590C(void *arg0, s32 arg1) {
 /* Structural gap: CFE s-register carriers and resource-load carrier differ. */
 #ifdef NON_MATCHING
 void func_80006448(void *arg0) {
-    s32 offset = 0;
-    s32 index = 0;
+    s32 offset;
+    s32 index;
     void *resource;
     s8 type;
 
     if (((Objects06448Arg *)arg0)->unk40->unk22 > 0) {
+        offset = 0;
+        index = 0;
         do {
             type = func_800058C0((Objects58C0Arg *)arg0, index);
             if (type == 0) {
@@ -3158,15 +3160,14 @@ void func_8000784C(s32 arg0) {
     D_800C9478 = 1;
     D_800C946C = (f32)arg0;
 }
-/* Workbench verdict: allocation-mismatch; 42 differing words (76/118). */
-/* First mismatch: +0x7C; size, frame, and opcode schedule are exact. */
-/* Structural gap: none; register allocation and one stack-home constant are permuter-ready. */
+/* Workbench verdict: allocation; 26 differing words (92/118). */
+/* First mismatch: +0x94; size, frame, stack homes and opcode schedule are exact. */
+/* Structural gap: none; one ugen ring rotation from +0x94 remains. */
 #ifdef NON_MATCHING
 void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
                    Objects07C68Object *arg2, s32 arg3) {
-    s32 sp58;
-    s16 temp_lo;
     s16 temp_v0_2;
+    s32 sp58;
     s32 temp_t3;
     s32 temp_v0;
     s32 var_s3;
@@ -3184,8 +3185,7 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
         if ((s32)arg1->unk2C > 0) {
             do {
                 temp_v0 = var_s0->unk4;
-                texture = *(Objects07C68Texture **)((u8 *)arg1->unk18 +
-                                                     ((temp_v0 & 0xFF) * 8));
+                texture = (Objects07C68Texture *)arg1->unk18[(temp_v0 & 0xFF) * 2];
                 if (temp_v0 & 0x100000) {
                     sp58 = (s32)var_s0->unk0;
                     if (var_s0->unk4 & 0x200000) {
@@ -3212,10 +3212,9 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
                     var_s2[-1] = (s16)((temp_v0_2 >> 8) * texture->unkE);
                 }
                 var_s3 += 1;
-                temp_lo = ((s16)var_s0->unk0 >> 8) * texture->unkE;
                 var_s2 += 1;
+                var_s2[-1] = (s16)(((s16)var_s0->unk0 >> 8) * texture->unkE);
                 var_s0 += 1;
-                var_s2[-1] = temp_lo;
             } while (var_s3 < (s32)arg1->unk2C);
         }
         if (arg0->unk90 == 1) {
@@ -5737,11 +5736,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80007C68:start
  * symbol: func_80007C68
- * score: 42 differing words
+ * score: 92/118 words
  * frame: 0x60
- * relocations: 8
- * first-mismatch: +0x7C
- * summary: Opcode shape and frame are exact; remaining register allocation and one stack-home constant are permuter-ready.
+ * relocations: 4
+ * first-mismatch: +0x94
+ * summary: Frame, stack homes and opcode schedule now exact; one ugen ring rotation from +0x94 remains.
  * PLATEAU-HANDOFF:func_80007C68:end
  */
 
