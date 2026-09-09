@@ -875,7 +875,7 @@ tier-A threshold, so the address label remains canonical.
 
 | Candidate | Verdict |
 |---|---|
-| `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_80036AB0` | 432 bytes under `-O2 -mips2 -32`; colour-cycle interpolation in JFG `updateMixCycle` form with DKR `update_colour_cycle` channel locals, all 108 instruction words exact (frame 0x28, no relocations). The typed `frames[]` index forwards the frame index in a register while re-reading the time at the loop bottom; declaring `table` after the channel locals keeps its web out of the first spill slot. |
 | `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
 | `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
 | `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |
@@ -884,7 +884,7 @@ tier-A threshold, so the address label remains canonical.
 | `func_800376CC` | Structure-mismatch, 95 differing words, first `+0x0`; target 118/candidate 119 words, target frame 0x18 versus candidate 0x20. |
 | `func_800378A4` | Structure-mismatch candidate: 103 differing words, first `+0x14`; target 117 instructions/0x68 frame versus candidate 112/0x68, with radial-gradient FP lifetimes and clamp/control-flow shape unresolved. |
 | `func_80037AEC` | Allocation-mismatch, 7 differing words, first `+0x54`; target/candidate 66 words and 0x40-byte frames, with only register allocation unresolved. |
-| `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x40`, interpolation multiply/call scheduling shape unresolved. |
+| `func_80037BF4` | Matched: the retained NON_MATCHING body was already byte-exact (32/32 words, 0x18 frame, 6 relocations); the recorded 17-word structure-mismatch was a stale verdict from an earlier candidate. |
 | `func_80037C74` | Structure-mismatch, 324 differing words, first `+0x0`; target 327/candidate 308 words, with Gfx emission and render-loop shape unresolved. |
 | `func_80038190` | Structure-mismatch, 365 differing words, first `+0x0`; target 368/candidate 342 words and 0xE8-byte frames, with Gfx emission, relocation web, and render-loop shape unresolved. |
 
@@ -1002,7 +1002,7 @@ Current matching plateau:
 | `func_8001357C` | 0x410 / 260 words | The `NON_MATCHING` body and adjacent `func_8001398C` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; the retained configured candidate is 321 words with the exact 0x138 frame and 289 differing words. | `+0x8`: an isolated no-unroll diagnostic reaches 261 words and 229 differences, but it is not promotable without function-local flag isolation and full impact proof. The ownership row adds no match credit. |
 | `func_8001398C` | 0x528 / 330 words | The guarded definition/fallback, its 330 contiguous generated fallback rows, the linked ELF and `src/main/track.c.o` FUNC sizes, the linker-map owner, and adjacent `trackGetTrack` boundary independently authenticate VRAM `0x8001398C..0x80013EB4` / ROM `0x1458C..0x14AB4` under `-O2 -mips2 -32 -Wab,-r4300_mul`. Configured C has exact geometry and frame `0x140`, with 168/330 positional words and 21/21 relocation count; 19 identities align. The tier-D metadata adds no match credit. | `+0x60`: the remaining mismatch is allocator scheduling. The now-bounded skeleton scan ranks JFG's assembly-only `trackGetHeights` first at 0.194 Jaccard, which corroborates the structural family but supplies no adoptable source; four-project coddog returns no candidate line and only its known overlay-end warnings. Preserve the fallback pending procedure-scoped lifetime evidence. |
 | `func_8000DFBC` | 0x630 / 396 words | The `NON_MATCHING` body and adjacent `func_8000E5EC` boundary authenticate a unique `src/main/track.c.o` owner under `-O2 -mips2 -32 -Wab,-r4300_mul`; the configured candidate is 398 words with the exact 0x70 frame, 304 differing words, and the same 51-record relocation count. | `+0x48`: batch/display-list initialization and register scheduling remain structurally different; 36 relocation offset/type sites and 35 stable identities align. The ownership row unlocks the flag lattice but adds no match credit. |
-| `func_8000D3B8` | 0x1B8 / 110 words | Type pass adds `TrackSegment.lightBatchCount` at `+0x20` and the two-pointer allocation record; current semantic candidate is 150 words/0x38 frame against 110 target words, so the verdict remains structural. | Workbench lever is `structure-buckets`; first hunk is the prologue/global web, with 64 structural and 47 register residual classes plus 20 relocation-site shifts. Preserve `GLOBAL_ASM`; original allocation expression/declaration evidence remains missing. |
+| `func_8000D3B8` | 0x1B8 / 110 words | **Exact.** 110 words, frame `0x38`, all 16 relocations, ROM `0xDFB8..0xE170` byte-identical; `wb_compare --rom` reports `instruction-words-identical` and `gmake verify` still prints the expected hash. | Closed by one expression: the pool size is `D_800792F8 * sizeof(TrackLight)`, read back from the global the line above rather than computed from the `lightCount` parameter. The parameter form lets IDO write the product straight into `a0`; re-reading the global keeps the stored value's carrier live, so the product takes a temporary and is copied into `a0` -- the missing 111th word. That one change took the candidate from 109/110 words and 105 differing to exact, so the `byteCount` local was never the pool size's carrier. |
 | `func_80020E4C` | 0x1C4 / 113 words | The `NON_MATCHING` body and adjacent `modResumeModelTextures` boundary authenticate the unique resident range `0x80020E4C..0x80021010` / ROM `0x21A4C..0x21C10` in `src/main/models.c.o` under `-O2 -mips2 -32`; the configured candidate has exact 113-word geometry and a 0x40 frame. | `+0xC`: 25 words differ. Explicit byte-scaled indexing remains best; pointer-cursor and declaration-order probes did not improve it, while exception-loop/pool-slot 1 and temp-slot 3 allocation remain. The ownership row unlocks flag and skeleton queries but adds no match credit. |
 | `func_8000D1B8` | 0x200 / 128 words | Mickey's packed-scroll and nested segment/batch/vertex reconstruction under `-O2 -mips2 -32` compiles to 124 instructions with a `-40` frame; workbench reports 121 differing words, 98 aligned structural, 40 register, 1 constant, and seven relocation-site differences. | `+0x04`: the candidate takes a different prologue/global-register path and then differs through the scroll-offset and vertex-update webs; target is 128 instructions, so this remains a structural candidate rather than permuter-ready. |
 | `func_80010900` | 0x24C / 147 words | Mickey's reconstructed repeated segment-intersection wrapper under `-O2 -mips2 -32 -Wab,-r4300_mul` identifies the 0x20-byte callback record and reaches the exact 147-word opcode schedule, 0xB8 frame, every stack offset, FP allocation, and all five call relocations. The 119-mode flag sweep found no better mode; a bounded ten-minute permuter and ten type, declaration, lifetime, and call-schedule hypotheses leave 17 register-only words. | `+0x14`: one clean saved-register bijection assigns the direction pointer, intersection pointer, and secondary result to `s4`, `s5`, and `s6` instead of the target's `s5`, `s6`, and `s4`. The reference scan found no credible donor, and explicit pointer/return-category variants reproduced the same allocator basin; another attempt needs original declaration or forced-color evidence rather than more register-order guessing. |
@@ -1153,8 +1153,10 @@ not the surrounding yaml block.
 The source began as 41 `GLOBAL_ASM` functions. Six already have tier-A names
 in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
-per §1.5. Flags are the resident game-code defaults, `-O2 -mips2 -32`, plus
-menu's measured `-Wo,-loopunroll,0` override.
+per §1.5. Flags are the resident game-code defaults, `-O2 -mips2 -32`. The
+`-Wo,-loopunroll,0` override the TU carried until 2026-09-09 was measured
+byte-inert for every function in it except `func_80038878`, whose target
+unrolls both its clearing loops; it was dropped when that function matched.
 
 `func_80038750` adds **0x128 bytes / 74 words** at ROM `0x39350`. Matched C:
 exact object words, jump table, and linked ROM range at `-O2 -mips2 -32
@@ -1178,8 +1180,9 @@ relocation identities.
 
 | Function | Exact result |
 |---|---|
-| `func_800389CC` | 504 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
-| `func_80038BC4` | 488 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
+| `func_80038878` | 340 bytes under `-O2 -mips2 -32` (default unroller); JFG PR #37 `src/menu.c::initFront` body adapted, all 85 instruction words exact. Needs `D_800D3044[4]` (the play choices) defined in the TU: the four stores share one `lui $at`, which IDO emits only for an owned object; the Makefile weakens the definition so the bss gap's retail label wins. |
+| `func_800389CC` | 504 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
+| `func_80038BC4` | 488 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
 
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing

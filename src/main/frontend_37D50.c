@@ -417,10 +417,6 @@ void func_80037AEC(f32 arg0, s32 arg1)
     }
   }
 }
-/* Workbench verdict: structure-mismatch, with a four-byte size deficit. */
-/* First mismatch: +0x40; target multiplies before the call and has a nop delay slot. */
-/* Structural gap: the interpolation multiply/call scheduling shape is unresolved. */
-#ifdef NON_MATCHING
 void func_80037BF4(void) {
     D_8007BEB4 = (D_8007BEB0 << 8) + 0x8000;
     if (D_8007BEB0 < 0x200) {
@@ -429,9 +425,6 @@ void func_80037BF4(void) {
         func_80037AEC(32.0f, (s32) (0x400 - D_8007BEB0) >> 1);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037BF4.s")
-#endif
 extern u8 D_7BE40[];
 extern s32 D_800D2FAC;
 extern void camStandardPersp(Gfx **, Mtx **);
@@ -717,16 +710,6 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * PLATEAU-HANDOFF:func_800378A4:end
  */
 
-
-/* PLATEAU-HANDOFF:func_80037BF4:start
- * symbol: func_80037BF4
- * score: 17 differing words
- * frame: 0x18
- * relocations: 6
- * first-mismatch: +0x40
- * summary: Target has one extra instruction; interpolation multiply and call scheduling remain structurally different.
- * PLATEAU-HANDOFF:func_80037BF4:end
- */
 
 /* PLATEAU-HANDOFF:func_80037C74:start
  * symbol: func_80037C74

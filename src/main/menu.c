@@ -6,8 +6,9 @@
  * and provenance are recorded in docs/modules.md section 3.4. Functions stay
  * under GLOBAL_ASM until their C compiles to Mickey's bytes exactly.
  *
- * Flags: -O2 -mips2 -32 -Wo,-loopunroll,0. The game-code ISA and
- * menu-specific no-unroll override are selected by Makefile.
+ * Flags: -O2 -mips2 -32 (the game-code preset, selected by Makefile). The
+ * -Wo,-loopunroll,0 override this TU once carried was measured byte-inert for
+ * every function except func_80038878, whose target is unrolled; it is gone.
  */
 
 #include "PR/ultratypes.h"
@@ -116,10 +117,15 @@ extern u32 menuPreviousButtons[4];
 #define MENU_REPEAT_Y menuRepeatY
 #define MENU_PREVIOUS_BUTTONS menuPreviousButtons
 #define MENU_STICK_Y_TOTAL D_800D31C2
-extern u8 D_800D3044;
-extern u8 D_800D3045;
-extern u8 D_800D3046;
-extern u8 D_800D3047;
+/* The per-player play-choice bytes are DEFINED here, not extern: the target
+ * stores all four through one `lui $at`, which IDO emits only for an object
+ * it owns (an extern u8[4], or an extern 4-aligned union, gets four separate
+ * `lui`s -- both measured). JFG's src/menu.c reached the same conclusion for
+ * its `playChoice`. IDO places the 4 bytes at .bss+0x2C, inside the 0x30-byte
+ * carve this TU already owns, so the section does not grow; the retail link
+ * put the object at 0x800D3044, which the bss gap object still labels, so
+ * the Makefile weakens this definition and the gap's label wins. */
+u8 D_800D3044[4];
 extern u8 D_800D3498[];
 
 struct MenuCommand {
@@ -318,72 +324,51 @@ void func_80038750(s32 language) {
         }
     }
 }
-#ifdef NON_MATCHING
-/* Fresh configured V0 is exact-size at 85 instructions with frame 0x18,
- * 66/85 differing words, and first mismatch +0x14. The target/candidate own
- * 33/34 relocations; eight offsets/types and five effective identities align.
- * All 119 flag modes are nonexact. Block scopes, direct loop bounds, scalar
- * global typing, donor-local result lifetimes, and line grouping were flat or
- * regressed. A preceding-global pointer form reached 55 masked differences
- * but uses unproved cross-object pointer arithmetic and is rejected, as is the
- * historical empty condition. Resume with an authenticated aggregate BSS
- * declaration or allocator-trace mechanism that separates the initial store
- * and loop-base webs while delaying the later D_800D3498 address web. */
-/* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
+/* PROVENANCE: adapted from Jet Force Gemini's permitted published decomp,
+ * src/menu.c::initFront, as matched in pull request #37 at head
+ * d45123d1c528955d5e12ddad805076267a690d76 (the PR is unmerged upstream, so
+ * the SHA is the citation). Correspondence: same call sequence (allocate the
+ * per-player table, allocate and load the language text, clear the 180-entry
+ * front-end object pointer table, load asset 0x1A and count it to -1, zero
+ * the per-asset loaded flags, set every play choice to 2); Mickey's constants
+ * are its own (6 x 0xF4 records against JFG's 3 x 0x538) and Mickey adds the
+ * trailing joystick-mask reset. The [i - 1] initial read at i == 0 is the
+ * donor's spelling and is what the bytes do.
+ *
+ * Both `for`/`while` loops over the pointer table and the play choices are
+ * unrolled in the target (4 stores per iteration; fully), so this TU compiles
+ * WITHOUT -Wo,-loopunroll,0: measured byte-inert for every other function in
+ * menu.c and required by this one. */
 void func_80038878(void) {
-    s32 *buffer;
-    s32 *bufferEnd;
-    s32 value;
-    s32 nextValue;
-    u8 *loaded;
-    u8 *loadedEnd;
+    s32 i;
 
     D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
-    buffer = D_800D3150;
-    bufferEnd = D_800D3168;
-    value = buffer[-1];
-    do {
-        buffer++;
-        nextValue = value + 0xF4;
-        value = nextValue;
-        buffer[-1] = nextValue;
-    } while ((u32) buffer < (u32) bufferEnd);
+    for (i = 0; i < 6; i++) {
+        D_800D3150[i] = D_800D3150[i - 1] + 0xF4;
+    }
     D_8007C0B8 = func_8002B280(0x1000, 0x8F);
     func_80038750(0);
-    buffer = (s32 *) D_800D31C8;
-    bufferEnd = (s32 *) D_800D3498;
-    do {
-        buffer += 4;
-        buffer[-4] = 0;
-        buffer[-3] = 0;
-        buffer[-2] = 0;
-        buffer[-1] = 0;
-    } while (buffer != bufferEnd);
+    i = 0;
+    while (i < 180) {
+        D_800D31C8[i] = NULL;
+        i++;
+    }
     D_8007C088 = 0;
     D_8007C1B8 = (s16 *) piRomLoad(0x1A);
     D_8007C1BC = 0;
-    if (D_8007C1B8[D_8007C1BC] != -1) {
-        do {
-            D_8007C1BC++;
-        } while (D_8007C1B8[D_8007C1BC] != -1);
+    while (D_8007C1B8[D_8007C1BC] != -1) {
+        D_8007C1BC++;
     }
     D_8007C1C0 = 0;
-    if (D_8007C1BC > 0) {
-        loaded = D_800D3498;
-        loadedEnd = loaded + D_8007C1BC;
-        do {
-            *loaded++ = 0;
-        } while ((u32) loaded < (u32) loadedEnd);
+    for (i = 0; i < D_8007C1BC; i++) {
+        D_800D3498[i] = 0;
     }
-    D_800D3044 = 2;
-    D_800D3045 = 2;
-    D_800D3046 = 2;
-    D_800D3047 = 2;
+    i = 0;
+    while (i < 4) {
+        D_800D3044[i++] = 2;
+    }
     D_800D31B0 = 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontFreeMode;
  * Mickey supplies the smaller 19-mode switch and exact resident state. */
 void func_800389CC(void) {
@@ -1361,14 +1346,4 @@ void func_8003A590(void) {
  * first-mismatch: +0x14
  * summary: Exact geometry; volatile copy order helps, but the initial table-base temp allocation still cascades.
  * PLATEAU-HANDOFF:func_80039E34:end
- */
-
-/* PLATEAU-HANDOFF:func_80038878:start
- * symbol: func_80038878
- * score: 66 differing words
- * frame: 0x18
- * relocations: 34
- * first-mismatch: +0x14
- * summary: Exact size and frame remain blocked by initial store and loop base web separation plus late address lifetime.
- * PLATEAU-HANDOFF:func_80038878:end
  */
