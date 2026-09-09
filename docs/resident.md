@@ -3442,3 +3442,24 @@ the canonical tree and reproduced the expected US ROM SHA1. That ROM equality
 proves the assembly fallback and unchanged matched neighbors; it does not
 promote this nonexact candidate. The target's owned range remains resident
 ROM `0x3E0FC` through `0x3F1AC`, with no function padding credited.
+
+**Closed (Evidence A, exact).** The 73-word register exchange was not an
+allocator problem at all. The batch flush caches the texture and its scale for
+the next comparison, and the guarded source spelled both caches as assignments
+embedded in the material call's own argument list -- the shape the earlier
+attempt log records as "explicit cache assignments inside the material-call
+arguments reproduced the target's update schedule". Hoisting them out and
+writing the flush as three ordinary statements -- the call, then each carrier
+assignment on its own line -- closes the function: 1,068 of 1,068 words, frame
+`0x138`, all fourteen relocation tuples, and `gmake verify` reproducing
+`507341c0a40ca3e9a7cee969b396ee53facfb548` with the guard removed.
+
+An assignment folded into an argument keeps that value live across the call in
+addition to the argument copy, so ugen frees the two integer temporaries in the
+opposite order at the first vertex-DMA command; the ring is one position out
+from `+0x2D0` to the end of the function, and every one of the 73 words is that
+one exchange. The lesson generalizes past this function: an embedded assignment
+is a register-lifetime edit disguised as a spelling choice, and a residual that
+is a pure two-register exchange with an exact frame and exact relocations
+should be read as a liveness question about the statement *before* the first
+divergence, not as an allocator contest at it.
