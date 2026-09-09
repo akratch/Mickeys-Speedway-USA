@@ -2,11 +2,11 @@
 ### `func_overlay_060_F0000334_18BA10C` plateau handoff
 
 - source: `src/overlays/o060/overlay60Prefix.c`
-- score: 97 differing words
+- score: 4 differing words
 - frame: 0x198
-- relocations: 836
-- first mismatch: +0x9a4
-- summary: NON_MATCHING: size exact and all saved registers coloured as the target; residual is previewMode in v1 instead of s5 (rank-table address web takes s5 first).
+- relocations: 838
+- first mismatch: +0x182c
+- summary: NON_MATCHING: code identical to the target; residual is one spilled records-panel temp homed at 88(sp) instead of 96(sp) (spill-slot ordinal one notch low).
 
 This packet reopened only decompiler-assisted structural reconstruction from
 Mickey's extracted assembly. The prior size-deficit plateau was read before
@@ -239,5 +239,109 @@ compile, masked positional and shift-tolerant scores, census, diff),
 `firstmm.py`, `structdiff.py`, `sregs.py`, `regs_in.py`, `occupants.py`,
 `bucket.py`, `rtrel.py`/`rtrel2.py` (runtime relocation identities from the
 ROM tables), `mergetool.py`, `splitloop.py`, `sweep.py`.
+
+#### 2026-09-09 second grind (lane/whale2-o060): 97 to 4 words
+
+Measured with the same direct `tools/ido/cc` harness (`build/scratch-w602/
+measure.py`, flags recovered from `gmake -n`, byte-identical `.text` to the
+asm-processor object). Scores are relocation-masked positional words;
+"identical rows" is the shift-tolerant count (Lever 48).
+
+- Start: 97 words, 2647 identical rows, census delta 4, first mismatch
+  `+0x9a4`. End: 4 words, 2703 identical rows (the other 86 rows differ only
+  in relocation masking), census delta 0, size delta 0, first mismatch
+  `+0x182c`. Every instruction of the 2789 is identical to the target; the
+  four words are two `sw` and two `lw` of one spilled temp at `88(sp)` where
+  the target homes it at `96(sp)`.
+
+Identities proved (each reverts the residual when undone):
+
+- Tier B: the rank lookup is an index, not a pointer. `spare` (the eighth
+  scalar, previously unrecovered) holds `(progress[Data150] & masks[i]) >>
+  shifts[i]`; the table read is `gOverlay60Data12C[spare - 1] * 256` and the
+  draw test is `spare != 0`, with `gOverlay60Data12C` a distinct symbol at
+  data `+0x12C`. uopt keeps `&table + spare` live across the two calls in
+  s2, folds the `-1` into the `lb` displacement and rematerialises the bare
+  folded `data+0x12C` constant at the compare, exactly the target's shape.
+  This answers the first cascade question: there is no CSE web because the
+  source never spells the table address twice. 97 to 16 words alone;
+  `previewMode` takes s5 at all ten sites and `limit` and the 14C value
+  return to v1.
+- Tier B: the screen-mode panel's wide-adjust value is `row` (a0 with no
+  copy). With `spare` taken by the rank index, `spare` there costs an `or`
+  and a3. `minutes`/`seconds`/`hundredths`/`panel` also give a0 but cost 1
+  word elsewhere; `i` costs 4.
+- Tier B: the blur-advanced save block is a second pointer local (`slot`,
+  in the ninth pointer's slot; `rank` no longer exists) computed as byte
+  arithmetic on the named blur index: `i = levelGetBlurEffect(...)`; `slot =
+  (SavesSlot *)((u8 *)slots + i * 32)`. This gives the target's `addu s1,s0,
+  t7` operand order; every scaled pointer add (`slots + n`, `&slots[n]`,
+  integer casts with an inline call result) puts the index first, as probes
+  `build/scratch-w602/probe1.c`/`probe2.c` show. Reusing `objects` or `path`
+  for it scores the same 5 words, so the type is the only evidence for the
+  identity.
+- Tier D: `record` is an explicit induction pointer beside `row`: `for (row
+  = 0, record = slot->records; row < 4; record++, row++)`. Code identical;
+  it moves the spilled name-table pointer's home from 88 to 92.
+
+Mechanism of the remaining four words (proved by diagnostics, kept only as
+evidence): uopt gives every "troubled" web (one that fails first-attempt
+colouring) a frame temp slot in colouring order, top-down from the bottom
+of the local block (probes `probe5.c`/`probe6.c`: the last-coloured webs sit
+at the lowest addresses; adding an unused local moves every slot by 4).
+Fifteen such webs exist here in both builds (frame tight at 0x198; a
+sixteenth would show as 0x1A0). The spilled `gOverlay60Data1A4 + row*4`
+pointer is the 12th in ours and the 11th in the target; the hoisted
+`(f32)ticks` temp is the 15th in both. The order follows Chow priority:
+adding three empty conditional blocks to the records loop (more units)
+pushes the pointer down to 88 and 84; one extra reference to
+`gOverlay60Data1A4[row]` in the loop pushes it up to exactly 96 (with
+different code). So the target's name-table pointer web carries one more
+reference, or one of the webs just above it carries one fewer, than any
+spelling found here. Webs shown to sit below the pointer (an extra
+reference to each moves the pointer down): the `gOverlay60Data1D0` row
+pointer, the `gOverlay60Data1B4[0]` load, the records panel's
+`previewMode` and `record`.
+
+Eliminated (all code-identical, slot unmoved): every declaration order of
+pointers and register-only scalars; dead extra definitions of
+`previewMode` (eliminated before allocation); CSE-merged global re-reads at
+every `previewMode` use; every pre/post-increment, `<`/`!=`/`<=`, `for`/
+`while`/`do` form of the records, glyph, model, coordinate, enable and
+character loops; statement line joins across the panels; a named `objects`
+induction pointer for the model loop (moves the float temp instead); a
+named `rank` pointer with the compare spelled through `&gOverlay60Data11C
+[4]` or `&gOverlay60Data12B[1]` (folds, but the pointer form reopens the
+s5 race: 790+ words); all 3292 pairs of the 82 individually neutral
+rewrites. The decomp permuter's scratch scores this TU at base 4212 and does
+not transfer. Deleting any of 319 statements outside the records and model
+loops leaves the slot at 92, so the troubled set is local to those loops
+and the function-wide address webs they displace.
+
+Sharpest statement for the next worker (measured after the commit above):
+a reference to `gOverlay60Data1A4[row]` placed anywhere in the records loop
+BEFORE the name draw call, in a form that emits no code (an empty
+`if (gOverlay60Data1A4[row] == NULL) { }`, a dead assignment of it to any
+register-only local, `while (...) { break; }`), moves the pointer's home to
+exactly the target's 96(sp) with the frame and every other instruction
+unchanged -- so the target's name-table pointer web carries one more
+counted reference than ours. The same reference also flips uopt's
+loop-exit induction variable from the name pointer to the y-table pointer
+(three-word delay-slot residual, score 5), because the exit test goes to
+the last-created induction pointer and the early reference now creates the
+name pointer's first. A reference after the draw never counts (CSE'd or
+dead-eliminated before priorities), and creating the y-table pointer first
+with a counted reference raises that web above the name pointer instead.
+The missing piece is therefore a natural source form that references the
+name before it is drawn without a matching load in the output, while the
+y-table pointer is still met first: a construct folded after the priority
+census. Candidates untested: a `switch` or `?:` on the name that folds; the
+name passed to a compiled-out macro that still evaluates its argument in
+this compiler; or an argument-evaluation order that meets the y table
+before a real second use of the name. Harness in ignored
+`build/scratch-w602/`: `measure.py` (prints frame, temp homes, positional
+and shift-tolerant scores), `sweep2.py` (parallel single-rewrite sweep),
+`pairs.py`, `variant.py`, and the `subs*.py` rewrite libraries with every
+experiment above (`subs27`--`subs33` are the vacuous-reference series).
 
 <!-- plateau-handoff:func_overlay_060_F0000334_18BA10C:end -->
