@@ -336,24 +336,23 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Bounded plateau: fresh configured V0 is exact-sized at 94 words with frame
- * 0x38, 62/94 raw and relocation-normalized words (68/94 under workbench stack-
- * home normalization), first +0x40, and all 13 offset/type/identity tuples
- * exact. All 119 flag identities were nonexact;
- * seven O2/MIPS-II configurations tie V0. A fidelity-clean proc-4 allocator
- * trace and aligned view show the 34-entry colored-variable lane is exact while
- * the temporary FIFO first trails by one pop at slot 4. The sole natural
- * boolean-normalization form advances the downstream FIFO and improves to
- * 85/94 raw and relocation-normalized words (91/94 workbench-normalized). Its
- * remaining sites are one t7/t8 web
- * at +0x40/+0x44/+0x80 and six call-argument homes at
- * +0xF0/+0xFC/+0x100/+0x104/+0x120/+0x12C, each four bytes below target.
- * Candidate SHA-256 is e7db045544f31f17a9354b019b0c3dc66a91eae6992daaeffcc255d017f0891c.
+/* The two boolean spellings in this function are one edit and neither of them
+ * works alone. ugen materialises a `(relational) == 0` test as a `seq`/`beq`
+ * pair, which as1 fuses back into a single branch, so the temporary is
+ * consumed but never emitted: it is a free +1 step on ugen's temp ring, with
+ * no instruction and no size cost. `!(x)`, `(x) != 0` and `(x) != 0U` all fold
+ * back to a bare branch and burn nothing, while `== 1`, `!= 1` and `^ 1` emit
+ * a real instruction and cost two words. That gives a ring-phase dial with
+ * three settings, usable at any branch site in either direction.
+ *
+ * The target burns its ring temp at the loop guard rather than at the inner
+ * compare, so here the guard carries the normalisation and the compare is
+ * plain. Alone, the guard edit is 23 differing words and dropping the inner
+ * `!= 0U` is 26; together they are exact. Do not "simplify" either one.
+ *
  * The owned 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range has no
  * padding. func_8005A7A0+0x104 is the sole caller, passing an lh animation ID;
- * there is no export/runtime/overlay/pointer inbound. The cap is exhausted;
- * no historical control or generic batch was run. Assembly remains canonical. */
-#ifdef NON_MATCHING
+ * there is no export, runtime, overlay or pointer inbound. */
 u8 *func_8005A948(s16 animationId) {
     s32 i;
     s32 emptyIndex;
@@ -364,11 +363,11 @@ u8 *func_8005A948(s16 animationId) {
 
     emptyIndex = -1;
     i = 0;
-    if (D_800D7D04 > 0) {
+    if ((D_800D7D04 <= 0) == 0) {
         do {
             AnimationCacheEntry *entry = &((AnimationCacheEntry *)D_800D7CF4)[i];
 
-            if ((animationId == entry->id) != 0U) {
+            if (animationId == entry->id) {
                 u8 *existing = entry->animation;
 
                 existing[0]++;
@@ -405,9 +404,6 @@ u8 *func_8005A948(s16 animationId) {
     ((u8 **)D_800D7CF4)[(emptyIndex * 2) + 1] = (u8 *)animation;
     return (u8 *)animation;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A948.s")
-#endif
 
 /* PROVENANCE: Mickey-only reconstruction informed by JFG's corresponding
  * modFreeAnim identity and structure; the public JFG peer remained assembly,
@@ -895,14 +891,4 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * first-mismatch: +0x0
  * summary: Frame remains 0x110 versus target 0xF8; camera/matrix allocator structure remains unresolved after the full flag lattice.
  * PLATEAU-HANDOFF:func_8005AF14:end
- */
-
-/* PLATEAU-HANDOFF:func_8005A948:start
- * symbol: func_8005A948
- * score: 3 differing words
- * frame: 0x38
- * relocations: 13
- * first-mismatch: +0x40
- * summary: Declaration order moves all six stack homes exact; residual is a three-word t8-to-t7 temporary-ring web, with source-faithful loop/address variants flat.
- * PLATEAU-HANDOFF:func_8005A948:end
  */
