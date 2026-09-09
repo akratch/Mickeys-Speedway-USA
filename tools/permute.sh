@@ -102,10 +102,22 @@ echo "C file: $c_file"
 # --- Locate (or regenerate) the target .s -------------------------------
 asmfile=$(find asm/nonmatchings -type f -name "$func.s" 2>/dev/null | head -1 || true)
 
-# A friendly C candidate can retain an auto-named GLOBAL_ASM fallback
-# (for example overlay18Load versus func_overlay_018_F0000000_18745B8).  When
-# this translation unit names exactly one existing fallback path, it is the
-# unambiguous target even though its basename differs from the C function.
+# A friendly C candidate keeps its auto-named GLOBAL_ASM fallback (for example
+# overlay18Load versus func_overlay_018_F0000000_18745B8), so the find above
+# misses it. Resolve it structurally first: the pragma inside the candidate's
+# own #ifdef NON_MATCHING guard is that function's target, however many other
+# pragmas the translation unit carries. The sole-pragma rule below is kept as a
+# fallback for units without the guard shape, but on its own it gave up on
+# every multi-function overlay unit -- overlay_001_tail.c has twelve -- which
+# left the permuter unusable there until 2026-09-09.
+if [ -z "$asmfile" ]; then
+    paired=$("$PYTHON" tools/resolve_target_asm.py "$func" "$c_file" || true)
+    if [ -n "$paired" ] && [ -f "$paired" ]; then
+        asmfile=$paired
+        echo "Using the GLOBAL_ASM fallback paired with $func: $asmfile"
+    fi
+fi
+
 if [ -z "$asmfile" ]; then
     pragma_paths=$(sed -n 's/^[[:space:]]*#pragma GLOBAL_ASM("\([^"]*\)").*/\1/p' "$c_file")
     pragma_count=$(printf '%s\n' "$pragma_paths" | sed '/^$/d' | wc -l | tr -d ' ')

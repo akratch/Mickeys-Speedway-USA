@@ -362,6 +362,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_check_donor_claims.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_mul_scheduler_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_authorize_reopen.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_target_asm.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
