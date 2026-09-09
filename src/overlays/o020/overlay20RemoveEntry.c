@@ -40,7 +40,27 @@ extern u32 gOverlay20ActiveBits;
  * `new_var` bound carrier (6). The parameter reuse is load-bearing, not an m2c
  * artefact to be cleaned up. Next lever is unchanged: the invisible v0 web that
  * interferes with the compaction base, which needs the instrumented uopt
- * capture rather than a source spelling. */
+ * capture rather than a source spelling.
+ *
+ * 2026-09-09, lane fin-misc: about 250 more candidates against the real object
+ * on a 64 ms loop, every one of them 2/53 at the same two words. The colour
+ * order is readable straight out of the object -- the target reuses the colour
+ * `entry` had (v0) for the compaction bound while IDO reuses the one the
+ * &gOverlay20EntryCount address had (a2), and both are dead at that point, so
+ * a2 is simply the more recently freed of the two. Newly eliminated: all six
+ * declaration orders and four extra-local shapes (declaration order does not
+ * drive this, as the field guide says); a 63-cell colour-reserving dead-store
+ * sweep -- `dead = 0`, `= i`, `= owner`, `= entry`, `= NULL`,
+ * `= gOverlay20EntryCount`, `= gOverlay20ShiftEntries` inserted at each of the
+ * nine statement positions -- none of which reserves a colour here; eight
+ * compaction-loop spellings including a re-read bound (6 words), `!=` and
+ * reversed conditions, unsigned bounds (14), a named end pointer (15), and
+ * `++i` in the condition; hoisting the bound above the guard (6); five search
+ * loop shapes and five marker loop shapes; use-side lock breaks on the bound,
+ * on `i`, on the store index and on the entry comparison; and retyping the
+ * bound carrier as `void *` / `void **` or folding it back onto `entry`
+ * (22-29 words, because the comparison's type changes with it). The residual
+ * is not reachable by any spelling of this function. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
@@ -97,6 +117,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: new_var improves 47/53 to 51/53; final v0-a2 pool tie is flat; next lever is instrumented uopt forced-color oracle
+ * summary: The v0-a2 tie is a free-list choice between two dead colours; ~250 further candidates across declarations, dead stores, loop shapes and lock breaks are all 2/53, so no source spelling reaches it and the instrumented uopt oracle is the only lever left.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */

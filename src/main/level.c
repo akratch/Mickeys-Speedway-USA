@@ -641,10 +641,19 @@ u8 *levelGetName(s32 arg0) {
  * Newly proved reachable: spelling the doubling as `m + m` DOES produce the
  * target's mask, table, scale order (`and $2; lw $11; addu $12,$2,$2`). It
  * lands 13 words because uopt gives the twice-used mask a pool colour instead
- * of a ring temp and the shift becomes an add. That is the first evidence that
- * the wanted order is reachable at all: the mask must be evaluated before the
- * table AND still live in the ring. Next lever is a spelling with those two
- * properties, not another address form. */
+ * of a ring temp and the shift becomes an add.
+ *
+ * 2026-09-09, lane fin-misc. The three words are a ring-index swap of two
+ * adjacent slots and nothing else: emission positions are identical in all
+ * three classes and only the register names move, so this is post-uopt emit
+ * order, not schedule. Target {mask t3, table t4, scale t5, sum t6}; the
+ * manual-shift class is {mask t3, scale t4, table t5}; the subscript class is
+ * {table t3, mask t4, scale t5}. The target therefore carries the SUBSCRIPT
+ * signature -- scale created third, sum fourth -- with the index temp created
+ * before the base load, and the only thing separating them is cfe's operand
+ * order for a subscript. cfe canonicalises `int + ptr` to `ptr + int` before
+ * numbering, which is why integer-left pointer arithmetic and the reversed
+ * subscript `(idx)[table]` land base-first too. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
@@ -743,7 +752,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Needs ring order mask, global, shift; every single-statement spelling gives mask/shift/global or global/mask/shift and uopt normalises statement splits.
+ * summary: Ring-index swap only; target carries the subscript signature with the index temp created before the base load, and cfe canonicalises every source form that would order it that way.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

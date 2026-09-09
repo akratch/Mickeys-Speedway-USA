@@ -51,4 +51,63 @@ Tooling: the permuter's isolated scratch for this TU compiles the function at
 reading and nothing measured there transfers. `tools/permute.sh` on
 `models_5B300.c` should not be trusted until that is fixed.
 
+#### Second owned pass, 2026-09-09 (lane/fin-mod)
+
+Still 2. What this pass bought is a proof of *where* the two words live and a
+large set of retired levers, not a match.
+
+- **Phase replay is exact for this TU.** `cc -S`'s ugen listing, re-assembled
+  with `cfe -E` + `as0` + `as1` at the compiler-path flags (drop the driver's
+  `-pic0`, keep `-O2`), reproduces the real object byte for byte. One candidate
+  costs ~60 ms, so the last phase is a directly searchable space. Watch out:
+  `cc -S -o <path>` ignores `-o` and drops the listing in the *current
+  directory* -- move it into your scratch dir before anything else.
+- **The residual is one assembler decision and nothing else.** Inserting a
+  single location-counter directive (`.align n`, `.space 0`, or `.text`)
+  immediately after the else-arm's label in the ugen listing suppresses the
+  branch-likely conversion and yields a **byte-exact 111-word object**. Every
+  other word of this function's C is therefore already the target's C.
+- **The suppressor set is exactly those three directives.** Everything else
+  ugen can emit inside a function body was tested at that position and at ten
+  others and is inert: `.loc` (every line value, inserted, deleted and moved),
+  `.livereg`, `.noalias`/`.alias`, `.mask`, `.frame`, `.file`, `.option`,
+  `.verstamp`, an extra label, a padding instruction, a redundant jump. ugen
+  emits `.align` and `.text` only at function *starts* (11 of each for this
+  TU's 11 functions), so the suppressor is not reachable from C.
+- **Physical line grouping is retired for this residual.** Grouping changes
+  only `.loc` lines, and every `.loc` edit anywhere in the function is inert
+  here. Do not spend another pass on it.
+- **No cross-function state.** Dropping any other function from the listing
+  leaves the decision unchanged, so the space is this function's own ugen text.
+- **Single-line ugen-text moves do not reach it.** Every line of the function
+  moved to every other position in the function was scored; nothing beats 2.
+- **384 C spellings are flat.** Cross product of: the three integer tests
+  plain vs `!= 0` vs `!= 0U`, the two float tests as `>=` vs negated `<`, the
+  blend statement order, the disjunction spelling, `frame` carrier placement,
+  `while` vs guard-plus-bottom-tested loop, the product in a local, and the
+  explicit-add form. Assigning `frame` inside the else arm sinks the carrier
+  copy below the test and costs 45 words: the carrier must be assigned before
+  the test, as it already is.
+- **How the conversion actually behaves**, measured on this function's nine
+  other conditional branches: the assembler duplicates the first *scheduled*
+  instruction of the branch-target block into the annulled slot and retargets
+  past it. It declines only when that head is itself a branch, when the head
+  has been hoisted out from under its own label by an earlier assembler
+  transformation (retargeting such a branch to the next label restores the
+  conversion), or when a location-counter directive stands at the head.
+  Liveness of the duplicated destination on the fall-through path is *not* a
+  factor (renaming it in either direction is inert), and neither is the head's
+  opcode class -- integer branches duplicate float arithmetic here.
+- One unexplained sensitivity worth a follow-up: replacing the byte load that
+  defines the test's condition register with an ALU definition in the same
+  block makes the assembler decline. Both sides of this target define that
+  register with the same byte load, so it does not explain the residual, but
+  it is the only input perturbation found that flips the decision without a
+  directive.
+
+Next worker: do not re-run the source-spelling or line-grouping space. The
+open question is narrow -- what ugen-emittable input makes this one branch
+keep its own delay slot -- and the phase-replay harness above is the tool for
+it.
+
 <!-- plateau-handoff:func_8005ABA8:end -->

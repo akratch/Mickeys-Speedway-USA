@@ -22,6 +22,19 @@ extern void overlay33AllocationFailedReloc(void);
  * store/branch/copy cluster is instead decided by besttime. Both relevant
  * line joins and the addition commutation are byte-flat; declaration changes
  * are flat/regressing, and all 25 relocation offsets/types align.
+ *
+ * 2026-09-09, lane fin-misc: the cluster read out exactly. Five of the six
+ * words are the same seven instructions in two orders. The target emits
+ * `sw`, `beqz`, `move`(delay), `andi`, `beqz`, `li -64`(delay), `and`; the
+ * candidate emits `beqz`, `sw`(delay), `andi`, `beqz`, `move`(delay),
+ * `li -64`, `and`. So both branch delay slots are filled differently: the
+ * target spends `original = allocation` on the first and `li at,-64` on the
+ * second, the candidate spends the store on the first and the copy on the
+ * second. `original` is dead on the allocation-failure path, so uopt sinks it
+ * past the null test and the store becomes the only fill candidate above the
+ * branch; hoisting the copy above the test instead lets uopt delete the
+ * matching `move` at the join (80 words). The sixth word, the `addu` at +0xDC,
+ * is the same operand-order question and never moves alone.
  */
 #ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
@@ -75,6 +88,6 @@ void overlay33InitializeBuffers(void) {
  * frame: 0x38
  * relocations: 25
  * first-mismatch: +0x4C
- * summary: Local flag offset +0x3790 exact; six raw words remain in a flat scheduler cluster; next lever is a new stock-fidelity scheduling mechanism.
+ * summary: Six words are two as1 delay-slot fill choices plus the coupled addu; uopt sinks the partially dead `original` copy past the null test, leaving the store as the only fill above the branch.
  * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
  */

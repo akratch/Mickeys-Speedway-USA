@@ -488,7 +488,20 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
  *
  * Tooling note: the permuter's isolated scratch for this TU compiles the
  * function at 112 words against the real object's 111, so its base score of
- * 400 is a false reading and no score from it transfers. */
+ * 400 is a false reading and no score from it transfers.
+ *
+ * Second pass, 2026-09-09: the phase input is now proved correct. Replaying
+ * the compiler's own listing through its preprocessor, first and second
+ * assembler passes reproduces this object exactly, and inserting a single
+ * location-counter directive at the else arm's label there suppresses the
+ * duplication and yields a byte-exact 111 words. So every other word of this
+ * C is already the target's C. The suppressing set is exactly the three
+ * location-counter directives, which ugen emits only at function starts, so
+ * it is not reachable from source. Retired for this residual: all debug-line
+ * edits (hence physical line grouping), every other in-body directive, any
+ * single-line move of the phase input, any neighbouring function, and 384 C
+ * spellings of the tests, loops, blend order and carrier placement. See
+ * docs/matching-triage-handoffs/func_8005ABA8.md. */
 /* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
  * existing models TU layouts; no external function body is copied. */
 #ifdef NON_MATCHING
@@ -892,3 +905,4 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * summary: Frame remains 0x110 versus target 0xF8; camera/matrix allocator structure remains unresolved after the full flag lattice.
  * PLATEAU-HANDOFF:func_8005AF14:end
  */
+
