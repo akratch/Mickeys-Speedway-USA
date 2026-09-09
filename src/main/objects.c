@@ -5638,7 +5638,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Register-permutation after line grouping; forced color is diagnostic exact. Resume only with new evidence for the initial-index allocation lever.
+ * summary: One caller-saved colour: target a1 where the candidate takes a0; use-site, dead-store and carrier spellings all eliminated.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
@@ -5658,7 +5658,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Shared initial-index register-permutation; stock source remains nonexact. Resume only with new def-use evidence beyond the sibling forced-color oracle.
+ * summary: Same one caller-saved colour as func_80004454: target a1, candidate a0. Shared with func_80009AA8; not a source-level web.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
@@ -5760,7 +5760,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x48
  * relocations: 39
  * first-mismatch: +0x5C
- * summary: Workbench allocation-mismatch: register-role-audit. Next: isolate heap-spill line order and the short-lived record-length web.
+ * summary: Three schedule words on the heap home store (all 24 orders measured), four on the record-length colour the frame cannot pay for.
  * PLATEAU-HANDOFF:func_80004C28:end
  */
 
@@ -5780,7 +5780,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x100
  * relocations: 34
  * first-mismatch: +0x170
- * summary: Workbench operand-mismatch: constant-audit. Next: authenticate stack homes for the four-byte pending-array displacement.
+ * summary: Frame is 9 declared scalars + 5 compiler temps against our 8 + 6; only a declared object-walk pointer cursor reaches it.
  * PLATEAU-HANDOFF:func_8000784C:end
  */
 
