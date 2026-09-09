@@ -3224,19 +3224,19 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * symbol: overlay1FindBestRecord
  * score: 28/30 words
  * frame: frameless
- * relocations: 4
- * first-mismatch: +0x14
- * summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
+ * relocations: 2
+ * first-mismatch: +0x4
+ * summary: schedule and all six colours exact; residual is the %hi fold into the load's own destination register; permuter flat 30min, five load spellings inert
  * PLATEAU-HANDOFF:overlay1FindBestRecord:end
  */
 
 /* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
  * symbol: overlay1AppendPathPoint
- * score: 22 differing words
+ * score: 102/108 words
  * frame: 0x28
  * relocations: 8
- * first-mismatch: +0x20
- * summary: 119 flags and six coherent forms exhausted; next lever is source evidence for pool formation or anchor temporary FIFO behavior.
+ * first-mismatch: +0x134
+ * summary: prefix exact to row 51 and the temp ring identical 24/24; residual is one extra pool web at the anchor CSE and the anchorX colour
  * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
  */
 
@@ -3264,11 +3264,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 32 differing words
- * frame: 0x88
- * relocations: 43
- * first-mismatch: +0x0
- * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
+ * score: 228/249 words
+ * frame: 0x80
+ * relocations: 35
+ * first-mismatch: +0xC
+ * summary: frame and the single stack home are now proved exact; residual is the early D_1DA0 address/load pair before the register saves
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
