@@ -94,9 +94,14 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch, 60 differing words, first mismatch +0x68. */
-/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; 3/6 call relocations align. */
-/* The retained flag's stack home is exact; one address-base instruction and register coloring remain. */
+/* 111 instructions against the target's 110, with the -0x48 frame and all four
+ * local stack homes exact. The single extra instruction is located: the target
+ * computes `cone + 0x38` once into a register, stores it as `cone->vertices`,
+ * and adds the two sub-block sizes to *that* register; every source spelling
+ * tried -- reading the field back, carrying a local, `(u8 *)(cone + 1)`,
+ * chaining through `cone->addresses[0]`, and s32 arithmetic -- lets IDO
+ * reassociate the sum into `cone + size` followed by a separate `+ 0x38`,
+ * which is the extra word and the register rotation that follows it. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -864,8 +869,17 @@ Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #endif
-/* Workbench: structure-mismatch; 58 words differ, first mismatch +0x08. */
-/* Candidate is not opcode-shape exact: 121/121 instructions, frame -72/-72 bytes, exact call relocations; 8 init-schedule words remain, 50 are register-only. */
+/* Twenty words differ, all of them register names; 121 instructions, the -72
+ * frame, the call relocations and every schedule slot are exact. Spelling the
+ * eight-byte alignment pad as `arg1 & 7` twice -- once in the test and once in
+ * the `8 - ...` -- instead of caching it in `size` removes a pool web and makes
+ * the whole prologue exact: 23 -> 20. What remains is one temp-numbering
+ * rotation: the target spends t4/t5/t6 on the three short-lived halfword loads
+ * near the tail and t7/t8/t9 on the two texture-extent shifts and the constant
+ * 3, while this source reuses one register across two of those webs and shifts
+ * the rest. Flat over the fill-loop shape (for/do, index vs pointer, group
+ * order, base at +0x26 with stride 40), the wake-allocation tail, and 117,000
+ * randomised statement-order and line-grouping candidates. */
 /* PROVENANCE: Mickey field layouts/control flow reconstructed from target accesses; JFG wakeSetupRipple is assembly-only and supplies only TU/name context. */
 #ifdef NON_MATCHING
 typedef struct FxRippleSource {
@@ -950,9 +964,8 @@ s32 func_80048760(void *arg0, s32 arg1) {
     u8 *var_v0;
     FxRippleFrame *frame;
 
-    size = arg1 & 7;
-    if (size != 0) {
-        size = 8 - size;
+    if ((arg1 & 7) != 0) {
+        size = 8 - (arg1 & 7);
         arg1 += size;
     } else {
         size = 0;
@@ -1274,22 +1287,31 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Workbench verdict: structure-mismatch, 69 differing words, first mismatch +0x0. */
-/* Candidate: 149/149 instructions with a -0x30 frame versus target -0x38; both call relocations are exact. */
-/* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
+/* Five words differ, all of them the same web: the truncated height carrier is
+ * v1 in the target and a0 here. Everything else -- 149 instructions, the frame,
+ * both call relocations, every other register and every schedule slot -- is
+ * exact. The lever that got here was the vertex writeback: the twelve stores
+ * are all addressed from the *post*-increment `vertex`, including the first
+ * one, which the earlier draft wrote as `vertex[+0x22]` before `vertex += 0x3E`
+ * and which IDO schedules ahead of the increment anyway. Expressed that way the
+ * store order is the plain per-vertex x/y/z order and the residual fell 69 -> 5.
+ * Flat since: web-count changes around the carrier (owner, fade, value7C and
+ * coordinate locals, inlining mode/step/angle), its type (s16/u32/register/
+ * implicit conversion), its position (five placements), the whole prelude
+ * order/grouping lattice, and 70,000 randomised statement-order candidates. */
 /* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
  * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
  * context. JFG supplies only the role/name; this retained body uses Mickey's
  * target offsets and calls. No new donor body was available or adopted. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
-    FxWakeRippleData *ripple;
     FxWakeTexture *texture;
     u8 mode;
-    s16 angle;
+    FxWakeRippleData *ripple;
+    u8 *vertex;
     s16 step;
     s32 height;
-    u8 *vertex;
+    s16 angle;
 
     ripple = owner->ripple;
     if (ripple != 0) {
@@ -1319,20 +1341,20 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         if (ripple->fade != 0) {
             mode = 1 - ripple->mode;
             ripple->mode = mode;
-            height = (s32) ripple->value80;
             vertex = (u8 *) ripple + ((mode & 0xFF) * 0x28);
-            *(s16 *) (vertex + 0x22) = (s16) height;
+            height = (s32) ripple->value80;
             vertex += 0x3E;
             *(s16 *) (vertex - 0x1E) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 0x1C) = (s16) height;
             *(s16 *) (vertex - 0x1A) = (s16) (s32) (owner->value14 - ripple->value7C);
-            *(s16 *) (vertex - 0x12) = (s16) height;
             *(s16 *) (vertex - 0x14) = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex - 0x12) = (s16) height;
             *(s16 *) (vertex - 0x10) = (s16) (s32) (owner->value14 - ripple->value7C);
-            *(s16 *) (vertex - 8) = (s16) height;
             *(s16 *) (vertex - 0xA) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 8) = (s16) height;
             *(s16 *) (vertex - 6) = (s16) (s32) (owner->value14 + ripple->value7C);
-            *(s16 *) (vertex + 2) = (s16) height;
             *(s16 *) vertex = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex + 2) = (s16) height;
             *(s16 *) (vertex + 4) = (s16) (s32) (owner->value14 + ripple->value7C);
         }
         angle = Arctanf(owner->value1C, owner->value24);
@@ -1707,27 +1729,22 @@ s32 func_80049B14(s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #endif
-/* Workbench verdict: structure-mismatch, 36 differing words, first mismatch +0x20. */
-/* Candidate: 167/169 instructions with the exact -0x60 frame and 6/9 relocation identities aligned. */
-/* Shape status: authentic GBI forms close the VI setup and per-record loop; count allocation remains structural. */
-/* PROVENANCE: Mickey's target commands, globals, and CFG supply this reconstruction; the GBI macros are project SDK headers. */
-#ifdef NON_MATCHING
+/* PROVENANCE: Mickey's target commands, globals, and CFG supply this
+ * reconstruction; the GBI macros are project SDK headers. */
 #define FX_SET_SCREEN_RENDER(packet, mode) { \
     Gfx *_g = (packet); \
     _g->words.w0 = 0xEF002C0F; \
     _g->words.w1 = (mode); \
 }
 void func_80049E4C(Gfx **dlist, s32 arg1) {
+    s32 count;
     s32 width;
     s32 height;
-    s32 count;
-    s32 remaining;
     FxRecord *record;
 
     if (D_800D5F50 != 0) {
         viGetCurrentSize(&width, &height);
         gDPPipeSync((*dlist)++);
-        count = 1;
         gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, 0, 0,
                       (u32) width, (u32) height);
         gSPClearGeometryMode((*dlist)++, G_ZBUFFER | G_FOG);
@@ -1737,25 +1754,22 @@ void func_80049E4C(Gfx **dlist, s32 arg1) {
             count = 4;
         } else {
             record = (FxRecord *) D_800D5FD8;
+            count = 1;
         }
-        remaining = count - 1;
-        if (count != 0) {
-            do {
-                if (record->status != 0) {
-                    if (record->status == 0xFF) {
-                        FX_SET_SCREEN_RENDER((*dlist)++, 0x0F0A4000);
-                    } else {
-                        FX_SET_SCREEN_RENDER((*dlist)++, 0x00504340);
-                    }
-                    gDPSetPrimColor((*dlist)++, 0, 0, record->red,
-                                    record->green, record->blue, record->status);
-                    gDPFillRectangle((*dlist)++, record->value4, record->value8,
-                                     record->valueC, record->value10);
-                    gDPPipeSync((*dlist)++);
+        while (count--) {
+            if (record->status != 0) {
+                if (record->status == 0xFF) {
+                    FX_SET_SCREEN_RENDER((*dlist)++, 0x0F0A4000);
+                } else {
+                    FX_SET_SCREEN_RENDER((*dlist)++, 0x00504340);
                 }
-                record++;
-                remaining--;
-            } while (remaining != 0);
+                gDPSetPrimColor((*dlist)++, 0, 0, record->red,
+                                record->green, record->blue, record->status);
+                gDPFillRectangle((*dlist)++, record->value4, record->value8,
+                                 record->valueC, record->value10);
+                gDPPipeSync((*dlist)++);
+            }
+            record++;
         }
         func_80034920(dlist);
         camSetScissor(dlist);
@@ -1763,17 +1777,18 @@ void func_80049E4C(Gfx **dlist, s32 arg1) {
     }
 }
 #undef FX_SET_SCREEN_RENDER
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
-#endif
 void func_8004A0F0(void) {
     D_800D6038[0] = 0;
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
-/* Workbench verdict: structure-mismatch, 132 differing words, first mismatch +0x0. */
-/* Candidate: exact 157-instruction geometry with a -0x60 frame versus target -0x58; six structural words remain. */
-/* Shape status: VI stack homes are exact; the cursor/end web remains ra/s1 instead of target t5/ra. */
+/* Exact 157-instruction extent; the residual is one register class. The target
+ * carries the glyph-row cursor in t5 and the end pointer in ra -- both
+ * caller-saved, ra being dead after the one call -- and saves only s0 and ra,
+ * for a -0x58 frame. This source puts the end pointer in s1, which adds the
+ * eighth save slot and the extra 8 bytes of frame, and every offset after it
+ * follows. Declaration order does not move it (all 14 permutations flat) and an
+ * unused declaration is dropped before it reaches the frame. */
 /* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
 #ifdef NON_MATCHING
 void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
@@ -2372,11 +2387,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048760:start
  * symbol: func_80048760
- * score: 23 differing words
+ * score: 20 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: +0x8
- * summary: JFG efd5abb wakeSetupRipple remains assembly-only; 23/121 words differ. Next lever: new donor initialization source/line topology; prior forms exhausted.
+ * first-mismatch: +0x90
+ * summary: spelling the alignment pad twice instead of caching it makes the prologue exact, 23 -> 20. Residual is one temp-numbering rotation over the extent shifts and the tail halfword loads.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
@@ -2386,7 +2401,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 6
  * first-mismatch: 0x68
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new allocation address-base/register topology evidence.
+ * summary: the one extra instruction is located: the target reuses the materialised cone+0x38 value as the base for the two sub-address adds, IDO reassociates every source spelling tried into cone+size then +0x38. Frame and stack homes are exact.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
@@ -2402,11 +2417,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
- * score: 69 differing words
+ * score: 5 differing words
  * frame: 0x30
  * relocations: 2
- * first-mismatch: +0x0
- * summary: JFG efd5abb wakeUpdateRipple remains assembly-only; zero new attempts. Next: authenticated ripple declarations/homes for the stack-home lever.
+ * first-mismatch: +0x108
+ * summary: addressing all twelve vertex stores from the post-increment cursor took 69 -> 5. Residual is one pool colour: the truncated height carrier is v1 in the target, a0 here.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 
@@ -2420,23 +2435,13 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
-/* PLATEAU-HANDOFF:func_80049E4C:start
- * symbol: func_80049E4C
- * score: 36 differing words
- * frame: 0x60
- * relocations: 9
- * first-mismatch: 0x20
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new VI stack homes and count-carrier topology evidence.
- * PLATEAU-HANDOFF:func_80049E4C:end
- */
-
 /* PLATEAU-HANDOFF:func_8004A10C:start
  * symbol: func_8004A10C
  * score: 132 differing words
  * frame: 0x60
  * relocations: 5
  * first-mismatch: 0x0
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new glyph cursor/end lifetimes evidence.
+ * summary: the 8-byte frame excess is one saved register: the target carries both glyph-row pointers in t5 and ra, this source spends s1 on the end pointer. Extent is exact at 157 words.
  * PLATEAU-HANDOFF:func_8004A10C:end
  */
 
