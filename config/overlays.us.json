@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 139876,
-  "nonmatching_overlay_c_bytes": 328744,
+  "matched_overlay_c_bytes": 140172,
+  "nonmatching_overlay_c_bytes": 328448,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1227,6 +1227,14 @@
      "label": "overlay1AdvanceObjectGauges",
      "source": "overlays/o001/overlay_001_middle",
      "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x3578",
+     "end_offset": "0x36A0",
+     "size": "0x128",
+     "label": "overlay1InitializeGaugeObjects",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "canonical mixed-TU object, all three runtime relocations, and linked ROM bytes exact"
     },
     {
      "offset": "0x36A0",

@@ -13,62 +13,53 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
-/* Plateau: exact 74-word size and 0x60 frame; best is 13 words different,
- * first actionable mismatch +0x30. One `O1GaugeObject **` cursor serves both
- * loops: the separate `firstCursor` declaration was worth three words, and
- * the frame is 0x60 at ten or eleven declarations but 0x68 as soon as a
- * twelfth, or any additional `s32`, is declared. The residual is the objects
- * carrier -- the target copies the call result into a second live register
- * for the second loop's base -- and the count, which the target reads once
- * for both the countdown and the emptiness test and again after the first
- * loop. `volatile` is load-bearing for the reload but forbids the shared
- * read; dropping it CSEs all three into one. */
-#ifdef NON_MATCHING
+/* Two identities close this: the object list is indexed, not walked with a
+ * hand-written cursor -- IDO's own strength reduction is what produces the
+ * second live base register the target keeps across the first loop -- and the
+ * count is read once for the countdown and the emptiness test and again after
+ * the first loop, which needs a plain and a volatile member at one address.
+ * Neither half matches alone (8 and 14 words); the pair is exact. */
+typedef union O1GaugeCount { s32 shared; volatile s32 reload; } O1GaugeCount;
+
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
-    volatile s32 count;
+    O1GaugeCount count;
     O1GaugeObject **objects;
-    O1GaugeObject **secondCursor;
     O1GaugeObject *object;
     O1GaugeState *state;
     s32 initialIndex;
     s32 index;
     s32 loopValue;
     s32 maximum;
+
     table = overlay1GetGaugeTable();
-    objects = overlay1GetGaugeObjects((s32 *)&count);
+    objects = overlay1GetGaugeObjects(&count.shared);
     maximum = 0;
-    initialIndex = count - 1;
+    initialIndex = count.shared - 1;
     index = initialIndex;
-    if (count != 0) {
-        secondCursor = (O1GaugeObject **)((u8 *)objects + (index * 4));
+    if (count.shared != 0) {
         do {
-            object = *secondCursor--;
+            object = objects[index];
             state = object->state;
-            loopValue = state->enabled;
-            if ((loopValue != 0) && (maximum < state->value)) maximum = state->value;
+            if ((state->enabled != 0) && (maximum < state->value)) maximum = state->value;
             loopValue = index;
             index--;
         } while (loopValue != 0);
         index = initialIndex;
     }
-    secondCursor = objects + index;
-    if (count != 0) {
+    if (count.reload != 0) {
         do {
-            state = (*secondCursor)->state;
+            object = objects[index];
+            state = object->state;
             state->flags |= 1;
             if (table[state->type].value == 0) {
                 table[state->type].value = overlay1RandomRange(100, 1000) + maximum;
             }
             loopValue = index;
-            secondCursor--;
             index--;
         } while (loopValue != 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0003578_184F958.s")
-#endif
 
 /* ---- overlay1AssignRecordIndex ---- */
 
@@ -3269,16 +3260,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0xC
  * summary: two schedule clusters; the embedded trig assignment reproduces the post-call load exactly at the cost of one stall nop
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
- */
-
-/* PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:start
- * symbol: overlay1InitializeGaugeObjects
- * score: 61/74 words
- * frame: 0x60
- * relocations: 3
- * first-mismatch: +0x30
- * summary: one cursor for both loops takes 16 to 13; residual is the objects copy and the shared count read, reachable only through a union at a worse schedule
- * PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:end
  */
 
 /* PLATEAU-HANDOFF:overlay1AdvancePath:start

@@ -1155,6 +1155,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
         (
+            0x3578,
+            0x36A0,
+            "overlay1InitializeGaugeObjects",
+            "canonical mixed-TU object, all three runtime relocations, and linked ROM bytes exact",
+        ),
+        (
             0x36A0,
             0x3750,
             "overlay1AssignRecordIndex",
