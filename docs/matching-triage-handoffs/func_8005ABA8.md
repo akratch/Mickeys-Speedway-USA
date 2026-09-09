@@ -122,4 +122,16 @@ open question is narrow -- what ugen-emittable input makes this one branch
 keep its own delay slot -- and the phase-replay harness above is the tool for
 it.
 
+#### Owned pass, 2026-09-10 (lane/nm-resident2)
+
+Still 2, and nothing in this pass reaches the assembler decision the pass
+above pins it to. One small addition to the retired set: the compiler's debug
+levels do not reach it either. `-g0` is byte-identical to the default and
+still converts; `-g1` and `-g2` change the object entirely (176 words) and
+`-g3` gives 112, so none of them is a candidate correction for this TU.
+
+Confirmed unchanged against the current tree: 111 words on both sides, every
+register and branch target exact, the residual the branch at +0x3C and its
+delay slot. Do not re-run the source-spelling space; the open question
+remains the one the pass above states.
 <!-- plateau-handoff:func_8005ABA8:end -->
