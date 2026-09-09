@@ -353,6 +353,19 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
  * The owned 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range has no
  * padding. func_8005A7A0+0x104 is the sole caller, passing an lh animation ID;
  * there is no export, runtime, overlay or pointer inbound. */
+ * there is no export/runtime/overlay/pointer inbound. The cap is exhausted;
+ * no historical control or generic batch was run. Assembly remains canonical.
+ *
+ * 2026-09-09: the reloc-normalized residual is exactly one compiler
+ * temporary-ring pair. Patching those two register names in the compiler's own
+ * listing and re-assembling gives a zero-word difference over all 94 words, so
+ * the frame, all six homes, all 13 relocation tuples and every other register
+ * are exact. The ring is a FIFO free list, and the boolean normalization on the
+ * loop test consumes a pop while emitting nothing; the target instead consumes
+ * one invisible pop before the index scaling and none after it. Dropping the
+ * normalization alone costs 26 words. 40+ further spellings are flat. See
+ * docs/matching-triage-handoffs/func_8005A948.md. */
+#ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
     s32 emptyIndex;
@@ -488,7 +501,20 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
  *
  * Tooling note: the permuter's isolated scratch for this TU compiles the
  * function at 112 words against the real object's 111, so its base score of
- * 400 is a false reading and no score from it transfers. */
+ * 400 is a false reading and no score from it transfers.
+ *
+ * Second pass, 2026-09-09: the phase input is now proved correct. Replaying
+ * the compiler's own listing through its preprocessor, first and second
+ * assembler passes reproduces this object exactly, and inserting a single
+ * location-counter directive at the else arm's label there suppresses the
+ * duplication and yields a byte-exact 111 words. So every other word of this
+ * C is already the target's C. The suppressing set is exactly the three
+ * location-counter directives, which ugen emits only at function starts, so
+ * it is not reachable from source. Retired for this residual: all debug-line
+ * edits (hence physical line grouping), every other in-body directive, any
+ * single-line move of the phase input, any neighbouring function, and 384 C
+ * spellings of the tests, loops, blend order and carrier placement. See
+ * docs/matching-triage-handoffs/func_8005ABA8.md. */
 /* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
  * existing models TU layouts; no external function body is copied. */
 #ifdef NON_MATCHING
@@ -891,4 +917,14 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * first-mismatch: +0x0
  * summary: Frame remains 0x110 versus target 0xF8; camera/matrix allocator structure remains unresolved after the full flag lattice.
  * PLATEAU-HANDOFF:func_8005AF14:end
+ */
+
+/* PLATEAU-HANDOFF:func_8005A948:start
+ * symbol: func_8005A948
+ * score: 3 differing words
+ * frame: 0x38
+ * relocations: 13
+ * first-mismatch: +0x40
+ * summary: Declaration order moves all six stack homes exact; the reloc-normalized residual is exactly one ugen temporary-ring pair (index scaling vs the folded equality test), proved by patching the two names in the ugen listing to a 0-word difference.
+ * PLATEAU-HANDOFF:func_8005A948:end
  */
