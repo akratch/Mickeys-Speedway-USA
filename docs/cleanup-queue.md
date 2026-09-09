@@ -57,5 +57,7 @@ not a correctness gap.
 | `func_800336A8` | gameVi mode changer | donor empty `if (1) {}` before the non-widescreen framebuffer assignment | The constant-only empty statement has no side effects and preserves exact IDO allocation with direct triple-buffer global reads. Seek natural grouping retaining 195 words, the `0x28` frame, all 77 relocation identities, and linked ROM bytes. |
 | `overlay1FindBestRecord` | overlay 1 best-record scan | dead `value = 0` store plus the packed countdown/group statement line | The dead store reserves the `a1` pool colour and the packed line emits the group load ahead of the countdown; splitting the line costs the two-instruction swap and reversing the two statements costs two colours. Seek a natural spelling retaining 30 words, frameless, and both runtime relocation records. |
 
+| `overlay62Update` | overlay 62 fade update | `volatile` on the local `screenBase` | The qualifier is semantically inert -- the value is the same constant on all three paths -- but without it IDO folds the local away and the function loses six words. Seek a natural spelling retaining 294 words, the `0x88` frame, and all 71 relocation records. |
+
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.

@@ -75,70 +75,32 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
     packet_->word1 = (value_); \
 } while (0)
 
-#ifdef NON_MATCHING
-/* PROVENANCE: Mickey-derived; pinned exact-overlay DKR v77/v80 and JFG scans
- * found no exact donor. Fresh configured full-TU C has the exact 294-word
- * extent and 0x88 frame, with 287/294 relocation-masked words (286/294 literal
- * object words) and first mismatch +0x44. All 119 flag configurations are
- * nonexact; seven O2/MIPS-II rows tie V0. A fidelity-clean proc-0 allocator
- * trace leaves all 85 temp-lane assignments exact and first diverges at pool
- * slot 6. An explicit shared negation lifetime regresses to 297 words/frame
- * 0x90, while removing the `register` hint is byte-identical, so neither gives
- * the strict gain required for a batch. The later exact comma web-formation
- * lever was tested in three bounded branch-result forms: red/blue grouping
- * regressed to 286/294 words,
- * reversed grouping changed the function to 293 words, and grouping intensity
- * with both colors regressed to 285/294. The original source remains best.
- * A fidelity-clean native `as1 -R` scheduler capture then authenticated the
- * color/intensity dependency DAG: intensity, alpha, screen-base, call setup,
- * and the shared-negation color web enter as independent roots; only the real
- * negation-to-red/blue data edges connect those color chains. Thus the trace
- * exposes no missing natural C dependency beyond the already-tested comma
- * forms.
+/* Exact C: 294 words, the 0x88 frame, and all 71 relocation records.
  *
- * The ADR 0018 reopen re-proved V0 and closed the remaining source-reachable
- * pool/AST space without a strict gain. All 718 new scalar declaration orders
- * retained seven normalized register differences. The 119 first-branch, 358
- * semantically valid second-branch, and 719 fallback-branch result-order cells
- * either tied V0 or regressed. Assignment direction, integer widths, call
- * conversions, constant operand order, addend order, and shift/multiply forms
- * likewise tied or regressed; materialized masking and an explicit 220x tree
- * changed the frame or opcode structure. The original source therefore remains
- * the best promotable candidate. Workbench verdict is `allocation-mismatch`.
- * A phase-complete forced-color oracle is not yet measurable: the focused
- * allocator trace assigns two split decisions the same `p1:w10` identity, and
- * `oracle plan` correctly rejects the ambiguous grid. The next compiler lever
- * is unique split-web identities, followed by a complete p1/p2 oracle plan and
- * sweep; do not filter the duplicate or infer an exhaustive force result from
- * the earlier two-web p1 probes.
+ * Two spellings are load-bearing and each was proved against the object.
+ * First, the two fading colour components are *multiplications* by negative
+ * constants, not shifts of a negated operand. The target negates the timer
+ * into the assembler temporary, and `ugen` never allocates that register
+ * outside its own `.set noat` sequences, so the word can only come from the
+ * `as1` expansion of a constant multiply -- and two such expansions in one
+ * block share a single negation into it.
  *
- * The candidate emits all 71 runtime records (21 R26 and 25 HI/LO pairs; 43
- * SYMBOL/28 LOCAL) at exact offsets and
- * types. The identity comparator resolves 18/71 friendly aliases; the other 53
- * remain proxy-identity work and prohibit promotion. Owned +0xD4..+0x56C has
- * no target padding; release starts at +0x56C. ORT 1444 and sole inbound
- * func_80038E1C+0x3A4 are authenticated. Linked equality proves fallback only;
- * resume with the split-web oracle lever or complete identity mapping, not more
- * flags, declarations, statement orders, scalar widths, arithmetic AST forms,
- * comma forms, scheduler recaptures, or an ungated batch.
+ * Second, `red` and `green` are two separate full expressions, not one chained
+ * assignment. A chained `red = green = X` leaves the pair a single web, so
+ * `red & 0xFF` reads back green's reloaded copy, `blue` takes a colour ahead
+ * of green's instead of behind it, and the whole colour lane rotates for the
+ * rest of the function. Writing each component out gives `red` its own pool
+ * colour and puts `blue` after `green` in colour order.
  *
- * 2026-09-09: the two color components are written in source as multiplies by
- * negative constants, not as shifts of a negated operand. The target's first
- * differing word negates into the assembler temporary, which ugen never
- * allocates outside its own noat sequences, so it can only come from the as1
- * constant-multiply expansion; a stand-alone probe reproduces the target's
- * sequence including the negation the two expansions share. On that spelling
- * the first mismatch moves to +0x50 and every remaining word is a pure
- * register rename, but the positional score is worse, so the shift-spelled
- * body is retained as the better-ranked candidate. Resume from the multiply
- * spelling regardless: 720 declaration orders, a 1,920-cell hint/qualifier/
- * order lattice, both assignment directions and the operand-order forms are
- * all flat on it. See docs/matching-triage-handoffs/overlay62Update.md. */
+ * `screenBase` keeps a `volatile` qualifier it does not need semantically: the
+ * value is the same constant on all three paths and IDO folds it away without
+ * the qualifier, costing six words. Recorded in docs/cleanup-queue.md as a
+ * naturalization candidate. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
     s32 intensity;
-    register s32 red;
+    s32 red;
     s32 green;
     s32 blue;
     Overlay62Transform transform;
@@ -152,8 +114,9 @@ void overlay62Update(s32 updateRate) {
         alpha = 0xFF - gOverlay62Value8 * 8;
         screenBase = 0xF8;
         intensity = 0x78 + ((gOverlay62Value8 * 0xDC) >> 5);
-        red = green = 0x40 + (((-gOverlay62Value8) << 6) >> 5);
-        blue = 0x80 + (((-gOverlay62Value8) << 7) >> 5);
+        red = 0x40 + ((gOverlay62Value8 * -0x40) >> 5);
+        green = 0x40 + ((gOverlay62Value8 * -0x40) >> 5);
+        blue = 0x80 + ((gOverlay62Value8 * -0x80) >> 5);
 
         overlay62SetHandleAlphaReloc(gOverlay62Handle14, alpha);
         overlay62EntryColorReloc(red & 0xFF, green & 0xFF, blue & 0xFF,
@@ -170,7 +133,7 @@ void overlay62Update(s32 updateRate) {
         screenBase = 0xF8;
         intensity = 0x154 + ((gOverlay62ValueC * -0xDC) >> 5);
         red = (gOverlay62ValueC << 6) >> 5;
-        green = red;
+        green = (gOverlay62ValueC << 6) >> 5;
         blue = (gOverlay62ValueC << 7) >> 5;
     } else {
         alpha = 0xFF;
@@ -236,16 +199,3 @@ void overlay62Update(s32 updateRate) {
                             gOverlay62Values, 0x74, 0xCC,
                             0xFF, 0xFF, 0xFF, alpha);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o062/overlay62Update/func_overlay_062_F00000D4_18C22F4.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay62Update:start
- * symbol: overlay62Update
- * score: 287/294 words
- * frame: 0x88
- * relocations: 71
- * first-mismatch: +0x44
- * summary: Arithmetic spelling proved: the assembler temporary shows the source multiplies, it does not shift a negated operand; on that base the residual is one pure register rotation and 2,700+ swept cells hold.
- * PLATEAU-HANDOFF:overlay62Update:end
- */
