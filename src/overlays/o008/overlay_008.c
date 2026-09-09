@@ -2238,14 +2238,14 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
     s32 start;
     s32 end;
     O8P4CF0SceneItem **items;
-    register f32 motionTarget;
+    f32 motionTarget;
     f32 blendFactor;
     s32 targetB;
-    register f32 horizontalA;
+    f32 horizontalA;
     f32 horizontalB;
-    register f32 axisA;
-    register f32 axisB;
-    register f32 surfaceHeight;
+    f32 axisA;
+    f32 axisB;
+    f32 surfaceHeight;
     O8P4CF0Vec3f point;
     O8P4CF0Normal normal;
 
@@ -2258,7 +2258,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
         point.z = 7.0f;
         O8P4CF0_call_4D54(1, actor, &point, &point);
         point.x += actor->x00C;
-        surfaceHeight = (point.y += actor->y010);
+        point.y += actor->y010;
         point.z += actor->z014;
         surfaceHeight = point.y;
 
@@ -2333,10 +2333,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
             state->derived17C = 1.0f;
             return;
         } else {
-            s32 count;
-
             axisA = state->motion004;
-            count = updateRate - 1;
             if (axisA < 0.0f) {
                 axisA = -axisA;
             }
@@ -2345,8 +2342,8 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                 axisA = 1.0f;
             }
 
-            start = count;
-            if (count != -1) {
+            start = updateRate - 1;
+            if (updateRate != 0) {
                 blendFactor = 0.05f;
 
                 do {
