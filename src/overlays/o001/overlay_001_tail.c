@@ -2185,18 +2185,32 @@ extern s32 overlay1GetAngleValueReloc(f32 dz, f32 dx);
 extern void overlay1ActivateObjectReloc(Overlay1RangeObject *object);
 extern void overlay1PlaySoundReloc(u8 soundId);
 
-/* Workbench verdict=allocation-mismatch; 31 raw/masked words differ in the exact 120-word/0x70 frame, first +0x34.
- * Declaration order moves the count home to sp+0x68; instruction count, opcode order, and relocation sites are exact.
- * Remaining register-only residual is permuter-ready; four relocation names remain overlay-local aliases. */
+/* Plateau: exact 120 instructions, the 0x70 frame, and every allocator lane --
+ * general pool 37/37, general temp 8/8, FP pool 7/7, FP temp 9/9 -- with two
+ * words left. Three identities were proved here. The horizontal range squared
+ * must be a named `f32`, and its two `config->horizontalScale * 10U` reads must
+ * be spelled twice so IDO CSEs them: a `u32 horizontalRange` carrier spends the
+ * declaration budget the `f32` needs and leaves the whole FP allocation wrong
+ * (12 FP words). The angle base must be a named `u8` carrier, which is what
+ * puts `config->angleHigh` on the target's pool colour instead of a ring temp.
+ * The `case 1` test must be a named `u16`, which orders its `andi` web before
+ * the store's. `clearMask` is not needed: IDO hoists a literal `~8` into the
+ * same saved register, and dropping the declaration is what buys the budget for
+ * the other two. The residual is the last two words: the target numbers the
+ * `case 1` store's ugen temp `$12` and ours `$13`, because the `u16` test
+ * carrier costs an extra temp for a truncation `as1` then folds away. Measured
+ * and flat, do not repeat: 40 case-1 body spellings (compound assignment, the
+ * `^ 0` use-site break, re-reads of the field, a hoisted `cleared` local, five
+ * carrier types, `if/else if` in place of the switch, a `default:` arm, and
+ * reversed case order), and all 96 physical line groupings of the case-1
+ * statement list. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
     s32 count;
     Overlay1RangeObject **objects;
-    register s32 clearMask;
 
     config = object->state;
-    clearMask = ~8;
     objects = overlay1GetObjectListReloc(&count);
     if (count--) {
         do {
@@ -2204,18 +2218,20 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
             Overlay1RangeState *otherState;
             f32 dx;
             f32 dz;
-            u32 horizontalRange;
+            f32 rangeSquared;
             s16 angle;
+            u8 angleHigh;
 
             other = objects[count];
             otherState = other->state;
             dx = other->x - object->x;
             dz = other->z - object->z;
-            horizontalRange = (u32)config->horizontalScale * 10U;
-            if ((dx * dx + dz * dz) <
-                (f32)(s32)(horizontalRange * horizontalRange)) {
-                angle = (s16)(((u32)config->angleHigh << 8) +
-                              overlay1GetAngleValueReloc(dz, dx));
+            rangeSquared = (f32)(s32)(((u32)config->horizontalScale * 10U) *
+                                      ((u32)config->horizontalScale * 10U));
+            if ((dx * dx + dz * dz) < rangeSquared) {
+                angle = overlay1GetAngleValueReloc(dz, dx);
+                angleHigh = config->angleHigh;
+                angle = (s16)((u32)angleHigh << 8) + angle;
                 if ((angle < -0x4000) || (angle >= 0x4001)) {
                     if ((object->y <= other->y + other->heightData->height) &&
                         (other->y <= object->y +
@@ -2231,9 +2247,11 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
                             }
                             case 1: {
                                 u16 flags;
+                                u16 masked;
                                 flags = otherState->flags;
-                                if (flags & 8) {
-                                    otherState->flags = flags & clearMask;
+                                masked = flags & 8;
+                                if (masked) {
+                                    otherState->flags = flags & ~8;
                                     overlay1ActivateObjectReloc(other);
                                     overlay1PlaySoundReloc(config->soundId);
                                 }
