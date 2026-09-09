@@ -87,4 +87,43 @@ emitted after the test whatever the source order.
 
 Next lever is a ugen free-list trace (`DKWB_UGEN_TRACE`), not another source
 form. Do not re-search `case 1`, the angle spellings, or line grouping.
+
+#### 2026-09-10, lane p1-perm: a third 2-word corner, and the count argument closed
+
+A third arrangement exists and is strictly more informative than either
+recorded one. With the two-temp `case 1` (drop the `masked` carrier) and
+
+    angle = ((s16)((u32)angleHigh << 8) & 0xFFFF) + (u16)angle;
+
+every word is exact except +0xD8/+0xDC: both switch arms are right, the `addu`
+writes the pool colour `a0`, the sign extension is on t6/t7, and the only
+residual is that the folded left chain survives on t4 where the target has t3.
+
+The object pins four things at once -- the folded left chain must survive on
+$11, the `addu` must write the pool, the sign-extension pair must be $14/$15,
+and the free list reaching the switch must be ascending. as1 folds a chain onto
+its LAST destination, so a survivor of $11 forces a three-temp left chain;
+$14/$15 forces exactly five temps drawn before the truncation; and an `addu`
+that writes the pool forces the sum to be the statement's top-level operation,
+so no temp can be drawn after it. That leaves the second operand owing two
+temps, and any two-instruction conversion frees its first at the second's
+definition -- before the `addu` frees $11 -- which is the original inversion.
+
+The three reachable corners are therefore exactly 3+2 (inversion,
++0x190/+0x198), 4+1 (survivor t4, +0xD8/+0xDC) and 3+1+outer (`addu` on a ring
+temp, +0xDC/+0xE0). All three are two words and no fourth corner exists in C.
+
+Newly measured and flat, ~200 candidates/second against the full-TU object:
+360 cells of case-1 form x carrier type x nine left-operand spellings x five
+right-operand conversions x two assignment casts; 260 cells of thirteen outer
+operations x five right conversions x two types x two assignments; 24 double-
+and triple-conversion spellings crossed with an `s32` carrier and an
+`(s16)`-cast comparison. Every cell is 2, 4, 18, 19, 21 or worse.
+
+The retained body is the original 3+2 corner: it is the most plausible C of the
+three and no corner is numerically better.
+
+Next lever: not C. Either uopt/ugen instrumentation that shows why the target's
+free list is ascending with a three-temp chain, or a construct that draws a ring
+temp after a pool-writing `addu`, which this grammar does not produce.
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->

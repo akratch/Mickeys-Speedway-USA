@@ -2240,13 +2240,47 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * the assignment cast and the comparison were scored against the full-TU object
  * and the floor is exactly 2 in every one of them.
  *
- * Next lever: this needs an instruction between the `addu` and the sign
- * extension that as1 deletes without back-coalescing -- i.e. one whose
- * destination is consumed by the next instruction rather than written back into
- * `angle`'s home. Every cast spelling reachable from C emits ugen's
- * write-back form (`op $13,$4,..; move $4,$13`). Look for a source shape where
- * the intermediate is not the variable itself, or accept that the owner is as1
- * and reach for a ugen/as1 trace. Do not re-search `case 1`. */
+ * 2026-09-10, lane p1-perm: a second 2-word state, and the count argument
+ * closed. A THIRD arrangement exists and is strictly more informative than
+ * either recorded one. With the two-temp `case 1` (drop the `masked` carrier)
+ * and
+ *
+ *     angle = ((s16)((u32)angleHigh << 8) & 0xFFFF) + (u16)angle;
+ *
+ * every word of the function is exact except +0xD8/+0xDC: both switch arms are
+ * right (`andi t1`/`ori t2`, `andi t3`/`and t4`), the `addu` writes the pool
+ * colour `a0`, the sign extension is on t6/t7, and the only residual is that
+ * the folded left chain survives on t4 where the target has t3.
+ *
+ * The count argument, now complete. The object pins four things at once: the
+ * folded left chain must survive on $11, the `addu` must write the pool, the
+ * sign-extension pair must be $14/$15, and the free list reaching the switch
+ * must be ascending. as1 folds a chain onto its LAST destination, so a
+ * survivor of $11 forces a three-temp left chain; $14/$15 forces exactly five
+ * temps drawn before the truncation; and an `addu` that writes the pool forces
+ * the sum to be the statement's top-level operation, so no temp can be drawn
+ * after it. That leaves the second operand owing two temps, and any
+ * two-instruction conversion frees its first at the second's definition --
+ * before the `addu` frees $11 -- which is the original inversion. The three
+ * reachable corners are therefore exactly: 3+2 (inversion, +0x190/+0x198),
+ * 4+1 (survivor t4, +0xD8/+0xDC) and 3+1+outer (`addu` on a ring temp,
+ * +0xDC/+0xE0). All three are two words and no fourth corner exists in C.
+ *
+ * Newly measured and flat this pass, all against the full-TU object with a
+ * direct `tools/ido/cc` loop at ~200 candidates/second: 360 cells of case-1
+ * form x `angle` type x nine left-operand spellings x five right-operand
+ * conversions x two assignment casts; 260 cells of thirteen outer operations
+ * (`^ 0`, `| 0`, `+ 0`, `- 0`, `* 1`, `<< 0`, `& 0xFFFF`, `(u16)`, `(s16)`,
+ * `-(-x)`, unsigned variants) x five right conversions x two types x two
+ * assignments; and 24 double- and triple-conversion spellings crossed with an
+ * `s32` carrier and an `(s16)`-cast comparison. Every cell is 2, 4, 18, 19, 21
+ * or worse; nothing reaches 1.
+ *
+ * Next lever: not C. Either uopt/ugen instrumentation that shows why the
+ * target's free list is ascending with a three-temp chain, or accept that the
+ * fourth corner needs a construct that draws a ring temp after a pool-writing
+ * `addu` -- which no source form in this grammar produces. Do not re-search
+ * `case 1`, the angle spellings, the outer operations or line grouping. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;

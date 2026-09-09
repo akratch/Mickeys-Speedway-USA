@@ -894,6 +894,13 @@ D_EE0 = 0x00000ee0;
 /* overlay 29: overlay29ProjectPoint.c.o */
 gOverlay29MinimumYReloc = 0x00000000;
 
+/* overlay 29: overlay29HandleEffects.c.o */
+overlay29ActivateReloc = 0xf0000000;
+overlay29EmitReloc = 0xf0000000;
+overlay29RandomRangeReloc = 0xf0000000;
+overlay29ResetReloc = 0xf0000000;
+overlay29TransformReloc = 0xf0000000;
+
 /* overlay 30: overlay30Initialize.c.o */
 gOverlay30Buffer20 = 0x00000000;
 gOverlay30Buffer320 = 0x00000000;

@@ -1301,47 +1301,32 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Five words differ, all of them the same web: the truncated height carrier is
- * v1 in the target and a0 here. Everything else -- 149 instructions, the frame,
- * both call relocations, every other register and every schedule slot -- is
- * exact. The lever that got here was the vertex writeback: the twelve stores
- * are all addressed from the *post*-increment `vertex`, including the first
- * one, which the earlier draft wrote as `vertex[+0x22]` before `vertex += 0x3E`
- * and which IDO schedules ahead of the increment anyway. Expressed that way the
- * store order is the plain per-vertex x/y/z order and the residual fell 69 -> 5.
- * Flat since: web-count changes around the carrier (owner, fade, value7C and
- * coordinate locals, inlining mode/step/angle), its type (s16/u32/register/
- * implicit conversion), its position (five placements), the whole prelude
- * order/grouping lattice, and 70,000 randomised statement-order candidates.
+/* The height carrier is `v1` because `mode` dies before it, not because of any
+ * spelling of the carrier itself. uopt colours pool webs by descending
+ * `references / bucket(references + spanning statements)`, and `mode` outranks
+ * `height`; whichever is coloured first takes `v1` and the other takes `a0`.
+ * Reading the field back for the vertex base -- `ripple->mode`, which the store
+ * on the line above has just written, so uopt forwards it and it costs no
+ * instruction -- ends `mode`'s live range at that store instead of at the
+ * vertex multiply. `mode` then no longer interferes with the truncated height,
+ * and `height` takes `v1`. Lever 45 used for its live range rather than for a
+ * register-to-register copy or a ring slot.
  *
- * 2026-09-09, after this TU's other four last-mile targets closed, every lever
- * that closed one of them was tried here and is also flat, always at exactly
- * five words with the same 149-instruction schedule:
- *   - the carrier's type over twelve spellings, and mode/step/angle's types
- *     over all 24 combinations (the `s32`-not-`s16` fact that closed
- *     func_80048760's temp ring);
- *   - 4,112 web-split subsets -- every subset of the four `height` uses and
- *     all 4,096 subsets of the twelve `vertex` uses given a coalesced second
- *     local (the extra-coalesced-web fact that closed func_80048080);
- *   - indexing the vertex block from `ripple` instead of carrying the cursor,
- *     and `s16 *` or `u16 *` cursors (the induction-variable fact that closed
- *     func_8004ACC4 and func_8004AF68) -- all three lose the `addiu v0, v0, 62`
- *     and cost 96 words, so this block's cursor really is in the source;
- *   - 1,689 physical-line groupings (all 512 over the store block, plus every
- *     one- and two-join grouping of the whole body);
- *   - 21 dead-store variants: unlike the recorded law, `x = 0` before a named
- *     local reserves no colour here and emits nothing;
- *   - naming any one of the twelve stored values, six named intermediates x
- *     three types, local copies of `delta` and `owner`, and 126 combinations
- *     of carrier placement x carrier type x web split.
- * The residual is one pool colour and the pool ordering that produces it is
- * not reachable from this function's source shape; the next lever would have
- * to be evidence about uopt's reuse rule itself, not another spelling. */
+ * The height read must also stand before the vertex base: ugen schedules the
+ * `l.s`/`trunc.w.s`/`mfc1` ahead of the multiply either way, and with the two
+ * statements in the other order the conversion lands inside `mode`'s range
+ * again (five words, at +0xF8 onward rather than +0x108). Keeping the local
+ * `mode` in the multiply is the previous five-word state.
+ *
+ * The lever that got here first was the vertex writeback: the twelve stores are
+ * all addressed from the *post*-increment `vertex`, including the first one,
+ * which the earlier draft wrote as `vertex[+0x22]` before `vertex += 0x3E` and
+ * which IDO schedules ahead of the increment anyway. That took the residual
+ * 69 -> 5. */
 /* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
  * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
  * context. JFG supplies only the role/name; this retained body uses Mickey's
  * target offsets and calls. No new donor body was available or adopted. */
-#ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
     FxWakeTexture *texture;
     u8 mode;
@@ -1379,8 +1364,8 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         if (ripple->fade != 0) {
             mode = 1 - ripple->mode;
             ripple->mode = mode;
-            vertex = (u8 *) ripple + ((mode & 0xFF) * 0x28);
             height = (s32) ripple->value80;
+            vertex = (u8 *) ripple + (ripple->mode * 0x28);
             vertex += 0x3E;
             *(s16 *) (vertex - 0x1E) = (s16) (s32) (owner->valueC + ripple->value7C);
             *(s16 *) (vertex - 0x1C) = (s16) height;
@@ -1402,9 +1387,6 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
-#endif
 /* Workbench verdict: structure-mismatch, 122 differing words, first mismatch +0x0. */
 /* Candidate: 176/177 instructions with a -0x50 frame versus target -0x88; the target's outer-index spill and saved-register web remain unresolved. */
 /* Shape status: the JFG-derived display-list command and chunk loops are reconstructed with the target's single relocation identity exact. */
@@ -2398,16 +2380,6 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
-
-/* PLATEAU-HANDOFF:func_80049000:start
- * symbol: func_80049000
- * score: 5 differing words
- * frame: 0x30
- * relocations: 2
- * first-mismatch: +0x108
- * summary: one pool colour: the height carrier is v1 in the target, a0 here. Every lever that closed this TU's other four targets was retried 2026-09-09 and is flat.
- * PLATEAU-HANDOFF:func_80049000:end
- */
 
 /* PLATEAU-HANDOFF:func_800470B0:start
  * symbol: func_800470B0
