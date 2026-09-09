@@ -120,7 +120,20 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * func_80038E1C+0x3A4 are authenticated. Linked equality proves fallback only;
  * resume with the split-web oracle lever or complete identity mapping, not more
  * flags, declarations, statement orders, scalar widths, arithmetic AST forms,
- * comma forms, scheduler recaptures, or an ungated batch. */
+ * comma forms, scheduler recaptures, or an ungated batch.
+ *
+ * 2026-09-09: the two color components are written in source as multiplies by
+ * negative constants, not as shifts of a negated operand. The target's first
+ * differing word negates into the assembler temporary, which ugen never
+ * allocates outside its own noat sequences, so it can only come from the as1
+ * constant-multiply expansion; a stand-alone probe reproduces the target's
+ * sequence including the negation the two expansions share. On that spelling
+ * the first mismatch moves to +0x50 and every remaining word is a pure
+ * register rename, but the positional score is worse, so the shift-spelled
+ * body is retained as the better-ranked candidate. Resume from the multiply
+ * spelling regardless: 720 declaration orders, a 1,920-cell hint/qualifier/
+ * order lattice, both assignment directions and the operand-order forms are
+ * all flat on it. See docs/matching-triage-handoffs/overlay62Update.md. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
@@ -233,6 +246,6 @@ void overlay62Update(s32 updateRate) {
  * frame: 0x88
  * relocations: 71
  * first-mismatch: +0x44
- * summary: verdict=allocation-mismatch; lever=unique split-web IDs for a phase-complete p1/p2 forced-color oracle
+ * summary: Arithmetic spelling proved: the assembler temporary shows the source multiplies, it does not shift a negated operand; on that base the residual is one pure register rotation and 2,700+ swept cells hold.
  * PLATEAU-HANDOFF:overlay62Update:end
  */

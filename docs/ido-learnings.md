@@ -835,6 +835,71 @@ bytes and disassembly never belong here.
   sweeping spellings at that point and look for a definition created outside
   the expression. Evidence:
   [the model-release loop](matching-triage-handoffs/levelFreeAll.md).
+### Assembler scheduling and phase replay
+
+- The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
+  `ugen` accepts a `-l <file>` argument that writes its output as text, which
+  the driver uses for `-S`; re-assembling that text with `acpp` + `as0` + `as1`
+  under the *compiler-path* `as1` flags reproduces the compiler's own object
+  byte-for-byte. The text path invoked through the driver does **not**, because
+  the driver adds `-pic0 -noglobal` to `as1` for a `.s` input; drop those two
+  and the round trip is exact. This turns the last phase into a directly
+  searchable space: edit the listing, re-assemble, score, and you learn what
+  `as1` input the target requires before spending any time guessing C.
+  Measured exact on two overlay units (a 301-word and a 262-word candidate).
+  Limits: only the final phase is replayed, so a residual owned by `uopt` or
+  `ugen` is unaffected, and the listing must be re-derived after every source
+  edit.
+
+- `ugen` emits caller-save spill stores around a call in strictly ascending
+  register order. Census of every call site in the tree whose store pair is
+  reloaded unchanged immediately after the call: 73 of 73 ascending, with
+  register order winning over home-offset order in the 38 sites where the two
+  disagree. A target that shows the opposite order therefore cannot be reached
+  by any declaration order, statement order, loop form, or physical-line
+  grouping; the difference has to be created downstream in `as1` or the pair is
+  not a spill pair at all. Use this to retire a whole search space in one
+  measurement instead of grinding source forms.
+
+- `as1` reorders an adjacent pair of independent stack stores that ends a
+  basic block before a call, putting the *first* of the pair in the delay slot,
+  when a may-alias load sits in front of them in the same line region. Replace
+  that load with one whose stack displacement is provably distinct and the pair
+  keeps its order, so the trigger is the assembler's memory disambiguation, not
+  the registers or the displacements (both were swept without effect). Of the
+  39 real store-pair sites in the tree, 30 keep and 9 reverse. Consequence for
+  matching: an ascending `ugen` pair reaches the object reversed, and a target
+  showing it un-reversed needs a barrier the source cannot always supply.
+
+- A `.loc` naming a **greater** line than the current one is a backward-motion
+  barrier for the `as1` scheduler; a repeated `.loc` on the same line, a
+  smaller line, or a `.livereg` is not. Proved by inserting each form between
+  two otherwise identical stores: only the increasing `.loc` stopped the swap.
+  This is the mechanism under the already-recorded observation that physical
+  source line grouping changes the schedule -- joining statements onto one line
+  removes a barrier, splitting them adds one. Its limit is important: `ugen`
+  emits at most one `.loc` per statement, and the spill stores for a call all
+  belong to the call's statement, so no source spelling can put a barrier
+  *inside* a spill group. Merging lines also does not always help, because
+  `ugen` still emits a same-line `.loc` per statement, which is not a barrier.
+
+- Debug context alone changes the schedule. A listing with no `.file` at all
+  schedules differently from the same instructions with one, independently of
+  any `.loc`. Since every C compile emits a `.file`, this is a diagnosis aid,
+  not a lever: when a minimal hand-written reproduction of a residual behaves
+  differently from the real unit, check for the debug directives before
+  concluding the surrounding code is responsible.
+
+- `$at` in the emitted code is a signature, not an allocation. `ugen` only
+  writes `$at` inside its own `.set noat` sequences (64-bit arithmetic); every
+  other appearance comes from an `as1` macro expansion. In particular a
+  multiply by a constant is expanded by `as1` using `$at` as the scratch, and
+  two multiplies by negative constants in the same block share a single
+  negation into `$at`. So a target that negates into `$at` and shifts out of it
+  proves the source wrote a multiplication, not the equivalent shift of a
+  negated operand -- the shift spelling makes `ugen` strength-reduce into a
+  pool register and `$at` can never appear. Evidence: `overlay62Update`, where
+  this converted a mixed structural residual into a pure register rotation.
 
 ### Search fidelity and false floors
 

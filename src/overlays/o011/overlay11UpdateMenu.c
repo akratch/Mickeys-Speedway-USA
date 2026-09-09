@@ -84,6 +84,17 @@ extern void overlay66Select(s32 selection);
  * to the normal candidate; as1 assigns both spills to the call line with the
  * same dependency and zero aftercycles, then ranks the handle spill first.
  * Source-line scheduling and declaration order are exhausted for this pair.
+ *
+ * A 2026-09-09 phase-replay pass closed the mechanism. ugen already emits the
+ * pair in the target's order; as1 exchanges them, and feeding as1 the same
+ * listing with only that pair swapped reproduces the owned bytes with zero
+ * non-relocation differences, which proves the rest of this body exact. The
+ * exchange is triggered by the may-alias argument load in front of the pair,
+ * ugen orders spills ascending by register in 73 of 73 comparable sites, and
+ * the only barrier that stops the exchange is a debug line entry between the
+ * two stores, which ugen cannot emit inside one statement's spill group. Do
+ * not spend more order, line, loop or flag attempts here; see
+ * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
@@ -223,6 +234,6 @@ void overlay11UpdateMenu(s32 updateRate) {
  * frame: 0x48
  * relocations: 102
  * first-mismatch: +0x138
- * summary: Zero new attempts: prior ten order/line forms exhausted; unchanged spill pair. Reopen only with source-authentic spill-dependency evidence.
+ * summary: Residual fully explained and not source-reachable: ugen orders spills ascending (73/73), as1 reverses the pair, and the only barrier that stops it is unreachable from C. Reopen needs a new compile mode, not another source form.
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
