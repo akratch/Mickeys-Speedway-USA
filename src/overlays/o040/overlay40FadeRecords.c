@@ -43,29 +43,22 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Bounded reproof: the output-origin spelling below is the best stock object
- * at 98/101 words, first +0xC, frame 0x8. The three differences at
- * +0xC/+0x10/+0x24 are one v0/v1 globalcolor outcome; the temporary-register
- * lane is exact. One allocator trace and the complete 119-flag lattice found
- * no exact object, with canonical -O2 -mips2 tied for best. The object emits
- * all ten runtime HI16/LO16 roles: D_800D6C4C(timer), D_800D6C52(current),
- * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output).
- * The later exact comma-expression web-formation mechanism was re-proved in
- * three bounded forms: independent grouping regressed to 93/101, chained
- * grouping reproduced 98/101, and reversed grouping regressed to 83/101.
- * A subsequent fidelity-clean CDX capture maps 21 allocator decisions to p2;
- * target and candidate have equal 27-slot pool lanes and exact 34-slot temp
- * lanes. Forcing the long-lived output web from v0 to v1 regresses to 88/101,
- * while the dependent forces are declined or reproduce the same object. The
- * target therefore needs the initial load/copy definition in another web, not
- * another colour. The current-origin copy spelling is cfe-canonical and
- * regresses to 85/101, so both colour forcing and that partition lever are
- * exhausted.
+/* The blend base is read twice, not copied into a second local. The target
+ * wants the load itself in v1 and the running output in v0; with two named
+ * locals both take pool colours in first-definition order, so whichever name
+ * the load defines takes v0 and the pair can only be swapped, never separated
+ * (98/101 either way round). Spelling the second use as the global read again
+ * makes the loaded value a CSE temporary, which uopt numbers after every
+ * named local, so it takes v1 and `output` -- now defined by the copy -- takes
+ * v0. Keeping `current` declared *and* assigned from the global costs a second
+ * %hi materialisation (102 words); dropping the local is what collapses it.
+ * The object emits all ten runtime HI16/LO16 roles: D_800D6C4C(timer),
+ * D_800D6C52(current), D_800D6C50(target), D_800D6C4E(duration), and
+ * D_800D6C54(output).
  * Owned Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
  * +0x824..+0x830 padding. ORT 1314 and resident runtime record 156 at
  * func_8000D978+0x130 authenticate the sole inbound trap site. Mickey-only;
  * exact pinned DKR v77/v80/JFG scans are negative. */
-#ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
     Overlay40FadeRecord *record;
@@ -73,7 +66,6 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
     Overlay40Color *color;
     Overlay40Vertex *vertex;
     s16 *group;
-    s32 current;
     s32 output;
     s32 timer;
     s32 remaining;
@@ -81,12 +73,11 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
     s32 vertexRemaining;
 
     output = gOverlay40BlendCurrent;
-    current = output;
     timer = gOverlay40BlendTimer;
     if (timer != 0) {
         if (amount < timer) {
             gOverlay40BlendTimer = timer - amount;
-            output += ((gOverlay40BlendTarget - current) *
+            output += ((gOverlay40BlendTarget - gOverlay40BlendCurrent) *
                       gOverlay40BlendTimer) / gOverlay40BlendDuration;
         } else {
             gOverlay40BlendTimer = 0;
@@ -123,16 +114,3 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
         record++;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40FadeRecords/func_overlay_040_F0000690_1886F40.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay40FadeRecords:start
- * symbol: overlay40FadeRecords
- * score: 98/101 words
- * frame: 0x8
- * relocations: 10
- * first-mismatch: +0xC
- * summary: Permuter register-allocation sweep was flat in the scratch basin; next lever is a fidelity-clean p2 forced-color/permuter search for the copy-web partition.
- * PLATEAU-HANDOFF:overlay40FadeRecords:end
- */
