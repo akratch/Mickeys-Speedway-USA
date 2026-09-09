@@ -2246,7 +2246,16 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * `angle`'s home. Every cast spelling reachable from C emits ugen's
  * write-back form (`op $13,$4,..; move $4,$13`). Look for a source shape where
  * the intermediate is not the variable itself, or accept that the owner is as1
- * and reach for a ugen/as1 trace. Do not re-search `case 1`. */
+ * and reach for a ugen/as1 trace. Do not re-search `case 1`.
+ *
+ * 2026-09-10 (second reader): the residual reproduces at exactly 2 words, both
+ * sites one web, and the diagnosis above holds. One thing worth writing down
+ * because it reads as a third difference and is not: the comparison reports a
+ * hunk at the first call where the two sides name different symbols. That is a
+ * relocation-naming artifact -- the target side carries the generic overlay
+ * entry symbol at every R_MIPS_26 site while the candidate carries the real
+ * callee -- and those words are masked, which is why the raw and the masked
+ * counts both read 2. Do not spend a cycle on it. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
@@ -2399,7 +2408,45 @@ typedef struct Overlay1NearbyObject {
  * `volatile s32 *` local; inlining `otherState`, inlining `other`, reversing
  * the kind comparison, reversing the two declarations, dropping the `state`
  * local, caching the list base, and an extra `mode` web ahead of the counter
- * read. Next lever is whatever stops uopt webbing that read. */
+ * read. Next lever is whatever stops uopt webbing that read.
+ *
+ * 2026-09-10: the single cause above is confirmed, the flag lattice is now
+ * closed, and the web is narrowed from per-variable to per-load.
+ *
+ * The flag sweep had never been run on this function. It has been: 119
+ * combinations, every one nonexact, and the project's own preset is the best
+ * row. The residual is not a flag.
+ *
+ * The web is per-load, not per-variable. Splitting the counter across two
+ * distinct union members -- one read by the head test, the other by the latch
+ * -- is byte-flat at 31. So uopt is not unifying the head and latch reads into
+ * a single web; it webs each volatile load of this stack local separately, and
+ * they share a colour only because they do not interfere. Work aimed at
+ * breaking that unification is wasted, because there is none.
+ *
+ * The residual restated as an allocation fact, which is the useful form: the
+ * target spends its two lowest pool colours on `other` and `otherState`, which
+ * leaves ugen's ring as the only home for the counter reads and starts that
+ * ring at its first slot for the head read. The candidate spends the lower
+ * colour on the head counter read instead, so `other` and `otherState` take
+ * the same two colours in the opposite order and every ring value slides one
+ * position. One extra pool web at the head explains all 31 words.
+ *
+ * Also measured and flat, do not repeat: `count` as int, long and unsigned;
+ * casts and coercions around the decrement in the head, the latch, or both;
+ * casts on the index read; the getter's argument cast; `while (count--)` and
+ * `for (; count--; )`, which cfe rotates into exactly the same if/do-while, so
+ * loop shape is not a lever here at all; reversing the kind comparison and the
+ * mode comparison. Naming the loaded value in an explicit read-modify-write
+ * pair costs two instructions in every read/write volatility combination.
+ *
+ * The next lever is unchanged but sharper: find what makes uopt reserve those
+ * two pool colours for `other` and `otherState` across the whole function. A
+ * matched precedent with the same counter idiom, overlay3ResetObjects, does
+ * the opposite -- its head read takes a pool colour and only its latch read
+ * takes a ring temp -- so IDO reaches both outcomes from the same source shape
+ * and the difference lives in this function's loop-body variables, not in how
+ * the counter is spelled. */
 #ifdef NON_MATCHING
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
