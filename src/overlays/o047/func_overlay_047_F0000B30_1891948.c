@@ -21,7 +21,7 @@ typedef struct Overlay47Actor {
     u8 pad18[0x10];
     f32 frameValue;
     u8 pad2C[0xF];
-    s8 frame;
+    u8 frame;
     u8 pad3C[0xA];
     s16 kind;
     u8 pad48[0x1C];
@@ -360,7 +360,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             }
             actor = player->actor;
             oldFrame = actor->frameValue;
-            func_8005ABA8(actor, ov47Data_3F0[actor->frame], rate);
+            func_8005ABA8(actor, ov47Data_3F0[(s8)actor->frame], rate);
             scroll = player->actor->scroll;
             scroll->b += speed;
             scroll->a += speed;
@@ -399,7 +399,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             if (actor != NULL) {
                 actor->trigger = 0;
                 actor = player->actor;
-                switch ((u8)actor->frame) {
+                switch (actor->frame) {
                     case 1:
                         frame = actor->frameValue;
                         if (0.3f <= frame && frame < 0.65f) {
