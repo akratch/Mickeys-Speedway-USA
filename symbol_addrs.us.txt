@@ -2511,6 +2511,7 @@ func_800367E8 = 0x800367E8; // type:func size:0x268 ROM 0x373E8 canonical C, lin
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
 func_80036A80 = 0x80036A80; // type:func size:0x30 ROM 0x37680 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetColourCycle body, linked exact=12/12
+func_80036AB0 = 0x80036AB0; // type:func size:0x1B0 ROM 0x376B0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c updateMixCycle form on the colour-cycle table with DKR update_colour_cycle channel locals, linked exact=108/108
 func_80036C60 = 0x80036C60; // type:func size:0x4C ROM 0x37860 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetMixCycle body, linked exact=19/19
 func_80036CAC = 0x80036CAC; // type:func size:0x124 ROM 0x378AC tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c updateMixCycle body, linked exact=73/73
 func_80036DD0 = 0x80036DD0; // type:func size:0x138 ROM 0x379D0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenLoad body, linked exact=78/78
@@ -2524,7 +2525,7 @@ func_80037A78 = 0x80037A78; // type:func size:0x74 ROM 0x38678 tier-A, matched C
 func_800376CC = 0x800376CC; // type:func size:0x1D8 ROM 0x382CC tier-D structure-mismatch candidate, target 118/candidate 119 words, state machine
 func_800378A4 = 0x800378A4; // type:func size:0x1D4 ROM 0x384A4 tier-D structure-mismatch candidate, target 117 instructions/candidate 112, radial gradient shape unresolved
 func_80037AEC = 0x80037AEC; // type:func size:0x108 ROM 0x386EC tier-D allocation-mismatch candidate, target/candidate 66 instructions, register allocation unresolved
-func_80037BF4 = 0x80037BF4; // type:func size:0x80 ROM 0x387F4 tier-D structure-mismatch candidate, target 32 instructions/candidate 31, interpolation multiply/call scheduling unresolved
+func_80037BF4 = 0x80037BF4; // type:func size:0x80 ROM 0x387F4 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, second-phase transition interpolation dispatch, linked exact=32/32
 func_80037C74 = 0x80037C74; // type:func size:0x51C ROM 0x38874 tier-D structure-mismatch candidate, target 327/candidate 308 words, display-list body
 func_80038190 = 0x80038190; // type:func size:0x5C0 ROM 0x38D90 tier-D structure-mismatch candidate, target 368/candidate 342 words, recovered compiler jump table and display-list body
 func_8003A5A0 = 0x8003A5A0; // type:func size:0xE0 ROM 0x3B1A0 tier-D structure-mismatch candidate, target/candidate 56 words, lookup pointer web
