@@ -2,11 +2,11 @@
 ### `func_overlay_060_F0000334_18BA10C` plateau handoff
 
 - source: `src/overlays/o060/overlay60Prefix.c`
-- score: 2510 differing words
+- score: 97 differing words
 - frame: 0x198
-- relocations: 864
-- first mismatch: +0x4
-- summary: NON_MATCHING: frame and every declared-local home now byte-exact (enabled 0x13C, text 0xBC, glyph 0xB4); mnemonic census within 45 of 2789 and the -12 is 45 insertions against 48 deletions, not one hole; the whole remaining residual is one uopt address-CSE that keeps &gOverlay60Data0A8 in a saved register for the entire target and rematerializes it 24 times here.
+- relocations: 836
+- first mismatch: +0x9a4
+- summary: NON_MATCHING: size exact and all saved registers coloured as the target; residual is previewMode in v1 instead of s5 (rank-table address web takes s5 first).
 
 This packet reopened only decompiler-assisted structural reconstruction from
 Mickey's extracted assembly. The prior size-deficit plateau was read before
@@ -139,5 +139,105 @@ Validation and next action:
   extract the linked owned range against the same baserom offsets, and obtain
   a passing `gmake verify`. The existing overlay 94 canonical-link failure
   also needs a separate owner; this lane did not edit that source.
+
+#### 2026-09-09 dedicated grind (lane/whale-o060)
+
+Measured with a direct `tools/ido/cc` compile at the TU's real flags, verified
+byte-identical in `.text` to the asm-processor `NON_MATCHING` object. Scores
+are relocation-masked; "identical rows" is the shift-tolerant count of exactly
+identical rows (Lever 48).
+
+- Start: 2503 differing words, 1354 identical rows, size delta -12,
+  mnemonic census within 45, `&gOverlay60Data0A8` rematerialised 24 times.
+- End (committed `03d269b3`): 97 differing words, 2647 identical rows, size
+  delta 0, census within 4, first mismatch `+0x9a4`. Every saved register is
+  coloured as the target (A8 s2, 160 s0, 2B8 s6, 14C s3, 158 s4, 2B4 s5,
+  150 s7, 2B0 s8); the settings word is rematerialised 28 times as in the
+  target; the case-3 counter is uncoloured in v1 and spilled to 372(sp)
+  fourteen times as in the target. The first 0x9a4 bytes are positionally
+  identical modulo relocations.
+
+Identities proved (each flips the residual when reverted):
+
+- Tier B: the settings word, its bytes at +0x13/+0x14 and the halfwords at
+  +4/+6/+8.. are one object at `D_800D3128`. The overlay's runtime relocation
+  table resolves all 28 sites in this function to symidx 0x62b with addends
+  0, 2, 4, 6, 8, 10, 12, 19 and 20. Spelled as one struct, the settings
+  address stops being promoted and is rematerialised exactly as the target.
+- Tier B (colouring): the loop index and the case-2/case-6 value are one
+  variable; the case-3 counter is also the records panel's glyph-loop index
+  (a fresh variable there loses the v1 spill and 750 words); the case-6
+  wide-adjust value is not the loop index (target keeps it in a0); one
+  `previewMode` copy of `gOverlay60Data150` serves case 4, the records
+  panel, the preview panel and the character panel's do/while walks
+  (splitting it in any direction regresses by 700+ words); the copy is
+  refreshed after navigation (the target's delay-slot reloads; ours had
+  stored the stale value into `gOverlay60Data130`).
+- Tier D (frame census): fourteen scalar locals above `minutes` with the
+  counter ninth put the spill on the target's 372 slot; the eighth scalar's
+  use is unrecovered (`spare`). A fresh pointer local below the arrays costs
+  65 words wherever it is declared, so the pointer census is exact too.
+- The four settings-bit toggles are `(f ^ 1) & 1`: the comparison-style
+  RHS allocates the value temps before the merge's byte read (byte read
+  takes t8 as in the target) while keeping `xori`; `^= 1` alone displaces
+  the temp ring for the rest of the function (1010 -> 140 words).
+- Statement orders fixed by the target's delay slots: `sprintf` before
+  `icon = 0x4A`; `glyph[0]` stored before `glyph[1]`; `for (i = 0,
+  count = 0; ...)` in case 3.
+
+Mechanism of the owner-address promotion (the previous plateau's cause):
+
+- uopt promotes a global address to a saved register only when its weighted
+  reference count is large relative to the function's unit count, counted
+  over the whole function (blocks split at calls; blocks after the last use
+  still count; loop uses weigh about eight plain uses; CSE-folded duplicates
+  count once). In a P1-style probe with the switch removed, one added
+  conditional block or one call anywhere in the function drops the
+  promotion; each extra use buys about two blocks.
+- In the full body the address is shredded not by that cutoff but by the
+  colouring race: with the settings word promoted and the loop counters
+  shared, every saved register has an occupant somewhere inside the owner's
+  live range. The identities above leave s2 free.
+- Eliminated: the settings address as a competitor (removing every settings
+  reference leaves the owner shredded), declaration order of globals and of
+  locals (inert), static linkage, the search-loop store, ghost loops,
+  distinct-symbol spellings, and every flag set. `-Wo,-loopunroll,0` and
+  `-sopt` promote the owner only by perturbing the same race and are wrong
+  elsewhere (-396 and +104 bytes).
+
+Remaining residual and the next lever:
+
+- All 92 remaining positional differences are one register-class cascade.
+  In the preview panel's model loop, ours forms a CSE web for the rank
+  table base (`gOverlay60Data12B + 1`, two uses) and hoists it into s5;
+  `previewMode` then falls to v1 everywhere, `limit` to a0 instead of v1,
+  and the 14C value to a0 instead of v1. The target keeps `previewMode` in
+  s5 everywhere and rematerialises the rank constants three times inside the
+  loop (`lui/addiu` of data+0x12C for the base, the pointer compare and the
+  strength-reduced loop end).
+- Proved: any spelling that stops the two rank uses from being one CSE web
+  (a different symbol for the compare) gives `previewMode` s5 at all ten
+  sites and rematerialises the base and the loop end exactly as the target;
+  what those spellings cannot produce is the target's bare folded constant
+  at the compare (`sym + const` written by hand never folds; only uopt's own
+  address arithmetic folds, e.g. `1B4 + 22` in the glyph loop, and a struct
+  member base folds but then CSEs with the shifts pointer into s5). A
+  diagnostic far-away read of the table also flips the order, so the web's
+  priority is units-driven; the target references the table only at the
+  three loop sites, so the original's form is still unknown.
+- Also open: the advanced save-slot pointer is a separate web (target
+  `slots` in s0, the blur-advanced slot in s1, `record` initialised from s1);
+  ours reproduces that only by reusing an existing pointer local (92 words),
+  because the pointer census is exact. Which of the eight pointer locals it
+  is has not been identified; the committed form keeps `slots +=` (97).
+- The two compiler temp homes (target 80 and 96, ours 84 and 88) follow the
+  same cascade and were not chased separately.
+
+Harness left in ignored `build/scratch-w60/`: `measure.py` (direct-cc
+compile, masked positional and shift-tolerant scores, census, diff),
+`sig.sh` (pre-switch colouring signature, spill and first-mismatch readout),
+`firstmm.py`, `structdiff.py`, `sregs.py`, `regs_in.py`, `occupants.py`,
+`bucket.py`, `rtrel.py`/`rtrel2.py` (runtime relocation identities from the
+ROM tables), `mergetool.py`, `splitloop.py`, `sweep.py`.
 
 <!-- plateau-handoff:func_overlay_060_F0000334_18BA10C:end -->
