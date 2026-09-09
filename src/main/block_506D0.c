@@ -8,65 +8,54 @@ extern f32 func_8002A8C0(s32 angle);
 /* PROVENANCE: adapted from Jet Force Gemini's public libultra decomp,
  * libultra/src/gu/perspective.c:guPerspectiveF; Mickey's angle helpers,
  * constants, and linked bytes remain authoritative. */
-/* verdict: structure-mismatch; 29/84 words differ; frame size is exact */
-/* first mismatch: +0x44 helper-result spill home; target has one extra nop */
-/* blocker: IDO spill placement and one pipeline gap remain unresolved */
-#ifdef NON_MATCHING
+/* The declared-local list is load-bearing here, not decoration. Its length
+ * sizes the 0x38 frame and its order fixes each home at frame_top - 4k, so
+ * `sine` lands at sp+0x20 and `angle` at sp+0x1C only when they are the sixth
+ * and seventh declarations. `i` is the survivor of the SGI original's scale
+ * loop, which JFG's variant also still declares after folding the loop away;
+ * the compiler never materialises it, but dropping it shortens the frame to
+ * 0x30. */
 void func_8004FAD0(MtxF mf, u16 *perspNorm, f32 fovy, f32 aspect,
                    f32 nearPlane, f32 farPlane, f32 scale) {
-    f32 sp20;
-    s32 sp1C;
-    f32 temp_f12;
-    f32 temp_f14;
-    f32 temp_f16;
-    f32 temp_f8_2;
-    s32 temp_f8;
+    s32 i;
+    f32 cot;
+    f32 sumZ;
+    f32 deltaZ;
+    f32 aspectCot;
+    f32 sine;
+    s32 angle;
 
-    temp_f8 = (s32)(fovy * D_80083F60);
-    sp1C = temp_f8;
-    sp20 = func_8002A8BC(temp_f8);
-    temp_f12 = (sp20 / func_8002A8C0(temp_f8)) * scale;
-    temp_f8_2 = temp_f12 / aspect;
-    temp_f14 = scale / (nearPlane - farPlane);
-    mf[0][0] = temp_f8_2;
+    angle = (s32)(fovy * D_80083F60);
+    sine = func_8002A8BC(angle);
+    cot = (sine / func_8002A8C0(angle)) * scale;
+    aspectCot = cot / aspect;
+    deltaZ = scale / (nearPlane - farPlane);
+    mf[0][0] = aspectCot;
     mf[0][1] = 0.0f;
     mf[0][2] = 0.0f;
     mf[0][3] = 0.0f;
     mf[1][0] = 0.0f;
-    mf[1][1] = temp_f12;
+    mf[1][1] = cot;
     mf[1][2] = 0.0f;
     mf[1][3] = 0.0f;
     mf[2][0] = 0.0f;
     mf[2][1] = 0.0f;
-    temp_f16 = nearPlane + farPlane;
-    mf[2][2] = temp_f16 * temp_f14;
+    sumZ = nearPlane + farPlane;
+    mf[2][2] = sumZ * deltaZ;
     mf[2][3] = -1.0f;
     mf[3][0] = 0.0f;
     mf[3][1] = 0.0f;
-    mf[3][2] = (2.0f * nearPlane * farPlane) * temp_f14;
+    mf[3][2] = (2.0f * nearPlane * farPlane) * deltaZ;
     mf[3][3] = 0.0f;
 
     if (perspNorm != (u16 *)NULL) {
-        if (temp_f16 <= 2.0f) {
+        if (sumZ <= 2.0f) {
             *perspNorm = (u16)0xFFFF;
         } else {
-            *perspNorm = (s32)(131072.0f / temp_f16);
+            *perspNorm = (s32)(131072.0f / sumZ);
             if (*perspNorm <= 0) {
                 *perspNorm = (u16)0x0001;
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/block_506D0/func_8004FAD0.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_8004FAD0:start
- * symbol: func_8004FAD0
- * score: 29/84 words
- * frame: 0x38
- * relocations: 4
- * first-mismatch: +0x44
- * summary: Exact frame and relocation count remain, but helper-result spill home and one pipeline gap differ.
- * PLATEAU-HANDOFF:func_8004FAD0:end
- */
