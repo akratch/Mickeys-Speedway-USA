@@ -1233,10 +1233,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym hitCopyFirstTrap=TrapDanglingJump $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4
 
-# The menu initialization loops are scalar in the target; the flag lattice
-# selects the non-unrolled 85-instruction form for func_80038878.
-$(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
-# The adjacent menu tail also retains its scalar record-reset loop.
+# menu.c compiles at the plain game-code preset. It once carried
+# -Wo,-loopunroll,0 "for func_80038878"; that flag was measured byte-inert for
+# every other function in the TU and wrong for that one, whose target unrolls
+# both the pointer-table clear (4 stores per iteration) and the play-choice
+# reset (fully). Its matched body needs the default unroller.
+# The adjacent menu tail retains its scalar record-reset loop.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
 # func_80038750's five-entry language jump table (0x14) precedes the two
 # consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
@@ -1244,10 +1246,18 @@ $(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
 # shared resident rodata table.  The array-shaped aliases stay external to
 # IDO so func_80039720 retains its target induction-pointer allocation; bind
 # their metadata back to the individually owned BSS labels before linking.
+# D_800D3044 (the four play-choice bytes) is DEFINED in menu.c because
+# func_80038878 stores all four through one `lui $at`, which IDO emits only
+# for an object the TU owns. IDO lays it at .bss+0x2C inside the 0x30-byte
+# carve, so the section keeps its size, but the retail link placed the object
+# at 0x800D3044, which asm/data's bss gap still labels. Weakening menu.c's
+# definition lets the gap's label win; the symbol-relative relocations then
+# resolve to the retail address and the linked words match.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym menuRepeatX=D_800D3198 \
 	--redefine-sym menuRepeatY=D_800D319C \
-	--redefine-sym menuPreviousButtons=D_800D31A0 $@ && \
+	--redefine-sym menuPreviousButtons=D_800D31A0 \
+	--weaken-symbol=D_800D3044 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0xAC
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
