@@ -1194,6 +1194,59 @@ bytes and disassembly never belong here.
   assigned from the global leaves two named locals and forces a second `%hi`
   materialisation (+1 word). The name has to go, not just its origin.
 
+- **uopt's interference is basic-block coarse, so removing a block can hand a
+  web a physical-register forbid for free.** A web whose definition lands in
+  the *entry* block is treated as live from function entry, and therefore
+  interferes with the incoming parameters' physical registers. On
+  `func_80009AA8` the three-word residual was one caller-saved colour that no
+  amount of web-count or priority work could move; collapsing
+  `x = 0; if (cond) { x = 1; }` into `x = cond` removes two basic blocks, which
+  puts the list pointer's and the selected entry's definitions in block 0,
+  which makes them interfere with the incoming `$a0` the object pointer arrives
+  in -- and the residual web takes `a1`. The trace shows it plainly: the web's
+  own interference list still names only four assigned neighbours while its
+  decision line forbids five colours, and its recorded basic block goes 2 -> 0.
+  This is a block-count lever, not a web-count lever. Its limit is the reason
+  it does not transfer: a function whose float parameters arrive in `$f12`/
+  `$f14` has no incoming integer argument web to pick up, and a definition that
+  follows a call can never be in block 0 because the call ends the block.
+
+- **A caller-saved colour is forbidden for a web only by a pool web of that
+  colour or by a physical web it overlaps, and a call-crossing web can never
+  supply one.** A web that crosses a call has only callee-saved colours in its
+  `available` set -- forcing it to an argument register is silently ignored --
+  so any "extra web at `a0`" has to live entirely between two calls. Combined
+  with the ordering rule above, that reduces an argument-register residual to a
+  single concrete question: is there a zero-cost web, defined and dead between
+  the same pair of calls, that can be given the colour first?
+
+- **The way to build that web is a copy back into an existing carrier.** An
+  invisible coloured web -- one that takes a colour and emits no instruction --
+  is rare and worth recognising: a census of all 65 procedures in
+  `src/main/objects.c` found exactly four, and two of them are a coalesced copy
+  through a local (`temp = sp58 + 0x100; sp58 = temp;`) and a pass-through
+  parameter. Writing the accumulated value *back into the carrier it came
+  from*, and reading the next value out of that carrier, is what makes one:
+  `temp_v0 += var_s1; var_s2 = (u8 *)temp_v0;` in place of
+  `var_s2 = (u8 *)temp_v0 + var_s1;` closed both `func_80004454` and
+  `func_8000471C` at no instruction cost. The distinction is sharp and cost the
+  search a long detour: copies into a *fresh* carrier all coalesce to nothing
+  and reserve no colour.
+
+- **`(relational) == 0` burns a ugen ring temp and emits nothing, which makes
+  the ring phase a source-level dial.** ugen materialises such a test as a
+  `seq`/`beq` pair and `as1` fuses it back into one branch, so the temporary is
+  consumed but never emitted. `!(x)`, `(x) != 0` and `(x) != 0U` all fold back
+  to a bare branch and burn nothing; `== 1`, `!= 1` and `^ 1` emit a real
+  instruction and cost two words. Three settings, usable at any branch site,
+  in either direction. On `func_8005A948` the target burned its ring temp at
+  the loop guard rather than at the inner compare, and moving the normalisation
+  from one to the other resynced every later temp: the guard edit alone is 23
+  differing words, dropping the inner `!= 0U` alone is 26, and the pair is
+  exact. Limit: this moves the ugen ring only. It never moves a uopt pool
+  colour -- measured on `func_80004454`, where the same dial shifts the ring by
+  15 words and leaves the caller-saved residual untouched.
+
 - **`globalcolor` picks the lowest free colour among equals, so an `a0`-versus-
   `a1` residual is an interference problem and never a priority one.** Read
   directly from the instrumented `uopt` on three `objects.c` functions: every
@@ -1274,6 +1327,17 @@ bytes and disassembly never belong here.
   Limits: only the final phase is replayed, so a residual owned by `uopt` or
   `ugen` is unaffected, and the listing must be re-derived after every source
   edit.
+
+- **A promotion must preserve the physical line count, or it moves the next
+  function.** Removing a `#ifdef NON_MATCHING` guard deletes four lines and
+  rewriting the plateau comment above it usually deletes more; every function
+  *below* then compiles at a different source line, and IDO's schedule is
+  sensitive to that. Measured: promoting `func_8005A948` with a comment eight
+  lines shorter left that function exact and moved `func_8005AAC0` by twelve
+  pure register renames, first visible at ROM 0x5B700. The ROM checksum gate
+  caught it, but the cheap check is to compile the whole translation unit
+  before and after and compare every symbol's `.text`, expecting exactly one to
+  differ. Absorb the guard's lines into the comment that replaces it.
 
 - **Reading `globalcolor` needs the procedure *ordinal*, and the ordinal is the
   function's index in `.text` address order.** The instrumented `uopt`
