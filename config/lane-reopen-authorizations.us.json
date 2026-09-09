@@ -911,9 +911,9 @@
       "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
     },
     "func_overlay_060_F0000334_18BA10C": {
-      "ledger_commit": "f2fdc90124a00917153474a600b1066f7e746e4f",
-      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
-      "source_commit": "95c7e0be9d14291b3b936d0e74e332f1442b4ba8"
+      "ledger_commit": "0534f43aa472bdab7482d80d0c86a305fada2335",
+      "reason": "Residual fell 2503 to 97 masked words with size delta 0 and every saved register coloured as the target. All 97 are one named cascade: a CSE web for the rank-table base hoists into s5 and displaces previewMode.",
+      "source_commit": "0534f43aa472bdab7482d80d0c86a305fada2335"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": "554ca5b60eec5c9eeafc8fefcccaa639bd4db9bd",
