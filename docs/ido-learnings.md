@@ -322,7 +322,8 @@ bytes and disassembly never belong here.
   it only shortens the function when the field is read more than once.
   Evidence: `func_80019DE8` in `src/main/lights.c`, where three reloads of a
   stack-homed parameter became two, closing a +4 size mismatch and taking the
-  residual from 45 words with nine structural differences to 16 register names.
+  residual from 45 words with nine structural differences to 16 register names
+  -- a pure temporary-ring rotation, closed by the ring entry below.
 
 - A decompiler's copy variable is often the compiler's own live-range split,
   and declaring it costs an instruction. Where a draft carries `var_sN = var_sM`
@@ -968,6 +969,35 @@ bytes and disassembly never belong here.
   container. A hand-expanded bitfield is therefore a residual signature in
   its own right: when the mask/shift arithmetic matches and one commutative
   operand order does not, declare the bitfield.
+
+- **The caller-saved temporary ring is one counter over the whole procedure,
+  and `cc -S` reads it out directly.** ugen hands every expression temporary
+  the next register in the fixed cycle `$14,$15,$24,$25,$8,$9,$10,$11,$12,$13`
+  (`t6,t7,t8,t9,t0,t1,t2,t3,t4,t5`), advancing once per temporary created, in
+  post-uopt emit order and never reusing a name early. A residual that is a
+  *uniform rotation* of that cycle from some point onward -- every opcode,
+  offset, operand and relocation identical, only `tN` names shifted by a
+  constant k -- is therefore not a colouring question at all: the target
+  simply created k more temporaries before that point, and the only question
+  is which source expression supplies them. Do not sweep declaration or
+  statement order for it; the rotation is invariant under both.
+  A temporary can cost a ring slot and emit no instruction, which is what
+  makes the count invisible in the disassembly: uopt forwards a store to a
+  following load of the same field, and as1 coalesces a `move` into the
+  instruction that defines it, so both leave a consumed ring position and no
+  word. `cc -S` (which the driver produces via ugen's `-l`) prints the
+  pre-scheduling listing with these registers already assigned, so the ring
+  index of any expression is directly readable and a candidate can be scored
+  by *ring position* before it is ever assembled -- much sharper than a
+  positional word diff, which reports a pure rotation as dozens of differences.
+  Evidence: `func_80019DE8` in `src/main/lights.c`, whose last residual was
+  16 words that were exactly a +2 rotation. Spelling the delta as
+  `state->valueDelta = state->endValue - state->startValue` instead of
+  `arg2 - arg1` -- the two bytes were stored on the two preceding lines, so
+  uopt forwards both and neither load survives -- spends exactly the two
+  missing ring slots and matched. This is lever 45 used for its *ring cost*
+  rather than for a register-to-register copy: the same edit, read through
+  the counter instead of through the copy.
 
 ### Assembler scheduling and phase replay
 
