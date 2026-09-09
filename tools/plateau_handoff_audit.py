@@ -326,7 +326,7 @@ def parse_shard(path: Path, relative: str, symbol: str, tracked: bool) -> Shard:
     finalize_plateau.handoff_shard_source(text, symbol)
     match = shard_pattern(symbol).fullmatch(text)
     if match is None:
-        raise ValueError(f"malformed or foreign symbol handoff shard for {symbol}")
+        raise ValueError(finalize_plateau.shard_rejection_reason(text, symbol))
     fields = {
         "symbol": symbol,
         "score": match.group("score"),

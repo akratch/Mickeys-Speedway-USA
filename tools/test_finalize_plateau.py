@@ -755,5 +755,50 @@ class OneLineDiagnosticTests(unittest.TestCase):
         self.assertIn("newline", self.message("a\nb"))
 
 
+
+class ShardRejectionDiagnosticTests(unittest.TestCase):
+    """A rejected shard must say which rule it broke."""
+
+    SYMBOL = "func_80001234"
+
+    def block(self, body: str) -> str:
+        marker = f"plateau-handoff:{self.SYMBOL}"
+        return f"<!-- {marker}:start -->\n{body}<!-- {marker}:end -->\n"
+
+    def test_a_markdown_table_is_named_as_the_cause(self):
+        # The reported case: a worker writes a measurement table, which is
+        # made of pipes, and the shard is refused with a message that reads
+        # like the symbol is wrong.
+        message = plateau.shard_rejection_reason(
+            self.block("before/after\n| a | b |\n"), self.SYMBOL
+        )
+        self.assertIn("'|'", message)
+        self.assertIn("markdown table", message)
+
+    def test_the_offending_line_is_located(self):
+        message = plateau.shard_rejection_reason(
+            self.block("one\ntwo\n| x |\n"), self.SYMBOL
+        )
+        self.assertIn("3", message)
+
+    def test_a_missing_start_marker_says_so(self):
+        self.assertIn(
+            "missing its start marker",
+            plateau.shard_rejection_reason("no markers at all\n", self.SYMBOL),
+        )
+
+    def test_a_repeated_marker_says_so(self):
+        doubled = self.block("x\n") + self.block("y\n")
+        self.assertIn(
+            "repeats its start or end marker",
+            plateau.shard_rejection_reason(doubled, self.SYMBOL),
+        )
+
+    def test_an_otherwise_bad_header_falls_back_to_naming_the_fields(self):
+        message = plateau.shard_rejection_reason(self.block("plain\n"), self.SYMBOL)
+        self.assertIn("relocations", message)
+        self.assertIn("first mismatch", message)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -338,6 +338,46 @@ def parse_shard(text: str, symbol: str) -> tuple[str, str]:
     return source, details
 
 
+def shard_rejection_reason(text: str, symbol: str) -> str:
+    """Say WHY a shard failed the grammar, not merely that it did.
+
+    "malformed or foreign symbol handoff shard" describes every failure
+    identically, and the most common one in practice is invisible: a `|`
+    anywhere in the free-form evidence. Workers write measurement tables --
+    it is the clearest way to present a before/after -- and markdown tables
+    are made of pipes, so a good shard is rejected with a message that reads
+    like the symbol is wrong. That cost a lane a cycle on 2026-09-09.
+    """
+    marker = f"plateau-handoff:{symbol}"
+    start, end = f"<!-- {marker}:start -->", f"<!-- {marker}:end -->"
+    if start not in text or end not in text:
+        return (
+            f"shard for {symbol} is missing its {'start' if start not in text else 'end'} "
+            f"marker ({start if start not in text else end})"
+        )
+    if text.count(start) != 1 or text.count(end) != 1:
+        return f"shard for {symbol} repeats its start or end marker"
+    body = text.split(start, 1)[1].split(end, 1)[0]
+    if "|" in body:
+        lines = [
+            number for number, line in enumerate(body.splitlines(), 1) if "|" in line
+        ]
+        return (
+            f"shard for {symbol} contains '|' on line(s) "
+            f"{', '.join(str(n) for n in lines[:5])} of its block. The grammar "
+            f"forbids the ledger's column separator anywhere in a shard, so a "
+            f"markdown table invalidates it; write the measurements as prose "
+            f"or an indented list"
+        )
+    if "\r" in body:
+        return f"shard for {symbol} contains a carriage return; write LF endings"
+    return (
+        f"malformed or foreign symbol handoff shard for {symbol}: the metric "
+        f"header must be source, score, frame, relocations, first mismatch, "
+        f"then an optional summary, each on its own line"
+    )
+
+
 def handoff_shard_source(text: str, symbol: str) -> str:
     """Validate one symbol-owned shard and return its exact source identity."""
     return parse_shard(text, symbol)[0]
