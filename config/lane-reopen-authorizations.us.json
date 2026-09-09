@@ -846,9 +846,9 @@
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": "e0e394553126ac8b068ec1c6e323bf4e2115bace",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1972 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "e0e394553126ac8b068ec1c6e323bf4e2115bace"
+      "ledger_commit": "53d896e5d8d320162fa3cf6331a147087b28ffd4",
+      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
+      "source_commit": "2a2f18fb44cf30cce78abedaa640301b7b88556b"
     },
     "func_overlay_050_F0000334_1896CA4": {
       "ledger_commit": "842beea91b50cc0aea9b7cf441dccfa974cd46a1",
@@ -911,8 +911,8 @@
       "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
     },
     "func_overlay_060_F0000334_18BA10C": {
-      "ledger_commit": "95c7e0be9d14291b3b936d0e74e332f1442b4ba8",
-      "reason": "ADR 0018 stall rule, and at delta -12 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "f2fdc90124a00917153474a600b1066f7e746e4f",
+      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
       "source_commit": "95c7e0be9d14291b3b936d0e74e332f1442b4ba8"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
