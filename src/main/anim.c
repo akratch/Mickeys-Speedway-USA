@@ -3797,8 +3797,24 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 /* PROVENANCE: JFG efd5abb's src/hit.c leaves hitGetInelasticVelocity as an
  * assembly fallback; its 0.0484 masked similarity supplies no donor C body.
  * Mickey's fields, behavior, and compiled bytes remain authoritative.
- * Prior scalar/vector aliases, stack-spill/aggregate forms, expression
- * spelling, and flag lattice attempts regressed or stayed inert. */
+ *
+ * Size and instruction census are exact at the TU's configured flags. The
+ * one-instruction surplus the previous candidate carried was a second
+ * `lwc1` of `normal->x`: the volatile round-trip through `bounce` is a
+ * memory barrier for IDO, so two source references to that field either side
+ * of it cannot be commoned and each emits its own load, while the target
+ * keeps the first load live in a coloured register across the barrier.
+ * Reading it once into `normalX` restores that single load. The read has to
+ * stay inside the sum -- hoisting it to its own statement puts the load in
+ * the entry block and costs seven more words -- so the assignment is spelled
+ * where the load belongs. Dropping the three padding locals then lands the
+ * volatile's home at the target's 4(sp): with nine declarations it is the
+ * ninth, and eleven put it a slot low.
+ *
+ * The residual is a pure f16/f18 colour rotation over 44 of the 80 words.
+ * All 512 commutative operand orders of the reflection sum and the three
+ * velocity updates are byte-identical to this one, and so is every
+ * declaration order, so the source expression tree is not what selects it. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -3808,10 +3824,8 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     f32 normalXProduct;
     f32 velocityZ;
     f32 doubled;
-    f32 highPad0;
-    f32 highPad1;
+    f32 normalX;
     volatile f32 bounce;
-    f32 lowPad;
 
     target = state->target;
     velocityX = state->velocity.x / target->unk4;
@@ -3824,11 +3838,11 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     target->unk4 *= D_80084218;
 
     doubled = -((normal->z * velocityZ) +
-                ((velocityX * normal->x) + (velocityY * normal->y)));
+                ((velocityX * (normalX = normal->x)) + (velocityY * normal->y)));
     bounce = doubled;
     doubled = bounce;
     doubled += doubled;
-    normalXProduct = normal->x * doubled;
+    normalXProduct = normalX * doubled;
     bounce = doubled;
     state->velocity.x = (normalXProduct + velocityX) * target->unk4;
     state->velocity.y = ((normal->y * bounce) + velocityY) * target->unk4;
@@ -4154,11 +4168,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005716C:start
  * symbol: func_8005716C
- * score: 18/80 words
- * frame: -0x28
+ * score: 44/80 words
+ * frame: 0x28
  * relocations: 2
  * first-mismatch: +0x54
- * summary: JFG efd5abb leaves hitGetInelasticVelocity assembly-only; zero new attempts. Next: a matched JFG donor C body for this reflection handler.
+ * summary: Size and census now exact (80/80, allocation-mismatch); the surplus lwc1 was a second normal->x read across the volatile barrier. Residual is an f16/f18 colour rotation flat over 512 operand orders and every declaration order.
  * PLATEAU-HANDOFF:func_8005716C:end
  */
 
