@@ -3371,7 +3371,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: nine of the nineteen words are phantom %lo relocation differences; the trig load now sits after the angle call with no stall, leaving the two constants' order and the shared-world address placement
+ * summary: placement-only address and trig clusters remain; carrier, declaration, order, and flag lattices are exhausted
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
