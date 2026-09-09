@@ -61,7 +61,7 @@ extern s32 TrapDanglingJump();
 extern void amSndPlay(s32 soundId, s32 *handle);
 extern void amSndSetVol(s32 soundId, s32 handle, s32 volume, s32 *handleOut);
 extern void amSndStop(s32 handle);
-extern void func_80000510(u8 value, s16 arg1);
+extern void func_80000510(u8 sequence);
 extern void func_80006EA0(void *object);
 extern void func_80006FA0(void);
 extern s32 func_80005820(s32 arg0);
@@ -554,21 +554,31 @@ void frontSetMode(s32 mode) {
 u8 frontGetMode(void) {
     return D_8007C0A0;
 }
-#ifdef NON_MATCHING
-/* NON_MATCHING NOTE: exact 279-word extent and 0x28 frame; 219/279 words differ, first +0xD8.
- * Compound fade/title-timer updates recover the target's early address webs and the distinct second trace string.
- * The early-exit CFG and later pool/temp allocation remain; target and C each carry 95 external relocations. */
+/* PROVENANCE: adapted from Jet Force Gemini's permitted published decomp,
+ * src/menu.c::frontUpdate, as matched in pull request #37 at head
+ * d45123d1c528955d5e12ddad805076267a690d76 (unmerged upstream; the SHA is the
+ * citation). Correspondence: the same frame -- poll the joysticks
+ * (func_80039720 is JFG's func_80059A98), latch the four display-list
+ * cursors into the front-end globals, diRcpTrace in, dispatch the current
+ * front-end mode through one switch whose `case 0: break;` is the donor's
+ * (it widens the jump table to 19 entries), trace out, write the cursors
+ * back and clear `disable`. Mickey's additions are its own: the title-music
+ * fade, the demo/attract timer with its any-pad-START check, the early
+ * `return 0` when the overlay trap reports the frame consumed, and the fade
+ * countdown that plays a tune through func_80000510 (JFG's amTunePlay, one
+ * argument -- the other Mickey callers agree). The locals keep their target
+ * homes in declaration order: the four joyGetPressed halves and the two
+ * call results are the whole 0x28 frame. */
 s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
-    s32 sp24;
-    u8 *sp20;
-    u16 sp1E;
-    u16 sp1C;
-    u16 sp1A;
-    s32 temp_t4;
+    s32 timerState;
+    u8 *selection;
+    u16 pressed0;
+    u16 pressed1;
+    u16 pressed2;
     s32 temp_v0;
-    u8 temp_v0_2;
+    u8 mode;
 
-    sp20 = func_80028F54();
+    selection = func_80028F54();
     if (D_800C947C != 0) {
         if (D_8007C1A4 == 0) {
             amSndPlay(0xA, &D_8007C1A4);
@@ -586,15 +596,15 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
     }
     func_80039720(updateRate);
     if (TrapDanglingJump() != 0) {
-        goto done;
+        return 0;
     }
         if (func_8003A550() != 0) {
             func_8003A544(0);
-            temp_t4 = (D_8007C09C -= updateRate);
-            if ((temp_t4 < 0) ||
-                (sp1A = joyGetPressed(2), sp1C = joyGetPressed(1),
-                 sp1E = joyGetPressed(0),
-                 ((joyGetPressed(3) | sp1E | sp1C | sp1A) & 0x9000) != 0)) {
+            D_8007C09C -= updateRate;
+            if ((D_8007C09C < 0) ||
+                (pressed2 = joyGetPressed(2), pressed1 = joyGetPressed(1),
+                 pressed0 = joyGetPressed(0),
+                 ((joyGetPressed(3) | pressed0 | pressed1 | pressed2) & 0x9000) != 0)) {
                 mainTitlePageInit(1);
                 D_8007C09C = 0x4B0;
             } else {
@@ -605,10 +615,12 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
         D_800D3140 = *arg0;
         D_800D3144 = *arg1;
         D_800D3148 = *arg2;
-        sp24 = temp_v0;
+        timerState = temp_v0;
         D_800D314C = *arg3;
         func_80044BC8(D_800D3140, D_800826C0, 0x297);
         switch (D_8007C0A0) {
+        case 0:
+            break;
         case 2:
             TrapDanglingJump(updateRate);
             break;
@@ -636,10 +648,10 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             TrapDanglingJump(updateRate);
             break;
         case 5:
-            temp_v0_2 = *sp20;
-            if ((temp_v0_2 == 5) || (temp_v0_2 == 6)) {
+            mode = *selection;
+            if ((mode == 5) || (mode == 6)) {
                 if (D_8007BEF4 == 1) {
-                    TrapDanglingJump(sp24, updateRate);
+                    TrapDanglingJump(timerState, updateRate);
                     TrapDanglingJump(updateRate);
                 } else if (D_8007BEF4 < 3) {
                     TrapDanglingJump(updateRate);
@@ -647,7 +659,7 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
                     TrapDanglingJump(updateRate);
                 }
             } else if (D_8007BEF4 == 1) {
-                TrapDanglingJump(sp24, updateRate);
+                TrapDanglingJump(timerState, updateRate);
                 TrapDanglingJump(updateRate);
             } else if (D_8007BEF4 < 3) {
                 TrapDanglingJump(updateRate);
@@ -678,15 +690,11 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             D_8007BF70 -= updateRate;
             if (D_8007BF70 <= 0) {
                 D_8007BF70 = -1;
-                func_80000510(D_800D3050, D_8007BF70);
+                func_80000510(D_800D3050);
             }
         }
-done:
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E1C.s")
-#endif
 /* PROVENANCE: name and ordered role compared with JFG's public decomp,
  * src/menu.c::frontDemoMessage; the body is derived from Mickey. */
 void frontDemoMessage(MenuCommand **displayList, s32 updateRate) {
@@ -1316,15 +1324,6 @@ void func_8003A590(void) {
     D_8007BF70 = -1;
 }
 
-/* PLATEAU-HANDOFF:func_80038E1C:start
- * symbol: func_80038E1C
- * score: 219 differing words
- * frame: 0x28
- * relocations: 95
- * first-mismatch: +0xD8
- * summary: Compound global updates recover the first 54 words; shared-exit CFG and the title/tail pool-to-temp webs remain.
- * PLATEAU-HANDOFF:func_80038E1C:end
- */
 
 /* PLATEAU-HANDOFF:func_80039E34:start
  * symbol: func_80039E34
@@ -1335,3 +1334,5 @@ void func_8003A590(void) {
  * summary: Exact 262-word geometry and 0xB8 frame; the whole residual is register identity. The target runs a 4-wide ugen ring (t6-t9, ~47 uses each) over a 6-wide uopt pool (t0-t5, t2 unused); the candidate runs a 7-wide ring (t3-t9, ~26 each) over a 3-wide pool. Adding named locals does not widen the pool -- hoisted draw-object, three Gfx carriers and dropped spill all leave the histogram bit-identical to the base.
  * PLATEAU-HANDOFF:func_80039E34:end
  */
+
+

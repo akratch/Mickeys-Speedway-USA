@@ -178,6 +178,37 @@ as "run this after promoting" is what leaves the build broken. Likewise
 `promotion-proof` refuses with `expected one tracked exact atlas range for
 <sym>, found 0` until step 2 is done.
 
+## Two traps when integrating an old branch
+
+Both of these produced a failed integration on 2026-09-10, on a branch whose
+own work was correct.
+
+**A compiled object does not depend on the `Makefile`.** Change a per-TU flag
+and `gmake -j8` rebuilds *nothing*: the object is newer than its source, and
+Make never learns the recipe changed. So a bad flag is invisible until
+something else evicts that object, and then it surfaces far from the commit
+that introduced it, usually as `ERROR: n64crc rewrote the CRC words`. When a
+merge touches a `CFLAGS +=` line, force the affected objects to rebuild before
+believing `gmake verify`. This is the same hazard as the `mk/overlays.mk`
+note above, and it is why a stale `build/` can hide a broken promotion.
+
+The concrete case: a donor commit's `Makefile` hunk carried
+
+```make
+$(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
+```
+
+as leading context. That line was inert when the donor wrote it, but had since
+been *deleted* to match `func_8003A7D0` in a different TU. Resolving the hunk
+toward the donor silently reinstated a flag that unmatches a function the
+donor never touched. The C body was byte-exact all along.
+
+**Moving a carve boundary orphans the previous extract.** After a
+`0x833E0` -> `0x83430` move, the old `asm/data/833E0.rodata.s` survives
+unreferenced by `mickey.us.ld`, yet still feeds `check_derived_numbers`, which
+then reports a jump-table count one too high and makes a correct recomputed
+number look wrong. Delete the orphan after any boundary move.
+
 ## What the gates cover
 
 The hooks are client-side, opt-in per clone (`core.hooksPath`), and skippable

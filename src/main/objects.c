@@ -864,10 +864,10 @@ void func_8000439C(void) {
     mmFree(D_800C94D8[1]);
     D_80078F84 = 0;
 }
-/* Workbench verdict: register-permutation; 3 differing words (76/79). */
-/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
-/* Residual: initial list-index allocation; forced-color output is diagnostic only. */
-#ifdef NON_MATCHING
+/* The list base is advanced onto the start element and the cursor taken from
+ * it, rather than the two being separate sums. The copy coalesces away, so it
+ * emits nothing, but it leaves uopt a zero-cost web that interferes with the
+ * initial list index and takes a0 -- which is what puts that index in a1. */
 void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     f32 queryX;
     f32 queryY;
@@ -888,7 +888,7 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     var_f20 = D_80080D24;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
+        var_s1 = sp7C * 4; temp_v0 += var_s1; var_s2 = (u8 *)temp_v0; do {
             temp_s0 = *(Objects04454Object **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
@@ -909,9 +909,9 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     }
     return var_s4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
-#endif
+/* Keep the preheader's three assignments on one physical line with `do {`:
+ * splitting them costs two words at +0x74/+0x78. See func_8000471C, which is
+ * the same function against a different object list and needs the same edit. */
 /* Workbench verdict: structure-mismatch; 96 differing words (99/104). */
 /* First mismatch: +0x0; target frame is 0x50, candidate frame is 0x58. */
 /* Structural gap: stack homes and four-at-a-time tail control flow remain unresolved. */
@@ -986,10 +986,10 @@ block_9:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
 #endif
-/* Workbench verdict: register-permutation; 3 differing words (77/80). */
-/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
-/* Residual: initial list-index allocation shared with func_80004454. */
-#ifdef NON_MATCHING
+/* Twin of func_80004454 against a different object list: the same advance of
+ * the list base onto the start element, whose coalesced copy leaves the
+ * zero-cost web that takes a0 and moves the initial list index to a1.
+ * The preheader must stay on one physical line with `do {`. */
 void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     f32 queryX;
     f32 queryY;
@@ -1010,7 +1010,7 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     var_f20 = D_80080D28;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
+        var_s1 = sp7C * 4; temp_v0 += var_s1; var_s2 = (u8 *)temp_v0; do {
             temp_s0 = *(Objects0471CObject **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
@@ -1030,9 +1030,9 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     }
     return var_s4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000471C.s")
-#endif
+/* (Four lines held here so the physical line numbers of every function below
+ * are unchanged by this promotion; IDO's schedule is sensitive to them, and a
+ * shorter replacement moved an already-matched neighbour in another TU.) */
 void func_8000485C(s8 arg0) {
     D_80078F88 = arg0;
 }
@@ -5659,16 +5659,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  */
 
 
-/* PLATEAU-HANDOFF:func_80004454:start
- * symbol: func_80004454
- * score: 76/79 words
- * frame: 0x88
- * relocations: 6
- * first-mismatch: +0x50
- * summary: One caller-saved colour on p1 web 22. a0 is the lowest zero-cost free colour; only an extra interfering a0 web can move it, and none is reachable here yet.
- * PLATEAU-HANDOFF:func_80004454:end
- */
-
 /* PLATEAU-HANDOFF:func_80006B04:start
  * symbol: func_80006B04
  * score: 63 differing words
@@ -5677,16 +5667,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x20
  * summary: Asset/count carrier and late loop register shape remain structural; next lever is a typed source record/output layout.
  * PLATEAU-HANDOFF:func_80006B04:end
- */
-
-/* PLATEAU-HANDOFF:func_8000471C:start
- * symbol: func_8000471C
- * score: 77/80 words
- * frame: 0x88
- * relocations: 6
- * first-mismatch: +0x50
- * summary: Twin of func_80004454: the same p1 web 22 takes a0 where the target takes a1. Same requirement, same measured-flat search space.
- * PLATEAU-HANDOFF:func_8000471C:end
  */
 
 

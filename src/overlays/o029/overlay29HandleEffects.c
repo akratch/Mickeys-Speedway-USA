@@ -68,6 +68,30 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         *(volatile s16 *) &record->value = 0xFF;                           \
     } while (0)
 
+/* The second block's angle setup belongs to the first block's initialiser
+ * line, not to its own.  Emitting it there keeps `record` -- the first
+ * block's pool web, colour v1 -- live across the shared
+ * `verticalAngle + 0x2000` CSE, and the CSE moves off v0 onto a2, which is
+ * what the target does.  The macro must spell the body out rather than
+ * wrap INITIALIZE_RECORD: a nested expansion resynchronises acpp's line
+ * counter and puts the two statements back on their own line (17 words). */
+#define INITIALIZE_RECORD_THEN(rec_, next_)                                \
+    do {                                                                   \
+        record->position.x = object->position.x;                           \
+        record->position.y = object->position.y;                           \
+        record->position.z = object->position.z;                           \
+        record->angle0 = object->angle0;                                   \
+        record->angle1 = object->angle1;                                   \
+        record->angle2 = object->angle2;                                   \
+        record->scalar = object->scalar;                                   \
+        record->random0 = overlay29RandomRangeReloc(-0x500, 0x500);        \
+        record->random1 = overlay29RandomRangeReloc(-0x500, 0x500);        \
+        *(volatile s16 *) &record->random2 =                               \
+            overlay29RandomRangeReloc(-0x500, 0x500);                      \
+        *(volatile s16 *) &record->value = 0xFF;                           \
+        next_;                                                             \
+    } while (0)
+
 /* Exact size (1028 bytes / 257 words), exact 0x48 frame, all 22 relocation
  * offsets and types.  253 of 257 words agree and the four that do not are one
  * fact: the CSE web for `verticalAngle + 0x2000` -- defined in the second
@@ -121,7 +145,6 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
  * lever has to change the allocation regime, not the spelling or the
  * schedule.  Note the permuter is not usable here -- its scratch scores this
  * body 135 against a measured 4. */
-#ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
     Overlay29Record *record;
     Overlay29State *state;
@@ -146,11 +169,10 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
         overlay29TransformReloc(angles, &record->vector);
-        INITIALIZE_RECORD(record);
+        INITIALIZE_RECORD_THEN(record, angles[1] = verticalAngle + 0x2000;
+                                       angles[0] = baseAngle);
 
         record = &state->records[1];
-        angles[1] = verticalAngle + 0x2000;
-        angles[0] = baseAngle;
         record->vector.x = 0.0f;
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
@@ -188,16 +210,3 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
     object->resource->flags &= ~1;
     object->flags06 |= 0x400;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29HandleEffects/func_overlay_029_F00010C4_187E374.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:start
- * symbol: func_overlay_029_F00010C4_187E374
- * score: 253/257 words
- * frame: 0x48
- * relocations: 22
- * first-mismatch: +0x13C
- * summary: Four words, one ugen colour: the shared angle web takes v0 here and a2 in the target; a2 is unreachable across 4,000 source forms.
- * PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:end
- */
