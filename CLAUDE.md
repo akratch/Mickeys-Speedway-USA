@@ -6,8 +6,18 @@ byte-identically; every commit must keep it that way.
 ## Private/public release posture
 
 This is the private canonical repository. Work lands through private lanes on
-`campaign/unchain` and is pushed only to the private `origin`. The public
-release is the rewritten mirror at `../mickey-public`, published at
+`campaign/unchain`, is merged from there into the private `master`, and is
+pushed only to the private `origin`. **Both branches, every time** -- run
+`tools/land.sh` after each integration batch. It pushes `campaign/unchain`,
+merges it into `master`, re-verifies the ROM from the merge result (the merge
+can combine two lanes' generated artifacts in ways neither side produced
+alone, which `verify` on `campaign/unchain` does not cover) and pushes
+`master`. Leaving `master` behind means it gets merged by hand later.
+
+The `upstream` remote is Rare's public Jet Force Gemini repository, not ours.
+Never push there.
+
+The public release is the rewritten mirror at `../mickey-public`, published at
 `https://github.com/akratch/mickeys-speedway-usa-decomp` from its `master`
 branch through its remote named `public`. Their commit IDs and documentation
 are intentionally different.
