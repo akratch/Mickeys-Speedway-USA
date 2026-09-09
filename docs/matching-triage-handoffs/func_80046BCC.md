@@ -2,39 +2,42 @@
 ### `func_80046BCC` plateau handoff
 
 - source: `src/main/diCpu.c`
-- score: 68/106 words
+- score: 31 differing words
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Size closed at 106/106: folding the m2c-only var_s0 into var_s2 removes the extra saved-carrier copy; 41 differing words, relocations exact.
+- summary: 106/106 words, the two hoisted constants now in the target's registers; the residual is one caller-saved live-range split.
 
-#### Size-question closure, 2026-09-09
+#### 2026-09-09: the ninth callee-saved web is the working copy
 
-- The `+4` overrun was one saved-carrier copy at the loop head. With the m2c
-  draft's `var_s0` declared, uopt split `var_s2`'s web: the masked character
-  was computed into a caller-saved carrier and then copied into the callee-
-  saved one, where the target writes the callee-saved register directly.
-  `var_s0` is not a source variable -- it is that copy. Deleting the
-  declaration and spelling every one of its reads as `var_s2` (the two values
-  are equal on every path, since each arm assigns one from the other) removes
-  the copy and leaves the compiler free to create the same `move` itself.
-- Configured full-TU: 106 candidate versus 106 target words (was 107),
-  instruction delta 0 (was +1), 41 differing words (was 89), first `+0x2C`,
-  frame `0x40` both sides, and the three relocation sites now agree in offset,
-  type and identity (the previous form shifted all three).
-- Measured and rejected on the way: moving `var_s4 += 1` down beside the
-  pointer read (51 positional rows but the delta stays +1); dropping only the
-  `var_s2 = var_s0` write-back (+1, 92); combining that move with the fold
-  (delta 0 but 80 rows, because the freed register changes the hoist set);
-  swapping the `var_s2 = 0` / `var_s3 = 0` initialisers; masking or not masking
-  `temp_s6`; testing both bounds on one variable; incrementing at the read with
-  `*var_s4++` and `*++var_s4`; and `var_v0 &= 0xFF` in place (+2).
-- What is left is allocation, not size or structure: the fold frees one
-  callee-saved register, so the candidate hoists a third loop-invariant
-  constant (`0x78`) that the target materialises inline with `li at`, and the
-  whole saved-register assignment rotates behind it. Nesting the last test,
-  swapping the last two tests, an unused declared local at either end of the
-  list, and a `u8` `var_v0` are all byte-inert against that (48 rows each).
-  Resume with evidence for the ninth callee-saved web rather than more
-  spelling permutation.
+41 differing words to 31 at 106/106 words, frame `0x40`, all three relocation
+sites exact.
+
+The previous pass folded the m2c draft's `var_s0` into `var_s2` to close a +4
+size mismatch. That was right about the size and wrong about the register
+file: the fold frees a callee-saved register, so the candidate hoists a third
+loop-invariant constant (`0x78`) into `s8`, where the target materialises it
+inline with `li at` and hoists only `0xA` and `0x30`. The copy is a real
+source variable, not the allocator's artefact: `var_s0` carries the character
+through the range tests while `var_s2` keeps the value the next iteration's
+`temp_s6` reads. Reinstating it puts `s7 = 0xA` and `s8 = 0x30` back in the
+target's registers and removes ten differing words.
+
+Remaining: one live-range split. The target computes the masked character
+straight into its callee-saved carrier and splits a copy into `s0` for the
+range tests; the candidate computes it into a caller-saved temporary, runs
+every range test out of that temporary, and copies into the saved carrier.
+That one decision also exchanges `var_s2` with `var_s3` and `var_v0` with its
+own temporary, which is most of the 31. The instruction count, the frame, the
+branch structure and the relocation sites all agree.
+
+Measured flat or worse against it in this pass: both orders of the
+`var_s2 = 0` / `var_s3 = 0` initialisers (33); all legal orders of the three
+loop-head statements (31, 32, 32); `u8 var_v0`; the loop test written as
+`while ((var_v0 = *var_s4) != 0)`; the range tests spelled entirely on either
+variable; reversed equality operands at two sites; the copy written after the
+case block (41), inside each arm (41), and as a plain working copy with one
+write-back (40); and three declaration orders. Resume on why the mask lands in
+a caller-saved temporary here and directly in the saved carrier there.
+
 <!-- plateau-handoff:func_80046BCC:end -->

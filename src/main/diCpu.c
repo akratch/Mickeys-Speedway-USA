@@ -172,35 +172,10 @@ void stop_all_threads_except_main(void) {
         thread = thread->tlnext;
     }
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_800676F8. That JFG
  * source is a disabled, assembly-backed structural draft rather than an
  * exact-C donor; Mickey's bytes remain authoritative. Mickey's target fixes
  * the dump-size calculation to use the copied range. */
-/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): the retained
- * body/codegen measurement is 52/60 raw words, 58/60 after resolving six
- * fixed-address fields, frame 0x30; no current-HEAD candidate object or hash
- * survives. The substantive t6/t4 FIFO web is at +0xBC/+0xC0. Candidate C has
- * 18 static relocation tuples versus target 24 because literal
- * D_80705014/18/1C lvalues omit six HI16/LO16 records. Owned
- * 0x80045BBC..0x80045CAC / ROM 0x467BC..0x468AC has no padding; ordinary/link
- * equality proves fallback only. Reproduce configured V0, probe the three
- * symbolic identities independently and combine strict gains, then run the
- * 119-entry lattice on the identity-correct 60-word/frame-0x30 baseline. Take
- * one fresh FIFO trace and try exactly one natural trace-supported form. Any
- * gain-gated batch must fit inside the 125 deterministic-build total; no extra
- * batch beyond that cap. */
-/* Trace follow-up (2026-08-28, CREW-DICPU-45BBC-READY-72): the full retail
- * main relocation census is 375 records, with none in this resident range.
- * UGEN's source-line trace places the final data argument allocation at line
- * 148, emitted ordinal 60, as t4; the target lane requires t6. Globalcolor
- * contributes only six phase-one pool decisions for this function, with no
- * phase-two decision or alias event in the function segment. The generated
- * D_80705014/18/1C linker symbols exist, but direct and address-cast lvalue
- * forms changed the body to 59 instructions; a named pointer assignment,
- * initializer, and integer-address local were baseline-identical. The five
- * bounded forms therefore closed neither the temp-FIFO color nor the six
- * target-only fixed-buffer relocation identities; assembly remains canonical. */
 void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;
@@ -213,7 +188,8 @@ void func_80045BBC(OSThread *thread) {
     destination = (u8 *)0x80705094;
     _bcopy(thread, destination, 0x230);
     destination += 0x200;
-    source = *(void **)((u8 *)thread + 0xF4);
+    /* The saved SP is a 64-bit context field; the N64 pointer uses its low word. */
+    source = (void *)(u32)*(u64 *)&thread->context[0xD0];
     copySize = 0x200;
     _bcopy(source, destination, copySize);
     D_800D5D40 = source;
@@ -226,9 +202,6 @@ void func_80045BBC(OSThread *thread) {
     packWriteFile(0, -1, &D_80083A80, &D_80083A88, (u8 *)0x80700000,
                   writeSize);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066E14_67A14. */
 void func_80045CAC(void) {
     OSThread *thread;
@@ -690,9 +663,34 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         glyph++;
     }
 }
-/* Workbench: structure-mismatch, 89 differing words, first mismatch +0x2C. */
-/* Candidate shape: 107 instructions/frame -0x40 vs target 106/-0x40; not permuter-ready. */
-/* Remaining structural gap: one extra loop move shifts the glyph-call relocations. */
+/* Workbench: allocation-mismatch, 31 differing words, first mismatch +0x2C.
+ * 106/106 words, frame 0x40, all three relocation sites exact.
+ *
+ * 2026-09-09: the ninth callee-saved web is the case-conversion working copy,
+ * and it is a real source variable. Folding it away closed the +4 size
+ * mismatch but freed a callee-saved register, so the candidate hoisted a
+ * third loop-invariant constant (0x78) into s8 where the target materialises
+ * it inline with `li at` and hoists only 0xA and 0x30. Reinstating the copy
+ * -- `var_s0` carries the character through the range tests and the converted
+ * value is written back to `var_s2`, which is the only value the next
+ * iteration's `temp_s6` needs -- restores the target's two hoisted constants
+ * in the target's registers (s7 = 0xA, s8 = 0x30) and takes 41 differing
+ * words to 31.
+ *
+ * What is left is one live-range split. The target computes the masked
+ * character straight into its callee-saved carrier (`andi s2,v0,0xff`) and
+ * splits a copy into s0 for the range tests. The candidate computes it into a
+ * caller-saved temporary, runs every range test out of that temporary, and
+ * copies into the saved carrier, which also exchanges var_s2 with var_s3 and
+ * var_v0 with its own temp. Same instruction count, 31 register names.
+ * Measured flat against it: both initialiser orders; all legal orders of the
+ * three loop-head statements; `u8` var_v0; the loop test written as
+ * `while ((var_v0 = *var_s4) != 0)`; the range tests spelled entirely on
+ * either variable; reversed equality operands at two sites; and the copy
+ * written after the case block, inside each arm, or as a plain working copy
+ * with a single write-back (40, 41). Resume on why the mask lands in a
+ * caller-saved temporary here and directly in the saved carrier there.
+ */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/nonmatchings/diCpu/func_800681D0_68DD0.s; Mickey's glyph table,
  * helper symbol, and target bytes determine the final bindings. */
@@ -700,6 +698,7 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
 void func_80046BCC(s32 x, s32 y, char *text) {
     s32 temp_s6;
     s32 var_s1;
+    s32 var_s0;
     s32 var_s2;
     s32 var_s3;
     s32 var_s5;
@@ -717,31 +716,34 @@ void func_80046BCC(s32 x, s32 y, char *text) {
             temp_s6 = var_s2 & 0xFF;
             var_s2 = var_v0 & 0xFF;
             var_s4 += 1;
+            var_s0 = var_s2;
             if (var_s3 != 0) {
-                if ((var_s2 >= 0x41) && (var_s2 < 0x47)) {
-                    var_s2 = (var_s2 + 0x20) & 0xFF;
+                if ((var_s2 >= 0x41) && (var_s0 < 0x47)) {
+                    var_s0 = (var_s0 + 0x20) & 0xFF;
+                    var_s2 = var_s0;
                 }
             } else {
-                if ((var_s2 >= 0x61) && (var_s2 < 0x7B)) {
-                    var_s2 = (var_s2 - 0x20) & 0xFF;
+                if ((var_s2 >= 0x61) && (var_s0 < 0x7B)) {
+                    var_s0 = (var_s0 - 0x20) & 0xFF;
+                    var_s2 = var_s0;
                 }
             }
-            if (var_s2 == 0xA) {
+            if (var_s0 == 0xA) {
                 var_s5 += 6;
                 var_s1 = 0x20;
-            } else if (var_s2 == 9) {
+            } else if (var_s0 == 9) {
                 var_s1 = (var_s1 - (var_s1 & 0xF)) + 0x10;
-            } else if (var_s2 == 0x20) {
+            } else if (var_s0 == 0x20) {
                 var_s1 += 4;
-            } else if ((var_s2 >= 0x21) && (var_s2 < 0x67)) {
-                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s2 * 5) - 0xA5]);
+            } else if ((var_s0 >= 0x21) && (var_s0 < 0x67)) {
+                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s0 * 5) - 0xA5]);
                 var_s1 += 8;
             }
-            if ((var_s3 != 0) && ((var_s2 < 0x30) || (var_s2 >= 0x3A)) &&
-                ((var_s2 < 0x61) || (var_s2 >= 0x67))) {
+            if ((var_s3 != 0) && ((var_s0 < 0x30) || (var_s0 >= 0x3A)) &&
+                ((var_s0 < 0x61) || (var_s0 >= 0x67))) {
                 var_s3 = 0;
             }
-            if ((temp_s6 == 0x30) && ((var_s2 == 0x78) || (var_s2 == 0x58))) {
+            if ((temp_s6 == 0x30) && ((var_s0 == 0x78) || (var_s0 == 0x58))) {
                 var_s3 = 1;
             }
             var_v0 = *var_s4;
@@ -793,11 +795,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 68/106 words
+ * score: 31 differing words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Size closed at 106/106: folding the m2c-only var_s0 into var_s2 removes the extra saved-carrier copy; 41 differing words, relocations exact.
+ * summary: 106/106 words, the two hoisted constants now in the target's registers; the residual is one caller-saved live-range split.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
@@ -819,14 +821,4 @@ void func_80046E00(void) {
  * first-mismatch: +0x0
  * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
  * PLATEAU-HANDOFF:func_80045D34:end
- */
-
-/* PLATEAU-HANDOFF:func_80045BBC:start
- * symbol: func_80045BBC
- * score: 58/60 words
- * frame: 0x30
- * relocations: 24
- * first-mismatch: +0xBC
- * summary: One ugen ring position: the stacked pointer argument wants t6 and gets t4, two slots early, and no source form found spends the two slots.
- * PLATEAU-HANDOFF:func_80045BBC:end
  */

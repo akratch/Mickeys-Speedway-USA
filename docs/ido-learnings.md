@@ -999,6 +999,70 @@ bytes and disassembly never belong here.
   rather than for a register-to-register copy: the same edit, read through
   the counter instead of through the copy.
 
+- **Two webs defined in one statement cannot be separated by any order, but a
+  dead `= 0` ahead of them reorders their colours.** uopt colours pool webs in
+  first-surviving-definition order. When the source defines two of them inside
+  a single statement -- `doubled = -(... (velocityX * (normalX = normal->x))
+  ...)` defines `normalX` and then `doubled` -- their relative order is fixed
+  by evaluation order, so permuting statements or declarations moves nothing
+  and the residual reads flat. That flatness is the signature, not a dead end.
+  Defining the later web *earlier*, with a store uopt deletes but the web
+  numbering has already seen (`doubled = 0.0f;` before an unrelated statement),
+  swaps the two colours and emits no instruction. Verify the freeness: the
+  candidate must keep the same word count and zero opcode mismatches.
+  Evidence: `func_8005716C` in `src/main/anim.c`, where the f16/f18 rotation
+  had survived 512 operand orders and every declaration order, and this closed
+  it (10 differing words to 7). The permuter reached the same effect as an
+  uninitialised self-add inside a `do {} while (0)`; that is undefined
+  behaviour, and the zero store is its semantics-preserving re-derivation.
+- **A value the target computes straight into a callee-saved register, and the
+  candidate computes into a caller-saved temporary and copies, is a
+  live-range split, and it exchanges every colour after it.** The candidate's
+  extra carrier renumbers the saved webs, so two unrelated variables appear
+  swapped and the residual looks like an allocator phase. Read the *first*
+  instruction that writes the value, not the copies.
+  Evidence: `func_80046BCC` in `src/main/diCpu.c` (`andi s2,v0,0xff` against
+  `andi v0,v1,0xff` + `move s3,v0`), where that one decision is the whole
+  31-word residual.
+- **A pointer tested for NULL through a cached local gives the load a copy;
+  testing the field directly does not.** Where the target loads a field into a
+  register, branches on it, and copies it into a second carrier only on the
+  surviving path, spelling the guard as `p->field == NULL` rather than
+  `local = p->field; if (local == NULL)` keeps the load in the first argument
+  register and gives the copy to the second. The cached form exchanges the two
+  argument registers across every later use of both carriers. Note this is the
+  *inverse* of the two-carrier field re-read above: the second declared
+  pointer is what buys the copy while a size question is open, and what causes
+  the exchange once the size is closed. Evidence: `func_8005ABA8` in
+  `src/main/models_5B300.c`, worth seven words.
+- **Where a flag is set on every path of a branch, writing it once after the
+  branch rather than inside each arm changes no instruction but changes as1's
+  delay slots.** as1 fills an annulled (`beql`-family) delay slot by
+  duplicating the branch target's first instruction and retargeting past it,
+  leaving the original copy unreachable; both forms are the same length, so
+  the word count hides it. Moving `var_v1 = 1` out of the arms stopped two
+  such duplications of the join's `move v0,v1` and matched the target's two
+  `nop`s. This is the cheapest known handle on that class: a statement move
+  that provably changes nothing else. Evidence: `func_8005ABA8`, five words.
+
+- **The frame is an equation with exactly two unknowns, and the reserved
+  temporary area is one of them.** For a given function
+  `frame = fixed + S + L`, where `fixed` is the outgoing-argument area plus
+  the saved registers, `L` is cfe's declared-local block laid top-down from
+  the frame top in declaration order, and `S` is the reserved
+  register-temporary area between them. The declared block's *bottom* is
+  therefore `frame - L`, which is where the last declared local sits, and
+  every earlier declaration follows upward from it. Because `spilltemps`
+  reserves a slot per temporary whether or not it ever touches memory, `S` is
+  almost entirely invisible in the disassembly -- a function can reserve
+  twelve slots and write one. So a frame that is wrong by a constant is not
+  necessarily a declaration-census question: solve for `L` from the last
+  local's offset and for `S` from the frame, and the two numbers say whether
+  to add declarations or to remove temporaries. Evidence: `func_80030610` in
+  `src/main/sched.c`, where the target is `L = 40, S = 40` and the candidate
+  `L = 24, S = 48`; the previous reading had concluded the target needed four
+  *more* spilled values when it reserves two fewer temporaries.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.

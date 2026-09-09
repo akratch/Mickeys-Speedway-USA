@@ -2,43 +2,53 @@
 ### `func_8005ABA8` plateau handoff
 
 - source: `src/main/models_5B300.c`
-- score: 47 differing words
+- score: 2 differing words
 - frame: frameless
 - relocations: 0
-- first mismatch: +0x8
-- summary: Size closed at 111/111: the second frame carrier is a field re-read, not a cached local. Residual is a pairwise a1/a2 exchange and its FP rotation.
+- first mismatch: +0x3C
+- summary: 111/111 words, every register and branch target exact; the last two words are one as1 delay-slot decision at +0x3C.
 
-#### Owned evidence and result
+#### Owned evidence and result, 2026-09-09
 
-The size question is closed. The earlier candidate was one instruction short
-because the source cached `temp_v0->frame` in a single local: the target loads
-that field into a scratch register and copies it into a second, lasting
-carrier, and one local cannot produce the copy. Reading the field again into a
-second declared pointer, after the null test, supplies it -- the two-carrier
-field re-read in `docs/ido-learnings.md`. The candidate is now 111 words
-against the target's 111, frameless with no relocations on either side, and
-its instruction census matches.
+47 differing words to 2, at 111/111 words, frameless, zero relocations, with
+every register name and every branch target now agreeing. Four source
+artefacts closed 45 of them and none was an allocator question:
 
-Reversing the two blend statements (`temp_f0` before `temp_f2`) then corrected
-the `div.s`/`sub.s` operand order, moving the residual from 49 to 47 positional
-words. That is the second confirmed lever: the web created first takes the
-first FP colour.
+- `temp_f0_2` cached `instance->frameValue` for two tests that no store
+  separates. The cache costs a `mov.s`; the target reads the field at both
+  sites and lets uopt common the load, and the `nop` the target shows at that
+  hazard slot is exactly what the copy was filling. Worth 27 words.
+- The two blend stores were written sub-then-div. The target allocates the
+  div's FP temporary first, so the source computes `blendStart` before
+  `blendEnd`; both read only locals, so the order is free. Worth 4 words.
+- The null test spelled through a cached `temp_a1` gave the loaded pointer a
+  copy and exchanged `a1`/`a2` across both frame carriers and their two later
+  uses. Testing `temp_v0->frame == NULL` directly lets the load keep `a1` and
+  the surviving carrier take the copy into `a2`. Worth 7 words, and it is the
+  opposite of the lever the previous handoff filed: the second declared
+  pointer was the *cause* of the exchange once the size question was closed.
+- `var_v1 = 1` written before the inner `if` of each arm rather than once
+  after it moved no instruction at all, but made as1 duplicate the join's
+  `move v0,v1` into two annulled delay slots the target leaves as `nop`.
+  Worth 5 words, and it is the proof that this class is source-reachable.
 
-What did not move it, measured in this pass:
+`temp_f2_2` was an m2c-only second name; one carrier serves both `blendEnd`
+reads. Removing it, and the now-dead `temp_a1`, is byte-inert.
 
-- Spelling the later use as `temp_v0->frame` at the use site, with no second
-  declared local, adds two words rather than a copy: uopt commons the read but
-  the value stays in one carrier. The second *declaration* is what splits it.
-- Reversing which pointer takes the load and which takes the re-read, swapping
-  the two declarations, and both together, are byte-identical to the current
-  form (four probes, all 47).
+Remaining: one as1 delay-slot decision at `+0x3C`. The target branches `beqz`
+with a `nop` to a block whose first scheduled instruction is
+`mul.s $f18,$f14,$f12`; as1 turns the same branch into `beqzl`, duplicates
+that multiply into the annulled slot and retargets past it, which leaves the
+original copy unreachable and both sides at 111 words. Twenty-eight further
+shapes of the else-block head, the transition test, the declaration list,
+the comparison spellings and the placement of the product are flat at 2.
+Resume on the ugen text as1 consumes, not on the schedule: the `var_v1`
+result above proves a statement move that changes no emitted instruction can
+still flip this decision.
 
-Remaining residual: `a1` and `a2` are exchanged on the two frame carriers, and
-the FP pool rotates in the same pattern (`f0`/`f2`, `f6`/`f8`, `f16`/`f18`).
-Every difference is a register name; the opcodes, the order and the branch
-targets agree except the loop-entry test, where the target's `beqz`/`nop` is
-the candidate's `beqzl` with the hoisted `arg1 * arg2` in the slot. That
-multiply is the tell: as1 fills the annulled slot from the join block, so the
-question is what the join block starts with, not how the test is written.
+Tooling: the permuter's isolated scratch for this TU compiles the function at
+112 words against the real object's 111, so its base score of 400 is a false
+reading and nothing measured there transfers. `tools/permute.sh` on
+`models_5B300.c` should not be trusted until that is fixed.
 
 <!-- plateau-handoff:func_8005ABA8:end -->
