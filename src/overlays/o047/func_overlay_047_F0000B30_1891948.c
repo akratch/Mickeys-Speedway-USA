@@ -37,7 +37,6 @@ typedef struct Overlay47Player {
     f32 screenX, screenY;
     s16 rotation, targetRotation;
     Overlay47Actor *actor;
-    Overlay47TextureScroll *scroll;
     s16 selector;
     s8 ready, active, leaving;
     u8 pad2D;
