@@ -221,106 +221,109 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     player = D_800D3058;
     icon = ov47Bss_8;
     for (controller = 0; controller < 4; controller++, player++) {
-        if (player->active == 0) {
-            if ((joyGetPressed(controller) & 0x9000) && !player->leaving &&
-                !ov47Bss_324 && !start) {
-                player->active = 1;
-                player->x = ov47Bss_2F0.x;
-                player->y = ov47Bss_2F0.y;
-                player->z = ov47Bss_2F0.z;
-                player->rotation = ov47Bss_2F0.rotation;
-                i = 0;
-                while (ov47Bss_300[player->selector]) {
-                    player->selector++;
-                    if (player->selector >= 10) player->selector = 0;
-                }
-                allReady = 0;
-                ov47Bss_300[player->selector] = 1;
-                D_8007C1A0++;
-                ov47Bss_30A++;
-                amSndPlay(12, NULL);
-                amSndPlay(25, NULL);
-                actor = player->actor;
-                if (actor != NULL) {
-                    if (actor->kind != ov47Data_510[player->selector]) {
-                        func_80006EA0(actor);
-                        func_overlay_047_F0002D10_1893B28(player);
-                    } else {
-                        func_8005AD64(actor, 1, -1, 0.0f);
+        switch (player->active) {
+            case 0:
+                if ((joyGetPressed(controller) & 0x9000) && !player->leaving &&
+                    !ov47Bss_324 && !start) {
+                    player->active = 1;
+                    player->x = ov47Bss_2F0.x;
+                    player->y = ov47Bss_2F0.y;
+                    player->z = ov47Bss_2F0.z;
+                    player->rotation = ov47Bss_2F0.rotation;
+                    i = 0;
+                    while (ov47Bss_300[player->selector]) {
+                        player->selector++;
+                        if (player->selector >= 10) player->selector = 0;
                     }
-                }
-                if (ov47Bss_0 > 0) {
-                    do {
-                        if ((f32)player->selector == icon->selector) {
-                            ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
+                    allReady = 0;
+                    ov47Bss_300[player->selector] = 1;
+                    D_8007C1A0++;
+                    ov47Bss_30A++;
+                    amSndPlay(12, NULL);
+                    amSndPlay(25, NULL);
+                    actor = player->actor;
+                    if (actor != NULL) {
+                        if (actor->kind != ov47Data_510[player->selector]) {
+                            func_80006EA0(actor);
+                            func_overlay_047_F0002D10_1893B28(player);
+                        } else {
+                            func_8005AD64(actor, 1, -1, 0.0f);
                         }
-                        icon++;
-                    } while (++i < ov47Bss_0);
-                    icon = ov47Bss_8;
-                }
-            }
-        } else {
-            if (allReady && !ov47Bss_338) {
-                showMode = 1;
-                if (D_800D3190[controller] < -16) {
-                    if (D_8007BF74 != 0) {
-                        amSndPlay(14, NULL);
-                    } else {
-                        ov47Bss_30B = 1;
-                        D_8007BF74 = 1;
+                    }
+                    if (ov47Bss_0 > 0) {
+                        do {
+                            if ((f32)player->selector == icon->selector) {
+                                ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
+                            }
+                            icon++;
+                        } while (++i < ov47Bss_0);
+                        icon = ov47Bss_8;
                     }
                 }
-                if (D_800D3190[controller] >= 17) {
-                    if (D_8007BF74 == 0) {
-                        amSndPlay(14, NULL);
-                    } else {
-                        ov47Bss_30B = 1;
-                        D_8007BF74 = 0;
-                    }
-                }
-            }
-            if ((joyGetPressed(controller) & 0x9000) && !player->leaving &&
-                (actor = player->actor) != NULL && !ov47Bss_324) {
-                if (allReady) {
-                    if (!ov47Bss_338) {
-                        ov47Bss_338 = 1;
-                        amSndPlay(12, NULL);
-                    } else {
-                        start = 1;
-                        if (player->sound != NULL) amSndStop(player->sound);
-                        amSndPlay(ov47Data_4B4[ov47Data_524[player->selector]], &player->sound);
-                    }
-                } else if (!player->ready) {
-                    player->ready = 1;
-                    if (player->sound != NULL) amSndStop(player->sound);
-                    amSndPlay(ov47Data_48C[ov47Data_524[player->selector]], &player->sound);
-                }
-                actor = player->actor;
-                func_8005AD64(actor, 2, -1, 0.0f);
-            } else if ((joyGetPressed(controller) & 0x4000) && !player->leaving) {
-                actor = player->actor;
-                if (actor != NULL && !ov47Bss_324 && !start) {
-                    if (player->ready) {
-                        player->ready = 0;
-                        allReady = 0;
-                        func_8005AD64(actor, 0, -1, 0.0f);
-                        if (player->sound != NULL) amSndStop(player->sound);
-                        amSndPlay(ov47Data_4A0[ov47Data_524[player->selector]], &player->sound);
-                    } else if (D_8007C1A0 >= 2) {
-                        player->active = 0;
-                        ov47Bss_300[player->selector] = 0;
-                        actor = player->actor;
-                        if (actor != NULL) {
-                            player->leaving = 1;
-                            func_8005AD64(actor, 5, -1, 0.0f);
-                            amSndPlay(24, NULL);
+                break;
+            default:
+                if (allReady && !ov47Bss_338) {
+                    showMode = 1;
+                    if (D_800D3190[controller] < -16) {
+                        if (D_8007BF74 != 0) {
+                            amSndPlay(14, NULL);
+                        } else {
+                            ov47Bss_30B = 1;
+                            D_8007BF74 = 1;
                         }
-                        D_8007C1A0--;
-                    } else {
-                        back = 1;
+                    }
+                    if (D_800D3190[controller] >= 17) {
+                        if (D_8007BF74 == 0) {
+                            amSndPlay(14, NULL);
+                        } else {
+                            ov47Bss_30B = 1;
+                            D_8007BF74 = 0;
+                        }
                     }
                 }
-            }
+                if ((joyGetPressed(controller) & 0x9000) && !player->leaving &&
+                    (actor = player->actor) != NULL && !ov47Bss_324) {
+                    if (allReady) {
+                        if (!ov47Bss_338) {
+                            ov47Bss_338 = 1;
+                            amSndPlay(12, NULL);
+                        } else {
+                            start = 1;
+                            if (player->sound != NULL) amSndStop(player->sound);
+                            amSndPlay(ov47Data_4B4[ov47Data_524[player->selector]], &player->sound);
+                        }
+                    } else if (!player->ready) {
+                        player->ready = 1;
+                        if (player->sound != NULL) amSndStop(player->sound);
+                        amSndPlay(ov47Data_48C[ov47Data_524[player->selector]], &player->sound);
+                    }
+                    actor = player->actor;
+                    func_8005AD64(actor, 2, -1, 0.0f);
+                } else if ((joyGetPressed(controller) & 0x4000) && !player->leaving) {
+                    actor = player->actor;
+                    if (actor != NULL && !ov47Bss_324 && !start) {
+                        if (player->ready) {
+                            player->ready = 0;
+                            allReady = 0;
+                            func_8005AD64(actor, 0, -1, 0.0f);
+                            if (player->sound != NULL) amSndStop(player->sound);
+                            amSndPlay(ov47Data_4A0[ov47Data_524[player->selector]], &player->sound);
+                        } else if (D_8007C1A0 >= 2) {
+                            player->active = 0;
+                            ov47Bss_300[player->selector] = 0;
+                            actor = player->actor;
+                            if (actor != NULL) {
+                                player->leaving = 1;
+                                func_8005AD64(actor, 5, -1, 0.0f);
+                                amSndPlay(24, NULL);
+                            }
+                            D_8007C1A0--;
+                        } else {
+                            back = 1;
+                        }
+                    }
+                }
+                break;
         }
         if (player->active && player->actor == NULL) {
             func_overlay_047_F0002D10_1893B28(player);
@@ -685,10 +688,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1963/2168 words
+ * score: 1828/2168 words
  * frame: 0x280
  * relocations: 318
  * first-mismatch: +0xC
- * summary: Frame, six FP saves, every stack home and most loop shapes exact; residual is callee-saved colouring order, the unready-table address CSE and bound reloads.
+ * summary: Size, frame, saves, pool, every stack slot exact; residual is callee-saved colouring order (speed before the loop-2 counter) and the search shape.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
