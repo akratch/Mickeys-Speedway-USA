@@ -723,7 +723,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: JFG donor body is inapplicable; two indexed-address probes regressed. Retain 114/117. Next: authenticated forced-color oracle for the t3/t4 swap.
+ * summary: Needs ring order mask, global, shift; every single-statement spelling gives mask/shift/global or global/mask/shift and uopt normalises statement splits.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

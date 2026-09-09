@@ -825,3 +825,13 @@ void func_80046E00(void) {
  * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
  * PLATEAU-HANDOFF:func_80045D34:end
  */
+
+/* PLATEAU-HANDOFF:func_80045BBC:start
+ * symbol: func_80045BBC
+ * score: 58/60 words
+ * frame: 0x30
+ * relocations: 24
+ * first-mismatch: +0xBC
+ * summary: One ugen ring position: the stacked pointer argument wants t6 and gets t4, two slots early, and no source form found spends the two slots.
+ * PLATEAU-HANDOFF:func_80045BBC:end
+ */

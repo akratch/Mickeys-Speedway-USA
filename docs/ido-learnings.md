@@ -143,6 +143,31 @@ bytes and disassembly never belong here.
   of which reached an exact frame, exact instruction count and an identical
   stack map from a 0x38-byte excess.
 
+- The census lever needs no `-g3`, and it closes functions on its own. Two
+  resident translation units built at the project default (no debug flag) were
+  taken from an operand-only residual to exact by reordering declarations and
+  changing nothing else: one where a spilled retry accumulator wanted the
+  fourth position rather than the last, and one where a helper's floating
+  result wanted the sixth of seven. In both the frame, the opcodes, the
+  registers and the relocations were already exact and every differing word was
+  the same displacement, which is the signature to look for: an operand-only
+  residual whose sites are all stack displacements is a declaration census
+  question, and reading the wanted homes back through `frame_top - 4k` gives
+  the position directly. Positions the target does not spill are free, so the
+  lattice usually has many solutions and any one of them can carry natural
+  names. Evidence: `rumbleTick` in `src/main/saves.c` and `func_8004FAD0` in
+  `src/main/block_506D0.c`.
+
+- A declaration the compiler never materialises can still be load-bearing, and
+  the two facts about unused declarations are unit-specific. In the perspective
+  helper above, one of the seven declared locals is never read or written in
+  the emitted code, yet deleting it shortens the frame by eight bytes and moves
+  twenty words; the dead store a decompiler draft aimed at it is not needed,
+  but the declaration is. This is the opposite of overlay 8's reading, where an
+  unused declaration reserved no home at all, so do not carry either result
+  between units: measure the frame with and without the declaration before
+  deciding whether it belongs.
+
 - Limit on the census lever: declaration order can be a colour lever without
   being a frame lever, so measure the frame before spending a sweep on it.
   Overlay 8's `overlay_008.c` was swept over twenty-one whole-list orders across
@@ -776,6 +801,40 @@ bytes and disassembly never belong here.
   field widths and counter widths as separate hypotheses, inspect the added
   instructions, and do not treat a range proof as a promise that IDO removes
   conversions. Evidence: the [nearest-hit audit](matching-triage-handoffs/func_8001291C.md).
+
+- uopt emits every plain pre-guard statement before every hoisted loop
+  preheader initialiser, whatever their order in source. That makes statement
+  placement a single choice with two coupled consequences, not two knobs. A
+  carrier initialised before a zero-trip guard dominates the guard's skip edge,
+  so a later re-initialisation of the same carrier is redundant there and IDO
+  retargets the guard's branch past it; moving the initialiser inside the guard
+  makes the re-initialisation live and the branch target exact, but the
+  initialiser is now a preheader and is emitted after any plain statement that
+  precedes the guard. Where the target wants the carrier first, no arrangement
+  of the same statements delivers both, and the arrangements that try to put
+  the second value in the preheader too leave it uninitialised on the skip path
+  and cost instructions. Recognise the pattern from a one-word branch-target
+  residual on a guarded scan. Evidence:
+  [the particle pool scan](matching-triage-handoffs/func_8003E8D8.md).
+
+- Mentioning a value earlier in source earns it an earlier colour only if the
+  earlier mention survives. A comma expression or any other dead first mention
+  is eliminated before web numbering and moves nothing, and on one unit a plain
+  zero initialiser of an otherwise unused local was likewise eliminated before
+  ring numbering and did not advance the ring. The reserve-a-colour lever is
+  therefore not general: confirm on the unit in hand that the reserving
+  construct survives, because both outcomes have now been measured. Evidence:
+  [the model-release loop](matching-triage-handoffs/levelFreeAll.md) and
+  [the CPU dump helper](matching-triage-handoffs/func_80045BBC.md).
+
+- Ring order inside one expression is the order of the surviving definitions,
+  which means an expression with three operands offers only as many ring
+  orders as it has evaluation orders. Where the target's order is not one of
+  them, no spelling of that expression reaches it and splitting it into
+  statements does not help, because uopt normalises the split away. Stop
+  sweeping spellings at that point and look for a definition created outside
+  the expression. Evidence:
+  [the model-release loop](matching-triage-handoffs/levelFreeAll.md).
 
 ### Search fidelity and false floors
 
