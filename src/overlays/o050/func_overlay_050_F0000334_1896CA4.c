@@ -248,7 +248,9 @@ hudQuad:
         overlay56SplitTime(racer->raceTime, &minutes, &seconds, &centiseconds);
         level = levelGetLevel();
         if ((D_800C947C == 0) && (level->laps != racer->laps) && (func_800290A0() == 0) && (func_8003A7D0(object) != racer->raceTime)) {
-            centiseconds = centiseconds - centiseconds % 10 + D_32C++;
+            centiseconds -= centiseconds % 10;
+            centiseconds += D_32C;
+            D_32C++;
             D_32C = (s8) ((s8) D_32C % 10);
         }
         D_12C[0].glyph = (s32) ((minutes / 10) << 0x10);
@@ -402,13 +404,12 @@ hudQuad:
                 }
                 racer->differenceTimer -= updateRate;
                 if (updateRate > 0) {
-                    remainder = updateRate & 3;
-                    if (remainder != 0) {
+                    if ((updateRate & 3) != 0) {
                         do {
                             i += 1;
-                            D_C0 += (s32) (0x550 - D_C0) >> 3;
                             D_BC += (s32) (0x830 - D_BC) >> 3;
-                        } while (remainder != i);
+                            D_C0 += (s32) (0x550 - D_C0) >> 3;
+                        } while ((updateRate & 3) != i);
                     }
                     if (i != updateRate) {
                         do {
@@ -419,8 +420,8 @@ hudQuad:
                             D_C0 += (0x550 - D_C0) >> 3;
                             D_BC += (0x830 - D_BC) >> 3;
                             D_C0 += (0x550 - D_C0) >> 3;
-                            D_C0 += (0x550 - D_C0) >> 3;
                             D_BC += (0x830 - D_BC) >> 3;
+                            D_C0 += (0x550 - D_C0) >> 3;
                         } while (i != updateRate);
                     }
                 }
@@ -430,14 +431,13 @@ hudQuad:
                     amSndPlay(0x1F9, 0);
                     racer->differenceTimer = -1;
                 }
-                remainder = updateRate & 3;
                 if (updateRate > 0) {
-                    if (remainder != 0) {
+                    if ((updateRate & 3) != 0) {
                         do {
                             i += 1;
-                            D_C0 += (s32) (-0x140 - D_C0) >> 3;
                             D_BC += (s32) (0x1900 - D_BC) >> 3;
-                        } while (remainder != i);
+                            D_C0 += (s32) (-0x140 - D_C0) >> 3;
+                        } while ((updateRate & 3) != i);
                     }
                     if (i != updateRate) {
                         do {
@@ -448,8 +448,8 @@ hudQuad:
                             D_C0 += (-0x140 - D_C0) >> 3;
                             D_BC += (0x1900 - D_BC) >> 3;
                             D_C0 += (-0x140 - D_C0) >> 3;
-                            D_C0 += (-0x140 - D_C0) >> 3;
                             D_BC += (0x1900 - D_BC) >> 3;
+                            D_C0 += (-0x140 - D_C0) >> 3;
                         } while (i != updateRate);
                     }
                 }
@@ -523,10 +523,10 @@ hudQuad:
             func_8002F618(&D_800D3140, o50LapGlyphs, D_BC >> 4, D_C0 >> 4, 0xFF, 0xFF, 0xFF, 0xFF);
         }
 
-        lapIndex = 0;
         if (joyGetPressed(0) & 1) {
             D_8007C1B0 ^= 1;
         }
+        lapIndex = 0;
         if (D_8007C1B0 != 0) {
             if (D_8007BF1C & 1) {
                 timeMagnitude = (s32) (racer->speed * 6.25f);
@@ -641,10 +641,10 @@ hudQuad:
 
 /* PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:start
  * symbol: func_overlay_050_F0000334_1896CA4
- * score: 1422 differing words
+ * score: 1183 differing words
  * frame: 0x110
  * relocations: 315
  * first-mismatch: +0x0
- * summary: Size-exact guarded C; 8-byte frame deficit and structure residual. Next: recover stack-home ownership and reconcile reserved-selector identity proof.
+ * summary: Frame gap is 2 extra ugen spill temps, not a declaration defect; declared-local geometry is identical. Next: pool-web divergence at slot 18.
  * PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:end
  */
