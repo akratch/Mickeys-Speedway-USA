@@ -4,9 +4,9 @@
 - source: `src/overlays/o001/overlay_001_tail.c`
 - score: 28/30 words
 - frame: frameless
-- relocations: 4
-- first mismatch: +0x14
-- summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
+- relocations: 2
+- first mismatch: +0x4
+- summary: schedule and all six colours exact; residual is the %hi fold into the load's own destination register; permuter flat 30min, five load spellings inert
 
 #### ADR 0018 resume at the assigned base
 
@@ -83,6 +83,51 @@ function body and fallback selection are unchanged; no closing ROM rebuild was
 needed for this report-only state. Coordinator action before integration:
 reconcile the unrelated source/shard punctuation and rerun `gmake check-docs`.
 
-- first mismatch: +0x14
-- summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
+
+#### tu2-o1tail: the emit order is source order, and an inert XOR unlocks the colour
+
+The previous record named "separate emit-order evidence" as the next lever.
+That evidence exists now, and it says the emit order was never separable:
+uopt colours pool webs in the order of their first surviving definition in
+source statement order, and ugen emits them in that same order, so schedule and
+colour move together and cannot be traded against each other by reordering
+statements. Measured both ways in this lane: with `group = D_1D88;` ahead of
+`remaining = 31;` the schedule is exact and the two webs are swapped; with the
+statements the other way round the colours are exact and the schedule is wrong.
+
+Declaration order, `register`, and a dead store to `remaining` ahead of `group`
+are each inert -- a dead store is eliminated before web numbering and reserves
+no colour, whereas `value = 0`, which is likewise never read, does reserve one
+(it is the a1 web, and dropping it shifts every later colour).
+
+The lock breaks with an inert operation at the *use*, not at the definition:
+`record->flags.bits.group == (group ^ 0)` keeps the statement order that gives
+the exact schedule and restores both colours. The permuter found the XOR; the
+operand order was found by hand, since writing it as `(group ^ 0) == field`
+costs one further word at the comparison (law L67). Bitwise-or with zero,
+addition of zero, masking with -1, and moving the inert operation either to the
+definition or to the field side are all worse at 10 words; `(0 ^ group)`,
+`(u32)` casts and the negated-inequality spelling are equivalent at 2.
+
+Residual, 2 words: the target materialises the high half of D_1D88 into a3,
+the load's own destination, while the candidate materialises it into a separate
+colour (a1, shared with the `value` web) and loads into a3. One consistent web
+substitution across both sites; the workbench reads it as
+`uopt-coalescing-tie-break` and calls the lever unreachable from source.
+
+Eliminated here, do not repeat: dereferencing the address of D_1D88, an s32
+cast, and inert XOR/OR at the definition (all byte-flat at 2 words);
+declaration permutation of `group` to three positions; `register` on `group`,
+on `remaining`, and its removal from `value`; a dead `remaining = 0` before
+`group`; `remaining = 31` written twice around `group`. A 30-minute permuter
+run from this base, at score 20, found nothing.
+
+Tooling note: `tools/permute.sh` cannot resolve this function by its friendly
+name, because the TU carries twelve `GLOBAL_ASM` pragmas and the sole-fallback
+rule needs exactly one. The run above was obtained by copying the splat-named
+fallback to a friendly-named one under the gitignored `asm/` tree and renaming
+the label inside it.
+
+- first mismatch: +0x4
+- summary: schedule and all six colours exact; residual is the %hi fold into the load's own destination register; permuter flat 30min, five load spellings inert
 <!-- plateau-handoff:overlay1FindBestRecord:end -->

@@ -1815,26 +1815,24 @@ extern s32 D_83E4;
 extern s32 overlay27CanUse(void *);
 extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
-/* Workbench verdict: structure-mismatch, 23 differing words, first mismatch +0x0.
- * Shape: one extra instruction (33/32) with an exact 0x18 frame; not shape-exact.
- * Remaining gap: callback-clear control flow and unresolved relocation identities. */
-#ifdef NON_MATCHING
+/* The clear path is the fall-through of both tests, so the short-circuit `||`
+ * is what puts it there: IDO branches to the "then" block when the first
+ * disjunct holds and past it when the second fails, which is exactly the
+ * target's `beqzl enabled -> clear` / `beqz canUse -> dispatch` pair. Written
+ * with the dispatch as the "then" instead, the clear block lands after the
+ * dispatch block and costs one extra branch to reach the epilogue. The
+ * world pointer is re-read after the call because it is caller-saved. */
 s32 overlay1HandleCachedMode(void) {
-    if (((W *)D_1DA0)->enabled == 0) goto clear;
-    if (overlay27CanUse(((W *)D_1DA0)->object) == 0) {
-        if (D_83E4 == 3) {
-            return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
-        }
-        return overlay1DispatchMode();
+    if ((((W *)D_1DA0)->enabled == 0) ||
+        (overlay27CanUse(((W *)D_1DA0)->object) != 0)) {
+        ((W *)D_1DA0)->state = 0;
+        return 0;
     }
-clear:
-    ((W *)D_1DA0)->state = 0;
-    return 0;
+    if (D_83E4 == 3) {
+        return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
+    }
+    return overlay1DispatchMode();
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00061F0_18525D0.s")
-#endif
 
 /* ---- overlay1ChooseModeObject ---- */
 
@@ -2589,9 +2587,8 @@ extern f32 sqrtf(f32 value);
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
     u32 worldAddress;
-    Overlay1TransientOwner *owner;
-    Overlay1TransientObject *object;
     Overlay1TransientState *savedState;
+    Overlay1TransientObject *object;
     Overlay1TransientState *state;
     Overlay1MotionSource *source;
     f32 factor;
@@ -2954,14 +2951,13 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
                              u8 primary, u8 secondary) {
     register s32 pointX = x;
     register s32 pointY = y;
-    u8 index = state->count;
-    s16 dx = pointX - state->x[index];
+    s16 dx = pointX - state->x[state->count];
     s16 dy;
     s16 anchorX;
     s16 anchorDx;
 
-    dy = pointY - state->y[index];
-    state->count = index + 1;
+    dy = pointY - state->y[state->count];
+    state->count = state->count + 1;
     state->x[state->count] = pointX;
     state->y[state->count] = pointY;
     state->primary[state->count] = primary;
@@ -2980,9 +2976,9 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
     if ((pointX == anchorX) && (pointY == overlay1AnchorY)) {
         state->anchorDistanceSquared = 0;
     } else {
-        s16 anchorDy = pointY - overlay1AnchorY;
         state->anchorDistanceSquared =
-            (anchorDx * anchorDx) + (anchorDy * anchorDy);
+            (anchorDx * anchorDx) +
+            ((s16)(pointY - overlay1AnchorY) * (s16)(pointY - overlay1AnchorY));
     }
 }
 
@@ -3198,14 +3194,15 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
     u32 bestValue;
     register u32 value;
     s32 remaining;
-
+    s32 group;
     record = D_220;
     bestValue = (u32)-1;
     result = NULL;
     value = 0;
+    group = D_1D88;
     remaining = 31;
     do {
-        if (D_1D88 == record->flags.bits.group) {
+        if (record->flags.bits.group == (group ^ 0)) {
             value = record->value;
             if ((value == 0) ||
                 (((record->flags.value & 3) == 3) &&
@@ -3227,32 +3224,23 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * symbol: overlay1FindBestRecord
  * score: 28/30 words
  * frame: frameless
- * relocations: 4
- * first-mismatch: +0x14
- * summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
+ * relocations: 2
+ * first-mismatch: +0x4
+ * summary: schedule and all six colours exact; residual is the %hi fold into the load's own destination register; permuter flat 30min, five load spellings inert
  * PLATEAU-HANDOFF:overlay1FindBestRecord:end
  */
 
 /* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
  * symbol: overlay1AppendPathPoint
- * score: 22 differing words
+ * score: 102/108 words
  * frame: 0x28
  * relocations: 8
- * first-mismatch: +0x20
- * summary: 119 flags and six coherent forms exhausted; next lever is source evidence for pool formation or anchor temporary FIFO behavior.
+ * first-mismatch: +0x134
+ * summary: prefix exact to row 51 and the temp ring identical 24/24; residual is one extra pool web at the anchor CSE and the anchorX colour
  * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
  */
 
 
-/* PLATEAU-HANDOFF:overlay1HandleCachedMode:start
- * symbol: overlay1HandleCachedMode
- * score: 23 differing words
- * frame: 0x18
- * relocations: 11
- * first-mismatch: +0x0
- * summary: inverted callback condition removes one instruction; remaining gap is structural clear-flow and relocation identity
- * PLATEAU-HANDOFF:overlay1HandleCachedMode:end
- */
 
 /* PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:start
  * symbol: overlay1ConsumeNearbyPending
@@ -3276,11 +3264,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 32 differing words
- * frame: 0x88
- * relocations: 43
- * first-mismatch: +0x0
- * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
+ * score: 228/249 words
+ * frame: 0x80
+ * relocations: 35
+ * first-mismatch: +0xC
+ * summary: frame and the single stack home are now proved exact; residual is the early D_1DA0 address/load pair before the register saves
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
