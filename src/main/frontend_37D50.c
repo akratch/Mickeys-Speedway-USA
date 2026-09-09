@@ -309,63 +309,64 @@ block_17:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800376CC.s")
 #endif
-/* Workbench verdict: structure-mismatch, 103 differing words. */
-/* First mismatch: +0x14; target 117 instructions/candidate 112, both 0x68 frames. */
-/* Structural gap: radial-loop FP lifetimes and clamp/control-flow shape remain. */
-#ifdef NON_MATCHING
-void func_800378A4(f32 arg0, s32 arg1) {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 var_f20;
-    s32 temp_s3;
-    s32 var_a0;
-    s32 var_s1;
-    s32 var_s6;
-    s32 var_v0;
-    FrontendVertex *var_s0;
+/* The front-end backdrop's radial shading pass: a 17x17 vertex grid whose
+ * greyscale falls off with distance from the centre, modulated by an angle
+ * table (func_8002A8C0) and the caller's intensity.
+ *
+ * `amountI` is the untruncated amount captured before the parameter is scaled
+ * in place, and `base` is deliberately computed inside the null guard rather
+ * than beside it: the target sinks the `li 255` and the subtract past the
+ * `beqz`, keeping only the `trunc.w.s`/`mfc1` in the prologue. Hoisting the
+ * whole subtraction to the top -- the obvious spelling -- costs 46 words and
+ * moves nothing else.
+ *
+ * No donor counterpart: JFG's src/menu.c has no function of this shape.
+ * frontend_37D50.c is Mickey's own backdrop renderer, not part of the JFG
+ * menu.c crosswalk that names the rest of this front end. */
+void func_800378A4(f32 arg0, s32 intensity) {
+    FrontendVertex *vertex;
+    s32 base;
+    s32 amountI;
+    s32 x;
+    s32 y;
+    s32 height;
+    s32 value;
+    f32 dy;
+    f32 dx;
+    f32 distance;
+    f32 scale;
 
-    var_a0 = (s32) arg0;
+    amountI = (s32) arg0;
     arg0 *= D_800826A0;
-    var_s0 = ((FrontendVertex **) &D_8007BE88)[D_8007BE84];
-    if (var_s0 != NULL) {
-        temp_s3 = 0xFF - var_a0;
-        var_s6 = 0;
-        do {
-            var_s1 = 0;
-            temp_f0 = (f32) (var_s6 - 8) * 15.0f;
-
-            do {
-                temp_f0_2 = (f32) (var_s1 - 8) * 20.0f;
-                temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
-                                  (temp_f0 * temp_f0));
-                var_f20 = (200.0f - temp_f0_3) * arg0;
-                if (var_f20 < 0.0f) {
-                    var_f20 = 0.0f;
+    vertex = ((FrontendVertex **) &D_8007BE88)[D_8007BE84];
+    if (vertex != NULL) {
+        base = 0xFF - amountI;
+        for (y = 0; y != 0x11; y++) {
+            dy = (f32) (y - 8) * 15.0f;
+            for (x = 0; x != 0x11; x++) {
+                dx = (f32) (x - 8) * 20.0f;
+                distance = sqrtf((dx * dx) + (dy * dy));
+                scale = (200.0f - distance) * arg0;
+                if (scale < 0.0f) {
+                    scale = 0.0f;
                 }
-                var_a0 = (s32) (func_8002A8C0(
-                    (s32) (temp_f0_3 * 1000.0f) + D_8007BEB4) * var_f20);
-                var_v0 = (s32) ((temp_s3 + var_a0) * arg1) >> 8;
-                if (var_v0 < 0) {
-                    var_v0 = 0;
+                height = (s32) (func_8002A8C0((s32) (distance * 1000.0f) + D_8007BEB4) * scale);
+                value = (s32) ((base + height) * intensity) >> 8;
+                if (value < 0) {
+                    value = 0;
                 }
-                if (var_v0 >= 0x100) {
-                    var_v0 = 0xFF;
+                if (value >= 0x100) {
+                    value = 0xFF;
                 }
-                var_s0->unk4 = (s16) (var_a0 + 5);
-                var_s0->r = (s8) var_v0;
-                var_s0->g = (s8) var_v0;
-                var_s0->b = (s8) var_v0;
-                var_s1 += 1;
-                var_s0 += 1;
-            } while (var_s1 != 0x11);
-            var_s6 += 1;
-        } while (var_s6 != 0x11);
+                vertex->unk4 = (s16) (height + 5);
+                vertex->r = (s8) value;
+                vertex->g = (s8) value;
+                vertex->b = (s8) value;
+                vertex++;
+            }
+        }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800378A4.s")
-#endif
 void func_80037A78(void) {
     D_8007BEB4 = 0x8000 - (D_8007BEB0 << 8);
     if (D_8007BEB0 < 0x200) {
@@ -700,15 +701,6 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
-/* PLATEAU-HANDOFF:func_800378A4:start
- * symbol: func_800378A4
- * score: 103 differing words
- * frame: 0x68
- * relocations: 10
- * first-mismatch: +0x14
- * summary: Radial-gradient induction, floating-point lifetimes, and clamp control flow remain unresolved.
- * PLATEAU-HANDOFF:func_800378A4:end
- */
 
 
 /* PLATEAU-HANDOFF:func_80037C74:start
