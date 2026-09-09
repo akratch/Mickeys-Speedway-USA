@@ -61,103 +61,75 @@ void func_80037150(void) {
 }
 extern s32 viGetVideoMode(void);
 extern void *func_8002B280(s32, s32);
-/* Workbench verdict: structure-mismatch, 148 differing words; target 150/candidate 159 words. */
-/* First mismatch: +0x28; both frames are 0x38, but record-store order diverges. */
-/* Structural gap: grid induction and register/record-store schedule remain. */
+/* Workbench verdict: structure-mismatch, 144 differing words (was 148);
+ * target 150 / candidate 155 words, first mismatch +0x2C.
+ *
+ * Allocates and fills both backdrop vertex buffers with a 17x17 grid -- the
+ * same grid func_800378A4 later shades. The m2c draft transcribed the
+ * compiler's 4x unrolled inner loop literally (a peeled first vertex, then
+ * four vertices and four parallel `var_s2 * 4` accumulators per pass); this
+ * TU has the default unroller, so the ordinary counted loop reproduces that
+ * shape by itself. Both divides are signed `/ 16`, not `>> 4`: the target
+ * carries the `bgez` / `addiu at,x,15` rounding correction at every site, so
+ * the source could not prove the dividend non-negative.
+ *
+ * THE NEXT LEVER, MEASURED AND HELD BACK: func_800371BC takes NO PARAMETERS.
+ * The target homes nothing in the incoming argument slots, while every
+ * parameter in the declared signature costs exactly one `sw`/`swc1` at +0x2C
+ * -- which is where the first mismatch is. Measured on this body with the
+ * definition and its one call site rewritten together: (void) gives 151 words
+ * and 114 differing, (f32, f32) or (s32, s32) 153 and 140, and the declared
+ * four 155 and 144. The change was NOT made here because the sole caller is
+ * func_80037414, which another lane is working as a live one-instruction hunt,
+ * and rewriting its argument list would move its codegen underneath it. Make
+ * this the first edit once that lane lands: 148 -> 114 and geometry within one
+ * word, at the cost of one line.
+ *
+ * No donor counterpart: JFG's src/menu.c has no function of this shape.
+ * frontend_37D50.c is Mickey's own backdrop renderer, outside the JFG menu.c
+ * crosswalk that names the rest of this front end. */
 #ifdef NON_MATCHING
 void func_800371BC(f32 arg0, f32 arg1, s32 arg2, s32 arg3) {
-    s16 temp_v0_2;
-    s32 temp_t1;
-    s32 var_a0;
-    s32 var_a1;
-    s32 var_a2;
-    s32 var_a3;
-    s32 var_ra;
-    s32 var_s2;
-    s32 var_t0;
-    void **var_s6;
-    void *temp_v0;
-    u8 *var_v1;
+    FrontendVertex *vertex;
+    void **buffer;
+    s32 spacing;
+    s32 half;
+    s32 row;
+    s32 column;
+    s16 y;
 
     if (D_8007BE80 == 0) {
         if (viGetVideoMode() & 1) {
-            var_s2 = 0x238;
+            spacing = 0x238;
         } else {
-            var_s2 = 0x1AA;
+            spacing = 0x1AA;
         }
-        var_s6 = (void **) &D_8007BE88;
+        buffer = (void **) &D_8007BE88;
         do {
-            temp_v0 = func_8002B280(0xB4A, 0x87);
-            *var_s6 = temp_v0;
-            var_v1 = (u8 *) temp_v0;
-            if (temp_v0 != NULL) {
-                temp_t1 = var_s2 >> 1;
-                var_ra = 0;
+            vertex = func_8002B280(0xB4A, 0x87);
+            *buffer = vertex;
+            if (vertex != NULL) {
+                half = spacing >> 1;
+                row = 0;
                 do {
-                    var_a3 = var_s2 * 3;
-                    *(s16 *) (var_v1 + 0) = (s16) (-temp_t1 - 1);
-                    temp_v0_2 = (s16) (0x79 - (var_ra / 16));
-                    *(s16 *) (var_v1 + 2) = temp_v0_2;
-                    *(s16 *) (var_v1 + 4) = 0;
-                    var_v1[6] = 0xFF;
-                    var_v1[7] = 0xFF;
-                    var_v1[8] = 0xFF;
-                    var_v1[9] = 0xFF;
-                    var_v1 += 0xA;
-                    var_a0 = 1;
-                    var_a1 = var_s2;
-                    var_a2 = var_s2 * 2;
-                    var_t0 = var_s2 * 4;
-loop_grid:
-                    *(s16 *) (var_v1 + 0) =
-                        (s16) (((var_a1 / 16) - temp_t1) - 1);
-                    var_a0 += 4;
-                    var_a1 += var_s2 * 4;
-                    *(s16 *) (var_v1 + 0xC) = temp_v0_2;
-                    *(s16 *) (var_v1 + 0xE) = 0;
-                    var_v1[0x10] = 0xFF;
-                    var_v1[0x11] = 0xFF;
-                    var_v1[0x12] = 0xFF;
-                    var_v1[0x13] = 0xFF;
-                    *(s16 *) (var_v1 + 0x16) = temp_v0_2;
-                    *(s16 *) (var_v1 + 0x18) = 0;
-                    var_v1[0x1A] = 0xFF;
-                    var_v1[0x1B] = 0xFF;
-                    var_v1[0x1C] = 0xFF;
-                    var_v1[0x1D] = 0xFF;
-                    *(s16 *) (var_v1 + 0x20) = temp_v0_2;
-                    *(s16 *) (var_v1 + 0x22) = 0;
-                    var_v1[0x24] = 0xFF;
-                    var_v1[0x25] = 0xFF;
-                    var_v1[0x26] = 0xFF;
-                    var_v1[0x27] = 0xFF;
-                    var_v1 += 0x28;
-                    *(s16 *) (var_v1 - 0x26) = temp_v0_2;
-                    *(s16 *) (var_v1 - 0x24) = 0;
-                    var_v1[-0x22] = 0xFF;
-                    var_v1[-0x21] = 0xFF;
-                    var_v1[-0x20] = 0xFF;
-                    var_v1[-0x1F] = 0xFF;
-                    var_v1[-0x1E] =
-                        (s16) (((var_a2 / 16) - temp_t1) - 1);
-                    var_v1[-0x14] =
-                        (s16) (((var_a3 / 16) - temp_t1) - 1);
-                    var_v1[-0xA] =
-                        (s16) (((var_t0 / 16) - temp_t1) - 1);
-                    var_t0 += var_s2 * 4;
-                    var_a3 += var_s2 * 4;
-                    var_a2 += var_s2 * 4;
-                    if (var_a0 != 0x11) {
-                        goto loop_grid;
+                    y = (s16) (0x79 - (row / 16));
+                    for (column = 0; column != 0x11; column++) {
+                        vertex->x = (s16) (((column * spacing) / 16) - half - 1);
+                        vertex->y = y;
+                        vertex->unk4 = 0;
+                        vertex->r = 0xFF;
+                        vertex->g = 0xFF;
+                        vertex->b = 0xFF;
+                        vertex->a = 0xFF;
+                        vertex++;
                     }
-                    var_ra += 0xF0;
-                } while (var_ra != 0xFF0);
+                    row += 0xF0;
+                } while (row != 0xFF0);
             }
-            var_s6 += 1;
-        } while (var_s6 != (void **) &D_8007BE90);
+            buffer++;
+        } while (buffer != (void **) &D_8007BE90);
         D_8007BE80 = 1;
-        if ((((FrontendBufferPointers *) &D_8007BE88)->unk0 == NULL) ||
-            (((FrontendBufferPointers *) &D_8007BE88)->unk4 == NULL)) {
+        if ((D_8007BE88.unk0 == NULL) || (D_8007BE88.unk4 == NULL)) {
             func_80037150();
         }
     }
@@ -673,11 +645,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_800371BC:start
  * symbol: func_800371BC
- * score: 148 differing words
+ * score: 144 differing words
  * frame: 0x38
  * relocations: 13
  * first-mismatch: +0x28
- * summary: Grid induction and record-store schedule remain structurally different.
+ * summary: Rewritten as the natural 17x17 grid fill; the residual is now dominated by the declared parameter list, which the target does not have -- (void) measures 151/114 but needs func_80037414's call site, owned by a live lane.
  * PLATEAU-HANDOFF:func_800371BC:end
  */
 
