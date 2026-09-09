@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 102
 - first mismatch: +0x138
-- summary: Zero new attempts: prior ten order/line forms exhausted; unchanged spill pair. Reopen only with source-authentic spill-dependency evidence.
+- summary: Residual fully explained and not source-reachable: ugen orders spills ascending (73/73), as1 reverses the pair, and the only barrier that stops it is unreachable from C. Reopen needs a new compile mode, not another source form.
 
 Revalidated 2026-09-08 on assignment base
 `419037148f512f2d38042f3a17ad4e2589db0768`. The retained C remains
@@ -83,4 +83,48 @@ offsets: exact **assembly fallback only**. The rebuilt US ROM SHA1 is
 `507341c0a40ca3e9a7cee969b396ee53facfb548`. No matching status, symbol-table
 line, atlas ownership, or scoreboard credit changed. This handoff and the
 source metadata migration are the only tracked changes in the lane commit.
+
+#### 2026-09-09 lane `lm-bigsingles`: the residual is fully explained and the
+#### remaining word pair is not source-reachable
+
+The 299/301 baseline reproduces exactly on this lane's assignment base. Twenty
+further source forms (loop shape, pointer versus index spelling, ternary
+inlining, increment order, declaration order and physical-line grouping,
+use-site rewrites of the compared value, an added dead colour, a hoisted
+dereference, a comma-joined statement, split call arguments) all held at 2.
+Two forms regressed and are recorded as eliminated: a post-incremented
+dereference in the call argument, and bounding the loop on the pointer instead
+of the counter.
+
+The mechanism is now known end to end, and it is not a colouring fact.
+
+1. `ugen` already emits the pair in the target's order. Confirmed by reading
+   the phase output directly rather than inferring it.
+2. `as1` swaps them. Feeding `as1` the same listing with only that pair
+   exchanged produces the owned 1,204 bytes with **zero** non-relocation word
+   differences -- every remaining raw difference is an unresolved relocation
+   field. That is a positive proof that the retained C is otherwise exact and
+   that this pair is the entire residual.
+3. The swap is triggered by the may-alias load that supplies the call's first
+   argument sitting in front of the pair in the same line region. Substituting
+   a load with a provably distinct stack displacement stops it; register
+   identities and stack displacements were both swept and neither matters.
+4. `ugen` orders caller-save spills strictly by ascending register number --
+   73 of 73 comparable sites in the tree, including 38 where register order and
+   home-offset order disagree. The order `as1` needs here is descending, so no
+   C spelling can supply it.
+5. The one input shape that survives is a scheduling barrier between the two
+   stores, and only a `.loc` naming a greater line acts as one. `ugen` emits at
+   most one `.loc` per statement and both spills belong to the call statement,
+   so that barrier is unreachable from C. Line merging does not help: `ugen`
+   still emits a same-line `.loc`, which is not a barrier.
+
+Do not spend further attempts on declaration order, statement order, loop form,
+line grouping, use-site rewrites or the flag lattice; each of those was
+re-measured here and each is now excluded by mechanism rather than by search.
+A reopen needs a *new input*: a compile mode in which the assembler's memory
+disambiguation or its debug context differs (both were shown to flip the
+decision), or evidence that the argument load in the target is not a may-alias
+reference to that pointer. The general laws are recorded in
+`docs/ido-learnings.md` under "Assembler scheduling and phase replay".
 <!-- plateau-handoff:overlay11UpdateMenu:end -->

@@ -219,6 +219,6 @@ void overlay59Advance(s32 steps) {
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x4
- * summary: Exact register lanes; fidelity-clean as1 trace shows factor chain wins over retail constant chain. Ten source-faithful forms were nonimproving.
+ * summary: All 19 words are prologue schedule; body is word-identical. 4,680 order/line-grouping cells flat, constant-naming and global-inlining eliminated; phase replay reaches 10 but no reordering of the entry set reaches zero.
  * PLATEAU-HANDOFF:overlay59Advance:end
  */

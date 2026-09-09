@@ -267,6 +267,6 @@ cache_position:
  * frame: 0x58
  * relocations: 20
  * first-mismatch: +0x54
- * summary: Retained-initializer reshape exhausted: after-exit forms add one branch-likely/cache load; exact-size 285/304 baseline remains best.
+ * summary: Baseline reproved with zero source attempts; residual confined to one head window where the target reads the state field twice. Next lever is the repeated field read at the test, not the initializers.
  * PLATEAU-HANDOFF:overlay75UpdateMovingObject:end
  */
