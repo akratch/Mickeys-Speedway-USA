@@ -357,10 +357,10 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 u8 *func_8005A948(s16 animationId) {
     s32 i;
     s32 emptyIndex;
-    s32 tableOffset;
     s32 offset;
     s32 size;
     LoadedAnimation *animation;
+    s32 tableOffset;
 
     emptyIndex = -1;
     i = 0;
@@ -867,4 +867,14 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * first-mismatch: +0x0
  * summary: Frame remains 0x110 versus target 0xF8; camera/matrix allocator structure remains unresolved after the full flag lattice.
  * PLATEAU-HANDOFF:func_8005AF14:end
+ */
+
+/* PLATEAU-HANDOFF:func_8005A948:start
+ * symbol: func_8005A948
+ * score: 3 differing words
+ * frame: 0x38
+ * relocations: 13
+ * first-mismatch: +0x40
+ * summary: Declaration order moves all six stack homes exact; residual is a three-word t8-to-t7 temporary-ring web, with source-faithful loop/address variants flat.
+ * PLATEAU-HANDOFF:func_8005A948:end
  */
