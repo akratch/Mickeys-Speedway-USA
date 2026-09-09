@@ -62,7 +62,10 @@ D_1DC8 = 0x00001dc8;
 /* overlay 1: overlay_001_middle.c.o */
 gOverlay1ModeObject = 0x00001da0;
 gOverlay1ModeSource = 0x00001d9c;
+gOverlay1NextAngleLimit = 0x000000dc;
+gOverlay1PreviousAngleLimit = 0x000000e0;
 gOverlay1SubmitArg4 = 0x00001d94;
+overlay1GetAngleObjectsReloc = 0xf0000000;
 overlay1GetGaugeLimit = 0xf0000000;
 overlay1GetGaugeObjectsRaw = 0xf0000000;
 overlay1GlobalCallReloc = 0xf0000000;
@@ -2865,11 +2868,11 @@ func_overlay_001_F00010C8_184D4A8 = overlay1LoadBuildRecords;
 func_overlay_001_F0001A54_184DE34 = overlay1BuildObjectMappings;
 
 /* overlay 1: overlay_001_middle.c.o */
+func_overlay_001_F0002744_184EB24 = overlay1FindNextAngle;
+func_overlay_001_F000280C_184EBEC = overlay1FindPreviousAngle;
 func_overlay_001_F00028D4_184ECB4 = overlay1RefreshMode;
 func_overlay_001_F000293C_184ED1C = overlay1CallGlobal;
 func_overlay_001_F000296C_184ED4C = overlay1AdvanceObjectGauges;
-func_overlay_001_F0002744_184EB24 = overlay1FindNextAngle;
-func_overlay_001_F000280C_184EBEC = overlay1FindPreviousAngle;
 func_overlay_001_F0002AA4_184EE84 = overlay1AdvanceGauge;
 
 /* overlay 1: overlay_001_tail.c.o */

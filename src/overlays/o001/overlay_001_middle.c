@@ -18,52 +18,48 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1NextAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
-/* Plateau evidence reviewed 2026-08-29: the surviving source-current isolated
- * candidate has the exact 0xC8/50-word boundary and 0x68 frame. Five raw
- * positions differ: the local-data LO16 addend at +0x38 and schedule swaps at
- * +0x3C/+0x40 and +0x6C/+0x70; masking the addend leaves four. The candidate
- * has all four required relocation sites, but the assembled target bakes the
- * local HI16/LO16 pair, so it is not a fully annotated promotion oracle. The
- * earlier zero-word claim compared fallback assembly. The full flag lattice
- * and eight source-faithful cursor/init/access/FP variants missed. Re-prove
- * unchanged full-TU V0 with a runtime-annotated target, then park absent a new
- * scheduling mechanism. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-09. Two mechanisms, each a regression on its own:
+ * (1) lever 51 -- the hand-written `cursor` walk is what blocked the match.
+ *     Writing the scan as `objects[remaining]` lets uopt build its own
+ *     strength-reduced induction variable, and that also stops ugen spending a
+ *     ring temp on `count - 1`: with the cursor spelling it emitted
+ *     `addu $3,$4,-1; move $17,$3`, with the indexed spelling `addu $17,$4,-1`.
+ * (2) with the copy gone, hoisting `remaining = count - 1` above the guard puts
+ *     that single instruction immediately before the `beq`, which is what as1
+ *     needs to schedule it into the branch delay slot. Hoisting alone (with the
+ *     copy still there) costs 34 words, because the copy goes into the slot
+ *     instead and cannot then be coalesced across the block boundary.
+ * The named `data` carrier is lever 45: `object->data->angle` spends a ugen
+ * ring temp (t7) where the target holds the pointer in a pool colour (v0). */
 Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
     s32 count;
     Overlay1AngleObject **objects;
-    Overlay1AngleObject **cursor;
+    Overlay1AngleData *data;
     Overlay1AngleObject *object;
     Overlay1AngleObject *best;
     f32 difference;
     f32 bestDifference;
     s32 remaining;
     s32 loopValue;
+
     objects = overlay1GetAngleObjectsReloc(&count);
     bestDifference = gOverlay1NextAngleLimit;
     best = (Overlay1AngleObject *)(count - count);
+    remaining = count - 1;
     if (count != 0) {
-        remaining = count - 1;
-        cursor = (Overlay1AngleObject **)((u8 *)objects + (remaining << 2));
         do {
-            object = *cursor;
-            objects = (Overlay1AngleObject **)object->data;
-            difference = overlay1WrapOffset(
-                angle, ((Overlay1AngleData *)objects)->angle);
+            object = objects[remaining];
+            data = object->data;
+            difference = overlay1WrapOffset(angle, data->angle);
             if ((difference > 0.0f) && (difference < bestDifference)) {
                 bestDifference = difference;
                 best = object;
             }
             loopValue = remaining--;
-            cursor = (Overlay1AngleObject **)((u8 *)cursor - 4);
         } while (loopValue);
     }
     return best;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle/func_overlay_001_F0002744_184EB24.s")
-#endif
 
 /* ---- overlay1FindPreviousAngle ---- */
 
@@ -74,22 +70,15 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1PreviousAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
-/* Plateau (evidence reviewed 2026-08-29): configured full-TU records and the
- * surviving isolated ranking agree on the exact 0xC8/50-word boundary and
- * -0x68 frame. Five raw positions differ first at +0x38: statement schedules
- * are swapped at +0x3C/+0x40 and +0x6C/+0x70, while +0x38 is the unresolved
- * local-data addend. The candidate has four relocations; the assembled target
- * bakes the HI16/LO16 addend, but the runtime table confirms all four roles.
- * Six directed statement/lifetime probes were neutral, and a five-minute,
- * relocation-annotated MIPS2 permuter pass reached cost 120 but no zero. Its
- * only changes were neutral/worse or moved the cursor decrement inside the
- * new-best branch. The configured full-TU candidate object no longer survives:
- * re-prove unchanged V0, then park absent a new scheduling mechanism. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-09 by the same pair of edits as overlay1FindNextAngle above:
+ * indexed access in place of the hand-written cursor, `remaining = count - 1`
+ * hoisted above the guard so as1 can fill the branch delay slot with it, and a
+ * named `data` carrier for the pool colour. Only the argument order of the
+ * wrap-offset call and the limit global differ between the two. */
 Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     s32 count;
     Overlay1PreviousAngleObject **objects;
-    Overlay1PreviousAngleObject **cursor;
+    Overlay1PreviousAngleData *data;
     Overlay1PreviousAngleObject *object;
     Overlay1PreviousAngleObject *best;
     f32 difference;
@@ -100,29 +89,21 @@ Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     objects = overlay1GetAngleObjectsReloc(&count);
     bestDifference = gOverlay1PreviousAngleLimit;
     best = (Overlay1PreviousAngleObject *)(count - count);
+    remaining = count - 1;
     if (count != 0) {
-        remaining = count - 1;
-        cursor = (Overlay1PreviousAngleObject **)((u8 *)objects +
-                                                  (remaining << 2));
         do {
-            object = *cursor;
-            objects = (Overlay1PreviousAngleObject **)object->data;
-            difference = overlay1WrapOffset(
-                ((Overlay1PreviousAngleData *)objects)->angle, angle);
+            object = objects[remaining];
+            data = object->data;
+            difference = overlay1WrapOffset(data->angle, angle);
             if ((difference > 0.0f) && (difference < bestDifference)) {
                 bestDifference = difference;
                 best = object;
             }
             loopValue = remaining--;
-            cursor = (Overlay1PreviousAngleObject **)((u8 *)cursor - 4);
         } while (loopValue);
     }
     return best;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle/func_overlay_001_F000280C_184EBEC.s")
-#endif
 
 /* ---- overlay1RefreshMode ---- */
 
@@ -241,26 +222,6 @@ void overlay1AdvanceGauge(s32 amount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle/func_overlay_001_F0002AA4_184EE84.s")
 #endif
-
-/* PLATEAU-HANDOFF:overlay1FindNextAngle:start
- * symbol: overlay1FindNextAngle
- * score: 2/50 words
- * frame: 0x68
- * relocations: 4
- * first-mismatch: +0x3C
- * summary: structure-mismatch/constant-audit; as1 besttime fixes branch first. Three CFG forms stayed 2/50. Next: ADR 0017 inert init grouping, then runtime reloc proof.
- * PLATEAU-HANDOFF:overlay1FindNextAngle:end
- */
-
-/* PLATEAU-HANDOFF:overlay1FindPreviousAngle:start
- * symbol: overlay1FindPreviousAngle
- * score: 2 differing words
- * frame: 0x68
- * relocations: 4
- * first-mismatch: +0x3C
- * summary: structure-buckets exhausted; next lever is new branch-delay scheduling evidence.
- * PLATEAU-HANDOFF:overlay1FindPreviousAngle:end
- */
 
 /* PLATEAU-HANDOFF:overlay1AdvanceGauge:start
  * symbol: overlay1AdvanceGauge
