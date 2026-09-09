@@ -928,6 +928,51 @@ bytes and disassembly never belong here.
   cost up to 273 words, which is why earlier "move the initialisers" attempts
   read as a flat regression. Check the exit block actually ignores the values
   before moving them; there it reads only a cached pointer.
+- **A caller-saved colour is won by making the lower colour unavailable, and a
+  tested dead expression is how you do it.** `globalcolor` walks a web's
+  admissible colours in ascending order and keeps the first *strict* minimum,
+  so where two caller-saved registers both cost 0.0 the lower-numbered one
+  always wins: the colour ladder is v0, v1, a0, a1, a2, a3, t0..t5, then
+  s0..s8. The instrumented `p1dec` row's `forbidden0` decodes as *bit
+  `31 - colour`*, and it holds exactly the colours of interfering coloured
+  webs plus the registers pinned by calls or parameters the web is live
+  across. So a residual that is one caller-saved register too low is never a
+  spelling question -- no rearrangement of the statements that already exist
+  can add a colour -- and the only lever is one more interfering caller-saved
+  web that emits nothing.
+
+  A dead expression **used in a condition** supplies it. `if (start << 2);`
+  gives uopt a register temporary with the expression's live range; the
+  temporary takes the lower colour and the value you wanted moves up one.
+  Three constraints were each measured, and each one alone is fatal:
+
+  * **Two references, not one.** A single mention is folded before web
+    numbering and reserves nothing -- which is why every earlier single-site
+    dead-store and comma-expression probe on these functions read as flat.
+  * **The value must be tested.** `if (E);` and `if (!(E));` work; a bare
+    `E;` statement, `(void)(E);`, and `while (0) { E; }` are all discarded
+    first. `E && E` inside one `if` costs branches, and repeating the
+    expression inside one statement is CSE'd back to one reference.
+  * **It must out-rank the web you are moving.** uopt colours by descending
+    `save = references / bucket(references + spanning statements)`, ties
+    broken by ascending web index, and the buckets are 2 for a raw count of
+    3..5, 3 for 6..9, 4 for 10..13. A reservation placed a couple of
+    statements too far away loses a bucket, drops from 1.5 to 1.0, and
+    colours *behind* its target. Put the second reference on the target web's
+    own last use.
+
+  And the temporary is not free: it takes a `spilltemps` slot, so the frame
+  is `round8(4 * declared locals + 4 * temporaries)` plus the fixed blocks.
+  Twelve declared scalars plus one temporary rounds up a step; carrying one
+  value in an already-declared local instead of its own (here the
+  `func_8000572C` result in `temp_s0` rather than a separate `temp_v0`) buys
+  the step back. Measured on `func_80004454`, `func_8000471C` and
+  `func_80009AA8` in `src/main/objects.c`, all three of which had survived
+  132 declaration permutations, ten dead-store spellings, the L87
+  `field == (x ^ 0)` trick on both operands, six selection restructurings and
+  a flag lattice at three register words each; all three are byte-identical
+  with this edit, and the translation unit's other functions do not move.
+
 - **A compiler temporary's stack slot is a second colouring in web order, not
   a priority.** After `globalcolor`, uopt's `spilltemps` walks its register
   temporaries (induction pointers, common-subexpression values, call-crossing

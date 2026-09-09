@@ -1137,6 +1137,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
         (
+            0x0CA8,
+            0x0DF4,
+            "overlay1InterpolatePath",
+            "canonical mixed-TU object, all 13 runtime relocations, and linked bytes exact",
+        ),
+        (
             0x0DF4,
             0x0F84,
             "overlay1ResolveMotionPoint",

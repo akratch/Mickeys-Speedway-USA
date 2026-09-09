@@ -79,8 +79,20 @@ large set of retired levers, not a match.
   here. Do not spend another pass on it.
 - **No cross-function state.** Dropping any other function from the listing
   leaves the decision unchanged, so the space is this function's own ugen text.
-- **Single-line ugen-text moves do not reach it.** Every line of the function
-  moved to every other position in the function was scored; nothing beats 2.
+- **Single-line ugen-text moves do not reach it.** All 43,056 single-line moves
+  (every line of the function to every other position in it) were scored. One
+  variant reaches 1 -- moving the else arm's label deep into the block, which
+  makes the target head a branch-class instruction and suppresses the
+  duplication, leaving only the branch's own displacement wrong. That variant
+  is not semantics-preserving, but it is the measurement that pins the rule
+  below: **only a branch-class head, or a location-counter directive, makes the
+  assembler decline.** Mapping every instruction of the function to the head of
+  that block confirms it: 17 of 85 decline, and all 17 are branches.
+- **Insertions the assembler removes are inert too.** A dead register-to-
+  register copy vanishes from the object (the word count stays 111), so it was
+  the last candidate for a phase-input difference that leaves no trace; 836
+  such insertions, at every position in the function, all still convert. The
+  same goes for self-copies, zero-adds, an encoded no-op and a redundant jump.
 - **384 C spellings are flat.** Cross product of: the three integer tests
   plain vs `!= 0` vs `!= 0U`, the two float tests as `>=` vs negated `<`, the
   blend statement order, the disjunction spelling, `frame` carrier placement,
