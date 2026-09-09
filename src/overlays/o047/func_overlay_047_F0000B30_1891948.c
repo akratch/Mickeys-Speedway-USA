@@ -193,7 +193,6 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     Overlay47Actor *actor;
     Overlay47TextureScroll *scroll;
     Overlay47Icon *icon;
-    Overlay47TextureNode *texture;
 
     rate = updateRate;
     ov47Bss_30B = 0;
@@ -228,11 +227,12 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 player->y = ov47Bss_2F0.y;
                 player->z = ov47Bss_2F0.z;
                 player->rotation = ov47Bss_2F0.rotation;
-                allReady = 0;
+                i = 0;
                 while (ov47Bss_300[player->selector]) {
                     player->selector++;
                     if (player->selector >= 10) player->selector = 0;
                 }
+                allReady = 0;
                 ov47Bss_300[player->selector] = 1;
                 D_8007C1A0++;
                 ov47Bss_30A++;
@@ -247,12 +247,15 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                         func_8005AD64(actor, 1, -1, 0.0f);
                     }
                 }
-                for (i = 0; i < ov47Bss_0; i++, icon++) {
-                    if (icon->selector == (f32)player->selector) {
-                        ov47Bss_328[controller] = ((s32)icon->x + 160) * 16;
-                    }
+                if (ov47Bss_0 > 0) {
+                    do {
+                        if ((f32)player->selector == icon->selector) {
+                            ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
+                        }
+                        icon++;
+                    } while (++i < ov47Bss_0);
+                    icon = ov47Bss_8;
                 }
-                icon = ov47Bss_8;
             }
         } else {
             if (allReady && !ov47Bss_338) {
@@ -290,7 +293,8 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                     if (player->sound != NULL) amSndStop(player->sound);
                     amSndPlay(ov47Data_48C[ov47Data_524[player->selector]], &player->sound);
                 }
-                func_8005AD64(player->actor, 2, -1, 0.0f);
+                actor = player->actor;
+                func_8005AD64(actor, 2, -1, 0.0f);
             } else if ((joyGetPressed(controller) & 0x4000) && !player->leaving) {
                 actor = player->actor;
                 if (actor != NULL && !ov47Bss_324 && !start) {
@@ -466,7 +470,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             }
         }
     }
-    ov47Data_550 += ov47Data_554 * updateRate;
+    ov47Data_550 = ov47Data_550 + ov47Data_554 * updateRate;
     if (ov47Data_550 < 0) {
         ov47Data_550 = -ov47Data_550;
         ov47Data_554 = -ov47Data_554;
@@ -504,28 +508,28 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     } else {
         overlay45ConfigureLayout(ov47Bss_314, 160, 272, 0x104);
     }
-    for (i = 0; i < ov47Bss_0; i++, icon++) {
+    for (controller = 0; controller < ov47Bss_0; controller++, icon++) {
         colourIndex = 4;
         unready = 0;
         selected = -1;
-        texture = ov47Bss_1C0;
+        count = 0;
         player = D_800D3058;
-        for (controller = 0; controller < 4; controller++, player++) {
-            if (icon->selector == (f32)player->selector && player->active) {
-                colourIndex = controller;
+        for (i = 0; i < 4; i++, player++) {
+            if ((f32)player->selector == icon->selector && player->active) {
+                colourIndex = i;
                 if (!player->ready) unready = 1;
                 for (j = 0; j < updateRate; j++) {
-                    ov47Bss_328[controller] +=
-                        ((((s32)icon->x + 160) * 16) - ov47Bss_328[controller]) >> 2;
+                    ov47Bss_328[i] +=
+                        ((((s32)icon->x + 160) << 4) - ov47Bss_328[i]) >> 2;
                 }
-                texture->texture = D_800D31C8[controller + 13];
-                texture->x = 312 - (ov47Bss_328[controller] >> 4);
-                texture++;
-                selected = controller;
+                ov47Bss_1C0[count].texture = D_800D31C8[i + 13];
+                ov47Bss_1C0[count].x = 312 - (ov47Bss_328[i] >> 4);
+                count++;
+                selected = i;
             }
         }
-        texture->texture = NULL;
-        func_8002FB34(&D_800D3140, ov47Bss_1C0, 320.0f, 0.0f, 1.0f, 1.0f, -2, 0x1003);
+        ov47Bss_1C0[count].texture = NULL;
+        func_8002FB34(&D_800D3140, ov47Bss_1C0, 320.0f, 0, 1.0f, 1.0f, -2, 0x1003);
         func_8002A82C(localMatrix);
         matrixTranslate(icon->x, icon->y, 0.0f, localMatrix);
         scale = icon->scale / 1.16f;
@@ -571,14 +575,14 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             O47_VERTICES(ov47Data_8C, 14);
             O47_COMMAND(0x05710080, O47_PHYSICAL(ov47Data_118));
         }
-        for (j = 0; j < updateRate; j++) {
+        for (i = 0; i < updateRate; i++) {
             if (icon->rotationZ < 0) {
                 rotationStep = (icon->rotationZ + 0x1000) / 5;
             } else {
                 rotationStep = (0x1000 - icon->rotationZ) / 5;
             }
             if (rotationStep < 51) rotationStep = 50;
-            if (!ov47Data_474[i]) {
+            if (!ov47Data_474[controller]) {
                 icon->rotationZ += rotationStep;
                 if (selected == -1 && icon->rotationZ >= 0 &&
                     icon->rotationZ - rotationStep <= 0) {
@@ -586,15 +590,15 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 }
                 if (icon->rotationZ > 0x1000) {
                     icon->rotationZ = 0x2000 - icon->rotationZ;
-                    ov47Data_474[i] = 1;
+                    ov47Data_474[controller] = 1;
                 }
             } else {
                 if (icon->rotationZ < 0) {
-                    ov47Data_480[i]++;
-                    if (ov47Data_480[i] >= 101) ov47Data_480[i] = 100;
+                    ov47Data_480[controller]++;
+                    if (ov47Data_480[controller] >= 101) ov47Data_480[controller] = 100;
                 } else {
-                    ov47Data_480[i]--;
-                    if (ov47Data_480[i] < 0) ov47Data_480[i] = 0;
+                    ov47Data_480[controller]--;
+                    if (ov47Data_480[controller] < 0) ov47Data_480[controller] = 0;
                 }
                 icon->rotationZ -= rotationStep;
                 if (selected == -1 && icon->rotationZ <= 0 &&
@@ -603,7 +607,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 }
                 if (icon->rotationZ < -0x1000) {
                     icon->rotationZ = -0x2000 - icon->rotationZ;
-                    ov47Data_474[i] = 0;
+                    ov47Data_474[controller] = 0;
                 }
             }
         }
@@ -685,10 +689,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1906/2168 words
+ * score: 1963/2168 words
  * frame: 0x280
  * relocations: 318
- * first-mismatch: +0x4
- * summary: Flags, frame partition, 0x34 player stride and unsigned frame byte now exact. Residual is FP colouring: target hoists 0.015f to entry, gaining f30.
+ * first-mismatch: +0xC
+ * summary: Frame, six FP saves, every stack home and most loop shapes exact; residual is callee-saved colouring order, the unready-table address CSE and bound reloads.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
