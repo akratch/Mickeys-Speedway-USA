@@ -387,8 +387,8 @@ units remain distinct.
 | 89 | `src/main/objects.c` | `func_80006448` | `main` | `other` | 236 | 27 | 27 | 28 | 28 | 0 | — |
 | 90 | `src/overlays/o002/func_overlay_002_F0001A94_185888C.c` | `func_overlay_002_F0001A94_185888C` | `o002` | `other` | 868 | 51 | 27 | 76 | 312 | 0 | — |
 | 91 | `src/main/block_4F4E0.c` | `func_8004EED0` | `main` | `other` | 336 | 28 | 28 | 168 | 168 | 0 | — |
-| 92 | `src/main/objects.c` | `func_80008028` | `main` | `other` | 240 | 28 | 28 | 36 | 36 | 0 | — |
-| 93 | `src/main/charControl.c` | `func_8001D880` | `main` | `other` | 144 | 29 | 29 | 4 | 4 | 0 | — |
+| 92 | `src/main/charControl.c` | `func_8001D880` | `main` | `other` | 144 | 28 | 28 | 4 | 4 | 0 | — |
+| 93 | `src/main/objects.c` | `func_80008028` | `main` | `other` | 240 | 28 | 28 | 36 | 36 | 0 | — |
 | 94 | `src/overlays/o041/overlay41EnqueueTransition.c` | `func_overlay_041_F000195C_1888C94` | `o041` | `other` | 420 | 29 | 29 | 8 | 8 | 0 | — |
 | 95 | `src/overlays/o034/overlay34CreateRecord.c` | `overlay34CreateRecord` | `o034` | `other` | 500 | 32 | 30 | 0 | 0 | 0 | — |
 | 96 | `src/overlays/o001/overlay_001_tail.c` | `overlay1ConsumeNearbyPending` | `o001` | `other` | 276 | 31 | 31 | 64 | 64 | 0 | — |

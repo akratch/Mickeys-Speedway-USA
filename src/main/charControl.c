@@ -567,7 +567,15 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
  * declarations (pointIndex, effectCount, packetIndex, stateCursor) was flat.
  * The `register` qualifiers previously carried here were no-ops: dropping them
  * produced a byte-identical object, so the next lever is the uopt callee-saved
- * tie-break, not more source-level pruning. */
+ * tie-break, not more source-level pruning.
+ * Named, 2026-09-09: the target uses s0-s6, this candidate only s0-s4. Both
+ * agree on the two obvious carriers -- the target holds `player` in s5 and
+ * `actor` in s6, this candidate in s3 and s4 -- so the two missing saved webs
+ * are the ones the target puts in s3 and s4, and they are the effect/particle
+ * list walk. The target reads TWO pointers with `lw sN,0(v0)` from different
+ * bases and keeps both across the spawn calls; this candidate reads
+ * `lw s0,4(v0)` and `lw s2,0(v0)` and keeps one fewer. Work the list walk's
+ * shape, not the register names. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -1218,12 +1226,23 @@ f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
     arg1 *= 10.0f;
     index = (s32) arg1;
     base = table[index];
-    value = ((table[index + 1] - base) * (arg1 - (f32) index)) + base;
+    value = table[index + 1];
+    value = ((value - base) * (arg1 - (f32) index)) + base;
     arg0 *= 10.0f;
     index = (s32) arg0;
     base = table[index];
     return (value - (base + ((table[index + 1] - base) * (arg0 - (f32) index)))) / divisor;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2177,7 +2196,7 @@ void controlClearPlayerSetup(void) {
  * frame: 0xE0
  * relocations: 45
  * first-mismatch: +0x0
- * summary: Target 238w, frame 0xA0, 47 relocs; scalar identities and X/Z normalization are correct, but common-prefix sinking and FP/integer allocation remain.
+ * summary: Target 238w, frame 0xA0, 47 relocs. The 0x40 frame excess is a declaration census and the exact target frame IS reachable -- dropping the three cross-product carriers hits -0xA0 -- but that spelling duplicates the sub-expressions and costs 24 instructions (265 versus 241 against a 238 target). So the target drops those three carriers WITHOUT duplicating the terms; find that spelling. Reassigning them into the crossY/crossZ slots instead is 230 words but 242 instructions.
  * PLATEAU-HANDOFF:func_8001EC44:end
  */
 
@@ -2204,11 +2223,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001D880:start
  * symbol: func_8001D880
- * score: 29/36 words
+ * score: 28/36 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x4
- * summary: Indexing the table closed the address operand order (a2,t7 both sides); the residual is one uopt colour rotation, not a spelling. Sixteen web-formation and declaration forms were byte-flat at 29.
+ * summary: Indexing the table closed the address operand order (a2,t7 both sides) and naming the upper table entry in `value` before the lerp takes it to 28. The residual is a uopt colour rotation: the target colours only 10.0f from {f16,f18} and runs a five-wide FP ring, this candidate colours both and runs four. Twenty-five source forms plus 210 permuter candidates were flat or worse.
  * PLATEAU-HANDOFF:func_8001D880:end
  */
 
