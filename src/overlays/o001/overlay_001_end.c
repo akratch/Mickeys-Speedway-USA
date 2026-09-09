@@ -48,19 +48,17 @@ extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
 #ifdef NON_MATCHING
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                              s16 *outX, s16 *outY, void *unused) {
-    register u32 groupAddress;
     s32 index;
     Overlay1PoolRecord *record;
     s16 *point;
-    s16 result[4];
     s32 scanIndex;
+    s16 result[4];
     s32 product;
 
     overlay1ClearReloc(D_220, sizeof(D_220));
     overlay1ClearReloc(D_8, sizeof(D_8));
     D_218 = D_220;
-    groupAddress = (u32)&D_1D88;
-    *(s32 *)groupAddress = 0x3F;
+    D_1D88 = 0x3F;
     D_1D84 = 0;
 
     record = func_overlay_001_F0007BDC_1853FBC(x0, y0, x1, y1);
@@ -71,14 +69,14 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
         return -1;
     }
 
-    (*(s32 *)groupAddress)--;
+    D_1D88--;
     index = 2;
     point = &record->x[2];
     if (record->count >= 2) {
         scanIndex = 2;
         if (record->count >= 3) {
-            point = &record->x[2];
             do {
+                point = &record->x[scanIndex];
                 if (overlay1SegmentReloc((f32)x0, (f32)y0,
                                          (f32)point[0], (f32)point[32],
                                          D_1BA4, result, -1, 0xFFFF) != 0) {
@@ -90,7 +88,6 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                     }
                 }
                 scanIndex++;
-                point++;
             } while (scanIndex < record->count);
         }
         point = &record->x[scanIndex];
@@ -165,10 +162,10 @@ f32 overlay1DistanceFromSelected(void *object) {
 
 /* PLATEAU-HANDOFF:overlay1ResolvePathPoint:start
  * symbol: overlay1ResolvePathPoint
- * score: 144/152 words
+ * score: 149/152 words
  * frame: 0x78
  * relocations: 22
  * first-mismatch: +0x6C
- * summary: register-web and relocation-order residue; bounded permutation produced only semantically invalid candidates
+ * summary: 8 -> 3 words (structure-mismatch to allocation-mismatch); residual is the else-branch pointer base and the doubled-product register
  * PLATEAU-HANDOFF:overlay1ResolvePathPoint:end
  */
