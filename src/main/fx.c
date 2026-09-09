@@ -864,8 +864,17 @@ Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #endif
-/* Workbench: structure-mismatch; 58 words differ, first mismatch +0x08. */
-/* Candidate is not opcode-shape exact: 121/121 instructions, frame -72/-72 bytes, exact call relocations; 8 init-schedule words remain, 50 are register-only. */
+/* Twenty words differ, all of them register names; 121 instructions, the -72
+ * frame, the call relocations and every schedule slot are exact. Spelling the
+ * eight-byte alignment pad as `arg1 & 7` twice -- once in the test and once in
+ * the `8 - ...` -- instead of caching it in `size` removes a pool web and makes
+ * the whole prologue exact: 23 -> 20. What remains is one temp-numbering
+ * rotation: the target spends t4/t5/t6 on the three short-lived halfword loads
+ * near the tail and t7/t8/t9 on the two texture-extent shifts and the constant
+ * 3, while this source reuses one register across two of those webs and shifts
+ * the rest. Flat over the fill-loop shape (for/do, index vs pointer, group
+ * order, base at +0x26 with stride 40), the wake-allocation tail, and 117,000
+ * randomised statement-order and line-grouping candidates. */
 /* PROVENANCE: Mickey field layouts/control flow reconstructed from target accesses; JFG wakeSetupRipple is assembly-only and supplies only TU/name context. */
 #ifdef NON_MATCHING
 typedef struct FxRippleSource {
@@ -950,9 +959,8 @@ s32 func_80048760(void *arg0, s32 arg1) {
     u8 *var_v0;
     FxRippleFrame *frame;
 
-    size = arg1 & 7;
-    if (size != 0) {
-        size = 8 - size;
+    if ((arg1 & 7) != 0) {
+        size = 8 - (arg1 & 7);
         arg1 += size;
     } else {
         size = 0;
@@ -1274,22 +1282,31 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Workbench verdict: structure-mismatch, 69 differing words, first mismatch +0x0. */
-/* Candidate: 149/149 instructions with a -0x30 frame versus target -0x38; both call relocations are exact. */
-/* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
+/* Five words differ, all of them the same web: the truncated height carrier is
+ * v1 in the target and a0 here. Everything else -- 149 instructions, the frame,
+ * both call relocations, every other register and every schedule slot -- is
+ * exact. The lever that got here was the vertex writeback: the twelve stores
+ * are all addressed from the *post*-increment `vertex`, including the first
+ * one, which the earlier draft wrote as `vertex[+0x22]` before `vertex += 0x3E`
+ * and which IDO schedules ahead of the increment anyway. Expressed that way the
+ * store order is the plain per-vertex x/y/z order and the residual fell 69 -> 5.
+ * Flat since: web-count changes around the carrier (owner, fade, value7C and
+ * coordinate locals, inlining mode/step/angle), its type (s16/u32/register/
+ * implicit conversion), its position (five placements), the whole prelude
+ * order/grouping lattice, and 70,000 randomised statement-order candidates. */
 /* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
  * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
  * context. JFG supplies only the role/name; this retained body uses Mickey's
  * target offsets and calls. No new donor body was available or adopted. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
-    FxWakeRippleData *ripple;
     FxWakeTexture *texture;
     u8 mode;
-    s16 angle;
+    FxWakeRippleData *ripple;
+    u8 *vertex;
     s16 step;
     s32 height;
-    u8 *vertex;
+    s16 angle;
 
     ripple = owner->ripple;
     if (ripple != 0) {
@@ -1319,20 +1336,20 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         if (ripple->fade != 0) {
             mode = 1 - ripple->mode;
             ripple->mode = mode;
-            height = (s32) ripple->value80;
             vertex = (u8 *) ripple + ((mode & 0xFF) * 0x28);
-            *(s16 *) (vertex + 0x22) = (s16) height;
+            height = (s32) ripple->value80;
             vertex += 0x3E;
             *(s16 *) (vertex - 0x1E) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 0x1C) = (s16) height;
             *(s16 *) (vertex - 0x1A) = (s16) (s32) (owner->value14 - ripple->value7C);
-            *(s16 *) (vertex - 0x12) = (s16) height;
             *(s16 *) (vertex - 0x14) = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex - 0x12) = (s16) height;
             *(s16 *) (vertex - 0x10) = (s16) (s32) (owner->value14 - ripple->value7C);
-            *(s16 *) (vertex - 8) = (s16) height;
             *(s16 *) (vertex - 0xA) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 8) = (s16) height;
             *(s16 *) (vertex - 6) = (s16) (s32) (owner->value14 + ripple->value7C);
-            *(s16 *) (vertex + 2) = (s16) height;
             *(s16 *) vertex = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex + 2) = (s16) height;
             *(s16 *) (vertex + 4) = (s16) (s32) (owner->value14 + ripple->value7C);
         }
         angle = Arctanf(owner->value1C, owner->value24);
@@ -2372,11 +2389,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048760:start
  * symbol: func_80048760
- * score: 23 differing words
+ * score: 20 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: +0x8
- * summary: JFG efd5abb wakeSetupRipple remains assembly-only; 23/121 words differ. Next lever: new donor initialization source/line topology; prior forms exhausted.
+ * first-mismatch: +0x90
+ * summary: spelling the alignment pad twice instead of caching it makes the prologue exact, 23 -> 20. Residual is one temp-numbering rotation over the extent shifts and the tail halfword loads.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
@@ -2402,11 +2419,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
- * score: 69 differing words
+ * score: 5 differing words
  * frame: 0x30
  * relocations: 2
- * first-mismatch: +0x0
- * summary: JFG efd5abb wakeUpdateRipple remains assembly-only; zero new attempts. Next: authenticated ripple declarations/homes for the stack-home lever.
+ * first-mismatch: +0x108
+ * summary: addressing all twelve vertex stores from the post-increment cursor took 69 -> 5. Residual is one pool colour: the truncated height carrier is v1 in the target, a0 here.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 
