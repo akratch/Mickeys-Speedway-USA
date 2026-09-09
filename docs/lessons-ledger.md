@@ -5,6 +5,38 @@ Each entry: what was observed, what it cost, what changed because of it
 (tool, gate, rule, or prompt). Numbers are the values at the time; recompute
 before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
+## 2026-09-09
+
+- **Every object-level score in this project has a blind spot the size of an
+  unpaired `%hi`/`%lo`, and it has already cost at least one function three
+  work packets.** splat writes a high/low address pair as raw literals
+  whenever it cannot see the two halves together, which is exactly what
+  happens when IDO hoists the `lui` above a branch. The assembled fallback
+  then has no relocation at that site while a correct candidate has two, so
+  the workbench, the permuter and `nm_ranking`'s masked-word score all report
+  a permanent difference in the immediate fields, dressed up as a register
+  choice. `func_800056A4` carried that as "2 differing words, register-only"
+  through a forced-color diagnosis, a flat permuter sweep and a donor
+  re-screen, then matched on the first attempt once the address was written as
+  the symbol it is. The address sat inside a neighbouring symbol's extent, so
+  the fix was `&D_800C9460[1]` rather than a new name. Changed: the lane
+  scorer now resolves every relocation on both sides against the canonical
+  linked ELF before comparing words, so the two spellings compare equal
+  exactly when the linked bytes do; the rule and its detector are recorded in
+  `docs/ido-learnings.md` under "Search fidelity and false floors". Any
+  fallback showing a bare `lui` of a plausible RAM address whose paired load
+  is across a branch is a candidate for the same treatment.
+- **A direct `tools/ido/cc` compile of a whole resident TU is byte-identical
+  in `.text` to the Makefile's `NON_MATCHING` object, and it is ~70 ms.** With
+  a link-resolved word scorer on top, one candidate costs about 0.1 s
+  end-to-end and twelve run in parallel, which turns "sweep the spelling
+  lattice" from sampling into enumeration: 132 declaration permutations, all
+  24 orders of four independent stores, and a 72-way product of loop shapes
+  were each exhausted in seconds this session. Two of the three results this
+  lane produced came out of an exhaustive sweep that would not have been
+  affordable at the workbench's 6.6 s per measurement. Verify the
+  byte-identity per TU before relying on it.
+
 ## 2026-09-02
 
 - **A trial projection that is not scoped to the trial is not a projection of
