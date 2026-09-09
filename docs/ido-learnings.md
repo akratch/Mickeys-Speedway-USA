@@ -1036,6 +1036,30 @@ bytes and disassembly never belong here.
   edit that fixes the registers moves the frame, and the two have to be solved
   together.
 
+- **Scope limit on the entry above: volatility does not reach an
+  address-materialisation residual.** A lane reported the volatile/reload lever
+  as "falsified"; it is not falsified as written, but its framing does not
+  extend past FP reload naming, and reaching for it on the wrong residual class
+  costs a full sweep. On `func_80002134` (`src/main/audiomgr.c`, 9 words) the
+  residual is an **address-CSE** decision: the candidate materialises the
+  address once and reuses it across the branch, while the target recomputes the
+  `%hi`/`%lo` pair at both accesses. 28 forms held flat at 9. The proof that
+  volatility is not the axis: removing `volatile` **regresses to 11 and still
+  materialises the address**. So a residual whose signature is a repeated
+  `%hi`/`%lo` pair is a CSE question, not a qualifier question, and the entry
+  above has nothing to say about it.
+
+- **Re-gate the `func_8005716C` claim above before relying on it.** That entry
+  cites `func_8005716C` as the case where the edit "made all 80 words agree,
+  registers included". The function currently measures **3 differing words**
+  (improved from 5 on 2026-09-10 by an unrelated closed-form frame argument:
+  with N frame cells the frame is `align8(4N)` and the last cell's home is
+  `align8(4N) - 4N`, so a home at `4(sp)` requires N odd). Either the original
+  claim covered a region rather than the whole function, or it has gone stale
+  under later adoptions. It is recorded here as a discrepancy rather than a
+  correction because nothing in this session re-derived the original
+  measurement -- do that before treating the 80-word agreement as current.
+
 - **A declined `CDX_FORCE` is a real result: it retires the reordering space.**
   `CDX_FORCE=p2:w<n>=c<colour>` refused at both the `dec` and `color` sites,
   with the wanted colour inside `forbidden0`, says the colour is unavailable
