@@ -178,11 +178,48 @@ void func_800582A8(void) {
  * offsets, tables, control flow, constants and positional-audio calls decide
  * this body.
  *
- * Fresh p10 workbench: 758/762 candidate/target instructions, 699 relocation-
- * masked differences from +0x0, and frame 0x110 versus 0x118. Ten bounded
- * type, ABI, statement-order and lifetime probes remain nonexact. The retained
- * unsigned vehicle ID and pointer setup order reduce opcode mismatches without
- * changing the positional score; DKR organization remains provenance-only.
+ * Fresh p10 workbench: 758/762 candidate/target instructions and frame 0x118.
+ * The retained unsigned vehicle ID and pointer setup order reduce opcode
+ * mismatches without changing the positional score; DKR organization remains
+ * provenance-only.
+ *
+ * Frame closed (2026-09-10).  `unused0` above is a frame-census slot, not a
+ * value: the declared-local list was one 4-byte slot short, and adding one
+ * takes the frame from 0x110 to the target's 0x118 exactly (the local block
+ * quantizes in 8-byte steps).  Identical rows go 273 -> 278 of 762 and the
+ * register-masked alignment 484 -> 490.  Its identity is unknown; whatever
+ * real local it stands for, the census says there is one.
+ *
+ * With the frames equal the stack census separates cleanly, and that is the
+ * useful part.  Every one of the twenty slots from 0x10 to 0x84 -- the
+ * saved-register block and all of the spill temporaries -- now matches the
+ * target exactly, by offset and by use count.  The entire residual lives in
+ * the declared-local block above 0xA0, and it is an ORDER problem, not a size
+ * one: the local with eight uses sits at frame_top-4 here and at frame_top-16
+ * in the target, so the target declares roughly three more 4-byte locals
+ * ahead of it.  The next lever is to permute the declaration list against the
+ * target's use-count fingerprint, which is (8,4,3,2,2,8,6,2) reading down from
+ * its first homed local against (8,6,2,1,1,1,4) here.
+ *
+ * The loop idiom question is settled, against the obvious guess.  The
+ * candidate emitted thirteen `sltu reg,zero,counter` boolean materializations
+ * that the target does not have -- the target has none at all -- and the
+ * temptation is to reach for a different loop form.  Do not: the target's own
+ * back-edge tests the counter and decrements it in the branch delay slot,
+ * which is exactly `while (x-- != 0)`, the form already committed here.
+ * Rewriting the three loops as `--x != -1` does remove all thirteen `sltu`,
+ * but replaces them with thirteen equally spurious `addiu x,x,-1` duplicated
+ * into the same branch-likely slots, and costs a register-masked identical
+ * row; `--x >= 0` is worse again at -6.  All sixty-four combinations of four
+ * loop forms across the three loops were measured and none is exact.  What
+ * fills those slots in the target is float stores: the target has twenty
+ * `swc1` against twelve here, and eight more homed float values is also what
+ * would give ugen something real to sink into each likely slot.  Chase the
+ * float homes, not the loop condition.
+ *
+ * The flag lattice was re-run over seven configurations; the shipped
+ * `-Wab,-r4300_mul -O2 -mips2` is the best on the alignment and -mips1 costs
+ * about a hundred instructions.
  */
 void func_8005830C(s32 updateRate) {
     s32 racerCount;
@@ -211,6 +248,7 @@ void func_8005830C(s32 updateRate) {
     f32 storedMaximumSpeed;
     f32 storedVolumeScale;
     f32 storedEngineIntensity;
+    f32 unused0;
     VehicleObject **racers;
     VehicleObject **racerPtr;
     VehicleObject *object;
@@ -560,11 +598,11 @@ f32 func_80058EF4(f32 arg0) {
 
 /* PLATEAU-HANDOFF:func_8005830C:start
  * symbol: func_8005830C
- * score: 699 differing words
- * frame: 0x110
+ * score: 692 differing words
+ * frame: 0x118
  * relocations: 88
  * first-mismatch: +0x0
- * summary: Target is 762 words/frame 0x118; only 18 relocation tuples and 12 identities align after ten bounded type, ABI, order, and lifetime probes.
+ * summary: 758 vs 762 instructions; frame now exact at 0x118 and the whole saved-register and spill-temp block matches by offset and use count, so the residual is the declared-local ORDER plus eight unhomed float values
  * PLATEAU-HANDOFF:func_8005830C:end
  */
 
