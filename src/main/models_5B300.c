@@ -455,34 +455,57 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
 }
 
 /* Keep the original TU order: func_8005ABA8 precedes func_8005AD64. */
-/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x8. */
-/* Candidate shape: 111 instructions/no frame, the target's own size and its
- * instruction census; the size question is closed. The target loads
- * temp_v0->frame into a scratch register and copies it into a lasting one,
- * which a single cached local cannot produce: reading the field again into a
- * second pointer supplies the copy (docs/ido-learnings.md, the two-carrier
- * field re-read). Reversing the two blend statements then fixes the div/sub
- * operand order. */
-/* Remaining gap: a pairwise a1/a2 exchange on the two frame carriers and the
- * FP colour rotation that follows it; declaration order and both assignment
- * orders of the pair are flat (four probes). */
+/* Workbench: allocation-mismatch, 2 differing words, first mismatch +0x3C.
+ * 111/111 words, frameless, zero relocations on both sides.
+ *
+ * Four source artefacts closed 45 of the 47, none of which was an allocator
+ * question (2026-09-09):
+ *  - `temp_f0_2` cached `instance->frameValue` for two tests that no store
+ *    separates. The cache costs a `mov.s` where the target reads the field
+ *    twice and lets uopt common the load; the target's own `nop` at that
+ *    hazard slot is what the copy was filling.
+ *  - the two blend stores were emitted sub-then-div; the target allocates the
+ *    div's FP temp first, so the source computes `blendStart` before
+ *    `blendEnd`. Both read only locals, so the order is free.
+ *  - the null test spelled through `temp_a1` gave the loaded pointer a copy
+ *    and exchanged a1/a2 on both frame carriers plus their two later uses.
+ *    Testing `temp_v0->frame == NULL` directly lets the load keep a1 and the
+ *    surviving carrier take the copy into a2.
+ *  - `var_v1 = 1` written before the inner `if` of each arm, rather than once
+ *    after it, changed nothing in the schedule but made as1 duplicate the
+ *    join's `move v0,v1` into two annulled delay slots the target leaves as
+ *    `nop`. That is the same class as the one word still open.
+ * `temp_f2_2` was an m2c-only second name: one carrier serves both blendEnd
+ * reads. Removing it and the dead `temp_a1` is byte-inert.
+ *
+ * What is left: at +0x3C the target branches `beqz` with a `nop` delay slot
+ * to a block whose first scheduled instruction is `mul.s $f18,$f14,$f12`;
+ * as1 turns the same branch into `beqzl` and duplicates that multiply into
+ * the annulled slot, retargeting past it (the copy at +0xD8 then becomes
+ * unreachable, so both sides are 111 words). Every other word, every branch
+ * target and the whole register assignment agree. This is an as1 delay-slot
+ * decision, not a codegen one, and it is reachable from source: the
+ * `var_v1 = 1` move above flipped the same decision at two other sites
+ * without moving a single instruction. Twenty-eight further shapes of the
+ * else-block head, the transition test, the declaration list and the
+ * comparison spellings are all flat at 2.
+ *
+ * Tooling note: the permuter's isolated scratch for this TU compiles the
+ * function at 112 words against the real object's 111, so its base score of
+ * 400 is a false reading and no score from it transfers. */
 /* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
  * existing models TU layouts; no external function body is copied. */
 #ifdef NON_MATCHING
 s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
     s32 var_v1;
     f32 temp_f0;
-    f32 temp_f0_2;
     f32 temp_f2;
-    f32 temp_f2_2;
-    void *temp_a1;
     ModelAnimationFrame *frame;
     ModelAnimationState *temp_v0;
 
     temp_v0 = instance->states[(s32)instance->animationIndex];
     var_v1 = 0;
-    temp_a1 = temp_v0->frame;
-    if (temp_a1 == NULL) {
+    if (temp_v0->frame == NULL) {
         return 0;
     }
     frame = (ModelAnimationFrame *)temp_v0->frame;
@@ -491,13 +514,13 @@ s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
             temp_f0 = temp_v0->blendValue + arg2;
             temp_f2 = temp_v0->blendEnd;
             temp_v0->blendValue = 0.0f;
-            temp_v0->blendEnd = temp_f2 - temp_f0;
             temp_v0->blendStart = temp_f0 / temp_f2;
+            temp_v0->blendEnd = temp_f2 - temp_f0;
         } else {
             temp_v0->blendValue = temp_v0->blendValue + arg2;
         }
-        temp_f2_2 = temp_v0->blendEnd;
-        if ((temp_f2_2 <= 0.0f) || (temp_f2_2 <= temp_v0->blendValue)) {
+        temp_f2 = temp_v0->blendEnd;
+        if ((temp_f2 <= 0.0f) || (temp_f2 <= temp_v0->blendValue)) {
             temp_v0->transition = 0;
             temp_v0->blendStart = 0.0f;
             temp_v0->blendValue = 0.0f;
@@ -506,26 +529,20 @@ s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
         }
     } else {
         instance->frameValue += arg1 * arg2;
-        temp_f0_2 = instance->frameValue;
-        if (temp_f0_2 >= 1.0f) {
+        if (instance->frameValue >= 1.0f) {
             if (frame->loop != 0) {
-                if (temp_f0_2 >= 1.0f) {
+                if (instance->frameValue >= 1.0f) {
                     do {
                         instance->frameValue -= 1.0f;
                     } while (instance->frameValue >= 1.0f);
-                    var_v1 = 1;
-                } else {
-                    goto animation_done;
                 }
             } else {
                 instance->frameValue = 1.0f;
-animation_done:
-                var_v1 = 1;
             }
-        } else if (temp_f0_2 < 0.0f) {
             var_v1 = 1;
+        } else if (instance->frameValue < 0.0f) {
             if (frame->loop != 0) {
-                if (temp_f0_2 < 0.0f) {
+                if (instance->frameValue < 0.0f) {
                     do {
                         instance->frameValue += 1.0f;
                     } while (instance->frameValue < 0.0f);
@@ -533,6 +550,7 @@ animation_done:
             } else {
                 instance->frameValue = 0.0f;
             }
+            var_v1 = 1;
         }
     }
     return var_v1;
@@ -861,11 +879,11 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005ABA8:start
  * symbol: func_8005ABA8
- * score: 47 differing words
+ * score: 2 differing words
  * frame: frameless
  * relocations: 0
- * first-mismatch: +0x8
- * summary: Size closed at 111/111: the second frame carrier is a field re-read, not a cached local. Residual is a pairwise a1/a2 exchange and its FP rotation.
+ * first-mismatch: +0x3C
+ * summary: 111/111 words, every register and branch target exact; the last two words are one as1 delay-slot decision at +0x3C.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
