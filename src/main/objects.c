@@ -5633,11 +5633,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006448:start
  * symbol: func_80006448
- * score: 32/59 words
+ * score: 50/59 words
  * frame: 0x28
  * relocations: 4
- * first-mismatch: +0x1C
- * summary: Shape and relocation surface are exact; CFE carrier allocation differs for the object, offset, and resource values.
+ * first-mismatch: +0x50
+ * summary: Initializer placement fixed the s0/s1 colouring, 27 to 9 words; the resource carrier still coalesces into the call argument register.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 
