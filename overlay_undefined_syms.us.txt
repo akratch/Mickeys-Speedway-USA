@@ -1148,6 +1148,16 @@ D_80000039 = 0x00000039;
 D_8000003A = 0x0000003a;
 D_8000003B = 0x0000003b;
 
+/* overlay 41: overlay41UpdateCurveObject.c.o */
+func_8000FAE0_o041Reloc = 0xf0000000;
+func_8002A878_o041Reloc = 0xf0000000;
+func_8002A910_o041Reloc = 0xf0000000;
+func_8003EDEC_o041Reloc = 0xf0000000;
+gOverlay41Disabled = 0x00000000;
+gOverlay41Targets = 0x00000000;
+overlay41SampleCurveReloc = 0xf0000000;
+sqrtf_o041Reloc = 0xf0000000;
+
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 

@@ -137,41 +137,100 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *callback);
 
 /*
- * Extent closed (2026-09-10).  882 candidate instructions against 882: the
- * function is no longer a size mismatch and is now permutable.  Frame 0xB8
- * exact, 88 static relocations against the module's 88 shipped records in
- * count, type histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and per-callee
- * multiplicity.  618/882 rows are identical under an insertion-tolerant
- * alignment and the running shift returns to zero (the last 27 rows are
- * exact), leaving 295 positional differing words in 128 edit regions, every
- * one of which is now count-neutral.
+ * Extent closed, 882 candidate instructions against 882, frame 0xB8 exact,
+ * 88 static relocations matching the module's shipped records by count, type
+ * histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and per-callee multiplicity.
+ * 288 positional words still differ, raw and relocation-masked alike.
  *
- * What closed it.  The vertical displacement and the horizontal speed
- * integration are independent statements, so evaluating `dy` before
- * `state->speed += ...` is semantics-preserving.  It is also what lets ugen
- * fill the `func_80008128` delay slot: with the previous order the last
- * instruction before that `jal` was an `mfc1` into an argument register,
- * which cannot be sunk into the slot, and ugen padded it.  With this order
- * the third component's spill lands immediately before the branch and moves
- * into the slot, exactly as the target does.  The nine relocation offsets
- * that used to sit one instruction late are no longer displaced.
+ * There is no low-based-overlay rendering artifact here, and the count is
+ * zero rather than small.  The project's comparators mask the union of both
+ * sides' relocation fields per word, which equalizes splat's bare `lui`
+ * literal against the C build's `%hi` relocated form, so raw and masked agree
+ * at 288.  The trap is on the other side: reading the ROM's own stored word
+ * out of splat's comment field and diffing that against a compiled object
+ * reports two phantom rows here -- the link-time-resolved internal `jal` at
+ * +0x80 and the `D_FA0` addend at +0xC8C, both of which the assembled target
+ * carries as zero-field relocations.  Any hand-rolled word scorer must mask
+ * the same union and rebase objdump's section coordinates onto the function
+ * base, or it invents residual that is not there.
  *
- * What remains is register colour, not extent: a one-step phase offset in
- * both rings, first visible at +0x58 and resolved again by +0xD78, plus one
- * remaining delay-slot difference that trades a `nop` for an `lwc1` without
- * changing the count.  The stack-home census is exact at every one of the 34
- * distinct slots the target touches except the race-state flag, which sits
- * at 0x40 where the target puts it at 0x3C.
+ * The residual is two ring rotations plus structure, not 288 decisions.
+ * Substituting a single step of either scratch ring into the candidate row by
+ * row accounts for 170 of the 288:
  *
- * Ruled out with measurement, in this lane: the flag lattice (`-O1`/`-O2`/
- * `-O3` x `-mips1`/`-mips2` x `-g3` x with/without `-Wab,-r4300_mul`; the
- * shipped set is the only one within 100 instructions and the best on
- * identical rows), all six orderings of the three displacement components at
- * the call and every inlined spelling of them (byte-identical objects), and
- * the declaration census as an explanation for the 0x3C/0x40 slot -- the
- * local block is quantized in 8-byte steps, so adding any local grows the
- * frame to 0xC0 and shifts every home.  That slot is therefore an allocator
- * question, not a declaration one.
+ *   106 rows  one step of the fp scratch ring (f4 -> f18 -> f8 -> f10 -> f6),
+ *             a single contiguous phase from +0x4B4 to +0xB80
+ *    46 rows  one step of the integer temp ring (t6..t9, t0..t5), from +0x58
+ *             to +0xD40
+ *     7 rows  the integer ring one step back, +0x3F8..+0x930
+ *     9 rows  two and three fp steps in the epilogue, +0xD0C..+0xD68
+ *     2 rows  mixed single steps
+ *
+ * Each phase is one step and each has one onset row, so each is a count
+ * question: one coloured web the candidate does not have.  The integer phase
+ * opens at +0x58, where rows 0..21 are identical and the target then takes t3
+ * against the candidate's t2; the same absent temporary is why the race-state
+ * flag is homed at 0x40 where the target puts it at 0x3C, one slot later in
+ * spilltemp order, with the rest of the 34-slot stack-home census exact.  The
+ * fp phase opens at +0x4B4, where the target colours `dot` into the fp pool
+ * (`add.s $f0`) and gives `dx` f12, while the candidate spends an fp scratch
+ * register on `dot` (`add.s $f4`) and gives `dx` f0; one extra pool web in the
+ * target displaces the ring by one for the next 106 rows.
+ *
+ * The 22 head rows that are not phase are the flag home (+0x7C, +0x88), the
+ * pool-coloured pointer carrier (+0x3AC, +0x3B0, below), the comparison
+ * operand order at +0x68C -- law L67 makes that a readout of the carrier, not
+ * a lever -- and 16 scattered fp-pool colours.  The remaining 96 are the tail.
+ *
+ * What closed 7 words this pass.  Naming the two `Arctanf` arguments before
+ * the call -- `dx = object->x - state->targetX; dz = object->z -
+ * state->targetZ;` at both the mode-2 and mode-3 retarget sites -- makes ugen
+ * evaluate them in source order.  Written inline, the candidate evaluated the
+ * second argument first and put the first in the delay slot; the target does
+ * the reverse.  It also drops the alignment gap count from 46 to 18 and moves
+ * the fp-pool lane's first divergence from slot 1 to slot 19.
+ *
+ * The tail is one unfilled delay slot.  Ordering the four integration
+ * statements D(istance), Y(=dy), S(peed +=), V(elocityY +=) as D,S,Y,V puts
+ * the `object->velocityY` load under a single web for both the `dy` term and
+ * the `velocityY +=` statement -- with the speed store between them the alias
+ * kills the CSE and the `swc1 dy,0x74(sp)` disappears -- and that restores the
+ * store, the nop pattern at +0xB94/+0xB9C/+0xBA4/+0xBD8/+0xBE0 and the
+ * +0xC74..+0xCF4 alignment, worth 24 shape rows.  It costs one instruction:
+ * `dy` is single-use, so uopt sinks it into the call statement, its `mfc1`
+ * into an argument register must then be scheduled last, as1 cannot sink an
+ * instruction that defines a `.livereg` register into a delay slot, and the
+ * `func_80008128` slot is padded.  All 24 orderings of those four statements
+ * were compiled: exactly two hold 882 instructions (D,Y,S,V and S,Y,D,V) and
+ * both drop the store; the structural win is only available at 883.  D,Y,S,V
+ * is kept.
+ *
+ * Ruled out with measurement, in this lane and the one before it: the flag
+ * lattice (`-O1`/`-O2`/`-O3` x `-mips1`/`-mips2` x `-g3` x with/without
+ * `-Wab,-r4300_mul`); all six orderings of the three displacement components
+ * at `func_80008128`, every inlined spelling of them, and every alternative
+ * carrier for `dy` -- uopt canonicalizes all of them to one IR, confirmed
+ * against the ugen listing, which shows `dx` at its own line, `dz` at its own
+ * line and `dy` sunk into the call; every carrier for the first `dot`
+ * (`distance`, `factor`, `range`, `dy`), all four byte-identical, so the fp
+ * phase is not reachable by renaming -- though commuting that sum costs 8
+ * words, which is L92 biting; five respellings of the race-state condition
+ * (`== 0` for `!`, `> 2` for `>= 3`, the signed-shift form, nested ifs, and
+ * initialise-then-override), of which the first three are byte-identical and
+ * the last two cost 500+ words; and the declaration census as an explanation
+ * for the 0x3C/0x40 slot -- the local block is quantized in 8-byte steps, so
+ * adding any local grows the frame to 0xC0 and shifts every home, re-measured
+ * here with an unused `s32`.  A 25-minute randomizing permuter run found no
+ * improvement on the pre-edit base.
+ *
+ * Open lever, not adopted.  `*(s32 *)state->target->state = 1` reaches its
+ * pointer through a temp where the target reaches it through a pool colour
+ * (`lw v0,0x64(t9)` against `lw t0,0x64(t9)`).  Routing it through the
+ * already-declared `spawned` reproduces the target's register class and moves
+ * the pool lane's first divergence from slot 52 to slot 176, but the
+ * recolouring it cascades costs 86 words, so it is a causal advance that is
+ * not yet a numeric one; it is recorded here rather than adopted.  It is the
+ * same shape as the two ring onsets: one coloured web short, three times.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
@@ -362,8 +421,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                 range = mathRnd(0, (s32)state->travelRadius);
                 state->targetX = state->homeX - (func_8002A8C0(angle) * range);
                 state->targetZ = state->homeZ - (func_8002A8BC(angle) * range);
-                state->targetAngle = Arctanf(object->x - state->targetX,
-                                             object->z - state->targetZ);
+                dx = object->x - state->targetX;
+                dz = object->z - state->targetZ;
+                state->targetAngle = Arctanf(dx, dz);
                 state->mode = 4;
             }
         } else if (mode == 3) {
@@ -372,8 +432,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                 range = mathRnd(0, (s32)state->travelRadius);
                 state->targetX = state->homeX - (func_8002A8C0(angle) * range);
                 state->targetZ = state->homeZ - (func_8002A8BC(angle) * range);
-                state->targetAngle = Arctanf(object->x - state->targetX,
-                                             object->z - state->targetZ);
+                dx = object->x - state->targetX;
+                dz = object->z - state->targetZ;
+                state->targetAngle = Arctanf(dx, dz);
                 state->step = 1;
             } else if (state->step == 1) {
                 object->angle = dAngle(object->angle, state->targetAngle,
@@ -479,10 +540,10 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
 
 /* PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:start
  * symbol: func_overlay_079_F0000134_18CD0D4
- * score: 295/882 words
+ * score: 288/882 words
  * frame: 0xB8
  * relocations: 88
  * first-mismatch: +0x58
- * summary: extent closed -- 882 vs 882 instructions, census delta 0, frame exact, all 88 relocations match by count/type/offset; residual is a one-step register-ring phase and one count-neutral delay-slot fill
+ * summary: extent closed -- 882 vs 882 instructions, frame exact, 88 relocations exact, stack-home census exact but for one slot, no relocation-rendering artifact (raw and masked both 288); 170 of the 288 are two single-step scratch-ring rotations, the fp ring from +0x4B4 and the integer ring from +0x58, each one coloured web short; the remaining 96 tail words are one unfilled delay slot that costs 24 shape rows and cannot be bought back at 882 instructions
  * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
  */
