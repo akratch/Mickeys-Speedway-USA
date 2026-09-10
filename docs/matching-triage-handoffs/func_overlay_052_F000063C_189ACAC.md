@@ -6,7 +6,7 @@
 - frame: 0x118
 - relocations: 283
 - first mismatch: +0x130
-- summary: Size converted: 1687/1687 words, instruction delta 0 (was -3). 62/65 call regions exact. Next: region 8 float recurrence -2 vs r36/r39 +1.
+- summary: Residual partitioned: 379 displaced, 899 aligned-differing, 60 unplaced. 818 of the 899 are register naming; one global bijection closes 309. Next: the single web-order slip behind the frame-home and temp-ring offsets.
 
 The September 8 decompiler-assisted packet retains attempt 39 as ordinary,
 guarded C. This is a compiled structural plateau, not an object or ROM match.
@@ -156,5 +156,102 @@ func_8005AF14, func_80019AB8, and func_8002B040. There is no canonical linked
 ELF available for an owned-range extraction. This remains outside this
 lane's ownership. Closing gate receipts are retained alongside the packet;
 no full-ROM success or newly matched bytes are claimed.
+
+
+**Residual partition (2026-09-10 measurement pass)**
+
+The retained candidate was re-measured against the extracted target under the
+configured translation-unit flags. All 1687 words partition exactly, and the
+partition contradicts the assumption that a function this far out is
+structurally wrong:
+
+- 349 words byte-identical in place.
+- 379 words byte-identical to their aligned partner but in the wrong position.
+- 699 aligned pairs differing in register fields only.
+- 119 aligned pairs differing in register fields and immediate.
+- 81 aligned pairs differing in immediate only.
+- 60 target words with no aligned partner.
+
+The first bucket plus the other five is 1687; the last five is the 1338 that
+differ positionally. Alignment here means the opcode-and-shape correspondence,
+computed by matching the two instruction streams on opcode, function code,
+shift amount and format field with every register, immediate and branch
+displacement removed.
+
+*The operation mix is already right.* Counting every instruction class across
+both sides, only seven classes disagree at all and the total instruction-count
+disagreement is twelve out of 1687. High-half materialisations, calls,
+comparisons, stores and floating multiplies agree exactly in count. This is not
+a different program; it is the same program with different register names and a
+small number of placement defects.
+
+*All displacement comes from three call intervals out of sixty-four.* Splitting
+both sides at their direct calls, sixty-one of the sixty-four intervals have
+identical word counts. Interval 8, the opening float recurrence, is two words
+short; intervals 36 and 39 are one word long each; the three cancel, which is
+why the extent is exact. The two words in interval 8 are two floating additions
+that accompany the target's use of the likely branch form on both recurrence
+back edges, where the candidate uses the ordinary form and fills the delay from
+the instruction before the branch. This is an assembler scheduling difference,
+not a missing operation: both loop bodies hold the same six operations in the
+same cyclic order and differ only in which one is rotated into the delay slot.
+The extra word in interval 39 is a second reload of a spilled local that the
+target reloads once, because the target's reload lands in a callee-saved
+register that survives the intervening calls and the candidate's lands in a
+caller-saved one. Repairing those three intervals is worth about 390 words:
+under a piecewise constant shift the count drops from 1338 to 988, and under
+free alignment to 948.
+
+*The rest is register naming, and part of it is a uniform ring rotation.* Under
+the opcode-and-shape alignment, 818 of the 899 differing pairs disagree in a
+register field. Rotating the candidate's temporary ring by a fixed number of
+steps recovers a large share of them. A three-segment model, no rotation to
+about +0x540, one step from there to about +0x9C0, no rotation to about +0xF60,
+two steps from there to the end, raises the identical count from 728 to 924.
+The second segment alone is 91 words and the fourth is 68. Fitting one
+arbitrary register substitution for the whole function instead raises it to
+1037, and allowing the substitution to change every 128 words raises it to
+1316, which bounds how much of the naming difference is relabelling rather than
+different code.
+
+The same slip shows in the frame. The frame size agrees and the number of homes
+agrees, but the candidate's home block sits one four-byte cell below the
+target's over a long span while one later home sits one cell above, so 54 of
+the 67 disagreeing stack displacements are exactly four bytes. Home order is
+web-creation order, so this is one temporary created one position out of turn,
+and it is very likely the same decision as the one-step ring rotation.
+
+*Relocation representation is not a factor.* The project ranking already
+reports 1338 raw against 1337 relocation-masked. Resolving every overlay-local
+high and low half on both sides to its numeric address independently changes
+the aligned identical count from 728 to 735. Mickey's overlay text stores
+addends and the extraction re-symbolises them, so the extracted target and the
+unlinked candidate object are directly comparable. Twenty-four candidate sites
+do carry a nonzero stored addend where the target stores the same address as a
+symbol reference with none; ten of those are byte differences the source
+spelling can remove by naming the object at that address instead of an offset
+from an earlier one.
+
+Falsified during this pass, each by a paired build under the configured flags:
+equality-comparison operand order, canonicalised to byte-identical output;
+commutative operand order on the recurrence multiply, byte-identical; an
+explicit non-compound assignment for the accumulator, byte-identical; giving
+the remainder or the counter its own local, which changes the frame and worsens
+the residual, so the current local census is the right one; and the top-tested
+counted loop forms, which unroll and add twenty-eight words.
+
+One diagnostic result is worth recording even though its spelling is not
+adoptable. Replacing both recurrence exit tests with an exclusive-or against
+zero leaves every instruction in the recurrence unchanged and still moves 764
+words of the candidate downstream of +0x300, dropping the positional count from
+1338 to 1220 and removing the two-step ring rotation in the tail. That proves
+the tail's rotation is set by a web count upstream rather than by anything in
+the tail, and that one more web consumed in the recurrence is enough to correct
+it. It is not a proposed source form.
+
+The next lever is therefore the web-order slip, approached from the frame-home
+census rather than from the recurrence's operation graph, which the earlier
+packet exhausted. `gmake verify` passes in this worktree at this commit, so the
+link failure recorded in the previous section no longer reproduces.
 
 <!-- plateau-handoff:func_overlay_052_F000063C_189ACAC:end -->
