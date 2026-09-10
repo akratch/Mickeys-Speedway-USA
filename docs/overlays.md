@@ -104,29 +104,45 @@ register differences; pointer-addition commutation alone was flat.
 Workbench frame-layout; stack-home levers 26/32, frame-local variants, flag lattice, and bounded permutation did not alter the frame.
 The target reserves `0x50` with pendingLoad at `sp+0x44`; the candidate reserves `0x48` with the home at `sp+0x40`.
 
-`runlinkInit` remains `NON_MATCHING`. Its authenticated owner is resident
+`runlinkInit` is exact C. Its authenticated owner is resident
 `0x800328CC..0x80032B14` (ROM `0x334CC..0x33714`), with no padding before
 `runlinkSuspendCode`; exact-C `mainInitGame+0x12C` is its sole direct caller,
 the ABI is `void (void)`, and it has no export or runtime-overlay relocation.
-The best adapted JFG candidate is still 142 instructions against 146, with a
-`0x40` frame against `0x38`, 64 positional differences, and its first mismatch
-at `+0x8`. The target has 64 static relocation records against the candidate's
-62: it rematerializes both `D_80078D60` and `D_80085A40`, while the candidate
-shares them and instead rematerializes `overlayCount` once more.
+All 146 instruction words, the `0x38` frame and all 64 static relocations are
+exact, and the linked ROM range is byte-identical.
 
-The original seven coherent forms, complete 119-row flag lattice and bounded
-permuter are now joined by thirteen configured/instrumented builds and
-controlled diagnostics. A fidelity-clean proc-11 receipt records 27 integer
-globalcolor decisions (17 colored, 10 split) and no FP decisions; natural
-pointer, signed-size, separate-counter, local-slot and anchor-expression forms
-are flat or worse, and forced split objects are causal diagnostics only. The
-next admissible lever is a source-authentic lifetime form that keeps the
-`overlayCount` address through the pending-load loop while independently
-materializing the two adjacent section anchors. JFG applicability is concrete
-but limited: its published `runlinkInitialise` target has the same table setup,
-pending-list, resident-header and anchor-rematerialization schedule, but its C
-is also non-equivalent and Mickey's best body was adapted from it. This is a
-shared blocker map for JFG maintainers, not a new donor body or match claim.
+The plateau was one mechanism, and it was a relocation-*identity* question
+rather than a code-generation one. The target materializes `0x80078D60` twice
+and `0x80085A40` twice, while uopt shares one address materialization per
+*symbol* -- it shares `func_80000450` between the `vramBase` store and the
+`textSize` difference inside this same target. Two names each, not two uses of
+one name: the original link placed the code-segment end and the data-segment
+start at `0x80078D60`, and the data-segment end and the bss-segment start at
+`0x80085A40`. Spelling all four through one name per address costs exactly the
+four instructions the earlier candidates were short.
+
+This build supplies two real names at `0x80085A40` -- `main_RODATA_END` and
+`main_BSS_START`, from the generated linker script -- and only one at
+`0x80078D60`, because splat's own text/data boundary is `0x80076110`. The
+data-segment start is therefore spelled off the following word. Both spellings
+resolve to `0x80078D60` and link to the same two instruction words; only the
+symbol/addend split inside the unlinked object differs, exactly as the
+pending-list base does (`D_800D2DC8 + 0x78` against the target's
+`D_800D2E40`).
+
+The `#pragma weak` aliases the previous candidate carried could not have been
+promoted at all. IDO turns `#pragma weak name = extern-symbol` into a weak
+*undefined* symbol rather than an alias, so those four references would have
+linked to zero. They were also invisible to `tools/score_symbol.py`, whose mask
+erases the `HI16`/`LO16` value field without comparing relocation identities,
+which is how that body could read one raw and zero relocation-masked differing
+words while carrying eight unresolvable references. `function_preflight.py`
+reported them, as eight unresolved candidate identities.
+
+JFG applicability was concrete but limited: its published `runlinkInitialise`
+has the same table setup, pending-list, resident-header and anchor
+rematerialization schedule, and Mickey's body was adapted from it, but its C is
+not equivalent and the four-name mechanism above is Mickey's own.
 
 | Function | ROM | Bytes | Flags | Donor and verdict |
 |---|---:|---:|---|---|
@@ -1894,7 +1910,7 @@ complete overlay, and full US ROM are byte-identical.
 
 `overlay 99 +0x02A0..+0x0638` (`overlay99ApplySegment`) — 920 bytes / 230 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bijective private-representation rewrite, plus removal of a 16-byte compiler-private `.rodata` duplicate already covered by the retained runtime table); source kept as decomp-permuter input. The object covers 13 static and 27 runtime relocation roles.
 
-`overlay 11 +0x1398..+0x184C` (`overlay11UpdateMenu`) — 1,204 bytes / 301 words. NON_MATCHING: the bounded retained C has the exact `0x48` frame and 299/301 relocation-masked positional words; only the spill stores at `+0x138/+0x140` are reversed around one call. All 102 runtime relocation offsets, types, identities, and addends are exact. The exact linked range is fallback assembly only and contributes 0 exact C bytes.
+`overlay 11 +0x1398..+0x184C` (`overlay11UpdateMenu`) contributes **1,204 exact C bytes / 301 words**, at the exact `0x48` frame with no padding. All 102 runtime relocation offsets, types, identities, and addends are exact; symbol renaming and the section trim are metadata-only. The linked range and the full US ROM are recorded exact.
 
 `overlay 63 +0x077C..+0x0928` (`overlay63UpdateSequence`) — 428 bytes / 107 words; the separate `+0x0928..+0x0930` eight-byte zero padding remains assembly with no C credit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via restoring one folded identity copy and rotating a `v0`/`v1` register pair); source kept as decomp-permuter input. The object retains all 39 runtime relocation roles.
 

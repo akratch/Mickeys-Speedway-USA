@@ -1742,9 +1742,22 @@ bytes and disassembly never belong here.
   and three placements of the initialiser: the induction initialisation is last
   in all eight. This matters because the array-index spelling that produces a
   memory-disambiguation fact is exactly the spelling that creates the induction
-  pointer, so the fact and the preheader order are mutually exclusive: reach for
-  one and you pay the other. Check the preheader before concluding an indexed
-  rewrite is free.
+  pointer, so an indexed rewrite is not free at the preheader. Check it.
+
+  **The "mutually exclusive" corollary that once followed this is retracted.**
+  Emission order is not the object's order: as1 reschedules that block -- the
+  `lui` moves above the counter's `li` in *both* forms -- and among ready nodes
+  it breaks the tie on physical source line before list position (L59). So the
+  induction initialiser can still be emitted last and reach the object first.
+  On `overlay11UpdateMenu` the counter's `li` and the pointer's `lui`/`addiu`
+  are one `aftercycles`/`latency` tie apart; with the counter on its own
+  statement they carry consecutive line numbers and the `li` wins, and with the
+  counter initialised in the `for` header all three carry the loop statement's
+  line, the tie falls through to list position, and the just-released `addiu`
+  wins. That is the target, and it closed the function's last two words.
+  Moving the initialisation into the loop header is the structural form of
+  L59's "make the lines equal"; it needs no whitespace folding and reads as
+  ordinary C.
 - **The pooled induction pointer takes pool cell one, not cell zero, and the
   frame equation makes the whole thing calculable.** For a function with a fixed
   block of outgoing arguments plus the return save, the frame is

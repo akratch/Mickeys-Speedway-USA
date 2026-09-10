@@ -743,7 +743,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
 | `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay11UpdateMenu` | `resident-symbol-missing` | bounded current C: 16 raw target-object differences, two after masking linker-filled fields; exact 102/102 offset/type/identity surface |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | subsequently matched: 301/301 words and 102/102 runtime relocation identities |
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
@@ -770,15 +770,16 @@ to `+0x2948`, plus `+0x25C/+0x41C` to `func_80005820`,
 `+0x328/+0x370/+0x46C/+0x490` to `func_80028374`, `+0x330/+0x474` to
 `func_80028528`, and `+0x3DC` to `func_8003A754`. The function is unexported;
 its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
-`func_overlay_011_F0000150_1868998+0x7E0`. The bounded current object is 301
-instructions with the exact `0x48` frame and no padding. It differs in 16 raw
-target-object words and two relocation-masked positional words at
-`+0x138/+0x140`, where the index and handle spill stores are reversed around a
-call. Mechanical surface comparison proves all 102 offsets, types, identities,
-and addends; naming the Overlay 66 `+0` endpoint as `overlay66Select` closes the
-last formerly ambiguous call. The prior 122-stock-build campaign plus four
-fresh loop/scope forms and one five-minute gain-gated batch are exhausted;
-linked equality remains fallback-only and no C promotion is claimed.
+`func_overlay_011_F0000150_1868998+0x7E0`. The promoted C object is 301
+instructions with the exact `0x48` frame and no padding, and mechanical surface
+comparison proves all 102 offsets, types, identities, and addends; naming the
+Overlay 66 `+0` endpoint as `overlay66Select` closed the last formerly
+ambiguous call. The two relocation-masked words that remained at
+`+0x138/+0x140`, where the index and handle spill stores were reversed around a
+call, are closed: see `docs/ido-learnings.md` for the disambiguation fact and
+the scheduler line tie that decide them. `gmake promotion-proof` records
+`301 words, frame=0x48, relocations=102/102,
+identity=static-plus-runtime-table-and-linked-rom`.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:
