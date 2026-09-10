@@ -2,11 +2,11 @@
 ### `overlay58DrawSegmentStrip` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawSegmentStrip.c`
-- score: 99/201 words
+- score: 133/201 words
 - frame: 0x88
 - relocations: 8
-- first mismatch: +0xC
-- summary: Term rotation regresses; operand reversal and explicit dereference are flat.
+- first mismatch: +0xF0
+- summary: One zero-instruction probe plus two inert write-order moves take the masked residual from 102 to 68 at unchanged geometry and frame; the point-quad argument-affinity lever is falsified for this call site at 152.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
