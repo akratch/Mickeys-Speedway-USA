@@ -34,6 +34,14 @@ RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
 
 # Constructs each law reaches. A closure whose text mentions one was searching
 # in territory that law now describes, so it is worth re-reading.
+# Laws whose subject is a loop. A closure's prose mentions "loop" for all sorts
+# of reasons, so for these the function's own body has to contain one before
+# the tag means anything. Without this check the pool tagged a function with no
+# loop and no induction variable at all, and a lane spent probes proving the
+# law could not apply -- as it put the criticism, the tag was "a date
+# comparison, not an applicability test".
+LOOP_LAWS = {"L90 induction exit test", "L93 loop shape"}
+
 LAW_CONSTRUCTS = {
     "L90 induction exit test": re.compile(
         r"\bloop\b|\bcounter\b|induction|exit test|\bfor\b|\bwhile\b", re.I),
@@ -58,6 +66,33 @@ def closure_date(path: pathlib.Path) -> str:
         cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
+def body_has_loop(path: str, symbol: str) -> bool | None:
+    """True/False if the symbol's body could be read; None if it could not.
+
+    Deliberately returns None rather than False on a parse failure: an
+    unreadable body is not evidence that a law does not apply, and dropping a
+    candidate on that basis would hide work rather than route it.
+    """
+    source = ROOT / path
+    try:
+        text = source.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    opening = re.search(
+        r"^[A-Za-z_][^\n;]*\b%s\s*\([^;]*\)\s*\{" % re.escape(symbol),
+        text, re.M)
+    if not opening:
+        return None
+    index, depth = opening.end(), 1
+    while index < len(text) and depth:
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+        index += 1
+    return bool(re.search(r"\b(for|while|do)\b", text[opening.end():index]))
+
+
 def candidates(since: str) -> list[dict]:
     open_functions = queued()
     rows = []
@@ -71,6 +106,14 @@ def candidates(since: str) -> list[dict]:
             continue                      # written with the laws already in hand
         text = path.read_text(encoding="utf-8", errors="replace")
         laws = [name for name, rx in LAW_CONSTRUCTS.items() if rx.search(text)]
+        if any(name in LOOP_LAWS for name in laws):
+            # A row without a file, like a row whose body will not parse, is
+            # "cannot tell" and keeps its tag. Dropping a candidate on missing
+            # evidence would hide work rather than route it.
+            path = row.get("file")
+            has_loop = body_has_loop(path, symbol) if path else None
+            if has_loop is False:
+                laws = [name for name in laws if name not in LOOP_LAWS]
         if not laws:
             continue
         masked = row.get("relocation_masked_differing_words")
@@ -116,7 +159,7 @@ def main(argv: list[str]) -> int:
             ", ".join(law.split()[0] for law in row["laws"])))
     if len(rows) > args.top:
         print(f"\n... and {len(rows) - args.top} more (--top to widen)")
-    print("\nA row is a prompt to re-read a closure, not permission to skip it.")
+    print("\nA row is a prompt to re-read a closure, not permission to skip it.\nA law tag means the closure's evidence predates that law and touches what it\ndescribes -- not that the law applies. Verify applicability before spending a lane.")
     return 0
 
 

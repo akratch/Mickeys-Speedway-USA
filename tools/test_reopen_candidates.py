@@ -28,6 +28,42 @@ class ConstructMatchTests(unittest.TestCase):
                 self.assertFalse(self.law(name, text))
 
 
+class LoopApplicabilityTests(unittest.TestCase):
+    """A loop law's tag must not survive on a function with no loop.
+
+    A lane spent probes proving L90 could not apply to a function that has
+    neither a loop nor an induction variable. Its criticism was exact: the tag
+    was a date comparison, not an applicability test.
+    """
+
+    def body(self, text):
+        import tempfile, pathlib as pl
+        d = tempfile.mkdtemp()
+        f = pl.Path(d) / "t.c"
+        f.write_text(text)
+        with mock.patch.object(rc, "ROOT", pl.Path(d)):
+            return rc.body_has_loop("t.c", "target")
+
+    def test_a_body_with_no_loop_reads_false(self):
+        self.assertIs(self.body("void target(int a) {\n    sink(a);\n}\n"), False)
+
+    def test_a_for_loop_reads_true(self):
+        self.assertIs(self.body("void target(void) {\n    for (;;) sink(1);\n}\n"), True)
+
+    def test_a_while_loop_reads_true(self):
+        self.assertIs(self.body("void target(void) {\n    while (x) sink(1);\n}\n"), True)
+
+    def test_a_loop_in_a_NEIGHBOURING_function_does_not_count(self):
+        """Brace matching must stop at the target's own closing brace."""
+        text = ("void target(int a) {\n    sink(a);\n}\n"
+                "void other(void) {\n    for (;;) sink(2);\n}\n")
+        self.assertIs(self.body(text), False)
+
+    def test_an_unreadable_body_is_None_not_False(self):
+        """Unreadable is not evidence a law fails to apply; do not drop it."""
+        self.assertIsNone(self.body("void something_else(void) {}\n"))
+
+
 class SelectionTests(unittest.TestCase):
     """Only still-queued functions with pre-law closures may appear."""
 
