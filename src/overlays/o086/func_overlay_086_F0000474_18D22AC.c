@@ -35,28 +35,54 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
-/* Workbench register residual: 51 positional words in the exact 662-word/-0xA8 frame, first +0x70.
+/* Workbench register residual: 29 positional words in the exact 662-word/-0xA8 frame, first +0xA8.
  * The declaration list is evidence-fixed, not stylistic: cfe homes every declared auto in declaration order from
  * (frame top - 4) downwards, so the eighth declaration owns sp+0x88 -- the slot the target spills the command pointer to.
  * Measured here, not remembered: eleven autos give 0xA8, and both twelve and thirteen give 0xB0.  That is the
  * recorded round8(4 * declared locals + 4 * uopt temporaries) block landing exactly on 56 with three temporaries and
- * no slack, so the retail body declares exactly eleven and every extra carrier has to come out of an existing one.  Routing the three +0x18 reads through the dead
- * arg1 recovers the target's s2 carrier there (-7 words), and carrying the epilogue's 256-scaled speed in the
- * already-declared spA0 -- dead once the update loop exits -- instead of temp_a0 removes one caller-saved pool web
- * and closes the whole +0x9C8..+0x9F0 hunk (-8 words, 59 to 51).
- * Remains: one uniform upward step of the caller-saved colour ladder (v0, v1, a0, a1, a2, a3).  The target's v0 webs
- * -- the +0x3E0 pointer and the +0x48 dereference -- read v1 and a0 here, its v1 state byte reads a1, and its a1
- * command pointer reads a2, and the 51 rows are exactly those four families plus their schedule consequences.
- * globalcolor keeps the first strict minimum, so this is an interference count and not a spelling: one more
- * interfering caller-saved web must be removed, not added.  Measured flat at this state and not worth repeating:
- * do { } while (0) and if (1) { } region boundaries at five placements (head block, whole body, update loop, tail,
- * 0x24 block) are byte-identical to nothing here; four byte-test spellings; three pointer-init and two advance
- * spellings; spelling the +0x3E0 read as a bare common subexpression drops that web a colour but costs two schedule
- * rows; a dead tested expression adds a web and moves the ladder the wrong way.
- * Two edits do measure one word better and are deliberately NOT adopted, because neither reproduces a target
- * register and both make the source less faithful: writing the 0xC command word as M2C_FIELD(temp_s0, s16 *, 0x30)
- * (the target writes it through the pointer, 0(s5)) and routing the case-0 +0x48 dereference through the dead
- * var_a1.  Both buy a schedule row while leaving the colour wrong.
+ * no slack, so the retail body declares exactly eleven and every extra carrier has to come out of an existing one.
+ *
+ * 59 -> 51 -> 29.  The 51 were read as "one interfering caller-saved web must be removed"; the removal is real and
+ * this pass found it, but it is a web SHORTENED rather than deleted, and it costs nothing.  Read from the traced
+ * globalcolor rather than guessed:
+ *
+ *   - The two `M2C_FIELD(M2C_FIELD(temp_v0, void **, 0x48), u16 *, 6)` sites shared ONE cfe temporary, so uopt saw
+ *     one web with six references (totalsave 60, nocs 2, save 30) spanning both switch arms.  A web that long is
+ *     live across a call, and a web live across a call has **v0 struck from its candidate list entirely** -- the
+ *     traced `p1cost` rows for it start at colour 2, so no `CDX_FORCE` can put it on v0 either.  That is why the
+ *     target's v0 and the candidate's v1 looked like a colouring choice and were not one.
+ *   - Carrying the case-0 site in the already-declared `temp_a0` splits that shared temporary in two.  The case-2/3
+ *     site becomes its own web (totalsave 30, nocs 1), stops crossing a call, regains v0, and takes it; the state
+ *     byte then falls into v1 and the whole `M2C_FIELD(temp_s0, u8 *, 0)` family -- ten rows -- closes with it.
+ *     51 -> 30 at delta 0, no frame move, no new declaration ([L44] carrier identity).
+ *   - Writing the 0xC command word through the pointer before the advance (`*var_a1 = 0xC;`) is the target's own
+ *     shape (`sh t1, 0(s5)`) and closes one more: 29.
+ *
+ * The general result, and it is the same one the overlay 57 marked-entry loop produced the same day: on a
+ * pressure-free procedure a caller-saved residual is a question about which SYMBOL a value's references belong to.
+ * Merging two block-scoped copies into one declaration raises a web's save and lengthens it; giving a shared
+ * compiler temporary a per-site carrier lowers its save AND shortens it, and shortening is what returns v0 to a web
+ * that was live across a call.  Neither costs an instruction.
+ *
+ * The 29 that remain are two families, both measured to their wall:
+ *
+ *   7  `temp_a0`'s own web (the case-0 +0x48 read and the +0x3E0 pointer) sits on a0 and the target reads v0.  The
+ *      web still spans the head block's three +0x40 reads and the case-1/2/3 `ext_o0_f690` results, so it is still
+ *      live across calls and v0 is still struck from its candidate list.  Shortening it further needs a carrier
+ *      that is dead in the head block: `spA0` is (it is overwritten by the 1024-scale a few statements later) and
+ *      routing either +0x40 group through it costs 579 words and 4 bytes, because the `ext_o0_2d98` argument then
+ *      has to be re-materialised.  A twelfth declaration is 0xB0.  Measured flat or worse: the full 27-cell lattice
+ *      of {inline, temp_a0, var_a1} x {both +0x48 sites} x {+0x3E0}, whose floor is this form at 30.
+ *   22 the command pointer `var_a1` sits on a2 and the target reads a1, with the schedule rows that follow.  a1 is
+ *      forbidden for it by an interfering web that holds a1 and is decided first (save 6.67 against 2.67), and that
+ *      web genuinely needs a1: forcing it to a2 or a3 costs 211 words and 4 bytes and to t0 costs 344.  Raising the pointer's save
+ *      past it needs twelve more references or a span short enough for nocs 1, and it spans the whole head block.
+ *      Store-order variants on top of this form: 29 (first store through the pointer or through
+ *      `M2C_FIELD(temp_s0, s16 *, 0x30)`), 31, 32, 33 and 34 for five reorderings of the six command words.
+ *
+ * Also measured flat at the 51-word state and not worth repeating: do { } while (0) and if (1) { } region
+ * boundaries at five placements; four byte-test spellings; three pointer-init and two advance spellings; a dead
+ * tested expression, which adds a web and moves the ladder the wrong way.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
@@ -110,8 +136,8 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
                     }
                 }
                 spA0 = (s32) (ext_o0_2a470(M2C_FIELD(temp_s0, s16 *, 0x26)) * 1024.0f);
+                *var_a1 = 0xC;
                 var_a1 = (s16 *)((u8 *)var_a1 + 0xC);
-                M2C_FIELD(var_a1, s16 *, -0xC) = 0xC;
                 M2C_FIELD(var_a1, s16 *, -2) = (s16) spA0;
                 M2C_FIELD(var_a1, s16 *, -0xA) = (s16) M2C_FIELD(temp_s0, s16 *, 0x24);
                 M2C_FIELD(var_a1, s16 *, -8) = 3;
@@ -148,7 +174,8 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
                         ext_o0_28d88(0x5A);
                         M2C_FIELD(arg0, s16 *, 6) = (s16) (M2C_FIELD(arg0, s16 *, 6) & 0xFBFF);
                         ext_o0_5a914(arg0, 1, -1, 0.0f);
-                        M2C_FIELD(M2C_FIELD(temp_v0, void **, 0x48), u16 *, 6) &= 0xFFFE;
+                        temp_a0 = (s32) M2C_FIELD(temp_v0, void **, 0x48);
+                        M2C_FIELD((void *) temp_a0, u16 *, 6) &= 0xFFFE;
                     } else {
                         arg1 = 0;
                     }
@@ -337,10 +364,10 @@ loop_52:
 
 /* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
  * symbol: func_overlay_086_F0000474_18D22AC
- * score: 51 differing words
+ * score: 29 differing words
  * frame: 0xA8
  * relocations: 38
- * first-mismatch: +0x70
- * summary: Exact geometry, frame and all 38 relocations. Carrying the epilogue's 256-scaled speed in the already-declared spA0 instead of temp_a0 removes one caller-saved pool web and closes 8 words. The remaining 51 are one uniform upward step of the caller-saved ladder: the target's v0 webs (the +0x3E0 pointer and the +0x48 dereference) read v1 and a0, its v1 state byte reads a1 and its a1 command pointer reads a2. Removing one more interfering caller-saved web decided before that family closes all four.
+ * first-mismatch: +0xA8
+ * summary: 51 fell to 29 because the lever named as "one interfering caller-saved web removed" is a web SHORTENED, at no width. The two +0x48 dereference sites shared one cfe temporary, giving uopt a single six-reference web (save 30) that spans both switch arms and is therefore live across a call -- and a web live across a call has v0 struck from its candidate list entirely, which the traced p1cost rows show and no CDX_FORCE can override, so the target's v0 was never a colouring choice. Carrying the case-0 site in the already-declared temp_a0 splits that temporary: the case-2/3 site becomes its own one-block web, stops crossing a call, regains v0 and takes it, and the ten-row state-byte family falls into v1 behind it (51 to 30, delta 0, frame unmoved, no new declaration, L44). Writing the 0xC command word through the pointer before the advance is the target's own sh 0(s5) shape and closes one more. The 29 left are 7 words of temp_a0's own web, still spanning the head block's +0x40 reads and the f690 results and so still barred from v0 -- the only free head-block carrier, spA0, costs 579 words and 4 bytes -- and 22 words of the command pointer, whose a1 is held by a web that needs it (forcing it off costs 211 words and 4 bytes) and outranks it 6.67 to 2.67.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */

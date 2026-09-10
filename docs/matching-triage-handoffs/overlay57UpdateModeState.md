@@ -2,9 +2,9 @@
 ### `overlay57UpdateModeState` plateau handoff
 
 - source: `src/overlays/o057/overlay57UpdateModeState.c`
-- score: 21/354 words
+- score: 5/354 words
 - frame: 0x30
 - relocations: 59
 - first mismatch: +0x108
-- summary: 74 fell to 21 by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, so ugen numbers a ring temp for a load it forwards from the store above it and the pop costs zero instructions; the 21 that remain are 16 words of a globalcolor swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks, and 2 words of address order, and this pass corrects the 3: savedEligible is already memory-resident at sp+0x28 in the candidate so it is partial-dead-store sinking rather than a missing home, and the frame cost of forcing residency is a declaration-position artifact -- volatile or a one-element array declared BETWEEN timer and eligible keeps frame 0x30 and home 0x28 and lands the store, paying instead 18 words of re-colouring in the timer region because eligible loses its long live range and is coloured before the address web.
+- summary: 21 fell to 5 by reordering uopt's colouring, not by respelling the loop: globalcolor takes webs in descending save = totalsave/nocs (references, x10 inside a loop, over a span bucket), and the target's entries v0 / count v1 / dead-copy a0 is exactly the order entries > count > dead copy, while the candidate measured 14 < 17 < 22 because one cfe temporary served the post-decrement in BOTH arms and entries and count were separate block-scoped symbols in each; declaring entries ONCE at function scope merges its two webs (save 14 -> 21) and naming the dead copy prev per arm splits its shared web (save 22 -> 11), each a 31-word regression alone and 5 together; the 5 left are 3 words of a store uopt sinks past the early return (forcing residency lands it but re-colours 18 by raising eligible's save above the timer address web's) and 2 words of an as1 line-order tie at +0x108 that no legal statement order can reverse.
 <!-- plateau-handoff:overlay57UpdateModeState:end -->
