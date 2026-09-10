@@ -56,6 +56,15 @@ LAW_CONSTRUCTS = {
     # decides stack homes, and never the position of a defining STATEMENT,
     # which decides web numbers. One such closure recorded 4,190 flat forms and
     # the function matched on a single hoisted definition.
+    #
+    # But an L106 tag is the one on this list that most needs verifying before a
+    # lane is spent on it, and the check is one compile. L106 only has an axis
+    # where the procedure emits p2 allocator records, and four large procedures
+    # measured on 2026-09-10 emitted 428, 473, 1218 and 1655 p1 decisions and
+    # ZERO p2 -- one TU emits p2 only in its small procedures. Two lanes were
+    # sent after an L106 lever on functions that turned out to have no p2 sweep
+    # at all. Run the phase census first (see L108); this tag is a prompt to
+    # ask, never an answer.
     "L100 save ratio": re.compile(
         r"totalsave|globalcolor|caller-saved|\bnocs\b|save ratio", re.I),
     "L101 call-result span": re.compile(
