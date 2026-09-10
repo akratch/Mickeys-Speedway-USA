@@ -582,6 +582,6 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
  * frame: 0x118
  * relocations: 283
  * first-mismatch: +0x130
- * summary: Size converted: 1687/1687 words, instruction delta 0 (was -3). 62/65 call regions exact. Next: region 8 float recurrence -2 vs r36/r39 +1.
+ * summary: Residual partitioned: 379 displaced, 899 aligned-differing, 60 unplaced. 818 of the 899 are register naming; one global bijection closes 309. Next: the single web-order slip behind the frame-home and temp-ring offsets.
  * PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:end
  */

@@ -251,12 +251,13 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                         }
                     }
                     if (ov47Bss_0 > 0) {
+                        j = i;
                         do {
                             if ((f32)player->selector == icon->selector) {
                                 ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
                             }
                             icon++;
-                        } while (++i < ov47Bss_0);
+                        } while (++j < ov47Bss_0);
                         icon = ov47Bss_8;
                     }
                 }
@@ -688,10 +689,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1828/2168 words
+ * score: 1580/2168 words
  * frame: 0x280
- * relocations: 318
- * first-mismatch: +0xC
- * summary: Size, frame, saves, pool, every stack slot exact; residual is callee-saved colouring order (speed before the loop-2 counter) and the search shape.
+ * relocations: 316
+ * first-mismatch: +0x4
+ * summary: Icon search now compiles to the target's counted body shape with the slot-table address in its preheader; 1580 differing words, residual is 408 temp-ring naming rows, 130 callee-saved/cross-class rows and one surplus word in the label loop.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */

@@ -35,22 +35,26 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
-/* Workbench mixed structure/schedule/register residual: 73 positional words in the exact 662-word/-0xA8 frame, first +0x70.
- * Split mode web worsened to 89 words/-0xB0; a register hint was codegen-neutral after the prior flag/statement/predicate levers.
- * Remains: coupled pool slot 6/temp slot 16 and 38 diagnostic relocation identities; asm stays canonical. */
+/* Workbench mixed structure/schedule/register residual: 59 positional words in the exact 662-word/-0xA8 frame, first +0x70.
+ * The declaration list is now evidence-fixed, not stylistic: cfe homes every declared auto in declaration order from
+ * (frame top - 4) downwards, so the eighth declaration owns sp+0x88 -- the slot the target spills the command pointer to.
+ * Any twelfth auto pushes the frame to 0xB0, so the retail body declares exactly these eleven.  Routing the three
+ * +0x18 reads through the dead arg1 recovers the target's s2 carrier there (-7 words).
+ * Remains: one uopt colour 2-cycle at pool slot 6 -- the state byte wants v1 and the command pointer a1, and the
+ * candidate holds a1/a2.  Every downstream register hunk is a consequence; 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
  * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
-    s16 *var_a1;
+    f32 temp_f20;
     s32 spA0;
     f32 sp9C;
     f32 sp98;
     f32 sp94;
-    f32 temp_f20;
     f32 temp_f20_2;
     s32 temp_a0;
+    s16 *var_a1;
     void *temp_s0;
     void *temp_s4;
     void *temp_v0;
@@ -67,9 +71,9 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
             ext_o0_5a758(arg0, 0x3C88CE70, temp_f20);
             M2C_FIELD(temp_s0, s16 *, 0x28) = 0x22;
             M2C_FIELD(temp_s0, s16 *, 0x2C) = 0x24;
-            var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
             M2C_FIELD(temp_s0, s16 *, 0x2A) = M2C_FIELD(temp_s0, s16 *, 0x1C);
             M2C_FIELD(temp_s0, s16 *, 0x2E) = M2C_FIELD(temp_s0, s16 *, 0x1C);
+            var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
             if (M2C_FIELD(temp_s0, s16 *, 0x24) != 0) {
                 M2C_FIELD(temp_s0, s16 *, 0x26) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x26) + (arg1 << 9));
                 if (M2C_FIELD(temp_s0, u8 *, 0) != 2) {
@@ -92,11 +96,11 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
                 spA0 = (s32) (ext_o0_2a470(M2C_FIELD(temp_s0, s16 *, 0x26)) * 1024.0f);
                 var_a1 = (s16 *)((u8 *)var_a1 + 0xC);
                 M2C_FIELD(var_a1, s16 *, -0xC) = 0xC;
-                M2C_FIELD(var_a1, s16 *, -8) = 3;
-                M2C_FIELD(var_a1, s16 *, -0xA) = (s16) M2C_FIELD(temp_s0, s16 *, 0x24);
-                M2C_FIELD(var_a1, s16 *, -4) = 0xB;
                 M2C_FIELD(var_a1, s16 *, -2) = (s16) spA0;
+                M2C_FIELD(var_a1, s16 *, -0xA) = (s16) M2C_FIELD(temp_s0, s16 *, 0x24);
+                M2C_FIELD(var_a1, s16 *, -8) = 3;
                 M2C_FIELD(var_a1, s16 *, -6) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x24) * 2);
+                M2C_FIELD(var_a1, s16 *, -4) = 0xB;
             } else {
                 temp_a0 = M2C_FIELD(temp_s0, s32 *, 0x40);
                 if (temp_a0 != 0) {
@@ -269,14 +273,16 @@ loop_52:
             } while (arg1 != 0);
         }
         if (M2C_FIELD(temp_s0, u8 *, 0) != 0) {
-            if (M2C_FIELD(temp_s0, s32 *, 0x18) == 0) {
+            arg1 = M2C_FIELD(temp_s0, s32 *, 0x18);
+            if (arg1 == 0) {
                 ext_o0_2b90(0x16, M2C_FIELD(arg0, f32 *, 0xC), M2C_FIELD(arg0, f32 *, 0x10), M2C_FIELD(arg0, f32 *, 0x14), 1, (u8 *)temp_s0 + 0x18);
-                temp_a0 = M2C_FIELD(temp_s0, s32 *, 0x18);
-                if (temp_a0 != 0) {
-                    ext_o0_2c4c(temp_a0, 0x7F);
+                arg1 = M2C_FIELD(temp_s0, s32 *, 0x18);
+                if (arg1 != 0) {
+                    ext_o0_2c4c(arg1, 0x7F);
                 }
             }
-            if (M2C_FIELD(temp_s0, s32 *, 0x18) != 0) {
+            arg1 = M2C_FIELD(temp_s0, s32 *, 0x18);
+            if (arg1 != 0) {
                 temp_f20_2 = M2C_FIELD(temp_s0, f32 *, 0x10) * 8.0f;
                 if (temp_f20_2 < 0.0f) {
                     temp_f20_2 = -temp_f20_2;
@@ -315,10 +321,10 @@ loop_52:
 
 /* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
  * symbol: func_overlay_086_F0000474_18D22AC
- * score: 73 differing words
+ * score: 59 differing words
  * frame: 0xA8
  * relocations: 38
  * first-mismatch: +0x70
- * summary: Exact geometry and frame; all 38 relocation positions and types align; flags and source cap exhausted; fresh width probe regressed.
+ * summary: Exact geometry and frame; all 38 relocation positions and types align. Declaration order now homes the command pointer at the target's sp+0x88 and an arg1 carrier recovers the +0x18 reads; a single uopt colour 2-cycle at pool slot 6 (byte v1 / pointer a1) explains the rest.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */
