@@ -64,6 +64,21 @@ extern u32 gOverlay20ActiveBits;
  * returns. Deliberate extra pressure (keeping `entry` or `owner` live past the
  * loop) pushes the limit up to a3, never down to v0, which is the same
  * one-directional signature.
+ * 2026-09-10, lane o7-tight: the instrumented uopt settles the ordering law.
+ * globalcolor's caller-saved sweep colours webs in ASCENDING WEB NUMBER, taking
+ * the lowest colour no already-coloured interferer holds; all twelve p2 records
+ * here reproduce their forbidden sets under that order and under no other, and
+ * descending `save` (which is the p1 order, measured separately on
+ * overlay1ResolvePathPoint's nineteen p1 decisions) predicts web 0's set wrong.
+ * Web 8 is the decremented count, not the marker loop's dead copy. The cursor
+ * reaches a1 only when web 8 (v0), `i` (v1) and `new_var` (a0) are all coloured
+ * in front of it, and all three also interfere with the limit, so the ordering
+ * that gives the target's cursor forbids the target's limit: the residual is a
+ * contradiction on this CFG, not a missing spelling. Hoisting the array base
+ * into a local does invert the limit/cursor numbering (limit below cursor,
+ * cursor on a1) at 5 words, which is the proof that the numbering axis is open;
+ * the open question is whether the decrement can be numbered above the limit.
+ * ~1,050 further candidates measured flat this pass; see the shard.
  * 2026-09-10, lane nm-ovlsmall: three new loop-shape results, from the lever
  * that closed overlay41AddSlot in the same lane. A top-tested compaction loop
  * (`while (i < new_var)`, with or without the guarding `if`, and the `for`
@@ -132,6 +147,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: the limit temp is uopt pool web 42, blocked from v0 by invisible web 8; CDX_FORCE p2:w42=c1 is declined, so reordering that leaves web 8 cannot reach it
+ * summary: p2 colours in ascending web number, so the decrement web (v0, web 8) is coloured before the limit (web 42) and forbids it v0; the cursor needs the same three webs the limit must not see, so the cursor-first ordering is self-contradictory and the open axis is the limit's web number
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
