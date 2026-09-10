@@ -58,4 +58,20 @@ Next lever: whatever makes uopt decline to propagate a copy of a loaded value
 into a guard test that immediately follows it. That is the same question
 `overlay1ResolvePathPoint` asks at one word, which makes it worth answering
 once rather than twice.
+
+
+#### c2-o001 diagnostic: the inert-probe family is completely inert here, which classifies the residual
+
+The same ADR 0017 inert-read family that moves `overlay1AdvanceGauge` 18 words
+and `overlay1ConsumeNearbyPending` 7 was run against this function: 220
+placements over eleven slots and 20 expressions, spanning every local, both
+imports and the loop-invariant differences. Not one reaches below 12, and the
+byte-flat ones are flat rather than merely equal-scoring.
+
+That is a classification, not just another negative. The family is a
+pool/ring population dial, so its total inertness here says the residual is
+not an allocation-population fact at all. It is the copy-propagation decision
+the section above names, and it will not yield to anything that only changes
+how many webs compete. The same test run on `overlay1ResolvePathPoint`, whose
+one word is the same class, is equally inert over 140 placements.
 <!-- plateau-handoff:overlay1FindPreviousUsable:end -->

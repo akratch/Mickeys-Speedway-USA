@@ -206,4 +206,21 @@ locals size the local block, so no lever that adds a declaration is free.
 This is the same copy-propagation decision `overlay1FindPreviousUsable` shows
 at twelve words in the same overlay. If that one is ever answered, come back
 here first.
+
+
+#### c2-o001 diagnostic: 140 inert placements, all flat at one word
+
+The ADR 0017 inert-read family that is worth 18 words on
+`overlay1AdvanceGauge` and 7 on `overlay1ConsumeNearbyPending` was run here:
+140 placements over seven slots and 20 expressions, covering the record
+pointer, the cursor, both indices, the two output pointers, the input
+coordinates and the two imports, several of them doubled. Every one is flat at
+one word.
+
+Read with `overlay1FindPreviousUsable`, where the same family is equally inert
+over 220 placements, this separates the overlay's residual classes cleanly:
+the family moves the pool/ring population functions a long way and the
+copy-propagation ones not at all. That makes it a cheap classifier to run
+before choosing a lever, and it says this word is not bought with web
+population.
 <!-- plateau-handoff:overlay1ResolvePathPoint:end -->
