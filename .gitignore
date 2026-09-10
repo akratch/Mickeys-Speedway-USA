@@ -99,6 +99,7 @@ nonmatchings/
 /.tmp-atlas/
 
 # Codex lane runner state
+.codex/
 .codex-*
 .lane-extract.log
 .metadata_never_index
