@@ -2815,8 +2815,30 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/func_overlay_057_F0001020_18A4C18.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/func_overlay_057_F0004460_18A8058.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7B8
 endif
+# overlay57UpdateModeTrigger owns overlay 57's local BSS block. IDO only shares
+# one `lui $at` between the two constant-index setup stores when the array is
+# defined in this translation unit, and that shared materialisation is in the
+# shipped bytes -- so the block is defined here as `static`, which also makes
+# every local access a section-relative record whose addend is already the
+# module-relative offset the shipped word carries. Overlay 57's own runtime
+# relocation table owns those 31 HI16/LO16 records, so the static link must not
+# adjust them a second time: drop them exactly as overlay 7's tail does. No
+# instruction word is edited -- the compiled immediates are already the shipped
+# ones, which is why the object scores 0 masked and 3 raw (the three jal
+# targets the link still resolves).
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeTrigger.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeTrigger.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_057_F0004C18_18A8810=overlay57UpdateModeTrigger $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x0:5:.bss 0xc:6:.bss 0x8:5:.bss 0x10:6:.bss \
+		0x3c:5:.bss 0x44:6:.bss 0x5c:5:.bss 0x7c:6:.bss \
+		0x74:6:.bss 0x60:5:.bss 0x64:6:.bss 0xb4:5:.bss \
+		0xb8:6:.bss 0xbc:5:.bss 0xc4:6:.bss 0xc0:5:.bss \
+		0xc8:6:.bss 0xd8:5:.bss 0xe0:6:.bss 0xe4:5:.bss \
+		0xec:6:.bss 0xf4:5:.bss 0x104:6:.bss 0x118:5:.bss \
+		0x120:6:.bss 0x10c:5:.bss 0x124:6:.bss 0x12c:5:.bss \
+		0x138:6:.bss 0x158:5:.bss 0x15c:6:.bss && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x178
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57CheckDistance.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x100

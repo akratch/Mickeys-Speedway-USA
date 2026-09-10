@@ -30,15 +30,13 @@ extern void o57Tail2C28StartReloc(s32 type, s32 arg1, s32 arg2, s32 mode,
                                   s32 arg4, s32 arg5);
 extern void o57Tail2C28FinishReloc(void);
 
-/* Overlay 57 text +0x2C28..+0x2F48. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x320 and differs in 92
- * words, first at +0x24.  The residual spans both smoothing loops' private
- * integer allocation and paired halfword-field choices. */
-#ifdef NON_MATCHING
+/* Overlay 57 text +0x2C28..+0x2F48. Exact: 200 words, frame 0x30, 24/24
+ * relocation identities.
+ *
+ * Same two smoothing loops as overlay57EaseAndLatch and the same fix: no s32
+ * locals, s16 fields read and written in place, horizontal before vertical. */
 void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     s32 i;
-    s32 x;
-    s32 y;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -48,26 +46,18 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     i = 0;
     if (smoothingSteps > 0) {
         do {
-            x = gO57Tail2C28Record21C.x;
-            y = gO57Tail2C28Record21C.y;
             i++;
-            gO57Tail2C28Record21C.y =
-                (s16)(y + ((0xBE - y) >> 3));
-            gO57Tail2C28Record21C.x =
-                (s16)(x + ((0x17C - x) >> 3));
+            gO57Tail2C28Record21C.x = (s16)(gO57Tail2C28Record21C.x + ((0x17C - gO57Tail2C28Record21C.x) >> 3));
+            gO57Tail2C28Record21C.y = (s16)(gO57Tail2C28Record21C.y + ((0xBE - gO57Tail2C28Record21C.y) >> 3));
         } while (i != smoothingSteps);
     }
 
     i = 0;
     if (smoothingSteps > 0) {
         do {
-            x = gO57Tail2C28Record23C.x;
-            y = gO57Tail2C28Record23C.y;
             i++;
-            gO57Tail2C28Record23C.y =
-                (s16)(y + ((0xBE - y) >> 3));
-            gO57Tail2C28Record23C.x =
-                (s16)(x + ((-0x46 - x) >> 3));
+            gO57Tail2C28Record23C.x = (s16)(gO57Tail2C28Record23C.x + ((-0x46 - gO57Tail2C28Record23C.x) >> 3));
+            gO57Tail2C28Record23C.y = (s16)(gO57Tail2C28Record23C.y + ((0xBE - gO57Tail2C28Record23C.y) >> 3));
         } while (i != smoothingSteps);
     }
 
@@ -92,16 +82,3 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
         o57Tail2C28FinishReloc();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57SmoothAndCheckDistance/func_overlay_057_F0002C28_18A6820.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:start
- * symbol: overlay57SmoothAndCheckDistance
- * score: 108/200 words
- * frame: 0x30
- * relocations: 24
- * first-mismatch: +0x24
- * summary: Authorized V0 reproduced 800B, 97 raw/92 masked diffs, 24/24 relocation shape, 18 exact identities, and six unresolved calls.
- * PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:end
- */

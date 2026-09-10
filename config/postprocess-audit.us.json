@@ -923,8 +923,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o005/overlay_005.c.o",
       "offset": 740,
       "overlay": 5,
@@ -2836,8 +2836,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o029/overlay29HandleEffects.c.o",
       "offset": 4292,
       "overlay": 29,
@@ -3778,8 +3778,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o040/overlay40FadeRecords.c.o",
       "offset": 1680,
       "overlay": 40,
@@ -3850,8 +3850,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o041/overlay41AddSlot.c.o",
       "offset": 5712,
       "overlay": 41,
@@ -4023,16 +4023,18 @@
     },
     {
       "c_owned": true,
-      "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "class": "altered",
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o041/overlay41UpdateCurveObject.c.o",
       "offset": 2132,
       "overlay": 41,
       "size": 2552,
       "source": "src/overlays/o041/overlay41UpdateCurveObject.c",
       "tools": [
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "externalize_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5101,8 +5103,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o057/overlay57Draw32A0.c.o",
       "offset": 12960,
       "overlay": 57,
@@ -5115,8 +5117,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o057/overlay57EaseAndLatch.c.o",
       "offset": 10420,
       "overlay": 57,
@@ -5173,8 +5175,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o057/overlay57SmoothAndCheckDistance.c.o",
       "offset": 11304,
       "overlay": 57,
@@ -5230,14 +5232,15 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o057/overlay57UpdateModeTrigger.c.o",
       "offset": 19480,
       "overlay": 57,
       "size": 376,
       "source": "src/overlays/o057/overlay57UpdateModeTrigger.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -5429,16 +5432,16 @@
     {
       "c_owned": true,
       "class": "altered",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o059/overlay59Advance.c.o",
       "offset": 876,
       "overlay": 59,
       "size": 1048,
       "source": "src/overlays/o059/overlay59Advance.c",
       "tools": [
-        "trim_elf_section.py",
         "externalize_elf_section.py",
+        "trim_elf_section.py",
         "objcopy"
       ]
     },
@@ -5628,15 +5631,17 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o060/overlay60Prefix.c.o",
       "offset": 820,
       "overlay": 60,
       "size": 11156,
       "source": "src/overlays/o060/overlay60Prefix.c",
       "tools": [
-        "trim_elf_section.py"
+        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -6519,8 +6524,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o074/overlay74Update.c.o",
       "offset": 184,
       "overlay": 74,
@@ -7830,8 +7835,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o097/overlay97InitScale.c.o",
       "offset": 1288,
       "overlay": 97,
@@ -7960,8 +7965,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o099/overlay99BuildHeightGrid.c.o",
       "offset": 1592,
       "overlay": 99,
@@ -9190,13 +9195,13 @@
   ],
   "schema_version": 3,
   "summary": {
-    "altered_bytes": 0,
+    "altered_bytes": 3600,
     "by_class": {
-      "altered": 1,
-      "metadata": 637,
+      "altered": 2,
+      "metadata": 636,
       "review-required": 2
     },
-    "matched_c_bytes_with_postprocess": 123796,
+    "matched_c_bytes_with_postprocess": 145680,
     "objects_with_postprocess": 640
   }
 }
