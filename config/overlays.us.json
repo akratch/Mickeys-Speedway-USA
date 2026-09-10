@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 170332,
-  "nonmatching_overlay_c_bytes": 298288,
+  "matched_overlay_c_bytes": 170648,
+  "nonmatching_overlay_c_bytes": 297972,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -19608,7 +19608,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildBorder",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x2EFC",
