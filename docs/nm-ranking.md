@@ -467,7 +467,7 @@ units remain distinct.
 | 169 | `src/overlays/o101/overlay101TailC144.c` | `func_overlay_101_F000C144_18E7964` | `o101` | `other` | 1,444 | 249 | 246 | 16 | 16 | 0 | — |
 | 170 | `src/main/models.c` | `func_8002057C` | `main` | `other` | 1,368 | 249 | 249 | 0 | 0 | 0 | — |
 | 171 | `src/overlays/o066/overlay66SmoothAndDraw.c` | `func_overlay_066_F0000040_18C64A8` | `o066` | `other` | 1,184 | 251 | 249 | 4 | 132 | 0 | — |
-| 172 | `src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c` | `func_overlay_057_F00060F8_18A9CF0` | `o057` | `other` | 1,764 | 271 | 256 | 72 | 124 | 0 | — |
+| 172 | `src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c` | `func_overlay_057_F00060F8_18A9CF0` | `o057` | `other` | 1,764 | 268 | 252 | 72 | 124 | 0 | — |
 | 173 | `src/overlays/o101/func_overlay_101_F000571C_18E0F3C.c` | `func_overlay_101_F000571C_18E0F3C` | `o101` | `other` | 1,772 | 263 | 263 | 44 | 44 | 0 | — |
 | 174 | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | `func_overlay_079_F0000134_18CD0D4` | `o079` | `other` | 3,528 | 288 | 288 | 88 | 88 | 0 | — |
 | 175 | `src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c` | `func_overlay_058_F0000000_18AF1E8` | `o058` | `other` | 1,472 | 305 | 295 | 0 | 0 | 0 | — |
