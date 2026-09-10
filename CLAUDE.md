@@ -28,9 +28,10 @@ a thing lands on. Two further hygiene rules follow from being public:
   break for every other clone, and they have been committed by accident more
   than once.
 - **Nothing that only makes sense to one machine.** Local agent scratch,
-  campaign orchestration state and workbench caches are gitignored for this
-  reason; `.decomp-workbench/campaigns/*/manifest.json` is the one deliberate
-  exception, and it carries paths and hashes only.
+  campaign orchestration state, workbench caches and `.codex/` are gitignored
+  for this reason. The workbench campaign manifests were once tracked as a
+  deliberate exception; they are machine-written and carried absolute home
+  paths, so they are gitignored too.
 
 A history note, because it changes what "remove it" means: this repository was
 previously described here as private, with a separate public mirror at
@@ -52,7 +53,7 @@ disassembly inside them, and undoing it took a history rewrite.
 |---|---|
 | `asm/`, `assets/`, `expected/`, `baseroms/` | splat output and ROM images |
 | `*.z64` `*.n64` `*.v64` `*.bin` | ROM images and extracted binaries |
-| `.decomp-workbench/**` | except `campaigns/*/manifest.json`: paths and hashes only |
+| `.decomp-workbench/**`, `.codex/` | workbench state and local agent config. The campaign manifests were once tracked as an exception; they carried absolute home paths, so they are not tracked any more |
 | instruction text | mnemonics + operands, in any file, in any format |
 | hexdumps, byte arrays, base64 of ROM bytes | same content, different clothes |
 | `tools/ido/`, `tools/binutils/` | proprietary toolchain binaries, gitignored. If one is ever staged the `binary-blob`/`oversize` rules catch it, not a path rule |
