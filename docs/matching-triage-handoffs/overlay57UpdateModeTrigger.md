@@ -2,9 +2,9 @@
 ### `overlay57UpdateModeTrigger` plateau handoff
 
 - source: `src/overlays/o057/overlay57UpdateModeTrigger.c`
-- score: 23/94 words
+- score: 0/94 words
 - frame: 0x28
-- relocations: 35
-- first mismatch: +0x10
-- summary: Two unused volatile frame words restore the target frame; 23 normalized differences remain in setup-state shape with three fewer candidate relocations.
+- relocations: 38
+- first mismatch: none
+- summary: Exact: uopt peels two iterations of the six-trip constant loop and leaves the unrolled body's induction variable register-resident; the one-line loop statement fixes as1 tie-breaking and a leading pad array restores the 0x28 frame.
 <!-- plateau-handoff:overlay57UpdateModeTrigger:end -->

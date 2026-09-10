@@ -23,7 +23,7 @@ extern s32 gOverlay57ObjectStatus;
 u8 gOverlay57BssPad000[0x114];
 s32 gOverlay57Countdown;
 s32 gOverlay57Timer;
-u8 gOverlay57BssPad11C[0x1C];
+u8 gOverlay57BssPad11C[0x20];
 s32 gOverlay57SetupStatus;
 s32 gOverlay57SetupDelay;
 s32 gOverlay57ModeFlag;
@@ -45,13 +45,24 @@ extern Overlay57ModeResult *overlay57TailFindObjectReloc(u8 id);
 extern void overlay57SetNodeValue(s32 id, s32 argument, f32 value);
 extern void overlay57AdvanceReloc(s32 updateRate);
 
-/* Workbench: structure-mismatch, 36 raw differing words, first gap +0x18.
- * Both are 94 instructions; target frame is -0x28 versus candidate -0x20.
- * Structural gap: setup-array carrier shape and frame reservation remain. */
+/* Exact under the canonical -O2 -mips2 flags: 0 masked words of 94.
+ *
+ * The setup-array block is one six-iteration constant loop. uopt unrolls it
+ * by four, so it peels 6 % 4 = 2 iterations -- those fold to the literal
+ * stores of 0 and 0x30 -- and emits a single unrolled body whose induction
+ * variable stays register-resident at 2 rather than being propagated. A
+ * straight-line reconstruction of the six stores cannot reach that shape.
+ * The body is written on the `for` line because as1 breaks scheduling ties
+ * on the source line, and a braced body puts the unrolled copies on a
+ * different line than the peeled ones.
+ *
+ * framePad is declared before `trigger` because the declaration order fixes
+ * which frame cells the two spill homes take; declared after, the frame
+ * closes at 0x20 instead of the target's 0x28. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
+    s32 framePad[2];
     s32 trigger;
-    volatile s32 framePad[2];
 
     gOverlay57ModeFlag = 1;
 
@@ -64,21 +75,13 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 
     gOverlay57SetupStatus = 0;
     if (overlay57TailQueryModeReloc() == 0) {
-        volatile s32 seed;
         s32 index;
-        s32 base;
+        s32 i;
         Overlay57ModeResult *result;
 
-        seed = 2;
-        index = seed;
-        base = ((index * 4) - index) << 4;
+        index = 2;
 
-        gOverlay57SetupValues[1] = 0x30;
-        gOverlay57SetupValues[0] = 0;
-        gOverlay57SetupValues[index + 3] = base + 0x90;
-        gOverlay57SetupValues[index + 2] = base + 0x60;
-        gOverlay57SetupValues[index + 1] = base + 0x30;
-        gOverlay57SetupValues[index] = base;
+        for (i = 0; i < 6; i++) gOverlay57SetupValues[i] = i * 0x30;
 
         trigger = 1;
         if (overlay57TailQueryChoiceReloc(index) == 5) {
@@ -88,8 +91,8 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
         gOverlay57ObjectStatus = 0;
         gOverlay57Object.value = 80;
         overlay57TailPrepareObjectReloc(((u8 *)&gOverlay57Object)[3]);
-        overlay57TailStartObjectReloc(gOverlay57ObjectId);
-        result = overlay57TailFindObjectReloc(gOverlay57ObjectId);
+        overlay57TailStartObjectReloc(((u8 *)&gOverlay57Object)[3]);
+        result = overlay57TailFindObjectReloc(((u8 *)&gOverlay57Object)[3]);
         if (result != 0) {
             result->flags16 |= 2;
         }
@@ -116,10 +119,10 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57UpdateModeTrigger:start
  * symbol: overlay57UpdateModeTrigger
- * score: 23/94 words
+ * score: 0/94 words
  * frame: 0x28
- * relocations: 35
- * first-mismatch: +0x10
- * summary: Two unused volatile frame words restore the target frame; 23 normalized differences remain in setup-state shape with three fewer candidate relocations.
+ * relocations: 38
+ * first-mismatch: none
+ * summary: Exact: uopt peels two iterations of the six-trip constant loop and leaves the unrolled body's induction variable register-resident; the one-line loop statement fixes as1 tie-breaking and a leading pad array restores the 0x28 frame.
  * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
  */
