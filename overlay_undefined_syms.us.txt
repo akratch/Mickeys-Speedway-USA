@@ -1753,7 +1753,37 @@ D_500 = 0x00000500;
 D_504 = 0x00000504;
 
 /* overlay 57: overlay57EaseAndLatch.c.o */
-D_23C = 0x0000023c;
+gO57Ease28B4Id183 = 0x00000183;
+gO57Ease28B4InputFlagsReloc = 0x00000000;
+gO57Ease28B4Latch50C = 0x0000050c;
+gO57Ease28B4Record21C = 0x0000021c;
+gO57Ease28B4Record23C = 0x0000023c;
+gO57Ease28B4State118 = 0x00000118;
+gO57Ease28B4State144 = 0x00000144;
+gO57Ease28B4State180 = 0x00000180;
+o57Ease28B4AlternateCommandReloc = 0xf0000000;
+o57Ease28B4AlternateFinishReloc = 0xf0000000;
+o57Ease28B4CommandReloc = 0xf0000000;
+o57Ease28B4LookupAgainReloc = 0xf0000000;
+o57Ease28B4LookupPrimaryReloc = 0xf0000000;
+o57Ease28B4LookupSecondaryReloc = 0xf0000000;
+o57Ease28B4NotifyFirstReloc = 0xf0000000;
+o57Ease28B4NotifySecondReloc = 0xf0000000;
+
+/* overlay 57: overlay57SmoothAndCheckDistance.c.o */
+gO57Tail2C28Completion50C = 0x0000050c;
+gO57Tail2C28DistanceLimit104 = 0x00000104;
+gO57Tail2C28QueryWord180 = 0x00000180;
+gO57Tail2C28Record21C = 0x0000021c;
+gO57Tail2C28Record23C = 0x0000023c;
+gO57Tail2C28Reference14C = 0x0000014c;
+gO57Tail2C28Timer118 = 0x00000118;
+o57Tail2C28EmitReloc = 0xf0000000;
+o57Tail2C28FinishReloc = 0xf0000000;
+o57Tail2C28GetPositionReloc = 0xf0000000;
+o57Tail2C28QueryReloc = 0xf0000000;
+o57Tail2C28ResetReloc = 0xf0000000;
+o57Tail2C28StartReloc = 0xf0000000;
 
 /* overlay 57: overlay57CheckDistance.c.o */
 gOverlay57DistanceLimit = 0x00000108;
@@ -1912,6 +1942,7 @@ overlay58ConfigureNodeReloc = 0xf0000000;
 overlay58FindNodeReloc = 0xf0000000;
 
 /* overlay 58: func_overlay_058_F000138C_18B0574.c.o */
+D_23C = 0x0000023c;
 D_296 = 0x00000296;
 D_2A6 = 0x000002a6;
 D_2B8 = 0x000002b8;

@@ -46,11 +46,15 @@ extern void o57Ease28B4NotifySecondReloc(s32 id);
 extern void o57Ease28B4AlternateCommandReloc(s32 command, s32 argument);
 extern void o57Ease28B4AlternateFinishReloc(s32 argument);
 
-/* Overlay 57 text +0x28B4..+0x2C28. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x374 and differs in 92
- * words, first at +0x2C.  Both easing loops retain a broad private integer
- * allocation web; the flag lattice found no alternate codegen basin. */
-#ifdef NON_MATCHING
+/* Overlay 57 text +0x28B4..+0x2C28. Exact: 221 words, frame 0x28, 36/36
+ * relocation identities.
+ *
+ * The plateau here was an s32 local per halfword field. Each one is its own
+ * uopt web, and the two of them moved the record pointer's colour off v0 and
+ * rotated the block-local temp ring behind it -- 86 of the 92 masked words
+ * were that one substitution and its knock-on. Reading and writing the s16
+ * fields in place removes the webs entirely; the horizontal statement is
+ * written before the vertical one because the pair's load order follows it. */
 void overlay57EaseAndLatch(s32 updateRate) {
     O57Ease28B4Primary *primary;
     O57Ease28B4Secondary *secondary;
@@ -111,16 +115,3 @@ void overlay57EaseAndLatch(s32 updateRate) {
         gO57Ease28B4Latch50C = 1;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57EaseAndLatch/func_overlay_057_F00028B4_18A64AC.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57EaseAndLatch:start
- * symbol: overlay57EaseAndLatch
- * score: 0/221 words
- * frame: 0x28
- * relocations: 36
- * first-mismatch: none
- * summary: Exact: reading each halfword field in place rather than through an s32 local removes the whole private allocation web, and emitting the horizontal statement first fixes the paired load order.
- * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
- */

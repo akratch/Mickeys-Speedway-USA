@@ -317,9 +317,9 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_057_F0004460_18A8058` | `src/overlays/o057/func_overlay_057_F0004460_18A8058.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F00060F8_18A9CF0` | `src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F00032A0_18A6E98` | `src/overlays/o057/overlay57Draw32A0.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_057_F00028B4_18A64AC` | `src/overlays/o057/overlay57EaseAndLatch.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_057_F00028B4_18A64AC` | `src/overlays/o057/overlay57EaseAndLatch.c` | matched | — | Exact 884-byte / 221-word C with frame `0x28` and 36/36 relocation identities. The plateau was a private integer allocation web opened by copying each s16 field into an s32 local; reading the fields in place closes it. |
 | `func_overlay_057_F0004064_18A7C5C` | `src/overlays/o057/overlay57HandleModeInput.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_057_F0002C28_18A6820` | `src/overlays/o057/overlay57SmoothAndCheckDistance.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_057_F0002C28_18A6820` | `src/overlays/o057/overlay57SmoothAndCheckDistance.c` | matched | — | Exact 800-byte / 200-word C with frame `0x30` and 24/24 relocation identities. Same smoothing-loop idiom as overlay57EaseAndLatch, transferred in one edit. |
 | `func_overlay_057_F0003A4C_18A7644` | `src/overlays/o057/overlay57UpdateModeState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0004C18_18A8810` | `src/overlays/o057/overlay57UpdateModeTrigger.c` | resolved-plateau | overlay 57 local bases | BSS block is TU-owned; updater frame/setup schedule remains. |
 | `func_overlay_057_F00035E0_18A71D8` | `src/overlays/o057/overlay57UpdateSelection.c` | none | — | No ownership change; continue source/codegen work. |

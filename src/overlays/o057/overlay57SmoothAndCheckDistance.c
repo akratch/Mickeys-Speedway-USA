@@ -30,11 +30,11 @@ extern void o57Tail2C28StartReloc(s32 type, s32 arg1, s32 arg2, s32 mode,
                                   s32 arg4, s32 arg5);
 extern void o57Tail2C28FinishReloc(void);
 
-/* Overlay 57 text +0x2C28..+0x2F48. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x320 and differs in 92
- * words, first at +0x24.  The residual spans both smoothing loops' private
- * integer allocation and paired halfword-field choices. */
-#ifdef NON_MATCHING
+/* Overlay 57 text +0x2C28..+0x2F48. Exact: 200 words, frame 0x30, 24/24
+ * relocation identities.
+ *
+ * Same two smoothing loops as overlay57EaseAndLatch and the same fix: no s32
+ * locals, s16 fields read and written in place, horizontal before vertical. */
 void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     s32 i;
     f32 dx;
@@ -82,16 +82,3 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
         o57Tail2C28FinishReloc();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57SmoothAndCheckDistance/func_overlay_057_F0002C28_18A6820.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:start
- * symbol: overlay57SmoothAndCheckDistance
- * score: 0/200 words
- * frame: 0x30
- * relocations: 24
- * first-mismatch: none
- * summary: Exact by direct transfer of the overlay57EaseAndLatch smoothing-loop idiom: in-place halfword fields, no s32 locals, horizontal statement before vertical.
- * PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:end
- */
