@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 357,
-  "resolved": 357,
+  "queue_size": 356,
+  "resolved": 356,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 357,
-  "relocation_masked_coverage": 357,
+  "source_context_coverage": 356,
+  "relocation_masked_coverage": 356,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -53,21 +53,6 @@
       "size_delta": 0,
       "category": "register-only",
       "source_context_sha256": "RpLp.eSAu.msAX.a3lh.5fmk.qFlb.UoYg.Mjip.549Q.kAjO.7Vk"
-    },
-    {
-      "name": "func_8003484C",
-      "file": "src/main/textures_35024.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 84,
-      "objdiff_match_pct": null,
-      "differing_words": 5,
-      "first_mismatch_offset": 28,
-      "relocation_masked_differing_words": 5,
-      "relocation_masked_first_mismatch_offset": 28,
-      "size_delta": 0,
-      "category": "register-only",
-      "source_context_sha256": "Xu0v.9MQf.ShnS.Ah3I.mfBE.RjoX.FNY-.D5vO.XJam.vUhk._Ik"
     },
     {
       "name": "overlay19ClassifyEdge",
@@ -3277,7 +3262,7 @@
       "relocation_masked_first_mismatch_offset": 88,
       "size_delta": 4,
       "category": "size-mismatch",
-      "source_context_sha256": "_KvU.5O0V.5NI4.0slC.J7sS.mWpk.RH5S.nhPn.sSGN.yl6A.Pf4"
+      "source_context_sha256": "FpJ4.N2xR.wy19._PBA.mdR0.ji-G.flmB.kpjc.NMgs.Qz7B.zgE"
     },
     {
       "name": "func_overlay_041_F0001464_188879C",
