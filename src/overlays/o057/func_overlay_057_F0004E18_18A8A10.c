@@ -122,9 +122,67 @@ extern void func_overlay_084_F0001398_18D1878(void);
  * 32 -- 24 is the only size in 21..24 that closes the frame, and every other
  * homed object's size was already pinned by its fake name (stack5C, stack64,
  * stack78/7C/80, stackB0 are the target's own offsets). Declaration order
- * still places the homed block 16..40 bytes off those offsets, but reordering
- * it moves no words: the residual is 400 opcode differences later in the body,
- * not the frame. */
+ * still places the homed block 16..40 bytes off those offsets.
+ *
+ * 494 -> 272 masked words by three source edits, two of which are a pair that
+ * only works together:
+ *
+ *  1+2. The two path-list walks. The first was spelled with a named `index`
+ *       carrying the loop value and a named `currentGroup` carrying the
+ *       re-read; the target names NEITHER. Writing both walks as
+ *       `while (*list != -1) { call((u8)*list); call(*list, map[*list], k); }`
+ *       reproduces the target's loop instruction-for-instruction: one web for
+ *       the list value, re-read after the call because the call may write it,
+ *       and the `& 0xFF` mask folded into the argument as a single
+ *       `andi a0,<value>,0xff` instead of `move`/`andi`/`move`. The `(u8)`
+ *       cast and the `while` shape are ONE edit each and each alone moves the
+ *       size (+8 and -8); together they are delta 0 and worth 36 words.
+ *       Naming a re-read value is what costs the extra web -- this is the
+ *       drop-a-declared-local lever the workbench names for a longer pool
+ *       lane, applied to a loop body.
+ *
+ *  3.   `row = 0x51` was the first statement of the panel block, so as1 put
+ *       `li s3,81` in the delay slot of the block's guard branch; the target
+ *       leaves that slot a nop and materialises the constant 27 instructions
+ *       later, inside the basic block that ends at the func_80022A50 call.
+ *       Moving the assignment after `func_8004B0A4(0)` reproduces the target
+ *       from `bnez at` through `swc1 $f8` exactly and is worth 186 words --
+ *       far more than the one slot, because it also re-colours s3 and the
+ *       whole run of calls that follow it.
+ *
+ * What is left, measured: the candidate is ONE instruction long (delta +4),
+ * and the surplus is structural, not local. From the choice loop onward the
+ * candidate keeps `&gO57MiddleChoices` alive in s6 across the tail so the two
+ * `gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex]` reads share one
+ * address web; the target re-materialises the address at every use, which
+ * costs it two instructions there and saves it the four-instruction s6/s5
+ * set-up before the choice loop. That single surplus shifts every word from
+ * about +0xf90 on: of the 340 raw differing words, 125 are in rows 1..990 and
+ * 215 in rows 991..1208, so removing it is worth far more than one word.
+ * Region markers (`if (1) {}`, `do {} while (0);`) before the tail reads,
+ * around the whole choice loop, a pointer-arithmetic bound, and an
+ * `(&gO57MiddleChoices[0])->` spelling of one of the two reads all measure
+ * exactly 272 -- the web does not close on a boundary.
+ *
+ * Two target structures are read but NOT adoptable yet, both because they cost
+ * more than they buy at this frame layout:
+ *   - the choice loop caches `choice->active` in ONE load: target is
+ *     `lb v1,42(v0); beqz v1; sb v1,0(a0)`, the candidate reloads because the
+ *     store through `source` may alias the global. Caching it in a local
+ *     reproduces the target's three instructions exactly and takes the size to
+ *     delta -4, but costs 290 words: it consumes the callee-saved register the
+ *     loop's `outputIndex` holds in the target. Measured identical at 562 for
+ *     `choiceActive`, `rank`, `nextValue` and `activeCount` as the carrier, so
+ *     the carrier is not the variable; it is the register pressure.
+ *   - the activePlayers fill is a countdown pointer walk with a dead
+ *     post-decrement copy (`li v1,9`, `move v0,v1`, `sb`, `addiu a0,a0,-1`,
+ *     `bnez v1`, `addiu v1,v1,-1`), not the `for (i = 9; i >= 0; i--)` index
+ *     form here. Adopting it alone costs 301 words and +8 bytes.
+ * Both are the kind that need the stack-home fix first: the homed block is
+ * still 40 bytes low (activePlayers sp+232 against the target's sp+272,
+ * stack78/7C/80 sp+160/164/168 against sp+120/124/128), and the target's
+ * layout has gaps -- 132..143, 168..175, 216..271 -- that no current
+ * declaration accounts for. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -312,20 +370,15 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 func_overlay_084_F0001060_18D1540(1);
 
                 list = gO57MiddlePathList;
-                index = *list;
-                if (index != -1) {
-                    do {
-                    func_80050688(index & 0xFF);
-                    currentGroup = *list;
+                while (*list != -1) {
+                    func_80050688((u8)*list);
                     func_overlay_057_F00067DC_18AA3D4(
-                        currentGroup, gO57MiddlePathIndices[currentGroup], 0.007f);
-                    index = list[1];
+                        *list, gO57MiddlePathIndices[*list], 0.007f);
                     list++;
-                    } while (index != -1);
                 }
                 list = gO57MiddleStopList;
                 while (*list != -1) {
-                    func_80050704(*list & 0xFF);
+                    func_80050704((u8)*list);
                     list++;
                 }
             }
@@ -348,12 +401,12 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
         func_overlay_057_F0001020_18A4C18(updateRate);
         if ((gO57MiddlePanelPosition >> 4) >= -0x135) {
-            row = 0x51;
             renderItems = (O57MiddleRenderItem *)
                 ((u8 *) func_800291C4() +
                  ((s32) func_80025D60(
                       gO57MiddleCourseIds[gO57MiddleSelection]) << 5));
             func_8004B0A4(0);
+            row = 0x51;
             panelX = gO57MiddlePanelPosition >> 4;
             gO57MiddleRenderParameters.position = (f32) panelX;
             gO57MiddleRenderParameters.scale = 7.0f;
@@ -544,10 +597,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 494/1208 words
+ * score: 272/1208 words
  * frame: 0x140
  * relocations: 373
- * first-mismatch: +0x100
- * summary: renderState is 24 bytes, not 32, which closes the frame at the target 0x140 and 9 words; instruction count, frame and the pool lane past slot 19 now agree, leaving 400 opcode differences in the body.
+ * first-mismatch: +0x34
+ * summary: 494 falls to 272 on three edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; what is left is ONE surplus instruction, the s6 address web the candidate keeps for gO57MiddleChoices across the tail where the target re-materialises, which shifts every word past about +0xf90 and hides a prefix residual of only 57 masked words.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
