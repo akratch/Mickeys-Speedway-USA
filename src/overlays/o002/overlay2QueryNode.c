@@ -78,6 +78,36 @@ extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
  * and the callee return-type lattice that closed overlay 5 -- making
  * `overlay2IntersectBoundary` non-void, `overlay2IntersectSegments` void, or
  * changing this function's own return type -- which is inert here.
+ *
+ * Lane c6-band-b (2026-09-10). First, the allocator is exonerated: 168 single
+ * web forces on the instrumented globalcolor profile -- all fourteen integer
+ * allocator webs crossed with the twelve caller-saved colours -- leave the
+ * object at 39 words or worse. The "carrier colour" reading above is a
+ * description of the symptom, not of a reachable decision.
+ *
+ * Second, the shape of one residue is now known exactly. At each of the two
+ * short-circuit blocks the shipped code emits
+ * `sltu <t>,zero,v0 / bnez <t>,end / move v0,<t>`, which is the signature of
+ * `a || b` and not of `if (a) { return 1; }`: it normalises the first call's
+ * result to a boolean and returns that boolean, where this candidate branches
+ * and materialises a literal 1. Spelling both blocks with `||` reproduces
+ * that instruction triple exactly in the object -- and costs four bytes per
+ * block, because the two-`if` form keeps two distinct `node->side` loads
+ * either side of a `beqzl` branch-likely delay slot and the `||` form lets
+ * uopt fold them into one. So the function comes out eight bytes short and
+ * the trade is exact: the boolean shape and the duplicated load are wanted
+ * together and no spelling found so far gives both. All four `||` spellings
+ * (`(a != 0) || (b != 0)`, the bare form, and the two mixed ones) are
+ * byte-identical, as are the single-block variants at four bytes short; and
+ * twelve empty `if (1) {}` region markers placed at every statement boundary
+ * of the tail (L97's join-point use, which is exactly the "stop uopt folding
+ * two reads into one" lever) do not restore the load.
+ *
+ * Third, `node = node->side1/side0` before the tail call puts the selected
+ * child in `node`'s own s1 where the target uses a scratch a0. The ternary
+ * argument form is byte-identical to the assignment; both two-return forms,
+ * with and without `else`, fail to tail-merge and grow the function by 20
+ * bytes.
  */
 #ifdef NON_MATCHING
 s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
@@ -179,6 +209,6 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
  * frame: 0x68
  * relocations: 51
  * first-mismatch: +0x40
- * summary: Six carrier-colour sites; the frame admits exactly seven locals, so no boolean can be named. 1,200 new cells flat at 39.
+ * summary: Not a colouring residue: 168 single-web globalcolor forces leave it at 39 or worse. The shipped short-circuit blocks emit sltu/bnez/move, the signature of a C short-circuit or and not of an if-return-1; the short-circuit spelling reproduces that triple exactly in the object and costs one duplicated node->side load per block, so it lands eight bytes short. The boolean shape and the duplicated load are wanted together and no spelling yet gives both.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

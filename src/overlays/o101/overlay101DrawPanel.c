@@ -69,8 +69,33 @@ void func_overlay_101_F0000000_18DB820();
  * region spans per round over three rounds converge here, and dropping
  * `volatile` from work.dim costs 52 words and from work.dimmer 16, so unlike
  * BuildBorder's trailingColor these two pairs have no join to break. The
- * residue is the mode-1/3 tail at +0xB4 and the record-0 prologue, both still
- * register colouring. */
+ * residue is the mode-1/3 tail at +0xB4 and the record-0 prologue.
+ *
+ * Lane c6-band-b (2026-09-10) exonerated the allocator and named the residue.
+ * It is NOT a colouring decision: 240 single-web forces on the instrumented
+ * globalcolor profile -- all 20 of this procedure's allocator webs crossed
+ * with the twelve caller-saved colours -- leave the object at 36 words or
+ * make it worse, and not one improves it. What the target has and this
+ * candidate does not is one more web in the expression ring. The register
+ * census says so directly: the shipped code spends t1 twelve times and this
+ * candidate four, with t6, t7 and t8 each one or two higher here, and the
+ * ring runs exactly one place behind from the first mismatch at +0xB4
+ * onwards. The eight spill words are the same fact at the pool: both sides
+ * use exactly three of the eleven pool cells at the same 0x178 frame, this
+ * one at 80/84/92 and the target at 72/92/96.
+ *
+ * The obvious way to supply that web -- a seventh declared local -- is not
+ * free here. Ten placements of an `out = (out2 = ...)` nested-assignment
+ * carrier (the idiom that closed the same ring question on
+ * overlay101DrawTransformed) all move the first mismatch to word 0 at
+ * unchanged size: the extra declaration moves the frame. Also measured flat
+ * at 36: all 720 declaration orders of the six locals, the type and qualifier
+ * lattice on x/y/right/bottom, `register`/`volatile`/`register volatile` on
+ * `out`, and seven L59 line folds and blank-line placements around the
+ * BuildIntensityColors call and its two neighbouring assignments. Two carrier
+ * locals for the fifth mode-1/3 argument regress from +0x80, and the
+ * one-step, two-step and `32 +` spellings of such a carrier are
+ * byte-identical to each other, so that lattice is one point, not three. */
 #ifdef NON_MATCHING
 void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
     Overlay101PanelRect *out;
@@ -222,6 +247,6 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
  * frame: 0x178
  * relocations: 18
  * first-mismatch: +0xB4
- * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36 and 53 register-blind to 25. Residue is colouring in the mode-1/3 tail and the record-0 prologue.
+ * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36. The residue is NOT colouring: 240 single-web globalcolor forces leave it at 36 or worse. It is one missing expression-ring web, visible as a t1 census of 4 against the target's 12 and a ring running one place behind from +0xB4; a seventh declared local would supply it but moves the frame.
  * PLATEAU-HANDOFF:overlay101DrawPanel:end
  */
