@@ -1286,6 +1286,22 @@ bytes and disassembly never belong here.
   colour -- measured on `func_80004454`, where the same dial shifts the ring by
   15 words and leaves the caller-saved residual untouched.
 
+  A fourth setting, on the same dial and at zero width: a single-bit test
+  spelled `((x << N) & 0x80000000U) == 0` burns one ring temp and emits
+  nothing, where `!(x & bit)` burns none. Both compile to the same two words
+  -- ugen already lowers `!(x & bit)` to a shift-to-the-sign-bit plus
+  `bltzl`/`bgezl`, so the shift is written either way -- but the explicit
+  `== 0` against the masked high bit consumes a temporary the implicit form
+  does not. Use it wherever a bit test sits upstream of the ring phase you
+  need to advance. Measured on `func_overlay_079_F0000134_18CD0D4`, where the
+  target's `sll t3` against the candidate's `sll t2` at +0x58 is that one
+  temporary and this spelling is the only one of thirteen tried that supplies
+  it silently: the forms that put a real `sltiu` into the ring (`(y < k) == 0`,
+  `(y != k) == 0`, `(y ^ k) == 0`) advance it too but cost forty-plus words,
+  and `!(...)`, `(...) != 0`, `>= k`, `> k-1` and the `>> n & mask` rewrite are
+  all flat. The advance is only worth taking with the matching give-back
+  downstream; on its own it measured 328 against a 288 base.
+
 - **`globalcolor` picks the lowest free colour among equals, so an `a0`-versus-
   `a1` residual is an interference problem and never a priority one.** Read
   directly from the instrumented `uopt` on three `objects.c` functions: every
