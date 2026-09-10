@@ -3203,21 +3203,31 @@ extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                          f32 threshold, TrackRayHit *hit);
 extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
 
-/* Workbench verdict: structure-mismatch, 41/147 differing words, first mismatch +0x14. */
-/* Candidate size and -0xB8 frame are exact; all six relocation identities align. */
-/* Remaining gap: saved-register cycling plus local and FP-producer allocation. */
+/* Workbench verdict: 20/147 differing words, first mismatch +0x3c; size and -0xB8 frame exact. */
+/* The declaration order below is load-bearing, not cosmetic: homes descend from the frame top in
+ * declaration order, so var_s4/var_s7 take the two cells above `scratch` and sp6C/sp68 the two lowest.
+ * That single reorder closed all 21 stack-displacement words (41 -> 20) with no other edit. */
+/* Reusing ONE local across sqrtf (lengthSquared = sqrtf(lengthSquared)) instead of a separate
+ * temp_f0 retired the last structural word: the target holds the sum in a callee-saved register,
+ * copies it to f12 at the call and takes the result back into the same register, which is one
+ * variable in the source and not two. temp_f0 stays declared because it is a frame carrier.
+ * The verdict is now register-permutation: structural 0, schedule 0, 20 register words. */
+/* Remaining gap: a 3-cycle over s4/s5/s6 -- the target numbers var_s4's web below the two
+ * &scratch member-address webs, we number it above -- plus that same fp web, which the target
+ * colours f20 and we colour f0. Declaration order does NOT move either: reordering the block
+ * changes the stack homes and leaves the pool lane byte-identical. */
 s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                   void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
+    s32 var_s4;
+    s32 var_s7;
     TrackRayScratch scratch;
-    s32 sp6C;
-    s32 sp68;
     f32 temp_f0;
     f32 temp_f20;
     f32 lengthSquared;
     s32 var_s2;
-    s32 var_s4;
-    s32 var_s7;
     s32 var_v0;
+    s32 sp6C;
+    s32 sp68;
     sp6C = 0;
     sp68 = 0;
     var_s7 = 0;
@@ -3232,18 +3242,18 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                     (scratch.direction.y * scratch.direction.y));
         lengthSquared = temp_f20;
         if (lengthSquared > 0.0f) {
-            temp_f0 = sqrtf(lengthSquared);
-            scratch.length = temp_f0;
-            scratch.direction.x /= temp_f0;
-            scratch.direction.y /= temp_f0;
-            scratch.direction.z /= temp_f0;
+            lengthSquared = sqrtf(lengthSquared);
+            scratch.length = lengthSquared;
+            scratch.direction.x /= lengthSquared;
+            scratch.direction.y /= lengthSquared;
+            scratch.direction.z /= lengthSquared;
             if (D_800C9D28 != 0) {
                 var_v0 = func_80011980(arg0, arg1, &scratch.direction,
-                                       temp_f0, arg2, 0.0f,
+                                       lengthSquared, arg2, 0.0f,
                                        (TrackRayHit *) scratch.result);
             } else {
                 var_v0 = func_80011980(arg0, arg1, &scratch.direction,
-                                       temp_f0, arg2, arg2,
+                                       lengthSquared, arg2, arg2,
                                        (TrackRayHit *) scratch.result);
             }
             if (D_800C9D28 != 0) {
@@ -3252,7 +3262,7 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                                        scratch.result);
             }
             if ((var_v0 | var_s4) != 0) {
-                arg4(arg0, arg1, (f32 *) &scratch.direction, temp_f0,
+                arg4(arg0, arg1, (f32 *) &scratch.direction, lengthSquared,
                      scratch.result, arg3);
                 var_s2 = 1;
                 sp68 = 1;
@@ -5688,11 +5698,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 41 differing words
+ * score: 20 differing words
  * frame: 0xb8
  * relocations: 6
- * first-mismatch: +0x14
- * summary: Fresh m2c reproduces the superseded form and no new stack/call/CFG identity. Reconstruction exhausted; next: original declaration/lifetime evidence.
+ * first-mismatch: +0x18
+ * summary: 41 to 20 on two edits. Declaration order closed all 21 stack-home constants -- homes descend from the frame top in declaration order, so var_s4/var_s7 move above scratch and the two flags to the end. Reusing one local across sqrtf retired the last structural word. Now register-permutation, structural 0 schedule 0: a 3-cycle over s4/s5/s6 where the target numbers var_s4 below the two scratch member-address webs, and one fp web the target colours f20 and we colour f0. Declaration order does not move either colour.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
