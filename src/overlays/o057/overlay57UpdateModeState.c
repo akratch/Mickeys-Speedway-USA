@@ -167,12 +167,19 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  *       is then coloured BEFORE the gO57ModeTimer114 address web and takes its
  *       v1.  Raising that address web above 2.5 needs six more references to it
  *       and there are only three sites, so the volatile route is closed by the
- *       same save arithmetic that opened the loop.  Inert at 5: all 24
- *       declaration orders of the four function-scope locals, merging
+ *       same save arithmetic that opened the loop, and the residency route has
+ *       now been swept to its floor: `volatile` and the one-element array form
+ *       crossed with all 24 declaration orders of the four function-scope
+ *       locals is 48 cells with a floor of 18, never below the plain form's 5.
+ *       Inert at 5: all 24 declaration orders of the plain form, merging
  *       savedEligible into `eligible`, reading savedEligible in the guard,
  *       folding the two tests into one `&&`, storing inside the timer test, a
- *       read-back, and seven L97 region boundaries around the assignment, the
- *       eligibility block, the timer test and the whole dispatch.
+ *       read-back, seven L97 region boundaries around the assignment, the
+ *       eligibility block, the timer test and the whole dispatch, and replacing
+ *       the early `return` with a `goto` to a label placed AFTER the trailing
+ *       call (which is what `return` already means, and measures as such);
+ *       `goto` to the dispatch join, which does make the value live on every
+ *       path, is 17.
  *    2  the two address materialisations at +0x108 are emitted in the opposite
  *       order.  Both are in the one basic block after the `jal`: `la $3,
  *       gO57ModeTimer114` (uopt's rematerialisation of the caller-saved address
@@ -185,7 +192,11 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  *       a comma expression 7, nested ifs 5, a blank line 5, an L97 region
  *       around the reload 5, a multi-line call 5, a multi-line reload 5, and an
  *       explicit `s32 *timerPtr` (with or without a post-call reassignment)
- *       delta -8 and 276.
+ *       delta -8 and 276.  Spelling any of the three `gO57ModeTimer114`
+ *       accesses through one of the file's `*BaseReloc` alias arrays instead
+ *       breaks the shared address web and costs a real instruction: 281, 299
+ *       and 263 at delta -8, -4 and -8.  Swapping the reload's alias for
+ *       another is byte-identical, as expected.
  *
  * Earlier, and still true: 74 fell to 21 by reading the global back in the byte
  * store (`(u8)gO57ModeChoice4F8` instead of the local `choice`), so ugen numbers
