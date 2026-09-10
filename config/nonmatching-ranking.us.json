@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 360,
-  "resolved": 360,
+  "queue_size": 359,
+  "resolved": 359,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 360,
-  "relocation_masked_coverage": 360,
+  "source_context_coverage": 359,
+  "relocation_masked_coverage": 359,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -310,21 +310,6 @@
       "source_context_sha256": "qYbx.QIik.K-m2.8u7s.4KSB.uYGg.8tQY.Ur4Y.shjT.5X85.kjE"
     },
     {
-      "name": "func_overlay_009_F0000CE4_186735C",
-      "file": "src/overlays/o009/overlay_009.c",
-      "overlay": 9,
-      "tu": "overlays/o009",
-      "size_bytes": 648,
-      "objdiff_match_pct": null,
-      "differing_words": 5,
-      "first_mismatch_offset": 200,
-      "relocation_masked_differing_words": 4,
-      "relocation_masked_first_mismatch_offset": 200,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "iHpo.A0RL.AibQ.S-tH.fAh0.bydw.Y5l5.qNH6.36r4.l6iO.8Xo"
-    },
-    {
       "name": "func_overlay_022_F0000000_1878108",
       "file": "src/overlays/o022/overlay22InitializeObject.c",
       "overlay": 22,
@@ -412,7 +397,7 @@
       "relocation_masked_first_mismatch_offset": 76,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "0JNL.AM77.BMV6.TzOO.BJVS.SnRQ.dnh3.r2ps.cUE0.dUuV.YCY"
+      "source_context_sha256": "UEgu.1Fdr.HNy1.1L96.82q8.lLNS.KIl4.MXjm.u0zD.f2No.wIs"
     },
     {
       "name": "func_80002134",
@@ -1297,7 +1282,7 @@
       "relocation_masked_first_mismatch_offset": 136,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "oNus.qBlh.5Wdr.g1lA.GcE6.un1g.UHHI.5nwr.pMQK.6dWJ.H8s"
+      "source_context_sha256": "0_-v.Afnq.4j8u.6q4M.Bay2.904y.DJK_.UGE4.v7hF.HkZh.Ga4"
     },
     {
       "name": "overlay101DrawTransformed",
@@ -2032,7 +2017,7 @@
       "relocation_masked_first_mismatch_offset": 60,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "0AZL.q80R.0Gob.McJp.TJMw.bgB5.yCrv.7mUp.xTXZ.52AR.-jA"
+      "source_context_sha256": "uz1o.lvHK.c80T.7TXY.tKzV.x9CU.9k0C.4Bag._kSX.IbBf.QP8"
     },
     {
       "name": "func_80008B94",

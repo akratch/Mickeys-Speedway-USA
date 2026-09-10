@@ -363,8 +363,13 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     if (state->position < 40.0f) {
         state->position = (40.0f - state->position) + 40.0f;
         state->acceleration *= -0.4f;
+        /* `.1f` and `0.1f` are one value but two literal-pool entries: IDO's
+         * pool is keyed on the constant's spelling, not its value, and the
+         * shipped pool carries 0x3DCCCCCD twice for this function. Spelling
+         * the second one differently is what reproduces the second entry --
+         * and with it the +0x50 pool offset the next function's 0.65f needs. */
         if ((state->acceleration > -0.1f) &&
-            (state->acceleration < D_4C)) {
+            (state->acceleration < .1f)) {
             state->acceleration = 0.0f;
             state->position = 40.0f;
             return;
@@ -374,14 +379,14 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench: operand-mismatch, exact instruction count and frame.
- * Lever: retained-float placement, scoped fractions, and block-local scale forms were rechecked.
- * Remains: the angle stack home and the local 0.65f constant-pool placement;
- * GLOBAL_ASM stays canonical. */
-/* Ownership trial (2026-08-28): fixed the TU's +0x390..+0x3E0 .rodata range;
- * linked promotion is text-differs after removing the TU growth; codegen remains.
- * The retail float pool is retained as this candidate's initialized ownership. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-10 (lane c6-close). The residual was a single displaced
+ * stack home: the target puts `angle` at sp+0x2A, the candidate had it at
+ * sp+0x32. The home offset is a linear readout of the declaration index --
+ * measured across nine positions it is 78 - 4*index with nothing else moving --
+ * so `angle` had to be the tenth declared cell, not the eighth. Hoisting
+ * `distance` out of the `if` body into the declaration block (position 8) and
+ * declaring `angle` last supplies the two missing cells at an unchanged frame
+ * of 0x50, and the 0.65f pool addend follows. */
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {
     f32 xVelocity;
@@ -391,11 +396,12 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
     f32 xExtra;
     f32 yExtra;
     f32 zExtra;
-    s16 angle = control->angle;
+    f32 distance;
     f32 fraction;
+    s16 angle = control->angle;
 
     if (control->active != 0) {
-        f32 distance = (control->velocity * step) +
+        distance = (control->velocity * step) +
             (0.5f * control->acceleration * step * step);
         xExtra = control->dirX * distance;
         yExtra = control->dirY * distance;
@@ -438,9 +444,6 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
     out->dz = (out->z - control->originZ) * fraction;
     ext_o0_1d920(out, control, step);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000CE4_186735C.s")
-#endif
 
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
                                        s32 steps) {
@@ -600,16 +603,6 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F00010B4_186772C.s")
 #endif
-
-/* PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:start
- * symbol: func_overlay_009_F0000CE4_186735C
- * score: 5 differing words
- * frame: 0x50
- * relocations: 8
- * first-mismatch: +0xC8
- * summary: Exact size; four angle-stack operands plus one pool addend remain; permuter improved 37 to 29 without zero. Reopen with new stack-slot or pool-layout evidence.
- * PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
  * symbol: func_overlay_009_F00010B4_186772C

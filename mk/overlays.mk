@@ -490,6 +490,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
 			b5a06959b28bb8c05743f313985499350feb8c5de91f76af25815341f0cb1ea5) \
 				$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 					sha256:b5a06959b28bb8c05743f313985499350feb8c5de91f76af25815341f0cb1ea5 0x390 ;; \
+			79fc408bc15884cfa8328f9fa40521762b8928b0ab0d3315414676fdff93f10f) \
+				: "F0000CE4 promoted: the C pool now carries the module's own" \
+				: "0x20..0x50 layout, so the addends are already module-relative" \
+				: "and no base is added"; \
+				$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+					sha256:79fc408bc15884cfa8328f9fa40521762b8928b0ab0d3315414676fdff93f10f ;; \
 			*) echo "overlay 9: unreviewed .rodata digest $$rodata_digest"; exit 1 ;; \
 		esac; \
 		rodata_status=$$?; rm -f $$rodata_payload; exit $$rodata_status; \
