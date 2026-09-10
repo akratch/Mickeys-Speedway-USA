@@ -93,6 +93,30 @@ extern void overlay58FinalizePackedStatus(void);
 /* Workbench p5: structure-mismatch; 369/368 candidate/target instructions, 319 differing words from +0x0, frame -0x78 vs -0x60.
  * Levers: explicit sort guard and target-width gap both regressed to 371 instructions; prior split/cursor forms remain best.
  * Remains: 24-byte non-save frame surplus and loop/relocation structure. */
+/*
+ * Plateau (2026-09-10): 295 of 368 relocation-masked words differ, down from
+ * 296, at exact 368-word size.  One safe change: the two stores in the seeding
+ * loop are swapped.  They go through disjoint arrays and write the same value,
+ * so the order is inert.
+ *
+ * The frame, not the words, is this function's live problem: 0x78 against the
+ * target's 0x60, a 24-byte surplus at EXACT instruction count.  Measured, not
+ * inferred: adding N unused `s32` declarations grows the frame in an 8-byte
+ * step every second declaration and moves no word at all (0/1 pads 0x78, 2/3
+ * 0x80, 4/5 0x88, 6 0x90), so the declared block is a rounded quantum charged
+ * per declaration whether or not the local is ever used or coloured.  Removing
+ * the three `right*` out-parameters buys 16 of the 24 bytes (0x78 -> 0x68).
+ * So the target's declared block is five or six cells smaller than this one,
+ * and the six address-taken `left*`/`right*` cells are where to look: `&x` in
+ * an argument list is what forces a memory home.  Re-spelling them as two
+ * `s32[3]` arrays or one `s32[6]` is byte-flat -- same cells, same frame --
+ * and a form that keeps both calls but only three cells lands at 0x68 with a
+ * 52-byte code deficit, so the reconstruction has to remove declarations
+ * without removing the second call.
+ *
+ * Also measured here: `register` is inert.  Stripping it from all 37 locals
+ * changes neither the words nor the frame (ido-5.3 L16).
+ */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     register s32 i;
@@ -139,8 +163,8 @@ void func_overlay_058_F0000000_18AF1E8(void) {
         entry = &state->entries[0];
         do {
             rankCursor++;
-            *orderCursor = entry;
             rankCursor[-1] = entry;
+            *orderCursor = entry;
             entry++;
             orderCursor++;
         } while (rankCursor < &D_90[count]);
@@ -329,10 +353,10 @@ void func_overlay_058_F0000000_18AF1E8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F0000000_18AF1E8:start
  * symbol: func_overlay_058_F0000000_18AF1E8
- * score: 72/368 words
+ * score: 73/368 words
  * frame: 0x78
  * relocations: 101
  * first-mismatch: +0x0
- * summary: Exact 1,472-byte geometry; 296 words and a 24-byte frame surplus remain. Only 61/101 relocation roles align; prior cursor and loop probes are exhausted.
+ * summary: 295 of 368 masked words at exact size; the 24-byte frame surplus is measured to be a declared-block quantum charged per declaration, and the six address-taken out-parameter cells are the reconstruction target
  * PLATEAU-HANDOFF:func_overlay_058_F0000000_18AF1E8:end
  */

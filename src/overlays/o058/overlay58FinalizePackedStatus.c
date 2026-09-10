@@ -90,6 +90,7 @@ void overlay58FinalizePackedStatus(void) {
         desired = 4;
     } else {
         for (i = 1; (desired > 0) && (i != 6); i++) {
+            if (selectedPlayer0 != 0);
             if (records[0].rank < records[i].rank) {
                 desired--;
             }
@@ -112,11 +113,11 @@ void overlay58FinalizePackedStatus(void) {
     }
 
     player = records[0].player;
-    current = (gOverlay58PackedStatusReloc[player + 4] & mask) >> shift;
 
     if (desired < 3) {
         return;
     }
+    current = (gOverlay58PackedStatusReloc[player + 4] & mask) >> shift;
     if (current >= desired) {
         return;
     }
@@ -129,6 +130,7 @@ void overlay58FinalizePackedStatus(void) {
         count = 0;
         selectedPlayer0 = player;
         for (i = 0; i < 3; i++) {
+            if (current != 0);
             if ((i != *(volatile u8 *)&records[0].player) &&
                 ((gOverlay58PackedStatusReloc[i + 4] & 0x7) >= 3)) {
                 count++;
@@ -175,6 +177,7 @@ void overlay58FinalizePackedStatus(void) {
 
         if (count == 0) {
             if (desired == 4) {
+                if (records != 0);
                 overlay58Call57B4Reloc(0x17);
             } else {
                 overlay58Call57C4Reloc(0x16);
@@ -281,10 +284,10 @@ void overlay58FinalizePackedStatus(void) {
 
 /* PLATEAU-HANDOFF:overlay58FinalizePackedStatus:start
  * symbol: overlay58FinalizePackedStatus
- * score: 200/304 words
+ * score: 216/304 words
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: Three zero-instruction discarded-expression probes take the masked residual from 177 to 104 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
+ * summary: Six zero-instruction discarded-expression probes and one inert early-return move take the masked residual from 177 to 88 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */
