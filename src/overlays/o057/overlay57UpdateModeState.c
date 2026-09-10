@@ -129,13 +129,23 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  * 59 -> 61, the arm-1 selector load moves t4 -> t5 and the arm-2 one t3 -> t5,
  * and every later temp follows; 74 -> 21 masked words at delta 0.
  *
- * That is the general shape of a zero-instruction ring pop in IDO 5.3, and it
- * is what the four recorded pop families (L65 phantom mask, L76 field read
- * through a local, L77 index scaled twice, L85 truncation at the store) all
- * failed to deliver here: each of them buys the pop with an emitted
- * instruction.  A store-to-load forward buys it with none.  Record it as a
- * fifth: A READ OF A GLOBAL THE SAME REGION HAS JUST WRITTEN advances ugen's
- * temp counter and emits nothing.
+ * This is NOT a new family.  It is the read-back-what-you-just-wrote lever
+ * already recorded twice in docs/ido-learnings.md -- the named
+ * common-subexpression carrier on `func_8004E8E0`, where spelling a just-written
+ * pointer chain as `array[0] = call(); array[1] = array[0] + size;` consumed an
+ * invisible ugen temporary at the same instruction shape, and the known-zero
+ * byte read in overlay 47's release routine, where reading a status byte back
+ * kept one pop after the value folded away.  What is new here is only the
+ * carrier: a plain 32-bit GLOBAL SCALAR, read back one line below its own
+ * store, with the pop taken in each of two arms.  It is worth pairing with the
+ * four families that buy a pop WITH an instruction (L65 phantom mask, L76 field
+ * read through a local, L77 index scaled twice, L85 truncation at the store):
+ * all four were tried here first and all four cost width.  On a plateau that is
+ * exact-size, try the read-back before any of them.
+ *
+ * The safety condition the recorded lever carries applies unchanged and is met
+ * here: no call, no volatile access and no aliasing write separates the store
+ * from the read.
  *
  * The 21 that remain decompose exactly, and none of them is a ring question:
  *
