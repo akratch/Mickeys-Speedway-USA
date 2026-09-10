@@ -56,6 +56,13 @@ typedef struct O57FinalSpawnPacket {
     s8 state;
 } O57FinalSpawnPacket;
 
+/* The two spawn calls share one stack packet: giving each its own local
+ * reserves a second 20-byte home the target does not have. */
+typedef union O57SpawnUnion {
+    O57SpawnPacket initial;
+    O57FinalSpawnPacket final;
+} O57SpawnUnion;
+
 typedef struct O57SpawnState {
     u8 pad00[8];
     s16 mode;
@@ -198,8 +205,7 @@ extern void func_8005AD64(O57Spawned *spawned, s32 mode, s32 index,
 #ifdef NON_MATCHING
 void func_overlay_057_F0000000_18A3BF8(void) {
     u8 choiceMask;
-    O57SpawnPacket initialPacket;
-    O57FinalSpawnPacket finalPacket;
+    O57SpawnUnion packet;
     register void *current;
 
     current = gO57ResidentCurrentReloc;
@@ -300,7 +306,7 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
     {
     register s32 value;
-    register s32 *copy;
+    s32 stride;
 
     gO57Value1FCReloc = gO57SeedDataReloc.value0C;
     value = gO57SeedDataReloc.value10;
@@ -312,14 +318,9 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     value = gO57SeedDataReloc.value1C;
     gO57Value27CReloc = value;
     gO57Value28CReloc = value;
-    copy = gO57Values29CReloc;
-    do {
-        copy += 16;
-        copy[-12] = value;
-        copy[-8] = value;
-        copy[-4] = value;
-        copy[-16] = value;
-    } while (copy != &gO57Values29CReloc[32]);
+    for (stride = 0; stride < 32; stride += 4) {
+        gO57Values29CReloc[stride] = value;
+    }
     }
 
     gO57Mode11CReloc = 0;
@@ -341,22 +342,22 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
     path = func_800508B4(0x3C);
     if (path->object != 0) {
-        initialPacket.mode = 0x14;
-        initialPacket.flags = 0;
-        initialPacket.x = path->object->x;
-        initialPacket.y = path->object->y;
-        initialPacket.z = path->object->z;
-        initialPacket.angle = path->object->angle;
-        initialPacket.kind = 0x35;
-        initialPacket.state = 0;
-        initialPacket.scale = path->object->scale;
-        spawned = func_8000590C(&initialPacket, 1);
+        packet.initial.mode = 0x14;
+        packet.initial.flags = 0;
+        packet.initial.x = path->object->x;
+        packet.initial.y = path->object->y;
+        packet.initial.z = path->object->z;
+        packet.initial.angle = path->object->angle;
+        packet.initial.kind = 0x35;
+        packet.initial.state = 0;
+        packet.initial.scale = path->object->scale;
+        spawned = func_8000590C(&packet.initial, 1);
         if (spawned != 0) {
             spawned->field3C = 0;
         }
-        initialPacket.kind = 0x38;
-        initialPacket.state = 1;
-        spawned = func_8000590C(&initialPacket, 1);
+        packet.initial.kind = 0x38;
+        packet.initial.state = 1;
+        spawned = func_8000590C(&packet.initial, 1);
         if (spawned != 0) {
             spawned->field3C = 0;
         }
@@ -484,14 +485,14 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
     i = 0;
     do {
-        finalPacket.kind = 0x138;
-        finalPacket.mode = 0xE;
-        finalPacket.byte0A = 0;
-        finalPacket.state = 0;
-        finalPacket.byte0B = 0x80;
-        finalPacket.x = gO57SpawnPairs3E8Reloc[i].first;
-        finalPacket.y = gO57SpawnPairs3E8Reloc[i].second;
-        spawned = func_8000590C(&finalPacket, 0);
+        packet.final.kind = 0x138;
+        packet.final.mode = 0xE;
+        packet.final.byte0A = 0;
+        packet.final.state = 0;
+        packet.final.byte0B = 0x80;
+        packet.final.x = gO57SpawnPairs3E8Reloc[i].first;
+        packet.final.y = gO57SpawnPairs3E8Reloc[i].second;
+        spawned = func_8000590C(&packet.final, 0);
         gO57Spawned150Reloc[i] = spawned;
         (*spawned->state)->mode = 2;
         func_8005AD64(spawned, 0, 0, 0);
@@ -505,10 +506,10 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0000000_18A3BF8:start
  * symbol: func_overlay_057_F0000000_18A3BF8
- * score: 345 differing words
- * frame: 0xA0
+ * score: 282/597 words
+ * frame: 0x90
  * relocations: 244
  * first-mismatch: +0x8
- * summary: Candidate 594 words/frame 0xA0 versus target 597/0x78; 371 raw differences. Relocations 244/248, with 164 sites and 109 identities aligned.
+ * summary: One shared stack packet for both spawn calls and a rolled 32-entry stride loop take 345 to 282; frame is still 0x18 over the target's 0x78 and the pool lane still colours two webs the target does not.
  * PLATEAU-HANDOFF:func_overlay_057_F0000000_18A3BF8:end
  */
