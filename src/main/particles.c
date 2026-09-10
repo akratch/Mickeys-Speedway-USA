@@ -1177,7 +1177,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     if (config->flags & 4) {
         flags = config->flags5C;
         offset[0] = 0.0f;
-        offset[1] = offset[0];
+        magnitude = offset[0];
+        offset[1] = magnitude;
         speed = config->value3C;
         offset[2] = -speed;
         if (flags & 0x10) {
@@ -1234,7 +1235,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
 
         particle->velocityX += offset[0];
         particle->velocityY += offset[1];
-        particle->velocityZ += offset[2];
+        magnitude = offset[2];
+        particle->velocityZ += magnitude;
     }
 }
 #else
@@ -2560,11 +2562,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003F154:start
  * symbol: func_8003F154
- * score: 17 differing words
+ * score: 13 differing words
  * frame: 0x58
  * relocations: 16
- * first-mismatch: +0x20C
- * summary: 17 FP-allocation words, all one fp-pool position from the emission-direction zero. The candidate spends two fp-pool colours the target spends as ring temps, and the direction is not reversible from source: every naming and de-naming form measured is flat or worse.
+ * first-mismatch: +0x21C
+ * summary: 13 words in three clusters of one class, and c24 is now closed. At each site the target owns the 0.0f on a low fp pool colour and leaves the computed neighbour on the ring; the candidate does the reverse. Two carriers moved it from 17: staging offset[2] through magnitude before the Z accumulate, and staging offset[0] through magnitude before offset[1] reads it back, which hands c24 to the zero and made the first two words of the zero-fill exact. The carrier identity is the lever, not its presence -- the same statement through scale is byte-identical to no carrier and through speed costs 194 words, which is L44. What is left is c25 ownership at the magnitude test and its ring consequences. Flat and eliminated at delta 0 against the 13-word base: five staging shapes for the value3C load compile byte-identically, a zero carrier at the magnitude test is byte-identical, seven statement orders across the zero-fill including the L23 transposition are flat or worse, and a forced-colour sweep of the six fp colours plus the split path over every float web of the procedure applied 26 of 63 forces with nothing under the base. So the decision variable is uopt p1 ownership of c25, reachable by a carrier of the right identity rather than by a spelling of the expression.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2594,6 +2596,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x168
  * relocations: 4
  * first-mismatch: +0x4C
- * summary: the target's command length is spelled (n<<3)+(n<<1)+8, which makes rows 19-59 exact and moves the first mismatch from +0x4C to +0xF0 -- but costs the tail, so the 36-word form is retained. The candidate CSEs vertexCount*8 across the call into a saved register; the target computes it twice. Two stack homes and that CSE are the whole residual.
+ * summary: 36 words, and the head twelve are now explained. The candidate lets uopt CSE vertexCount * 8 from the triangle-list bases into a callee-saved colour across the func_800349A4 call; the target recomputes it into a ring temp that dies at once, and that single colour offsets the ring for every word from +0x4C to +0x94. Breaking the CSE -- shift spelling on the triangle-list bases together with vertexCommandLength written as vertexCommandCount plus vertexCount times two plus eight -- makes every word through +0xE4 exact and moves the first mismatch to +0xE8 at delta 0. That is the shape the withdrawn claim described, reached by a different spelling and landing at a different offset, and it is not adopted because it costs 56 words in the vertex loop and moves the volatile length home from 96 to 80 where the target has 72; the base spelling already places vertexCommandCount at the target's 76. Flat and eliminated at delta 0: four operand orders of that sum compile byte-identically, which is the L92 signature; six declaration positions and volatile placements for the length local cost one to two words; five triangle-list index spellings either restore the CSE or add a word.
  * PLATEAU-HANDOFF:func_80041530:end
  */
