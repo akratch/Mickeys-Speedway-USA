@@ -165,22 +165,73 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  *       costs 8.
  *    3  uopt sinks `savedEligible = eligible` past the early return and
  *       duplicates the store into both arms; the target stores once, in the
- *       delay slot of the timer branch.  This is a MEMORY-RESIDENCY question,
- *       not a placement one, and it is answered: forcing savedEligible to
- *       memory (`volatile`, a one-element array, or storing through a taken
- *       address) puts the store exactly where the target has it.  All three
- *       cost a frame cell -- 0x30 becomes 0x38 and the home moves 0x28 -> 0x2C
- *       -- which costs more than the 3 words it buys (45 masked).  Freeing a
- *       cell by scoping `timer` into the timer block keeps the frame at 0x30
- *       and lands the store, but re-colours the eligibility and address webs in
- *       the timer region for 18 words (34 masked); merging `timer` and
- *       `eligible` into one variable is the best of that family at 28.  So a
- *       cell has to come free WITHOUT perturbing the timer block.
+ *       delay slot of the timer branch.  CORRECTION, measured: this is NOT a
+ *       memory-residency question.  savedEligible is ALREADY memory-resident
+ *       in the candidate -- `sw a0,40(sp)` at +0x17c and +0x38c and nine
+ *       `lw t3,40(sp)` reloads, the same home sp+0x28 the target uses.  What
+ *       differs is only WHERE the one store goes: the target puts it in the
+ *       `blez` delay slot at +0x15c, before the early return, and the
+ *       candidate sinks it below that return into the first `jal` delay slot
+ *       of each arm.  It is partial-dead-store sinking, not a missing home.
+ *
+ *       And the frame cost of forcing residency is a DECLARATION-POSITION
+ *       artifact, not intrinsic.  `volatile s32 savedEligible` (or the
+ *       one-element array form -- the two measure identically at every
+ *       position) declared BETWEEN `timer` and `eligible` keeps the frame at
+ *       0x30, keeps the home at 0x28, and lands the store exactly where the
+ *       target has it: 34 masked.  Declared last it is 0x38/0x2C for 45;
+ *       declared first, 0x38/0x2C for 43.  So the cell was never the
+ *       obstacle.  What the middle position costs instead is 18 words of
+ *       re-colouring in the timer region -- `eligible` a0 -> v1 and the
+ *       gO57ModeTimer114 address web v1 -> a2 -- because taking savedEligible
+ *       out of the web pool shortens `eligible`'s live range so it is coloured
+ *       BEFORE the timer address web, where the target colours the address
+ *       web first.  That swap, not a frame cell, is what has to be undone.
+ *
+ *       Sinking survives every source form tried: reading savedEligible rather
+ *       than eligible in the guard, moving the assignment below the timer
+ *       test, folding the test into one `&&`, a read-back, an `if (1)` region
+ *       around the test, and replacing the early `return` with
+ *       `goto dispatch_done` so the store is live on EVERY path (37, and it
+ *       also loses the `beqzl`).  Merging savedEligible into `eligible` is
+ *       byte-identical to the baseline at 21; wrapping it in a one-field
+ *       struct is register-allocated and also measures 21 in two of the six
+ *       declaration orders.
  *    2  the two address materialisations at +0x108 are emitted in the opposite
  *       order.
  *
  * Flags were screened on the old plateau and all tie or lose: -mips1 (234),
- * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74). */
+ * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74).
+ *
+ * Measured negatives added on the 21-word plateau, none of which moved a word:
+ *
+ *   - L97 region boundaries at 18 placements.  The split is sharp and is the
+ *     useful finding: EVERY boundary inside the marked-entry loop costs
+ *     exactly +10 (`if (1)`/`do {} while (0)` around the do-while, around the
+ *     count read, around the body, around the increment, and an empty marker
+ *     before the body or the increment), and EVERY placement outside it is
+ *     inert (around the entries assignment, the entries test, the selection
+ *     block, the selector store, or as an empty marker before any of them).
+ *     So the construct is live here -- it is not that uopt ignores it -- but
+ *     it never demotes the dead copy.  Reading the inside-the-loop variant
+ *     shows why: it rotates the three loop webs to deadcopy v0, entries v1,
+ *     count a0, where the baseline is deadcopy v0, count v1, entries a0 and
+ *     the TARGET is entries v0, count v1, deadcopy a0.  The boundary permutes
+ *     entries against count and leaves the dead copy on the lowest colour.
+ *     The target's order is exactly definition order; every candidate colours
+ *     the dead copy first, which by L93 is the top-tested numbering.
+ *   - loop shape: `while (count--)` and `for (; count--;)` are byte-identical
+ *     to the manual `if (count--) { do ... while (count--); }` (21); spelling
+ *     either test `!= 0` costs 10.
+ *   - splitting the dead copy into one or two explicit user variables (`prev`,
+ *     or `g0`/`g1` for the guard and the loop), declared before or after
+ *     `count`: 21 or 31, never lower.
+ *   - four more declaration orders of the arm's six locals, including entries
+ *     first and entries last: 21.
+ *   - the 2-word address order at +0x108: an explicit `s32 *` for the store
+ *     base, a separate `next` temp for the subtraction, an `if (1)` region
+ *     around the reload, a different reload base symbol, and hoisting the
+ *     store into both arms of the timer test -- 21, 21, 21, 21 and worse. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 timer;
@@ -383,6 +434,6 @@ dispatch_done:
  * frame: 0x30
  * relocations: 59
  * first-mismatch: +0x108
- * summary: The 43-word ring rotation and the 10-word savedEligible reload colour are closed by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, which makes ugen number a ring temp for a load it then forwards from the store one line above, so the pop costs zero instructions and 74 falls to 21 at delta 0; what is left is 16 words of a globalcolor v0/a0 swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks unless savedEligible is memory-resident which costs a frame cell, and 2 words of address order.
+ * summary: 74 fell to 21 by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, so ugen numbers a ring temp for a load it forwards from the store above it and the pop costs zero instructions; the 21 that remain are 16 words of a globalcolor swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks, and 2 words of address order, and this pass corrects the 3: savedEligible is already memory-resident at sp+0x28 in the candidate so it is partial-dead-store sinking rather than a missing home, and the frame cost of forcing residency is a declaration-position artifact -- volatile or a one-element array declared BETWEEN timer and eligible keeps frame 0x30 and home 0x28 and lands the store, paying instead 18 words of re-colouring in the timer region because eligible loses its long live range and is coloured before the address web.
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */
