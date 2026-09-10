@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 102
 - first mismatch: +0x138
-- summary: Residual fully explained and not source-reachable: ugen orders spills ascending (73/73), as1 reverses the pair, and the only barrier that stops it is unreachable from C. Reopen needs a new compile mode, not another source form.
+- summary: Reopened and re-diagnosed: the barrier is as1 memory disambiguation, not a debug line entry, and ugen emits it from ordinary C. The indexed spelling produces the target's spill order exactly; the live blocker is its two-cell frame cost.
 
 Revalidated 2026-09-08 on assignment base
 `419037148f512f2d38042f3a17ad4e2589db0768`. The retained C remains
@@ -127,4 +127,68 @@ disambiguation or its debug context differs (both were shown to flip the
 decision), or evidence that the argument load in the target is not a may-alias
 reference to that pointer. The general laws are recorded in
 `docs/ido-learnings.md` under "Assembler scheduling and phase replay".
+
+#### 2026-09-10 lane `c2-reopen`: the closure's mechanism is falsified; two more
+#### barriers exist and one of them is emitted by `ugen` from ordinary C
+
+The 299/301 baseline reproduces on this lane (raw 16, relocation-masked 2, zero
+size delta, frame 0x48, first masked mismatch +0x138). The listing replay is
+byte-exact here too: `cc -S`, then `as0` + `as1` under the compiler-path flags
+without `-pic0`, reproduces the configured object with the same 16/2 score, so
+every result below is measured against the same comparator the ranking uses.
+
+**What the prior closure got right.** `ugen` does emit the pair in the target's
+order, `as1` does invert it, and the inversion is the entire residual.
+
+**What it got wrong.** Its stopping claim was that the only input shape that
+stops the inversion is a debug line entry between the two stores, which `ugen`
+cannot emit inside one statement's spill group, and that therefore no C form
+can reach it. Three separate byte-inert perturbations of the phase input take
+this function to **zero** relocation-masked differences, not one:
+
+1. a `.noalias` fact naming the argument register against `$sp`, placed
+   anywhere from the loop preheader through the point between the two stores;
+2. a `.loc` naming a greater line between the two stores (the recorded one);
+3. `.set volatile` bracketing the two stores.
+
+Naming any other register in the `.noalias`, or placing it after both stores,
+is inert, which locates the decision precisely: `as1` is choosing which spill
+store to sink into the call's delay slot, and it decides by whether it can
+prove the argument load's base register disjoint from the stack. It is not an
+emission-index or source-line decision.
+
+**The `.noalias` fact is reachable from C.** `ugen` emits it for a reference to
+a *named* static object -- including for `uopt`'s own induction pointer over a
+named array, where it is re-asserted every iteration and closed after the loop
+-- and never for a user-declared pointer variable. Spelling the call's first
+argument as an index into the named array instead of a dereference of a walking
+local produces the fact, and with it the target's exact spill order and the
+target's argument-load form.
+
+**The live blocker is now a frame cost, not reachability.** Every indexed
+spelling measured costs two frame cells: frame 0x50 against the target's 0x48,
+which moves every home above the pointer and breaks 26 words that the pointer
+form has exact. Removing the pointer's own declaration does not pay for it, and
+neither does removing an unrelated declaration: in the indexed form the values
+that lose their names come back as compiler temps and absorb the space (the
+pointer form loses exactly eight bytes for the same removal, so the measurement
+is not a rounding artefact).
+
+Newly eliminated here, all flat at two words with frame 0x48: a `volatile`
+pointee on the walking pointer, which does emit `.set volatile` around the
+argument load and is byte-inert -- so the volatile barrier does not reach this
+decision even though bracketing the *stores* does; the same through a cast at
+the use site; an initialiser-in-declaration form; `register`; `handle[0]` for
+the dereference; a hoisted dereference into its own statement, which puts a
+`.loc` in front of the pair rather than between it; a `for` loop; a top-tested
+`while`; and swapping the two preheader assignments, which regresses to four.
+Bounding the loop on the pointer instead of the counter regresses to 215.
+
+Do not re-run declaration order, statement order, loop form, line grouping or
+the flag lattice. The one open question is narrow and mechanical: a C spelling
+that gives the walking pointer a named-static reference -- and therefore the
+`.noalias` fact -- without the two-cell frame cost. The general laws are
+recorded in `docs/ido-learnings.md` under "Assembler scheduling and phase
+replay".
+
 <!-- plateau-handoff:overlay11UpdateMenu:end -->

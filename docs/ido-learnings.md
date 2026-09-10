@@ -1498,6 +1498,38 @@ bytes and disassembly never belong here.
   allocator question. Evidence: `func_8005A948`, where patching the two names
   in the phase input takes a three-word residual to zero.
 
+- **`as1` picks a call's delay-slot filler by memory disambiguation against
+  `$sp`, not by emission index or source line.** Where the register holding a
+  call's first argument is one `as1` cannot prove disjoint from the stack, it
+  sinks the *earlier* of two adjacent caller-save spill stores into the delay
+  slot and leaves the later one in front of the call, inverting `ugen`'s
+  emission order. Three byte-inert facts restore that order, each measured on
+  `overlay11UpdateMenu` (1,204 bytes, 301 words) where the inversion is the
+  entire two-word residual and each perturbation scores exact under listing
+  replay: a `.noalias <reg>,$sp` naming the argument register, anywhere from
+  the loop preheader through the point between the two stores; a `.loc` naming
+  a greater line between the stores; and `.set volatile` bracketing the pair.
+  `.noalias` naming any other register, or placed after both stores, is inert.
+  This is a different position and a different decision from the block-head
+  duplication question above, where `.noalias` is measured inert; the two
+  results do not conflict.
+
+- **`ugen` emits `.noalias <reg>,$sp` for a reference to a *named* static
+  object, never for a user-declared pointer variable.** It fires where a static
+  address is materialised and then dereferenced, including for `uopt`'s own
+  induction pointer over a named array -- there it is re-asserted at the top of
+  every iteration and closed with `.alias` after the loop, so it survives the
+  pointer's own spill and reload. It does not fire for a pointer local that the
+  source assigns from an array name and then increments, whatever the
+  declaration, initialiser, `register`, `volatile`-pointee or loop form. So the
+  disambiguation fact above is reachable from C only by spelling the reference
+  as an index into the named object. On `overlay11UpdateMenu` that spelling
+  does produce it, and reproduces the target's spill order and argument-load
+  form exactly, but every indexed spelling measured there costs two frame cells
+  (frame 0x50 against the target's 0x48) and dropping other declarations does
+  not give them back: the values that lose their names come back as compiler
+  temps that absorb the space.
+
 - **`cc -S` ignores `-o`.** The listing is written to the *current directory*
   under the source's base name. Move it into a scratch directory as the next
   command; a stray `.s` in the worktree root is exactly the kind of file the

@@ -85,15 +85,15 @@ extern void overlay66Select(s32 selection);
  * same dependency and zero aftercycles, then ranks the handle spill first.
  * Source-line scheduling and declaration order are exhausted for this pair.
  *
- * A 2026-09-09 phase-replay pass closed the mechanism. ugen already emits the
- * pair in the target's order; as1 exchanges them, and feeding as1 the same
- * listing with only that pair swapped reproduces the owned bytes with zero
- * non-relocation differences, which proves the rest of this body exact. The
- * exchange is triggered by the may-alias argument load in front of the pair,
- * ugen orders spills ascending by register in 73 of 73 comparable sites, and
- * the only barrier that stops the exchange is a debug line entry between the
- * two stores, which ugen cannot emit inside one statement's spill group. Do
- * not spend more order, line, loop or flag attempts here; see
+ * A 2026-09-10 reopen falsified that closure's mechanism. The barrier is as1
+ * memory disambiguation of the argument load's base register against $sp, not
+ * a debug line entry: a .noalias fact for that register, a .loc between the
+ * stores, or .set volatile bracketing them each score exact, and ugen emits
+ * the .noalias fact for a reference to a named static object, including its
+ * own induction pointer over a named array. The indexed spelling therefore
+ * reaches the target's spill order and argument-load form from C; it costs two
+ * frame cells (0x50 against 0x48), which is the live blocker. Do not re-run
+ * order, line, loop or flag attempts; see
  * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
  */
 #ifdef NON_MATCHING
@@ -234,6 +234,6 @@ void overlay11UpdateMenu(s32 updateRate) {
  * frame: 0x48
  * relocations: 102
  * first-mismatch: +0x138
- * summary: Residual fully explained and not source-reachable: ugen orders spills ascending (73/73), as1 reverses the pair, and the only barrier that stops it is unreachable from C. Reopen needs a new compile mode, not another source form.
+ * summary: Reopened and re-diagnosed: the barrier is as1 memory disambiguation, not a debug line entry, and ugen emits it from ordinary C. The indexed spelling produces the target's spill order exactly; the live blocker is its two-cell frame cost.
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
