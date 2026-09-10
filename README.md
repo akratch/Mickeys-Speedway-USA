@@ -8,6 +8,26 @@ The US ROM (SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`) is the matching
 target and rebuilds byte-identically today. PAL and JPN splat configs exist
 from the original stub but have not been modernized or verified.
 
+## This is an AI-assisted decompilation
+
+Most of the C here was written by AI agents working against the ROM, directed
+by a human maintainer. That is worth stating plainly rather than leaving to be
+inferred.
+
+It does not lower the standard of proof, because the standard was never
+authorship. A function counts as matched only when the whole ROM rebuilds to
+the SHA1 above, byte for byte, with that function's C compiled in place of its
+assembly. `gmake verify` is the only thing that decides, it is checked on every
+commit, and it does not care who wrote the source. Where a body is adapted from
+another project it carries a `PROVENANCE` note naming the source, under the
+same rules as any other contribution.
+
+Where it does matter is downstream. Some decomp projects do not accept
+AI-generated work, and that is their call to make. Nothing from here is
+submitted to them. The note under
+[Credits](#jet-force-gemini-contributors) covers the project this one leans on
+most.
+
 <!-- SCOREBOARD_BEGIN -->
 ## Progress
 
@@ -128,20 +148,20 @@ already builds byte-identically, and is replaced by C one function at a time.
 gmake verify                # byte-identical or it does not count
 ```
 
-For overlay work, begin with `config/overlays.us.json` rather than a synthetic
-VMA: an overlay function's canonical identity is `(overlay, section, offset)`.
-Before adopting a name or body, run `gmake overlay-donors-scan-check`; it checks
-the complete DKR v77/v80 and JFG object surfaces and catches a stale donor
-ledger. DKR is the first semantic cross-reference for game code, but a similar
-system is not an exact match and Mickey's own bytes and call graph decide.
-The host build does not separately link overlays with JFG machinery: splat
-generates their C, assembly, binary inputs, and placement in `mickey.us.ld`,
-then the Makefile's ordinary object rules feed the same single final link as
-the resident code. [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#overlay-build-flow)
-traces that path and separates it from `src/main/runlink.c`, the console's
-runtime loader. Overlay-specific compiler and ELF-metadata settings live in
-[`mk/overlays.mk`](mk/overlays.mk); keeping that measured table out of the root
-Makefile makes the one-build/one-link graph visible without changing it.
+Overlay work starts from `config/overlays.us.json`, not a synthetic VMA: an
+overlay function's canonical identity is `(overlay, section, offset)`. Before
+adopting a name or a body, run `gmake overlay-donors-scan-check`, which reads
+the complete DKR v77/v80 and JFG object surfaces and fails on a stale donor
+ledger. Those decomps are the best semantic cross-reference available for game
+code, but they are different games; Mickey's own bytes and call graph decide.
+
+Overlays are not linked separately. splat generates their C, assembly and
+binary inputs along with their placement in `mickey.us.ld`, and the Makefile's
+ordinary object rules feed the same single final link as the resident code.
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#overlay-build-flow) traces that
+path, and distinguishes it from `src/main/runlink.c`, which is the console's
+runtime loader and a different thing entirely. Overlay-specific compiler and
+ELF-metadata settings live in [`mk/overlays.mk`](mk/overlays.mk).
 
 C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
 override in the root Makefile for resident code or `mk/overlays.mk` for overlay
@@ -150,24 +170,18 @@ code, justified in the source file's header comment. Measured per-file flags are
 
 ## Roadmap
 
-The measurable epoch definitions and exit criteria live in
-[`docs/campaigns.md`](docs/campaigns.md).
+| Stage | State |
+|---|---|
+| Split the US ROM with splat and rebuild it byte-identically from disassembly | done |
+| Clean-room gates, provenance discipline, and the donor ledger | done |
+| Overlay system: 107-module atlas, relocation graph, buildable segments | done |
+| Match the queue: replace `#pragma GLOBAL_ASM` bodies with C, function by function | **in progress** |
+| Assets: `1172`/`1173` decompress and recompress with matching output | not started |
 
-| Phase | Scope | State |
-|---|---|---|
-| 0 | Split the US ROM with splat; rebuild it byte-identically from disassembly | done |
-| 1 | First matched C, libultra corridor, symbol/struct ontology | in progress |
-| 2 | Clean-room gates; mine the published Rare decomps for matching objects | in progress |
-| 3 | Overlay system: 107-module atlas, relocation graph, 106 buildable segments, DKR/JFG donor ledger | done |
-| 4 | Overlay frontier tranche A: exact-match seeds, four structural pilots, one dependency neighborhood | done |
-| 5 | Overlay semantic spine: 45/61/68 APIs, cohort closure, and hub API maps | done |
-| 6 | Exact-leaf recovery: close narrow compiler blockers and add 1 KiB matched overlay C | done |
-| 7 | Exact leaf and wrapper retirement across ten overlays (508 bytes) | done |
-| 8 | Overlay 84 accessor closure plus resource wrappers (436 bytes) | done |
-| 9 | Overlay 68 lifecycle/allocation semantic cluster (524 bytes) | done |
-| 10 | Double-digit breakthrough: reach 10.00% whole-program resolved and close four Epoch 5 cohort modules | done |
-| 11 | Fifteen-percent offensive: reach 15.00% whole-program resolved and close eight more overlays | active |
-| 12 | Assets: `1172`/`1173` decompress/recompress with matching output | not started |
+Progress against the third stage is the Progress block above, regenerated from
+the tree by `gmake scoreboard`. The remaining work is enumerated in
+[`docs/nm-ranking.md`](docs/nm-ranking.md), which ranks every unmatched
+function by how close its candidate C already is.
 
 ## Clean room
 
