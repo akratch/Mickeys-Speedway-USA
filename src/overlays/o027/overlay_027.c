@@ -20,12 +20,12 @@ void overlay27Init(O27Object *object, Overlay27InitData *init) {
  * Remaining: the update-rate home and persistent FP pool differ; 21/22 relocation offset/type sites and 12/22 static identities are resolved. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
+    s32 pulseStep;
     O27State *state;
     union {
         O27State *sourceState;
         s32 intensity;
     } tail;
-    s32 pulseStep;
     s32 initialPhase;
     s32 phase;
     s32 value;
@@ -120,14 +120,14 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
                 case 3:
                     if (state->intensity < 0xFF) {
                         state->intensity += updateRate * 4;
-                        value = state->intensity;
+                        phase = state->intensity;
                         updateRate = 0;
-                        if (value >= 0x100) {
+                        if (phase >= 0x100) {
                             state->intensity = 0xFF;
                             object->scale = 2.0f;
                         } else {
                             object->scale =
-                                1.0f + ((f32)value * scaleFactor);
+                                1.0f + ((f32)phase * scaleFactor);
                         }
                     } else {
                         state->fade += updateRate * 4;
@@ -170,12 +170,13 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         } while (updateRate != 0);
     }
 
-    if (state->fade == 0) {
+    value = state->fade;
+    if (value == 0) {
         return;
     }
 
     if (state->pulseState == 0) {
-        if (state->fade == 0xFF && func_800299E8(0, 0x1FFF) >= 0x1FD7) {
+        if (value == 0xFF && func_800299E8(0, 0x1FFF) >= 0x1FD7) {
             tail.sourceState = source->state;
             state->pulseState = 1;
             if (state->secondaryHandle != 0) {
@@ -454,11 +455,11 @@ s32 overlay27Activate(O27Object *object) {
 
 /* PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:start
  * symbol: func_overlay_027_F0000064_187BA3C
- * score: 63 differing words
+ * score: 48 differing words
  * frame: 0x60
  * relocations: 22
- * first-mismatch: +0x18
- * summary: Retained source-declaration ordering heals four raw words; reopen only with new update-rate-home or persistent-FP-pool evidence.
+ * first-mismatch: +0x94
+ * summary: Stack-home and two value-web regions closed (62 to 48); the 40-word remainder is one fp web the candidate colours f12 and the target f16.
  * PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:end
  */
 

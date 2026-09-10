@@ -242,20 +242,38 @@ def words_of(data: bytes) -> list[int]:
 
 def instr_reg_mask(word: int) -> int:
     """Zero out the register-select fields of one big-endian MIPS word,
-    leaving the opcode/function/immediate bits that decide *what* the
-    instruction does rather than *which registers* it names. R-type (and
-    the COP register-format instructions, which share the same field
-    layout) zero rs/rt/rd (bits 25-11); other I-type instructions zero
-    rs/rt (bits 25-16) and keep the 16-bit immediate/branch-offset, since
-    that field is not a register selector. J-type (j/jal) has no register
-    fields at all, so it is left untouched -- a differing J-type word is
-    always either a relocation or a genuine target difference, never a
-    register swap."""
+    leaving every bit that decides *what* the instruction does rather than
+    *which registers* it names.
+
+    - **SPECIAL (R-type)** zeroes rs/rt/rd but **keeps the shift amount**,
+      which is an immediate and not a register: without that, `sll $t,$s,3`
+      and `sll $t,$s,5` compare equal and a real difference is reported as a
+      register swap.
+    - **COP1** needs its own case rather than the I-type fallback. Its
+      register-format layout is fmt(25-21) ft(20-16) fs(15-11) fd(10-6)
+      function(5-0), so the I-type mask erased `fmt` -- which selects `.s`
+      versus `.d` and is semantic -- while *keeping* fs and fd, which are
+      register selectors. A pure float-ring rotation therefore read as a
+      structural difference and a genuine format difference read as
+      identical. Here fmt and function are kept and ft/fs/fd are zeroed.
+      `BC1` (fmt 0x08) names no register at all: bits 20-16 are its
+      condition/nd/tf selector and the low half is a branch offset, so it is
+      left untouched.
+    - **Other I-type** instructions zero rs/rt (bits 25-16) and keep the
+      16-bit immediate/branch-offset. This covers `lwc1`/`swc1`, whose only
+      register fields are the base and ft.
+    - **J-type** (j/jal) has no register fields, so it is left untouched -- a
+      differing J-type word is always a relocation or a genuine target
+      difference, never a register swap."""
     op = (word >> 26) & 0x3F
     if op in (0x02, 0x03):  # j, jal
         return word
-    if op == 0x00:  # SPECIAL (R-type)
-        return word & 0xFC00003F
+    if op == 0x00:  # SPECIAL (R-type): keep function and shamt
+        return word & 0xFC0007FF
+    if op == 0x11:  # COP1
+        if ((word >> 21) & 0x1F) == 0x08:  # BC1: no register fields
+            return word
+        return word & 0xFFE0003F  # keep op, fmt, function
     return word & 0xFC00FFFF
 
 

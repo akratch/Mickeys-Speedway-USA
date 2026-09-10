@@ -1854,9 +1854,9 @@ void *func_8000590C(void *arg0, s32 arg1) {
     object->unk8 = asset->unk0;
     object->unk39 = 0xFF;
     object->unk34 = (f32)asset->unk18 * object->unk8;
+    object->unk8D = asset->unkA7;
     object->unk91 = 0;
     object->unk93 = 0;
-    object->unk8D = asset->unkA7;
     loadFlags = func_8000A6E8(asset->unk1C);
     loadType = loadFlags & 3;
     object->unk40->unk1A += 1;
@@ -1991,8 +1991,8 @@ void *func_8000590C(void *arg0, s32 arg1) {
         return NULL;
     }
 
-    size >>= 2;
     resultSize = 0;
+    size >>= 2;
     if (size > 0) {
         loadType = size & 3;
         if (loadType != 0) {
@@ -2038,9 +2038,9 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (object->unk48 != 0) {
         relocated = (u8 *)((u32)object + (u32)object->unk48 - (u32)D_800C9450);
         object->unk48 = (s32)relocated;
-        if (*(s32 *)(relocated + 0x74) != 0) {
-            *(s32 *)(relocated + 0x74) =
-                (s32)((u32)object + *(u32 *)(relocated + 0x74) - (u32)D_800C9450);
+        offset = (s32)*(s32 *)(relocated + 0x74);
+        if (offset != 0) {
+            *(s32 *)(relocated + 0x74) = (s32)((u32)object + (u32)offset - (u32)D_800C9450);
         }
     }
     if (object->unk58 != 0) {
@@ -3824,13 +3824,12 @@ void func_80008B94(void *arg0) {
         object->unk8 = -object->unk8;
     }
 
-    multiplier = NULL;
     candidateMultiplier = object->unk50;
     if (candidateMultiplier != NULL) {
         multiplier = candidateMultiplier;
+        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
         useColourState = 1;
         useMultiplier = 1;
-        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
     }
     alpha = object->unk39;
     if (alpha >= 0x100) {
@@ -3909,8 +3908,8 @@ void func_80008B94(void *arg0) {
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk0 = 0xFA000000;
             command->unk4 = (u32)-1;
+            command->unk0 = 0xFA000000;
         }
         if (useMultiplier) {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
@@ -3922,8 +3921,8 @@ void func_80008B94(void *arg0) {
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk0 = 0xFB000000;
             command->unk4 = (u32)-0x100;
+            command->unk0 = 0xFB000000;
         }
     }
 
@@ -3947,14 +3946,14 @@ void func_80008B94(void *arg0) {
     if (useColourState) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk0 = 0xFA000000;
         command->unk4 = (u32)-1;
+        command->unk0 = 0xFA000000;
     }
     if (useMultiplier) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk0 = 0xFB000000;
         command->unk4 = (u32)-0x100;
+        command->unk0 = 0xFB000000;
     }
     object->unk8 = savedScale;
 }
@@ -5762,11 +5761,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 538 differing words
+ * score: 186/719 words
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x1B4
- * summary: Workbench structure-mismatch, lever none-known. Pinned JFG donor supplies no C body; next: a source-line/UGEN trace for the header hunk.
+ * summary: Nested-fixup carrier and header order recovered 352 words; stack homes now exact; residual is the s0/s1 saved exchange plus the temp ring.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5822,11 +5821,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80008B94:start
  * symbol: func_80008B94
- * score: 126 differing words
+ * score: 111 differing words
  * frame: 0xB8
  * relocations: 45
- * first-mismatch: +0xA8
- * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the optional multiplier home transfer and remaining floating-point allocation.
+ * first-mismatch: +0xD0
+ * summary: Multiplier null-init dropped and four command-word pairs reordered (126 to 111); the shape multiset is now exact, so all 111 are role or placement.
  * PLATEAU-HANDOFF:func_80008B94:end
  */
 
@@ -5842,11 +5841,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80007118:start
  * symbol: func_80007118
- * score: 181 differing words
+ * score: 186 differing words
  * frame: 0x38
  * relocations: 71
  * first-mismatch: +0x2C
- * summary: Workbench structure-mismatch: register-role. Next: authenticate model-pointer coloring and callback lifetimes; resolve owned local-branch relocations.
+ * summary: Re-derived at 186. One carrier colour drives it: the target names v0 143 times and a1 once, the candidate a1 117 times and v0 16.
  * PLATEAU-HANDOFF:func_80007118:end
  */
 
