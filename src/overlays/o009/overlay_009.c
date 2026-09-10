@@ -205,7 +205,37 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
  * literals and joined physical lines are all flat; and a 14-point compiler
  * flag lattice makes the canonical -O2 -mips2 -32 -Wab,-r4300_mul the unique
  * optimum. Preserve this body and assembly fallback until a new saved-FPR
- * group-membership mechanism is proved. See the handoff shard. */
+ * group-membership mechanism is proved. See the handoff shard.
+ *
+ * 2026-09-10, lane o7-mid, bounded reopen: the closure holds at 8, and the
+ * residual is restated in a way that names a different decision variable.
+ * Read from the object rather than the record, the six callee-saved FP
+ * assignments in emission order are
+ *
+ *   target : D_C f30, D_10 f28, D_14 f26, 16.0 f24, -16.0 f22, 0.0 f20
+ *   ours   : D_C f22, D_10 f24, D_14 f26, 16.0 f30, -16.0 f28, 0.0 f20
+ *
+ * so D_14 and the zero are FIXED POINTS and the only difference is that the
+ * pair {D_C, D_10} and the pair {16.0, -16.0} exchange their colour blocks.
+ * The target's whole assignment is one descending run f30..f20 in emission
+ * order; ours is not.
+ *
+ * That is better described as a colouring ORDER than as group membership.
+ * All five hoisted values carry exactly one loop-level reference each, so
+ * their `save` terms tie (L7/L100), and a p1 tie is broken by web number and
+ * nothing else (L31, L84). Under that reading the residual is a web-number
+ * tie-break, and the reopen condition should be read as "find a web-number
+ * lever for f32 locals" -- L85, the one measured renumbering spelling, is a
+ * narrow-type truncation at the store and does not apply to f32 at all, and
+ * L86 already records declaration order, relational operand order, an added
+ * local and a hoist as moving no web number. That is consistent with the
+ * recorded lattice flooring at 8 and explains WHY, which the group-membership
+ * framing did not.
+ *
+ * This is inference from the two colour sequences (tier D), not a trace. The
+ * one instrument that would settle it is a CDX capture: if the five webs tie
+ * on save the record says so directly, and if they do not, the save arithmetic
+ * names a cost lever the group framing hides. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {

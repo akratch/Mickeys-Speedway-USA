@@ -278,6 +278,26 @@ void func_8005A770(void) {
  * only with target-correlated CFE temp birth-site evidence, not another
  * ungrounded carrier permutation. The real-address linked V0 has 94/106 raw
  * and 99/106 relocation-normalized words. The 119 flag groups remain exhausted.
+ *
+ * 2026-09-10, lane o7-mid: reproduced at 10 relocation-masked words, size
+ * delta 0, at the ten recorded offsets, so the decomposition above stands.
+ * What this pass adds is the mechanism behind `drop-a-declared-local`, taken
+ * from a controlled measurement on func_8004BA8C in src/main/font.c:
+ *
+ *   IDO gives a four-byte frame home only to a local it leaves MEMORY-CLASS,
+ *   and assigns those homes descending from the top of the local block in
+ *   DECLARATION order. A local uopt colours owns no slot at all.
+ *
+ * That makes the routed lever precise. The frame gap here is 0x50 against
+ * 0x38 -- six words -- and the `-Wo,-zdbug:2` listing quoted above already
+ * says all six declared scalars are memory-class in this candidate. So the
+ * requirement is not "declare fewer locals" but "leave six fewer locals
+ * memory-class at the same 106 words", which is a colouring outcome and only
+ * indirectly a declaration-count one. That is why the earlier reduced-local
+ * maps hit 0x48 and 0x30 without passing through 0x38: they were moving the
+ * count, not the class. The next lane should read WHICH of the six uopt
+ * strikes (L55's `save <= 0` eligibility gate) and attack the save of those,
+ * rather than permuting carriers again.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
