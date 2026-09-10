@@ -21,6 +21,11 @@ case "$build_nice" in ''|*[!0-9]*) echo "invalid MICKEY_BUILD_NICE: $build_nice"
 low_gmake() { nice -n "$build_nice" gmake -j"$build_jobs" "$@"; }
 .venv/bin/python tools/merge_transaction.py clean
 tools/cleanroom_check.sh --range "HEAD..$tip" 2>&1 | tail -1
+# Advisory only. A superseded lane still merges if the caller wants its
+# documentation, but each attempt costs a full build and gate cycle, and
+# the resulting tree usually fails several gates later for reasons that
+# read like defects in the lane's own work rather than in its age.
+.venv/bin/python tools/check_lane_superseded.py "$branch" --base HEAD || true
 echo "== merge $branch"
 # --no-commit: the merge is committed only after every gate below passes.
 if ! git merge --no-commit --no-ff "$tip" >/dev/null 2>&1; then
