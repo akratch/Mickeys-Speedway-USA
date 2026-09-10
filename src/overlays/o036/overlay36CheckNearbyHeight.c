@@ -75,7 +75,20 @@ extern u8 *gOverlay36WorldStateReloc[];
  * reaches the exact 112 frame and the exact homes, and fails by exactly two
  * instructions: IDO unconditionally homes a2 and a3 once a function declares
  * three or more parameters, and the target stores only a1 -- which is what
- * proves the target has exactly two parameters. */
+ * proves the target has exactly two parameters.
+ *
+ * 2026-09-10, lane w8-tu: MATCHED, by shrinking the results array from 13
+ * elements to 9. The closure above held every free parameter fixed except the
+ * one that is pure reconstruction -- the array's element count. Nothing reads
+ * past `results[remaining - 1]`, so its length was never evidence, and the
+ * frame identity solves for it directly: with frame = round8(40 + block +
+ * temps), block = 4 * scalars + sizeof(results), and the seven-name temp
+ * budget of 12 that this handoff itself measured, the target's 0x70 needs
+ * block = 60, i.e. a 36-byte array. Nine elements is that array, and it keeps
+ * both homes the declaration order already fixed: four scalars ahead of it put
+ * its base at 112 - 52 = 60 and the `state` spill at 56. Lengths 8..13 score
+ * 7, 0, 4, 3, 7, 3 -- only 9 is flat, which is the arithmetic's own prediction
+ * rather than a search. */
 
 
 
@@ -89,14 +102,13 @@ extern u8 *gOverlay36WorldStateReloc[];
 
 
 
-#ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
     f32 center;
     f32 low;
     f32 high;
     s32 i;
-    Overlay36Nearby *results[13];
+    Overlay36Nearby *results[9];
     Overlay36State *state;
     Overlay36Nearby *nearby;
 
@@ -129,16 +141,3 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36CheckNearbyHeight/func_overlay_036_F0000818_1883CD0.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:start
- * symbol: func_overlay_036_F0000818_1883CD0
- * score: 60/63 words
- * frame: 0x80
- * relocations: 3
- * first-mismatch: +0x0
- * summary: Declaration order fixes every in-frame displacement; the residual is the frame SIZE alone, and block arithmetic proves a six-scalar source can never reach 0x70.
- * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
- */
