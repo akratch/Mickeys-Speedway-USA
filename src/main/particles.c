@@ -2125,7 +2125,63 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
  * triangle count reproduces the eight-byte hole the target leaves between
  * them. Nine of the twelve homes now agree. `volatile` on the command length
  * is load-bearing -- without it IDO moves the whole frame to 0x170. What
- * remains is the command length's own home and the cursor's. */
+ * remains is the command length's own home and the cursor's.
+ *
+ * 2026-09-10, lane w8-bigclose: the head is now re-derived FROM THE OBJECTS,
+ * which is what the previous pass asked for, and it separates two facts that
+ * three passes have conflated.
+ *
+ * First, the score falsification stands and is reproduced: the two-shift
+ * spelling of the command length measures 107 masked at delta 0 with the first
+ * differing word still at +0x4C, and the parenthesisation variants are 107,
+ * 107 and 108; carrying the count into the sum is 109, and computing the count
+ * first so the sum can read it back is 411 at delta -1.  So no spelling of the
+ * length's arithmetic improves on 36, exactly as the 2026-09-10 pass measured.
+ *
+ * Second, and this is new: the target's head arithmetic really IS the two-shift
+ * form, and it shares one value with the count.  Read off the objects rather
+ * than the earlier note, the target computes the eight-times value once into a
+ * caller-saved temp that dies immediately, doubles the vertex count separately,
+ * sums the two, adds eight, stores that sum as the command length, and stores
+ * the eight-times value itself as the command count.  The candidate instead
+ * builds the length as a four-times / add / double chain and stores the
+ * COMMON-SUBEXPRESSION-ELIMINATED eight-times value out of a callee-saved
+ * register.  So the head is two independent problems, and every pass so far has
+ * moved only the first:
+ *
+ *   - the arithmetic, where the target shares the count's value with the sum
+ *     and the candidate does not (this is the CSE the notes above describe);
+ *   - the command length's stack HOME, which is frame offset 72 in the target
+ *     and 96 here.  The recorded 200-cell declaration sweep reached 92, 96,
+ *     100 and 104 and never 72, so the home is not a position in the existing
+ *     declaration list at all -- reaching it needs the list's SHAPE to change,
+ *     which declaration ORDER cannot do ([L99] orders the list; it does not
+ *     resize it).  A second home differs the same way: one loop carrier spills
+ *     to 108 here and to 92 in the target.
+ *
+ * The home is now bounded rather than merely unreached.  Reading the whole
+ * frame back from the candidate object -- every stack pointer displacement the
+ * function touches -- the candidate occupies 76, 96, 108, 120, 124, 136, 140,
+ * 144, 148 and 152 and the target occupies 72, 76, 92, 120, 124, 136, 140,
+ * 144, 148 and 152: ten memory-resident items each, agreeing everywhere except
+ * that one pair.  Sweeping the ladder with that readout, not just the score:
+ * 110 single-element moves of the eleven inner declarations, 72 of the nine
+ * outer ones, all six orders of the three innermost, the volatile in all four
+ * placements over the two command scalars, and the pair relocated to every
+ * position of both other scopes -- 190-odd cells -- reach 80, 92, 96, 100 and
+ * 104 for the length and never 72.  Nor can the list grow into it: a twelfth
+ * declaration moves the frame to 0x170 in every form measured, INCLUDING the
+ * one that ought to be free, naming the shared `(s32)vertexStart +
+ * addressBase` temporary that already owns a spill slot.  So the ladder's
+ * floor at eleven declarations is 76, the target has an item below it at the
+ * same total frame size, and neither declaration order nor declaration count
+ * reaches that.
+ *
+ * Next lever: the frame's SHAPE, and it needs the .mdebug census rather than
+ * another order sweep -- which item owns each slot, and what makes the
+ * candidate leave 80..92 empty where the target leaves 96..116 empty.  Price
+ * the length's spelling only after that; pricing the spelling first is what
+ * produced two contradictory head claims. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {

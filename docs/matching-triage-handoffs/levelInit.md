@@ -147,4 +147,32 @@ is 111. So the two functions want the same thing and the same spelling space is
 exhausted for both. Whoever solves one should re-measure the other the same
 hour.
 
+#### 2026-09-10, lane w8-bigclose: this procedure has no p2 phase, so definition order is a dead axis
+
+The prior passes closed the 16-word colour term against reservation and against
+reordering. This pass adds the reason a whole *third* family of levers -- moving
+a defining statement, which [L106] makes a colour lever elsewhere -- cannot
+apply here at all, and it is the cheapest question on the page ([L108]).
+
+An instrumented `uopt` (CDX log; object byte-identical to the tree's, which is
+the identity gate) records **1655 p1 records for this procedure and zero p2**.
+`level.c` as a whole does emit 70 p2 records, but every one of them belongs to
+one of the file's small procedures. So the caller-saved sweep that colours in
+ascending web number never runs on `levelInit`, and `save = totalsave/nocs` is
+the only thing that orders anything. Definition position, declaration order and
+statement order are one dead axis here; ask the phase question before spending a
+pass on any of them.
+
+The trace confirms every figure already recorded and adds why the two terms move
+together. Web 104 is `save` 26.666666 (`nocs` 3, `totalsave` 80) at cost 0 and is
+decided **twelfth** of this procedure's decisions; of the eleven decided before
+it only three interfere, and their colours are exactly the pair the closure
+names, which is why its forbidden set is that pair and it takes the first free
+colour. The web carrying the resource table's address is decided far later, at
+`save` 2.0, which is why it currently holds the colour the target gives web 104:
+fix web 104 and the address web finds that colour taken and falls one further --
+the target's pair exactly. So the 16 words are one decision, and the two
+interfering caller-saved webs it needs have to be decided **within the first
+eleven**, which is a constraint on their `save`, not on their position.
+
 <!-- plateau-handoff:levelInit:end -->

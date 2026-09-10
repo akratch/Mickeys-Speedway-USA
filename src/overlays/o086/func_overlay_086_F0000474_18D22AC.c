@@ -87,6 +87,52 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  * Also measured flat at the 51-word state and not worth repeating: do { } while (0) and if (1) { } region
  * boundaries at five placements; four byte-test spellings; three pointer-init and two advance spellings; a dead
  * tested expression, which adds a web and moves the ladder the wrong way.
+ *
+ * 2026-09-10, lane w8-bigclose: the 22-word term is now read off the allocator,
+ * and the closure above is CONFIRMED rather than superseded -- which is worth
+ * saying, because the corrected form of [L100] raises the possibility that p1
+ * does not own a small procedure at all.  Here it owns all of it.  An
+ * instrumented uopt (CDX log; its object is byte-identical to the tree's, which
+ * is the identity gate) records 1218 p1 records over 66 decisions and ZERO p2,
+ * so [L106]'s ascending-web-number axis does not exist on this function and
+ * `save = totalsave/nocs` is the only order there is.  Ask that question first
+ * ([L108]); it costs one compile and it retires a whole axis.
+ *
+ * The traced numbers are exactly the ones recorded above: the web holding a1 is
+ * save 6.666667 (nocs 3, totalsave 20) and takes that colour at cost 0 with it
+ * as its only zero-cost candidate; the command pointer is save 2.666667 (nocs 3,
+ * totalsave 8) at cost 1.  What the trace adds is that by the time the pointer
+ * is decided the colour is not merely taken but FORBIDDEN -- its forbidden mask
+ * carries the first four caller-saved colours -- so a direct force of the
+ * pointer onto a1 is DECLINED and the object comes back byte-identical.  A
+ * forced-colour experiment on this web therefore proves nothing about the
+ * target, and the only route is the decision order.
+ *
+ * [L109]'s zero-cost probe does not supply it, and that is a new negative worth
+ * carrying: five reference forms on the pointer -- a discarded `(void)p;`, a
+ * bare `p;`, a self-assignment, `p += 0;`, `p = &p[0];` and an idempotent cast
+ * round-trip -- at 1, 4, 6, 13, 14 and 20 repetitions ALL leave totalsave at
+ * exactly 8.000000 and the score at 29, delta 0.  uopt takes its reference
+ * count after copy propagation, so a probe that merely names a pointer at loop
+ * depth 0 never reaches it; only the tested form `if (p == 0) { }` reaches the
+ * count, and six of those are 235.  The pointer's live range holds no loop, so
+ * there is no depth at which [L109]'s x10 weighting is available either.
+ *
+ * Two more axes are now measured flat on THIS base rather than on the 51-word
+ * one, which is the re-measurement [L47] asks for: eleven positions for the
+ * pointer's defining statement ([L106]/[L105]) score 29 at the four latest and
+ * 30, 32, 55, 55, 55, 55, 60 and 641 as it moves earlier; and ten [L107] region
+ * boundaries -- `if (1) { }` and `do { } while (0)` after the definition,
+ * before the advance, before the first command word, around the definition,
+ * around the six writes, inside the arm, two at once, and the in-place advance
+ * with and without one -- are all exactly 29 at delta 0.  The reassociation
+ * that turns the advance into an offset from the base carrier is not opened by
+ * a region here.
+ *
+ * So the next lever is unchanged and now has a number on it: the command
+ * pointer needs totalsave above 20 at nocs 3, which is thirteen more counted
+ * references, or a span short enough for nocs 1 at its present 8.  Neither is
+ * reachable from the forms above.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.

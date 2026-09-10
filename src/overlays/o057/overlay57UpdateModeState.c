@@ -207,6 +207,66 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  * condition holds here: no call, no volatile access and no aliasing write
  * separates the store from the read.
  *
+ * 2026-09-10, lane w8-bigclose: this function has a FLOOR OF 2 and therefore
+ * cannot match.  The two words at +0x108 are unreachable from any source; the
+ * three at +0x15c are reachable, but only by trading 16 elsewhere.  Both halves
+ * are now read off the compilers' own traces instead of inferred, and the
+ * flag sweep was re-run on this base (119 combinations, -O2 -mips2 still best),
+ * so nothing here is left to a later pass.
+ *
+ * The +0x108 pair is a scheduling tie, and as1 prints its own decisions.
+ * Replaying this function's whole `cc -Wa,-R` trace reproduces 244 of 244
+ * multi-candidate selections with zero mispredictions under
+ *     (start time, -aftercycles, -latency, node addr, lineno, ready-list pos)
+ * with the ready list LIFO -- a newly ready node is examined before an older
+ * one -- which is [L59]'s chain re-confirmed on a third function, with the
+ * list-position key pinned down as LIFO rather than emission order.
+ *
+ * The block after the timer call holds exactly four nodes in two dependent
+ * pairs: the block-entry rematerialisation of the timer's address, and the
+ * reload.  Both pairs carry equal aftercycles and equal latency, so only
+ * lineno and list position can separate them -- and the two nodes of a pair
+ * share one line by construction, because an address materialisation is one
+ * ugen line.  The target needs the reload's FIRST node to beat the remat's
+ * first node and the remat's SECOND node to beat the reload's second node.
+ * Those are opposite demands on one per-pair key, so no assignment of line
+ * numbers satisfies both.  Measured over the key's entire reachable space,
+ * using `#line` to reach the two positions no legal statement order can:
+ *   reload line above the call's (the natural order)  5, wrong at +0x108/+0x10c
+ *   reload line equal to the call's                   7, all four rows wrong
+ *   reload line below the call's (`#line`)            5, wrong at +0x110/+0x114
+ * The target's row order is none of the three.  The only remaining degree of
+ * freedom would be ugen's emission order, and it is fixed: ugen emits the
+ * block-entry rematerialisation immediately after the call and before the next
+ * statement's `.loc`, whatever follows it -- probed with an extra statement
+ * placed before and after the reload, and it does not move.  So "no legal
+ * statement order can reverse it" was right, and the stronger statement is
+ * true: no legal LINE NUMBERING can either, and the tie is not a line-number
+ * problem at all but a ready-list one that source cannot address.
+ *
+ * The +0x15c store lands exactly under `volatile s32 savedEligible` declared
+ * between `timer` and `eligible`, and the 18 that costs is now attributed.
+ * The instrumented uopt (CDX log; its object is byte-identical to the tree's,
+ * which is the identity gate) records 473 p1 decisions and ZERO p2 for this
+ * procedure, so [L106]'s ascending-web-number axis does not exist here and
+ * [L100]'s save = totalsave/nocs is the only order that runs -- ask that
+ * question first ([L108]).  In the base, eligible's web spans the dispatch:
+ * nocs 19, totalsave 5, save 0.263158, decision=split, and its surviving piece
+ * is re-decided at save 0.666667 -- exactly TIED with the timer address web,
+ * also 0.666667 -- with the address web scanned first, so it keeps its colour
+ * and eligible's piece takes the next one.  That tie is the target's pair, and
+ * it is why the plain form is right.  `volatile` retires the split: eligible
+ * becomes nocs 2, totalsave 5, save 2.5, is decided ahead of the address web,
+ * takes its colour, and the address web falls one further.  All 16 of the
+ * non-+0x108 words are that single swap.  Restoring the long span while
+ * keeping the store is 16 (final test on `eligible`), 28 and 29 (on both) and
+ * 291 (a read-back); [L104]'s redefinition route -- reusing `eligible` as an
+ * arm carrier so the copy survives its source -- is 29 with the choice and
+ * count carriers and 14 with prev.  Raising the address web past 2.5 needs six
+ * more references and there are three sites, and [L109]'s zero-cost probe does
+ * not supply them: see the overlay 86 note, where five discarded-expression
+ * forms were measured not to reach uopt's reference count at all.
+ *
  * Flags were screened on the old plateau and all tie or lose: -mips1 (234),
  * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74). */
 #ifdef NON_MATCHING
@@ -416,6 +476,6 @@ dispatch_done:
  * frame: 0x30
  * relocations: 59
  * first-mismatch: +0x108
- * summary: 21 fell to 5 by reordering uopt's colouring, not by respelling the loop: globalcolor takes webs in descending save = totalsave/nocs (references, x10 inside a loop, over a span bucket), and the target's entries v0 / count v1 / dead-copy a0 is exactly the order entries > count > dead copy, while the candidate measured 14 < 17 < 22 because one cfe temporary served the post-decrement in BOTH arms and entries and count were separate block-scoped symbols in each; declaring entries ONCE at function scope merges its two webs (save 14 -> 21) and naming the dead copy prev per arm splits its shared web (save 22 -> 11), each a 31-word regression alone and 5 together; the 5 left are 3 words of a store uopt sinks past the early return (forcing residency lands it but re-colours 18 by raising eligible's save above the timer address web's) and 2 words of an as1 line-order tie at +0x108 that no legal statement order can reverse.
+ * summary: floor of 2, cannot match: the +0x108 tie needs opposite directions on one per-pair scheduler key, and the +0x15c store costs 16 in one colour swap
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */
