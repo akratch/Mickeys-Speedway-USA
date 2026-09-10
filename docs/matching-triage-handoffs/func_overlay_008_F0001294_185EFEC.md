@@ -8,6 +8,104 @@
 - first mismatch: +0x0
 - summary: Exact-size structural reconstruction; 24 excess frame bytes and 18 opcode edits remain. Next: scoped allocation/alias analysis, not flags or permutation.
 
+## 2026-09-10 region partition (lane `lane/w8-recon`): the residual is naming, not structure
+
+No source change is adopted here. The pass replaces the standing description of
+this residual ("24 excess frame bytes and 18 opcode edits") with a measured
+partition, and closes one axis with a complete lattice.
+
+### The residual, split by cause
+
+Aligning the two instruction sequences on a register-erased shape --- opcode,
+function code, shift amount, immediate and branch offset kept, every GPR *and*
+FPR selector erased --- and classifying each aligned pair:
+
+- function: 1259
+- positional differing (masked): 636
+- byte-exact once displacement is removed: 727
+- **displacement tax**: **104 (16% of the residual)**
+- **register-naming-only rows**: **489 (77%)**
+- rows differing in instruction kind, or unalignable: 55 (9%)
+
+So this whale is *not* a displacement problem and never was: fewer than a fifth
+of its residual is instructions sitting in the wrong place, and 55 words is the
+whole of what is actually wrong. Displacement is confined to one clean -1 run
+over +0x228..+0x46C; everywhere else the two sides are in phase.
+
+### The dominant term is two float-register transpositions
+
+Of the 489 register-naming rows, **209 differ only in a floating-point register
+selector**, and they are dominated by two transpositions that run the length of
+the function and go in both directions:
+
+- `$f2` exchanged with `$f12`: 117 sites
+- `$f10` exchanged with `$f16`: 89 sites
+- everything else (`$f4`/`$f6`, `$f18`/`$f0`, `$f8`/`$f6`): about 60 sites
+
+Two float webs hold each other's colours, and a second pair does the same. The
+integer side is 267 rows and is a position-dependent rotation of `t0`-`t9`
+(+1 through the middle of the function, reversing near the tail) plus a
+`v0`/`v1`/`a0`/`a1` shuffle in the entry region. **The callee-saved integer
+allocation is already exact: there are zero `s`-register substitutions anywhere
+in the function.** No prior pass recorded that, and it removes a whole family of
+hypotheses.
+
+This is the first lever to attack. It is one allocation decision replicated
+across a third of the function; the earlier "scoped allocation/alias analysis"
+route was right about the axis but was aimed at the integer side.
+
+### The 24 excess frame bytes are six words of declared local, and declaration order is not the axis
+
+A typed stack-home census settles what the frame difference is and is not.
+Every sp-relative reference on both sides is a plain load or store --- neither
+side forms a stack address in a register --- so the census is complete:
+
+- **19 distinct homes and 50 accesses on each side.** The outgoing-argument
+  slots, the two double saves, the four saved-register slots and the return
+  address are at *identical* offsets on both sides.
+- The nine non-save homes correspond one-for-one, with matching access counts
+  and matching widths: two float locals (2 accesses each), one 5-access int,
+  three 3-access ints, two 2-access ints, and the 2-access int at +0x44 which
+  is at the *same* offset on both sides.
+- So the candidate has neither an extra local nor a missing one. The +24 bytes
+  are 6 words of *declared* storage the target function did not have.
+
+The frame responds to declared local bytes and nothing else here: growing the
+`colorEnabled` array to 4 and 6 elements moves the frame 0xC8 -> 0xD0 -> 0xD8
+in 8-byte steps while leaving the emitted code identical (636 masked, 727
+aligned-exact). Reaching the target's 0xB0 therefore needs the candidate's
+declared locals to shrink by exactly 24 bytes.
+
+**Declaration order does not do it.** A complete move-one lattice over all 32
+declarations --- 962 compiled and scored candidates, every ordering reachable by
+relocating one declaration --- leaves the frame at 0xC8 in *every* case. The set
+of frames reached is `{0xC8}`. The best score in the whole lattice is 630
+(`colorEnabled` moved to position 16) against a base of 636, and the
+aligned-exact count moves 727 -> 733; nothing there is worth adopting. The
+standing instruction to "recover the stack-home layout before any further
+spelling search" therefore cannot be followed by permuting declarations: the
+frame is decided by how many locals exist, not by their order.
+
+None of the 32 locals is dead (each is read and written), so shedding 6 words
+means merging six pairs of disjoint-lifetime carriers. That is a bounded search
+with a hard stopping criterion --- the frame reaching 0xB0 --- and it is the
+second lever.
+
+### Next levers, in order
+
+1. The `$f2`/`$f12` and `$f10`/`$f16` float-web exchanges (209 rows).
+2. Six carrier merges to bring the declared local bytes down by 24 (frame
+   0xC8 -> 0xB0); the home *set* is already correct, only the count is not.
+3. The 55 kind-differing words, which is all that is left of the structure.
+
+Do not re-run the declaration-order family: 962 measured candidates, frame
+flat, score flat within 6 words.
+
+Validation: measurements come from `tools/score_symbol.py`'s comparator; the
+lattice harness reproduces its baseline exactly (636 masked, first +0x0, frame
+0xC8, size delta 0). `gmake verify` passed with the expected US ROM SHA1. The
+tracked source is unchanged by this pass.
+
 2026-09-08 decompiler-assisted reconstruction, assignment base `0d21245897f0469ec630a49a07024b5e51ad04b4`:
 
 - The lane independently reproduced the configured full-TU baseline: 1,259 words, 1,129 raw and 1,127 relocation-masked differences, first mismatch `+0x0`, frame `0x180`. The workbench verdict was `structure-mismatch`; its `next:` route was constant-audit before structure and register classes. The structure-buckets and stack-frame-recovery guides were also consulted. The prior donor and flag results below were retained; no donor body, flag lattice, permutation, compiler modification or instruction patch was used in this packet.

@@ -1854,9 +1854,9 @@ void *func_8000590C(void *arg0, s32 arg1) {
     object->unk8 = asset->unk0;
     object->unk39 = 0xFF;
     object->unk34 = (f32)asset->unk18 * object->unk8;
+    object->unk8D = asset->unkA7;
     object->unk91 = 0;
     object->unk93 = 0;
-    object->unk8D = asset->unkA7;
     loadFlags = func_8000A6E8(asset->unk1C);
     loadType = loadFlags & 3;
     object->unk40->unk1A += 1;
@@ -1991,8 +1991,8 @@ void *func_8000590C(void *arg0, s32 arg1) {
         return NULL;
     }
 
-    size >>= 2;
     resultSize = 0;
+    size >>= 2;
     if (size > 0) {
         loadType = size & 3;
         if (loadType != 0) {
@@ -2038,9 +2038,9 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (object->unk48 != 0) {
         relocated = (u8 *)((u32)object + (u32)object->unk48 - (u32)D_800C9450);
         object->unk48 = (s32)relocated;
-        if (*(s32 *)(relocated + 0x74) != 0) {
-            *(s32 *)(relocated + 0x74) =
-                (s32)((u32)object + *(u32 *)(relocated + 0x74) - (u32)D_800C9450);
+        offset = (s32)*(s32 *)(relocated + 0x74);
+        if (offset != 0) {
+            *(s32 *)(relocated + 0x74) = (s32)((u32)object + (u32)offset - (u32)D_800C9450);
         }
     }
     if (object->unk58 != 0) {
@@ -5762,11 +5762,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 538 differing words
+ * score: 186/719 words
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x1B4
- * summary: Workbench structure-mismatch, lever none-known. Pinned JFG donor supplies no C body; next: a source-line/UGEN trace for the header hunk.
+ * summary: Nested-fixup carrier and header order recovered 352 words; stack homes now exact; residual is the s0/s1 saved exchange plus the temp ring.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
