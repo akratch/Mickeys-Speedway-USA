@@ -72,4 +72,15 @@ f12 without extending the web's lifetime across the call.
 `func_overlay_079_F0000134_18CD0D4` has the same signature: its candidate uses
 f12 eleven times more than its target and f16 nine times fewer. The two
 functions plausibly share one mechanism, so a solution here transfers.
+#### Further forms measured flat at 48
+
+- Switch case order: 23 permutations that keep `default` last. All scored 75
+  or worse; the source order is already the target's.
+- The eight remaining integer words are the default arm's fade and intensity
+  reads. Caching the intensity read into the existing `value` local is exactly
+  flat (48, multiset 41); into `phase` it costs a size delta; splitting the
+  fade subtraction, moving the cache below the test, and caching the case-3
+  test operand all measured 49 to 94. Adding a dedicated local regresses by
+  eleven words because it moves every frame slot, the same frame sensitivity
+  overlay 79 shows.
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->

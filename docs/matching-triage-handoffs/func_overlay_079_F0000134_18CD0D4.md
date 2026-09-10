@@ -46,4 +46,36 @@ need re-running here. What moved it in overlay 27 was extending the web's
 lifetime across a call, which bought the correct ring at the cost of a spill
 pair; overlay 79 is frameless-prologue and large enough that the same trade
 may be worth measuring here even though it was not adoptable there.
+#### Where the fp divergence actually begins, and what it rules out
+
+The first floating-point divergence is the two-word region at +0x368. Every
+floating-point instruction before it is byte-identical on both sides, and at
+that point both f2 and f16 are free -- f2's previous use ends at +0x2BC and it
+is not redefined until +0x368 in the target and +0x498 in the candidate. The
+target takes f2, the candidate takes f16, and from there the ring runs one
+position apart for the rest of the function, which is where the tail's f12
+comes from.
+
+That matters because it bounds the search. A two-way choice between two free
+registers, reached through identical preceding code, cannot be produced by the
+spelling of any expression before it. It comes from the function's web set --
+what the allocator was handed before it emitted anything.
+
+Two exhaustive receipts on that:
+
+- Single-move declaration order is flat. All 342 single-position moves of the
+  nineteen locals were measured; none scored below 198, and the four ties at
+  198 are permutations that leave every frame slot where it was.
+- The local set is already exact. Inserting one unused `f32` at any of the
+  twenty positions costs 47 words (198 to 245) at size delta 0, because every
+  frame slot below the insertion shifts. The frame the candidate produces is
+  the frame the target has, so no local can be added and, by the same
+  argument, none removed.
+
+So the remaining lever is neither the declaration list nor the expression
+spelling. It is whatever makes one existing web claim f16 across +0x368 in the
+target. Overlay 27 shows one thing that does it -- extending the web's
+lifetime across a call -- at the cost of a spill pair; here the tail's carrier
+already round-trips through 100(sp) at every use cluster, so the same trade
+may not cost anything extra. That is the first thing to measure.
 <!-- plateau-handoff:func_overlay_079_F0000134_18CD0D4:end -->
