@@ -87,15 +87,30 @@ extern f32 sqrtf(f32);
 extern s32 func_8002A910(f32, f32);
 extern f32 func_8002A878(f32, s32);
 
-/* Workbench p4: structure-mismatch; 222 positional/225 raw words differ,
- * 638/638 instructions, first +0x80, frame exact -224. Levers: absolute-
- * constant audit and frameAmount declaration; both regressed; remains FP homes. */
-/* Ownership trial (2026-08-28): fixed the TU's +0x3C..+0x54 .rodata range;
- * linked promotion is text-differs with 638 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
-#ifdef NON_MATCHING
+/* Four spellings in this body are load-bearing; each is a regression on its
+ * own and only the four together reach byte identity.
+ *
+ * 1. The arc-length walk is a top-tested `while`, not the m2c
+ *    `do { } while`. Both run the same iterations, but only the top-tested
+ *    form gives `t` a lower uopt web number than the loop's 1.0f compare
+ *    temporary, so `t` is coloured f12 and the constant f0 rather than the
+ *    reverse; that one web number decides the whole FP pool (94/94 slots).
+ * 2. `node = node->next` inside the restart, rather than a copy of a
+ *    separately named `next`, leaves `node->next` available as a common
+ *    subexpression on both edges into the sample block. That is what lets
+ *    `sampleX` read through the already-loaded pointer while `sampleY` and
+ *    `sampleZ` reload it -- the store to the address-taken `sampleX` kills
+ *    the CSE between them. It also keeps `node` in s1 and `object` in s2.
+ * 3. `node->next != node->next->next`, written in that order: both operands
+ *    are memory loads here, so neither is a copy-propagated carrier and the
+ *    written order does reach the emitted `beql`/`bnel`.
+ * 4. The `(s16)` in `targetX += (s16)(s32)(dx * frameAmount)` is redundant
+ *    for the value -- the s16 destination truncates either way -- but it
+ *    changes when ugen takes the `targetX` reload out of the temp ring, and
+ *    with it the ring position of every later block. All three axes need it.
+ */
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
-                                        s32 updateRate, s32 argument) {
+                                       s32 updateRate, s32 argument) {
     s32 iteration;
     s16 targetX;
     s16 targetY;
@@ -112,15 +127,14 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
     f32 precision;
     f32 distanceTotal;
     f32 t;
-    f32 blend;
     f32 precisionDelta;
     f32 probeT;
     f32 remaining;
     f32 probeSpeed;
     f32 elapsed;
     f32 frameAmount;
+    f32 blend;
     Overlay41CurveNode *node;
-    Overlay41CurveNode *next;
     Overlay41Object *object;
 
     if (input != 0 && input->object != 0 && !(amount < 0.0f)) {
@@ -151,78 +165,74 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
             object->velocityZ = object->z;
             distanceTotal = 0.0f;
 
-            if (t != 1.0f || node->next->next != node->next) {
-                do {
-                    next = node->next;
-                    if (t == 1.0f) {
-                        node = next;
-                        precision = 0.01f;
-                        next = next->next;
-                        precisionDelta = 0.005f;
-                        t = 0.0f;
-                        iteration = 0;
-                    }
+            while (iteration < 9 &&
+                   (t != 1.0f || node->next != node->next->next)) {
+                if (t == 1.0f) {
+                    node = node->next;
+                    precision = 0.01f;
+                    precisionDelta = 0.005f;
+                    t = 0.0f;
+                    iteration = 0;
+                }
 
-                    probeT = t + precision;
-                    if (probeT > 1.0f) {
-                        probeSpeed = next->speed;
-                        sampleX = node->next->x;
-                        probeT = 1.0f;
-                        sampleY = node->next->y;
-                        sampleZ = node->next->z;
-                    } else {
-                        probeSpeed = node->speed +
-                                     (probeT * (next->speed - node->speed));
-                        func_overlay_041_F00002AC_18875E4(node, probeT,
-                                                           &sampleX, 0, 0);
-                        func_overlay_041_F00002AC_18875E4(node, probeT,
-                                                           &sampleY, 0, 1);
-                        func_overlay_041_F00002AC_18875E4(node, probeT,
-                                                           &sampleZ, 0, 2);
-                    }
+                probeT = t + precision;
+                if (probeT > 1.0f) {
+                    probeSpeed = node->next->speed;
+                    sampleX = node->next->x;
+                    probeT = 1.0f;
+                    sampleY = node->next->y;
+                    sampleZ = node->next->z;
+                } else {
+                    probeSpeed = node->speed +
+                                 (probeT * (node->next->speed - node->speed));
+                    func_overlay_041_F00002AC_18875E4(node, probeT,
+                                                       &sampleX, 0, 0);
+                    func_overlay_041_F00002AC_18875E4(node, probeT,
+                                                       &sampleY, 0, 1);
+                    func_overlay_041_F00002AC_18875E4(node, probeT,
+                                                       &sampleZ, 0, 2);
+                }
 
-                    dx = sampleX - object->x;
-                    dy = sampleY - object->y;
-                    dz = sampleZ - object->z;
-                    distance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
-                    averageSpeed = (currentSpeed + probeSpeed) * 0.5f;
-                    if (averageSpeed > 0.0f) {
-                        elapsed = distance / averageSpeed;
-                        remaining -= elapsed;
-                        if (((-0.00001f < remaining) &&
-                             (remaining < 0.00001f)) || iteration == 8) {
-                            iteration = 9;
-                            object->x = sampleX;
-                            object->y = sampleY;
-                            object->z = sampleZ;
-                            object->positionTag =
-                                func_8000FAE0(sampleX, sampleY, sampleZ);
-                            t = probeT;
-                            distanceTotal += distance;
-                        } else if (iteration == 0 && remaining > 0.0f) {
-                            object->x = sampleX;
-                            object->y = sampleY;
-                            object->z = sampleZ;
-                            object->positionTag =
-                                func_8000FAE0(sampleX, sampleY, sampleZ);
-                            t = probeT;
-                            currentSpeed = probeSpeed;
-                            distanceTotal += distance;
-                        } else {
-                            if (remaining > 0.0f) {
-                                precision += precisionDelta;
-                            } else {
-                                precision -= precisionDelta;
-                            }
-                            remaining += elapsed;
-                            iteration++;
-                            precisionDelta *= 0.5f;
-                        }
-                    } else {
+                dx = sampleX - object->x;
+                dy = sampleY - object->y;
+                dz = sampleZ - object->z;
+                distance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+                averageSpeed = (currentSpeed + probeSpeed) * 0.5f;
+                if (averageSpeed > 0.0f) {
+                    elapsed = distance / averageSpeed;
+                    remaining -= elapsed;
+                    if (((-0.00001f < remaining) &&
+                         (remaining < 0.00001f)) || iteration == 8) {
                         iteration = 9;
+                        object->x = sampleX;
+                        object->y = sampleY;
+                        object->z = sampleZ;
+                        object->positionTag =
+                            func_8000FAE0(sampleX, sampleY, sampleZ);
+                        t = probeT;
+                        distanceTotal += distance;
+                    } else if (iteration == 0 && remaining > 0.0f) {
+                        object->x = sampleX;
+                        object->y = sampleY;
+                        object->z = sampleZ;
+                        object->positionTag =
+                            func_8000FAE0(sampleX, sampleY, sampleZ);
+                        t = probeT;
+                        currentSpeed = probeSpeed;
+                        distanceTotal += distance;
+                    } else {
+                        if (remaining > 0.0f) {
+                            precision += precisionDelta;
+                        } else {
+                            precision -= precisionDelta;
+                        }
+                        precisionDelta *= 0.5f;
+                        remaining += elapsed;
+                        iteration++;
                     }
-                } while (iteration < 9 &&
-                         (t != 1.0f || node->next->next != node->next));
+                } else {
+                    iteration = 9;
+                }
             }
 
             object->velocityX = (object->x - object->velocityX) / frameAmount;
@@ -230,12 +240,12 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
             object->velocityZ = (object->z - object->velocityZ) / frameAmount;
         }
 
-        input->node = node;
         input->t = t;
+        input->node = node;
         if (input->scaleTimer != 0) {
             if (updateRate < input->scaleTimer) {
-                input->scaleTimer -= updateRate;
                 input->scaleAmount += input->scaleRate * frameAmount;
+                input->scaleTimer -= updateRate;
             } else {
                 input->scaleAmount += input->scaleRate * (f32)input->scaleTimer;
                 input->scaleTimer = 0;
@@ -260,9 +270,9 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                      ((f32)(node->next->tangentY - node->tangentY) * t);
                 dz = (f32)node->tangentZ +
                      ((f32)(node->next->tangentZ - node->tangentZ) * t);
-                targetX += (s32)(dx * frameAmount);
-                targetY += (s32)(dy * frameAmount);
-                targetZ += (s32)(dz * frameAmount);
+                targetX += (s16)(s32)(dx * frameAmount);
+                targetY += (s16)(s32)(dy * frameAmount);
+                targetZ += (s16)(s32)(dz * frameAmount);
                 break;
             case 2:
                 func_overlay_041_F00002AC_18875E4(node, t, 0, &dx, 0);
@@ -276,18 +286,20 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                 targetZ = (s32)dz;
                 break;
             case 3:
-                if (gOverlay41Targets[input->targetIndex] != 0 &&
-                    gOverlay41Targets[input->targetIndex]->object != 0) {
+                if (gOverlay41Targets[input->targetIndex] != 0) {
                     Overlay41Object *targetObject;
+
                     targetObject = gOverlay41Targets[input->targetIndex]->object;
-                    dx = targetObject->x - object->x;
-                    dy = targetObject->y - object->y;
-                    dz = targetObject->z - object->z;
-                    targetX = func_8002A910(dx, dz) - 0x8000;
-                    targetY = func_8002A910(dy,
-                                            sqrtf((dx * dx) + (dy * dy) +
-                                                  (dz * dz)));
-                    targetZ = 0;
+                    if (targetObject != 0) {
+                        dx = targetObject->x - object->x;
+                        dy = targetObject->y - object->y;
+                        dz = targetObject->z - object->z;
+                        targetX = func_8002A910(dx, dz) - 0x8000;
+                        targetY = func_8002A910(dy,
+                                                sqrtf((dx * dx) + (dy * dy) +
+                                                      (dz * dz)));
+                        targetZ = 0;
+                    }
                 }
                 break;
             default:
@@ -319,16 +331,3 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
         func_8003EDEC(object, updateRate);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateCurveObject/func_overlay_041_F0000854_1887B8C.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:start
- * symbol: func_overlay_041_F0000854_1887B8C
- * score: 416/638 words
- * frame: 0xE0
- * relocations: 49
- * first-mismatch: +0x78
- * summary: Authorized V0 remains 222 masked differences; current proxy tooling resolves none of the twelve rodata relocation records.
- * PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:end
- */
