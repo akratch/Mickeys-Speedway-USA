@@ -47,7 +47,11 @@ extern void overlay2AdjacentIndices(Overlay2Entry *entry, u16 index,
                                     s16 *previous, s16 *next);
 extern s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
                              Overlay2Node *node);
-extern s32 overlay2ContainsPoint(f32 x, f32 y, Overlay2Shape *shape);
+/* Both call sites reach overlay2ContainsPoint through the module's own ROM
+ * symbol table (a SYMBOL relocation record naming overlay 2 offset 0x123C),
+ * not as an intra-module JUMP, so the reference has to stay undefined here
+ * and take the 0xF0000000 stored addend the runtime patches. */
+extern s32 overlay2ContainsPointReloc(f32 x, f32 y, Overlay2Shape *shape);
 
 extern Overlay2Node *D_38;
 extern Overlay2Line *gOverlay2QueryLinesReloc;
@@ -64,17 +68,23 @@ extern u16 D_72;
 extern f32 gOverlay2QueryLimitReloc;
 extern f32 gOverlay2QueryResultReloc;
 
-/* Workbench p7 batch 12: allocation-mismatch; exact 217 instructions/-0x40 frame, 27 masked/51 raw words, first stack-home +0x138.
- * Lever: previous/next pointer homes regressed to -0x48; inherited constant, pointY, and bounded-permutation probes remain negative.
- * Remains: integer pool/temp web after relocation-heavy globals and 55 relocation aliases; GLOBAL_ASM stays canonical. */
-#ifdef NON_MATCHING
+/* Matched.  Two independent edits closed it, each a regression on its own.
+ * Dropping the `register s16 pointY` carrier removes the fourth declared auto,
+ * which shrinks the auto region by one word and lifts the two `&hit->previous`
+ * / `&hit->next` spill homes from -0x18/-0x14 to -0x14/-0x10; alone that cost
+ * 27 -> 41 masked words by pushing `point->y` out of a pool colour into the
+ * ugen ring one slot early.  Writing all three `s16` equality tests with the
+ * point member on the left then supplies the emission order the ring wants:
+ * ugen evaluates a comparison's right operand first, so `point->x == (s16)g`
+ * requests the cast chain before the member load, which is the target's ring
+ * order.  Either edit alone is worse than the plateau; together they are
+ * exact. */
 s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                                       Overlay2Shape *shape, Overlay2Hit *hit,
                                       s32 previousIndex, u16 shapeIndex) {
     Overlay2Entry *baseEntry;
     Overlay2Entry *hitEntry;
     Overlay2Point *point;
-    register s16 pointY;
 
     baseEntry = overlay1GetEntry(shapeIndex);
     D_38 = shape->nodes;
@@ -87,7 +97,7 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
     gOverlay2QueryHitReloc = hit;
 
     overlay2QueryNode(x0, y0, x1, y1, D_38);
-    if (gOverlay2QueryResultReloc == gOverlay2QueryBestReloc) {
+    if (gOverlay2QueryBestReloc == gOverlay2QueryResultReloc) {
         return 0;
     }
 
@@ -103,10 +113,9 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
 
         if (previousIndex != -1) {
             point = &baseEntry->points[previousIndex];
-            if ((s16)gOverlay2QueryX0Reloc == point->x) {
-                pointY = point->y;
-                if ((s16)gOverlay2QueryY0Reloc == pointY) {
-                    if (overlay2ContainsPoint(
+            if (point->x == (s16)gOverlay2QueryX0Reloc) {
+                if (point->y == (s16)gOverlay2QueryY0Reloc) {
+                    if (overlay2ContainsPointReloc(
                             ((gOverlay2QueryHitXReloc -
                               gOverlay2QueryX0Reloc) *
                              0.5f) +
@@ -131,10 +140,10 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
 
         point = &hitEntry->points[hit->index];
         if ((point->x == (s16)gOverlay2QueryHitXReloc) &&
-            ((s16)gOverlay2QueryHitYReloc == point->y)) {
+            (point->y == (s16)gOverlay2QueryHitYReloc)) {
             hit->flags = 1;
         } else {
-            if (overlay2ContainsPoint(
+            if (overlay2ContainsPointReloc(
                     ((gOverlay2QueryHitXReloc - gOverlay2QueryX0Reloc) *
                      0.5f) +
                         gOverlay2QueryX0Reloc,
@@ -143,8 +152,7 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                         gOverlay2QueryY0Reloc,
                     shape) == 0) {
                 hit->x = (s16)gOverlay2QueryX0Reloc;
-                pointY = (s16)gOverlay2QueryY0Reloc;
-                hit->y = pointY;
+                hit->y = (s16)gOverlay2QueryY0Reloc;
                 hit->previous = hit->index;
                 hit->index = 0xFF;
                 hit->flags = 0;
@@ -158,16 +166,3 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
     }
     return 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001A94_185888C/func_overlay_002_F0001A94_185888C.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_002_F0001A94_185888C:start
- * symbol: func_overlay_002_F0001A94_185888C
- * score: 190/217 words
- * frame: 0x40
- * relocations: 59
- * first-mismatch: +0x138
- * summary: V0 remains best after 119 flags and 10 semantic hypotheses; pool slot 16 and temp slot 12 diverge, with 52 overlay-local identities unresolved.
- * PLATEAU-HANDOFF:func_overlay_002_F0001A94_185888C:end
- */
