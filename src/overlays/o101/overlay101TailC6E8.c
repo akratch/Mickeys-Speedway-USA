@@ -101,9 +101,27 @@ extern void o101TailC6E8TailFinalReloc();
  * distinct opaque call identities even though the split object uses one raw
  * static carrier for all calls.
  */
-/* P2 plateau: workbench mixed(constant:7, structural:48, schedule:33, register:81), 124 relocation-aware positional words.
+/* P2 plateau: workbench mixed(constant:7, structural:48, schedule:33, register:81).
  * Reversing the queue-end pointer addition closes one commutative/register word; mips2 retains the exact size and 0x18 frame.
- * First raw mismatch is the opaque call at +0x8; the first relocation-masked mismatch is the selector carrier at +0x34. */
+ * First raw mismatch is the opaque call at +0x8.
+ *
+ * Lane c3-o101 (2026-09-10): 124 -> 119 relocation-masked words, first masked
+ * mismatch +0x34 -> +0x4C, size and frame untouched. Both edits are uopt
+ * REGION boundaries -- the mechanism that closed overlay101BuildBorder
+ * outright -- and each empty `if (1) { }` is worth 3 and 2 words respectively.
+ * This function's residue is a global colouring shift, not a shape problem:
+ * the target holds `selector` in a1 and the queue-byte base in t7 where this
+ * candidate holds them in a2 and a1, and the root-initialisation region's
+ * three hoisted webs sit at t3/t4/t5 against the target's t0/t1/t2, which is
+ * what makes ugen recycle t6..t9 across the seven root constants and leaves
+ * as1 the anti-dependences that produce the interleaved li/sh pattern.
+ * Falsified, each measured: seven orderings of the twelve root-field stores
+ * all measure exactly 124 masked (the store order is a degenerate dimension
+ * for this metric even though it moves the register-blind count between 45
+ * and 49); six head rewrites of the selector/queue block are all >= 124, and
+ * `end = cursor + count` and `end = count + gO101TailC6E8QueueBytes` both cost
+ * one word against the retained `count + cursor`. Reopen on the colouring, not
+ * on statement order. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000C6E8_18E7F08(void) {
     s32 count;
@@ -130,6 +148,8 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
         gO101TailC6E8QueueCount--;
         if (gO101TailC6E8QueueCount > 0) {
             cursor = gO101TailC6E8QueueBytes;
+            if (1) {
+            }
             end = gO101TailC6E8QueueCount + cursor;
             do {
                 *cursor = cursor[1];
@@ -240,6 +260,8 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
         node20->scale = 1.0f;
         handle = o101TailC6E8CreateCompactReloc(
             1, node20, &gO101TailC6E8Root, priorNodeIndex);
+        if (1) {
+        }
         nodeIndex = gO101TailC6E8Node20Count;
         node20 = &gO101TailC6E8Nodes20[nodeIndex];
         previousType = gO101TailC6E8Root.chainType;
@@ -270,10 +292,10 @@ common_tail:
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:start
  * symbol: func_overlay_101_F000C6E8_18E7F08
- * score: 124 differing words
+ * score: 119 differing words
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x8
- * summary: one commutative pointer-add word closed; 31 opcode/allocator differences and opaque runtime identities remain
+ * summary: Two uopt region boundaries take 124 masked words to 119 at exact size and 0x18 frame; the residue is a global colouring shift, with the target holding selector in a1 and the root region's hoisted webs three ring steps lower.
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */

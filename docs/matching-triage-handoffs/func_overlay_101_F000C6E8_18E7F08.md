@@ -2,11 +2,11 @@
 ### `func_overlay_101_F000C6E8_18E7F08` plateau handoff
 
 - source: `src/overlays/o101/overlay101TailC6E8.c`
-- score: 124 differing words
+- score: 119 differing words
 - frame: 0x18
 - relocations: 91
 - first mismatch: +0x8
-- summary: one commutative pointer-add word closed; 31 opcode/allocator differences and opaque runtime identities remain
+- summary: Two uopt region boundaries take 124 masked words to 119 at exact size and 0x18 frame; the residue is a global colouring shift, with the target holding selector in a1 and the root region's hoisted webs three ring steps lower.
 - assignment base: `23dd98ede1da869df2df0948c80efeeb403caa6e`
 - owned range: overlay 101 `+0xC6E8..+0xCBDC`, 1,268 bytes / 317 words, with no target-size delta
 - baseline: 131 raw and 125 relocation-aware positional differences; normalized distance 117; first raw mismatch `+0x8` and first relocation-masked mismatch `+0x34`
