@@ -54,36 +54,38 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
  * Overlay 101 text +0x29A4..+0x2C3C. Natural source supplies the exact size,
  * 0x90 frame, ABI, CFG, FP topology, stack homes, and seven call sites. A
  * scoped decoded ledger selects two retail command schedules and complete
- * equivalent private temporary-register webs. Plateau after the full flag
- * lattice and a command-expression audit: the best 166-word candidate has 62
- * positional differences from first mismatch +0x7C. Removing the otherwise
- * unused nested-assignment temporary shrinks the frame to 0x88 and regresses
- * to 129 words; splitting its assignment preserves the same 62-word basin.
- * The blocker is the two command schedules and the private temporary FIFO. A
- * later lane reran all 119 flag combinations and tested the m2c-indicated
- * distinct command-pointer form, the same form with the frame-shape anchor,
- * unsigned dimension types, and a later rotation temporary. The first two
- * regress in size or from the prologue, unsigned dimensions reproduce the
- * same 62-word basin, and the later temporary regresses to first mismatch
- * +0x6C. The best result remains size-exact from +0x7C.
+ * equivalent private temporary-register webs. Earlier lanes reached a 62-word
+ * basin and then 43 by an exhaustive placement sweep that put the rotation
+ * test BEFORE the third command build, recording honestly that this was a
+ * measurement optimum and that the target emits the branch AFTER that build.
  *
- * Lane c2-o101 (2026-09-10): the 62-word basin was 48 register-naming words
- * and only 14 register-blind structural words, and all 14 came from the
- * single rotation-flag constant materialising one issue slot too early plus
- * the final command's two constants issuing in the opposite order. In the
- * target that constant reuses the register that carried the first 0xE7000000
- * command word, so a write-after-read edge pins it behind that word's store;
- * the candidate gave it a fresh register and as1 was free to hoist it. An
- * exhaustive sweep placing the rotation test at every statement boundary of
- * the guarded block found exactly one better basin, emitting it before the
- * third command build, which drops the measurement to 43 words with size,
- * frame and CFG intact. Treat that placement as a measurement optimum and
- * not a structural claim: the target emits the branch AFTER the third
- * command, so recovering the register reuse from the original ordering is
- * still the real objective. Adding or removing neighbouring temporaries
- * (nested-assignment carriers at the first and third commands, a split
- * colour word, a hoisted rotation temporary) moves that constant's register
- * but never onto the 0xE7000000 register.
+ * Lane c6-band-b (2026-09-10) closed that contradiction and took the score to
+ * 36. The move to the structurally-correct placement is worth nothing on its
+ * own -- it measures 62 -- because it changes a register allocation as well as
+ * an order. In the 43-word form the 0xFFFFFF00 constant is materialised in the
+ * delay slot of the `overlay101GetDimensions2Reloc` call, so a0..a3 are all
+ * forbidden to it and it lands on t0; the instrumented globalcolor profile
+ * refuses `p1:w112=c4` outright, so a1 is not colour-reachable there at all.
+ * Moving the branch shortens that live range, the constant takes a1 as the
+ * target has it, and the a1 census goes 6 -> 9 exactly. What that costs is the
+ * temp ring: with t0 no longer held by the constant, every expression temp in
+ * the function shifts one place. Restoring the ring needs one more web parked
+ * on t0, and one nested-assignment carrier at the fourth command supplies it
+ * -- the same `command = (x = (*displayList)++)` idiom the second command
+ * already carries, invisible in the object because the copy is peepholed away.
+ * Both edits are regressions alone (62 and 66) and 36 together.
+ *
+ * The residue is a uniform ring rotation from +0x128 on, beginning at the
+ * 0xFB000000 constant: the target holds one further web that this candidate
+ * does not. It is not colour-reachable -- 36 of 36 single-web forces over the
+ * eight allocator webs leave the object unchanged or worse -- so it is a web
+ * count, not a colour. Flat at 36 or worse: all 16 subsets of carriers over
+ * the four plain command sites, both orders of two distinct carriers crossed
+ * with dropping either frame-filler local, five source-level ring nudges
+ * (read-backs of screenWidth/screenHeight/transform fields/the unused locals),
+ * naming the constant in a local (byte-identical), five region boundaries
+ * (L97; the bare-brace control is byte-identical, as the law predicts), and
+ * folding every command's word pair onto one line (45).
  */
 #ifdef NON_MATCHING
 void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
@@ -98,6 +100,7 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
     s32 rotated;
     Overlay101Transform transform;
     Overlay101Gfx *new_var;
+    Overlay101Gfx *new_var2;
     s32 right;
     s32 bottom;
     Overlay101Gfx *command;
@@ -121,13 +124,13 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
         command = (new_var = (*displayList)++);
         command->w0 = 0xFA000000;
         command->w1 = element->color | 0xFFFFFF00;
+        command = (*displayList)++;
+        command->w1 = 0xFFFFFF00;
+        command->w0 = 0xFB000000;
         if (element->rotation != 0)
             rotated = 1;
         else
             rotated = 0;
-        command = (*displayList)++;
-        command->w1 = 0xFFFFFF00;
-        command->w0 = 0xFB000000;
         overlay101GetBounds2Reloc(node, &bounds0, &bounds1, &bounds2, &bounds3);
         overlay101SetScissor2Reloc(displayList, bounds0, bounds1, bounds2,
                                    bounds3);
@@ -138,7 +141,7 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
                                        element->color);
         if (element->scale == 1.0f)
             overlay101SetTransformModeReloc(1);
-        command = (*displayList)++;
+        command = (new_var2 = (*displayList)++);
         command->w1 = 0;
         command->w0 = 0xE7000000;
         command = (*displayList)++;
@@ -155,10 +158,10 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
 
 /* PLATEAU-HANDOFF:overlay101DrawTransformed:start
  * symbol: overlay101DrawTransformed
- * score: 43 differing words
+ * score: 36 differing words
  * frame: 0x90
  * relocations: 7
- * first-mismatch: +0x9C
- * summary: Exact 664 bytes, 166/166 words, frame 0x90 and CFG; 43 raw and 43 masked differences from +0x9C, of which 23 are register-blind. Moving the rotation test ahead of the third command build cut the basin from 62 to 43 words.
+ * first-mismatch: +0x128
+ * summary: Exact 664 bytes, 166/166 words, frame 0x90 and CFG. Putting the rotation test where the target has it (after the third command build) frees the 0xFFFFFF00 constant onto a1, and one nested-assignment carrier at the fourth command restores the temp ring the move rotates; each is a regression alone and together they give 36. The residue is a uniform ring rotation from +0x128, proved to be a missing web rather than a colour.
  * PLATEAU-HANDOFF:overlay101DrawTransformed:end
  */
