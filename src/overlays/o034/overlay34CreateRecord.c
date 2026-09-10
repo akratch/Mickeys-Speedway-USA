@@ -76,14 +76,20 @@ extern Overlay34Resource *func_80034448(s16 resourceId);
 extern void func_80029FE4(Overlay34Input *input, f32 direction[3]);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
+/* 24/125 differing words, frame exact at 0x30. The declaration order below is load-bearing: declaring
+ * width/height ahead of candidate/index gives the declared block two more carriers, which is what the
+ * 8-byte non-save deficit was (30 -> 24, all eight stack-displacement words). */
+/* Source evidence not yet adopted: the target reads gOverlay34ActiveCount, gOverlay34Pointers and
+ * gOverlay34Count as offsets 0, 4 and 8 of ONE relocated symbol, so the three were members of a single
+ * struct in the original. Masking hides this from the score; it is visible in the relocation table. */
 #ifdef NON_MATCHING
 Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     Overlay34Record *record;
     Overlay34Record *current;
-    Overlay34Record *candidate;
-    s32 index;
     s32 width;
     s32 height;
+    Overlay34Record *candidate;
+    s32 index;
 
     candidate = NULL;
     if (gOverlay34ActiveCount < gOverlay34Count) {
@@ -156,10 +162,10 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
 
 /* PLATEAU-HANDOFF:overlay34CreateRecord:start
  * symbol: overlay34CreateRecord
- * score: 95/125 words
- * frame: 0x28
+ * score: 24/125 words
+ * frame: 0x30
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Fresh linked baseline is text-differs in=30/out=0; an explicit resource local folds away, shortens to 124 words, and regresses linked output to in=109/out=1222.
+ * summary: Declaring width/height ahead of candidate/index grew the declared block by two cells and closed the frame at 0x30; masked 30 to 24. Residual is three colour pairs: the global address web against the constant 2 (t2/t1), index against record (v0/v1), and a coalesced current whose copy the target keeps as move a0,v1.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

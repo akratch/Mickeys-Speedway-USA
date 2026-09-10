@@ -3203,21 +3203,25 @@ extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                          f32 threshold, TrackRayHit *hit);
 extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
 
-/* Workbench verdict: structure-mismatch, 41/147 differing words, first mismatch +0x14. */
-/* Candidate size and -0xB8 frame are exact; all six relocation identities align. */
-/* Remaining gap: saved-register cycling plus local and FP-producer allocation. */
+/* Workbench verdict: 20/147 differing words, first mismatch +0x3c; size and -0xB8 frame exact. */
+/* The declaration order below is load-bearing, not cosmetic: homes descend from the frame top in
+ * declaration order, so var_s4/var_s7 take the two cells above `scratch` and sp6C/sp68 the two lowest.
+ * That single reorder closed all 21 stack-displacement words (41 -> 20) with no other edit. */
+/* Remaining gap: one 3-cycle over s4/s5/s6 -- the target numbers var_s4's web below the two
+ * &scratch member-address webs, we number it above -- plus lengthSquared, which the target holds in
+ * the callee-saved f20 and copies to f12 at the sqrtf call where we coalesce it straight into f12. */
 s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                   void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
+    s32 var_s4;
+    s32 var_s7;
     TrackRayScratch scratch;
-    s32 sp6C;
-    s32 sp68;
     f32 temp_f0;
     f32 temp_f20;
     f32 lengthSquared;
     s32 var_s2;
-    s32 var_s4;
-    s32 var_s7;
     s32 var_v0;
+    s32 sp6C;
+    s32 sp68;
     sp6C = 0;
     sp68 = 0;
     var_s7 = 0;
@@ -5688,11 +5692,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 41 differing words
+ * score: 20 differing words
  * frame: 0xb8
  * relocations: 6
- * first-mismatch: +0x14
- * summary: Fresh m2c reproduces the superseded form and no new stack/call/CFG identity. Reconstruction exhausted; next: original declaration/lifetime evidence.
+ * first-mismatch: +0x3c
+ * summary: Declaration order closed all 21 stack-home constants; 41 to 20. Homes descend from the frame top in declaration order, so var_s4/var_s7 move above scratch and the two flags to the end of the list. Residual is one 3-cycle over s4/s5/s6 plus lengthSquared coloured f12 where the target holds f20 across the sqrtf call.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 

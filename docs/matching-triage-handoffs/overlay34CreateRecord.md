@@ -2,11 +2,11 @@
 ### `overlay34CreateRecord` plateau handoff
 
 - source: `src/overlays/o034/overlay34CreateRecord.c`
-- score: 95/125 words
-- frame: 0x28
+- score: 24/125 words
+- frame: 0x30
 - relocations: 12
 - first mismatch: +0x0
-- summary: Fresh linked baseline is text-differs in=30/out=0; an explicit resource local folds away, shortens to 124 words, and regresses linked output to in=109/out=1222.
+- summary: Declaring width/height ahead of candidate/index grew the declared block by two cells and closed the frame at 0x30; masked 30 to 24. Residual is three colour pairs: the global address web against the constant 2 (t2/t1), index against record (v0/v1), and a coalesced current whose copy the target keeps as move a0,v1.
 
 #### Epoch 15 linked near-shape pass (2026-09-04)
 
