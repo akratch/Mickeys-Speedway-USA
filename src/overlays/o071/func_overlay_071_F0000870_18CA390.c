@@ -69,6 +69,19 @@ extern void func_800241BC(Overlay71Command **commands);
  * importer reformats the TU: it undoes the fold above before generating a
  * single candidate, reported this function's unfolded score of 420 as its
  * base, and spent its whole budget improving that.
+ *
+ * 2026-09-10, lane w8-tu: the instrumented allocator names the requirement.
+ * The two flag-load webs are both p1 decisions at save 2.0; the first has
+ * three colours plus a callee-saved one forbidden and takes the fourth, the
+ * second has two plus the callee-saved one and takes the third. Both want the
+ * fifth. The sweep runs in strictly descending save with ties broken by
+ * ascending web number, and the invisible `flags` carrier -- the web just
+ * ahead of them, also at save 2.0 -- interferes with the first pair and not
+ * with the second, which is exactly why they land one colour apart. So the
+ * lever must CREATE a web that interferes with both, is coloured before them,
+ * and pushes the carrier up one. Every other interferer of the two is a
+ * constant web at save 1.0 or below, so none of the existing ones can. See
+ * the handoff shard.
  */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
