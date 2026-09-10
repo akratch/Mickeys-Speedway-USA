@@ -14,8 +14,14 @@
 # run tripped on 4294967292, which is 0xFFFFFFFC in a debug locals dump -- so
 # 429 needs digit boundaries AND an error word somewhere on the same line.
 # Note "somewhere": a first attempt required the word to follow the number and
-# so missed "HTTP status 429 returned by the API", which is the failure that
-# actually matters. The two conditions are tested independently.
+# so missed "HTTP status 429 returned by the API". The two conditions are
+# tested independently.
+#
+# The token list is empirical, not guessed, and it was wrong twice before it
+# was right. The real exhaustion, when it came, printed "Your workspace is out
+# of credits" -- which matched nothing here, so this reported a clean run while
+# the worker was dead. Every phrase below is one actually observed in a log.
+# When a new one turns up, add it; do not try to anticipate the vendor.
 set -uo pipefail
 name=${1:?lane name}
 lane="$(git rev-parse --show-toplevel)/../mickey-lane-${name}"
@@ -33,7 +39,7 @@ fi
 
 # Error-shaped, not prose-shaped.
 # Textual tokens the API actually emits: these stand alone.
-TOKENS='rate_limit[a-z_]*|quota_exceeded|insufficient_quota|usage limit reached|too many requests'
+TOKENS='rate_limit[a-z_]*|quota_exceeded|insufficient_quota|usage limit reached|too many requests|out of credits|refill|billing_hard_limit|credit balance'
 # A bare status code only counts with an error word anywhere on the line.
 STATUS='(^|[^0-9])429([^0-9]|$)'
 CONTEXT='status|error|http|limit'
