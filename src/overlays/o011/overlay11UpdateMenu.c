@@ -95,6 +95,46 @@ extern void overlay66Select(s32 selection);
  * two. These are diagnostics, not matching C. The zero-temp indexed menuInput
  * form disproves the prior universal temp-cost claim, not the scope blocker.
  * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
+ *
+ * A 2026-09-10 second pass (lane c4-o11) closes the frame objection and moves
+ * the residual. The scheduler trace shows why the pair inverts: without the
+ * disambiguation fact the argument load has BOTH spill stores as dependent
+ * successors, so scheduling the load releases them together, they enter the
+ * ready list in reverse emission order, and the later one wins the tie. With
+ * the fact they have no predecessor and keep emission order, which is the
+ * target. A second sufficient input exists at the ugen level -- emitting the
+ * two spill stores in the opposite order reaches an object identical to the
+ * fact-bearing control -- but a scan of 391 compiled units finds 136 of 136
+ * caller-save spill groups emitted in ascending physical register number, and
+ * the target's own bytes put the index in v0 and the handle in v1, so ugen
+ * cannot emit the handle store first. That route is closed.
+ *
+ * The recorded temp-cell exclusion is false for this function. The frame is
+ * align8(28 + declared block + 4 * pooled temporaries) and the declared block
+ * is a census the source controls. Cutting it from 44 to 28 bytes -- drop the
+ * object local, fold selection and action into index, inline the value
+ * ternary, keep one pointer local -- lands the strength-reduced pointer on
+ * pool cell 1 at 36(sp), index at 68(sp), status at 48(sp), finish at 44(sp),
+ * frame 0x48, 215 instructions, with the fact covering the pair. The
+ * configured object then carries the target's store order at +0x138 and its
+ * delay slot at +0x140: that pair is fixed.
+ *
+ * The residual moves to +0x10C/+0x110, the loop preheader, and the new barrier
+ * is a different mechanism. uopt appends a strength-reduced induction
+ * pointer's preheader initialisation after every user preheader statement,
+ * while the target orders the pointer's address materialisation before the
+ * index initialiser -- an order only a user assignment produces, and a user
+ * assignment means a walking pointer, which never emits the fact. Five loop
+ * shapes and three initialiser placements all keep the induction init last;
+ * six constant-index forms (including a pointer-to-array element and a
+ * one-element array member) all fold to a plain dereference and emit no fact;
+ * six pointer-arithmetic spellings of the indexed load all fold to the same
+ * base-plus-four with a minus-four displacement, and only routing the offset
+ * through a pointer variable restores the zero displacement. So the two halves
+ * are complementary: the fact costs the preheader, and the preheader costs the
+ * fact. Both land at 299/301 with zero size delta, so the retained body is
+ * unchanged. Do not re-run the spelling lattice; the open lever is a form that
+ * emits the fact without a strength-reduced induction pointer.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
@@ -234,6 +274,6 @@ void overlay11UpdateMenu(s32 updateRate) {
  * frame: 0x48
  * relocations: 102
  * first-mismatch: +0x138
- * summary: Load base is $3; its existing noalias fact covers later menuInput, not handle at the spill pair. Indexed menuInput is byte-identical and adds no temps.
+ * summary: The indexed form reaches frame 0x48 with every target stack home and fixes the +0x138 spill pair; the residual moves to the preheader because uopt emits an induction pointer's initialiser after every user statement.
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
