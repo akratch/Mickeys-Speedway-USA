@@ -75,10 +75,38 @@ extern Overlay60Object *overlay60FindReloc(u8 index);
 
 #define SOURCE(type, offset) (*(type *)(gOverlay60SourceReloc + (offset)))
 
-/* Workbench: mixed structure/schedule/register, 21 words, first +0x6C.
+/* Workbench: mixed structure/schedule/register, 17 words, first +0x108.
  * A fidelity-clean allocator trace could not attribute source webs or stack
- * homes. Scheduler-selected descriptor reordering was non-improving in exact
- * words, and coordinate carriers regressed the frame; retain functional C. */
+ * homes, and coordinate carriers regressed the frame.
+ *
+ * 2026-09-10, lane c6-close: 21 -> 17 in two independent edits, both of them
+ * ordinary C.
+ *
+ * The first is L59's structural form. The counter and the object cursor were
+ * initialised on two statements ahead of a guarded `do`; moving BOTH into one
+ * `for` header makes them share a source line, which is the tie-break as1
+ * reaches last, and the two hoisted address materialisations then complete
+ * before the counter is zeroed as they do in the target. That alone is 21 ->
+ * 19. The bound was already register-resident, so this is not the counted-`for`
+ * rewrite the earlier closure measured at 28 -- what pays here is the shared
+ * line, not the loop shape: `i = 0, objects = ...;` on one statement before an
+ * unchanged `do` scores 22, and putting the cursor first in the header scores
+ * 27.
+ *
+ * The second is the descriptor store order, worth 19 -> 17. The residual is
+ * schedule-sensitive to it: 23,649 orders of the nine loop-body statements
+ * were measured and the floor is 17. The retained order is corroborated
+ * independently of the search -- the target stores z, pad0C, alpha, pad0A in
+ * that sequence, which is the contiguous block every 17-scoring order carries,
+ * and one of objectId/size has to sit last. Nine orders reach 17; this is the
+ * one closest to declaration order.
+ *
+ * Still open, and unchanged by either edit: the target spends one more coloured
+ * pool web than the candidate on the inner-pointer load. Naming that pointer is
+ * refuted again on this base -- six declaration positions as `Overlay60Inner *`
+ * and six as `Overlay60Inner **` all grow the frame to 0x68 and regress to
+ * 83/84 -- so it is not a declared local. All 120 declaration orders are
+ * byte-flat at the plateau, so the frame and every home are already right. */
 #ifdef NON_MATCHING
 void func_overlay_060_F0000000_18B9DD8(void) {
     Overlay60Object **objects;
@@ -110,25 +138,21 @@ void func_overlay_060_F0000000_18B9DD8(void) {
     gOverlay60Data48 = 0x9B;
     gOverlay60Data4C = -1;
 
-    i = 0;
-    objects = &gOverlay60ObjectC8;
-    do {
+    for (i = 0, objects = &gOverlay60ObjectC8; i < 4; i++, objects++) {
         desc.objectId = 0x138;
-        desc.size = 0xE;
         coordinate = (s16 *)((u32)gOverlay60CoordsD8 + (i << 2));
         desc.x = coordinate[0];
         desc.y = coordinate[1];
         desc.z = 0;
-        desc.pad0A = 0;
-        desc.alpha = 0x80;
         desc.pad0C = 0;
+        desc.alpha = 0x80;
+        desc.pad0A = 0;
+        desc.size = 0xE;
         object = overlay60SpawnReloc(&desc, 0);
         *objects = object;
         (*object->inner)->mode = 2;
         overlay60ConfigureReloc(*objects, 0, 0, 0.0f);
-        i++;
-        objects++;
-    } while (i < 4);
+    }
 
     overlay60InitReloc(gOverlay60Bss00);
     gOverlay60Bss20 = *(u32 *)(gOverlay60PostSourceReloc + 0x1E4);
@@ -164,10 +188,10 @@ void func_overlay_060_F0000000_18B9DD8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:start
  * symbol: func_overlay_060_F0000000_18B9DD8
- * score: 184/205 words
+ * score: 188/205 words
  * frame: 0x60
  * relocations: 76
- * first-mismatch: +0x6C
- * summary: scheduler and allocator residue; reorder and coordinate-index probes regressed or stayed flat at 21 normalized differences
+ * first-mismatch: +0x108
+ * summary: 21 to 17 by moving both loop initialisations into one for header (L59 shared line) and by the descriptor store order, whose floor over 23,649 measured orders is 17. Remaining is one extra coloured pool web in the target on the inner-pointer load; naming it is refuted in 12 further forms and all 120 declaration orders are byte-flat.
  * PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:end
  */
