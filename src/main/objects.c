@@ -5841,11 +5841,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80007118:start
  * symbol: func_80007118
- * score: 181 differing words
+ * score: 186 differing words
  * frame: 0x38
  * relocations: 71
  * first-mismatch: +0x2C
- * summary: Workbench structure-mismatch: register-role. Next: authenticate model-pointer coloring and callback lifetimes; resolve owned local-branch relocations.
+ * summary: Re-derived at 186. One carrier colour drives it: the target names v0 143 times and a1 once, the candidate a1 117 times and v0 16.
  * PLATEAU-HANDOFF:func_80007118:end
  */
 
