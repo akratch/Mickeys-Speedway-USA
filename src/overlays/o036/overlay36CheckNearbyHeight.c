@@ -30,61 +30,52 @@ extern s32 func_8005776C(f32, f32, f32, f32, s32,
                          Overlay36Nearby **);
 extern u8 *gOverlay36WorldStateReloc[];
 
-/* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
- * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
-/* Workbench verdict: operand mismatch, 56/63 words exact, frame 0x80 versus
- * 0x70; all opcodes and register lanes are exact after the bound source copy.
- * The 119-flag lattice and ten historical source hypotheses are nonexact;
- * removing the nearby-value home reaches only 0x78 and breaks the exact
- * allocation. A fidelity-gated whole-itable frame ladder identifies the
- * address-taken 52-byte results array, the state home live across the call,
- * homes for nearby/i/center/low/high, and the post-decrement temp. Direct
- * nearby access removes its home and reaches 0x78 but changes the integer
- * allocation; direct center access remains 0x80 and changes FP allocation;
- * removing both still stops at 0x78 and combines both regressions. The second
- * aligned eight-byte quantum therefore needs a producer mechanism that keeps
- * the exact integer/FP web topology. A 2026-09-04 declared-local/carrier pass
- * tested ten current-canonical forms: removing the state home, inlining one or
- * both height bounds, direct nearby reads, and reusing the center as a bound.
- * The reduced forms either remain at 0x80 or bottom out at 0x78 while adding
- * structural/register drift; none reaches the target's 0x70 frame with the
- * baseline's exact register lanes. The relocation synthesizer derives the
- * unresolved overlay-data pair consistently as LOCAL value 0x150; assembly
- * fallback stays canonical.
+/* Count nearby objects whose height is outside a 45-unit band around this
+ * object's, and latch the world "changed" flag when none are left.
+ * PROVENANCE: Mickey-local reconstruction; pinned DKR v77/v80 are negative and
+ * JFG's Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers.
+ * No external C is adapted here.
  *
- * 2026-09-10, lane nm-ovlsmall: the residual is exactly the frame and nothing
- * else. All four register lanes are already exact (pool 13/13, temp 7/7,
- * shared 7/7, fp 6/6); the seven words are the two `addiu sp` and five
- * sp-relative displacements. A new instrument measures the layout directly:
- * `cc -g3` keeps the same .text here and emits an .mdebug local table whose
- * entries are each declared local's home, as an offset from the frame top. The
- * frame reads as arg area (24 rounded to 32) + saves (8) + a declared block
- * that ends at the frame top + compiler temps below it. The candidate homes
- * seven locals at 76/72/68/64/60/56/52 -- results, state, nearby, i, center,
- * low, high -- with 12 bytes of temps, so block+temps is 88. The target's
- * frame of 112, with the array at 60 and the state spill at 56, means
- * block+temps must be 72.
+ * 2026-09-10, lane o7-ovl: seven words to three, and the residual is now the
+ * frame SIZE and nothing else. Every displacement inside the frame is exact --
+ * the results array at sp+60 and the state spill at sp+56 both land on the
+ * target's slot -- so the only three differing words are the two `addiu sp`
+ * and the incoming-argument home, which is frame+4 and follows from them.
  *
- * Declaration surgery bottoms out at 80. Dropping any single name frees eight
- * bytes; dropping more frees nothing, because each value that loses its name
- * becomes a compiler temp and the temps absorb what the block gives up. The
- * one arrangement that does reach 72 moves three of the five scratch values
- * out of the frame entirely, as parameters, whose homes live in the caller's
- * frame: with only `nearby` and `i` left as locals and center/low/high
- * declared as trailing parameters, the frame is exactly 112, the homes are
- * exactly 60/56/52/48, and every instruction matches except two -- IDO
- * unconditionally homes a2 and a3 for any function declaring three or more
- * parameters, and the target stores only a1. The target therefore has exactly
- * two parameters, which falsifies the extra-parameter mechanism while
- * confirming the layout the source has to reach.
+ * The lever was declaration ORDER, an axis no earlier pass swept. cfe lays
+ * declared locals from the frame top in declaration order, so a local's home
+ * is `frameTop - (bytes declared at or before it)` and the array's base is
+ * `frame - 52 - (bytes declared before it)`. All 5,040 orders were compiled:
+ * 120 of them score 3, 1,080 score 5, and 3,840 score 7. The 3-word set is
+ * exactly the orders with four scalars ahead of the array and `state` sixth,
+ * which puts the array at 60 and `state` at 56 while the frame is still 128.
  *
- * Newly falsified, all byte-flat: `register` on all five scratch locals;
- * declaring them in an inner block; and an entirely unused extra local, which
- * is eliminated outright. Adding two pure-copy locals raises the frame by
- * exactly eight bytes with identical code, which is how the per-home cost was
- * measured. Three top-tested rewrites of the scan loop leave the frame at 128.
- * The bounds cannot be unnamed: every form that drops `low`/`high` sinks the
- * `sub.s`/`add.s` into the loop instead of hoisting them. */
+ * That also closes the frame arithmetically. Only six sp displacements are
+ * ever touched (16/20 outgoing arguments, 32/36 saves, 56 state, frame+4 the
+ * argument home), so every other home is reserved and never read: the frame is
+ * pure bookkeeping. It is `round8(40 + block + temps)` with 40 = argument area
+ * plus saves, block = 52 + 4 * (scalars declared after the array), and temps
+ * the compiler's spill area. The target's 112 needs block + temps = 72, and a
+ * seven-name block is 76 on its own. **The target therefore declares at most
+ * five scalars beside the array**, and a six-scalar source cannot reach 112 in
+ * any order -- which retires the whole ordering axis as a route to the frame
+ * and names the next one.
+ *
+ * Six-name sources bottom out at 120. Dropping any single name frees eight
+ * bytes of block but the compiler takes some back as temps, and each drop also
+ * moves registers: nearby 20 words, center 11, low 23, nearby+center 22. A
+ * five-name source needs temps to be exactly zero. Earlier passes also
+ * falsified, all byte-flat or regressing: `register` on all five scratch
+ * locals, declaring them in an inner block, an entirely unused extra local
+ * (eliminated outright), three top-tested rewrites of the scan loop (frame
+ * 128), and every form that drops low/high, which sinks the sub.s/add.s into
+ * the loop instead of hoisting them. An explicit `!=` exit test reaches 0x78
+ * by dropping the counter but unrolls the loop, adding 224-236 bytes against a
+ * zero-delta target. Moving three scratch values out as trailing parameters
+ * reaches the exact 112 frame and the exact homes, and fails by exactly two
+ * instructions: IDO unconditionally homes a2 and a3 once a function declares
+ * three or more parameters, and the target stores only a1 -- which is what
+ * proves the target has exactly two parameters. */
 
 
 
@@ -101,13 +92,13 @@ extern u8 *gOverlay36WorldStateReloc[];
 #ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
-    Overlay36Nearby *results[13];
-    Overlay36State *state;
-    Overlay36Nearby *nearby;
-    s32 i;
     f32 center;
     f32 low;
     f32 high;
+    s32 i;
+    Overlay36Nearby *results[13];
+    Overlay36State *state;
+    Overlay36Nearby *nearby;
 
     state = object->state;
     if (state->active == 0) {
@@ -144,10 +135,10 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
 
 /* PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:start
  * symbol: func_overlay_036_F0000818_1883CD0
- * score: 56/63 words
+ * score: 60/63 words
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Indexed pointer removes one raw mismatch; frame remains 0x80 vs target 0x70 and needs a new producer topology.
+ * summary: Declaration order fixes every in-frame displacement; the residual is the frame SIZE alone, and block arithmetic proves a six-scalar source can never reach 0x70.
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */
