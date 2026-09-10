@@ -2223,6 +2223,13 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
  * Declaration order is fixed and not a free variable: homes follow declaration
  * order top-down, so horizontalB must stay eighth (home 0x70) and axisA ninth
  * (home 0x6C), which is exactly the order that numbers the normal.x web first.
+ * Carrier identity is now tested too and is not the lever (2026-09-10): axisA
+ * is uniquely correct in both blocks, axisB's carrier is inert because it never
+ * becomes a coloured web, and 34 carrier, inner-block-scope, negation-splitting
+ * and read-back forms are flat at 39 or lose an instruction.  An all-volatile
+ * aggregate with direct reads scores 37 and is NOT closer -- it emits five
+ * loads where the target emits three and fills both r4300 multiply-hazard nop
+ * slots the target keeps.
  * Resume with a mechanism that stops uopt colouring a single-block named-local
  * web, not with another spelling of this block. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x27C..+0x2AC .rodata range;
