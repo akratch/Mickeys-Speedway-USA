@@ -1753,7 +1753,37 @@ D_500 = 0x00000500;
 D_504 = 0x00000504;
 
 /* overlay 57: overlay57EaseAndLatch.c.o */
-D_23C = 0x0000023c;
+gO57Ease28B4Id183 = 0x00000183;
+gO57Ease28B4InputFlagsReloc = 0x00000000;
+gO57Ease28B4Latch50C = 0x0000050c;
+gO57Ease28B4Record21C = 0x0000021c;
+gO57Ease28B4Record23C = 0x0000023c;
+gO57Ease28B4State118 = 0x00000118;
+gO57Ease28B4State144 = 0x00000144;
+gO57Ease28B4State180 = 0x00000180;
+o57Ease28B4AlternateCommandReloc = 0xf0000000;
+o57Ease28B4AlternateFinishReloc = 0xf0000000;
+o57Ease28B4CommandReloc = 0xf0000000;
+o57Ease28B4LookupAgainReloc = 0xf0000000;
+o57Ease28B4LookupPrimaryReloc = 0xf0000000;
+o57Ease28B4LookupSecondaryReloc = 0xf0000000;
+o57Ease28B4NotifyFirstReloc = 0xf0000000;
+o57Ease28B4NotifySecondReloc = 0xf0000000;
+
+/* overlay 57: overlay57SmoothAndCheckDistance.c.o */
+gO57Tail2C28Completion50C = 0x0000050c;
+gO57Tail2C28DistanceLimit104 = 0x00000104;
+gO57Tail2C28QueryWord180 = 0x00000180;
+gO57Tail2C28Record21C = 0x0000021c;
+gO57Tail2C28Record23C = 0x0000023c;
+gO57Tail2C28Reference14C = 0x0000014c;
+gO57Tail2C28Timer118 = 0x00000118;
+o57Tail2C28EmitReloc = 0xf0000000;
+o57Tail2C28FinishReloc = 0xf0000000;
+o57Tail2C28GetPositionReloc = 0xf0000000;
+o57Tail2C28QueryReloc = 0xf0000000;
+o57Tail2C28ResetReloc = 0xf0000000;
+o57Tail2C28StartReloc = 0xf0000000;
 
 /* overlay 57: overlay57CheckDistance.c.o */
 gOverlay57DistanceLimit = 0x00000108;
@@ -1780,12 +1810,35 @@ overlay57ApplyReloc = 0xf0000000;
 overlay57FindEntryReloc = 0xf0000000;
 
 /* overlay 57: overlay57Draw32A0.c.o */
-D_124 = 0x00000124;
-D_34C = 0x0000034c;
-D_3C8 = 0x000003c8;
-D_3D8 = 0x000003d8;
-D_3F8 = 0x000003f8;
-D_458 = 0x00000458;
+gO57Draw32A0AnchorReloc = 0x00000000;
+gO57Draw32A0Available4CC = 0x000004cc;
+gO57Draw32A0Envelope124 = 0x00000124;
+gO57Draw32A0GateReloc = 0x00000000;
+gO57Draw32A0HalfwordsReloc = 0x00000000;
+gO57Draw32A0Local08 = 0x00000008;
+gO57Draw32A0Local18 = 0x00000018;
+gO57Draw32A0Local28 = 0x00000028;
+gO57Draw32A0Masks3C8 = 0x000003c8;
+gO57Draw32A0Records3F8 = 0x000003f8;
+gO57Draw32A0Records458 = 0x00000458;
+gO57Draw32A0Selection1A0 = 0x000001a0;
+gO57Draw32A0Shifts3D8 = 0x000003d8;
+gO57Draw32A0State118 = 0x00000118;
+gO57Draw32A0StripeReloc = 0x00000000;
+gO57Draw32A0TableMode18C = 0x0000018c;
+gO57Draw32A0WordTable4B8 = 0x000004b8;
+gO57Draw32A0Work34C = 0x0000034c;
+o57Draw32A0Call0Reloc = 0xf0000000;
+o57Draw32A0Call1Reloc = 0xf0000000;
+o57Draw32A0Call2Reloc = 0xf0000000;
+o57Draw32A0ColorReloc = 0xf0000000;
+o57Draw32A0ModeReloc = 0xf0000000;
+o57Draw32A0RenderReloc = 0xf0000000;
+o57Draw32A0SetupReloc = 0xf0000000;
+o57Draw32A0Stripe0Reloc = 0xf0000000;
+o57Draw32A0Stripe1Reloc = 0xf0000000;
+o57Draw32A0Stripe2Reloc = 0xf0000000;
+o57Draw32A0Stripe3Reloc = 0xf0000000;
 
 /* overlay 57: overlay57UpdateSelection.c.o */
 D_104 = 0x00000104;
@@ -1849,7 +1902,11 @@ overlay57StartQueryReloc = 0xf0000000;
 D_36C = 0x0000036c;
 
 /* overlay 57: overlay57UpdateModeTrigger.c.o */
-D_168 = 0x00000168;
+overlay57TailFindObjectReloc = 0xf0000000;
+overlay57TailPrepareObjectReloc = 0xf0000000;
+overlay57TailQueryChoiceReloc = 0xf0000000;
+overlay57TailQueryModeReloc = 0xf0000000;
+overlay57TailStartObjectReloc = 0xf0000000;
 
 /* overlay 57: overlay57InitializeMode.c.o */
 overlay57FindResultReloc = 0xf0000000;
@@ -1912,6 +1969,7 @@ overlay58ConfigureNodeReloc = 0xf0000000;
 overlay58FindNodeReloc = 0xf0000000;
 
 /* overlay 58: func_overlay_058_F000138C_18B0574.c.o */
+D_23C = 0x0000023c;
 D_296 = 0x00000296;
 D_2A6 = 0x000002a6;
 D_2B8 = 0x000002b8;
@@ -2327,6 +2385,9 @@ D_198 = 0x00000198;
 gOverlay63Block = 0x00000000;
 gOverlay63Resource = 0x00000000;
 overlay63ReleaseReloc = 0xf0000000;
+
+/* overlay 63: overlay63UpdateSequence.c.o */
+D_124 = 0x00000124;
 
 /* overlay 65: overlay65Initialize.c.o */
 gOverlay65Buffers = 0x00002980;

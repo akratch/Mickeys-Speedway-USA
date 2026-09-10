@@ -117,7 +117,14 @@ extern void func_overlay_084_F0001060_18D1540(s32 state);
 extern void func_overlay_084_F0001350_18D1830(void);
 extern void func_overlay_084_F0001398_18D1878(void);
 
-/* Typed reconstruction candidate; control-flow reconstruction remains in progress. */
+/* Typed reconstruction candidate; control-flow reconstruction remains in
+ * progress. The frame is exact at 0x140: renderState is a 24-byte buffer, not
+ * 32 -- 24 is the only size in 21..24 that closes the frame, and every other
+ * homed object's size was already pinned by its fake name (stack5C, stack64,
+ * stack78/7C/80, stackB0 are the target's own offsets). Declaration order
+ * still places the homed block 16..40 bytes off those offsets, but reordering
+ * it moves no words: the residual is 400 opcode differences later in the body,
+ * not the frame. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -142,7 +149,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     u8 activePlayers[10];
     O57MiddleTextureNode textureNodes[2];
     char stackB0[2];
-    char renderState[32];
+    char renderState[24];
     s32 stack80;
     s32 stack7C;
     s32 stack78;
@@ -537,10 +544,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 503 differing words
- * frame: 0x148
+ * score: 494/1208 words
+ * frame: 0x140
  * relocations: 373
- * first-mismatch: +0x0
- * summary: Size converted: 1208/1208 words, instruction delta 0 (was -4). 59/66 call regions exact. Next: region 55 surplus +3 vs five -1 regions.
+ * first-mismatch: +0x100
+ * summary: renderState is 24 bytes, not 32, which closes the frame at the target 0x140 and 9 words; instruction count, frame and the pool lane past slot 19 now agree, leaving 400 opcode differences in the body.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */

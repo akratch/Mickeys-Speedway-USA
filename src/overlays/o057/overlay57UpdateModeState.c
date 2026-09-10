@@ -113,13 +113,18 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
 #define overlay57Call3FA4Reloc o57ModeOpaqueVoidCallReloc
 #define overlay57Call3FB8Reloc o57ModeOpaqueVoidCallReloc
 
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x588 and differs in 87
- * words, first at +0xDC.  The residual is a broad private GPR allocation web;
- * the flag lattice found no alternate codegen basin. */
+/* Plateau: exact-size at 0x588, 74 masked words, first at +0x108.
+ * savedEligible is a plain s32: as `volatile` it forced a reload web that
+ * moved thirteen words. `timer` is declared at function scope ahead of it so
+ * that the eligibility spill takes the frame's first cell at sp+0x28, which is
+ * where the target keeps it. What remains is the spill point itself -- the
+ * target stores it in the delay slot of the timer test, the candidate in the
+ * delay slot of the following call -- and one v0/v1 colour swap at +0x108. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
+    s32 timer;
     s32 eligible;
-    volatile s32 savedEligible;
+    s32 savedEligible;
 
     O57_S32(0x144) = 1;
     {
@@ -153,8 +158,6 @@ void overlay57UpdateModeState(s32 updateRate) {
     }
 
     {
-        s32 timer;
-
         timer = gO57ModeTimer114;
         if ((timer >= 31) && (O57_SUB_WRAP(timer, updateRate) < 31)) {
             overlay57Call3B4CReloc(0x10, 0);
@@ -315,10 +318,10 @@ dispatch_done:
 
 /* PLATEAU-HANDOFF:overlay57UpdateModeState:start
  * symbol: overlay57UpdateModeState
- * score: 267/354 words
+ * score: 74/354 words
  * frame: 0x30
  * relocations: 59
- * first-mismatch: +0xDC
- * summary: Candidate emits 122 records; 58 offset/type pairs align; ten natural forms exhausted and the apparent 74-word gain breaks opcodes, alignment, and stack home.
+ * first-mismatch: +0x108
+ * summary: A non-volatile savedEligible and a function-scope timer put the eligibility spill on the target's frame cell and close 13 words; the spill point and one v0/v1 colour swap remain.
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */

@@ -47,21 +47,25 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 scale, f32 position, f32 xScale,
                                    f32 yScale, s32 color, s32 command);
 
-/* Overlay 57 text +0x32A0..+0x35E0. */
-/* Plateau (batch 20): exact 0x340; 60 words remain, first +0x0 (frame -0x78/-0x70).
- * Reused rising for packed and count-first arms improved 86; 119 flags and 10 attempts failed.
- * The 40-minute -mips2 permuter's best 835 required unsupported pointer/width detours. */
-#ifdef NON_MATCHING
+/* Overlay 57 text +0x32A0..+0x35E0. Exact: 208 words, frame 0x70, 53/53
+ * relocation identities.
+ *
+ * Both envelope arms are compound assignments through the global rather than
+ * a local assigned and then stored. Written the other way, uopt materialises
+ * the value a second time -- the saturating arm hoists a duplicate `li 254`
+ * into the guard's delay slot, and the decay arm keeps a separate carrier --
+ * and each duplicate rotates the whole block-local temp ring behind it.
+ *
+ * The mask and shift tables are indexed by the loop counter. Declared as
+ * pointer cursors they reserve two frame cells the target does not have,
+ * which is the 8 bytes by which the frame used to exceed 0x70. */
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
     Overlay57Draw32A0Record *cursor;
-    u32 *maskCursor;
-    u32 *shiftCursor;
     s32 envelope;
     s32 rowCount[1];
     s32 position;
     s32 i;
-    u32 bits;
     s32 rising;
 
     if (gO57Draw32A0Available4CC == 0) {
@@ -81,12 +85,12 @@ void overlay57Draw32A0(s32 updateRate) {
     if (rising != 0) {
         envelope = (gO57Draw32A0Envelope124 += updateRate * 8);
         if (envelope >= 0xFF) {
-            envelope = rising + 0xFD;
-            gO57Draw32A0Envelope124 = envelope;
+            gO57Draw32A0Envelope124 = 0xFE;
+            envelope = gO57Draw32A0Envelope124;
         }
     } else {
-        envelope = gO57Draw32A0Envelope124 - updateRate * 32;
-        gO57Draw32A0Envelope124 = envelope;
+        envelope = (gO57Draw32A0Envelope124 =
+                    gO57Draw32A0Envelope124 - updateRate * 32);
         if (envelope < 0) {
             gO57Draw32A0Envelope124 = 0;
             return;
@@ -134,34 +138,16 @@ void overlay57Draw32A0(s32 updateRate) {
     i = 0;
     position -= 0x48;
     if (rowCount[0] > 0) {
-        maskCursor = gO57Draw32A0Masks3C8;
-        shiftCursor = gO57Draw32A0Shifts3D8;
         do {
-            bits = gO57Draw32A0HalfwordsReloc[4 +
-                    gO57Draw32A0Selection1A0];
-            bits = (bits & *maskCursor) >> *shiftCursor;
-            gO57Draw32A0Work34C[0].packed8 = bits << 16;
+            gO57Draw32A0Work34C[0].packed8 =
+                ((gO57Draw32A0HalfwordsReloc[4 + gO57Draw32A0Selection1A0] &
+                  gO57Draw32A0Masks3C8[i]) >> gO57Draw32A0Shifts3D8[i]) << 16;
             o57Draw32A0RenderReloc(gO57Draw32A0AnchorReloc,
                                    gO57Draw32A0Work34C, 248.0f,
                                    (f32)position, 1.0f, 1.0f,
                                    gO57Draw32A0Envelope124 | -256, 0x2003);
             i++;
-            maskCursor++;
-            shiftCursor++;
             position += 0x1E;
         } while (i != rowCount[0]);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57Draw32A0/func_overlay_057_F00032A0_18A6E98.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57Draw32A0:start
- * symbol: overlay57Draw32A0
- * score: 148/208 words
- * frame: 0x78
- * relocations: 53
- * first-mismatch: +0x0
- * summary: Fresh exact-size V0: 60 masked/63 raw diffs; target frame 0x70 and 33 relocs; 20 excess relocs plus ambiguous mask-table identity block proof.
- * PLATEAU-HANDOFF:overlay57Draw32A0:end
- */

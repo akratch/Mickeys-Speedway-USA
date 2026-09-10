@@ -46,41 +46,39 @@ extern void o57Ease28B4NotifySecondReloc(s32 id);
 extern void o57Ease28B4AlternateCommandReloc(s32 command, s32 argument);
 extern void o57Ease28B4AlternateFinishReloc(s32 argument);
 
-/* Overlay 57 text +0x28B4..+0x2C28. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x374 and differs in 92
- * words, first at +0x2C.  Both easing loops retain a broad private integer
- * allocation web; the flag lattice found no alternate codegen basin. */
-#ifdef NON_MATCHING
+/* Overlay 57 text +0x28B4..+0x2C28. Exact: 221 words, frame 0x28, 36/36
+ * relocation identities.
+ *
+ * The plateau here was an s32 local per halfword field. Each one is its own
+ * uopt web, and the two of them moved the record pointer's colour off v0 and
+ * rotated the block-local temp ring behind it -- 86 of the 92 masked words
+ * were that one substitution and its knock-on. Reading and writing the s16
+ * fields in place removes the webs entirely; the horizontal statement is
+ * written before the vertical one because the pair's load order follows it. */
 void overlay57EaseAndLatch(s32 updateRate) {
     O57Ease28B4Primary *primary;
     O57Ease28B4Secondary *secondary;
     O57Ease28B4Transform *target;
     u32 flags;
     s32 i;
-    s32 x;
-    s32 y;
 
     gO57Ease28B4State144 = 0;
 
     i = 0;
     if (updateRate > 0) {
         do {
-            x = gO57Ease28B4Record21C.x;
-            y = gO57Ease28B4Record21C.y;
             i++;
-            gO57Ease28B4Record21C.y = (s16)(y + ((0xBE - y) >> 3));
-            gO57Ease28B4Record21C.x = (s16)(x + ((0x104 - x) >> 3));
+            gO57Ease28B4Record21C.x = (s16)(gO57Ease28B4Record21C.x + ((0x104 - gO57Ease28B4Record21C.x) >> 3));
+            gO57Ease28B4Record21C.y = (s16)(gO57Ease28B4Record21C.y + ((0xBE - gO57Ease28B4Record21C.y) >> 3));
         } while (i != updateRate);
     }
 
     i = 0;
     if (updateRate > 0) {
         do {
-            x = gO57Ease28B4Record23C.x;
-            y = gO57Ease28B4Record23C.y;
             i++;
-            gO57Ease28B4Record23C.y = (s16)(y + ((0xBE - y) >> 3));
-            gO57Ease28B4Record23C.x = (s16)(x + ((0x32 - x) >> 3));
+            gO57Ease28B4Record23C.x = (s16)(gO57Ease28B4Record23C.x + ((0x32 - gO57Ease28B4Record23C.x) >> 3));
+            gO57Ease28B4Record23C.y = (s16)(gO57Ease28B4Record23C.y + ((0xBE - gO57Ease28B4Record23C.y) >> 3));
         } while (i != updateRate);
     }
 
@@ -117,16 +115,3 @@ void overlay57EaseAndLatch(s32 updateRate) {
         gO57Ease28B4Latch50C = 1;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57EaseAndLatch/func_overlay_057_F00028B4_18A64AC.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57EaseAndLatch:start
- * symbol: overlay57EaseAndLatch
- * score: 129/221 words
- * frame: 0x28
- * relocations: 36
- * first-mismatch: +0x2C
- * summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
- * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
- */
