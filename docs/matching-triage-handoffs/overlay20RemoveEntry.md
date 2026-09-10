@@ -209,4 +209,35 @@ them -- the limit takes v0 and the cursor takes a1 with no other change. A
 `CDX_LINEAGE_TABLES=all` capture on any candidate prints the creation order
 directly, so the next lane can screen spellings on the trace instead of the
 score.
+
+#### 2026-09-10, lane `w8-tu`: region boundaries do not reach the numbering, on either base
+
+Baseline reproduces at two words, and so does the five-word hoisted candidate
+the pass above describes, which makes both bases available to check the one
+axis the record does not list.
+
+**uopt region boundaries are inert here.** `if (1) { }` inserted at every
+statement boundary of the function, and `if (1) { ... }` wrapped around every
+simple statement -- 44 compiling cells -- leaves the baseline at exactly two
+words in 36 of them and regresses in the rest; none goes below. The same sweep
+over the hoisted five-word candidate, 28 compiling cells, is flat at five. So
+the lever that redraws colouring inside a region on other functions does not
+renumber this one's webs, which is consistent with the requirement being an
+ordering between two webs in the *same* block rather than a colouring inside
+one.
+
+**Merging the decrement into the parameter is not the route either.** Writing
+the count-down as a pre-decrement of the reused parameter, so that no separate
+web is created for the decremented value at all, is 19 words; the same with the
+bound still carried in a local is 18, with a post-decrement 37 at +4 bytes, with
+a separate subtract statement 19, re-reading the global for the guard 10, and a
+top-tested loop 19. Every one of them is worse than the baseline, and the two
+that keep the size move the first mismatch earlier rather than later.
+
+**Loop-body spelling under the hoist is flat.** Six spellings of the compaction
+copy -- subscript both sides, pointer arithmetic both sides, the two mixed
+forms, and two address-of-element forms -- crossed with the hoist placed before
+and after the count store, are all seven words, so the three words the hoist
+costs are not a property of how the copy is written.
+
 <!-- plateau-handoff:overlay20RemoveEntry:end -->
