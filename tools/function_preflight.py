@@ -278,6 +278,23 @@ def _overlay_promotion_evidence(
             if following:
                 end = following[0]
                 kinds += "+export boundary"
+        # A text_ownership row bounds the translation unit, not the function.
+        # The two coincide only when the TU holds one function, or when a
+        # later export trims the row; the first function of a multi-function
+        # TU that has just become fully matched satisfies neither, and the
+        # row then names the whole TU as the symbol's geometry. Authenticate
+        # the symbol against the linked object in that case -- the same proof
+        # an inner function already gets -- and keep the container evidence as
+        # the fallback when that proof is unavailable.
+        try:
+            inner = _fully_matched_inner_geometry(
+                module, overlay, offset, candidate_symbol, target_symbol,
+                source_key, root,
+            )
+        except PreflightError:
+            inner = None
+        if inner is not None and inner[1] != end - start:
+            return inner
     return rs.SYNTHETIC_VMA + start, end - start, f"overlay atlas {kinds}"
 
 

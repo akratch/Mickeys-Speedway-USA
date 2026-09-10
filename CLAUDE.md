@@ -127,6 +127,12 @@ extract, and the extract must precede `overlay-syms`:
 gmake overlay-atlas-write
 .venv/bin/python tools/refresh_atlas_digest.py
 
+#    When the promotion COMPLETES a TU -- the last GLOBAL_ASM in it goes away
+#    -- this step is a no-op: the writer drops every mixed-TU range for a TU
+#    that has stopped being mixed, so the manifest is byte-identical with and
+#    without your entry. Run it anyway; it costs a second and its output tells
+#    you which case you are in.
+
 # 2. Re-extract. Removing a GLOBAL_ASM pragma leaves splat's .s behind;
 #    running overlay-syms before this fails on build/.splat-stamp, and
 #    building before it fails at link on an undefined reference.
@@ -201,7 +207,7 @@ as "run this after promoting" is what leaves the build broken. Likewise
 `promotion-proof` refuses with `expected one tracked exact atlas range for
 <sym>, found 0` until step 2 is done.
 
-## Two traps when integrating an old branch
+## Three traps when integrating a branch
 
 Both of these produced a failed integration on 2026-09-10, on a branch whose
 own work was correct.
@@ -225,6 +231,18 @@ as leading context. That line was inert when the donor wrote it, but had since
 been *deleted* to match `func_8003A7D0` in a different TU. Resolving the hunk
 toward the donor silently reinstated a flag that unmatches a function the
 donor never touched. The C body was byte-exact all along.
+
+**A clean auto-merge of a generated file bypasses the resolver.**
+`tools/resolve_lane_conflicts.py` sends generated JSON to `--theirs` because a
+keep-both hunk cannot produce valid JSON -- but it only runs on files git
+reports as *conflicted*. Where git merges the file's rows cleanly, the result
+can parse and still be internally inconsistent: one merge dropped the row
+another lane had retired while keeping the incoming header count, giving a
+`resolved` one higher than the number of rows. `nm_ranking.py` refused it, which
+is the invariant doing its job, but do not rely on that -- **regenerate every
+generated file after a merge rather than trusting the merge**, and prefer a
+full regeneration to a stale refresh, because a refresh reads the same broken
+header.
 
 **Moving a carve boundary orphans the previous extract.** After a
 `0x833E0` -> `0x83430` move, the old `asm/data/833E0.rodata.s` survives

@@ -134,4 +134,43 @@ Confirmed unchanged against the current tree: 111 words on both sides, every
 register and branch target exact, the residual the branch at +0x3C and its
 delay slot. Do not re-run the source-spelling space; the open question
 remains the one the pass above states.
+#### 2026-09-10, lane o7-tight: the closure argument, sharpened to a counting one
+
+Still 2. The phase-replay pass above proved the suppressing set is exactly the
+three location-counter directives plus a branch-class head, and that ugen emits
+those directives only at function starts. This pass closes the remaining half
+of that statement -- the branch-class head -- with an argument rather than
+another lattice, and adds the block-membership axis as a measured negative.
+
+**A branch-class head is unreachable without adding an instruction.** as1
+declines the conversion when the first *scheduled* instruction of the branch's
+target block is itself a branch. A block's branch is its terminator, so the
+block would have to hold nothing else; in C that means an arm whose body emits
+only a conditional branch. Every construct that emits a branch and nothing else
+has an empty controlled statement, and IDO folds an empty controlled statement
+away before ugen -- measured again here, and independently on
+`overlay20RemoveEntry` in this lane, where twenty zero-footprint reads all
+vanish before the web builder. Anything with a non-empty body adds at least one
+instruction, and both sides are exactly 111 words. So the head-is-a-branch route
+requires a word the target does not have.
+
+**Block membership does not reach it either.** 24 cells, compiled with this
+TU's real flags (`-Wo,-loopunroll,0` included) and compared against the whole
+111-instruction target text: six shapes of the else arm's head -- unchanged, an
+`if (1) { }` region, a `do { } while (0)` region, a bare brace pair, the
+compound assignment written out long, and the product written as the left
+summand -- crossed with four polarities of the transition test, including the
+two that exchange which arm is the fall-through and which is the branch target.
+The ten cells that keep the recorded polarity are flat at 2; `w5` (product as
+the left summand) is 4; every inverted-polarity cell is 95, because exchanging
+the arms rewrites the whole function. So neither opening a uopt region at the
+head of the target block nor moving the branch to the other arm changes the
+assembler's decision.
+
+Read together with the phase replay, this function is now closed under C as
+firmly as this project can close anything short of an as1 trace: the decision
+needs an input ugen does not emit, and the two source-side routes to that input
+(a directive, a branch-class head) are each excluded by measurement. Anything
+further belongs in an as1 instrumentation pass, not in a source lattice. Do not
+spend another lane on spellings.
 <!-- plateau-handoff:func_8005ABA8:end -->

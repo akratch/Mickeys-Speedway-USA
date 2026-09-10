@@ -144,4 +144,54 @@ and every other combination regresses, most of them to seven or more.
 
 So the ring queue reaching the switch cannot be re-ordered by adding a draw
 either, which is the last cheap thing left to try on it. Two words stand.
+#### 2026-09-10, lane o7-tight: the uopt-region lever does not open the ring either
+
+The win-b record's free-order argument was re-derived from the object and it
+holds. Restated so the next lane does not have to rebuild it: the angle sum's
+left operand owns three ring temps and its last one is freed only by the
+`addu`, while the right operand's sign extension frees its first temp at its
+own second instruction, which is necessarily before the `addu`. So the right
+operand's temp is always freed ahead of the left operand's survivor, and the
+free list reaching the switch is always descending across that pair. The
+target needs it ascending. Making the right operand cost no temp does free the
+survivor first and then moves the outer truncation's pair down by two, which is
+the same two words at a different offset.
+
+What this pass adds is the one axis the recorded sweeps did not vary: **block
+membership**. ADR 0017's inert reads, the 960-point angle lattice, the 360-cell
+operand lattice and the 96 line groupings all vary the *spelling* of statements
+inside one region. L97 says `if (1) { }` and `do { } while (0)` open a uopt
+region where a bare brace does not, so they are the one construct that can move
+a statement into a different region without changing a token of it. That is the
+lever that closed `overlay1ResolvePathPoint` in this lane (there in its
+basic-block form rather than its region form), so it was worth testing here.
+
+119 cells, each compiled with this TU's real flags -- `-Wab,-r4300_mul`
+included, without which the object silently loses an instruction -- and
+compared against the whole 120-instruction target text:
+
+- nine angle-block forms: the recorded spelling, the summands exchanged,
+  `+=`, `(s16)(angleHigh << 8)` without the `u32` cast, a `* 0x100` multiply
+  in place of the shift, and each of an `if (1)` region and a `do/while (0)`
+  region wrapped around the sum, around the exchanged sum, and around the
+  `angleHigh` carrier assignment;
+- crossed with two placements of the `angleHigh` read (plain, and inside its
+  own region);
+- crossed with seven `case 1` shapes: the recorded `u16 masked`, `u32` and
+  `s32` carriers, no carrier at all, `!= 0` on the carrier, an explicit `(u16)`
+  cast on the mask, and a region opened at the head of the `if` body.
+
+Floor is 2, reached by nine cells; the region wrappers are all at 2 or worse,
+and the carrier-type changes reproduce the recorded 4-word inversion. No cell
+moves the pair. **A uopt region boundary does not re-order the ugen ring**,
+which is a useful negative in its own right: the ring free list is a
+per-procedure structure and survives the region openings that move uopt's
+colouring webs around.
+
+The verdict stands: three reachable corners, all two words, on a jointly
+unsatisfiable set of free-order constraints. The next lever is still the ugen
+free-list trace (`DKWB_UGEN_TRACE` on the instrumented ugen at
+`~/Desktop/dev/ido-instrumented`, which this lane confirmed is built and
+fidelity-clean), used to ask whether any construct can free a temp between the
+left chain's survivor and the right chain's first -- not another C lattice.
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->
