@@ -1658,6 +1658,73 @@ bytes and disassembly never belong here.
   create anyway -- there, spelling a doubling as `-x * 2.0f`, which uopt
   rewrites into the sum it was already emitting.
 
+- **as1 inverts a pair of stores that one memory node releases together, and
+  that is a graph shape rather than a tie-break.** `cc -Wa,-R` prints the
+  block's dependence graph and every selection. When an argument load that the
+  assembler cannot prove disjoint from the stack sits above a caller-save spill
+  group, *both* stores hang off the load; scheduling the load releases them in
+  the same step, they enter the ready list in **reverse emission order**, and
+  the later-emitted store is picked first. Give the load a disambiguation fact
+  and the stores have no predecessor at all, start in the initial ready list in
+  emission order, and the order survives. So a reversed spill pair around a call
+  is a *readiness* question, and no amount of statement placement, line grouping
+  or liveness annotation touches it -- exactly the failure mode
+  `overlay11UpdateMenu` spent three passes on. Read the trace before theorising
+  about the tie-break chain; the chain only decides among nodes that are already
+  ready.
+- **ugen emits a call's caller-save spill stores in ascending physical register
+  number, with no exceptions worth planning around.** Measured across 391
+  compiled translation units: **136 of 136** clean spill groups -- a run of
+  stack stores immediately before a call whose offsets are reloaded immediately
+  after -- are in ascending register order. The two apparent counterexamples are
+  mis-grouped, each a store whose value is reloaded into a *different* register.
+  The practical consequence is that when a target's spill order disagrees with
+  the candidate's, and the register assignment already matches, the emission
+  order is not the lever: something downstream reordered it, and the fix is at
+  the assembler's input, not at ugen's.
+- **uopt appends a strength-reduced induction pointer's preheader
+  initialisation after every user preheader statement.** So a loop whose cursor
+  is a compiler-created induction pointer materialises its base *after* the
+  counter's initialiser, while a loop whose cursor is the user's own walking
+  pointer materialises it wherever the user's assignment sits. Measured on
+  `overlay11UpdateMenu` across five loop shapes -- statement-order swap, `for`,
+  `while`, increment at the top of the body, increment inside the exit test --
+  and three placements of the initialiser: the induction initialisation is last
+  in all eight. This matters because the array-index spelling that produces a
+  memory-disambiguation fact is exactly the spelling that creates the induction
+  pointer, so the fact and the preheader order are mutually exclusive: reach for
+  one and you pay the other. Check the preheader before concluding an indexed
+  rewrite is free.
+- **The pooled induction pointer takes pool cell one, not cell zero, and the
+  frame equation makes the whole thing calculable.** For a function with a fixed
+  block of outgoing arguments plus the return save, the frame is
+  `align8(fixed + declared block + 4 * pooled temporaries)` and the pool is laid
+  immediately below the declared block. Verified on five independent censuses of
+  `overlay11UpdateMenu`, where the strength-reduced pointer landed on the second
+  pool cell every time. Because the declared block is a census the source
+  controls, a home that is wrong by a constant is solvable rather than
+  searchable: pick the census that puts cell one where the target's home is. On
+  that function, trimming the block from 44 to 28 bytes -- inlining one local
+  into its single field read, folding two more onto an already-dead counter, and
+  inlining a one-use temporary -- reproduced all four of the target's live stack
+  homes and its frame at the same instruction count. The corollary is the useful
+  half: a pooled temporary can never take a *declared* local's home, so if a
+  target's live home sits inside the declared block, the value there is a
+  declared local and the question is why the front end propagated it away, not
+  where the pool starts.
+- **cfe's copy propagation of a pointer-plus-constant is defeated by a variable
+  array index, and only by an index it cannot fold.** On
+  `func_overlay_022_F0000000_1878108`, every constant spelling of the same
+  address -- byte-offset cast, integer casts, address-of on a typed field macro,
+  a literal subscript on a cast element type, a pointer increment -- is
+  byte-identical and leaves the value in a pooled temporary. Indexing by a
+  *variable* moves it into the declared local's own home, which is where the
+  target keeps it. The cost is the index reload and a multiply by the element
+  size, and hoisting the index's assignment so cfe can fold it returns the
+  original listing exactly, so the barrier lives in cfe's constant folding
+  rather than in the subscript syntax. Useful as a diagnostic for "is this
+  residual a slot or a propagation", cheap to run, and not yet free.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable

@@ -32,7 +32,30 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
  * each composed with the source-line tie, add one instruction and trigger a
  * structural cascade. All 21 candidate relocations remain present. Preserve
  * the assembly fallback pending an instruction-neutral copy-propagation
- * barrier or authenticated original declaration shape. */
+ * barrier or authenticated original declaration shape.
+ *
+ * A 2026-09-10 pass (lane c4-o11) closes the slot family arithmetically and
+ * names the barrier class for the first residual. The debug local table gives
+ * a seven-name declared block of 44 bytes, contact at the top and planes at
+ * its bottom, and the pooled temporary that carries the propagated pointer
+ * sits immediately below it. Pooled temporaries are laid strictly below the
+ * declared block and never take a declared local's home, and planes has to
+ * stay a declared volatile local or the plane-table address is rematerialised,
+ * so the block bottom is pinned and no census edit can move that temporary up
+ * to the target's slot. The value at the target's slot must therefore be a
+ * declared local that cfe does not copy-propagate.
+ *
+ * The first form measured that actually defeats that copy propagation is a
+ * variable array index: indexing the object as an array of the position type
+ * by a variable moves the value out of the pool and into the declared home at
+ * the target's slot. It costs two instructions, an index reload and a
+ * multiply, and it collapses straight back to the pooled slot as soon as the
+ * index is constant-foldable by cfe, so it is evidence rather than a
+ * candidate. Four further constant spellings of the same address, including
+ * the indexed and pointer-increment forms, are flat, which extends the
+ * spelling-inertness finding to the indexed family. The open lever for the
+ * first residual is now an index expression cfe cannot fold and uopt can, at
+ * zero net instructions; the second residual is unchanged. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -117,6 +140,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0xCC
- * summary: Workbench mixed(constant:3,schedule:11), lever stack-home; stock itable isolates copy propagation, but legal barriers add one instruction; attempts 5-7 stalled.
+ * summary: Pooled temporaries sit strictly below the declared block whose bottom is pinned by the volatile plane carrier, so the target slot must be a declared local cfe does not copy-propagate; a variable array index is the first form that defeats it, at two instructions.
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */

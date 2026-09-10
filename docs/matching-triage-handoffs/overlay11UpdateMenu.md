@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 102
 - first mismatch: +0x138
-- summary: Load base is $3; its existing noalias fact covers later menuInput, not handle at the spill pair. Indexed menuInput is byte-identical and adds no temps.
+- summary: The indexed form reaches frame 0x48 with every target stack home and fixes the +0x138 spill pair; the residual moves to the preheader because uopt emits an induction pointer's initialiser after every user statement.
 
 
 Current diagnosis, 2026-09-10, lane `astra-o11`, assignment base
@@ -117,5 +117,86 @@ compiler-learning correction records the scope lesson without target-specific
 addresses or attempt scores. Next action is the zero-temp handle-lifetime
 producer described above, if new causal evidence establishes one; this lane
 hands off a diagnosis, not a C match.
+
+
+#### 2026-09-10, lane `c4-o11`: the frame objection falls, the residual moves
+
+Baseline reproduces: 1,204 bytes, zero size delta, **2** relocation-masked
+words at `+0x138` and `+0x140`, 16 raw, frame `0x48`. Every number below is
+from a `cc -S` listing replayed through `as0` and `as1` with the compiler-path
+flags (no `-pic0`/`-noglobal`), round trip confirmed byte-exact first, plus
+`cc -g3` `.mdebug` for every frame claim and one configured-path object for
+the fixed pair.
+
+**Why the pair inverts, from the scheduler trace.** `cc -Wa,-R` prints the
+dependence graph and every selection. Without the disambiguation fact the
+argument load carries *both* spill stores as dependent successors; scheduling
+the load releases the two of them together, they enter the ready list in
+**reverse emission order**, and the later-emitted store wins the tie. With the
+fact both stores have no predecessor, sit in the initial ready list in emission
+order, and the scheduler keeps that order, which is the target. The residual is
+a ready-list release-order effect. Liveness, statement placement and line
+grouping are not the axis, and neither is the tie-break's line-number tail.
+
+**A second sufficient ugen input, and its closure.** All six orderings of the
+argument load and the two spill stores were replayed. Exactly one non-baseline
+ordering reaches the target -- emitting the handle spill *before* the index
+spill -- and its object is **identical** to the fact-bearing control, so the
+prior lane's diagnostic zero is reachable two ways. It is then closed: across
+391 compiled translation units, **136 of 136** clean caller-save spill groups
+are emitted in ascending physical register number, and the target's own bytes
+put the index in `v0` and the handle in `v1`. ugen cannot emit the handle
+spill first with that assignment. Sharing a base was already falsified; this
+closes the other ugen-level route, leaving the disambiguation fact as the only
+input that can produce the target's order.
+
+**The temp-cell exclusion is false for this function.** The indexed producer
+does cost three pooled temporaries here, but the frame is
+`align8(28 + declared block + 4 * pooled temporaries)`, verified on five
+independent censuses, and the pooled pointer always takes pool cell **1**.
+Cutting the declared block from 44 to 28 bytes -- inline the object local into
+its single field read, fold `selection` and `action` onto `index`, inline the
+`value` ternary, keep one pointer local -- puts the pooled pointer at
+`36(sp)`, `index` at `68(sp)`, `status` at `48(sp)` and `finish` at `44(sp)`,
+frame `0x48`, **215 instructions**, matching the baseline instruction for
+instruction and the target's eight distinct stack offsets exactly. The
+configured object built from that body carries the target's store at `+0x138`
+and its delay-slot store at `+0x140`. **That pair is fixed.** The standing
+"every indexed spelling adds three or four temp cells, so the frame excludes
+it" reading is a property of one census, not of the construct.
+
+**The new barrier, a different mechanism.** The residual moves to `+0x10C` and
+`+0x110`, in the loop preheader. uopt appends a strength-reduced induction
+pointer's preheader initialisation **after every user preheader statement**;
+the target orders the pointer's address materialisation *before* the index
+initialiser, which only a user assignment produces. Measured across five loop
+shapes (statement-order swap, `for`, `while`, increment at the top of the body,
+increment inside the exit test) and three placements of the pointer
+initialiser: the induction initialisation is last in all eight. The assembler
+then keeps that order, because among ready nodes the lower emission index wins.
+
+**So the two halves are complementary and their intersection is empty.** The
+fact requires an array reference with a variable index; a variable index
+requires a strength-reduced induction pointer; that pointer's initialiser is
+emitted last, which costs the preheader pair. Dropping the index restores the
+preheader and loses the fact, which costs the spill pair. Both bodies score
+**299/301** at zero size delta and frame `0x48`, so the retained body is
+unchanged.
+
+**Bounding forms, all measured, none of which needs repeating.** Six constant
+index forms fold to a plain dereference and emit no fact: subscript zero on the
+walking pointer, a cast subscript, a pointer-to-one-element-array with its
+element subscript, a one-element array struct member, address-of element zero
+as the initialiser, and address-of element one as the increment. Six
+pointer-arithmetic spellings of the indexed load all fold to the same
+base-plus-four with a minus-four displacement; only routing the offset through
+a pointer variable restores the zero displacement the target has, and that is
+the shape that is one mechanism from a match. A loop-invariant subscript
+collapses to a symbolic memory operand with no register base and no fact.
+
+**Next action.** A producer for the disambiguation fact that does not create a
+strength-reduced induction pointer, or an input that makes the induction
+initialisation precede a user preheader statement. Nothing else in the spelling
+space is open; do not re-run the lattice.
 
 <!-- plateau-handoff:overlay11UpdateMenu:end -->
