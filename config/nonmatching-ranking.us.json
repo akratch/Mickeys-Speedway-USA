@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 353,
-  "resolved": 353,
+  "queue_size": 352,
+  "resolved": 352,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 353,
-  "relocation_masked_coverage": 353,
+  "source_context_coverage": 352,
+  "relocation_masked_coverage": 352,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -265,6 +265,21 @@
       "source_context_sha256": "A4Vo.cBSK.kS6k.-G0Q.14H4.SDtB.3Mjt.aUay.XAbC.MwDp.wDQ"
     },
     {
+      "name": "overlay33InitializeBuffers",
+      "file": "src/overlays/o033/overlay33InitializeBuffers.c",
+      "overlay": 33,
+      "tu": "overlays/o033",
+      "size_bytes": 324,
+      "objdiff_match_pct": null,
+      "differing_words": 0,
+      "first_mismatch_offset": null,
+      "relocation_masked_differing_words": 0,
+      "relocation_masked_first_mismatch_offset": null,
+      "size_delta": 0,
+      "category": "other",
+      "source_context_sha256": "wW1X.xl8o.pnKR.G8fG.8O3y.OdQD.5TNZ.ZqUU.uncE.hNX5.5kY"
+    },
+    {
       "name": "func_8005ABA8",
       "file": "src/main/models_5B300.c",
       "overlay": null,
@@ -280,21 +295,6 @@
       "source_context_sha256": "2Y2z.pAta.mPCw.WpXa.5toG.GURO.EjrS.vv8u.CCmR.2j3l.zIA"
     },
     {
-      "name": "func_overlay_036_F0000818_1883CD0",
-      "file": "src/overlays/o036/overlay36CheckNearbyHeight.c",
-      "overlay": 36,
-      "tu": "overlays/o036",
-      "size_bytes": 252,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 0,
-      "relocation_masked_differing_words": 3,
-      "relocation_masked_first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "d6PD.dlGH.5sMP.LW0y.XwjO.KntO.SDCb.aPt0.Zbwt.QWUE.WXI"
-    },
-    {
       "name": "func_overlay_022_F0000000_1878108",
       "file": "src/overlays/o022/overlay22InitializeObject.c",
       "overlay": 22,
@@ -308,21 +308,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "2CWe.04_T.IYxz.UqGa.h0zL.vSJt.BSgQ.QBN_.8bf3.V9TP.s4Q"
-    },
-    {
-      "name": "overlay33InitializeBuffers",
-      "file": "src/overlays/o033/overlay33InitializeBuffers.c",
-      "overlay": 33,
-      "tu": "overlays/o033",
-      "size_bytes": 324,
-      "objdiff_match_pct": null,
-      "differing_words": 5,
-      "first_mismatch_offset": 116,
-      "relocation_masked_differing_words": 5,
-      "relocation_masked_first_mismatch_offset": 116,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "fxj2.JlO9.fh1r.ZQ-6.W0fM.t0pP.dOri.EM8H.Omds.Wt_b.lBY"
     },
     {
       "name": "overlay57UpdateModeState",

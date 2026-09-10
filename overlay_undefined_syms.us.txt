@@ -1074,6 +1074,10 @@ overlay36SpawnReloc = 0xf0000000;
 /* overlay 36: overlay36InitVectorState.c.o */
 overlay36VectorReloc = 0xf0000000;
 
+/* overlay 36: overlay36CheckNearbyHeight.c.o */
+func_8005776C_o036Reloc = 0xf0000000;
+gOverlay36WorldStateReloc = 0x00000000;
+
 /* overlay 36: overlay36SelectState.c.o */
 gOverlay36StateData = 0x000000b0;
 gOverlay36StateValues = 0x0000008c;
