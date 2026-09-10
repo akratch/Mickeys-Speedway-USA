@@ -2159,10 +2159,29 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
  *     resize it).  A second home differs the same way: one loop carrier spills
  *     to 108 here and to 92 in the target.
  *
- * Next lever: the frame, not the arithmetic.  Find the declaration set that
- * puts the volatile length at 72 with the count still at 76 and the carrier at
- * 92, then re-price the length spelling on top of it -- pricing the spelling
- * first is what produced two contradictory head claims. */
+ * The home is now bounded rather than merely unreached.  Reading the whole
+ * frame back from the candidate object -- every stack pointer displacement the
+ * function touches -- the candidate occupies 76, 96, 108, 120, 124, 136, 140,
+ * 144, 148 and 152 and the target occupies 72, 76, 92, 120, 124, 136, 140,
+ * 144, 148 and 152: ten memory-resident items each, agreeing everywhere except
+ * that one pair.  Sweeping the ladder with that readout, not just the score:
+ * 110 single-element moves of the eleven inner declarations, 72 of the nine
+ * outer ones, all six orders of the three innermost, the volatile in all four
+ * placements over the two command scalars, and the pair relocated to every
+ * position of both other scopes -- 190-odd cells -- reach 80, 92, 96, 100 and
+ * 104 for the length and never 72.  Nor can the list grow into it: a twelfth
+ * declaration moves the frame to 0x170 in every form measured, INCLUDING the
+ * one that ought to be free, naming the shared `(s32)vertexStart +
+ * addressBase` temporary that already owns a spill slot.  So the ladder's
+ * floor at eleven declarations is 76, the target has an item below it at the
+ * same total frame size, and neither declaration order nor declaration count
+ * reaches that.
+ *
+ * Next lever: the frame's SHAPE, and it needs the .mdebug census rather than
+ * another order sweep -- which item owns each slot, and what makes the
+ * candidate leave 80..92 empty where the target leaves 96..116 empty.  Price
+ * the length's spelling only after that; pricing the spelling first is what
+ * produced two contradictory head claims. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
