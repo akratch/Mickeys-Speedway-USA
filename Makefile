@@ -1326,7 +1326,7 @@ include mk/overlays.mk
 # does not participate in this host-side build graph. JFG is evidence for parts
 # of that runtime lineage, not the source of a separate overlay Make pipeline.
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) overlay_undefined_syms.$(VERSION).txt | $(ALL_DIRS) $(SPLAT_STAMP)
-	$(LD) $(LDFLAGS) -o $@
+	$(TOOLS_DIR)/link_diagnose.sh $(LD) $(LDFLAGS) -o $@
 
 # symbol_addrs is a real input to the split, not just documentation: naming a
 # function there changes the labels in the generated .s and, for `c`

@@ -126,4 +126,22 @@ three and no corner is numerically better.
 Next lever: not C. Either uopt/ugen instrumentation that shows why the target's
 free list is ascending with a three-temp chain, or a construct that draws a ring
 temp after a pool-writing `addu`, which this grammar does not produce.
+
+
+#### c2-o001: the ring-queue conflict survives the inert-probe family
+
+The win-b record closes this at two words on a jointly unsatisfiable set of
+free-order constraints, and calls it a structural conflict rather than a
+search gap. That ruling was tested from a direction the recorded sweeps did
+not cover and it holds.
+
+242 zero-footprint reads were measured under ADR 0017, spanning eleven
+placement slots from the top of the loop body through both switch arms, and 22
+expressions including the two phantom-pop forms the field guide names for
+buying a ring pop. None of them reaches below two words. Six placements are
+byte-flat -- an already-pooled pointer read costs nothing anywhere it is put --
+and every other combination regresses, most of them to seven or more.
+
+So the ring queue reaching the switch cannot be re-ordered by adding a draw
+either, which is the last cheap thing left to try on it. Two words stand.
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->
