@@ -2,9 +2,9 @@
 ### `func_overlay_057_F0004E18_18A8A10` plateau handoff
 
 - source: `src/overlays/o057/func_overlay_057_F0004E18_18A8A10.c`
-- score: 503 differing words
-- frame: 0x148
+- score: 494/1208 words
+- frame: 0x140
 - relocations: 373
-- first mismatch: +0x0
-- summary: Size converted: 1208/1208 words, instruction delta 0 (was -4). 59/66 call regions exact. Next: region 55 surplus +3 vs five -1 regions.
+- first mismatch: +0x100
+- summary: renderState is 24 bytes, not 32, which closes the frame at the target 0x140 and 9 words; instruction count, frame and the pool lane past slot 19 now agree, leaving 400 opcode differences in the body.
 <!-- plateau-handoff:func_overlay_057_F0004E18_18A8A10:end -->
