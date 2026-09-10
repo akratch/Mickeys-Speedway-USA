@@ -56,4 +56,43 @@
   explicitly bounded standing batch; a new manual attempt still requires its
   own admissible evidence. Do not repeat flags, physical-line ties,
   pointer-direct, assignment-order, or carrier forms.
+
+#### Re-open under laws L90 / L94 (2026-09-10, lane/c3-reopen2)
+
+- lever set the closure actually searched: the 119-row flag lattice, a
+  call/slot/switch physical-line tie, direct one-pointer and non-volatile
+  pointer forms, assignment order, three carrier forms, and one bounded
+  ten-minute permutation batch. All of them are spellings of the pointer
+  carriers; none of them changed which *object* the slot reads belong to.
+- **L94's mechanism is present here, and it confirms the closure rather than
+  reopening it.** The target object names three separate address
+  materialisations at one and the same overlay data address, so the natural
+  reading is that the three slot externs are one C array. They are not.
+  Merging the two that share a region makes uopt open a single address web and
+  lose 4 bytes: the entry array merged with the free-scan array is -4 bytes
+  and 95 masked words, the entry array merged with the chosen array is
+  -4 bytes and 94, and merging all three is -8 bytes and 80. The one pair that
+  is *not* co-region -- the free-scan and chosen bases, separated by the
+  bounded do-while -- merges at delta 0, and still scores 17 against the base
+  14. So L94's co-region trigger is exactly what proves the three separate
+  externs are required by geometry: any co-region merge is paid for in bytes
+  the target does not spend.
+- **L90 has nothing to reach.** Both loops are already byte-exact. The scan
+  loop lies inside the exact prefix, and the bounded counter test that follows
+  it matches instruction for instruction. There is no exit test left to
+  rewrite.
+- the deciding variable, named: a frame-cell one. The target spills one pointer
+  web at one home and reloads it around all three calls. The candidate carries
+  the volatile chosen pointer at that same home *and* spills a second copied
+  web three cells higher, which is the whole of the constant class in the
+  residual and the extra block-local temporary that follows it. A uopt cell
+  census confirms the candidate declares six memory cells for five source
+  locals.
+- what was tried against that variable and failed: every form that removes a
+  pointer costs +4 bytes -- the one-pointer form scores 76, the non-volatile
+  carrier 76, dropping the copy and using the volatile carrier directly 69,
+  and making the scan pointer volatile 104. Moving the carrier's declaration
+  to the front or the back of the block regresses to 19 and 23.
+- **verdict: the closure was correct and remains correct under L90 and L94.**
+  Resume only with a form that removes one *cell* without removing a pointer.
 <!-- plateau-handoff:overlay14CreateValue:end -->
