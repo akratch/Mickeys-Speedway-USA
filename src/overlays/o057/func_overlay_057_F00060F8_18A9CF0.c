@@ -79,7 +79,26 @@ extern s8 gOverlay57MenuSourcesEnd[];
  * candidate 16 instructions of sign handling, and the size delta closes with
  * the narrower type alone. The menu-fill walk reuses `index` as its byte
  * offset rather than declaring one more local, which is the last 8 bytes of
- * frame. What remains is a temp-ring offset with its onset at +0x7C. */
+ * frame.
+ *
+ * The temp-ring offset at +0x7C is now named.  It is two positions, and it is
+ * not an onset at all: two LOOP-INVARIANT WEBS in the menu-fill loop -- the
+ * menu-entry stride and the controller-map base -- are coloured t0 and t1 in
+ * the candidate and s1 and s2 in the target.  A web holding a ring register
+ * removes it from the temp ring for the WHOLE function, so the candidate's
+ * ring runs two positions ahead of the target's from the first temp it takes
+ * after the prologue.  That is why the offset is uniform and why its apparent
+ * onset is simply the first temp-taking instruction.
+ *
+ * Measured: walking the entry pointer instead of indexing it frees both webs,
+ * the first ring pick returns to the target's, and the score falls 256 -> 206
+ * (delta -12, so not a candidate).  Freeing only the stride web returns the
+ * first pick one position and scores 279.  So the 50 words are real and the
+ * remaining question is an INDEXED form -- one that keeps the per-iteration
+ * reload and multiply, and so the instruction count -- that still leaves both
+ * webs off the ring.  The init loop's direction is inert (up, down do-while,
+ * and down for-loop all score 256, 259, 256), and reading the controller map
+ * twice instead of caching it costs 16 instructions. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     Overlay57MenuSource *source;
@@ -244,6 +263,6 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
  * frame: 0x60
  * relocations: 175
  * first-mismatch: +0x14
- * summary: s8 controller closes the 16-instruction size delta and reusing index as the menu-fill offset closes the frame at 0x60; 256 words remain as a temp-ring offset with onset +0x7C.
+ * summary: The +2 temp-ring offset is two loop-invariant webs in the menu-fill loop, the menu-entry stride and the controller-map base, coloured t0 and t1 here and s1 and s2 in the target, which removes both from the ring for the whole function; walking the entry pointer frees them and closes 50 of the 256 words but costs 12 instructions, so what is wanted is an indexed form that keeps the reload and multiply while leaving both webs off the ring.
  * PLATEAU-HANDOFF:func_overlay_057_F00060F8_18A9CF0:end
  */

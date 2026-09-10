@@ -117,9 +117,43 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  * savedEligible is a plain s32: as `volatile` it forced a reload web that
  * moved thirteen words. `timer` is declared at function scope ahead of it so
  * that the eligibility spill takes the frame's first cell at sp+0x28, which is
- * where the target keeps it. What remains is the spill point itself -- the
- * target stores it in the delay slot of the timer test, the candidate in the
- * delay slot of the following call -- and one v0/v1 colour swap at +0x108. */
+ * where the target keeps it.
+ *
+ * The 74 words decompose exactly, and the decomposition names the variable:
+ *
+ *   43  a temp-ring rotation of ONE position, onset +0x304 in the mode-1
+ *       dispatch arm and a second, independent one position at +0x39C in the
+ *       mode_b arm.  In each arm the target's allocator skips ring register t4
+ *       between the second setup-record store and the read of the choice
+ *       global; the candidate takes t4 there.  Because the ring is a single
+ *       function-wide sequence, the two skips also carry every later arm.
+ *   16  a v0/a0 swap: the target colours the marked-entry cursor v0 and the
+ *       post-decrement copy of the count a0, the candidate the reverse, in
+ *       both arms.
+ *   10  the savedEligible reload web, t3 in the target and t1 in the
+ *       candidate.  ugen emits that reload once, at the tail; as1 copies it
+ *       into the nine branch delay slots.  Being the LAST ring temp the
+ *       function allocates, its colour is the two skips above, not a
+ *       separate question.
+ *    3  uopt sinks `savedEligible = eligible` past the early return and
+ *       duplicates the store into both dispatch arms; the target stores once,
+ *       ahead of the timer test.
+ *    2  the two address materialisations at +0x108 are emitted in the
+ *       opposite order.
+ *
+ * The rotation is NOT reachable by adding or removing source text.  Compared
+ * opcode by opcode the two objects are identical apart from the three spill
+ * words above (23 pad words in the target, 22 in the candidate), so every
+ * instruction that takes a ring temp in one takes one in the other.  ugen
+ * numbers temps strictly in emission order over EMITTED, LIVE expression
+ * results: measured, dead statements never advance it, discarded call results
+ * never advance it, and no cast, indexing, pointer or declaration spelling
+ * moved it in 34 measured forms.  Every form that did move it added an
+ * instruction and broke exact size.  The variable that is stuck is therefore
+ * the ring's availability at that point -- t4 must be unavailable to the
+ * allocator in both arms -- which is a globalcolor/web-interference question,
+ * not a spelling one.  Flags were screened too: -mips1 (234), -O1 (431),
+ * -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74) all tie or lose. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 timer;
@@ -322,6 +356,6 @@ dispatch_done:
  * frame: 0x30
  * relocations: 59
  * first-mismatch: +0x108
- * summary: A non-volatile savedEligible and a function-scope timer put the eligibility spill on the target's frame cell and close 13 words; the spill point and one v0/v1 colour swap remain.
+ * summary: The 74 words decompose as 43 a one-position temp-ring rotation with an independent onset in each dispatch arm, 16 a v0/a0 swap on the entry cursor and the count copy, 10 the savedEligible reload web colour which is the last ring temp the function allocates, 3 the eligibility spill that uopt duplicates into both arms, and 2 an address-materialisation order; opcode for opcode the objects are identical apart from those 3 spill words, so the rotation is the allocator skipping ring register t4 in each arm and no instruction-neutral spelling reached it in 34 measured forms.
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */
