@@ -212,11 +212,11 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
 /*
  * Plateau (2026-08-30, wave11-o15-stars): configured -O2 -mips2 with
  * -Wab,-r4300_mul remains exact-size at 105 words with the exact 0x58 frame,
- * 13 relocation-masked differences (14 raw), and first mismatch +0x18.
- * Ten fresh command, fade-lifetime, and packed-expression forms were neutral
- * or worse. Preserve this semantic baseline; the remaining blockers are the
- * entry setup/fade-load schedule, final packed-command association, and the
- * unauthenticated LOCAL/data relocation identities.
+ * 13 relocation-masked differences (13 raw), and first mismatch +0x18.
+ * Reopened 2026-09-10 under L90 and closed again: the exit test is a countdown
+ * against zero, so no bound is hoistable, and fourteen fresh loop, fade and
+ * packed-command forms were neutral or worse. The star pointer now uses this
+ * TU's pointer-view idiom, which retires the last raw-only difference.
  */
 #ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
@@ -235,7 +235,7 @@ void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
     overlay15GetDimensionsReloc(&screenWidth, &screenHeight);
     remaining = gOverlay15StarCount;
     command = *displayList;
-    star = gOverlay15Stars;
+    star = ((Overlay15StarPointerView *)&gOverlay15Stars)->stars;
     initialCommand = command++;
     initialCommand->w0 = 0x06000000;
     initialCommand->w1 = (u32) gOverlay15StarSetup;

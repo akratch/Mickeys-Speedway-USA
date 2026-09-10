@@ -217,11 +217,20 @@ def compile_configured_tu(
         )
     except (OSError, ValueError, IndexError, subprocess.TimeoutExpired) as exc:
         return None, f"configured TU compile failed for {source}: {exc}"
-    output.with_suffix(".compile.log").write_text(proc.stdout + proc.stderr)
+    log = output.with_suffix(".compile.log")
+    log.write_text(proc.stdout + proc.stderr)
     if proc.returncode or not output.is_file():
+        # A repo-relative path reads better, but the work directory is not
+        # always under ROOT: score_symbol.py swaps in a private scratch so it
+        # can run during a build, and relative_to() then raises ValueError --
+        # inside the error path, so a plain compile failure surfaced as a tool
+        # crash naming an unrelated exception. A lane lost three probes to it.
+        try:
+            where = log.relative_to(ROOT)
+        except ValueError:
+            where = log
         return None, (
-            f"configured TU compile failed for {source}; "
-            f"see {output.with_suffix('.compile.log').relative_to(ROOT)}"
+            f"configured TU compile failed for {source}; see {where}"
         )
     return output, None
 

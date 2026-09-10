@@ -50,4 +50,43 @@ Validation evidence was generated with `tools/function_preflight.py`,
 `tools/wb_compare.sh --summary-json`, the fidelity-gated allocator receipt and
 stack-home tools, and an `as1 -R` scheduler capture. Build evidence remains
 untracked under `build/o060-trace/`.
+
+#### Re-open under laws L90 / L92 (2026-09-10, lane/c3-reopen2)
+
+- lever set the closure actually searched: descriptor ordering, explicit
+  coordinate carriers, loop-base placement, the exhausted flag rows, generic
+  permutation, and a native scheduler trace. All of those move where the loop
+  body's statements sit; none of them changes the exit test uopt builds.
+- **L90's scope limit measured here, with magnitude.** This loop's bound is a
+  register-resident constant, which is the case where L90 says the spellings
+  are *not* interchangeable. Writing the inequality as a disequality costs
+  +4 bytes and 175 masked words -- test replacement drops the counter and
+  tests a cursor against a computed limit, and the counter is live inside the
+  body, so the rewrite cannot pay for itself. The counted `for` form scores 28.
+  The retained guarded do-while is the optimum at 21.
+- **L92 measured inert.** The loop's only commutative site is the coordinate
+  base plus the scaled index, and it already emits base-first, which is what
+  the weight rule requires of an array base against a scaled local. There is no
+  second commutative site in the function.
+- adjacent law checked because it was cheap: L95's indexed named-array form for
+  the coordinate pair costs -4 bytes, so the retained byte-offset carrier is
+  also required.
+- the deciding variable, named: two decisions remain. First, as1's emission
+  order for the two hoisted address materialisations against the counter
+  initialisation -- the target completes both address halves before it zeroes
+  the counter, the candidate interleaves the counter between them, which is
+  two structural rows plus the pool-slot shift that follows them. Second, the
+  target spends one more *coloured* web than the candidate on the inner-pointer
+  load inside the loop, where the candidate spends a block-local temporary;
+  that one substitution carries the temp-ring divergence in the rest of the
+  body.
+- what was tried against those variables and failed: naming the inner pointer
+  as a local, in three shapes and three declaration positions, regresses to
+  85 -- so the target's extra web is not a declared local. Swapping the
+  counter initialisation with the object-cursor initialisation regresses to 28.
+  Hoisting the coordinate base into a named local, and moving the coordinate
+  computation to the head of the body, are both byte-flat at 21.
+- **verdict: the closure was correct and remains correct under L90 and L92.**
+  The artifact column is 25 against a real residual of 21, so raw word counts
+  on this function remain meaningless; work the masked count only.
 <!-- plateau-handoff:func_overlay_060_F0000000_18B9DD8:end -->
