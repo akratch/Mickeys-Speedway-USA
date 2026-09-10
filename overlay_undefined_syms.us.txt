@@ -986,6 +986,21 @@ overlay31LoadTypeC000 = 0xf0000000;
 overlay31ResetLocal = 0xf0000000;
 overlay31ResetReloc = 0xf0000000;
 
+/* overlay 33: overlay33InitializeBuffers.c.o */
+gOverlay33ActiveBuffer = 0x00000000;
+gOverlay33AlignedBuffers = 0x00000000;
+gOverlay33Allocation = 0x00000000;
+gOverlay33BufferIndex = 0x00000000;
+gOverlay33InitializeContext = 0x00000000;
+gOverlay33Initialized = 0x00000000;
+gOverlay33Mode = 0x00000000;
+gOverlay33StateA = 0x00000000;
+gOverlay33StateB = 0x00000000;
+overlay33AllocateReloc = 0xf0000000;
+overlay33AllocationFailedReloc = 0xf0000000;
+overlay33GetDimensionsReloc = 0xf0000000;
+overlay33InitializeBufferReloc = 0xf0000000;
+
 /* overlay 33: overlay33ReleaseGlobal.c.o */
 gOverlay33Handle = 0x00000000;
 overlay33ReleaseReloc = 0xf0000000;
@@ -995,7 +1010,6 @@ overlay33CallReloc = 0xf0000000;
 
 /* overlay 33: overlay33BuildDisplayList.c.o */
 D_1808 = 0x00001808;
-gOverlay33BufferIndex = 0x00000000;
 gOverlay33ColorBuffers = 0x00000000;
 gOverlay33DisplayLists = 0x00003788;
 gOverlay33Texture = 0x00000000;
@@ -1003,7 +1017,6 @@ overlay33ApplyMatrixReloc = 0xf0000000;
 overlay33CopyPassReloc = 0xf0000000;
 overlay33FinishReloc = 0xf0000000;
 overlay33GetColorReloc = 0xf0000000;
-overlay33GetDimensionsReloc = 0xf0000000;
 overlay33PrepareReloc = 0xf0000000;
 overlay33SetRangeReloc = 0xf0000000;
 overlay33SetupGeometryReloc = 0xf0000000;
