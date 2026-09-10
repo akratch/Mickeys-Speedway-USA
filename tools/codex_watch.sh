@@ -9,8 +9,13 @@
 # and echoes into its log. A naive grep reported 16 hits on a healthy run, all
 # of them prose. A monitor that cries wolf is worse than none.
 #
-# It matches API-failure shapes instead: a status code, an underscored error
-# token, or a usage-limit phrase -- forms that do not occur in prose.
+# It matches API-failure shapes instead: an underscored error token or a
+# usage-limit phrase. A bare "429" is NOT enough on its own -- the first real
+# run tripped on 4294967292, which is 0xFFFFFFFC in a debug locals dump -- so
+# 429 needs digit boundaries AND an error word somewhere on the same line.
+# Note "somewhere": a first attempt required the word to follow the number and
+# so missed "HTTP status 429 returned by the API", which is the failure that
+# actually matters. The two conditions are tested independently.
 set -uo pipefail
 name=${1:?lane name}
 lane="$(git rev-parse --show-toplevel)/../mickey-lane-${name}"
@@ -27,10 +32,16 @@ else
 fi
 
 # Error-shaped, not prose-shaped.
-budget=$(grep -icE '(^|[^a-z])(429|rate_limit[a-z_]*|quota_exceeded|insufficient_quota)([^a-z]|$)|usage limit reached|too many requests' "$log")
-if [ "$budget" -gt 0 ]; then
-    echo "  BUDGET: $budget API-limit signal(s):"
-    grep -inE '(^|[^a-z])(429|rate_limit[a-z_]*|quota_exceeded|insufficient_quota)([^a-z]|$)|usage limit reached|too many requests' "$log" | tail -3 | sed 's/^/    /'
+# Textual tokens the API actually emits: these stand alone.
+TOKENS='rate_limit[a-z_]*|quota_exceeded|insufficient_quota|usage limit reached|too many requests'
+# A bare status code only counts with an error word anywhere on the line.
+STATUS='(^|[^0-9])429([^0-9]|$)'
+CONTEXT='status|error|http|limit'
+
+hits=$( { grep -inE "$TOKENS" "$log"; grep -inE "$STATUS" "$log" | grep -iE "$CONTEXT"; } | sort -u )
+if [ -n "$hits" ]; then
+    echo "  BUDGET: $(printf '%s\n' "$hits" | wc -l | tr -d ' ') API-limit signal(s):"
+    printf '%s\n' "$hits" | tail -3 | sed 's/^/    /'
 else
     echo "  budget: no API-limit signal"
 fi
