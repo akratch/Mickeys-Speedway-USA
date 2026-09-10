@@ -5,6 +5,28 @@
  * D_o058 names identify byte offsets in overlay 58, including its BSS.
  * The guarded body retains the target call graph and typed data accesses.
  */
+/*
+ * Plateau (2026-09-10): 996 of 3,614 relocation-masked words differ, down from
+ * 1,009.  The construct census is now as close as it can be short of exact:
+ * both sides emit 3,614 instructions and the opcode histograms differ by ONE
+ * entry -- the target has one more `move` and one fewer `addiu`, at +0x3704,
+ * where it does `move a3,<callee-saved>` for a frame address the candidate
+ * recomputes as `addiu a3,sp,216`.  So the whole residual is p1 colour, not
+ * shape.
+ *
+ * Falsified: spelling that frame address as a cached pointer local (`char
+ * *textPtr = &text[0];`, and the same for `nodes` and `character`) does not
+ * reproduce the target's cached form -- all three measure 1,010, one word
+ * WORSE, at unchanged size and frame.
+ *
+ * The three `if (i != 0);` statements below are discarded-expression probes
+ * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
+ * found by a two-pass climb over 11,304 variants and are a local optimum:
+ * a second pass whose pass-B window was widened from 25 to 90 positions found
+ * nothing further.  The lever that is worth 44 words on this overlay's
+ * point-quad twins is worth only 13 here, which is the honest measure of how
+ * broad this function's colour residual is.
+ */
 #ifdef NON_MATCHING
 #include "game/anim.h"
 #include "game/menu.h"
@@ -373,6 +395,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x28], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         savedX = D_o058_5E98;
+        if (i != 0);
         savedOffset = D_o058_5EA0;
         i = 0;
         rowY = rowBase;
@@ -449,6 +472,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xA0, 0x1E, D_8007C0B8->text[0x29], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         savedX = D_o058_5E98;
+        if (i != 0);
         savedPosition = D_o058_5E9C;
         i = 0;
         rowY = rowBase;
@@ -1229,6 +1253,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x39, D_8007C0B8->text[0x34], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         saves = func_800291C4();
+        if (i != 0);
         slot = &saves[levelGetBlurEffect(D_800D3050)];
 
         if (D_o058_5CD8 != 0) {
@@ -1326,10 +1351,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 1009/3614 words, size delta 0
+ * score: 996/3614 words, size delta 0
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: size delta closed, +56 bytes to 0; construct census now differs by one copy only. Residual is the s7/fp colouring swap. Next: 41 regions, front to back.
+ * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; three zero-instruction probes take the masked residual from 1009 to 996 and the pointer-local spelling of that frame address is falsified at 1010
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

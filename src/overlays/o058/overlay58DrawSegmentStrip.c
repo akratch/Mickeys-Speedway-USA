@@ -23,14 +23,30 @@ extern f32 overlay58SqrtReloc(f32 value);
 extern void overlay58PrepareStripReloc(Overlay58StripGfx **displayList,
                                        void *resource, s32 mode, s32 arg3);
 
+/*
+ * Plateau (2026-09-10): 68 of 201 relocation-masked words differ, down from
+ * 102, at unchanged 201-word geometry and an unchanged 0x88 frame.  Three
+ * moves, found by a frame-constrained hill climb over 25,132 variants:
+ * one discarded-expression probe (ido-5.3 L37, zero instructions), the `dx`
+ * declaration moved down two slots, and two write-order moves inside the loop
+ * body that are semantically inert (the second vertex's `y` written before its
+ * `x`, and the cursor advance moved across the independent `endZ` term).
+ *
+ * Falsified here: the argument-affinity mechanism that is worth 16 words on
+ * this overlay's two point-quad draw routines does NOT apply to this call.
+ * Passing `&gOverlay58StripVertexCursorReloc` as the first argument instead of
+ * the display list regresses 102 -> 152 and breaks the size delta by -4, so
+ * this callee really does take the display list.  The mechanism is a property
+ * of the call site, not of the overlay.
+ */
 #ifdef NON_MATCHING
 void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
                                f32 z1, f32 limit) {
-    f32 dx;
     f32 dy;
     f32 dz;
     f32 distance;
     f32 t;
+    f32 dx;
     f32 dummy0;
     f32 dummy1;
     f32 dummy2;
@@ -54,6 +70,7 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 
     overlay58PrepareStripReloc(&gOverlay58StripDisplayListReloc, (void *)0,
                                5, 0);
+    if (limit != 0);
 
     while (t < limit) {
         Overlay58StripVertex *vertices;
@@ -120,15 +137,15 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
             gOverlay58StripVertexCursorReloc->z =
                 (s16)(startZ + zPerpendicular);
             gOverlay58StripVertexCursorReloc++;
+            gOverlay58StripVertexCursorReloc->y = y;
 
             gOverlay58StripVertexCursorReloc->x =
                 (s16)(startX + xPerpendicular);
-            gOverlay58StripVertexCursorReloc->y = y;
             gOverlay58StripVertexCursorReloc->z =
                 (s16)(startZ - zPerpendicular);
-            gOverlay58StripVertexCursorReloc++;
 
             endZ = z0 + (next * dz);
+            gOverlay58StripVertexCursorReloc++;
             endX = x0 + (next * dx);
             gOverlay58StripVertexCursorReloc->x =
                 (s16)(endX - xPerpendicular);
@@ -154,10 +171,10 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay58DrawSegmentStrip:start
  * symbol: overlay58DrawSegmentStrip
- * score: 99/201 words
+ * score: 133/201 words
  * frame: 0x88
  * relocations: 8
- * first-mismatch: +0xC
- * summary: Term rotation regresses; operand reversal and explicit dereference are flat.
+ * first-mismatch: +0xF0
+ * summary: One zero-instruction probe plus two inert write-order moves take the masked residual from 102 to 68 at unchanged geometry and frame; the point-quad argument-affinity lever is falsified for this call site at 152.
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */
