@@ -2,9 +2,9 @@
 ### `overlay57Draw32A0` plateau handoff
 
 - source: `src/overlays/o057/overlay57Draw32A0.c`
-- score: 148/208 words
-- frame: 0x78
+- score: 52/208 words
+- frame: 0x70
 - relocations: 53
-- first mismatch: +0x0
-- summary: Fresh exact-size V0: 60 masked/63 raw diffs; target frame 0x70 and 33 relocs; 20 excess relocs plus ambiguous mask-table identity block proof.
+- first mismatch: +0x4
+- summary: Dropping the two table cursors closes the frame at the target 0x70 and makes the pool lane exact 85/85; 52 words remain as a uniform temp rotation with one onset at +0xE0.
 <!-- plateau-handoff:overlay57Draw32A0:end -->

@@ -48,20 +48,22 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 yScale, s32 color, s32 command);
 
 /* Overlay 57 text +0x32A0..+0x35E0. */
-/* Plateau (batch 20): exact 0x340; 60 words remain, first +0x0 (frame -0x78/-0x70).
- * Reused rising for packed and count-first arms improved 86; 119 flags and 10 attempts failed.
- * The 40-minute -mips2 permuter's best 835 required unsupported pointer/width detours. */
+/* Plateau: exact 0x340, 52 masked words, first at +0x4.
+ * Two declared pointer cursors over the mask and shift tables were two frame
+ * cells the target does not reserve; indexing both tables by the loop counter
+ * closes the frame at 0x70 and makes the whole pool lane exact (85/85).
+ * What remains is a uniform block-local temp rotation with a single onset at
+ * +0xE0, and one folded constant at +0xCC that the target writes as `li 254`
+ * where `rising + 0xFD` is still live here; spelling that literal costs four
+ * instructions elsewhere, so it needs a paired edit that is not yet found. */
 #ifdef NON_MATCHING
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
     Overlay57Draw32A0Record *cursor;
-    u32 *maskCursor;
-    u32 *shiftCursor;
     s32 envelope;
     s32 rowCount[1];
     s32 position;
     s32 i;
-    u32 bits;
     s32 rising;
 
     if (gO57Draw32A0Available4CC == 0) {
@@ -134,20 +136,15 @@ void overlay57Draw32A0(s32 updateRate) {
     i = 0;
     position -= 0x48;
     if (rowCount[0] > 0) {
-        maskCursor = gO57Draw32A0Masks3C8;
-        shiftCursor = gO57Draw32A0Shifts3D8;
         do {
-            bits = gO57Draw32A0HalfwordsReloc[4 +
-                    gO57Draw32A0Selection1A0];
-            bits = (bits & *maskCursor) >> *shiftCursor;
-            gO57Draw32A0Work34C[0].packed8 = bits << 16;
+            gO57Draw32A0Work34C[0].packed8 =
+                ((gO57Draw32A0HalfwordsReloc[4 + gO57Draw32A0Selection1A0] &
+                  gO57Draw32A0Masks3C8[i]) >> gO57Draw32A0Shifts3D8[i]) << 16;
             o57Draw32A0RenderReloc(gO57Draw32A0AnchorReloc,
                                    gO57Draw32A0Work34C, 248.0f,
                                    (f32)position, 1.0f, 1.0f,
                                    gO57Draw32A0Envelope124 | -256, 0x2003);
             i++;
-            maskCursor++;
-            shiftCursor++;
             position += 0x1E;
         } while (i != rowCount[0]);
     }
@@ -158,10 +155,10 @@ void overlay57Draw32A0(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57Draw32A0:start
  * symbol: overlay57Draw32A0
- * score: 148/208 words
- * frame: 0x78
+ * score: 52/208 words
+ * frame: 0x70
  * relocations: 53
- * first-mismatch: +0x0
- * summary: Fresh exact-size V0: 60 masked/63 raw diffs; target frame 0x70 and 33 relocs; 20 excess relocs plus ambiguous mask-table identity block proof.
+ * first-mismatch: +0x4
+ * summary: Dropping the two table cursors closes the frame at the target 0x70 and makes the pool lane exact 85/85; 52 words remain as a uniform temp rotation with one onset at +0xE0.
  * PLATEAU-HANDOFF:overlay57Draw32A0:end
  */
