@@ -1565,6 +1565,34 @@ bytes and disassembly never belong here.
   such a `while` outright is the cheap detector -- if the aggregate's home drops
   by 8 with the loop gone, its condition owns two temporaries.
 
+- **The commutative-weight rule reaches a float multiply, and an explicit
+  `(f32)` cast is the lever there.** Upstream L92 and field-guide lever 54 are
+  both written against integer/pointer arithmetic -- cast an address base to
+  `s32` and ugen sums it base-first. The same rule governs `mul.s`. On
+  `func_8005716C` the x-axis product's two float operands are byte-identical
+  written either way (`normalX * (...)` and `(...) * normalX` emit the same
+  word, which is why an earlier pass filed that word as not source-reachable),
+  and an explicit `(f32)` cast on `normalX` -- a no-op on an `f32` local --
+  changes that operand's weight and moves it to the left. The cast on the
+  *right* operand is inert, and so is a unary `+`; only the left one moves the
+  word. Worth one word there, and it was the second of the two edits that took
+  the function to byte-identical. File it upstream as a receipt on L92 rather
+  than as a new law.
+- **The frame's cell census is readable directly out of uopt, not inferred
+  from frame sizes.** `cc -Wo,-zdbug:2` writes a `uoptlist` whose global-
+  colouring section prints one `isvar M <class> <offset>` row per declared
+  local and one `isvar P` row per parameter (never commit it -- it is
+  ROM-adjacent build output and gitignored nowhere). Read against the emitted
+  frame it gives the cell law for a function in one compile: with N cells the
+  frame is `align8(4N)` and the last cell homes at `align8(4N) - 4N`, so a
+  target home fixes N's parity. The trap it exposes is that dropping a
+  declaration and dropping a *cell* are not the same move: on `func_8005716C`,
+  removing the `normalX` local and re-reading `normal->x` keeps the census at
+  ten because the re-read's own web takes the freed slot. The move that works
+  is to trade a declaration for a compiler temporary the compiler was going to
+  create anyway -- there, spelling a doubling as `-x * 2.0f`, which uopt
+  rewrites into the sum it was already emitting.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
