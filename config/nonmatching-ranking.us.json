@@ -52,7 +52,7 @@
       "relocation_masked_first_mismatch_offset": 316,
       "size_delta": 0,
       "category": "register-only",
-      "source_context_sha256": "CTAA.Bgiy.8vkp.G0bP.oS2P.pZQV.F9XX.wBz-.6hl9.cFMt.sJc"
+      "source_context_sha256": "lxuG.ktgY.KImQ.N8y-.8YUH.P5y1.sUtz.y99v.hily.ri4X.EtI"
     },
     {
       "name": "func_8003484C",
@@ -248,6 +248,21 @@
       "size_delta": 0,
       "category": "register-only",
       "source_context_sha256": "-9z5.17em.gSDh.dPFA.449I.Ygsi.1Tl9.b5WL.IaCn.fYl2.sA8"
+    },
+    {
+      "name": "levelInit",
+      "file": "src/main/level.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2064,
+      "objdiff_match_pct": null,
+      "differing_words": 113,
+      "first_mismatch_offset": 568,
+      "relocation_masked_differing_words": 113,
+      "relocation_masked_first_mismatch_offset": 568,
+      "size_delta": 0,
+      "category": "register-only",
+      "source_context_sha256": "nakw.fMHE.nGX9.NR8B.Gh7L.lOXn.vpLi.UhBy.BCHf.ao4g.ArM"
     },
     {
       "name": "overlay1MeasureCurves",
@@ -1990,21 +2005,6 @@
       "source_context_sha256": "BqRp.5FI5.rtSI.qKXH.lbIC.Q_QF.Tify.MILo.bjJx.s5hs.KPs"
     },
     {
-      "name": "levelInit",
-      "file": "src/main/level.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 2064,
-      "objdiff_match_pct": null,
-      "differing_words": 122,
-      "first_mismatch_offset": 0,
-      "relocation_masked_differing_words": 122,
-      "relocation_masked_first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "t2LM.f8OG.hfW1.9JDR.8zdb.Ity8.eOAV.CKoN.uwxz.9Yc6.RiE"
-    },
-    {
       "name": "func_overlay_101_F000C6E8_18E7F08",
       "file": "src/overlays/o101/overlay101TailC6E8.c",
       "overlay": 101,
@@ -2272,7 +2272,7 @@
       "relocation_masked_first_mismatch_offset": 56,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "Ddhn.ap8V.TazF.nsDl.y8tp.oPOJ.HxXN.ZvUo._ij2.Y4wE.yYo"
+      "source_context_sha256": "stdd.LyOA.UxUC._W6h.lkJk._fEG.FFfR.sLif.e66C.3cWU.M3A"
     },
     {
       "name": "overlay100DrawMotion",
