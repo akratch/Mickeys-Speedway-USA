@@ -79,6 +79,10 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  *      past it needs twelve more references or a span short enough for nocs 1, and it spans the whole head block.
  *      Store-order variants on top of this form: 29 (first store through the pointer or through
  *      `M2C_FIELD(temp_s0, s16 *, 0x30)`), 31, 32, 33 and 34 for five reorderings of the six command words.
+ *      Advance spellings are inert: `var_a1 += 6`, `&var_a1[6]`, a `(u32)` cast and writing the first command word
+ *      after the advance through `M2C_FIELD(temp_s0, s16 *, 0x30)` all measure 29; re-deriving the advanced pointer
+ *      from `temp_s0 + 0x3C` is 623 at delta -4, because the pointer then stops being an induction of the
+ *      already-live s5 carrier.
  *
  * Also measured flat at the 51-word state and not worth repeating: do { } while (0) and if (1) { } region
  * boundaries at five placements; four byte-test spellings; three pointer-init and two advance spellings; a dead

@@ -479,23 +479,43 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench: allocation-mismatch, 282/282 instructions/frame -152, 25 masked (32 raw)
+/* Workbench: allocation-mismatch, 282/282 instructions/frame -152, 20 masked (28 raw)
  * words; first code divergence +0xAC. Was 41, and 52 before that.
- * Two further levers moved it, both in the head of the function.
- * Computing `steps` before the D_388 block numbers its spill web below the
- * D_388 cursor's, which puts the two GPR homes at 0x34/0x38 the way the target
- * has them and closes eight words; the 0x30 home for `i` is unchanged.
- * Spelling the table index as `((u8)(rand & 3) * 4) + D_388[mode]` closes eight
- * more: by L52 the unsigned cast is a node, so it changes which subtree ugen
- * emits first, and the source-order swap then puts the memory read in the
- * addu's `rs`.  Either edit alone is worth less than the pair (33 and 29
- * against 41); a 362-evaluation insertion search over the 20 movable
- * declarations finds no order better than the one below.
- * Residual is three allocation classes: 6 words are the tableIndex ring, which
- * still runs one ring slot behind the target because the `(u8)` node costs a
- * temp the target does not spend, 4 the bank loop's ring, and 11 the two FPR
- * ring rotations at the cross/dot and tilt blocks. Opcodes, schedule, size,
- * frame and all 31 relocation offsets/types align. Retain NON_MATCHING. */
+ * Three levers moved it, and each is a statement- or carrier-identity fact
+ * rather than a declaration-order one -- the 344,946-evaluation declaration
+ * search that preceded them could not reach any of the three.
+ * 1. Computing `steps` before the D_388 block numbers its spill web below the
+ *    D_388 cursor's, so the two GPR homes land at 0x34/0x38 the way the target
+ *    has them (-8).  `i` stays at 0x30 on both sides, and as1 still schedules
+ *    the conversion itself back down to its old rows, so only the homes move.
+ * 2. Spelling the table index as `((u8)(rand & 3) * 4) + D_388[mode]` (-8).
+ *    Measured on `cc -S`, ugen emits a commutative add's RIGHT operand subtree
+ *    first and puts its result in `rs`; the target's `addu` has the `lbu` of
+ *    D_388[mode] in `rs`, so D_388[mode] is the right operand.  The swap alone
+ *    is +25 because it also drops the redundant `& 0xFF` node; by L52 an
+ *    unsigned conversion is a node, and `(u8)` restores the temp count.
+ * 3. Carrying the tilt target and its blend rate in `yawA`/`yawB`, which are
+ *    dead by then, rather than in `targetTilt` and `blend` (-5).  That removes
+ *    two FP webs from the colouring and puts `cross` on f16 and the D_70 rate
+ *    on f2 exactly as the target has them.  `targetTilt` still has to be
+ *    DECLARED -- dropping it moves every home below it and costs 15 words --
+ *    so it now reserves a home and carries nothing, the same shape overlay 8's
+ *    `motionTarget` has.  Carrying the speed target in it instead is
+ *    byte-identical, so the object cannot say which of the two is the original.
+ * Residual, 20 words, three classes.  Ten of them are one ugen ring fact: the
+ * target spends three ring temps inside the table-index statement and lets the
+ * scaled index take the fourth ring slot, while every spelling that emits the
+ * memory read first (the operand order the target needs) either spends four
+ * temps and colours the scaled index into a0, or spends three and then colours
+ * the scaled index one ring slot early.  The two requirements have not been
+ * satisfiable together in 18 forms of that statement; the deciding variable is
+ * uopt's colour for the scaled-index web, not the operand order, which is now
+ * right.  The other classes are 3 words of ring rotation at the second
+ * `0x8000 - state->angle` call, downstream of the same offset, 3 words where
+ * yawA wants FP pool colour f18 and gets f14, and 2 where the tilt constant
+ * wants f12 and gets f14 -- both want a HIGHER colour, so the target has an
+ * interfering FP web this body does not.  Opcodes, schedule, size, frame and
+ * all 31 relocation offsets/types align.  Retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -564,12 +584,12 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     dot = (out->smoothX * yawA) + (out->smoothY * yawB);
     crossB = cross * trigB;
 
-    if (state->direction == 0) targetTilt = -10.0f;
-    else targetTilt = 10.0f;
+    if (state->direction == 0) yawA = -10.0f;
+    else yawA = 10.0f;
     if (steps != 0) {
-        blend = D_70;
+        yawB = D_70;
         do {
-            state->tilt += (targetTilt - state->tilt) * blend;
+            state->tilt += (yawA - state->tilt) * yawB;
         } while (i--);
         i = steps - 1;
     }
@@ -610,11 +630,11 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 
 /* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
  * symbol: func_overlay_009_F00010B4_186772C
- * score: 25/282 words
+ * score: 20/282 words
  * frame: 0x98
  * relocations: 31
  * first-mismatch: +0xAC
- * summary: Hoisting the steps conversion and an unsigned-cast table index cut 41 to 25 masked; exact size/frame/opcodes. Residual is three allocation classes.
+ * summary: Statement order, an unsigned-cast table index and two reused FP carriers cut 41 to 20 masked; exact size/frame/opcodes. Residual is one ugen ring fact and two FP colours.
  * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
  */
 

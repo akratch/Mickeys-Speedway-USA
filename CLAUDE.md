@@ -164,6 +164,20 @@ This recurs after `gmake extract` **and after editing `symbol_addrs.us.txt`**,
 which re-runs splat and rebuilds every object, silently discarding the renames.
 `tools/land.sh` regenerates before it verifies for exactly this reason.
 
+**A same-module call can still be a `SYMBOL` relocation record, and then the C
+must not name the in-module definition.** `reloc_surface.py` skips any name
+defined in the module's own `.text`, so it neither values nor complains about
+such a site, and the function can score **0 masked words** and still fail
+`gmake verify` by exactly two. `func_overlay_002_F0001A94_185888C` did: its two
+`overlay2ContainsPoint` calls are `SYMBOL` records naming overlay 2 offset
+`0x123C`, so the shipped word is the `0xF0000000` addend, while its neighbouring
+`overlay2QueryNode` and `overlay2AdjacentIndices` calls in the same function are
+`JUMP` records that do store `offset >> 2`. "Same module, therefore a direct
+`jal`" is false per call site. The tell is `tools/overlay_tables.py`'s record
+`op_name` at that offset; the fix is a `*Reloc` placeholder declaration, as with
+a resident call. `gmake overlay-syms` reporting `UNRESOLVED ... 2 distinct
+values` for a pair of surface names is a source finding, not tool noise.
+
 The trap it hides: a promotion's `gmake verify` can pass in a worktree that
 holds renames the *commit* does not carry, so the tree stops linking for
 everyone else. The overlay 60 promotion renamed 8 of its 51 resident callees
