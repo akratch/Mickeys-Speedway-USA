@@ -25,13 +25,43 @@ extern Overlay58LargePointGfx *gOverlay58LargePointDisplayListReloc;
 extern Overlay58LargePointVertex *gOverlay58LargePointVertexCursorReloc;
 extern Overlay58LargePointRenderState gOverlay58LargePointRenderStateReloc;
 extern u8 D_80000098[];
+/*
+ * The callee is reached through the overlay loader's relocation table, so its
+ * `jal` encodes 0 and splat names it after overlay offset 0 for every such
+ * call in this overlay; the real callee is not identified.  What the target
+ * bytes do decide is its FIRST ARGUMENT: see the note below.
+ */
 extern void func_overlay_058_F0000000_18AF1E8(
-    Overlay58LargePointGfx **displayList, void *resource, s32 mode, s32 arg3);
+    Overlay58LargePointVertex **cursor, void *resource, s32 mode,
+    s32 arg3);
 
 /*
- * Plateau (2026-08-25): -O2/-mips2 is 104-instruction/frame-exact with 70 register-only words, first mismatch +0x30.
- * Qualifier, order, pointer/array, signedness, literal, and color-lifetime variants are neutral or disturb size/schedule.
- * A 40-minute one-worker permuter reached 2895 only via synthetic do/while coalescing; blocker is the long-lived a0/v0 web.
+ * Plateau (2026-09-10): 26 of 104 relocation-masked words differ, down from 70,
+ * at exact 104-instruction geometry and an exact 0x18 frame.  Two mechanisms
+ * closed 44 words and both are properties of the allocator, not of spelling:
+ *
+ *  1. The call's first argument is
+ *     `&gOverlay58LargePointVertexCursorReloc`, the same symbol the body
+ *     re-reads twenty times afterwards -- NOT the display list.  p1 splits
+ *     that one address web around the call and the post-call piece keeps the
+ *     a0 argument affinity at cost 0 (ido-5.3 L57/L66), which is the only
+ *     construct that puts the long-lived cursor address in a0 instead of v0.  Worth 16 words by itself; all twenty `0(a0)` sites go
+ *     register-exact.  1352 spellings measured against the old argument
+ *     spelling never reached below 68.
+ *  2. Four discarded-expression probes (ido-5.3 L37) at the positions below.
+ *     They cost zero instructions and re-order p1's colouring by adding web
+ *     occurrences; worth a further 26 words.  Their positions were found by a
+ *     frame-constrained hill climb, 7800 variants, and are a local optimum
+ *     under single insert/delete/move at 4968 further variants.
+ *
+ * Falsified here: declaration order is wholly inert (400 permutations, none
+ * below the then-best); statement-block order, the pointer/array and cast
+ * forms, `physicalBase` inlining, the second-gfx word order, and every shape
+ * that drops the early `vertices` assignment all regress.
+ *
+ * Residual: `gfx` wants v0 and takes a2; the physical-address chain wants ring
+ * temps and takes colours; `xPlus` wants a1 and takes t0; the two `lui`s at
+ * +0x88 are transposed; the two `lui`s at +0x14 are transposed.
  */
 #ifdef NON_MATCHING
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
@@ -43,20 +73,20 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     s32 xMinus;
     s32 zMinus;
     s32 zPlus;
+    if (x != 0);
 
-    func_overlay_058_F0000000_18AF1E8(&gOverlay58LargePointDisplayListReloc,
-                                      gOverlay58LargePointRenderStateReloc.resource,
-                                      5, 0);
-
+    func_overlay_058_F0000000_18AF1E8(
+        &gOverlay58LargePointVertexCursorReloc,
+        gOverlay58LargePointRenderStateReloc.resource, 5, 0);
     gfx = gOverlay58LargePointDisplayListReloc++;
     vertices = gOverlay58LargePointVertexCursorReloc;
     physicalBase = 0x80000000U;
     physicalVertices = (u32)vertices + physicalBase;
-
     gfx->w0 = 0x04000000U |
               ((((u8)((physicalVertices & 6U) | 0x20U)) & 0xFFU) << 16) |
               0x30U;
     gfx->w1 = (u32)gOverlay58LargePointVertexCursorReloc + physicalBase;
+    if (vertices != 0);
 
     gfx = gOverlay58LargePointDisplayListReloc++;
     gfx->w0 = 0x05110020U;
@@ -82,9 +112,11 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     vertices[-3].a = 0xFF;
 
     xPlus = x + 18;
+    zPlus = z + 18;
+    if (gfx != 0);
+    if (vertices != 0);
     xMinus = x - 18;
     zMinus = z - 18;
-    zPlus = z + 18;
 
     gOverlay58LargePointVertexCursorReloc->x = (s16)xMinus;
     gOverlay58LargePointVertexCursorReloc->y = (s16)y;
@@ -112,10 +144,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 34/104 words
+ * score: 78/104 words
  * frame: 0x18
  * relocations: 11
- * first-mismatch: +0x30
- * summary: Sibling reproof has the same pool/temp signature; dead physical-address/color reuse is byte-flat. Prior flags and bounded permutation are exhausted.
+ * first-mismatch: +0x14
+ * summary: Argument-affinity and discarded-expression levers take the masked residual from 70 to 26 at exact geometry and frame; the remainder is p1 colour and ring phase.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */

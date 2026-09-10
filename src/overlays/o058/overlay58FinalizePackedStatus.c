@@ -41,6 +41,17 @@ extern void overlay58Call59F4Reloc(void);
 extern void overlay58Call59FCReloc(s32 code);
 
 /* Exact semantic body for executable range +0x5554..+0x5A14. */
+/*
+ * Plateau (2026-09-10): 104 of 304 relocation-masked words differ, down from
+ * 177, at unchanged 304-word geometry and an unchanged 0x48 frame.  The three
+ * `if (... != 0);` statements below are discarded-expression probes (ido-5.3
+ * L37): they cost zero instructions, and each adds one web occurrence that
+ * re-orders p1's colouring.  Their positions came from a frame-constrained
+ * hill climb over insert/delete/move moves; each of the three is a strict
+ * gain on the base the two before it produce, and none is a gain alone in a
+ * different order.  The same construct is what moved this overlay's two
+ * point-quad draw routines from 70 to 26.
+ */
 #ifdef NON_MATCHING
 void overlay58FinalizePackedStatus(void) {
     Overlay58InputRecord *records;
@@ -79,6 +90,7 @@ void overlay58FinalizePackedStatus(void) {
         desired = 4;
     } else {
         for (i = 1; (desired > 0) && (i != 6); i++) {
+            if (selectedPlayer0 != 0);
             if (records[0].rank < records[i].rank) {
                 desired--;
             }
@@ -101,11 +113,11 @@ void overlay58FinalizePackedStatus(void) {
     }
 
     player = records[0].player;
-    current = (gOverlay58PackedStatusReloc[player + 4] & mask) >> shift;
 
     if (desired < 3) {
         return;
     }
+    current = (gOverlay58PackedStatusReloc[player + 4] & mask) >> shift;
     if (current >= desired) {
         return;
     }
@@ -118,6 +130,7 @@ void overlay58FinalizePackedStatus(void) {
         count = 0;
         selectedPlayer0 = player;
         for (i = 0; i < 3; i++) {
+            if (current != 0);
             if ((i != *(volatile u8 *)&records[0].player) &&
                 ((gOverlay58PackedStatusReloc[i + 4] & 0x7) >= 3)) {
                 count++;
@@ -154,6 +167,7 @@ void overlay58FinalizePackedStatus(void) {
         count = 0;
         selectedPlayer1 = *(volatile u8 *)&records[0].player;
         for (i = 0; i < 3; i++) {
+            if (player != 0);
             if ((i != selectedPlayer1) &&
                 (((gOverlay58PackedStatusReloc[i + 4] & 0x38) >> 3) >=
                  3)) {
@@ -163,6 +177,7 @@ void overlay58FinalizePackedStatus(void) {
 
         if (count == 0) {
             if (desired == 4) {
+                if (records != 0);
                 overlay58Call57B4Reloc(0x17);
             } else {
                 overlay58Call57C4Reloc(0x16);
@@ -194,6 +209,7 @@ void overlay58FinalizePackedStatus(void) {
                     (gOverlay58PackedStatusReloc[i + 4] & 0x1C0) >> 6;
                 if (decoded >= 3) {
                     count++;
+                if (player != 0);
                 }
                 if (decoded == 4) {
                     equalFourCount++;
@@ -213,6 +229,7 @@ void overlay58FinalizePackedStatus(void) {
                 overlay58Call58DCReloc(0x18);
                 flags = gOverlay58PackedStatusReloc[10];
                 if ((flags & 0x40) == 0) {
+                    if (records != 0);
                     gOverlay58PackedStatusReloc[10] = flags | 0x40;
                     overlay58Call5900Reloc();
                     overlay58Call5908Reloc(0x15);
@@ -267,10 +284,10 @@ void overlay58FinalizePackedStatus(void) {
 
 /* PLATEAU-HANDOFF:overlay58FinalizePackedStatus:start
  * symbol: overlay58FinalizePackedStatus
- * score: 127/304 words
+ * score: 216/304 words
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: Exact geometry remains blocked by mixed control-flow and register allocation after the full flag lattice.
+ * summary: Six zero-instruction discarded-expression probes and one inert early-return move take the masked residual from 177 to 88 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */

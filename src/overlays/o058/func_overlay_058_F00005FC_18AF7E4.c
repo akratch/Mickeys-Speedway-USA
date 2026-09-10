@@ -171,6 +171,7 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
     Overlay58Status *status;
     Overlay58AnimPath *path;
     Overlay58PathGeometry *geometry;
+    Overlay58Vec3f *verts;
     Overlay58Gfx *command;
     s16 *mapping;
     s16 start;
@@ -418,6 +419,16 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
     path = func_800508B4(3);
     if ((path != 0) && (D_68 > 0)) {
         geometry = *path->object->geometry;
+        /*
+         * Cached because the target is: reading `geometry->vertices` at each
+         * of the fifteen drawing operands costs one `lw` apiece, and the
+         * target has three fewer `lw` and one fewer `addiu`/`addu` pair than
+         * the uncached form. Caching it took the size delta from +24 bytes to
+         * +4 and the masked residual from 727 to 722 words. Caching the
+         * remaining (non-drawing) uses as well overshoots to -20 bytes, so
+         * only the start/end/marker operands take the local.
+         */
+        verts = geometry->vertices;
         func_800221E8(&gOverlay58DisplayListReloc,
                       &gOverlay58MatrixReloc);
         command = gOverlay58DisplayListReloc++;
@@ -453,9 +464,9 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                     }
                 }
                 overlay58DrawSegmentStrip(
-                    geometry->vertices[start].x, geometry->vertices[start].y,
-                    geometry->vertices[start].z, geometry->vertices[end].x,
-                    geometry->vertices[end].y, geometry->vertices[end].z,
+                    verts[start].x, verts[start].y,
+                    verts[start].z, verts[end].x,
+                    verts[end].y, verts[end].z,
                     D_2C0);
                 D_2C0 += increment;
                 if (D_2C0 > 1.0f) {
@@ -463,15 +474,15 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                     if (D_2BC != 0) {
                         amSndStop(D_2BC);
                     }
-                    overlay58DrawPointQuad((s32)geometry->vertices[end].x,
-                                           (s32)geometry->vertices[end].y,
-                                           (s32)geometry->vertices[end].z);
+                    overlay58DrawPointQuad((s32)verts[end].x,
+                                           (s32)verts[end].y,
+                                           (s32)verts[end].z);
                 }
             } else {
                 overlay58DrawSegmentStrip(
-                    geometry->vertices[start].x, geometry->vertices[start].y,
-                    geometry->vertices[start].z, geometry->vertices[end].x,
-                    geometry->vertices[end].y, geometry->vertices[end].z,
+                    verts[start].x, verts[start].y,
+                    verts[start].z, verts[end].x,
+                    verts[end].y, verts[end].z,
                     1.0f);
             }
 
@@ -493,15 +504,15 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                 if (marker != -1) {
                     overlay58DrawLargePointQuad(
                         (s32)((f32)D_B8[status->player][0] +
-                              geometry->vertices[marker].x),
-                        (s32)geometry->vertices[marker].y,
+                              verts[marker].x),
+                        (s32)verts[marker].y,
                         (s32)((f32)D_B8[status->player][1] +
-                              geometry->vertices[marker].z));
+                              verts[marker].z));
                 }
             }
-            overlay58DrawPointQuad((s32)geometry->vertices[start].x,
-                                   (s32)geometry->vertices[start].y,
-                                   (s32)geometry->vertices[start].z);
+            overlay58DrawPointQuad((s32)verts[start].x,
+                                   (s32)verts[start].y,
+                                   (s32)verts[start].z);
         }
     }
 }
@@ -511,10 +522,10 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:start
  * symbol: func_overlay_058_F00005FC_18AF7E4
- * score: 721 differing words
+ * score: 722 differing words
  * frame: 0x98
  * relocations: 267
  * first-mismatch: +0x0
- * summary: 835 vs 829 instructions; the -8 selection-table hole is closed and the surplus is now exposed at +6, all of it one extra callee-saved web, the branch-likely forms that follow from it, and one cursor materialization
+ * summary: Caching geometry->vertices for the drawing operands takes the surplus from +6 instructions to +1 and the masked residual from 727 to 722; what is left per side is one missing andi 0x9000, two branch-likely forms, and a three-way lw/lwc1 class split
  * PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:end
  */

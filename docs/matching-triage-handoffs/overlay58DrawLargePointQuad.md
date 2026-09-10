@@ -2,11 +2,11 @@
 ### `overlay58DrawLargePointQuad` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawLargePointQuad.c`
-- score: 34/104 words
+- score: 78/104 words
 - frame: 0x18
 - relocations: 11
-- first mismatch: +0x30
-- summary: Sibling reproof has the same pool/temp signature; dead physical-address/color reuse is byte-flat. Prior flags and bounded permutation are exhausted.
+- first mismatch: +0x14
+- summary: Argument-affinity and discarded-expression levers take the masked residual from 70 to 26 at exact geometry and frame; the remainder is p1 colour and ring phase.
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding
