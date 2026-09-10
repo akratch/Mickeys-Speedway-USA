@@ -1717,7 +1717,7 @@ void func_800293D0(void) {
  * frame: 0x18
  * relocations: 3
  * first-mismatch: +0x1C
- * summary: JFG efd5abb still leaves mainAnyoneHas as GLOBAL_ASM; next lever is a later permitted donor C body.
+ * summary: Not a donor question: the target is cfe's short-circuit-or value expansion with its carrier on the return register, and v0 is struck from that carrier web's candidate list because every operand's definition reads a call result (L101), which two probes here demonstrate directly.
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
 /*

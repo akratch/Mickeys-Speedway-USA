@@ -1465,6 +1465,6 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x10
- * summary: JFG efd5abb writer counterpart absent next lever authenticated writer donor or ownership trace
+ * summary: Eleven register-only words are one four-web colour permutation; all 40,320 declaration orders and 1,080 body-shape cells are byte-identical, so the lever must reorder the webs' save rather than respell the body.
  * PLATEAU-HANDOFF:func_8002C69C:end
  */
