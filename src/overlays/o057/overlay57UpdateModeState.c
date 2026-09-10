@@ -113,130 +113,97 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
 #define overlay57Call3FA4Reloc o57ModeOpaqueVoidCallReloc
 #define overlay57Call3FB8Reloc o57ModeOpaqueVoidCallReloc
 
-/* Plateau: exact-size at 0x588, 21 masked words, first at +0x108.
- * savedEligible is a plain s32: as `volatile` it forces the store into memory
- * but costs a frame cell.  `timer` is declared at function scope ahead of it so
- * that the eligibility spill takes the frame's first cell at sp+0x28, which is
- * where the target keeps it.
+/* Plateau: exact-size at 0x588, 5 masked words, first at +0x108.
  *
- * The 43-word temp-ring rotation and the 10-word savedEligible reload colour
- * are CLOSED, by one edit of two characters' worth of meaning: the byte store
- * reads the global back (`(u8)gO57ModeChoice4F8`) instead of reusing the local
- * `choice`.  ugen numbers a ring temp for that load and then forwards the value
- * it has just stored, so the load emits NO instruction -- the object is
- * byte-for-byte the same width -- while the ring advances one position in each
- * dispatch arm.  Measured with `cc -S`: the function's ring-temp count goes
- * 59 -> 61, the arm-1 selector load moves t4 -> t5 and the arm-2 one t3 -> t5,
- * and every later temp follows; 74 -> 21 masked words at delta 0.
+ * 74 -> 21 -> 5.  The 16-word globalcolor cluster is CLOSED, and it took two
+ * edits that are each a regression alone ([L88]): `entries` declared ONCE at
+ * function scope instead of once per dispatch arm (alone: 31), and the dead
+ * post-decrement copy given an explicit per-arm name `prev` (alone: 31).
+ * Together: 5.
  *
- * This is NOT a new family.  It is the read-back-what-you-just-wrote lever
- * already recorded twice in docs/ido-learnings.md -- the named
- * common-subexpression carrier on `func_8004E8E0`, where spelling a just-written
- * pointer chain as `array[0] = call(); array[1] = array[0] + size;` consumed an
- * invisible ugen temporary at the same instruction shape, and the known-zero
- * byte read in overlay 47's release routine, where reading a status byte back
- * kept one pop after the value folded away.  What is new here is only the
- * carrier: a plain 32-bit GLOBAL SCALAR, read back one line below its own
- * store, with the pop taken in each of two arms.  It is worth pairing with the
- * four families that buy a pop WITH an instruction (L65 phantom mask, L76 field
- * read through a local, L77 index scaled twice, L85 truncation at the store):
- * all four were tried here first and all four cost width.  On a plateau that is
- * exact-size, try the read-back before any of them.
+ * The decision variable is uopt's colouring ORDER, and it is computable.  Every
+ * `globalcolor` candidate carries `save = totalsave / nocs`, where `totalsave`
+ * is the web's reference count with references inside a loop weighted x10 and
+ * `nocs` is a bucket that grows with the web's span; webs are coloured by
+ * DESCENDING save, and each takes the lowest colour not held by an already
+ * coloured interfering web.  In this loop the three webs are `entries`, `count`
+ * and the dead copy, and the target's assignment (entries v0, count v1, dead
+ * copy a0) is exactly definition order -- which means the target's saves must
+ * run entries > count > dead copy.  Measured, per arm: entries 42/3 = 14,
+ * count 34/2 = 17, dead copy 44/2 = 22, because ONE cfe temporary serves the
+ * post-decrement in BOTH arms while `entries` and `count` are separate
+ * block-scoped symbols in each.  That is the exact reverse of what the target
+ * needs, which is why 20 spellings of the loop moved nothing.
  *
- * The safety condition the recorded lever carries applies unchanged and is met
- * here: no call, no volatile access and no aliasing write separates the store
- * from the read.
+ * Both halves of the reversal are bought by moving a symbol boundary:
  *
- * The 21 that remain decompose exactly, and none of them is a ring question:
+ *   - Hoisting `entries` to function scope merges the two arms' pointers into
+ *     one web: totalsave 42 -> 84, nocs 3 -> 4, save 14 -> 21.
+ *   - Naming the dead copy `prev` inside each arm splits the shared cfe
+ *     temporary into two per-arm webs: totalsave 44 -> 22, save 22 -> 11.
  *
- *   16  a v0/a0 swap in the marked-entry loop of both arms.  `entries` is
- *       coloured v0 in the target and a0 here; the dead post-decrement copy of
- *       `count` (`if (count--)`, whose `move` as1 makes dead by testing the
- *       pre-decrement register) takes the other one.  Both are free at that
- *       point -- `result` (v0) died at the second `result->child08` read and a0
- *       died at the preceding call argument -- so this is globalcolor's choice
- *       between two available colours for two interfering webs, and the lever
- *       is an extra interfering web, not a spelling.  Inert across 20 measured
- *       forms: all six declaration orders, `entries` assigned inside the test,
- *       `count` scoped to the loop or typed u32/u8, `entries[0].` member form,
- *       a `for` loop, `entries + 1` / `++entries` / u8-cursor arithmetic,
- *       commuted mask operands, and an s16 cast on the stored value.  `count`
- *       as s16 costs 24 bytes; hoisting the count read above the entries test
- *       costs 8.
+ * 21 > 17 > 11 is the target's order, and the colours follow without a force.
+ * Neither edit alone reorders the trio: hoisting alone gives entries 21 > dead
+ * copy 22 -> entries v1; splitting alone gives count 17 > entries 14 > dead
+ * copy 11 -> count v0.  Hoisting `count` as well is inert (its merged web is
+ * 68/4 = 17, the same save), and hoisting all six arm locals is 31.
+ *
+ * This is the general lever for a globalcolor residual on a pressure-free
+ * procedure and it costs no width at all: a web's save is changed by changing
+ * which SYMBOL its references belong to.  Merging two block-scoped copies of a
+ * variable into one function-scope declaration raises save; giving a compiler
+ * temporary an explicit per-block name lowers it.  Both are free.
+ *
+ * The 5 that remain are the two terms this pass did not reach:
+ *
  *    3  uopt sinks `savedEligible = eligible` past the early return and
- *       duplicates the store into both arms; the target stores once, in the
- *       delay slot of the timer branch.  CORRECTION, measured: this is NOT a
- *       memory-residency question.  savedEligible is ALREADY memory-resident
- *       in the candidate -- `sw a0,40(sp)` at +0x17c and +0x38c and nine
- *       `lw t3,40(sp)` reloads, the same home sp+0x28 the target uses.  What
- *       differs is only WHERE the one store goes: the target puts it in the
- *       `blez` delay slot at +0x15c, before the early return, and the
- *       candidate sinks it below that return into the first `jal` delay slot
- *       of each arm.  It is partial-dead-store sinking, not a missing home.
- *
- *       And the frame cost of forcing residency is a DECLARATION-POSITION
- *       artifact, not intrinsic.  `volatile s32 savedEligible` (or the
- *       one-element array form -- the two measure identically at every
- *       position) declared BETWEEN `timer` and `eligible` keeps the frame at
- *       0x30, keeps the home at 0x28, and lands the store exactly where the
- *       target has it: 34 masked.  Declared last it is 0x38/0x2C for 45;
- *       declared first, 0x38/0x2C for 43.  So the cell was never the
- *       obstacle.  What the middle position costs instead is 18 words of
- *       re-colouring in the timer region -- `eligible` a0 -> v1 and the
- *       gO57ModeTimer114 address web v1 -> a2 -- because taking savedEligible
- *       out of the web pool shortens `eligible`'s live range so it is coloured
- *       BEFORE the timer address web, where the target colours the address
- *       web first.  That swap, not a frame cell, is what has to be undone.
- *
- *       Sinking survives every source form tried: reading savedEligible rather
- *       than eligible in the guard, moving the assignment below the timer
- *       test, folding the test into one `&&`, a read-back, an `if (1)` region
- *       around the test, and replacing the early `return` with
- *       `goto dispatch_done` so the store is live on EVERY path (37, and it
- *       also loses the `beqzl`).  Merging savedEligible into `eligible` is
- *       byte-identical to the baseline at 21; wrapping it in a one-field
- *       struct is register-allocated and also measures 21 in two of the six
- *       declaration orders.
+ *       duplicates the store into both arms' first `jal` delay slot; the target
+ *       stores once, in the `blez` delay slot at +0x15c.  savedEligible is
+ *       already memory-resident at sp+0x28 with the target's own home, so this
+ *       is partial-dead-store sinking, not a missing home.  Forcing residency
+ *       lands the store exactly (`volatile s32 savedEligible` declared between
+ *       `timer` and `eligible`) but costs 18: `eligible`'s web stops spanning
+ *       the dispatch, its nocs falls 19 -> 2, its save rises 0.26 -> 2.5, and it
+ *       is then coloured BEFORE the gO57ModeTimer114 address web and takes its
+ *       v1.  Raising that address web above 2.5 needs six more references to it
+ *       and there are only three sites, so the volatile route is closed by the
+ *       same save arithmetic that opened the loop.  Inert at 5: all 24
+ *       declaration orders of the four function-scope locals, merging
+ *       savedEligible into `eligible`, reading savedEligible in the guard,
+ *       folding the two tests into one `&&`, storing inside the timer test, a
+ *       read-back, and seven L97 region boundaries around the assignment, the
+ *       eligibility block, the timer test and the whole dispatch.
  *    2  the two address materialisations at +0x108 are emitted in the opposite
- *       order.
+ *       order.  Both are in the one basic block after the `jal`: `la $3,
+ *       gO57ModeTimer114` (uopt's rematerialisation of the caller-saved address
+ *       web, .loc = the call's line) and `lw $2, gO57ModeTimerReloadBaseReloc +
+ *       276` (.loc = the next line).  as1 breaks the scheduling tie on physical
+ *       source line ([L59]) and emits the lower line first, so the target needs
+ *       the reload to carry a line <= the call's -- which no legal statement
+ *       order supplies.  Putting both on ONE line does move the scheduler (the
+ *       `lw` then beats the `addiu`) but not the two `lui`s: 7.  Also measured:
+ *       a comma expression 7, nested ifs 5, a blank line 5, an L97 region
+ *       around the reload 5, a multi-line call 5, a multi-line reload 5, and an
+ *       explicit `s32 *timerPtr` (with or without a post-call reassignment)
+ *       delta -8 and 276.
+ *
+ * Earlier, and still true: 74 fell to 21 by reading the global back in the byte
+ * store (`(u8)gO57ModeChoice4F8` instead of the local `choice`), so ugen numbers
+ * a ring temp for a load it forwards from the store above it and the pop costs
+ * zero instructions.  That is the read-back-what-you-just-wrote lever already
+ * recorded twice in docs/ido-learnings.md; what was new was the carrier, a plain
+ * 32-bit global scalar read back one line below its own store.  Its safety
+ * condition holds here: no call, no volatile access and no aliasing write
+ * separates the store from the read.
  *
  * Flags were screened on the old plateau and all tie or lose: -mips1 (234),
- * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74).
- *
- * Measured negatives added on the 21-word plateau, none of which moved a word:
- *
- *   - L97 region boundaries at 18 placements.  The split is sharp and is the
- *     useful finding: EVERY boundary inside the marked-entry loop costs
- *     exactly +10 (`if (1)`/`do {} while (0)` around the do-while, around the
- *     count read, around the body, around the increment, and an empty marker
- *     before the body or the increment), and EVERY placement outside it is
- *     inert (around the entries assignment, the entries test, the selection
- *     block, the selector store, or as an empty marker before any of them).
- *     So the construct is live here -- it is not that uopt ignores it -- but
- *     it never demotes the dead copy.  Reading the inside-the-loop variant
- *     shows why: it rotates the three loop webs to deadcopy v0, entries v1,
- *     count a0, where the baseline is deadcopy v0, count v1, entries a0 and
- *     the TARGET is entries v0, count v1, deadcopy a0.  The boundary permutes
- *     entries against count and leaves the dead copy on the lowest colour.
- *     The target's order is exactly definition order; every candidate colours
- *     the dead copy first, which by L93 is the top-tested numbering.
- *   - loop shape: `while (count--)` and `for (; count--;)` are byte-identical
- *     to the manual `if (count--) { do ... while (count--); }` (21); spelling
- *     either test `!= 0` costs 10.
- *   - splitting the dead copy into one or two explicit user variables (`prev`,
- *     or `g0`/`g1` for the guard and the loop), declared before or after
- *     `count`: 21 or 31, never lower.
- *   - four more declaration orders of the arm's six locals, including entries
- *     first and entries last: 21.
- *   - the 2-word address order at +0x108: an explicit `s32 *` for the store
- *     base, a separate `next` temp for the subtraction, an `if (1)` region
- *     around the reload, a different reload base symbol, and hoisting the
- *     store into both arms of the timer test -- 21, 21, 21, 21 and worse. */
+ * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74). */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 timer;
     s32 eligible;
     s32 savedEligible;
+    Overlay57MarkedEntry *entries;
 
     O57_S32(0x144) = 1;
     {
@@ -318,9 +285,9 @@ void overlay57UpdateModeState(s32 updateRate) {
             Overlay57LookupResult *result;
             Overlay57SelectionChild *child;
             Overlay57Selection *selection;
-            Overlay57MarkedEntry *entries;
             s32 choice;
             s32 count;
+            s32 prev;
 
             O57_S32(0x118) = 15;
             gO57ModeSetup21C.x0C = 0x17C;
@@ -341,13 +308,15 @@ void overlay57UpdateModeState(s32 updateRate) {
                         entries = selection->entries4C;
                         if (entries != 0) {
                             count = selection->countOwner00->count2C;
-                            if (count--) {
+                            prev = count--;
+                            if (prev) {
                                 do {
                                     if ((entries->flags04 & 0x00100000) != 0) {
                                         entries->value00 = 0x100;
                                     }
                                     entries++;
-                                } while (count--);
+                                    prev = count--;
+                                } while (prev);
                             }
                         }
                     }
@@ -380,9 +349,9 @@ mode_b:
             Overlay57LookupResult *result;
             Overlay57SelectionChild *child;
             Overlay57Selection *selection;
-            Overlay57MarkedEntry *entries;
             s32 choice;
             s32 count;
+            s32 prev;
 
             O57_S32(0x118) = 15;
             gO57ModeSetup21C.x0C = 0x17C;
@@ -403,13 +372,15 @@ mode_b:
                         entries = selection->entries4C;
                         if (entries != 0) {
                             count = selection->countOwner00->count2C;
-                            if (count--) {
+                            prev = count--;
+                            if (prev) {
                                 do {
                                     if ((entries->flags04 & 0x00100000) != 0) {
                                         entries->value00 = 0x100;
                                     }
                                     entries++;
-                                } while (count--);
+                                    prev = count--;
+                                } while (prev);
                             }
                         }
                     }
@@ -430,10 +401,10 @@ dispatch_done:
 
 /* PLATEAU-HANDOFF:overlay57UpdateModeState:start
  * symbol: overlay57UpdateModeState
- * score: 21/354 words
+ * score: 5/354 words
  * frame: 0x30
  * relocations: 59
  * first-mismatch: +0x108
- * summary: 74 fell to 21 by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, so ugen numbers a ring temp for a load it forwards from the store above it and the pop costs zero instructions; the 21 that remain are 16 words of a globalcolor swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks, and 2 words of address order, and this pass corrects the 3: savedEligible is already memory-resident at sp+0x28 in the candidate so it is partial-dead-store sinking rather than a missing home, and the frame cost of forcing residency is a declaration-position artifact -- volatile or a one-element array declared BETWEEN timer and eligible keeps frame 0x30 and home 0x28 and lands the store, paying instead 18 words of re-colouring in the timer region because eligible loses its long live range and is coloured before the address web.
+ * summary: 21 fell to 5 by reordering uopt's colouring, not by respelling the loop: globalcolor takes webs in descending save = totalsave/nocs (references, x10 inside a loop, over a span bucket), and the target's entries v0 / count v1 / dead-copy a0 is exactly the order entries > count > dead copy, while the candidate measured 14 < 17 < 22 because one cfe temporary served the post-decrement in BOTH arms and entries and count were separate block-scoped symbols in each; declaring entries ONCE at function scope merges its two webs (save 14 -> 21) and naming the dead copy prev per arm splits its shared web (save 22 -> 11), each a 31-word regression alone and 5 together; the 5 left are 3 words of a store uopt sinks past the early return (forcing residency lands it but re-colours 18 by raising eligible's save above the timer address web's) and 2 words of an as1 line-order tie at +0x108 that no legal statement order can reverse.
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */

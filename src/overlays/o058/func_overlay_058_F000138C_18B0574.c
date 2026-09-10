@@ -6,21 +6,28 @@
  * The guarded body retains the target call graph and typed data accesses.
  */
 /*
- * Plateau (2026-09-10): 895 of 3,614 relocation-masked words differ, down from
+ * Plateau (2026-09-10): 894 of 3,614 relocation-masked words differ, down from
  * 996.  The construct census is as close as it can be short of exact: both
  * sides emit 3,614 instructions and the opcode histograms differ by ONE entry
  * -- the target has one more `move` and one fewer `addiu`, at +0x3704, where
  * it does `move a3,<callee-saved>` for a frame address the candidate
  * recomputes as `addiu a3,sp,216`.  So the whole residual is p1 colour, not
- * shape.
+ * shape.  Under a shape-tolerant alignment 2,872 rows are byte-exact, 692
+ * differ only in register names, and 84 rows sit in 58 shape blocks.
  *
- * Under a shape-tolerant alignment the residual splits in two: about 525
- * words are one saved-register rotation (s7 with s8, s0 with s1, s2 with s3)
- * carried through the whole body, and about 242 are eight `move <saved>,zero`
- * index initialisations that the target emits at the TOP of a case and this
- * source emits next to the loop.  Two of the eight are closed below; the rest
- * are blocked by the frame's declaration census, which leaves exactly one
- * spare cell.  See the handoff.
+ * The residual splits in two: one saved-register rotation (s7 with s8, and s0
+ * with s1, s2 with s3 locally) carried through the whole body, worth 186
+ * aligned rows, and eight `move <saved>,zero` index initialisations that the
+ * target emits at the TOP of a case and this source emits next to the loop.
+ * Two of the eight are closed with pointer cursors below.
+ *
+ * The other six are NOT blocked by the frame.  A scalar carrying a pointer
+ * through casts is byte-identical to a `void **` local, so any of the 28
+ * declared scalars can carry a cursor in a case where it is dead, at zero
+ * census cost -- case 1 alone has seventeen.  Measured with free carriers,
+ * every one of the four multi-array sites regresses anyway: the cursor form
+ * only pays where the loop subscripts exactly one array AND has no other
+ * surviving induction variable.  See the handoff.
  *
  * Falsified: spelling a frame address as a cached pointer local (`char
  * *textPtr = &text[0];`, and the same for `nodes` and `character`) does not
@@ -283,8 +290,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        x = D_o058_5E98 + D_o058_5EA8;
+        /* `i = 0;` ahead of `x`, not after it: one word.  Both spellings put
+         * the def in the loop's own block, so the strength-reduced cursor
+         * bases stay folded either way (L98); only the schedule moves. */
         i = 0;
+        x = D_o058_5E98 + D_o058_5EA8;
         rowY = rowBase;
         if ((s32) D_8007BEF8 > 0) {
             do {
@@ -683,14 +693,19 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
              * slot.  With the subscript spelled as a cursor there is nothing
              * left to fold and the def is free to sit where the target has
              * it.  See the handoff. */
-            cursor = (void **) &D_800D31C8[0x51];
+            /* Base the cursor at D_800D31C8 and carry the 0x51 in the
+             * subscript, not `&D_800D31C8[0x51]`: the target's cursor register
+             * holds the bare symbol (`%lo` zero) and spends the 0x144 in the
+             * load's displacement.  Same instruction count, one more exact
+             * row and a shorter shape block. */
+            cursor = (void **) D_800D31C8;
             do {
                 nodes[0].alternate = NULL;
                 nodes[0].x = portraitX;
                 nodes[0].y = 0x37;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                nodes[0].texture = (RcpTextureInfo *) *cursor;
+                nodes[0].texture = (RcpTextureInfo *) cursor[0x51];
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
                 cursor++;
@@ -1365,10 +1380,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 895/3614 words, size delta 0
+ * score: 894/3614 words, size delta 0
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; the whole residual is p1 colour, and an explicit pointer cursor in two single-array loops frees their index def to sit at the top of the case where the target has it, 996 to 895 at unchanged size
+ * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; the whole residual is p1 colour, the frame is not the constraint on the remaining cursor sites (a cast through any dead s32 scalar is byte-identical to a pointer local) and the s7 with s8 rotation is movable but is a single global decision the base already optimises
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

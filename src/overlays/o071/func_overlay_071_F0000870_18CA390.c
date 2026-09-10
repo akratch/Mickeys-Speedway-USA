@@ -32,9 +32,33 @@ extern void func_800241BC(Overlay71Command **commands);
 
 /* DKR v77/v80 and JFG contain no exact donor for this renderer. */
 /*
- * Workbench: mixed(structural:3, schedule:27, register:9), exact 182/-48 frame; 33 words, first +0x50.
- * Levers tried: workbench buckets, flag/context lint, spill/declaration and command-order forms.
- * Remains: statement line assignment and a2-to-a1/a0 pool split; relocation identities remain diagnostic.
+ * Workbench: exact 182 words and -48 frame; 11 masked words, first +0x94.
+ *
+ * Lane c6-band-b (2026-09-10): 33 -> 11 by ONE whitespace edit.  Every
+ * two-word display-list command shipped its `w1` store before its `w0` store
+ * and this candidate emitted them the other way round -- ten sites, twenty
+ * words.  The two long-expression commands (the vertex-bank pair) already
+ * agreed.  Writing `w1` first in the source REGRESSES to 41: as1 orders two
+ * ready stores by physical source line (L59, lexicographic minimum on
+ * `node->lineno`), so an inversion just moves the same tie.  Folding the pair
+ * onto ONE physical line makes the two line numbers equal, drops the tie
+ * through to ready-list position, and that is the shipped order at all ten
+ * sites at once.  Token stream unchanged after whitespace normalisation.
+ *
+ * The residue is one colouring fact: the shipped code reads `state->flags`
+ * into `a2` at all four tests, this candidate into `a1` (the first two) and
+ * `a0` (the last two).  Instrumented globalcolor says it is fully
+ * colour-reachable -- forcing the two load webs to c5 gives a byte-identical
+ * object, 0 differing words -- but the allocator takes the first available
+ * colour at strictly-minimum cost, and reaching a2 needs interfering webs
+ * already parked on a0 AND a1.  The `u16 flags` local supplies the a0 one
+ * (its zero-extend is peepholed away, so the web is invisible in the object,
+ * and dropping the local costs a word); no source form found so far supplies
+ * an a1 one.  Flat at 11 or worse: the 16 single-local and 60 two-local
+ * carrier placements over the four tests, the local's type and qualifier
+ * lattice (`register` is inert at -O2, `volatile` changes the frame), six
+ * uopt region boundaries (L97), `!= 0` and unsigned-literal test spellings,
+ * hoisting `*object->resourceIndex`, and reloading `state` inside the block.
  */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
@@ -50,20 +74,17 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 
         command = *commands;
         *commands = command + 1;
-        command->w0 = 0xE7000000;
-        command->w1 = 0;
+        command->w0 = 0xE7000000; command->w1 = 0;
         command = *commands;
         *commands = command + 1;
-        command->w0 = 0xFB000000;
-        command->w1 = 0xFFFFFFFF;
+        command->w0 = 0xFB000000; command->w1 = 0xFFFFFFFF;
 
         flags = state->flags;
         if (flags & 1) {
             func_80034554(commands, 0, 0x17, 0);
             command = *commands;
             *commands = command + 1;
-            command->w0 = 0xFA000000;
-            command->w1 = 0xFFFFFFD0;
+            command->w0 = 0xFA000000; command->w1 = 0xFFFFFFD0;
             command = *commands;
             *commands = command + 1;
             command->w0 =
@@ -74,20 +95,17 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
                 (u32)state + state->vertexBank * 0x50 + 0x80000000;
             command = *commands;
             *commands = command + 1;
-            command->w0 = 0x05100020;
-            command->w1 = (u32)D_80000008;
+            command->w0 = 0x05100020; command->w1 = (u32)D_80000008;
             command = *commands;
             *commands = command + 1;
-            command->w0 = 0xE7000000;
-            command->w1 = 0;
+            command->w0 = 0xE7000000; command->w1 = 0;
         }
 
         if (state->flags & 6) {
             func_80034554(commands, *object->resourceIndex, 0x17, 0);
             command = *commands;
             *commands = command + 1;
-            command->w0 = 0xFA000000;
-            command->w1 = 0xFFFFFFFF;
+            command->w0 = 0xFA000000; command->w1 = 0xFFFFFFFF;
             command = *commands;
             *commands = command + 1;
             command->w0 =
@@ -99,24 +117,20 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
             if (state->flags & 4) {
                 command = *commands;
                 *commands = command + 1;
-                command->w0 = 0x05710080;
-                command->w1 = (u32)D_800000D8;
+                command->w0 = 0x05710080; command->w1 = (u32)D_800000D8;
             }
             if (state->flags & 2) {
                 command = *commands;
                 *commands = command + 1;
-                command->w0 = 0x05710080;
-                command->w1 = (u32)D_80000028;
+                command->w0 = 0x05710080; command->w1 = (u32)D_80000028;
             }
             command = *commands;
             *commands = command + 1;
-            command->w0 = 0xE7000000;
-            command->w1 = 0;
+            command->w0 = 0xE7000000; command->w1 = 0;
         }
         command = *commands;
         *commands = command + 1;
-        command->w0 = 0xFA000000;
-        command->w1 = 0xFFFFFFFF;
+        command->w0 = 0xFA000000; command->w1 = 0xFFFFFFFF;
         func_800241BC(commands);
     }
 }
@@ -126,10 +140,10 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:start
  * symbol: func_overlay_071_F0000870_18CA390
- * score: 149/182 words
+ * score: 171/182 words
  * frame: 0x30
  * relocations: 13
- * first-mismatch: +0x24
- * summary: Frame and word geometry exact; 33 raw/masked differences remain in call-carrier and statement/schedule structure; promotion text-differs in=33 out=0.
+ * first-mismatch: +0x94
+ * summary: Folding each command's w0/w1 pair onto one physical line makes their as1 line-number tie fall through to ready-list position and reproduces the shipped store order at all ten simple command sites, 33 -> 11 words at unchanged size and frame. The residue is one colour: the four state->flags reads want a2 and take a1/a0. Instrumented globalcolor proves it reachable (forcing both load webs to c5 gives 0 words); no source form yet parks an interfering web on a1.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */
