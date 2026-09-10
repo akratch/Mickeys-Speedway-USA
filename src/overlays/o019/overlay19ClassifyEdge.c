@@ -17,47 +17,6 @@
  *    because the staged variable stays live into the trailing block; comparing
  *    through the staged name lets the load land in that register directly, the
  *    way the forward block already did.
- *
- * 2026-09-10, lane c6-close: the carrier is now *identified*, and closing it
- * opens a second, larger defect. The reversed-coordinate block reads
- * `candidateEnd->y` a second time in its first test while the staged local
- * carries the same value into the second; uopt common-subexpressions the two
- * reads into a fresh temporary web and copy-propagates the local away, so the
- * value at +0x138/+0x154 belongs to a web live only across those six rows and
- * first-strict-minimum hands it v1. Spelling that first test against the
- * staged local instead -- the shape the forward block already uses -- leaves
- * the value in `queryStartX`'s own web, which is live from +0x50 and therefore
- * interferes with the `candidateEndIndex` parameter in v1, so it colours t3.
- * That closes all six words: +0x138/+0x140/+0x148/+0x154/+0x15C/+0x164 become
- * byte-identical.
- *
- * The cost is 24 words in one substitution. Dropping those two CSE webs
- * renumbers the pool: `candidateStart` and the `candidateEndIndex` parameter
- * trade v0 for v1, and the two forward/tail `queryEnd->y` temporaries follow
- * whichever register `candidateStart` left free. Nothing reached that swap.
- * The named decision variable is the colour order between the `candidateStart`
- * pointer web and the `candidateEndIndex` parameter web, and it was measured
- * against 4,190 forms: the exhaustive 4,096-form lattice over the six staged
- * comparison pairs (each of test 1 and test 2 spelled as the local or as the
- * field), 82 declaration-order and `register`-qualifier forms, and 12
- * structural forms (entry-test operand and clause swaps, pointer-arithmetic
- * shapes, a self-assignment read-back, two `if (1)` region boundaries, three
- * alternative carrier variables, and a local copy of the stack parameter).
- * Every form that reaches the t3 carrier scores exactly 24; the global minimum
- * over the whole lattice is 6, which is this retained shape. The two defects
- * are exclusive under every spelling tried, so the next lever has to be one
- * that adds or removes an interfering web without touching the comparisons.
- *
- * The complete 119-configuration lattice is nonexact; thirteen O2/MIPS-II
- * rows tie V0. One instrumented uopt/ugen trace is fidelity-clean and confirms
- * separate zero-cost pool-carrier and temporary-lane choices. Direct DKR-style
- * fields regress to 108/120; staged y/z values regress to 98/120; reversing
- * the final equality checks stays 110/120 and only trades schedule sites for
- * register sites. No strict gain authorized a combination or generic batch.
- * Preserve the GLOBAL_ASM fallback; linked range/module/ROM equality proves
- * only that fallback. Resume only with a new natural pool-to-temporary or
- * line-association mechanism; do not repeat flags, these three forms, forced
- * colors, or the old broad batch.
  * 2. `candidateStart` is defined above the early-exit test rather than below
  *    it. Web identifiers follow first-definition order and the second
  *    allocator phase colours in that order, so hoisting the definition puts
