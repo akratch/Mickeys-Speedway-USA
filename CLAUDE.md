@@ -3,43 +3,41 @@
 Mickey's Speedway USA, clean-room matching decompilation. The US ROM rebuilds
 byte-identically; every commit must keep it that way.
 
-## Private/public release posture
+## Release posture
 
-This is the private canonical repository. Work lands through private lanes on
-`campaign/unchain`, is merged from there into the private `master`, and is
-pushed only to the private `origin`. **Both branches, every time** -- run
-`tools/land.sh` after each integration batch. It pushes `campaign/unchain`,
-merges it into `master`, re-verifies the ROM from the merge result (the merge
-can combine two lanes' generated artifacts in ways neither side produced
-alone, which `verify` on `campaign/unchain` does not cover) and pushes
-`master`. Leaving `master` behind means it gets merged by hand later.
+There is one repository. `origin` is
+`git@github.com:akratch/Mickeys-Speedway-USA.git`, it is **public**, and it is
+canonical. Work lands through lanes on `campaign/unchain`, is merged into
+`master`, and both are pushed by `tools/land.sh` after each integration batch.
+Run it rather than pushing by hand: it regenerates the overlay alias list,
+re-verifies the ROM *from the merge result* (a merge can combine two lanes'
+generated artifacts in ways neither produced alone, which `verify` on
+`campaign/unchain` does not cover), and pushes both branches. Never force-push
+`origin`.
 
 The `upstream` remote is Rare's public Jet Force Gemini repository, not ours.
 Never push there.
 
-The public release is the rewritten mirror at `../mickey-public`, published at
-`https://github.com/akratch/mickeys-speedway-usa-decomp` from its `master`
-branch through its remote named `public`. Their commit IDs and documentation
-are intentionally different.
+Because the repository is public, everything committed is published the moment
+it is pushed. The content rules in the next section are therefore the whole of
+the protection, and they are about *content*, not about which branch or remote
+a thing lands on. Two further hygiene rules follow from being public:
 
-Commit decomp work privately in function-sized units. A change may be mirrored
-publicly only after it is integrated into `campaign/unchain` and the canonical
-private tree passes `gmake verify`, `gmake cleanroom`, `gmake check-docs`, and
-`gmake check-scoreboard`. Copy only the reviewed public-safe paths; never merge
-the private branch or copy the whole private tree into the public mirror.
-Create a separate plain public commit with no automated co-author or generator
-trailer, regenerate the public scoreboard, repeat the applicable gates in the
-public mirror, scan outgoing text/history for private workflow material and
-secrets, confirm `git remote -v`, and push only public `master` to `public`.
+- **No absolute workstation paths in tracked files.** Write paths relative to
+  the repository root, or as a placeholder. They leak a home directory, they
+  break for every other clone, and they have been committed by accident more
+  than once.
+- **Nothing that only makes sense to one machine.** Local agent scratch,
+  campaign orchestration state and workbench caches are gitignored for this
+  reason; `.decomp-workbench/campaigns/*/manifest.json` is the one deliberate
+  exception, and it carries paths and hashes only.
 
-Never publish private branches or tags, `.codex/`, `AGENTS.md`, `CLAUDE.md`,
-local-agent/campaign/orchestration files, workbench or scratch state, absolute
-workstation paths, baseroms, extracted assets, ROM-derived data, or compiler
-binaries. The standard decomp permuter remains eligible public tooling. Do not
-publish experimental candidates, plateaus, or lane-only work. Reproduce an
-accepted public contribution in a private lane and integrate it privately
-before mirroring the proven result back to public. Never force-push the private
-`origin` and never add it as a remote in the public mirror.
+A history note, because it changes what "remove it" means: this repository was
+previously described here as private, with a separate public mirror at
+`mickeys-speedway-usa-decomp`. That mirror is retired and the description was
+wrong. Anything already committed is already public, so deleting a file in a
+new commit does not unpublish it -- removing it for real needs a history
+rewrite.
 
 ## Nothing ROM-derived is ever tracked in git
 

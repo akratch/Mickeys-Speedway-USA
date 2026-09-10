@@ -15,10 +15,10 @@ extern s32 overlay98CheckObject(O98Object *, u8 *, f32 *);
 extern s32 gOverlay98AcceptedCount;
 extern O98Entry gOverlay98AcceptedEntries[0x50];
 
-/* PROVENANCE: candidate source reproduced from the project's public mirror at
- * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements and
- * the ABI correction above were independently derived from Mickey's own
- * source, object, relocation tables, and retail bytes. */
+/* PROVENANCE: reproduced from the retired public mirror, commit
+ * f56d08c746f891f76c4b7bab8e3a2a4332894634, which no longer resolves. All
+ * retained measurements and the ABI correction above were independently
+ * derived from Mickey's own source, object, relocation tables, retail bytes. */
 /* Matched 2026-08-31 by tracing IDO's automatic stack-home producers. Removing
  * two transient entry aliases and making the address-taken result the third
  * surviving automatic reproduces the 60-word body, 0x50 frame, and all six

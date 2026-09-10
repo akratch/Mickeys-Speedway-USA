@@ -33,10 +33,10 @@ extern s32 overlay98CheckCandidateReloc(void *, Vec3f *, Vec3f *, s32, s32);
 extern s32 overlay98UniqueCountReloc;
 extern s16 overlay98UniqueYReloc[];
 
-/* PROVENANCE: candidate source reproduced from the project's public mirror at
- * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements were
- * independently derived from Mickey's own source, object, relocation tables,
- * and retail bytes. */
+/* PROVENANCE: reproduced from the retired public mirror, commit
+ * f56d08c746f891f76c4b7bab8e3a2a4332894634, which no longer resolves. All
+ * retained measurements were independently derived from Mickey's own source,
+ * object, relocation tables, and retail bytes. */
 /* Workbench allocation-mismatch: 35 raw words; 111 instructions, frame 0xA8,
  * and six relocation sites have exact shape. Register/operand allocation is
  * the remaining permuter-ready residual; the assembly fallback stays canonical. */

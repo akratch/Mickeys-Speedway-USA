@@ -309,7 +309,7 @@ been done.
 
 ## 4. The permuter, and what the normalizations are standing in for
 
-`/Users/adamkratch/Desktop/dev/decomp-permuter` is checked out (HEAD
+`~/Desktop/dev/decomp-permuter` is checked out (HEAD
 2026-07-27), not installed in `.venv`, and referenced by nothing;
 `tools/permuter_settings.toml` names a compiler at
 `tools/ido-static-recomp/build/5.3/out/cc`, which does not exist. In its
