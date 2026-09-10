@@ -397,8 +397,8 @@ void func_80001BF4(void) {
 /* PROVENANCE: control-flow and audio-completion intent cross-checked against Jet Force Gemini's
  * public src/audiomgr.c::__amHandleDoneMsg; Mickey's ROM-derived globals remain authoritative. */
 /* Verdict: structure-mismatch; 9 differing sites of 21 instructions with an exact frame. */
-/* First mismatch: function offset +0x20; the target reloads the EFC address for its final store. */
-/* Gap: the target's direct EFC load/store lifetimes are not reproduced by this volatile declaration. */
+/* First mismatch: function offset +0x18; the target rematerializes the EFC address for its final store. */
+/* Gap: EFC address precoloring survives carrier and region changes; see the symbol handoff shard. */
 #ifdef NON_MATCHING
 extern volatile u32 D_80078DF0;
 extern volatile s32 D_80078EFC;
