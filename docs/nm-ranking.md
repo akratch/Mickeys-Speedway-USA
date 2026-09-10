@@ -271,9 +271,9 @@ Relocation-masked mismatch evidence covers **357 / 357** resolved rows. The raw 
 
 | Category | Count | Share of resolved |
 |---|---:|---:|
-| `register-only` | 17 | 4.8% |
+| `register-only` | 18 | 5.0% |
 | `schedule-only` | 1 | 0.3% |
-| `other` | 165 | 46.2% |
+| `other` | 164 | 45.9% |
 | `size-mismatch` | 174 | 48.7% |
 
 ### Differing-word thresholds
@@ -299,34 +299,34 @@ units remain distinct.
 | 2 | `src/overlays/o020/overlay20RemoveEntry.c` | `overlay20RemoveEntry` | `o020` | `register-only` | 212 | 2 | 2 | 108 | 108 | 0 | — |
 | 3 | `src/main/level.c` | `levelFreeAll` | `main` | `register-only` | 468 | 3 | 3 | 316 | 316 | 0 | — |
 | 4 | `src/main/textures_35024.c` | `func_8003484C` | `main` | `register-only` | 84 | 5 | 5 | 28 | 28 | 0 | — |
-| 5 | `src/overlays/o019/overlay19ClassifyEdge.c` | `overlay19ClassifyEdge` | `o019` | `register-only` | 480 | 6 | 6 | 312 | 312 | 0 | — |
-| 6 | `src/main/saves.c` | `func_8002C69C` | `main` | `register-only` | 112 | 11 | 11 | 16 | 16 | 0 | — |
-| 7 | `src/main/models.c` | `func_80020D8C` | `main` | `register-only` | 192 | 17 | 17 | 56 | 56 | 0 | — |
-| 8 | `src/main/track.c` | `func_8000FAE0` | `main` | `register-only` | 248 | 20 | 20 | 28 | 28 | 0 | — |
-| 9 | `src/main/level.c` | `levelInit` | `main` | `register-only` | 2,064 | 22 | 22 | 592 | 592 | 0 | — |
-| 10 | `src/main/objects.c` | `func_80007C68` | `main` | `register-only` | 472 | 25 | 25 | 148 | 148 | 0 | — |
-| 11 | `src/overlays/o001/overlay_001_middle.c` | `overlay1AdvanceGauge` | `o001` | `register-only` | 168 | 25 | 25 | 24 | 24 | 0 | — |
-| 12 | `src/overlays/o001/overlay_001_tail.c` | `overlay1ConsumeNearbyPending` | `o001` | `register-only` | 276 | 31 | 31 | 64 | 64 | 0 | — |
-| 13 | `src/overlays/o019/overlay19BuildAdjacency.c` | `overlay19BuildAdjacency` | `o019` | `register-only` | 492 | 41 | 41 | 124 | 124 | 0 | — |
-| 14 | `src/overlays/o022/overlay22RemoveObject.c` | `func_overlay_022_F0000D30_1878E38` | `o022` | `register-only` | 364 | 43 | 43 | 16 | 16 | 0 | — |
-| 15 | `src/overlays/o016/overlay_016.c` | `overlay16ApplyGradient` | `o016` | `register-only` | 580 | 60 | 60 | 60 | 60 | 0 | — |
-| 16 | `src/main/objects.c` | `func_80006534` | `main` | `register-only` | 820 | 63 | 63 | 56 | 56 | 0 | — |
-| 17 | `src/main/particles.c` | `func_8003D25C` | `main` | `register-only` | 672 | 68 | 68 | 80 | 80 | 0 | — |
-| 18 | `src/overlays/o001/overlay_001_head.c` | `overlay1MeasureCurves` | `o001` | `schedule-only` | 316 | 27 | 27 | 12 | 12 | 0 | — |
-| 19 | `src/overlays/o001/overlay_001_end.c` | `overlay1ResolvePathPoint` | `o001` | `other` | 608 | 4 | 1 | 148 | 292 | 0 | — |
-| 20 | `src/main/models_5B300.c` | `func_8005ABA8` | `main` | `other` | 444 | 2 | 2 | 60 | 60 | 0 | — |
-| 21 | `src/overlays/o022/overlay22InitializeObject.c` | `func_overlay_022_F0000000_1878108` | `o022` | `other` | 688 | 5 | 5 | 204 | 204 | 0 | — |
-| 22 | `src/overlays/o033/overlay33InitializeBuffers.c` | `overlay33InitializeBuffers` | `o033` | `other` | 324 | 5 | 5 | 116 | 116 | 0 | — |
-| 23 | `src/overlays/o057/overlay57UpdateModeState.c` | `overlay57UpdateModeState` | `o057` | `other` | 1,416 | 5 | 5 | 264 | 264 | 0 | — |
-| 24 | `src/main/diprint.c` | `debug_text_width` | `main` | `other` | 264 | 7 | 7 | 56 | 56 | 0 | — |
-| 25 | `src/overlays/o036/overlay36CheckNearbyHeight.c` | `func_overlay_036_F0000818_1883CD0` | `o036` | `other` | 252 | 7 | 7 | 0 | 0 | 0 | — |
-| 26 | `src/overlays/o038/func_overlay_038_F0000000_1885D10.c` | `func_overlay_038_F0000000_1885D10` | `o038` | `other` | 340 | 7 | 7 | 72 | 72 | 0 | — |
-| 27 | `src/overlays/o009/overlay_009.c` | `func_overlay_009_F0000540_1866BB8` | `o009` | `other` | 516 | 9 | 8 | 76 | 76 | 0 | — |
-| 28 | `src/main/audiomgr.c` | `func_80002134` | `main` | `other` | 84 | 9 | 9 | 24 | 24 | 0 | — |
-| 29 | `src/main/menu_3B1A0.c` | `func_8003A5A0` | `main` | `other` | 224 | 9 | 9 | 0 | 0 | 0 | — |
-| 30 | `src/main/objects.c` | `func_80006448` | `main` | `other` | 236 | 9 | 9 | 80 | 80 | 0 | — |
-| 31 | `src/overlays/o043/overlay43ComputeMotion.c` | `func_overlay_043_F00010A8_188B078` | `o043` | `other` | 220 | 9 | 9 | 116 | 116 | 0 | — |
-| 32 | `src/main/font.c` | `func_8004BA8C` | `main` | `other` | 184 | 10 | 10 | 24 | 24 | 0 | — |
+| 5 | `src/main/font.c` | `func_8004BA8C` | `main` | `register-only` | 184 | 6 | 6 | 48 | 48 | 0 | — |
+| 6 | `src/overlays/o019/overlay19ClassifyEdge.c` | `overlay19ClassifyEdge` | `o019` | `register-only` | 480 | 6 | 6 | 312 | 312 | 0 | — |
+| 7 | `src/main/saves.c` | `func_8002C69C` | `main` | `register-only` | 112 | 11 | 11 | 16 | 16 | 0 | — |
+| 8 | `src/main/models.c` | `func_80020D8C` | `main` | `register-only` | 192 | 17 | 17 | 56 | 56 | 0 | — |
+| 9 | `src/main/track.c` | `func_8000FAE0` | `main` | `register-only` | 248 | 20 | 20 | 28 | 28 | 0 | — |
+| 10 | `src/main/level.c` | `levelInit` | `main` | `register-only` | 2,064 | 22 | 22 | 592 | 592 | 0 | — |
+| 11 | `src/main/objects.c` | `func_80007C68` | `main` | `register-only` | 472 | 25 | 25 | 148 | 148 | 0 | — |
+| 12 | `src/overlays/o001/overlay_001_middle.c` | `overlay1AdvanceGauge` | `o001` | `register-only` | 168 | 25 | 25 | 24 | 24 | 0 | — |
+| 13 | `src/overlays/o001/overlay_001_tail.c` | `overlay1ConsumeNearbyPending` | `o001` | `register-only` | 276 | 31 | 31 | 64 | 64 | 0 | — |
+| 14 | `src/overlays/o019/overlay19BuildAdjacency.c` | `overlay19BuildAdjacency` | `o019` | `register-only` | 492 | 41 | 41 | 124 | 124 | 0 | — |
+| 15 | `src/overlays/o022/overlay22RemoveObject.c` | `func_overlay_022_F0000D30_1878E38` | `o022` | `register-only` | 364 | 43 | 43 | 16 | 16 | 0 | — |
+| 16 | `src/overlays/o016/overlay_016.c` | `overlay16ApplyGradient` | `o016` | `register-only` | 580 | 60 | 60 | 60 | 60 | 0 | — |
+| 17 | `src/main/objects.c` | `func_80006534` | `main` | `register-only` | 820 | 63 | 63 | 56 | 56 | 0 | — |
+| 18 | `src/main/particles.c` | `func_8003D25C` | `main` | `register-only` | 672 | 68 | 68 | 80 | 80 | 0 | — |
+| 19 | `src/overlays/o001/overlay_001_head.c` | `overlay1MeasureCurves` | `o001` | `schedule-only` | 316 | 27 | 27 | 12 | 12 | 0 | — |
+| 20 | `src/overlays/o001/overlay_001_end.c` | `overlay1ResolvePathPoint` | `o001` | `other` | 608 | 4 | 1 | 148 | 292 | 0 | — |
+| 21 | `src/main/models_5B300.c` | `func_8005ABA8` | `main` | `other` | 444 | 2 | 2 | 60 | 60 | 0 | — |
+| 22 | `src/overlays/o022/overlay22InitializeObject.c` | `func_overlay_022_F0000000_1878108` | `o022` | `other` | 688 | 5 | 5 | 204 | 204 | 0 | — |
+| 23 | `src/overlays/o033/overlay33InitializeBuffers.c` | `overlay33InitializeBuffers` | `o033` | `other` | 324 | 5 | 5 | 116 | 116 | 0 | — |
+| 24 | `src/overlays/o057/overlay57UpdateModeState.c` | `overlay57UpdateModeState` | `o057` | `other` | 1,416 | 5 | 5 | 264 | 264 | 0 | — |
+| 25 | `src/main/diprint.c` | `debug_text_width` | `main` | `other` | 264 | 7 | 7 | 56 | 56 | 0 | — |
+| 26 | `src/overlays/o036/overlay36CheckNearbyHeight.c` | `func_overlay_036_F0000818_1883CD0` | `o036` | `other` | 252 | 7 | 7 | 0 | 0 | 0 | — |
+| 27 | `src/overlays/o038/func_overlay_038_F0000000_1885D10.c` | `func_overlay_038_F0000000_1885D10` | `o038` | `other` | 340 | 7 | 7 | 72 | 72 | 0 | — |
+| 28 | `src/overlays/o009/overlay_009.c` | `func_overlay_009_F0000540_1866BB8` | `o009` | `other` | 516 | 9 | 8 | 76 | 76 | 0 | — |
+| 29 | `src/main/audiomgr.c` | `func_80002134` | `main` | `other` | 84 | 9 | 9 | 24 | 24 | 0 | — |
+| 30 | `src/main/menu_3B1A0.c` | `func_8003A5A0` | `main` | `other` | 224 | 9 | 9 | 0 | 0 | 0 | — |
+| 31 | `src/main/objects.c` | `func_80006448` | `main` | `other` | 236 | 9 | 9 | 80 | 80 | 0 | — |
+| 32 | `src/overlays/o043/overlay43ComputeMotion.c` | `func_overlay_043_F00010A8_188B078` | `o043` | `other` | 220 | 9 | 9 | 116 | 116 | 0 | — |
 | 33 | `src/main/main.c` | `func_80028FCC` | `main` | `other` | 108 | 10 | 10 | 28 | 28 | 0 | — |
 | 34 | `src/main/models_5B300.c` | `func_8005A7A0` | `main` | `other` | 424 | 10 | 10 | 0 | 0 | 0 | — |
 | 35 | `src/overlays/o068/overlay68CheckKind.c` | `overlay68CheckKind` | `o068` | `other` | 320 | 10 | 10 | 80 | 80 | 0 | — |
