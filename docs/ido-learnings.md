@@ -592,6 +592,21 @@ bytes and disassembly never belong here.
   aliasing write can change the read-back values; require exact configured
   code and linked-ROM proof. Evidence: the exact `func_8004E8E0` closure in
   `docs/resident.md`, 2026-09-08.
+- The same read-back carries on a plain global scalar, and it is the cheapest
+  ring lever there is on an exact-size plateau. Spelling a byte store as
+  `gByte = (u8)gWord;` one line below `gWord = value;` instead of reusing the
+  local that produced `value` advances ugen's temp counter by one and emits
+  nothing: the load is numbered, then forwarded from the store above it. On
+  `overlay57UpdateModeState` the pop landed once in each of two dispatch arms,
+  taking the function's ring-temp count from 59 to 61 and its residual from 74
+  masked words to 21 at delta 0, after the four pop families that buy a pop with
+  an instruction (redundant mask, field read through a local, index scaled
+  twice, truncation at the store) had each been measured and each cost width.
+  Same preconditions as the array form: no call, volatile access, or aliasing
+  write between the store and the read. Read the pop back out of `cc -S`, which
+  shows ugen's numbering before as1 schedules. The upstream workbench field
+  guide records the array and status-byte instances but not the global-scalar
+  one; that generalisation is worth sending on.
 - A known-zero byte read can survive as allocator state after its value folds
   away. In an exact release routine, writing zero to a status byte and then
   assigning `status | 1` in the next conditional emitted the same constant
