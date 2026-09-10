@@ -85,15 +85,15 @@ extern void overlay66Select(s32 selection);
  * same dependency and zero aftercycles, then ranks the handle spill first.
  * Source-line scheduling and declaration order are exhausted for this pair.
  *
- * A 2026-09-10 reopen falsified that closure's mechanism. The barrier is as1
- * memory disambiguation of the argument load's base register against $sp, not
- * a debug line entry: a .noalias fact for that register held through the second
- * store, a .loc between the stores, or .set volatile around the first store
- * each score exact, while .livereg is inert. ugen emits that .noalias only for
- * a named-static reference, which on this function costs three or four
- * compiler temp cells; the -g3 .mdebug local table shows the target frame is
- * the argument area plus the return save plus the declared block with zero
- * temps, so every indexed spelling is excluded on arithmetic. See
+ * A 2026-09-10 scoped reproof identifies the argument-load base as $3 (v1).
+ * The baseline already emits .noalias for $3 against $sp, but only after the
+ * handle loop, when that register holds menuInput. No fact covers the handle
+ * load and spill pair. Indexing D_menuBase changes neither bytes nor alias
+ * scope: it remains 299/301 masked words, frame 0x48, with 102 relocations.
+ * A faithful assembly replay scores zero masked differences with the $3 fact
+ * at the pair; naming $2 or closing the fact before the second store leaves
+ * two. These are diagnostics, not matching C. The zero-temp indexed menuInput
+ * form disproves the prior universal temp-cost claim, not the scope blocker.
  * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
  */
 #ifdef NON_MATCHING
@@ -234,6 +234,6 @@ void overlay11UpdateMenu(s32 updateRate) {
  * frame: 0x48
  * relocations: 102
  * first-mismatch: +0x138
- * summary: Reopened and re-diagnosed: the barrier is as1 memory disambiguation, not a debug line entry, and ugen emits it from ordinary C. The indexed spelling produces the target's spill order exactly; the live blocker is its two-cell frame cost.
+ * summary: Load base is $3; its existing noalias fact covers later menuInput, not handle at the spill pair. Indexed menuInput is byte-identical and adds no temps.
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
