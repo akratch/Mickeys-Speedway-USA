@@ -280,18 +280,26 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
-/* Bounded plateau: 150/150 instructions, 38 differing words, first mismatch +0x0. */
-/* The 0x30 frame is eight non-save bytes short of the 0x38 target; all 18 relocation offsets/types align. */
-/* All 119 flags and ten coherent forms are nonexact; resume with a natural eight-byte local-layout mechanism. */
+/* Bounded plateau: 150/150 instructions, 2 differing words, first mismatch +0x1c0, schedule-only. */
+/* Three edits took it 38 -> 2. (1) Declaring surfaceValid ahead of level gave the declared block a fifth
+ * carrier and closed the 0x30 frame onto the target's 0x38, retiring all 16 stack-displacement words --
+ * homes descend from the frame top in declaration order, and which locals become carriers is emergent, so
+ * reorder rather than add. (2) The surface scan runs EIGHT iterations, not seven: the target tests the
+ * counter and decrements in the back-edge delay slot, which is do {} while (i--). (3) Reading the halfword
+ * directly instead of through the `angle` local spends the ring pop the target spends there (L88), which
+ * retired a uniform -1 rotation over nine downstream webs.
+ * Residual: as1 orders `move v1,a0` (the dead loop-exit copy) before `surface -= 2`; we emit the reverse.
+ * Merging the two statements onto one physical line is inert, so the pick is decided above lineno (L79).
+ * Permuter target. */
 /* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
  * all field offsets, calls, and the body below are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
     ControlTrackState *track;
-    ControlLevelState *level;
-    void *cameraSource;
     s32 surfaceIndex;
+    void *cameraSource;
     s32 surfaceValid;
+    ControlLevelState *level;
     s32 i;
     s32 mask;
     s16 angle;
@@ -323,19 +331,13 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
             i = 7;
             surface = (u8 *) level + 0xE;
             do {
-                angle = *(s16 *) (surface + 0x112);
                 surface -= 2;
-                if (surfaceIndex == angle) {
+                if (surfaceIndex == *(s16 *) (surface + 0x114)) {
                     surfaceValid = func_8000FBD8(surfaceIndex, D_800CB300->x,
                                                  D_800CB300->y, D_800CB300->z);
                     break;
-                } else {
-                    i--;
-                    if (i == 0) {
-                        break;
-                    }
                 }
-            } while (1);
+            } while (i--);
             if (surfaceValid != 0) {
                 D_800CB300->unk3E = (s16) surfaceIndex;
             }
