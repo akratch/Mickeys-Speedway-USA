@@ -87,13 +87,13 @@ extern void overlay66Select(s32 selection);
  *
  * A 2026-09-10 reopen falsified that closure's mechanism. The barrier is as1
  * memory disambiguation of the argument load's base register against $sp, not
- * a debug line entry: a .noalias fact for that register, a .loc between the
- * stores, or .set volatile bracketing them each score exact, and ugen emits
- * the .noalias fact for a reference to a named static object, including its
- * own induction pointer over a named array. The indexed spelling therefore
- * reaches the target's spill order and argument-load form from C; it costs two
- * frame cells (0x50 against 0x48), which is the live blocker. Do not re-run
- * order, line, loop or flag attempts; see
+ * a debug line entry: a .noalias fact for that register held through the second
+ * store, a .loc between the stores, or .set volatile around the first store
+ * each score exact, while .livereg is inert. ugen emits that .noalias only for
+ * a named-static reference, which on this function costs three or four
+ * compiler temp cells; the -g3 .mdebug local table shows the target frame is
+ * the argument area plus the return save plus the declared block with zero
+ * temps, so every indexed spelling is excluded on arithmetic. See
  * docs/matching-triage-handoffs/overlay11UpdateMenu.md.
  */
 #ifdef NON_MATCHING

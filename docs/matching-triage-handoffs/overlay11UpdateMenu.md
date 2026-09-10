@@ -151,28 +151,47 @@ this function to **zero** relocation-masked differences, not one:
 2. a `.loc` naming a greater line between the two stores (the recorded one);
 3. `.set volatile` bracketing the two stores.
 
-Naming any other register in the `.noalias`, or placing it after both stores,
-is inert, which locates the decision precisely: `as1` is choosing which spill
-store to sink into the call's delay slot, and it decides by whether it can
-prove the argument load's base register disjoint from the stack. It is not an
-emission-index or source-line decision.
+Naming any other register in the `.noalias` is inert; so is placing it after
+both stores, and so is opening it before the load but closing it with `.alias`
+before the second store -- the fact has to still hold *at* the second store.
+`.set volatile` around the **first** store alone is enough; around the second
+alone is not. `.livereg` is inert here in every form tried: moved ahead of the
+pair, deleted outright, and with two different masks. That locates the decision
+precisely: `as1` is choosing which spill store to sink into the call's delay
+slot, and it decides by whether it can prove the argument load's base register
+disjoint from the stack. It is not an emission-index, source-line or liveness
+decision.
 
-**The `.noalias` fact is reachable from C.** `ugen` emits it for a reference to
-a *named* static object -- including for `uopt`'s own induction pointer over a
-named array, where it is re-asserted every iteration and closed after the loop
--- and never for a user-declared pointer variable. Spelling the call's first
-argument as an index into the named array instead of a dereference of a walking
-local produces the fact, and with it the target's exact spill order and the
-target's argument-load form.
+**`ugen` does emit that fact from ordinary C, but not for a walking pointer.**
+It emits `.noalias <reg>,$sp` for a reference to a *named* static object --
+including for `uopt`'s own induction pointer over a named array, where it is
+re-asserted every iteration and closed with `.alias` after the loop, so it
+survives the pointer's own spill and reload -- and also wherever a static
+address is materialised and dereferenced adjacently, which is why this
+function's own volatile input pointer gets one. It never emits it for a
+user-declared pointer that the source assigns from an array name and then
+increments. Confirmed on a six-point standalone probe: the array-name and
+`p[i - 1]` spellings produce the fact, `*p`, `p[0]`, a pointer-bound `for`, and
+a `const`-qualified pointer do not.
 
-**The live blocker is now a frame cost, not reachability.** Every indexed
-spelling measured costs two frame cells: frame 0x50 against the target's 0x48,
-which moves every home above the pointer and breaks 26 words that the pointer
-form has exact. Removing the pointer's own declaration does not pay for it, and
-neither does removing an unrelated declaration: in the indexed form the values
-that lose their names come back as compiler temps and absorb the space (the
-pointer form loses exactly eight bytes for the same removal, so the measurement
-is not a rounding artefact).
+**The array-index spelling reaches the fact and is nevertheless excluded.** It
+does reproduce the target's spill order and argument-load form exactly. Its
+cost is compiler temps, and the `cc -g3` `.mdebug` local table measures the
+frame directly: 24 bytes of outgoing argument area plus the return-address save
+is 28, this function's eleven declared locals occupy 44 more, and 28 + 44 is
+exactly the target's 0x48 -- so **the target's frame has zero temp cells, and
+the candidate's declared block already matches the target's homes name for
+name.** Every indexed spelling adds temps instead: 12 bytes with the pointer
+declaration dropped (frame 0x50) and 16 bytes with it kept (frame 0x58),
+whether the index is written on the array name, on the pointer, as pointer
+arithmetic, with the pointer left walking or removed. Dropping an unrelated
+declaration does not pay for them either -- the pointer form gives up exactly
+eight bytes for that same removal, so the measurement is not a rounding
+artefact.
+
+So the open question is not "which spelling" but **a zero-temp producer of the
+disambiguation fact for a walking pointer**, and the candidate's declared-local
+census is already proof that the rest of the frame is right.
 
 Newly eliminated here, all flat at two words with frame 0x48: a `volatile`
 pointee on the walking pointer, which does emit `.set volatile` around the
@@ -184,11 +203,8 @@ the dereference; a hoisted dereference into its own statement, which puts a
 `while`; and swapping the two preheader assignments, which regresses to four.
 Bounding the loop on the pointer instead of the counter regresses to 215.
 
-Do not re-run declaration order, statement order, loop form, line grouping or
-the flag lattice. The one open question is narrow and mechanical: a C spelling
-that gives the walking pointer a named-static reference -- and therefore the
-`.noalias` fact -- without the two-cell frame cost. The general laws are
-recorded in `docs/ido-learnings.md` under "Assembler scheduling and phase
-replay".
+Do not re-run declaration order, statement order, loop form, line grouping,
+the flag lattice, or any array-index spelling. The general laws are recorded in
+`docs/ido-learnings.md` under "Assembler scheduling and phase replay".
 
 <!-- plateau-handoff:overlay11UpdateMenu:end -->
