@@ -55,6 +55,22 @@ void func_overlay_101_F0000000_18DB820();
 #define overlay101DrawDefaultAssetReloc func_overlay_101_F0000000_18DB820
 
 /* Pinned DKR v77/v80 and JFG scans classify overlay 101 as no donor. */
+/* Lane c3-o101 (2026-09-10): 79 -> 36 relocation-masked words, 53 -> 25 of
+ * them register-blind, with size, frame and every store offset unchanged. The
+ * lever is the uopt REGION boundary proved out on overlay101BuildBorder, where
+ * it closed that function outright: only a control-flow construct opens a
+ * region, a bare compound statement is byte-inert, and an interior boundary
+ * renumbers the webs downstream of it. The `if (1) { ... }` span over the first
+ * nine records is worth 11 masked and 26 register-blind words on its own; the
+ * empty `if (1) { }` join inside record 1 is worth a further 20 masked; moving
+ * `right = x + work.width` below record 0's colour store -- work.width is not
+ * written again and `right` is not read before, so this is order, not meaning
+ * -- is worth the last 12. Falsified, each measured on this baseline: 1,770
+ * region spans per round over three rounds converge here, and dropping
+ * `volatile` from work.dim costs 52 words and from work.dimmer 16, so unlike
+ * BuildBorder's trailingColor these two pairs have no join to break. The
+ * residue is the mode-1/3 tail at +0xB4 and the record-0 prologue, both still
+ * register colouring. */
 #ifdef NON_MATCHING
 void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
     Overlay101PanelRect *out;
@@ -89,70 +105,74 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
                                        &work.full, &work.dim, &work.dimmer,
                                        &work.darkest);
 
-        right = x + work.width;
         bottom = y + work.height;
         out = work.records;
 
-        out->x0 = x + 1;
-        out->y0 = y + 12;
-        out->x1 = x + 3;
-        out->y1 = bottom - 1;
-        out->color = work.dimmer;
-        out++;
+        if (1) {
+            out->x0 = x + 1;
+            out->y0 = y + 12;
+            out->x1 = x + 3;
+            out->y1 = bottom - 1;
+            out->color = work.dimmer;
+            right = x + work.width;
+            out++;
 
-        out->x0 = x + 1;
-        out->y0 = bottom - 3;
-        out->x1 = right - 1;
-        out->y1 = bottom - 1;
-        out->color = work.dimmer;
-        out++;
+            out->x0 = x + 1;
+            out->y0 = bottom - 3;
+            out->x1 = right - 1;
+            if (1) {
+            }
+            out->y1 = bottom - 1;
+            out->color = work.dimmer;
+            out++;
 
-        out->x0 = right - 3;
-        out->y0 = y + 12;
-        out->x1 = right - 1;
-        out->y1 = bottom - 1;
-        out->color = work.dimmer;
-        out++;
+            out->x0 = right - 3;
+            out->y0 = y + 12;
+            out->x1 = right - 1;
+            out->y1 = bottom - 1;
+            out->color = work.dimmer;
+            out++;
 
-        out->x0 = x;
-        out->y0 = y + 12;
-        out->x1 = x + 1;
-        out->y1 = bottom;
-        out->color = work.dim;
-        out++;
+            out->x0 = x;
+            out->y0 = y + 12;
+            out->x1 = x + 1;
+            out->y1 = bottom;
+            out->color = work.dim;
+            out++;
 
-        out->x0 = x + 1;
-        out->y0 = bottom - 1;
-        out->x1 = right;
-        out->y1 = bottom;
-        out->color = work.dim;
-        out++;
+            out->x0 = x + 1;
+            out->y0 = bottom - 1;
+            out->x1 = right;
+            out->y1 = bottom;
+            out->color = work.dim;
+            out++;
 
-        out->x0 = right - 4;
-        out->y0 = y + 12;
-        out->x1 = right - 3;
-        out->y1 = bottom - 3;
-        out->color = work.dim;
-        out++;
+            out->x0 = right - 4;
+            out->y0 = y + 12;
+            out->x1 = right - 3;
+            out->y1 = bottom - 3;
+            out->color = work.dim;
+            out++;
 
-        out->x0 = x + 3;
-        out->y0 = y + 12;
-        out->x1 = x + 4;
-        out->y1 = bottom - 3;
-        out->color = work.full;
-        out++;
+            out->x0 = x + 3;
+            out->y0 = y + 12;
+            out->x1 = x + 4;
+            out->y1 = bottom - 3;
+            out->color = work.full;
+            out++;
 
-        out->x0 = x + 4;
-        out->y0 = bottom - 4;
-        out->x1 = right - 3;
-        out->y1 = bottom - 3;
-        out->color = work.full;
-        out++;
+            out->x0 = x + 4;
+            out->y0 = bottom - 4;
+            out->x1 = right - 3;
+            out->y1 = bottom - 3;
+            out->color = work.full;
+            out++;
 
-        out->x0 = right - 1;
-        out->y0 = y + 12;
-        out->x1 = right;
-        out->y1 = bottom;
+            out->x0 = right - 1;
+            out->y0 = y + 12;
+            out->x1 = right;
+            out->y1 = bottom;
+        }
         out->color = work.full;
         out++;
 
@@ -198,10 +218,10 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
 
 /* PLATEAU-HANDOFF:overlay101DrawPanel:start
  * symbol: overlay101DrawPanel
- * score: 189/268 words
+ * score: 36 differing words
  * frame: 0x178
  * relocations: 18
  * first-mismatch: +0xB4
- * summary: Structure and relocation residuals remain after five source probes and the full flag lattice.
+ * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36 and 53 register-blind to 25. Residue is colouring in the mode-1/3 tail and the record-0 prologue.
  * PLATEAU-HANDOFF:overlay101DrawPanel:end
  */
