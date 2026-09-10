@@ -988,6 +988,56 @@ bytes and disassembly never belong here.
   a flag lattice at three register words each; all three are byte-identical
   with this edit, and the translation unit's other functions do not move.
 
+- **Check the procedure for a register-pressure cliff before spending a day on
+  a reservation.** The dead-expression lever above adds a web, and a procedure
+  whose marginal web is already at the edge of its colour pays a fixed toll for
+  any web at all -- wherever it is put and whatever it computes. On `levelInit`
+  (`src/main/level.c`) one `if (E);` is byte-identical and **any second one
+  costs exactly +120 bytes and 30 words**: nine expressions x five position
+  sets inside the target loop, two and three references in a single basic
+  block, and a control placed at the top of the function on a parameter, 54
+  cells and one number. The traced `globalcolor` names the toll: the marginal
+  web (save 1.18, 45 interferers) holds the last callee-saved colour with
+  `decision=color` in the base and flips to `decision=split` with any extra web
+  present, and the 30 words are its reloads. The cheap pre-check is one
+  compile: add a single throwaway web and diff the size. If it is not free, the
+  whole reservation family is closed for that procedure and the only route to a
+  caller-saved colour is to *remove* a web instead.
+
+- **A web that `globalcolor` splits has no colour, so no force sweep can reach
+  it.** uopt colours a web only when its best cost is strictly below its
+  `totalsave`; otherwise the record reads `decision=split` and the value falls
+  through to ugen's ring. A residual that is one register wrong is therefore
+  worth one `CDX_DETAIL_WEB` read before any sweep: if the contested value's
+  web is split, forcing every *other* web to every colour is guaranteed to find
+  nothing, which is exactly what two passes on `func_8003F154`
+  (`src/main/particles.c`) spent 100 forces discovering. There the magnitude
+  test's `0.0f` is a float constant web with `totalsave 1.0` against `cost 3.0`
+  at every available caller-saved colour, so it is split; reaching the target's
+  register needs the cost below the save -- four references to the constant, or
+  a live range crossing no call -- *and* the colour freed by an interfering
+  web, two conditions rather than one.
+
+- **The fp pool ladder is `$f0, $f2, $f12, $f14, $f16, $f18`, and ugen's fp
+  ring is `$f4` to `$f10` plus every ladder register no web claims.** Measured
+  on `func_8003F154` by forcing each fp web to each of the six colours (24..29)
+  and reading which register moved, and cross-checked against the instrumented
+  `ugen` free list, which rotates five wide there because `c25` (`$f2`) is
+  taken. The consequence is that "the target has this value on the ring, the
+  candidate has it on a pool colour" is a *counting* statement: the target
+  spends one fewer fp web in that region. Reading the ring membership is the
+  cheapest probe in an fp residual -- `DKWB_UGEN_TRACE=1` filtered to
+  `ALLOC_FP_RESULT` for the procedure's ordinal answers "did this edit free a
+  pool colour" in seconds, without scoring anything.
+
+- **A uopt region boundary moves the fp pool/ring split, not just the integer
+  ring phase.** `do { ... } while (0)` opened at the sqrt statement in
+  `func_8003F154` frees `$f16` from the pool and widens the fp ring from five
+  to six, at delta 0; four other placements do the same. So the region-boundary
+  lever is worth trying on any residual described as fp-pool-versus-ring, with
+  the caveat measured there: 21 placements across one block moved the split
+  three ways and none of them freed the register the target actually wanted.
+
 - **A compiler temporary's stack slot is a second colouring in web order, not
   a priority.** After `globalcolor`, uopt's `spilltemps` walks its register
   temporaries (induction pointers, common-subexpression values, call-crossing

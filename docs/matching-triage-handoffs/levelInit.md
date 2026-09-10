@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 110
 - first mismatch: +0x250
-- summary: 113 words to 22, and the residual is now two named terms with every byte outside the resource loop exact. The 99-word term was never colour: it was a uniform three-step integer temp-ring phase, and the loop body needs three GP allocations more than the plain spelling makes. Two are bought by a redundant mask on an already-masked value (L65: it folds to no instruction and still pops the ring), and the third by the same fold inside the table index. The access spelling is the evidence-backed part: levelFreeAll, matched, reads this same table as *(s16 *)((i << 1) + (u32)base), and that form -- not the subscript -- gives the address add its target operand order. Removing any one of the three costs 87 words of tail phase, so they compose and none is an improvement alone. What is left is 16 words of the one colouring decision plus 6 in the table-index group. The colour is unchanged and now dominant: a full force sweep of this base (57 webs times c1 to c8, 258 applied) again has exactly one cell under it -- web 104, the s16 resourceId, forced from c1 to c5 -- and it scores 6, delta 0, with the whole function exact except that group. Its cost record says c1 and c2 both cost zero and only c3 and c4 are forbidden, by the loop's own argument setup, so reaching c5 needs interfering webs already coloured c1 AND c2, and all twelve of web 104's interferers are decided after it. The last 6 words are one allocation order: the target computes the index mask before it loads the table base, and every spelling of the access measured so far loads the base first. See the shard for the eliminated families.
+- summary: 113 words to 22, and both remaining terms are now proved to need something no spelling supplies. 16 words are one caller-saved colour: web 104, the s16 resourceId, takes c1 (v0) and the target wants c5 (a2); forcing p1:w104=c5 on this source scores 6 at delta 0, its forbidden set is only c3 and c4 from the loop's own argument setup, and all twelve interferers are decided after it, so the documented lever is two more interfering caller-saved webs on c1 and c2. That lever is unavailable in this procedure, and the reason is measured rather than guessed: levelInit sits on a register-pressure cliff. One tested dead expression is byte-identical, but ANY second one costs exactly +120 bytes and 30 words -- for every expression, at every position, including a control placed at the top of the function on a parameter, 54 cells in all -- because the marginal web (save 1.18, 45 interferers, holding the last callee-saved colour s6) drops from color to split and spills. No new web can be added here for less than 30 words, so the whole reservation family is retired. The other 6 words are the table-index group, and they are now identified as the same residual as levelFreeAll's 3: both are the ugen emission order mask, table, scale against the candidate's mask, scale, table, on the same D_800C94E0 read in this file. A free-list replay of this arm shows exactly five ring pops, and the target's order is mask, table, scale, sum, phantom. Eleven access spellings were read off the object: shift-first gives mask, scale, table and base-first and both subscript forms give table, mask, scale, each at 22 extra tail words, and nothing reaches mask, table, scale. Solving levelFreeAll solves this group too. See the shard for the eliminated families.
 
 #### 2026-09-10, lane c4-resident: 113 to 22, and the ring term closed
 
@@ -83,4 +83,68 @@ Eliminated, delta 0 unless noted:
 Next lever, in order of value: the c1-and-c2 interference pair for web 104, worth
 16; and an access spelling that computes the index before it loads the base,
 worth 6.
+
+#### 2026-09-10, lane c5-resident: the reservation lever is retired, and the 6 are levelFreeAll's 3
+
+Nothing moved the score. What moved is what is left to try, in both terms.
+
+**The colour term (16 words) cannot be bought, and the cliff is the reason.**
+The next lever named by the previous pass was the documented one from
+`docs/ido-learnings.md`: a caller-saved colour is won by making the lower
+colours unavailable, and a *tested dead expression* with two references is how
+you do it. On this function it does not work, and the failure is uniform rather
+than fiddly. One `if (E);` anywhere is byte-identical. **Any second one costs
+exactly +120 bytes and 30 words**, and the number does not move:
+
+- nine expressions (the induction variable, the loop bound, the id, three of
+  the loop's own masked tests, the comparison result, the two array reads)
+  crossed with five position sets inside the loop body, all delta +120 to +132;
+- both references in one basic block, and three references in one block: same;
+- and the control that settles it -- two dead tests placed at the very top of
+  the function, on a parameter, far outside the loop -- also +120.
+
+54 cells, one number. Reading the traced `globalcolor` says why: in the base,
+the marginal web (save 1.18, 45 interferers) takes the last callee-saved colour
+`s6` with `decision=color`; with any extra web present it becomes
+`decision=split` and spills, and the 30 words are its reloads. So this
+procedure is at a register-pressure cliff, **no new web can be added to it for
+less than 30 words**, and since the only reachable fix for web 104's colour is
+one more interfering caller-saved web (globalcolor keeps the first strict
+minimum, and priority cannot move a colour), the whole reservation family --
+dead tests, dead stores, comma carriers, extra locals -- is retired here. A
+route to the 16 words must first *remove* a web, not add one.
+
+`if (1) { }` and `do { } while (0)` region boundaries were measured too, since
+[L97] is the other way to redraw an allocation: around the resource loop's
+if/else chain they are byte-identical, and around the loop body they cost the
+same 30 words and leave the id on `v0`. Region boundaries do not move this
+colour.
+
+**The order term (6 words) is levelFreeAll's residual, measured, not inferred.**
+Both functions read `D_800C94E0` in the same file and both are left with one
+emission-order swap of the same three temps. The candidate creates the index
+mask, then the scale, then the table load; the target creates the mask, then
+the table, then the scale. In `levelFreeAll` that is the whole remaining 3
+words; in `levelInit` it is the whole remaining 6.
+
+The ring accounting is now exact for the `levelInit` arm. A free-list replay of
+the instrumented `ugen` trace shows the loop body is a strict rotation, and the
+arm makes **five** ring allocations, not four: the doubled index mask spends one
+that emits nothing. The candidate's order is phantom, mask, scale, table, sum;
+the target's registers force mask, table, scale, sum, phantom -- the phantom
+moves to the end. Eleven access spellings were read off the object rather than
+guessed, and they fall into exactly two classes, neither of them the target's:
+
+- shift-first (`(m << 1) + base`, the retained form, and the `* 2` variant):
+  mask, scale, table -- 22, the floor;
+- base-first (`base + (m << 1)`), the plain subscript, the reversed subscript,
+  `*(p + i)`, a `u8 *` base, and the outer-fold and comma variants of each:
+  table, mask, scale -- 22 core words plus 22 more of tail phase.
+
+`m + m` for the doubling, which is what produced the target's order in
+`levelFreeAll`, puts the mask on a pool colour here instead of a ring temp and
+is 111. So the two functions want the same thing and the same spelling space is
+exhausted for both. Whoever solves one should re-measure the other the same
+hour.
+
 <!-- plateau-handoff:levelInit:end -->
