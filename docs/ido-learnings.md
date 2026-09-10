@@ -1498,6 +1498,48 @@ bytes and disassembly never belong here.
   allocator question. Evidence: `func_8005A948`, where patching the two names
   in the phase input takes a three-word residual to zero.
 
+- **`as1` picks a call's delay-slot filler by memory disambiguation against
+  `$sp`, not by emission index or source line.** Where the register holding a
+  call's first argument is one `as1` cannot prove disjoint from the stack, it
+  sinks the *earlier* of two adjacent caller-save spill stores into the delay
+  slot and leaves the later one in front of the call, inverting `ugen`'s
+  emission order. Three byte-inert facts restore that order, each measured on
+  `overlay11UpdateMenu` (1,204 bytes, 301 words) where the inversion is the
+  entire two-word residual and each perturbation scores exact under listing
+  replay: a `.noalias <reg>,$sp` naming the argument register, anywhere from
+  the loop preheader through the point between the two stores; a `.loc` naming
+  a greater line between the stores; and `.set volatile` around the **first**
+  store. Inert: `.noalias` naming any other register; `.noalias` placed after
+  both stores; `.noalias` opened before the load and closed with `.alias`
+  before the second store, so the fact has to hold *at* that store;
+  `.set volatile` around the second store alone; and `.livereg` in every form
+  tried -- moved ahead of the pair, deleted, and with two other masks. This is
+  a different position and a different decision from the block-head duplication
+  question above, where `.noalias` is measured inert; the two results do not
+  conflict.
+
+- **`ugen` emits `.noalias <reg>,$sp` for a reference to a *named* static
+  object, never for a user-declared pointer variable.** It fires where a static
+  address is materialised and then dereferenced, including for `uopt`'s own
+  induction pointer over a named array -- there it is re-asserted at the top of
+  every iteration and closed with `.alias` after the loop, so it survives the
+  pointer's own spill and reload. It does not fire for a pointer local that the
+  source assigns from an array name and then increments, whatever the
+  declaration, initialiser, `register`, `volatile`-pointee or loop form. So the
+  disambiguation fact above is reachable from C only by spelling the reference
+  as an index into the named object, or by materialising the address adjacent
+  to its dereference. On `overlay11UpdateMenu` the indexed spelling does produce
+  the fact, and reproduces the target's spill order and argument-load form
+  exactly -- but it is still excluded, because the fact costs compiler temps
+  and that target's frame has none. `cc -g3`'s `.mdebug` local table is what
+  settles it: outgoing-argument area plus the return-address save, plus the
+  declared block the table enumerates, already accounts for the whole target
+  frame, so any spelling that adds a temp cell is out on arithmetic. The indexed
+  forms add three temp cells with the pointer declaration dropped and four with
+  it kept. **Read a frame residual this way before searching spellings:** the
+  local table says whether the deficit is in the declared block or in the temps,
+  and only the first is reachable by declaration surgery.
+
 - **`cc -S` ignores `-o`.** The listing is written to the *current directory*
   under the source's base name. Move it into a scratch directory as the next
   command; a stray `.s` in the worktree root is exactly the kind of file the
