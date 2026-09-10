@@ -9,6 +9,9 @@ shared file):
   *.json and generated tables      -> theirs; a keep-both hunk cannot
                                       produce valid JSON, and the result is
                                       parse-checked before it is staged
+  *.py                             -> resolved as below, then parse-checked:
+                                      a keep-both residue can splice a
+                                      function tail onto nothing
   Makefile                         -> keep both sides of every hunk
   files only the lane touched
   (AA add/add or under --own-prefix) -> theirs
@@ -20,6 +23,7 @@ shared file):
                                        conflicts
 Exits nonzero if any conflict marker survives.
 """
+import ast
 import json
 import re
 import subprocess
@@ -68,6 +72,35 @@ def duplicate_redefines(path):
                 duplicated.add(name)
             seen.add(name)
     return duplicated
+
+
+def validate_resolved(path):
+    """Return a message if a just-resolved file is structurally broken.
+
+    Both cases below happened. A keep-both hunk spliced two JSON records
+    together without a delimiter and produced a file no reader could parse;
+    a keep-both residue in a Python tool kept one side's function tail
+    without its head. Neither leaves a conflict marker, so the tree looks
+    clean and the failure lands several gates downstream, reading like a
+    defect in the file rather than in the resolution. The resolver is the
+    only place that knows a resolution just happened.
+    """
+    if not path.endswith((".json", ".py")):
+        return None
+    with open(path, errors="replace") as handle:
+        text = handle.read()
+    if path.endswith(".json"):
+        try:
+            json.loads(text)
+        except ValueError as error:
+            return f"INVALID JSON after resolving {path}: {error}"
+    else:
+        try:
+            ast.parse(text, filename=path)
+        except SyntaxError as error:
+            return (f"INVALID PYTHON after resolving {path}: "
+                    f"line {error.lineno}: {error.msg}")
+    return None
 
 
 def main():
@@ -152,17 +185,12 @@ def main():
                 )
                 return 1
 
-        # Never hand a syntactically broken JSON file to the integration
-        # gates. They fail far downstream with a decoder error naming a
-        # character offset, which reads like a corrupt input rather than a
-        # resolution defect, and the merge has to be unwound to find out
-        # which. Fail here, where the cause is still visible.
-        if path.endswith(".json"):
-            try:
-                json.loads(open(path, errors="replace").read())
-            except ValueError as error:
-                print(f"INVALID JSON after resolving {path}: {error}")
-                return 1
+        # Fail here, where the cause is one resolution away, rather than
+        # several gates downstream where it reads like a corrupt input.
+        broken = validate_resolved(path)
+        if broken:
+            print(broken)
+            return 1
         git("add", "--", path)
         print(f"resolved {path}: {how}")
     left = git("grep", "-l", "^<<<<<<< ", "--", ".").stdout.strip()

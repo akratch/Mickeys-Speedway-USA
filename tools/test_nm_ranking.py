@@ -304,6 +304,46 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue(ranking.source_coverage(document, {key: digest}, {key: digest})["complete"])
 
 
+class RetiredGateTests(unittest.TestCase):
+    """--check-retired gates check-docs, so its blast radius has to be exact.
+
+    A retired row names a function that has been matched and left the queue:
+    the row is not out of date, it is wrong, and planning that reads it will
+    re-derive a match that already landed. A stale row is the ordinary
+    consequence of editing a candidate-bearing TU. Gating on the first is
+    safe; gating on the second would fail nearly every commit.
+    """
+
+    def test_a_matched_function_still_listed_is_reported_retired(self):
+        live = ("src/main/live.c", "live")
+        gone = ("src/main/gone.c", "gone")
+        document = ranking_document([function_row(*key) for key in (live, gone)])
+        report = ranking.ranking_coverage(document, {live}, {live})
+        self.assertEqual(report["retired"], [list(gone)])
+
+    def test_an_edited_candidate_is_stale_but_not_retired(self):
+        """The property that makes this gate safe to wire into check-docs."""
+        key = ("src/main/edited.c", "edited")
+        document = ranking_document([function_row(*key)])
+        report = ranking.ranking_coverage(document, {key}, set())
+        self.assertEqual(report["stale"], [list(key)])
+        self.assertEqual(report["retired"], [], "an edit must not trip the retired gate")
+        self.assertFalse(report["complete"], "but it is still not fresh")
+
+    def test_a_newly_queued_function_is_missing_not_retired(self):
+        known = ("src/main/known.c", "known")
+        fresh = ("src/main/fresh.c", "fresh")
+        document = ranking_document([function_row(*known)])
+        report = ranking.ranking_coverage(document, {known, fresh}, {known})
+        self.assertEqual(report["missing"], [list(fresh)])
+        self.assertEqual(report["retired"], [])
+
+    def test_a_clean_ranking_reports_nothing_retired(self):
+        key = ("src/main/ok.c", "ok")
+        document = ranking_document([function_row(*key)])
+        self.assertEqual(ranking.ranking_coverage(document, {key}, {key})["retired"], [])
+
+
 class PruneStaleTests(unittest.TestCase):
     def test_prunes_only_nonlive_exact_identities_and_normalizes_counts(self) -> None:
         keep = ("src/main/keep.c", "keep")
