@@ -293,6 +293,63 @@ void demo_symbol(void) {}
             plateau.handoff_shard_path("../escape")
 
 
+class MatchedSymbolDiagnosticTests(unittest.TestCase):
+    """Tell a matched function apart from a malformed guard.
+
+    Both reach require_guarded_candidate with no candidate, but they need
+    opposite fixes: a matched function's plateau block is dead and should be
+    deleted, while a malformed guard should be repaired. This collision has
+    landed twice, both times through a merge that reported no conflict --
+    the plateau record and the match live in different regions of the file,
+    so only this audit sees the result is inconsistent.
+    """
+
+    MATCHED = "void func_X(s32 arg0) {\n    return;\n}\n"
+    GUARDED = (
+        "#ifdef NON_MATCHING\n"
+        "void func_X(s32 arg0) {\n    return;\n}\n"
+        "#else\n"
+        '#pragma GLOBAL_ASM("asm/nonmatchings/main/x/func_X.s")\n'
+        "#endif\n"
+    )
+
+    def test_a_definition_without_a_fallback_is_recognized(self):
+        self.assertTrue(plateau.defined_without_fallback(self.MATCHED, "func_X"))
+
+    def test_a_guarded_candidate_has_its_own_fallback(self):
+        self.assertFalse(plateau.defined_without_fallback(self.GUARDED, "func_X"))
+
+    def test_an_absent_symbol_is_not_flagged(self):
+        self.assertFalse(plateau.defined_without_fallback("int other(void) { return 0; }\n", "func_X"))
+
+    def test_another_symbols_fallback_does_not_count_as_ours(self):
+        text = self.MATCHED + '#pragma GLOBAL_ASM("asm/nonmatchings/main/x/func_Y.s")\n'
+        self.assertTrue(plateau.defined_without_fallback(text, "func_X"))
+
+    def test_the_error_keeps_its_original_sentence_and_adds_the_cause(self):
+        with self.assertRaises(plateau.PlateauError) as caught:
+            plateau.require_guarded_candidate(self.MATCHED, "func_X")
+        message = str(caught.exception)
+        self.assertIn("not an unambiguous", message)
+        self.assertIn("already matched", message)
+        self.assertIn("removed", message)
+
+    def test_the_error_offers_both_readings_rather_than_asserting_one(self):
+        """The file cannot distinguish a match from a never-wrapped candidate."""
+        with self.assertRaises(plateau.PlateauError) as caught:
+            plateau.require_guarded_candidate(self.MATCHED, "func_X")
+        message = str(caught.exception)
+        self.assertIn("never", message)
+        self.assertIn("cannot tell those apart", message)
+
+    def test_a_genuinely_malformed_guard_keeps_the_original_message(self):
+        """Do not mislabel a broken guard as a landed match."""
+        text = '#pragma GLOBAL_ASM("asm/nonmatchings/main/x/func_X.s")\n'
+        with self.assertRaises(plateau.PlateauError) as caught:
+            plateau.require_guarded_candidate(text, "func_X")
+        self.assertIn("not an unambiguous", str(caught.exception))
+
+
 class FinalizeCommandTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()

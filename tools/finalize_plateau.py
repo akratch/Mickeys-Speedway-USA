@@ -209,12 +209,49 @@ def guarded_candidates(text: str, symbol: str) -> list[GuardedCandidate]:
     return found
 
 
+def defined_without_fallback(text: str, symbol: str) -> bool:
+    """True when the symbol is defined and has no GLOBAL_ASM fallback of its own.
+
+    Deliberately NOT called "is matched". From the file's text alone a matched
+    function and a candidate that was never wrapped in a guard are identical:
+    both are a plain definition with no fallback. This reports the observation;
+    the caller offers both readings rather than picking one.
+    """
+    definition = re.compile(
+        DEFINITION_TEMPLATE.format(symbol=re.escape(symbol)),
+        re.DOTALL | re.MULTILINE,
+    )
+    if not definition.search(text):
+        return False
+    fallbacks = re.findall(r'#\s*pragma\s+GLOBAL_ASM\s*\(\s*"([^"]+)"\s*\)', text)
+    return not any(Path(path).name == f"{symbol}.s" for path in fallbacks)
+
+
 def require_guarded_candidate(text: str, symbol: str) -> GuardedCandidate:
     candidates = guarded_candidates(text, symbol)
     if len(candidates) != 1:
         if not candidates:
+            # Keep the original sentence -- callers and tests rely on it --
+            # and append what the shape of the file narrows the cause to.
+            # The frequent cause is a merge that kept a plateau record from a
+            # branch predating the function's match: both sides edit different
+            # regions, so the merge reports no conflict and only this audit
+            # sees the result is inconsistent. It has landed twice.
+            detail = ""
+            if defined_without_fallback(text, symbol):
+                detail = (
+                    f"; {symbol} is defined here with no GLOBAL_ASM fallback of"
+                    " its own, so either it is already matched and this"
+                    " PLATEAU-HANDOFF block is dead and should be removed"
+                    " (usually a merge that kept a plateau record from a branch"
+                    " predating the match), or it is a candidate that was never"
+                    " wrapped in #ifdef NON_MATCHING. The file cannot tell those"
+                    " apart; check whether the function still appears in the"
+                    " NON_MATCHING queue"
+                )
             raise PlateauError(
-                f"{symbol} is not an unambiguous #ifdef NON_MATCHING candidate with a GLOBAL_ASM fallback"
+                f"{symbol} is not an unambiguous #ifdef NON_MATCHING candidate "
+                f"with a GLOBAL_ASM fallback{detail}"
             )
         raise PlateauError(f"{symbol} appears in more than one guarded candidate")
     return candidates[0]
