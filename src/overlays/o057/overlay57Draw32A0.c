@@ -48,14 +48,23 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 yScale, s32 color, s32 command);
 
 /* Overlay 57 text +0x32A0..+0x35E0. */
-/* Plateau: exact 0x340, 52 masked words, first at +0x4.
- * Two declared pointer cursors over the mask and shift tables were two frame
- * cells the target does not reserve; indexing both tables by the loop counter
- * closes the frame at 0x70 and makes the whole pool lane exact (85/85).
- * What remains is a uniform block-local temp rotation with a single onset at
- * +0xE0, and one folded constant at +0xCC that the target writes as `li 254`
- * where `rising + 0xFD` is still live here; spelling that literal costs four
- * instructions elsewhere, so it needs a paired edit that is not yet found. */
+/* Plateau: exact 0x340, 48 masked words, first at +0x4; frame and both
+ * instruction counts are exact and the pool lane is exact 85/85.
+ *
+ * Three things got it here. Two declared pointer cursors over the mask and
+ * shift tables were two frame cells the target does not reserve; indexing both
+ * tables by the loop counter closes the frame at 0x70. The saturating arm
+ * writes 0xFE to the global and reads it back rather than computing
+ * `rising + 0xFD`: spelling the constant directly makes uopt hoist a second
+ * materialisation of 254 into the guard's delay slot, but routing the value
+ * through the global keeps one `li v1,254` feeding one `sw v1,0(s8)`, which is
+ * what the target has.
+ *
+ * The residual is one uniform rotation of the block-local temp ring with a
+ * single onset at row 64 (+0x100): rows 0..63 are byte-identical, and from
+ * +0x100 every temp is one ring position behind the target. Declaration order
+ * (all 43 single moves), both loop bounds, the arm order of the table-mode
+ * `if`, and the operand order of the packed-word `or` do not move it. */
 #ifdef NON_MATCHING
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
@@ -83,8 +92,8 @@ void overlay57Draw32A0(s32 updateRate) {
     if (rising != 0) {
         envelope = (gO57Draw32A0Envelope124 += updateRate * 8);
         if (envelope >= 0xFF) {
-            envelope = rising + 0xFD;
-            gO57Draw32A0Envelope124 = envelope;
+            gO57Draw32A0Envelope124 = 0xFE;
+            envelope = gO57Draw32A0Envelope124;
         }
     } else {
         envelope = gO57Draw32A0Envelope124 - updateRate * 32;
@@ -155,10 +164,10 @@ void overlay57Draw32A0(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57Draw32A0:start
  * symbol: overlay57Draw32A0
- * score: 52/208 words
+ * score: 48/208 words
  * frame: 0x70
  * relocations: 53
  * first-mismatch: +0x4
- * summary: Dropping the two table cursors closes the frame at the target 0x70 and makes the pool lane exact 85/85; 52 words remain as a uniform temp rotation with one onset at +0xE0.
+ * summary: Frame, instruction count and the pool lane are exact; 48 words remain as one uniform block-local temp-ring rotation whose onset is row 64 with rows 0 to 63 byte-identical.
  * PLATEAU-HANDOFF:overlay57Draw32A0:end
  */
