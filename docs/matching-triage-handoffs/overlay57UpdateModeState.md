@@ -2,9 +2,9 @@
 ### `overlay57UpdateModeState` plateau handoff
 
 - source: `src/overlays/o057/overlay57UpdateModeState.c`
-- score: 74/354 words
+- score: 21/354 words
 - frame: 0x30
 - relocations: 59
 - first mismatch: +0x108
-- summary: The 74 words decompose as 43 a one-position temp-ring rotation with an independent onset in each dispatch arm, 16 a v0/a0 swap on the entry cursor and the count copy, 10 the savedEligible reload web colour which is the last ring temp the function allocates, 3 the eligibility spill that uopt duplicates into both arms, and 2 an address-materialisation order; opcode for opcode the objects are identical apart from those 3 spill words, so the rotation is the allocator skipping ring register t4 in each arm and no instruction-neutral spelling reached it in 34 measured forms.
+- summary: The 43-word ring rotation and the 10-word savedEligible reload colour are closed by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, which makes ugen number a ring temp for a load it then forwards from the store one line above, so the pop costs zero instructions and 74 falls to 21 at delta 0; what is left is 16 words of a globalcolor v0/a0 swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks unless savedEligible is memory-resident which costs a frame cell, and 2 words of address order.
 <!-- plateau-handoff:overlay57UpdateModeState:end -->

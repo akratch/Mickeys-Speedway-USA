@@ -113,73 +113,64 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
 #define overlay57Call3FA4Reloc o57ModeOpaqueVoidCallReloc
 #define overlay57Call3FB8Reloc o57ModeOpaqueVoidCallReloc
 
-/* Plateau: exact-size at 0x588, 74 masked words, first at +0x108.
- * savedEligible is a plain s32: as `volatile` it forced a reload web that
- * moved thirteen words. `timer` is declared at function scope ahead of it so
+/* Plateau: exact-size at 0x588, 21 masked words, first at +0x108.
+ * savedEligible is a plain s32: as `volatile` it forces the store into memory
+ * but costs a frame cell.  `timer` is declared at function scope ahead of it so
  * that the eligibility spill takes the frame's first cell at sp+0x28, which is
  * where the target keeps it.
  *
- * The 74 words decompose exactly, and the decomposition names the variable:
+ * The 43-word temp-ring rotation and the 10-word savedEligible reload colour
+ * are CLOSED, by one edit of two characters' worth of meaning: the byte store
+ * reads the global back (`(u8)gO57ModeChoice4F8`) instead of reusing the local
+ * `choice`.  ugen numbers a ring temp for that load and then forwards the value
+ * it has just stored, so the load emits NO instruction -- the object is
+ * byte-for-byte the same width -- while the ring advances one position in each
+ * dispatch arm.  Measured with `cc -S`: the function's ring-temp count goes
+ * 59 -> 61, the arm-1 selector load moves t4 -> t5 and the arm-2 one t3 -> t5,
+ * and every later temp follows; 74 -> 21 masked words at delta 0.
  *
- *   43  a temp-ring rotation of ONE position, onset +0x304 in the mode-1
- *       dispatch arm and a second, independent one position at +0x39C in the
- *       mode_b arm.  In each arm the target's allocator skips ring register t4
- *       between the second setup-record store and the read of the choice
- *       global; the candidate takes t4 there.  Because the ring is a single
- *       function-wide sequence, the two skips also carry every later arm.
- *   16  a v0/a0 swap: the target colours the marked-entry cursor v0 and the
- *       post-decrement copy of the count a0, the candidate the reverse, in
- *       both arms.
- *   10  the savedEligible reload web, t3 in the target and t1 in the
- *       candidate.  ugen emits that reload once, at the tail; as1 copies it
- *       into the nine branch delay slots.  Being the LAST ring temp the
- *       function allocates, its colour is the two skips above, not a
- *       separate question.
+ * That is the general shape of a zero-instruction ring pop in IDO 5.3, and it
+ * is what the four recorded pop families (L65 phantom mask, L76 field read
+ * through a local, L77 index scaled twice, L85 truncation at the store) all
+ * failed to deliver here: each of them buys the pop with an emitted
+ * instruction.  A store-to-load forward buys it with none.  Record it as a
+ * fifth: A READ OF A GLOBAL THE SAME REGION HAS JUST WRITTEN advances ugen's
+ * temp counter and emits nothing.
+ *
+ * The 21 that remain decompose exactly, and none of them is a ring question:
+ *
+ *   16  a v0/a0 swap in the marked-entry loop of both arms.  `entries` is
+ *       coloured v0 in the target and a0 here; the dead post-decrement copy of
+ *       `count` (`if (count--)`, whose `move` as1 makes dead by testing the
+ *       pre-decrement register) takes the other one.  Both are free at that
+ *       point -- `result` (v0) died at the second `result->child08` read and a0
+ *       died at the preceding call argument -- so this is globalcolor's choice
+ *       between two available colours for two interfering webs, and the lever
+ *       is an extra interfering web, not a spelling.  Inert across 20 measured
+ *       forms: all six declaration orders, `entries` assigned inside the test,
+ *       `count` scoped to the loop or typed u32/u8, `entries[0].` member form,
+ *       a `for` loop, `entries + 1` / `++entries` / u8-cursor arithmetic,
+ *       commuted mask operands, and an s16 cast on the stored value.  `count`
+ *       as s16 costs 24 bytes; hoisting the count read above the entries test
+ *       costs 8.
  *    3  uopt sinks `savedEligible = eligible` past the early return and
- *       duplicates the store into both dispatch arms; the target stores once,
- *       ahead of the timer test.
- *    2  the two address materialisations at +0x108 are emitted in the
- *       opposite order.
+ *       duplicates the store into both arms; the target stores once, in the
+ *       delay slot of the timer branch.  This is a MEMORY-RESIDENCY question,
+ *       not a placement one, and it is answered: forcing savedEligible to
+ *       memory (`volatile`, a one-element array, or storing through a taken
+ *       address) puts the store exactly where the target has it.  All three
+ *       cost a frame cell -- 0x30 becomes 0x38 and the home moves 0x28 -> 0x2C
+ *       -- which costs more than the 3 words it buys (45 masked).  Freeing a
+ *       cell by scoping `timer` into the timer block keeps the frame at 0x30
+ *       and lands the store, but re-colours the eligibility and address webs in
+ *       the timer region for 18 words (34 masked); merging `timer` and
+ *       `eligible` into one variable is the best of that family at 28.  So a
+ *       cell has to come free WITHOUT perturbing the timer block.
+ *    2  the two address materialisations at +0x108 are emitted in the opposite
+ *       order.
  *
- * The rotation is NOT reachable by adding or removing source text.  Compared
- * opcode by opcode the two objects are identical apart from the three spill
- * words above (23 pad words in the target, 22 in the candidate), so every
- * instruction that takes a ring temp in one takes one in the other.  ugen
- * numbers temps strictly in emission order over EMITTED, LIVE expression
- * results: measured, dead statements never advance it, discarded call results
- * never advance it, and no cast, indexing, pointer or declaration spelling
- * moved it in 34 measured forms.  Every form that did move it added an
- * instruction and broke exact size.  The variable that is stuck is therefore
- * the ring's availability at that point -- t4 must be unavailable to the
- * allocator in both arms -- which is a globalcolor/web-interference question,
- * not a spelling one.  Flags were screened too: -mips1 (234), -O1 (431),
- * -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74) all tie or lose.
- *
- * The workbench records four zero-instruction ring-pop families, and this
- * window is the right place to spend them; none of them fires here, and that
- * is worth recording because each looks applicable from the source:
- *
- *   L65 phantom mask.  A mask redundant with the field it writes is supposed
- *       to fold and still pop.  Measured on both the byte global (u8) and the
- *       selector field (as s8, as u8, and as an 8-bit bitfield): IDO 5.3 at
- *       -O2 emits the mask every time, +2 instructions.  It DOES land the pop
- *       -- the selector read moves to the target's ring position in both arms
- *       -- so the diagnosis is confirmed and only the fold is missing.  The
- *       recorded fold looks specific to a bitfield insert, not to a plain
- *       narrow field.
- *   L76 field read through a local.  Both sides already read the choice
- *       global directly; the local form removes the pop rather than adding
- *       one.
- *   L77 index scaled twice.  There is no table index in the window; typing
- *       the selection table as an array retards the ring instead.
- *   L85 truncation at the store.  Declaring a narrow local and dropping the
- *       cast moves the store off the choice global entirely, and declaring
- *       `choice` u8 lands the pop but costs the zero-extend, again +2.
- *
- * Two spellings land the target's ring position at +2 instructions each --
- * `choice` declared u8, and a mask on the byte store -- so a form that keeps
- * one of those pops while giving back an instruction per arm is the whole
- * remaining question on this function. */
+ * Flags were screened on the old plateau and all tie or lose: -mips1 (234),
+ * -O1 (431), -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74). */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 timer;
@@ -275,7 +266,7 @@ void overlay57UpdateModeState(s32 updateRate) {
             gO57ModeSetup21C.y0E = 0xBE;
             choice = overlay57Call3D08Reloc();
             gO57ModeChoice4F8 = choice;
-            gOverlay57Byte3D1CReloc = (u8)choice;
+            gOverlay57Byte3D1CReloc = (u8)gO57ModeChoice4F8;
             overlay57Call3D24Reloc(0x4D);
             overlay57UpdateNode();
             result = overlay57Call3D34Reloc(0x4C);
@@ -337,7 +328,7 @@ mode_b:
             gO57ModeSetup21C.y0E = 0xBE;
             choice = overlay57Call3EE0Reloc();
             gO57ModeChoice4F8 = choice;
-            gOverlay57Byte3EF4Reloc = (u8)choice;
+            gOverlay57Byte3EF4Reloc = (u8)gO57ModeChoice4F8;
             overlay57Call3EFCReloc(0x4D);
             overlay57UpdateNode();
             result = overlay57Call3F0CReloc(0x4C);
@@ -378,10 +369,10 @@ dispatch_done:
 
 /* PLATEAU-HANDOFF:overlay57UpdateModeState:start
  * symbol: overlay57UpdateModeState
- * score: 74/354 words
+ * score: 21/354 words
  * frame: 0x30
  * relocations: 59
  * first-mismatch: +0x108
- * summary: The 74 words decompose as 43 a one-position temp-ring rotation with an independent onset in each dispatch arm, 16 a v0/a0 swap on the entry cursor and the count copy, 10 the savedEligible reload web colour which is the last ring temp the function allocates, 3 the eligibility spill that uopt duplicates into both arms, and 2 an address-materialisation order; opcode for opcode the objects are identical apart from those 3 spill words, so the rotation is the allocator skipping ring register t4 in each arm and no instruction-neutral spelling reached it in 34 measured forms.
+ * summary: The 43-word ring rotation and the 10-word savedEligible reload colour are closed by reading the global back in the byte store (u8)gO57ModeChoice4F8 instead of the local choice, which makes ugen number a ring temp for a load it then forwards from the store one line above, so the pop costs zero instructions and 74 falls to 21 at delta 0; what is left is 16 words of a globalcolor v0/a0 swap between entries and the dead post-decrement copy, 3 words of a store uopt sinks unless savedEligible is memory-resident which costs a frame cell, and 2 words of address order.
  * PLATEAU-HANDOFF:overlay57UpdateModeState:end
  */
