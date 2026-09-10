@@ -6,26 +6,33 @@
  * The guarded body retains the target call graph and typed data accesses.
  */
 /*
- * Plateau (2026-09-10): 996 of 3,614 relocation-masked words differ, down from
- * 1,009.  The construct census is now as close as it can be short of exact:
- * both sides emit 3,614 instructions and the opcode histograms differ by ONE
- * entry -- the target has one more `move` and one fewer `addiu`, at +0x3704,
- * where it does `move a3,<callee-saved>` for a frame address the candidate
+ * Plateau (2026-09-10): 895 of 3,614 relocation-masked words differ, down from
+ * 996.  The construct census is as close as it can be short of exact: both
+ * sides emit 3,614 instructions and the opcode histograms differ by ONE entry
+ * -- the target has one more `move` and one fewer `addiu`, at +0x3704, where
+ * it does `move a3,<callee-saved>` for a frame address the candidate
  * recomputes as `addiu a3,sp,216`.  So the whole residual is p1 colour, not
  * shape.
  *
- * Falsified: spelling that frame address as a cached pointer local (`char
+ * Under a shape-tolerant alignment the residual splits in two: about 525
+ * words are one saved-register rotation (s7 with s8, s0 with s1, s2 with s3)
+ * carried through the whole body, and about 242 are eight `move <saved>,zero`
+ * index initialisations that the target emits at the TOP of a case and this
+ * source emits next to the loop.  Two of the eight are closed below; the rest
+ * are blocked by the frame's declaration census, which leaves exactly one
+ * spare cell.  See the handoff.
+ *
+ * Falsified: spelling a frame address as a cached pointer local (`char
  * *textPtr = &text[0];`, and the same for `nodes` and `character`) does not
- * reproduce the target's cached form -- all three measure 1,010, one word
- * WORSE, at unchanged size and frame.
+ * reproduce the target's cached form -- all three measure one word WORSE at
+ * unchanged size and frame, and caching `&character[0]` for the +0x3704 site
+ * is byte-identical to not doing it.
  *
  * The three `if (i != 0);` statements below are discarded-expression probes
  * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
- * found by a two-pass climb over 11,304 variants and are a local optimum:
- * a second pass whose pass-B window was widened from 25 to 90 positions found
- * nothing further.  The lever that is worth 44 words on this overlay's
- * point-quad twins is worth only 13 here, which is the honest measure of how
- * broad this function's colour residual is.
+ * found by a two-pass climb over 11,304 variants and are a local optimum;
+ * a further 144-variant sweep (one probe at the top of each case body, for
+ * twelve different locals) found every size-preserving one inert.
  */
 #ifdef NON_MATCHING
 #include "game/anim.h"
@@ -226,7 +233,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     s32 textY;
     s32 columnX;
     s32 x;
-    s32 delta;
+    void **cursor;   /* one cell, exactly as the scalar it replaces */
     s32 portraitX;
     s32 columnStep;
     s32 portraitIndex;
@@ -654,6 +661,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 13:
+        i = 0;
         fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6F], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -666,23 +674,32 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
         columnStep = D_o058_5C8C[columnCount - 1];
         portraitX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
-        i = 0;
         if (columnCount > 0) {
+            /* Cursor, not `D_800D31C8[0x51 + i]`: an explicit cursor is what
+             * lets the index def move to the top of the case.  IDO folds a
+             * known-zero index into a strength-reduced cursor base only from
+             * the loop's own block, so an indexed loop pins its `i = 0` next
+             * to the loop, while the target's is in the first call's delay
+             * slot.  With the subscript spelled as a cursor there is nothing
+             * left to fold and the def is free to sit where the target has
+             * it.  See the handoff. */
+            cursor = (void **) &D_800D31C8[0x51];
             do {
                 nodes[0].alternate = NULL;
                 nodes[0].x = portraitX;
                 nodes[0].y = 0x37;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                nodes[0].texture = D_800D31C8[0x51 + i];
+                nodes[0].texture = (RcpTextureInfo *) *cursor;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
+                cursor++;
                 portraitX += columnStep;
-            /* `<`, not `!=`: with `!=` uopt replaces the exit test with a
-             * pointer compare against a computed limit, which costs that
-             * limit's sll+addu and a second address register and drops the
-             * counter increment the target keeps. */
-            } while (i < columnCount);
+            /* `!=`, not `<`: with the cursor carrying the subscript, uopt
+             * no longer normalises `i < columnCount` into the target's
+             * `bne`, and the `<` spelling costs an extra slt.  The converse
+             * of what the indexed form wanted; see the handoff. */
+            } while (i != columnCount);
         }
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
@@ -787,22 +804,19 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         } else {
             func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
+        /* Cursor, not `D_o058_5E68[i]`; and the def of `i` therefore stays
+         * at the top of the case, where the target puts it.  See case 13. */
+        cursor = (void **) D_o058_5E68;
         textY = 0x50;
-        /* Repeated adjacent to the loop.  The def at the top of this case is
-         * separated from the loop by calls, and IDO folds a known-zero index
-         * into the strength-reduced cursor bases only from the loop's own
-         * block; without this the body recomputes each index with sll+addu.
-         * The top-of-case def stays: it is dead, but it still numbers the
-         * webs, and dropping it moves the colouring downstream. */
-        i = 0;
         do {
             if (i == D_o058_5F28) {
                 fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, D_o058_5E68[i], 4);
+            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, (char *) *cursor, 4);
             i += 1;
+            cursor++;
             textY += 0x1E;
             x = -x;
         } while (i < 4);
@@ -1351,10 +1365,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 996/3614 words, size delta 0
+ * score: 895/3614 words, size delta 0
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; three zero-instruction probes take the masked residual from 1009 to 996 and the pointer-local spelling of that frame address is falsified at 1010
+ * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; the whole residual is p1 colour, and an explicit pointer cursor in two single-array loops frees their index def to sit at the top of the case where the target has it, 996 to 895 at unchanged size
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
