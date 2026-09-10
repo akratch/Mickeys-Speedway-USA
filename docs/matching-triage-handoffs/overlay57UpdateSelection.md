@@ -6,5 +6,5 @@
 - frame: 0x48
 - relocations: 89
 - first mismatch: +0x4C
-- summary: Exact-size at 283 words; the target reads *primaryState once at +0x4C and reuses it for all three comparisons while the volatile pointer reloads, but every non-volatile and cached-read shape tried is 60 to 110 words worse, so the volatiles are load-bearing and the residual is the surrounding branch shape.
+- summary: The named variable is the read count on the primary-state address, seven in the target against nine here, the surplus being the head region where the target shares one read across three comparisons; four further shapes were measured and each removes eight or sixteen reads rather than two, and 88 of the 283 rows differ in opcode rather than register, so this is a branch and schedule shape difference and not a colouring residual.
 <!-- plateau-handoff:overlay57UpdateSelection:end -->
