@@ -61,7 +61,21 @@ extern void o57SelectionSetNodeValueReloc(s32 id, s32 argument, f32 value);
 /* Overlay 57 text +0x35E0..+0x3A4C. */
 /* Plateau: -O2/-mips2 is exact-size, 162 masked (166 raw) words, first +0x4C.
  * Ten cache/sentinel/volatile/split-read shapes tied or missed size/register order.
- * A 45m MIPS2 permuter found no zero; best 4620 mixed direct/pointer/literal use. */
+ * A 45m MIPS2 permuter found no zero; best 4620 mixed direct/pointer/literal use.
+ *
+ * The decision variable is the READ COUNT on the primary-state address: the
+ * target performs seven, the candidate nine.  The two surplus reads are the
+ * head region, where the target shares one read across three comparisons.
+ * Every measured way of sharing it removes far more than two: dropping the
+ * volatile removes eight (delta -8, 275 words), caching the value in a local
+ * removes sixteen (delta -16, 263), caching only the inner pair removes eight
+ * (245), and reading through a second non-volatile pointer to the same object
+ * removes eight (246).  So the two reads are not independently removable --
+ * sharing one read collapses the whole comparison chain with it.
+ *
+ * Unlike the two siblings this is not a colouring residual: 88 of the 283 rows
+ * differ in OPCODE, not just in register, so the branch and schedule shape
+ * itself is different and there is no ring or web story to chase here. */
 #ifdef NON_MATCHING
 void overlay57UpdateSelection(s32 ignored) {
     s32 newPrimary;
@@ -198,6 +212,6 @@ void overlay57UpdateSelection(s32 ignored) {
  * frame: 0x48
  * relocations: 89
  * first-mismatch: +0x4C
- * summary: Exact-size at 283 words; the target reads *primaryState once at +0x4C and reuses it for all three comparisons while the volatile pointer reloads, but every non-volatile and cached-read shape tried is 60 to 110 words worse, so the volatiles are load-bearing and the residual is the surrounding branch shape.
+ * summary: The named variable is the read count on the primary-state address, seven in the target against nine here, the surplus being the head region where the target shares one read across three comparisons; four further shapes were measured and each removes eight or sixteen reads rather than two, and 88 of the 283 rows differ in opcode rather than register, so this is a branch and schedule shape difference and not a colouring residual.
  * PLATEAU-HANDOFF:overlay57UpdateSelection:end
  */
