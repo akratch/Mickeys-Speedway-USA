@@ -419,16 +419,27 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
         while (D_8007A0F4[D_800CF508] != -1) {
             D_800CF508++;
         }
+        /* The three doubled masks below are ugen phantom-pop carriers, not
+         * evidence: each redundant `& M` on an already-masked value folds to
+         * no instruction and still costs one integer temp-ring pop (L65), and
+         * the target's loop body allocates three temps more than the plain
+         * spelling does.  Removing any of them costs 87 words of pure ring
+         * phase in the whole tail of the function.  The `*(s16 *)((i << 1) +
+         * (u32)base)` access, by contrast, IS evidence: levelFreeAll, matched,
+         * reads this same table that way, and it is what fixes the operand
+         * order of the address add. */
         for (off = 0; off < D_800CF508; off++) {
             s16 resourceId;
 
             resourceId = D_8007A0F4[off];
             if ((resourceId & 0xC000) == 0xC000) {
                 D_800CF490[off] = func_80034448(resourceId & 0x3FFF);
-            } else if (resourceId & 0x8000) {
+            } else if ((resourceId & 0x8000) & 0x8000) {
                 D_800CF490[off] = func_800355A0(resourceId & 0x3FFF, 0);
-            } else if (resourceId & 0x4000) {
-                D_800CF490[off] = func_8000486C(D_800C94E0[resourceId & 0x3FFF]);
+            } else if ((resourceId & 0x4000) & 0x4000) {
+                D_800CF490[off] = func_8000486C(
+                    *(s16 *) ((((resourceId & 0x3FFF) & 0x3FFF) << 1) +
+                              (u32) D_800C94E0));
             } else {
                 D_800CF490[off] = func_8001F520(resourceId & 0x3FFF, 0);
             }
@@ -759,10 +770,10 @@ s32 levelInitRegionFlags(void) {
 
 /* PLATEAU-HANDOFF:levelInit:start
  * symbol: levelInit
- * score: 113 differing words
+ * score: 22 differing words
  * frame: 0x80
  * relocations: 110
- * first-mismatch: +0x238
- * summary: The residual is now register-only. One missing word-sized live scalar carrier was the entire head: the target frame is 0x80 where the candidate stood at 0x78, and giving the four counted loops that were reusing lvlStart their own index closes the frame, both incoming argument homes, the displaced local slot and every word through +0x234, taking 122 to 113. The carrier has to be word-sized -- a halfword local adds none -- and exactly one is wanted, since a second overshoots to 117. What remains is one named colouring decision and its ring consequences: a forced-colour receipt shows uopt web 105, the halfword resourceId of the resource loop, taking c1 at zero cost where the target holds it in c5, and forcing that one colour takes 113 to 99. Five spellings of resourceId -- widened type, cast, test form, pointer cursor, function scope -- leave that colour untouched, so the lever is an extra interfering web on c1 across the loop rather than a spelling of the loop.
+ * first-mismatch: +0x250
+ * summary: 113 words to 22, and the residual is now two named terms with every byte outside the resource loop exact. The 99-word term was never colour: it was a uniform three-step integer temp-ring phase, and the loop body needs three GP allocations more than the plain spelling makes. Two are bought by a redundant mask on an already-masked value (L65: it folds to no instruction and still pops the ring), and the third by the same fold inside the table index. The access spelling is the evidence-backed part: levelFreeAll, matched, reads this same table as *(s16 *)((i << 1) + (u32)base), and that form -- not the subscript -- gives the address add its target operand order. Removing any one of the three costs 87 words of tail phase, so they compose and none is an improvement alone. What is left is 16 words of the one colouring decision plus 6 in the table-index group. The colour is unchanged and now dominant: a full force sweep of this base (57 webs times c1 to c8, 258 applied) again has exactly one cell under it -- web 104, the s16 resourceId, forced from c1 to c5 -- and it scores 6, delta 0, with the whole function exact except that group. Its cost record says c1 and c2 both cost zero and only c3 and c4 are forbidden, by the loop's own argument setup, so reaching c5 needs interfering webs already coloured c1 AND c2, and all twelve of web 104's interferers are decided after it. The last 6 words are one allocation order: the target computes the index mask before it loads the table base, and every spelling of the access measured so far loads the base first. See the shard for the eliminated families.
  * PLATEAU-HANDOFF:levelInit:end
  */
