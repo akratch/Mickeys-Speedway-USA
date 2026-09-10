@@ -132,6 +132,17 @@ extern s32 D_8007BF54;
 extern u8 D_8007BF74;
 extern s32 D_8007C1B4;
 extern s16 D_800D304E;
+/* Placeholder name for a second, distinct halfword import, NOT a claim about
+ * its address.  The ROM relocates all six of this function's reads of this
+ * kind at load time -- their address fields are zero in the image -- so no
+ * read's identity is evidenced by the bytes.  What the target's code does fix
+ * is that the two reads inside one case are not the same object: IDO opens a
+ * global address web for a symbol as soon as two of its reads land in the same
+ * region, and then spends an extra instruction materialising that web at the
+ * single-read sites as well.  Every grouping of the six that separates the two
+ * same-region pairs compiles to the identical object, so the split is
+ * evidenced and this particular grouping is not.  Tier D; see the handoff. */
+extern s16 D_800D3050;
 extern RcpTextureNode D_o058_5BA0[];
 extern s32 D_o058_5CD8;
 extern char D_o058_5D2C[];
@@ -643,7 +654,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
                 portraitX += columnStep;
-            } while (i != columnCount);
+            /* `<`, not `!=`: with `!=` uopt replaces the exit test with a
+             * pointer compare against a computed limit, which costs that
+             * limit's sll+addu and a second address register and drops the
+             * counter increment the target keeps. */
+            } while (i < columnCount);
         }
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
@@ -749,6 +764,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
         textY = 0x50;
+        /* Repeated adjacent to the loop.  The def at the top of this case is
+         * separated from the loop by calls, and IDO folds a known-zero index
+         * into the strength-reduced cursor bases only from the loop's own
+         * block; without this the body recomputes each index with sll+addu.
+         * The top-of-case def stays: it is dead, but it still numbers the
+         * webs, and dropping it moves the colouring downstream. */
+        i = 0;
         do {
             if (i == D_o058_5F28) {
                 fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
@@ -906,6 +928,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
             if ((s32) state->countdown > 0) {
                 portraitX = countdownX + D_o058_5EA8;
+                /* Adjacent index def; see the note in case 7/11. */
+                i = 0;
                 do {
                     nodes[i].texture = (RcpTextureInfo *) D_800D31C8[0x51 + state->entries[0].character];
                     nodes[i].alternate = 0;
@@ -958,6 +982,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
+        /* Adjacent index def; see the note in case 7/11. */
+        i = 0;
         do {
             x = -x;
             textY = D_o058_5EAC + i * 0x1B + 0x5B;
@@ -1046,7 +1072,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                             amSndPlay(0xCU, NULL);
                             D_o058_5EB0 = 0xA;
                             saves = func_800291C4();
-                            slot = &saves[levelGetBlurEffect(D_800D304E)];
+                            slot = &saves[levelGetBlurEffect(D_800D3050)];
                             if (D_o058_5E8C != -1) {
                                 slot->records[3].name[0] = func_8003A6B0(D_800D31C4[0]);
                                 slot->records[3].name[1] = func_8003A6B0(D_800D31C4[1]);
@@ -1203,7 +1229,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x39, D_8007C0B8->text[0x34], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         saves = func_800291C4();
-        slot = &saves[levelGetBlurEffect(D_800D304E)];
+        slot = &saves[levelGetBlurEffect(D_800D3050)];
 
         if (D_o058_5CD8 != 0) {
             if ((D_o058_5CD8 >= 2) && (x == 0)) {
@@ -1215,6 +1241,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
         }
         textY = 0x5B;
+        /* Adjacent index def; see the note in case 7/11. */
+        i = 0;
         do {
             x = -x;
             overlay56SplitTime(slot->records[i].value, &minutes, &seconds, &centiseconds);
@@ -1298,10 +1326,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 3523 differing words
+ * score: 1009/3614 words, size delta 0
  * frame: 0x138
- * relocations: 1286
+ * relocations: 1266
  * first-mismatch: +0x50
- * summary: frame census exact (28 scalars + record temp); shape rows 3565/3614, 85 regions; residual is colouring order (i vs &text) and delta's rematerialisation. Next: make delta a non-rematerialisable variable.
+ * summary: size delta closed, +56 bytes to 0; construct census now differs by one copy only. Residual is the s7/fp colouring swap. Next: 41 regions, front to back.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
