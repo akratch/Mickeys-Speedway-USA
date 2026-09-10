@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 362,
-  "resolved": 362,
+  "queue_size": 361,
+  "resolved": 361,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 362,
-  "relocation_masked_coverage": 362,
+  "source_context_coverage": 361,
+  "relocation_masked_coverage": 361,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -2830,21 +2830,6 @@
       "source_context_sha256": "tnd6.Y4M2.fAeE.9EWm.ZYvu.b_-t.HM9G._gdn.V-xv.WQ2q.3Ko"
     },
     {
-      "name": "runlinkInit",
-      "file": "src/main/runlink.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 584,
-      "objdiff_match_pct": null,
-      "differing_words": 1,
-      "first_mismatch_offset": 276,
-      "relocation_masked_differing_words": 0,
-      "relocation_masked_first_mismatch_offset": null,
-      "size_delta": 0,
-      "category": "reloc-mismatch",
-      "source_context_sha256": "PMRy.dJYQ.aQaa.Kstp.CeHi.h6kl.4mp5.TEtK.ebDn.NwvS.HnI"
-    },
-    {
       "name": "func_8006E7E0",
       "file": "src/libultra/block_6F3E0.c",
       "overlay": null,
@@ -3457,7 +3442,7 @@
       "relocation_masked_first_mismatch_offset": 0,
       "size_delta": 4,
       "category": "size-mismatch",
-      "source_context_sha256": "BpNY.XFRt.hz8Z.Ywsp.e1bs.HOvw.HOzP.0OTK.U8Jy.uP54.ORM"
+      "source_context_sha256": "-IR3.P0Ct.NLiP.DtF4.2jlo.Ly8M.bucG.DxCn.-3qB.VhBp.ViM"
     },
     {
       "name": "func_overlay_054_F0000000_189ECA0",

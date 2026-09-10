@@ -99,8 +99,35 @@ extern RunlinkRelocContext D_800D2DA8;
 
 /* Linker-ish section anchors, referenced only to form differences. */
 extern u8 D_80078D60[]; /* start of .data  */
+extern u8 D_80078D64[]; /* the word after it */
 extern u8 D_80085A40[]; /* start of .bss   */
 extern void func_80000450(void); /* start of .text */
+
+/*
+ * The four section anchors runlinkInit differences, under the names the
+ * original link gave them. The original placed _codeSegmentEnd and
+ * _dataSegmentStart at one address and _dataSegmentEnd and _bssSegmentStart
+ * at another, and the target proves it: uopt shares one address
+ * materialisation per *symbol* -- it shares func_80000450 between the
+ * vramBase store and the textSize difference -- yet the target materialises
+ * 0x80078D60 twice and 0x80085A40 twice. Two names each, not two uses of one
+ * name.
+ *
+ * This build supplies two real names at 0x80085A40, main_RODATA_END and
+ * main_BSS_START from the generated linker script. It supplies only one at
+ * 0x80078D60, because splat's own text/data boundary is 0x80076110, so the
+ * data-segment start is spelled off the following word. Both spellings
+ * resolve to 0x80078D60 and link to the same two instruction words; only the
+ * symbol/addend split in the unlinked object differs.
+ */
+extern u8 main_RODATA_END[];
+extern u8 main_BSS_START[];
+
+#define runlinkCodeEnd    D_80078D60
+#define runlinkDataStart  (D_80078D64 - 4)
+#define runlinkDataEnd    main_RODATA_END
+#define runlinkBssStart   main_BSS_START
+#define runlinkBssEnd     D_800D8750
 
 char *GetSymbolName(s32 symbolIndex) {
     return D_80082410;
@@ -894,22 +921,12 @@ void runlinkFlushModules(void) {
         pendingLoad++;
     } while (remaining--);
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * src/runLink.c:runlinkInitialise at upstream efd5abb. Mickey's ROM-block
  * boundaries, resident section anchors, packed header layout, and pending-load
  * count determine the final body.
  */
-extern u8 runlinkCodeEnd[];
-#pragma weak runlinkCodeEnd = D_80078D60
-extern u8 runlinkDataStart[];
-#pragma weak runlinkDataStart = D_80078D60
-extern u8 runlinkDataEnd[];
-#pragma weak runlinkDataEnd = D_80085A40
-extern u8 runlinkBssStart[];
-#pragma weak runlinkBssStart = D_80085A40
-
 void runlinkInit(void) {
     OverlayHeader *overlay;
     s32 i;
@@ -938,7 +955,7 @@ void runlinkInit(void) {
     overlayTable->romAddress = 0;
     overlayTable->textSize = (u32) runlinkCodeEnd - (u32) func_80000450;
     overlayTable->dataSize = (u32) runlinkDataEnd - (u32) runlinkDataStart;
-    overlayTable->bssSize = (u32) D_800D8750 - (u32) runlinkBssStart;
+    overlayTable->bssSize = (u32) runlinkBssEnd - (u32) runlinkBssStart;
     overlayTable->relocTableSize = mainRelocTableCount * sizeof(RelocTableEntry);
     overlayTable->relocTableSize2 = 0;
 
@@ -951,9 +968,6 @@ void runlinkInit(void) {
 
     D_8007A674 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
-#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkSuspendCode.s and its src/runLink.c order.
@@ -1304,12 +1318,3 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
     return 0;
 }
 
-/* PLATEAU-HANDOFF:runlinkInit:start
- * symbol: runlinkInit
- * score: 0/146 words
- * frame: 0x38
- * relocations: 64
- * first-mismatch: +0x1A0
- * summary: JFG efd5abb is instruction-exact; verdict relocation-symbol-mismatch. End-pointer forms regress by seven stack homes or 22 registers.
- * PLATEAU-HANDOFF:runlinkInit:end
- */
