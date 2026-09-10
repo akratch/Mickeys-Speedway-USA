@@ -153,7 +153,33 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
  * the ring's availability at that point -- t4 must be unavailable to the
  * allocator in both arms -- which is a globalcolor/web-interference question,
  * not a spelling one.  Flags were screened too: -mips1 (234), -O1 (431),
- * -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74) all tie or lose. */
+ * -Olimit 0 (412), -O2 -g3 (89), loopunroll 0 and 4 (74) all tie or lose.
+ *
+ * The workbench records four zero-instruction ring-pop families, and this
+ * window is the right place to spend them; none of them fires here, and that
+ * is worth recording because each looks applicable from the source:
+ *
+ *   L65 phantom mask.  A mask redundant with the field it writes is supposed
+ *       to fold and still pop.  Measured on both the byte global (u8) and the
+ *       selector field (as s8, as u8, and as an 8-bit bitfield): IDO 5.3 at
+ *       -O2 emits the mask every time, +2 instructions.  It DOES land the pop
+ *       -- the selector read moves to the target's ring position in both arms
+ *       -- so the diagnosis is confirmed and only the fold is missing.  The
+ *       recorded fold looks specific to a bitfield insert, not to a plain
+ *       narrow field.
+ *   L76 field read through a local.  Both sides already read the choice
+ *       global directly; the local form removes the pop rather than adding
+ *       one.
+ *   L77 index scaled twice.  There is no table index in the window; typing
+ *       the selection table as an array retards the ring instead.
+ *   L85 truncation at the store.  Declaring a narrow local and dropping the
+ *       cast moves the store off the choice global entirely, and declaring
+ *       `choice` u8 lands the pop but costs the zero-extend, again +2.
+ *
+ * Two spellings land the target's ring position at +2 instructions each --
+ * `choice` declared u8, and a mask on the byte store -- so a form that keeps
+ * one of those pops while giving back an instruction per arm is the whole
+ * remaining question on this function. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 timer;
