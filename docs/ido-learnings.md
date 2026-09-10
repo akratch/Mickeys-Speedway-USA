@@ -1518,27 +1518,35 @@ bytes and disassembly never belong here.
   question above, where `.noalias` is measured inert; the two results do not
   conflict.
 
-- **`ugen` emits `.noalias <reg>,$sp` for a reference to a *named* static
-  object, never for a user-declared pointer variable.** It fires where a static
-  address is materialised and then dereferenced, including for `uopt`'s own
-  induction pointer over a named array -- there it is re-asserted at the top of
-  every iteration and closed with `.alias` after the loop, so it survives the
-  pointer's own spill and reload. It does not fire for a pointer local that the
-  source assigns from an array name and then increments, whatever the
-  declaration, initialiser, `register`, `volatile`-pointee or loop form. So the
-  disambiguation fact above is reachable from C only by spelling the reference
-  as an index into the named object, or by materialising the address adjacent
-  to its dereference. On `overlay11UpdateMenu` the indexed spelling does produce
-  the fact, and reproduces the target's spill order and argument-load form
-  exactly -- but it is still excluded, because the fact costs compiler temps
-  and that target's frame has none. `cc -g3`'s `.mdebug` local table is what
-  settles it: outgoing-argument area plus the return-address save, plus the
-  declared block the table enumerates, already accounts for the whole target
-  frame, so any spelling that adds a temp cell is out on arithmetic. The indexed
-  forms add three temp cells with the pointer declaration dropped and four with
-  it kept. **Read a frame residual this way before searching spellings:** the
-  local table says whether the deficit is in the declared block or in the temps,
-  and only the first is reachable by declaration surgery.
+- **A `.noalias` fact is useful only for the relevant register value and
+  scheduling region.** Symptom: a named-object indexing rewrite leaves a
+  may-alias scheduling residual unchanged even though the listing contains
+  the desired register pair. Mechanism: the register is reused for a different
+  pointer later in the function, and its fact covers only that later
+  lifetime. A fact after the disputed stores cannot permit an earlier load
+  to cross them. A walking pointer can lack a fact even when it was initialized
+  from a named array; the same physical register can acquire a fact later when
+  a different static address is materialized and dereferenced.
+
+  Lever: read every `.noalias` and matching `.alias` in a faithful `cc -S`
+  listing, identify the argument load's **base**, and locate the fact relative
+  to the precise scheduling decision. Replay controls must distinguish the
+  right base register, a wrong register, and a fact closed before the decision.
+  Measure the full text and relocation table against the configured object
+  before trusting that replay. An assembly-only zero is diagnostic, never a
+  C match.
+
+  Limits: named-array indexing is not a universal syntactic test for an
+  explicit directive. In a measured full TU, symbolic indexed memory operands
+  emit no explicit fact, while both a decay-plus-offset address and its indexed
+  equivalent already emit identical facts for a later pointer. Those two C
+  forms also have identical text, relocations, frame size and `.mdebug` locals.
+  Do not infer a universal temporary-cell cost or C unreachability from other
+  indexed forms that happened to add temps. Read `cc -g3`'s ECOFF local table
+  for each relevant candidate and distinguish declared locals from compiler
+  temporaries. Debug mode can change code bytes even when the frame agrees;
+  its allocation table is secondary evidence, and configured stock output
+  remains the matching authority.
 
 - **`cc -S` ignores `-o`.** The listing is written to the *current directory*
   under the source's base name. Move it into a scratch directory as the next
