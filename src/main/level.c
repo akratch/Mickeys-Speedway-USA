@@ -339,6 +339,7 @@ u32 levelGetGfxIndex(s32 arg0) {
  * do not restore the rejected volatile pad or repeat broad search. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s16 tune;
+    s32 i;
     s32 lvlStart;
     u32 lvlSize;
     s32 lvlCount;
@@ -385,9 +386,9 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     mmFree(D_800CF3C0);
     D_800CF3C4 = lvlIdx;
 
-    for (lvlStart = 0; lvlStart < 7; lvlStart++) {
-        if (D_800CF3C8->colourCycles[lvlStart] != -1) {
-            initColourCycle(&D_800CF420[lvlStart * 16], D_800CF3C8->colourCycles[lvlStart]);
+    for (i = 0; i < 7; i++) {
+        if (D_800CF3C8->colourCycles[i] != -1) {
+            initColourCycle(&D_800CF420[i * 16], D_800CF3C8->colourCycles[i]);
         }
     }
     amTuneVoiceLimit(D_800CF3C8->voiceLimit);
@@ -454,12 +455,12 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     if ((D_800CF3C8->fogNear == 0) && (D_800CF3C8->fogFar == 0) &&
         (D_800CF3C8->fogR == 0) && (D_800CF3C8->fogG == 0) &&
         (D_800CF3C8->fogB == 0)) {
-        for (lvlStart = 0; lvlStart < 4; lvlStart++) {
-            trackSetFogOff(lvlStart);
+        for (i = 0; i < 4; i++) {
+            trackSetFogOff(i);
         }
     } else {
-        for (lvlStart = 0; lvlStart < 4; lvlStart++) {
-            trackSetFog(lvlStart, D_800CF3C8->fogNear, D_800CF3C8->fogFar,
+        for (i = 0; i < 4; i++) {
+            trackSetFog(i, D_800CF3C8->fogNear, D_800CF3C8->fogFar,
                         D_800CF3C8->fogTargetNear, D_800CF3C8->fogR,
                         D_800CF3C8->fogG, D_800CF3C8->fogB, D_800CF3C8->fogA);
         }
@@ -489,8 +490,8 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     viFrameRateReset();
     levelTunePlay();
 
-    for (lvlStart = 0; lvlStart < 4; lvlStart++) {
-        camSetNo(lvlStart);
+    for (i = 0; i < 4; i++) {
+        camSetNo(i);
         func_80021504((f32) D_800CF3C8->cameraFov, 1);
     }
     camSetNo(0);
@@ -758,10 +759,10 @@ s32 levelInitRegionFlags(void) {
 
 /* PLATEAU-HANDOFF:levelInit:start
  * symbol: levelInit
- * score: 122 differing words
- * frame: 0x78
+ * score: 113 differing words
+ * frame: 0x80
  * relocations: 110
- * first-mismatch: +0x0
- * summary: The donor tune lifetime gains five words and the allocator trace isolates a natural frame lifetime deficit while eight trap aliases remain unresolved
+ * first-mismatch: +0x238
+ * summary: The residual is now register-only. One missing word-sized live scalar carrier was the entire head: the target frame is 0x80 where the candidate stood at 0x78, and giving the four counted loops that were reusing lvlStart their own index closes the frame, both incoming argument homes, the displaced local slot and every word through +0x234, taking 122 to 113. The carrier has to be word-sized -- a halfword local adds none -- and exactly one is wanted, since a second overshoots to 117. What remains is one named colouring decision and its ring consequences: a forced-colour receipt shows uopt web 105, the halfword resourceId of the resource loop, taking c1 at zero cost where the target holds it in c5, and forcing that one colour takes 113 to 99. Five spellings of resourceId -- widened type, cast, test form, pointer cursor, function scope -- leave that colour untouched, so the lever is an extra interfering web on c1 across the loop rather than a spelling of the loop.
  * PLATEAU-HANDOFF:levelInit:end
  */
