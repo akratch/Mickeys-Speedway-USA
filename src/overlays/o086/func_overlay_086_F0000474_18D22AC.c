@@ -35,13 +35,29 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
-/* Workbench mixed structure/schedule/register residual: 59 positional words in the exact 662-word/-0xA8 frame, first +0x70.
- * The declaration list is now evidence-fixed, not stylistic: cfe homes every declared auto in declaration order from
+/* Workbench register residual: 51 positional words in the exact 662-word/-0xA8 frame, first +0x70.
+ * The declaration list is evidence-fixed, not stylistic: cfe homes every declared auto in declaration order from
  * (frame top - 4) downwards, so the eighth declaration owns sp+0x88 -- the slot the target spills the command pointer to.
- * Any twelfth auto pushes the frame to 0xB0, so the retail body declares exactly these eleven.  Routing the three
- * +0x18 reads through the dead arg1 recovers the target's s2 carrier there (-7 words).
- * Remains: one uopt colour 2-cycle at pool slot 6 -- the state byte wants v1 and the command pointer a1, and the
- * candidate holds a1/a2.  Every downstream register hunk is a consequence; 38 relocation identities are diagnostic. */
+ * Measured here, not remembered: eleven autos give 0xA8, and both twelve and thirteen give 0xB0.  That is the
+ * recorded round8(4 * declared locals + 4 * uopt temporaries) block landing exactly on 56 with three temporaries and
+ * no slack, so the retail body declares exactly eleven and every extra carrier has to come out of an existing one.  Routing the three +0x18 reads through the dead
+ * arg1 recovers the target's s2 carrier there (-7 words), and carrying the epilogue's 256-scaled speed in the
+ * already-declared spA0 -- dead once the update loop exits -- instead of temp_a0 removes one caller-saved pool web
+ * and closes the whole +0x9C8..+0x9F0 hunk (-8 words, 59 to 51).
+ * Remains: one uniform upward step of the caller-saved colour ladder (v0, v1, a0, a1, a2, a3).  The target's v0 webs
+ * -- the +0x3E0 pointer and the +0x48 dereference -- read v1 and a0 here, its v1 state byte reads a1, and its a1
+ * command pointer reads a2, and the 51 rows are exactly those four families plus their schedule consequences.
+ * globalcolor keeps the first strict minimum, so this is an interference count and not a spelling: one more
+ * interfering caller-saved web must be removed, not added.  Measured flat at this state and not worth repeating:
+ * do { } while (0) and if (1) { } region boundaries at five placements (head block, whole body, update loop, tail,
+ * 0x24 block) are byte-identical to nothing here; four byte-test spellings; three pointer-init and two advance
+ * spellings; spelling the +0x3E0 read as a bare common subexpression drops that web a colour but costs two schedule
+ * rows; a dead tested expression adds a web and moves the ladder the wrong way.
+ * Two edits do measure one word better and are deliberately NOT adopted, because neither reproduces a target
+ * register and both make the source less faithful: writing the 0xC command word as M2C_FIELD(temp_s0, s16 *, 0x30)
+ * (the target writes it through the pointer, 0(s5)) and routing the case-0 +0x48 dereference through the dead
+ * var_a1.  Both buy a schedule row while leaving the colour wrong.
+ * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
  * Module growth is cleared; the remaining gap is codegen/register allocation. */
@@ -298,15 +314,15 @@ loop_52:
                     ext_o0_2c4c(M2C_FIELD(temp_s0, s32 *, 0x18), ((s32) (M2C_FIELD(temp_s0, s16 *, 2) * 0x7F) / 180) & 0xFF);
                 }
             }
-            temp_a0 = (s32) (M2C_FIELD(temp_s0, f32 *, 0x10) * 256.0f);
-            if (temp_a0 < 0) {
-                temp_a0 = -temp_a0;
+            spA0 = (s32) (M2C_FIELD(temp_s0, f32 *, 0x10) * 256.0f);
+            if (spA0 < 0) {
+                spA0 = -spA0;
             }
-            temp_a0 += 0x800;
-            if (temp_a0 >= 0x1001) {
-                temp_a0 = 0x1000;
+            spA0 += 0x800;
+            if (spA0 >= 0x1001) {
+                spA0 = 0x1000;
             }
-            M2C_FIELD(temp_s0, s16 *, 0x1C) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x1C) + (temp_a0 * (s32) temp_f20));
+            M2C_FIELD(temp_s0, s16 *, 0x1C) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x1C) + (spA0 * (s32) temp_f20));
             return;
         }
         arg1 = M2C_FIELD(temp_s0, s32 *, 0x18);
@@ -321,10 +337,10 @@ loop_52:
 
 /* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
  * symbol: func_overlay_086_F0000474_18D22AC
- * score: 59 differing words
+ * score: 51 differing words
  * frame: 0xA8
  * relocations: 38
  * first-mismatch: +0x70
- * summary: Exact geometry and frame; all 38 relocation positions and types align. Declaration order now homes the command pointer at the target's sp+0x88 and an arg1 carrier recovers the +0x18 reads; a single uopt colour 2-cycle at pool slot 6 (byte v1 / pointer a1) explains the rest.
+ * summary: Exact geometry, frame and all 38 relocations. Carrying the epilogue's 256-scaled speed in the already-declared spA0 instead of temp_a0 removes one caller-saved pool web and closes 8 words. The remaining 51 are one uniform upward step of the caller-saved ladder: the target's v0 webs (the +0x3E0 pointer and the +0x48 dereference) read v1 and a0, its v1 state byte reads a1 and its a1 command pointer reads a2. Removing one more interfering caller-saved web decided before that family closes all four.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */
