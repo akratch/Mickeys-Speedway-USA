@@ -69,18 +69,23 @@ typedef struct Overlay101Node24 {
     void *text;
 } Overlay101Node24;
 
-/* Every A/B alias below is a distinct relocation identity, even where its
- * workbench link placeholder has the same encoded addend as its sibling. */
+/* Lane c2-o101 (2026-09-10) resolved four of the A/B alias pairs against the
+ * target's own addressing: the order array, the order counter, the node-20
+ * pool and the node-20 counter each show ONE address in the target where this
+ * candidate declared two, so the B members were folded into the A members.
+ * That is worth five masked words on every sibling in this family. The
+ * node-24 counter is also one address in the target, but folding it costs a
+ * further instruction here and is left split until the allocator web that
+ * causes it is understood. The remaining A/B aliases are unproven either way. */
+/* Every remaining A/B alias below is a distinct relocation identity, even
+ * where its workbench link placeholder has the same encoded addend as its
+ * sibling. */
 extern Overlay101BuilderRoot gOverlay101BuilderRoot;
 extern s32 gOverlay101BuilderOrderCountA;
-extern s32 gOverlay101BuilderOrderCountB;
 extern void *gOverlay101BuilderOrderA[];
-extern void *gOverlay101BuilderOrderB[];
 
 extern s32 gOverlay101BuilderNode20CountA;
-extern s32 gOverlay101BuilderNode20CountB;
 extern Overlay101Node20 gOverlay101BuilderNodes20A[];
-extern Overlay101Node20 gOverlay101BuilderNodes20B[];
 
 extern s32 gOverlay101BuilderNode32CountA;
 extern s32 gOverlay101BuilderNode32CountB;
@@ -167,7 +172,7 @@ void overlay101BuildPresentationA(void) {
     gOverlay101BuilderRoot.chain = node32B;
     node32B->handle = handle;
 
-    orderIndex = gOverlay101BuilderOrderCountB;
+    orderIndex = gOverlay101BuilderOrderCountA;
     gOverlay101BuilderRoot.x42 = 0x20;
     gOverlay101BuilderRoot.y46 = 0x50;
     gOverlay101BuilderRoot.value4A = 0xA0;
@@ -180,9 +185,9 @@ void overlay101BuildPresentationA(void) {
     gOverlay101BuilderRoot.child = NULL;
     gOverlay101BuilderRoot.childType = 0;
     gOverlay101BuilderRoot.text50 = gOverlay101BuilderInput12C;
-    gOverlay101BuilderOrderB[orderIndex] =
+    gOverlay101BuilderOrderA[orderIndex] =
         &gOverlay101BuilderRoot.childType;
-    gOverlay101BuilderOrderCountB = orderIndex + 1;
+    gOverlay101BuilderOrderCountA = orderIndex + 1;
 
     node20Index = gOverlay101BuilderNode20CountA;
     node20A = &gOverlay101BuilderNodes20A[node20Index];
@@ -192,11 +197,11 @@ void overlay101BuildPresentationA(void) {
     handle = overlay101BuilderCreateReloc(0x15, node20A, orderIndex,
                                           node32IndexB);
 
-    node20Index = gOverlay101BuilderNode20CountB;
-    node20B = &gOverlay101BuilderNodes20B[node20Index];
+    node20Index = gOverlay101BuilderNode20CountA;
+    node20B = &gOverlay101BuilderNodes20A[node20Index];
     previousType = gOverlay101BuilderRoot.childType;
     previous = gOverlay101BuilderRoot.child;
-    gOverlay101BuilderNode20CountB = node20Index + 1;
+    gOverlay101BuilderNode20CountA = node20Index + 1;
     gOverlay101BuilderRoot.childType = 1;
     gOverlay101BuilderRoot.child = node20B;
     node20B->handle = handle;
@@ -241,10 +246,10 @@ void overlay101BuildPresentationA(void) {
 
 /* PLATEAU-HANDOFF:overlay101BuildPresentationA:start
  * symbol: overlay101BuildPresentationA
- * score: 166 differing words
+ * score: 161 differing words
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: 209/208 words and 167 raw differences; 28/34 target relocation offsets and types align, no identities resolve; next lever is the early order-count allocator web
+ * summary: Exact frame 0x20 and CFG; 161 masked and 162 raw differences from +0x10 at delta 4. Folding the order array, order counter, node-20 pool and node-20 counter A/B aliases onto one identity each, as the target addresses them, removed five masked words; the residue is the early allocator web and the duplicated dim-color materialization.
  * PLATEAU-HANDOFF:overlay101BuildPresentationA:end
  */

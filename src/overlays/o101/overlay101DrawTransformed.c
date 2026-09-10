@@ -66,6 +66,24 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
  * regress in size or from the prologue, unsigned dimensions reproduce the
  * same 62-word basin, and the later temporary regresses to first mismatch
  * +0x6C. The best result remains size-exact from +0x7C.
+ *
+ * Lane c2-o101 (2026-09-10): the 62-word basin was 48 register-naming words
+ * and only 14 register-blind structural words, and all 14 came from the
+ * single rotation-flag constant materialising one issue slot too early plus
+ * the final command's two constants issuing in the opposite order. In the
+ * target that constant reuses the register that carried the first 0xE7000000
+ * command word, so a write-after-read edge pins it behind that word's store;
+ * the candidate gave it a fresh register and as1 was free to hoist it. An
+ * exhaustive sweep placing the rotation test at every statement boundary of
+ * the guarded block found exactly one better basin, emitting it before the
+ * third command build, which drops the measurement to 43 words with size,
+ * frame and CFG intact. Treat that placement as a measurement optimum and
+ * not a structural claim: the target emits the branch AFTER the third
+ * command, so recovering the register reuse from the original ordering is
+ * still the real objective. Adding or removing neighbouring temporaries
+ * (nested-assignment carriers at the first and third commands, a split
+ * colour word, a hoisted rotation temporary) moves that constant's register
+ * but never onto the 0xE7000000 register.
  */
 #ifdef NON_MATCHING
 void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
@@ -103,13 +121,13 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
         command = (new_var = (*displayList)++);
         command->w0 = 0xFA000000;
         command->w1 = element->color | 0xFFFFFF00;
-        command = (*displayList)++;
-        command->w1 = 0xFFFFFF00;
-        command->w0 = 0xFB000000;
         if (element->rotation != 0)
             rotated = 1;
         else
             rotated = 0;
+        command = (*displayList)++;
+        command->w1 = 0xFFFFFF00;
+        command->w0 = 0xFB000000;
         overlay101GetBounds2Reloc(node, &bounds0, &bounds1, &bounds2, &bounds3);
         overlay101SetScissor2Reloc(displayList, bounds0, bounds1, bounds2,
                                    bounds3);
@@ -137,10 +155,10 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
 
 /* PLATEAU-HANDOFF:overlay101DrawTransformed:start
  * symbol: overlay101DrawTransformed
- * score: 104/166 words
+ * score: 43 differing words
  * frame: 0x90
  * relocations: 7
- * first-mismatch: +0x64
- * summary: Fresh exact-size V0 retains 62 raw differences; unresolved call proxy shifts raw first to +0x64, while the first nonrelocation mismatch remains +0x7C.
+ * first-mismatch: +0x9C
+ * summary: Exact 664 bytes, 166/166 words, frame 0x90 and CFG; 43 raw and 43 masked differences from +0x9C, of which 23 are register-blind. Moving the rotation test ahead of the third command build cut the basin from 62 to 43 words.
  * PLATEAU-HANDOFF:overlay101DrawTransformed:end
  */

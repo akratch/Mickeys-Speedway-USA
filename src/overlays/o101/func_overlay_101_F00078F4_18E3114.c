@@ -82,12 +82,35 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
  * TU; this consumer uses that owner for the root and node pools. */
+/* Lane c2-o101 (2026-09-10) measured this family as one shape over four data
+ * sets: the four candidates differ only in data symbols, two coordinates and
+ * one asset id, so any mechanism found on one is testable on all four in
+ * minutes. Measured basin is 461 masked words of 525 for all four.
+ *
+ * The gate is one missing callee-saved web. The target's 0x40 frame homes SIX
+ * saved GPRs (s0..s5) plus two saved doubles; this candidate homes five, so
+ * the float homes sit at 0x18/0x20 instead of 0x10/0x18 and every s-register
+ * is renumbered by one. That single shift is why 324 of 524 words still
+ * differ with the register fields masked out: the streams are the same
+ * instructions in a different schedule, not different code. The missing web
+ * is the node-32 pointer, which the target keeps in s0 for the whole body
+ * while this candidate rotates it through v0 before each call and v1 after.
+ * The -4 size delta is exactly that: minus the missing save/restore pair,
+ * plus one extra address materialization.
+ *
+ * Falsified levers, each measured: plain `Node32 *`, `register Node32 *` and
+ * `volatile Node32 *` all sit in the same 461/469 basins, so IDO ignores a
+ * bare `register` here; hoisting the 0xFF or the literal 2 into a named local
+ * regresses to 465 and 530; naming the node pool through a local pointer
+ * regresses to 513. `register volatile` on the node pointer is worth eight
+ * masked words over every other spelling and is the only spelling that
+ * reaches 461. */
 /* Workbench p5: mixed structure/register mismatch; 524/525 candidate/target instructions, 469 words from +0x4.
  * Lever: constant-audit, retained-node ownership, and bounded permutation; no valid exact source candidate emerged.
  * Remains: one missing instruction plus root/node register and relocation schedule cascades; frame exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00078F4_18E3114(void) {
-    Node32 *node32;
+    register volatile Node32 *node32;
     Node24 *node24;
     void *handle;
     s32 length;
@@ -227,10 +250,10 @@ void func_overlay_101_F00078F4_18E3114(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F00078F4_18E3114:start
  * symbol: func_overlay_101_F00078F4_18E3114
- * score: 469/525 words
+ * score: 461 differing words
  * frame: 0x40
  * relocations: 61
  * first-mismatch: +0x4
- * summary: V0 is one word short (524/525; 472 raw differences), with broad structural/register and 55 relocation-symbol mismatches; prior forms stay closed.
+ * summary: 524/525 words, exact 0x40 frame, 461 masked and 464 raw differences. The gate is one missing callee-saved web: the target homes six saved GPRs and this candidate five, which renumbers every s-register and shifts both float homes.
  * PLATEAU-HANDOFF:func_overlay_101_F00078F4_18E3114:end
  */
