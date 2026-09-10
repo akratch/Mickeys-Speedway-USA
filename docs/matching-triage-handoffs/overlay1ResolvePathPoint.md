@@ -178,4 +178,32 @@ does not (the `goto` form that places the else body after the call is flat),
 liveness does not (every tested dead expression on this function folds and
 emits nothing), and the operand is not a colour choice, so the globalcolor
 lever does not apply either. The next step is a uopt web/split trace.
+
+
+#### c2-o001: the one word re-confirmed at the current base, and it is the copy question
+
+L79 already records this function as a selection that ties on aftercycles and
+separates on `besttime`, which is a key above `lineno` and therefore has no
+source lever. That ruling still holds at this base, and the residual now has a
+name: the single word is the operand of the dead default cursor assignment,
+where the target reads the callee-saved copy of the record pointer and the
+candidate reads the call's own return register. The record's count is read
+from the return register on both sides at the immediately preceding
+instruction, so the target ends the return register's live range one
+instruction earlier than the candidate does.
+
+Seventeen further forms were measured this lane and every one is byte-flat at
+one word: the cursor index spelled from the index variable, as pointer
+arithmetic, and packed onto one line with its neighbours; the three statements
+of that group in six orders; the guard written with the constant on the left,
+as a truth test and against NULL; the error block with its two output stores
+moved ahead of the call (10 words, worse); a self-assignment of the record
+pointer; and the count hoisted into `product` or `scanIndex` before the cursor
+assignment. One thing worth knowing before spending a variant here: an
+unused extra local costs twelve words on this function, because the declared
+locals size the local block, so no lever that adds a declaration is free.
+
+This is the same copy-propagation decision `overlay1FindPreviousUsable` shows
+at twelve words in the same overlay. If that one is ever answered, come back
+here first.
 <!-- plateau-handoff:overlay1ResolvePathPoint:end -->

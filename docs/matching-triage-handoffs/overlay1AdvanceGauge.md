@@ -2,9 +2,9 @@
 ### `overlay1AdvanceGauge` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_middle.c`
-- score: 26 differing words
+- score: 25 differing words
 - frame: 0x40
 - relocations: 3
-- first mismatch: +0x14
-- summary: Fresh exact-size V0: 26 diffs and exact 0x40 frame; candidate 3 vs target 1 reloc, with D_0 HI/LO runtime identity ambiguous.
+- first mismatch: +0x18
+- summary: register-only at 25 words; the volatile pad moved last closes the stack home, and one extra pool web is the whole residual.
 <!-- plateau-handoff:overlay1AdvanceGauge:end -->

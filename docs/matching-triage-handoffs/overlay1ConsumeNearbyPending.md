@@ -23,4 +23,21 @@ The real residual is the block starting at +0x60, where the target reloads the
 counter from sp+60 and recomputes the element address, while the candidate
 keeps the object pointer live and reuses it. Next lever is that reload, not the
 loop shape.
+
+
+#### c2-o001: declaration order is not the pool-priority lever
+
+The previous record's next lever was "find what makes uopt reserve those two
+pool colours for `other` and `otherState`". Declaration order is not it, and
+that is now measured rather than assumed: all 120 permutations of the five
+locals were compiled from the retained base. None improved on 31; the retained
+order and one neighbour are the joint best, three permutations reach 32, and
+the rest run from 33 to 36. Do not repeat the declaration lattice.
+
+Worth recording alongside it: `overlay1AdvanceGauge` in the middle TU carries
+the identical shape at 25 words -- the target spending its pool colours on the
+loop-body pointers and leaving the counter and a loop-invariant constant to
+the ring, the candidate spending one extra pool colour and sliding every ring
+value one position. Two functions, two TUs, one mechanism. Whatever buys or
+sells that pool web will close both.
 <!-- plateau-handoff:overlay1ConsumeNearbyPending:end -->

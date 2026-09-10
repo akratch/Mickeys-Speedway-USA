@@ -97,4 +97,63 @@ places the load after the call, but costs a `mov.s` for the same net 250.
 Next lever: the `nop` fill, which needs the two following `%hi` materialisations
 scheduled into it -- an ordering question about the statement *after* the one
 being fixed, not about the trig statement itself.
+
+
+#### c2-o001: both clusters are decided above `lineno`, and the assembler prints it
+
+Re-measured at 19 masked words, 249 of 249 instructions, the 0x80 frame and
+the stack home exact. `cc -Wa,-R` was read for both clusters and neither is
+reachable from C by any placement, spelling or ordering lever. This is the
+reachability test L79 describes, run on this function's two blocks.
+
+Cluster one, the fourteen words at +0xC, is not a scheduling residual at all.
+In the prologue block as1 gives the frame adjustment 19 aftercycles, the saved
+low-register store 10, the address-high node 9, the address-low node 8, and
+every one of the ten remaining register saves 8 as well. The scheduler picks
+the frame adjustment, then the store on 10, then the address-high on 9, and at
+the next step the address-low ties the saves at 8 and loses the tie on
+emission index -- the saves are emitted at indices 3 to 13 and the address-low
+at 18. The tie is structural, not incidental: every save carries a dependence
+edge to the world dereference, so their aftercycles is one plus the
+dereference's, and the address-low's aftercycles is one plus the same
+dereference's. They can never separate.
+
+The edge is the point. as1 orders every stack store in the block before every
+later load in it, so the dereference cannot rise above the save block no
+matter what its priority is. The target's arrangement, with the dereference
+sitting among the saves, therefore cannot be produced by scheduling ugen's
+emission order at all; it requires ugen to emit the dereference before the
+saves. Nothing on this page's lever set reaches that, and the eighteen further
+spellings measured this lane did not either.
+
+Cluster two moved and then closed. The remaining five words are the order of
+two `at`-based materialisations after the first angle call: the target loads
+the trig import and then materialises the -30.0f float immediate, and the
+candidate does the reverse, which also reverses both multiply operand orders.
+Writing `trig = overlay1AimedTrigReloc;` as its own statement fixes the
+multiply operand orders exactly, at 249 instructions and 21 words, but hoists
+the load above the call; assigning the call result to any existing f32 local
+first puts the load back below the call and keeps the operand orders, at 250
+instructions with one stall.
+
+In every 250-instruction form the as1 trace shows the float immediate emitted
+at instruction index 2 of the post-call block and the import load at index 4,
+with the load carrying two predecessor edges on the shared `at` register. The
+two pairs are hard-serialised by `at`, so their order is ugen's emission order
+and the scheduler has no freedom in it. Twenty forms were measured this lane
+and every one of them emitted the immediate first: the call result carried in
+five different existing f32 locals; the -30.0f constant carried in four
+different existing f32 locals, placed before and after the trig statement; the
+velocity-Y statement hoisted above velocity-X; a volatile-qualified read of
+the trig import; the trig-left and fully-parenthesised right-grouped products;
+the trig import folded into the call-result statement; and a `-30.0f` folded
+into the trig variable itself. Best of them is 250 instructions; the retained
+249-instruction candidate stays.
+
+Reopen only with evidence that moves ugen's emission order, not as1's
+selection: a source form that emits a global load before the prologue saves,
+or one that emits a float import load before a float immediate in the same
+block. Do not spend another lane on placement, grouping or declaration
+lattices here -- three lanes have now closed those, and this one closed the
+mechanism behind them.
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->

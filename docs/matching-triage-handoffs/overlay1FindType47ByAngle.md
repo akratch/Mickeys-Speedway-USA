@@ -17,4 +17,29 @@
 - attempts: Nine coherent source forms covered FP and index declaration order, explicit angle carriage, `register` priority on scale and angle, guard/index coalescing, loop-local scale and difference lifetimes, and the caller-surface four-argument declaration. Five were byte-flat; the explicit carrier and both narrow scopes regressed; the four-argument form changed extent and regressed broadly. V0 was restored byte-for-byte. The historical bounded permuter was not repeated because no natural source form produced a strict gain.
 - donors: The pinned DKR v77, DKR v80, and JFG overlay scans all classify Overlay 1 as `none`. The nearest permitted function skeleton is only 0.126 and supplies no credible body or naming evidence.
 - next action: Reopen only with new source-authentic evidence for the paired FP-pool and start-carrier allocation mechanism. Do not repeat this lattice, these nine forms, or the historical generic permutation batch.
+
+
+#### c2-o001: the pool residual is the angle/scale priority pair, and scale's placement does not move it
+
+Re-measured at 18 masked words, 19 raw, exact 0x78 frame and extent, and the
+residual narrows to one swap with a tail. The two long-lived callee-saved FP
+webs exchange colours: the target gives the incoming angle the lower of the
+contended pair and the phase scale the higher, and the candidate does the
+reverse. The limit and the zero constant take the same colours on both sides,
+and the save slots for all four registers are identical, so this is a
+priority order between two webs and not a frame or a ring question. The
+eight-word block before the wrap call is downstream of the same swap, since
+each side moves whichever register it gave the angle into the second argument.
+
+Six placements of the scale read were measured this lane and none of them
+moves the pair: hoisted above the guard (24), given its own statement inside
+the guard (19), read directly at the multiply (59 and one instruction longer),
+made the function's first statement (35), packed ahead of the cursor
+computation on the same line (20), and read inside the loop (70 and one
+instruction longer). The retained packed form remains the best row.
+
+The residual is therefore a uopt web-priority tie between a parameter that is
+live from entry and a loop-invariant read that is live from the guard, both
+used exactly once. Reopen with an extra interfering web or a measured
+priority dial, not with another placement.
 <!-- plateau-handoff:overlay1FindType47ByAngle:end -->
