@@ -185,6 +185,16 @@ that way, and no lane worktree created afterwards could build at all until the
 remaining 57 rules were added. If a promotion adds resident calls, check that
 `mk/overlays.mk` names every one of them.
 
+**The same hazard runs the other way, and `check-overlay-syms` passes on it.**
+A lane whose overlay objects were rebuilt after the last `gmake overlay-syms`
+regenerates an alias file that has silently *lost* renames, and because the
+check compares that file against what the tree currently generates, it reports
+"up to date" on the wrong content. The tell is a one-line diff turning
+`<sym>_oNNReloc` back into a bare `<sym>`. Never commit that diff: run
+`gmake overlay-syms` and rebuild, and the tracked file regenerates byte-identical.
+Restoring the tracked file *without* rebuilding leaves the link failing, because
+the objects still reference the bare name.
+
 `check-overlay-syms` is a *drift* check on already-regenerated output, so it
 cannot catch a promotion that never regenerated; reading its table entry below
 as "run this after promoting" is what leaves the build broken. Likewise

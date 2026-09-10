@@ -280,20 +280,21 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
-/* Bounded plateau: 150/150 instructions, 2 differing words, first mismatch +0x1c0, schedule-only. */
-/* Three edits took it 38 -> 2. (1) Declaring surfaceValid ahead of level gave the declared block a fifth
- * carrier and closed the 0x30 frame onto the target's 0x38, retiring all 16 stack-displacement words --
- * homes descend from the frame top in declaration order, and which locals become carriers is emergent, so
- * reorder rather than add. (2) The surface scan runs EIGHT iterations, not seven: the target tests the
- * counter and decrements in the back-edge delay slot, which is do {} while (i--). (3) Reading the halfword
- * directly instead of through the `angle` local spends the ring pop the target spends there (L88), which
- * retired a uniform -1 rotation over nine downstream webs.
- * Residual: as1 orders `move v1,a0` (the dead loop-exit copy) before `surface -= 2`; we emit the reverse.
- * Merging the two statements onto one physical line is inert, so the pick is decided above lineno (L79).
- * Permuter target. */
+/* Matched from a 38-word plateau in four edits, three of which are why the body reads oddly.
+ * (1) Declaring surfaceValid ahead of level gives the declared block a fifth carrier and closes the
+ *     0x30 frame onto the target's 0x38, retiring 16 stack-displacement words. Homes descend from the
+ *     frame top in declaration order and which locals become carriers is emergent, so the fix is to
+ *     reorder rather than to add.
+ * (2) The surface scan runs EIGHT iterations, not seven: the target tests the counter and decrements
+ *     in the back-edge delay slot.
+ * (3) Reading the halfword directly rather than through an `angle` local spends the ring pop the
+ *     target spends there (L88), retiring a uniform -1 rotation over nine downstream webs.
+ * (4) The last two words were the dead loop-exit copy ordered against the pointer advance. Carrying
+ *     the decrement in `mask` and advancing `surface` below it -- so the test reads +0x112 rather than
+ *     +0x114 -- emits them in the target's order.
+ */
 /* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
  * all field offsets, calls, and the body below are reconstructed from Mickey. */
-#ifdef NON_MATCHING
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
     ControlTrackState *track;
     s32 surfaceIndex;
@@ -331,13 +332,14 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
             i = 7;
             surface = (u8 *) level + 0xE;
             do {
-                surface -= 2;
-                if (surfaceIndex == *(s16 *) (surface + 0x114)) {
+                if (surfaceIndex == *(s16 *) (surface + 0x112)) {
                     surfaceValid = func_8000FBD8(surfaceIndex, D_800CB300->x,
                                                  D_800CB300->y, D_800CB300->z);
                     break;
                 }
-            } while (i--);
+                mask = i--;
+                surface -= 2;
+            } while (mask);
             if (surfaceValid != 0) {
                 D_800CB300->unk3E = (s16) surfaceIndex;
             }
@@ -349,9 +351,6 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
-#endif
 /* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role; fields and body are reconstructed from Mickey. */
 void func_8001BE0C(ControlActor *actor, ControlPlayer *player) {
     s32 i;
