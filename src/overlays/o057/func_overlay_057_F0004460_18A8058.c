@@ -103,13 +103,11 @@ void func_overlay_057_F0004460_18A8058(s32 updateRate) {
     i = 0;
     if (updateRate > 0) {
         do {
-            x = gO57ModeSetup21C.horizontal;
-            y = gO57ModeSetup21C.vertical;
             i++;
-            gO57ModeSetup21C.horizontal =
-                (s16)(x + ((0x104 - x) >> 3));
-            gO57ModeSetup21C.vertical =
-                (s16)(y + ((0xBE - y) >> 3));
+            gO57ModeSetup21C.horizontal = (s16)(gO57ModeSetup21C.horizontal +
+                ((0x104 - gO57ModeSetup21C.horizontal) >> 3));
+            gO57ModeSetup21C.vertical = (s16)(gO57ModeSetup21C.vertical +
+                ((0xBE - gO57ModeSetup21C.vertical) >> 3));
         } while (i != updateRate);
     }
 
@@ -268,10 +266,10 @@ void func_overlay_057_F0004460_18A8058(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004460_18A8058:start
  * symbol: func_overlay_057_F0004460_18A8058
- * score: 449/494 words
+ * score: 446/494 words
  * frame: 0x58
- * relocations: 179
+ * relocations: 235
  * first-mismatch: +0x4
- * summary: V0 is 36 words short (458/494; 450 raw differences); relocations are 179 vs 169 with 58 aligned sites and 7 identities; prior lifetime forms stay closed.
+ * summary: Smoothing loop adopts the sibling-proven in-place halfword idiom (449 to 446); the body remains a size-mismatch reconstruction 36 instructions short of the target.
  * PLATEAU-HANDOFF:func_overlay_057_F0004460_18A8058:end
  */
