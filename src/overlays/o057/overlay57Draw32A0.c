@@ -47,25 +47,18 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 scale, f32 position, f32 xScale,
                                    f32 yScale, s32 color, s32 command);
 
-/* Overlay 57 text +0x32A0..+0x35E0. */
-/* Plateau: exact 0x340, 48 masked words, first at +0x4; frame and both
- * instruction counts are exact and the pool lane is exact 85/85.
+/* Overlay 57 text +0x32A0..+0x35E0. Exact: 208 words, frame 0x70, 53/53
+ * relocation identities.
  *
- * Three things got it here. Two declared pointer cursors over the mask and
- * shift tables were two frame cells the target does not reserve; indexing both
- * tables by the loop counter closes the frame at 0x70. The saturating arm
- * writes 0xFE to the global and reads it back rather than computing
- * `rising + 0xFD`: spelling the constant directly makes uopt hoist a second
- * materialisation of 254 into the guard's delay slot, but routing the value
- * through the global keeps one `li v1,254` feeding one `sw v1,0(s8)`, which is
- * what the target has.
+ * Both envelope arms are compound assignments through the global rather than
+ * a local assigned and then stored. Written the other way, uopt materialises
+ * the value a second time -- the saturating arm hoists a duplicate `li 254`
+ * into the guard's delay slot, and the decay arm keeps a separate carrier --
+ * and each duplicate rotates the whole block-local temp ring behind it.
  *
- * The residual is one uniform rotation of the block-local temp ring with a
- * single onset at row 64 (+0x100): rows 0..63 are byte-identical, and from
- * +0x100 every temp is one ring position behind the target. Declaration order
- * (all 43 single moves), both loop bounds, the arm order of the table-mode
- * `if`, and the operand order of the packed-word `or` do not move it. */
-#ifdef NON_MATCHING
+ * The mask and shift tables are indexed by the loop counter. Declared as
+ * pointer cursors they reserve two frame cells the target does not have,
+ * which is the 8 bytes by which the frame used to exceed 0x70. */
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
     Overlay57Draw32A0Record *cursor;
@@ -96,8 +89,8 @@ void overlay57Draw32A0(s32 updateRate) {
             envelope = gO57Draw32A0Envelope124;
         }
     } else {
-        envelope = gO57Draw32A0Envelope124 - updateRate * 32;
-        gO57Draw32A0Envelope124 = envelope;
+        envelope = (gO57Draw32A0Envelope124 =
+                    gO57Draw32A0Envelope124 - updateRate * 32);
         if (envelope < 0) {
             gO57Draw32A0Envelope124 = 0;
             return;
@@ -158,16 +151,3 @@ void overlay57Draw32A0(s32 updateRate) {
         } while (i != rowCount[0]);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57Draw32A0/func_overlay_057_F00032A0_18A6E98.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57Draw32A0:start
- * symbol: overlay57Draw32A0
- * score: 48/208 words
- * frame: 0x70
- * relocations: 53
- * first-mismatch: +0x4
- * summary: Frame, instruction count and the pool lane are exact; 48 words remain as one uniform block-local temp-ring rotation whose onset is row 64 with rows 0 to 63 byte-identical.
- * PLATEAU-HANDOFF:overlay57Draw32A0:end
- */
