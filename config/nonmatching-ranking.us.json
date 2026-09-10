@@ -52,7 +52,7 @@
       "relocation_masked_first_mismatch_offset": 316,
       "size_delta": 0,
       "category": "register-only",
-      "source_context_sha256": "looa.kaPL.I3-T.iPoA.Vi9A.eMOI.kucV.batV.IxBV.SiY4.kSA"
+      "source_context_sha256": "ndFC.JNN2.9dKt.5LT4.mbnX.CMXv.7RSY._72_.L59h.JTvL.hRI"
     },
     {
       "name": "func_8003484C",
@@ -128,6 +128,21 @@
       "size_delta": 0,
       "category": "register-only",
       "source_context_sha256": "KMBL.SWtg.Y2zn.D-aa.QoqI.wzE8.NRSO.aJZ9.FOn3.-hAb.UJM"
+    },
+    {
+      "name": "levelInit",
+      "file": "src/main/level.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2064,
+      "objdiff_match_pct": null,
+      "differing_words": 22,
+      "first_mismatch_offset": 592,
+      "relocation_masked_differing_words": 22,
+      "relocation_masked_first_mismatch_offset": 592,
+      "size_delta": 0,
+      "category": "register-only",
+      "source_context_sha256": "ZGMq.YXvp.mR2s.fI9g.nu59.Q-ya.YeDr.RjzI.iWJV.q1e7.z2k"
     },
     {
       "name": "func_80007C68",
@@ -247,22 +262,7 @@
       "relocation_masked_first_mismatch_offset": 80,
       "size_delta": 0,
       "category": "register-only",
-      "source_context_sha256": "_l2Z.S1Yg.jqjU.HXfo.ptfV.ZiI3.Mg7g.kE4v.d7-N.nym-.Uc4"
-    },
-    {
-      "name": "levelInit",
-      "file": "src/main/level.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 2064,
-      "objdiff_match_pct": null,
-      "differing_words": 113,
-      "first_mismatch_offset": 568,
-      "relocation_masked_differing_words": 113,
-      "relocation_masked_first_mismatch_offset": 568,
-      "size_delta": 0,
-      "category": "register-only",
-      "source_context_sha256": "ZJE7.-LeB.0TA4.rm22.ny-s.mHai.YqJa.WW9L.HTWF.rnEU.jTw"
+      "source_context_sha256": "YVuo.GmVu.Zzlb.4l0z.R-mS.Frsc.cEL1.7aCE.cc9b.jwvH.Aw4"
     },
     {
       "name": "overlay1MeasureCurves",
@@ -322,7 +322,7 @@
       "relocation_masked_first_mismatch_offset": 312,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "ik0c.LrVu.AdDQ.CC93.zqXZ.6s7x.ffF1.kbHV.5vLx.3kA2.CIc"
+      "source_context_sha256": "nEFQ.Cpyg.tWUF.Qv4M.oW-_._55l.GH7k.6w_6.QKVb.Y6N1.JXo"
     },
     {
       "name": "func_overlay_009_F0000CE4_186735C",
@@ -352,7 +352,7 @@
       "relocation_masked_first_mismatch_offset": 204,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "NlHl.SEkB.VUEH.6g3w.jqDG.AKha._Xyk.Xm_V.-SNX.TGkJ.j-o"
+      "source_context_sha256": "HAio.EG2u.kUq_.9sSS.yoMB.HaF5.Ig-S.llms.SABN.xT3L.-8E"
     },
     {
       "name": "overlay33InitializeBuffers",
@@ -607,7 +607,7 @@
       "relocation_masked_first_mismatch_offset": 540,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "9Hqw.u_qW.YHQf.1ZaJ.JhTZ.ABlW.ROlu.v4HB.a7ih.HvsB.7A0"
+      "source_context_sha256": "HQvM.OHti._Yga.URY6.NJ5H.ZDxK.smlW.3xlf.AAZp.QIKE.jWA"
     },
     {
       "name": "overlay15DrawScreenStars",
@@ -1192,7 +1192,7 @@
       "relocation_masked_first_mismatch_offset": 76,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "9hwf.VrPg.zBav.QZvI.ZtNX.5DCd.JwsA.OnTO.B6QI.BjPQ.cIc"
+      "source_context_sha256": "P8Wc.WJBu.qmTJ.FvMk.oKO2.QihJ.ISAu.Hy6I.vwtX.2k_1.Lzs"
     },
     {
       "name": "overlay101DrawPanel",
@@ -2167,7 +2167,7 @@
       "relocation_masked_first_mismatch_offset": 48,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "uVc4.fcB9.g884.tfL5.JbCv.2jNG.Xe3O.k20w.t0NW.siNl.An4"
+      "source_context_sha256": "T5HZ.Rpzg.scPw._-JN.1JY-.TvW3.LCjC.oa08.dbHj.NAty.uuI"
     },
     {
       "name": "overlay68DrawSortedEntries",
@@ -2272,7 +2272,7 @@
       "relocation_masked_first_mismatch_offset": 56,
       "size_delta": 0,
       "category": "other",
-      "source_context_sha256": "jGvR.OyUc.j4sE.3g7U.9Q7j.6U6e.JLBr.4AOP.KNi9.ZCxE.AJ4"
+      "source_context_sha256": "Mv07.8g2x.0f9X.tTFg.UH4F.qOQh.EFvY.r9ru.e6e3.MWIt.bUM"
     },
     {
       "name": "overlay100DrawMotion",
