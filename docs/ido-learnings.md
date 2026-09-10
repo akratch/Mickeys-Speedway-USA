@@ -1500,6 +1500,39 @@ bytes and disassembly never belong here.
   before and after and compare every symbol's `.text`, expecting exactly one to
   differ. Absorb the guard's lines into the comment that replaces it.
 
+- **`globalcolor`'s two sweeps use two different priority orders, and only one
+  of them is `save`.** The phase-one (callee-saved) sweep takes webs in
+  strictly descending `save`; the phase-two (caller-saved) sweep takes them in
+  **ascending web number**, and each web then gets the lowest colour no
+  already-coloured interferer holds. Measured on two functions in the same
+  session: `overlay1ResolvePathPoint`'s nineteen p1 decisions come in
+  descending `save` (30.5, 30.0, 20.0, 8.5, 5.0, 5.0, 3.0, ... 0.5), while
+  every one of `overlay20RemoveEntry`'s twelve p2 records reproduces its logged
+  `forbidden0` under ascending web number and under no other order -- descending
+  `save` predicts the first web's forbidden set as three colours where the log
+  shows one. In p2, `save` is not the priority at all; it is the gate that
+  decides `color` against `no-color`. The consequence for matching is direct:
+  a caller-saved residual is a *numbering* problem, not a weight problem, so
+  the lever is whatever moves the web's position in uopt's symbol order, and
+  reasoning about it from the descending-`save` law predicts the wrong web
+  first every time. Decode the masks as bit `31 - c`, with c1..c6 = v0, v1, a0,
+  a1, a2, a3.
+
+- **uopt forwards a call's own return register into every use in the block
+  that contains the call, so which basic block a statement lives in decides
+  whether it reads the raw result or the saved copy.** This is a decision
+  variable that no amount of respelling a statement can reach, and it is
+  invisible in a spelling lattice because every cell of such a lattice holds
+  the statement's block fixed. `overlay1ResolvePathPoint` sat one word from a
+  match for three lanes on exactly this: a default cursor assignment written
+  before an `if` shared the call's block and took the return register, where
+  the target reads the callee-saved copy. Deleting it and the two per-arm
+  assignments, and writing one assignment after the if/else so it lands in the
+  join block, closed the function with no other change. Before spending a lane
+  on spellings of a base-register residual near a call, ask which block the
+  statement is in and whether a semantically identical placement puts it in
+  another one.
+
 - **Reading `globalcolor` needs the procedure *ordinal*, and the ordinal is the
   function's index in `.text` address order.** The instrumented `uopt`
   (`~/Desktop/dev/ido-instrumented/cc`, `CDX_LOG=1`) refuses a symbol name:

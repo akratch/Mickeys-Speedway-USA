@@ -223,4 +223,34 @@ the family moves the pool/ring population functions a long way and the
 copy-propagation ones not at all. That makes it a cheap classifier to run
 before choosing a lever, and it says this word is not bought with web
 population.
+#### Closed 2026-09-10, lane o7-tight: the last word was the assignment's block, not its spelling
+
+Matched; `gmake verify` prints the expected SHA1 with the function promoted.
+
+The residual was `addiu $s0, $v0, 4` against the target's `addiu $s0, $s4, 4`,
+and every prior pass read it as a colouring or copy-propagation decision about
+`record`. It is neither. It is **which basic block the assignment lives in**.
+
+`point = &record->x[2]` was written before the `if`, so it shares a block with
+the call that defines `record`; uopt forwards the call's own return register
+into every use in that block, and the base reads `$v0`. Deleting that
+assignment *and* the two per-arm assignments, and writing one
+`point = &record->x[scanIndex];` after the if/else, moves the only assignment
+into the join block, where the raw return web has ended and the base is the
+saved copy `$s4`. `scanIndex` already carries the right value on both paths
+(`2` from the `else`, the loop's index from the `then`), so nothing else moves:
+the object is byte-identical to the target at 152 of 152 words, and the other
+five functions in the translation unit are unchanged.
+
+Why the earlier sweeps could not see it: they all kept an assignment in the
+pre-`if` position or in an arm, and varied its *spelling*. The whole 48-cell
+else-branch lattice, the 720 declaration orders, the 76 dead expressions and
+the 140 inert placements are measurements of a space that never contained the
+answer, because the decision variable is the assignment's block membership and
+every cell in those lattices held it fixed. This is the concrete instance of
+trap 7 in the plateau brief -- a flat spelling lattice is not evidence that a
+residual is unreachable.
+
+- disposition: matched 2026-09-10; the mechanism is recorded at the point of
+  use in `src/overlays/o001/overlay_001_end.c`.
 <!-- plateau-handoff:overlay1ResolvePathPoint:end -->

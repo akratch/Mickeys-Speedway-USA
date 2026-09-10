@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: the limit temp is uopt pool web 42, blocked from v0 by invisible web 8; CDX_FORCE p2:w42=c1 is declined, so reordering that leaves web 8 cannot reach it
+- summary: p2 colours in ascending web number, so the decrement web (v0, web 8) is coloured before the limit (web 42) and forbids it v0; the cursor needs the same three webs the limit must not see, so the cursor-first ordering is self-contradictory and the open axis is the limit's web number
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
@@ -48,7 +48,7 @@ The verdict is unchanged and now much better supported: no spelling of this
 function reaches the target colour. The instrumented uopt capture -- a print in
 the recompiled `globalcolor` showing the free list at the bound's web -- is the
 only remaining lever.
-- summary: the limit temp is uopt pool web 42, blocked from v0 by invisible web 8; CDX_FORCE p2:w42=c1 is declined, so reordering that leaves web 8 cannot reach it
+- summary: p2 colours in ascending web number, so the decrement web (v0, web 8) is coloured before the limit (web 42) and forbids it v0; the cursor needs the same three webs the limit must not see, so the cursor-first ordering is self-contradictory and the open axis is the limit's web number
 
 #### 2026-09-09 (second pass): the blocking web is named
 
@@ -83,4 +83,130 @@ Next: identify web 8's source construct (a `CDX_DETAIL_WEB=8` capture gives its
 `bb`/`line` and neighbours) and remove its live range across the compaction
 loop; that is the only remaining degree of freedom.
 
+#### 2026-09-10, lane o7-tight: the ordering law, and the requirement stated exactly
+
+The instrumented uopt was run and the reading in the two passes above is
+wrong in one load-bearing detail, which changes what has to be searched.
+
+**globalcolor's caller-saved sweep colours webs in ASCENDING WEB NUMBER, and
+takes the lowest colour no already-coloured interferer holds.** Not in
+descending `save`. All twelve of this function's `p2dec` records reproduce
+their recorded `forbidden0` exactly under that order and under no other: web 0
+is coloured first with only a0 forbidden (the incoming parameter register),
+web 2 second with v0 forbidden (web 0), web 8 third with a0, web 10 fourth
+with v0+a0, and so on to web 42 with v0+v1+a0+a1. Descending `save` predicts
+web 0's forbidden set as v0+v1+a0 against the recorded a0 alone, so the two
+orders are distinguishable and only one survives. The colour index is bit
+`31 - c` of `forbidden0`/`available0`, and c1..c6 are v0, v1, a0, a1, a2, a3.
+
+`save` is not the priority here; it is the colour/split gate. Web 63's
+`save=0` is the only `decision=no-color` in the function.
+
+**The lane also measured the other half of the law**, on
+`overlay1ResolvePathPoint` in the same session: its nineteen **p1**
+(callee-saved) decisions come in strictly descending `save` -- 30.5, 30.0,
+20.0, 8.5, 5.0, 5.0, 3.0, 2.0, 1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5 --
+so L100's "descending save" describes p1 and does not describe p2. A lane
+reasoning about a caller-saved residual from L100 will predict the wrong web
+first every time.
+
+**The web census, from `CDX_DETAIL_WEB` plus a `CDX_LINEAGE_TABLES=all`
+capture that gives every web its occurrence blocks:**
+
+- web 0, local at cfe -4, `entry`, blocks 0 and 4, coloured v0
+- web 2, the parameter at cfe 0, `owner` (the count, then the marker pointer),
+  blocks 0 through 12 and 16 through 19, coloured a0
+- web 8, an expression web, the decremented count `owner - 1`, blocks 12 and
+  13, coloured v0
+- web 10, local at cfe -12, `i`, blocks 2 through 19, coloured v1
+- web 16, an expression web, the search loop's cursor, blocks 3, 4 and 6,
+  coloured a1
+- web 34, local at cfe -8, `new_var`, blocks 13, 13 and 14, coloured a0
+- web 37, an expression web, the compaction cursor, blocks 13 and 14, a1
+- web 42, an expression web, **the compaction limit**, blocks 13 and 14, a2
+- web 55, local at cfe -16, the `i--` post-decrement temp, block 19, v0
+
+Web 8 is the "invisible v0 web" the earlier passes named. It is not the marker
+loop's dead copy (that is web 55, and the earlier falsification of the dead-copy
+reading was right); it is the decremented count. ugen re-materialises it into a
+ring temp, so its colour never reaches an instruction, but it holds v0 and it
+interferes with 42.
+
+**The requirement, exactly.** The target wants the limit on v0 and the cursor
+on a1. Under the law that means one of two orderings, and both are blocked:
+
+- *cursor before limit* (the order every measured spelling produces). The
+  cursor reaches a1 only if v0, v1 and a0 are all held by earlier interferers,
+  which on this CFG means web 8 on v0, `i` on v1 and `new_var` on a0. Every one
+  of those three also interferes with the limit, so the limit then sees v0
+  taken and cannot have it. **The two conditions are the same webs, so this
+  ordering is self-contradictory** -- which is the real reason the residual has
+  survived three passes, and it is stronger than "web 8 must stop interfering".
+- *limit before cursor*, which needs (a) no v0 interferer numbered below the
+  limit and (b) exactly one a0 interferer numbered below the cursor. Reachable
+  in principle: the numbering does invert (see below). What blocks it is that
+  the decremented count is always numbered below the limit and always takes v0.
+
+**Force oracle.** `CDX_FORCE=p2:w8=c6,p2:w37=c4,p2:w42=c1` is declined at both
+the decision and the colour site with `forbidden=0x6a000000`. Freeing web 8
+from v0 does not free v0 for the limit: web 34 (`new_var`) simply takes it, its
+own forbidden set having been only v1. That is the trap the earlier "force web
+8 elsewhere" experiment fell into, and it generalises -- **there is always
+exactly one v0 holder in front of the limit; moving one only promotes the
+next.**
+
+**The numbering IS controllable, and that half is now solved.** Hoisting the
+array base into a named local (`list = gOverlay20ShiftEntries;` before the
+store, loop written over `list`) inverts the pair: the limit is numbered below
+the cursor, and the cursor lands on a1 exactly as the target has it. Combined
+with merging the decrement into `new_var` (`new_var = gOverlay20EntryCount;`
+written straight after the store, which makes web 8 disappear), the candidate
+reaches 5 differing words with the limit on a0 and the cursor on a1 -- one
+colour away, and the a0 is `new_var` sitting on v0 in front of it. The hoist
+also swaps the two index shifts, which costs three of those five words, so it
+is not a free lever; it is the proof that the ordering axis is open.
+
+**The one construct that moves the decrement off v0, and why it does not
+close.** Any use of `entry` placed after the search loop and before the store
+extends web 0 (v0) across the block that defines the decrement, and the
+decrement then takes v1. Measured: the limit goes to v0 with that in place.
+But every such use emits an instruction, and web 8 also interferes with `i`,
+so `i` is pushed off v1 to a1 in the same move. Twenty zero-footprint reads of
+`entry` at that position -- self-assignment, `if (entry)`, `if (entry ==
+entry)`, `(void)entry`, dead stores into each local, `& 0` and `* 0` masks,
+an `if (1)` region -- are all folded before the web builder and leave web 8 on
+v0. The single-mention fold is total here, as it is on
+`overlay1ResolvePathPoint`.
+
+**Newly measured and flat at two words this pass** (~1,050 candidates, ~300 a
+second, each compiled with the real per-TU flags and compared against the
+whole 53-instruction target text rather than against a word count):
+
+- 702 cells of `new_var` position (five) x bound source (global / `owner - 1`)
+  x base-hoist position (four) x loop form (six: bottom-tested, top-tested,
+  `++i` in the condition, reversed comparison, and two pointer walks with the
+  end pointer written first and second) x declaration order (three);
+- 176 cells of guard spelling (eight, including `!=`, reversed operands, an
+  unsigned compare and `i - bound < 0`) x bound carrier (four) x loop form
+  (four) x store placement (before the guard / inside the `if` / after it);
+- 168 cells of the earlier bound/loop/hoist product, re-run at this base.
+
+Declaration order is byte-flat in every one of them, as the earlier passes
+found; the reason is now visible in the trace, which is that cfe stack offsets
+do not participate in the p2 ordering at all.
+
+**Next lever, and it is now a narrow one.** The open question is no longer
+"why does web 8 interfere" -- it interferes because block-level liveness puts
+both it and the limit in the same block, and its last use *is* the limit's own
+operand, so no C can separate them. The open question is whether the
+decremented count can be given a web number **above** the limit's while staying
+in the same block. That is a ucode-position question: web numbers here follow
+the order uopt creates the symbols, and the compaction region's symbols are
+created by strength reduction after the source-level ones. If a spelling exists
+that makes the bound a strength-reduced symbol rather than a source symbol --
+so that it is numbered with the limit and the cursor rather than in front of
+them -- the limit takes v0 and the cursor takes a1 with no other change. A
+`CDX_LINEAGE_TABLES=all` capture on any candidate prints the creation order
+directly, so the next lane can screen spellings on the trace instead of the
+score.
 <!-- plateau-handoff:overlay20RemoveEntry:end -->
