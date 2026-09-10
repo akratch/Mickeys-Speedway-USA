@@ -53,6 +53,10 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  * 0x24 block) are byte-identical to nothing here; four byte-test spellings; three pointer-init and two advance
  * spellings; spelling the +0x3E0 read as a bare common subexpression drops that web a colour but costs two schedule
  * rows; a dead tested expression adds a web and moves the ladder the wrong way.
+ * Two edits do measure one word better and are deliberately NOT adopted, because neither reproduces a target
+ * register and both make the source less faithful: writing the 0xC command word as M2C_FIELD(temp_s0, s16 *, 0x30)
+ * (the target writes it through the pointer, 0(s5)) and routing the case-0 +0x48 dereference through the dead
+ * var_a1.  Both buy a schedule row while leaving the colour wrong.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.

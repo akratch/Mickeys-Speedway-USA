@@ -261,9 +261,23 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
  * statement and around its two operand statements, all byte-identical to
  * nothing; and `(f32)` on `update`.
  *
+ * One recorded hypothesis is falsified by this pass and should not be
+ * re-run: the race-state flag's home at 0x40 against the target's 0x3C was
+ * attributed to the same absent temporary as the integer ring onset.  The
+ * ring onset is closed and the home still differs, so it is a separate
+ * spilltemp-order question, and +0x7C/+0x88 are now the first two differing
+ * words.  The tail is unchanged and still not buyable: all 24 orderings of
+ * D, Y, S and V were re-measured on this base and only D,Y,S,V (198) and
+ * S,Y,D,V (203) hold 882 instructions, every other ordering adding four to
+ * twelve.
+ *
  * The residual is now the fp side of the same question: the fp scratch ring
- * is one web short from +0x368, `update` reads f12 where the target reads
- * f16, and the four fp families plus the +0xB80 tail are the 198.
+ * is one web short from +0x368, where the target gives `dy` the pool colour
+ * f2 and the candidate spends f16 on it, so `update` then reads f12 in the
+ * tail where the target reads f16.  Measured flat against that: four other
+ * carriers for that `dy`, three orderings and two associations of the
+ * distance sum it feeds, and four spellings of the two tail integration
+ * products.  The four fp families plus the +0xB80 tail are the 198.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
