@@ -476,19 +476,23 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench: allocation-mismatch, 282/282 instructions/frame -152, 41 masked (48 raw)
- * words, aligned_total 59; first code divergence +0x88. Was 52/59/70.
- * Two levers moved it. Declaring every local on its own line and placing cross
- * before yawB fixed the two f32 spill homes (0x4C/0x50), worth 10 words; a
- * 344,946-evaluation iterated local search over the 22-local declaration order
- * proves that order is a global optimum for this body. Spelling the first
- * smoothing loop's update as `x = x + (f(...) >> 4)` instead of `x += ...`
- * bought the ninth word; the same rewrite at the other accumulator sites is flat.
- * Residual is now four allocation classes and nothing else: 9 words are the
- * 0x34/0x38 GPR spill-home pair (target homes the D_388 cursor low and steps
- * high, the candidate the reverse), 7 the tableIndex temp ring, 9 the two
- * angle-loop temp rings, 11 the FPR ring, 5 the bank loop. Opcodes, schedule,
- * size, frame and all 31 relocation offsets/types align. Retain NON_MATCHING. */
+/* Workbench: allocation-mismatch, 282/282 instructions/frame -152, 25 masked (32 raw)
+ * words; first code divergence +0xAC. Was 41, and 52 before that.
+ * Two further levers moved it, both in the head of the function.
+ * Computing `steps` before the D_388 block numbers its spill web below the
+ * D_388 cursor's, which puts the two GPR homes at 0x34/0x38 the way the target
+ * has them and closes eight words; the 0x30 home for `i` is unchanged.
+ * Spelling the table index as `((u8)(rand & 3) * 4) + D_388[mode]` closes eight
+ * more: by L52 the unsigned cast is a node, so it changes which subtree ugen
+ * emits first, and the source-order swap then puts the memory read in the
+ * addu's `rs`.  Either edit alone is worth less than the pair (33 and 29
+ * against 41); a 362-evaluation insertion search over the 20 movable
+ * declarations finds no order better than the one below.
+ * Residual is three allocation classes: 6 words are the tableIndex ring, which
+ * still runs one ring slot behind the target because the `(u8)` node costs a
+ * temp the target does not spend, 4 the bank loop's ring, and 11 the two FPR
+ * ring rotations at the cross/dot and tilt blocks. Opcodes, schedule, size,
+ * frame and all 31 relocation offsets/types align. Retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -516,12 +520,12 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     f32 blend;
 
     ext_o0_210b4(60.0f, 0);
+    steps = (s32) stepsFloat;
     if (state->flags & 8) D_388[mode]++;
     D_388[mode] &= 3;
-    tableIndex = (D_388[mode] & 0xFF) + ((ext_o0_214c8() & 3) * 4);
+    tableIndex = ((u8)(ext_o0_214c8() & 3) * 4) + D_388[mode];
     targetX = D_300[tableIndex] + (D_2D0 * 75.0f);
     targetY = D_340[tableIndex];
-    steps = (s32) stepsFloat;
     targetAngle = D_380[mode];
     i = steps - 1;
 
@@ -613,11 +617,11 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 
 /* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
  * symbol: func_overlay_009_F00010B4_186772C
- * score: 41/282 words
+ * score: 25/282 words
  * frame: 0x98
  * relocations: 31
- * first-mismatch: +0x88
- * summary: Declaration order plus one accumulator rewrite cut 52 to 41 masked; exact size/frame/opcodes. Residual is four pure allocation classes.
+ * first-mismatch: +0xAC
+ * summary: Hoisting the steps conversion and an unsigned-cast table index cut 41 to 25 masked; exact size/frame/opcodes. Residual is three allocation classes.
  * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
  */
 

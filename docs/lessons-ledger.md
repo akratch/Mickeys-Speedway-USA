@@ -5,6 +5,38 @@ Each entry: what was observed, what it cost, what changed because of it
 (tool, gate, rule, or prompt). Numbers are the values at the time; recompute
 before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
+## 2026-09-10
+
+- **A same-module call can still be a SYMBOL relocation record, and then the C
+  must not name the in-module definition.** `func_overlay_002_F0001A94_185888C`
+  scored 0 masked words and still failed `gmake verify` by exactly two words:
+  its two `overlay2ContainsPoint` calls are `SYMBOL` records naming overlay 2
+  offset `0x123C`, so the shipped word is the `0xF0000000` addend, while the
+  neighbouring `overlay2QueryNode` and `overlay2AdjacentIndices` calls in the
+  same function are `JUMP` records that do store `offset >> 2`. An ordinary
+  `jal` to the in-module definition therefore links to `0xF000123C` and is
+  wrong. `tools/reloc_surface.py` skips any name defined in the module's own
+  `.text`, so it neither values nor complains about such a site; the tell is
+  `tools/overlay_tables.py`'s record `op_name` at that offset. Fix: call a
+  `...Reloc` placeholder extern (or rename the symbol in the object) so the
+  reference stays undefined and takes the stored addend. The relocation-masked
+  score cannot see this class at all -- it masks exactly the bits that carry it.
+- **A relocation-masked score of zero does not name the symbols.** The same
+  function first came out with `gOverlay2QueryBestReloc` and
+  `gOverlay2QueryResultReloc` swapped: masked score 0, `gmake overlay-syms`
+  reporting `UNRESOLVED ... 2 distinct values: ['0x6c', '0x90']`. Writing the
+  comparison so the stored-to global is the operand that reaches the second
+  load resolved both. Read the `overlay-syms` UNRESOLVED line as a source
+  finding, not as tooling noise.
+- **L67 is narrower than "comparison operand order is never a lever".** The
+  law's receipt is a *copy-propagated variable*, which does print first
+  whatever the C says. Where neither operand is a propagated local -- an `s16`
+  struct member against a freshly computed `(s16)` cast chain -- the swap
+  changes which subtree cfe emits first, and so which ugen ring temps each
+  takes. Swapping the three such tests in the function above moved it 41 -> 13
+  -> 0 masked words, on top of dropping one declared local. Verified by
+  `gmake verify`.
+
 ## 2026-09-09
 
 - **A LUNA round on the hardest residue returned zero matches.** Four codex
