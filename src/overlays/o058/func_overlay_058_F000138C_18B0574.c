@@ -6,28 +6,38 @@
  * The guarded body retains the target call graph and typed data accesses.
  */
 /*
- * Plateau (2026-09-10): 894 of 3,614 relocation-masked words differ, down from
- * 996.  The construct census is as close as it can be short of exact: both
- * sides emit 3,614 instructions and the opcode histograms differ by ONE entry
- * -- the target has one more `move` and one fewer `addiu`, at +0x3704, where
- * it does `move a3,<callee-saved>` for a frame address the candidate
- * recomputes as `addiu a3,sp,216`.  So the whole residual is p1 colour, not
- * shape.  Under a shape-tolerant alignment 2,872 rows are byte-exact, 692
- * differ only in register names, and 84 rows sit in 58 shape blocks.
+ * Plateau (2026-09-10): 733 of 3,614 relocation-masked words differ, down from
+ * 894.  Size delta 0, frame 0x138.  Under a shape-tolerant alignment 3,034
+ * rows are byte-exact (up from 2,874) and 631 of 848 saved-register operand
+ * slots agree (up from 434); the s7-with-s8 transposition that three grinds
+ * named is GONE -- 0 transposed slots against 187.  Report all three numbers
+ * for anything measured here: at 894 words the positional count is dominated
+ * by displacement and does not order configurations on its own.
  *
- * The residual splits in two: one saved-register rotation (s7 with s8, and s0
- * with s1, s2 with s3 locally) carried through the whole body, worth 186
- * aligned rows, and eight `move <saved>,zero` index initialisations that the
- * target emits at the TOP of a case and this source emits next to the loop.
- * Two of the eight are closed with pointer cursors below.
+ * The residual is p1 colour, not shape.  Every one of this procedure's 428
+ * allocator decisions is phase one, so declaration order, definition position
+ * and statement order are the wrong axis (165 earlier forms were flat on the
+ * colour for that reason).  The only axis is L100's ratio,
+ * `save = totalsave / nocs`, and there are two source dials on it:
  *
- * The other six are NOT blocked by the frame.  A scalar carrying a pointer
- * through casts is byte-identical to a `void **` local, so any of the 28
- * declared scalars can carry a cursor in a case where it is dead, at zero
- * census cost -- case 1 alone has seventeen.  Measured with free carriers,
- * every one of the four multi-array sites regresses anyway: the cursor form
- * only pays where the loop subscripts exactly one array AND has no other
- * surviving induction variable.  See the handoff.
+ *   1. Discarded-expression probes at loop depth 2 (three of them in case 9's
+ *      grid inner loop, below).  100 of totalsave each, no instructions.
+ *   2. WHICH DECLARED SCALAR PLAYS A LOOP'S INDEX.  A loop whose index is a
+ *      carrier of its own takes its occurrences out of `i`'s web, and the
+ *      target's own shape says it did this: it emits no `move <saved>,zero`
+ *      in either the case-2 decrement loop's preheader or case 8's, which is
+ *      what a loop whose index dies at strength reduction looks like.  Case 2
+ *      is carried by `savedPosition` and case 8 by `opponent`; both are dead
+ *      in their case, so the rename carries no meaning.  Worth 894 -> 755 and
+ *      755 -> 733 respectively, and 197 saved-register slots between them.
+ *
+ * Still open, largest first: 119 words in case 9's grid-loop exit test (the
+ * target tests `slti $at,<saved>,10` and the natural `opponent < 0xA` puts 10
+ * in a saved register instead -- a second p1 contest, this one between the
+ * constant's web and a global address web, and NOT reachable by respelling
+ * either loop's bound: seven erase-loop spellings crossed with three grid
+ * spellings are all exactly inert); 72 words in case 8; 40 in case 12; 34 in
+ * case 1; 34 in case 2's draw loop; 29 in case 3; 22 at the case 1/2 boundary.
  *
  * Falsified: spelling a frame address as a cached pointer local (`char
  * *textPtr = &text[0];`, and the same for `nodes` and `character`) does not
@@ -35,7 +45,7 @@
  * unchanged size and frame, and caching `&character[0]` for the +0x3704 site
  * is byte-identical to not doing it.
  *
- * The three `if (i != 0);` statements below are discarded-expression probes
+ * The `if (i != 0);` statements below are discarded-expression probes
  * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
  * found by a two-pass climb over 11,304 variants and are a local optimum;
  * a further 144-variant sweep (one probe at the top of each case body, for
@@ -397,13 +407,22 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 D_o058_5EB4 = 0xF;
                 amSndPlay(0x1BU, NULL);
                 if ((s32) D_8007BEF8 > 0) {
-                    i = 0;
+                    /* This loop's index is a carrier of its own, not `i`.
+                     * The target emits no `move <saved>,zero` in this
+                     * preheader at all, which is what a loop whose index dies
+                     * at strength reduction looks like; `i` does not die there
+                     * because the draw loop below reads it.  Any scalar dead
+                     * in case 2 can carry it (L?: a declared scalar's identity
+                     * is free), but only `savedPosition` keeps the size delta
+                     * at 0 -- every other carrier measured reads -4.  Worth
+                     * 894 -> 755 masked words on its own. */
+                    savedPosition = 0;
                     do {
-                        if (D_o058_5E50[i] > 0) {
-                            D_o058_5E50[i] -= 1;
+                        if (D_o058_5E50[savedPosition] > 0) {
+                            D_o058_5E50[savedPosition] -= 1;
                         }
-                        i++;
-                    } while (i < D_8007BEF8);
+                        savedPosition++;
+                    } while (savedPosition < D_8007BEF8);
                     i = 0;
                 }
             }
@@ -1035,20 +1054,25 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        /* Adjacent index def; see the note in case 7/11. */
-        i = 0;
+        /* Adjacent index def; see the note in case 7/11.  Carried by
+         * `opponent`, not `i`, for the same reason as case 2's decrement
+         * loop: it takes this loop's occurrences out of `i`'s web.  Of the
+         * eighteen carriers measured here `opponent` is the best by a clear
+         * margin (733 masked against 761 for the next), and `i` is dead after
+         * this loop in case 8, so the rename is free of meaning. */
+        opponent = 0;
         do {
             x = -x;
-            textY = D_o058_5EAC + i * 0x1B + 0x5B;
-            if (i == D_o058_5E8C) {
+            textY = D_o058_5EAC + opponent * 0x1B + 0x5B;
+            if (opponent == D_o058_5E8C) {
                 fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            sprintf(&text[0], D_8007C0B8->text[0x30], i + 1);
+            sprintf(&text[0], D_8007C0B8->text[0x30], opponent + 1);
             func_8004B0F8(&D_800D3140, x + 0x82, textY, &text[0], 1);
-            overlay56SplitTime(state->entries[0].lapTimes[i], &minutes, &seconds, &centiseconds);
-            if (i != D_o058_5E8C) {
+            overlay56SplitTime(state->entries[0].lapTimes[opponent], &minutes, &seconds, &centiseconds);
+            if (opponent != D_o058_5E8C) {
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
             }
             sprintf(&text[0], D_o058_5D74, minutes);
@@ -1059,8 +1083,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             func_8004B0F8(&D_800D3140, x + 0xD5, textY, D_o058_5D84, 0);
             sprintf(&text[0], D_o058_5D88, centiseconds);
             func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
-            i += 1;
-        } while (i != 3);
+            opponent += 1;
+        } while (opponent != 3);
         x = -x;
         textY = textY + 0x2C;
         if (D_o058_5E90 != -1) {
@@ -1228,6 +1252,20 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             x = -x;
             columnX = 0x34 + x;
             do {
+                /* Three discarded-expression probes on the index, at loop
+                 * depth 2 -- zero instructions, and the only lever measured
+                 * that moves this procedure's saved-register colouring.  Every
+                 * one of its 428 allocator decisions is phase one, so the only
+                 * axis is L100's ratio `save = totalsave / nocs`: a depth-2
+                 * probe adds 100 to the index web's totalsave and nothing to
+                 * its nocs, which lifts it past the text buffer's address temp
+                 * and transposes the pair.  Two probes suffice for the tree as
+                 * it stood; case 8's carrier above needs three, which is why
+                 * three are written.  Six restructure the web and cost words.
+                 * A probe at the top of a case (depth 0) is NOT free here. */
+                if (i);
+                if (i);
+                if (i);
                 sprintf(&text[0], D_o058_5DAC, (u8) D_o058_5C5C[i][opponent]);
                 if ((opponent == D_o058_5E7C) && (i == D_o058_5E78)) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
@@ -1380,10 +1418,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 894/3614 words, size delta 0
+ * score: 733/3614 words, size delta 0
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: 3614 instructions per side and a one-entry opcode-histogram difference at +0x3704; the whole residual is p1 colour, the frame is not the constraint on the remaining cursor sites (a cast through any dead s32 scalar is byte-identical to a pointer local) and the s7 with s8 rotation is movable but is a single global decision the base already optimises
+ * summary: 3614 instructions per side; the whole residual is p1 colour, and the axis is L100's save ratio because every one of the procedure's 428 allocator decisions is phase one. The s7-with-s8 transposition three grinds named is now closed (0 transposed saved-register slots against 187) by two dials on that ratio: depth-2 discarded-expression probes on the index, and giving two inner loops index carriers of their own so their occurrences leave the index's web
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

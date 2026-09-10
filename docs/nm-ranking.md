@@ -470,7 +470,7 @@ units remain distinct.
 | 173 | `src/main/charControl.c` | `func_8001DD70` | `main` | `other` | 2,132 | 433 | 433 | 8 | 8 | 0 | — |
 | 174 | `src/overlays/o101/func_overlay_101_F00069E8_18E2208.c` | `func_overlay_101_F00069E8_18E2208` | `o101` | `other` | 3,852 | 616 | 613 | 136 | 136 | 0 | — |
 | 175 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0001294_185EFEC` | `o008` | `other` | 5,036 | 654 | 636 | 0 | 0 | 0 | — |
-| 176 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `other` | 14,456 | 1,044 | 894 | 80 | 80 | 0 | — |
+| 176 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `other` | 14,456 | 883 | 733 | 80 | 80 | 0 | — |
 | 177 | `src/overlays/o052/overlay52TailB.c` | `func_overlay_052_F000063C_189ACAC` | `o052` | `other` | 6,748 | 1,338 | 1,337 | 304 | 304 | 0 | — |
 | 178 | `src/libultra/block_6F3E0.c` | `func_8006E7E0` | `libultra` | `size-mismatch` | 4 | 2 | 2 | 0 | 0 | 4 | — |
 | 179 | `src/main/flash_58C10.c` | `func_8005807C` | `main` | `size-mismatch` | 116 | 2 | 2 | 108 | 108 | -8 | — |
