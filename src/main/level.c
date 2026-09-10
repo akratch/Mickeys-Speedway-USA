@@ -450,7 +450,34 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
          * instead of keeping the local, so the loop body comes out
          * byte-identical and the only effect is the frame cell the twelfth
          * declaration costs (24 words, delta 0, both carriers, and 29 with
-         * both). */
+         * both).
+         *
+         * 2026-09-10, lane w8-bigclose: the colour term is confirmed from the
+         * allocator's own records, and one axis it was never measured against
+         * is now retired outright.  An instrumented uopt (CDX log; its object
+         * is byte-identical to the tree's, which is the identity gate) records
+         * 1655 p1 records for this procedure and ZERO p2 -- level.c does emit
+         * 70 p2 records, but all of them belong to the file's small procedures,
+         * none to this one.  So [L106]'s ascending-web-number colouring never
+         * runs here and moving a defining statement cannot move a colour in
+         * this function; only [L100]'s save = totalsave/nocs orders anything.
+         * That is [L108]'s question and it costs one compile: ask it before
+         * spending a pass on definition position, declaration order or
+         * statement order, all three of which are the same dead axis here.
+         *
+         * The trace also confirms every number above and adds the reason the
+         * two terms move together.  Web 104 is save 26.666666 (nocs 3,
+         * totalsave 80) at cost 0 and is decided TWELFTH of this procedure's
+         * decisions; of the eleven decided before it, only three interfere with
+         * it, and their colours are exactly the two the closure names, which is
+         * why its forbidden set is that pair and it takes the first free
+         * colour.  The web that carries the resource table's address is decided
+         * far LATER, at save 2.0, which is why it currently takes the colour
+         * the target gives web 104: fix web 104 and the address web finds that
+         * colour taken and falls one further, which is the target's pair
+         * exactly.  The 16 words really are one decision, and the two
+         * interfering caller-saved webs it needs must be decided in the first
+         * eleven -- a constraint on their save, not on their position. */
         for (off = 0; off < D_800CF508; off++) {
             s16 resourceId;
 
