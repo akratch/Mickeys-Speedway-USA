@@ -51,6 +51,29 @@ LAW_CONSTRUCTS = {
         r"do\s*\{|do/while|top-tested|bottom-tested|loop shape|\blatch\b", re.I),
     "L94 co-region reads": re.compile(
         r"\bextern\b|\bimport\b|global address|two reads|%hi|materiali", re.I),
+    # 2026-09-10 laws. L106 is the widest of these on purpose: a closure that
+    # measured declaration ORDER was measuring the declaration list, which
+    # decides stack homes, and never the position of a defining STATEMENT,
+    # which decides web numbers. One such closure recorded 4,190 flat forms and
+    # the function matched on a single hoisted definition.
+    "L100 save ratio": re.compile(
+        r"totalsave|globalcolor|caller-saved|\bnocs\b|save ratio", re.I),
+    "L101 call-result span": re.compile(
+        r"return register|call result|p1cost|candidate list|"
+        r"declined (?:silently|rather)|forbidden", re.I),
+    "L102 rematerialised value": re.compile(
+        r"remateriali|forward-?substitut|manufactur|name it to", re.I),
+    "L103 float pool spelling": re.compile(
+        r"\.rodata|float (?:constant|pool|literal)|constant pool", re.I),
+    "L104 surviving copy": re.compile(
+        r"dead copy|copy[- ]propagat|folded away|redundant copy", re.I),
+    "L105 call block": re.compile(
+        r"basic block|join block|early[- ]exit|block membership", re.I),
+    "L106 definition order": re.compile(
+        r"declaration order|declared? (?:above|below|before|after)|web number|"
+        r"colour order|color order|first[- ]definition", re.I),
+    "L107 region reassociation": re.compile(
+        r"reassociat|region boundary|\bif \(1\)|do\s*\{\s*\}\s*while", re.I),
 }
 
 
