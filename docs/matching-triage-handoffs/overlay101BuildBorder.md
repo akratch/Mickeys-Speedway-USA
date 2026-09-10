@@ -2,11 +2,11 @@
 ### `overlay101BuildBorder` plateau handoff
 
 - source: `src/overlays/o101/overlay101BuildBorder.c`
-- score: 41/79 words
+- score: 38 differing words
 - frame: 0x88
 - relocations: 3
 - first mismatch: +0x44
-- summary: Four geometry aliases regress to frame 0x90 and 61 differences; retain the 0x88-frame baseline.
+- summary: Exact 79 words and 0x88 frame; 38 masked and 38 raw differences, only nine of them register-blind. Every store already matches; the residue is register colouring plus two ready-order slips.
 
 - boundary and ABI: overlay 101 text `+0x2DC0..+0x2EFC`, exactly 316 bytes / 79 words, owned by `src/overlays/o101/overlay101BuildBorder.c`; the next owner begins at `+0x2EFC`. The configured signature takes a display-list cursor plus seven signed scalar arguments.
 - retained geometry: target and retained candidate are both 79 words with exact `0x88` frames. The retained C has 41/79 positional words and 38 raw and relocation-masked differences; its first ordinary instruction mismatch is `+0x44`.

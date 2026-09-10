@@ -33,6 +33,45 @@ class QueueGuardTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
 
 
+class IsolationTests(unittest.TestCase):
+    """This tool is meant to run in a loop while a build is going.
+
+    nm_ranking's work directory is a fixed path under build/, which is right
+    for a whole-queue pass that owns the tree and wrong for a per-symbol call.
+    Two callers, or a caller and a concurrent gmake, would write the same
+    object paths. A lane hit that and wrote its own scorer instead, which is
+    the outcome this tool exists to prevent.
+    """
+
+    def test_the_work_directory_is_swapped_for_a_private_one(self):
+        outer = score_symbol.nr.WORK_DIR
+        with score_symbol._isolated_workdir():
+            inner = score_symbol.nr.WORK_DIR
+            self.assertNotEqual(inner, outer)
+            self.assertTrue(inner.is_dir())
+            self.assertNotIn("nm_ranking", str(inner))
+        self.assertEqual(score_symbol.nr.WORK_DIR, outer, "must be restored")
+
+    def test_two_runs_do_not_share_a_directory(self):
+        seen = []
+        for _ in range(2):
+            with score_symbol._isolated_workdir():
+                seen.append(score_symbol.nr.WORK_DIR)
+        self.assertNotEqual(seen[0], seen[1])
+
+    def test_the_scratch_is_removed_afterwards(self):
+        with score_symbol._isolated_workdir():
+            scratch = score_symbol.nr.WORK_DIR
+        self.assertFalse(scratch.exists(), "scratch must not accumulate")
+
+    def test_the_work_directory_is_restored_even_on_failure(self):
+        outer = score_symbol.nr.WORK_DIR
+        with self.assertRaises(RuntimeError):
+            with score_symbol._isolated_workdir():
+                raise RuntimeError("boom")
+        self.assertEqual(score_symbol.nr.WORK_DIR, outer)
+
+
 class AgreementTests(unittest.TestCase):
     def test_the_scorer_reports_the_masked_count_the_ranking_stores(self):
         """Agreement with docs/nm-ranking.md must hold by construction."""
