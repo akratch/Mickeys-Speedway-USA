@@ -4,7 +4,7 @@
   "source": {
     "mickey_atlas": "config/overlays.us.json",
     "mickey_rom_available": true,
-    "jfg_root": "/Users/adamkratch/Desktop/dev/decomp-refs/jfg",
+    "jfg_root": "~/Desktop/dev/decomp-refs/jfg",
     "jfg_root_available": true,
     "jfg_rom_available": true
   },

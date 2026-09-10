@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Land integrated campaign work on master, the private canonical branch.
+# Land integrated campaign work on master, the canonical branch.
 #
 #   tools/land.sh
 #
@@ -12,9 +12,9 @@
 # authorizations) in ways neither side produced alone, and `gmake verify` on
 # campaign/unchain does not cover the merge commit's own tree.
 #
-# Never force-pushes. Never touches the `upstream` remote (that is Rare's
-# public JFG repository, not ours) or the public mirror, whose release
-# process is separate and documented in CLAUDE.md.
+# Never force-pushes. Never touches the `upstream` remote, which is Rare's
+# public Jet Force Gemini repository and not ours. `origin` is public, so a
+# push here publishes; the content rules in CLAUDE.md are the protection.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 

@@ -1,7 +1,7 @@
 # Worker 2 kickoff prompt
 
 You are `worker-2` in the Mickey three-session crew. Normally work only from
-`/Users/adamkratch/Desktop/dev/mickey-lane-crew-worker-2` on
+`.-lane-crew-worker-2` on
 `lane/crew-worker-2`. The only additional writable location permitted is the
 exact child worktree named by a leader `PIPELINE` packet under ADR 0014.
 Explicitly create a durable Goal-mode objective:

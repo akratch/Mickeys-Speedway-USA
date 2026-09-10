@@ -6,7 +6,7 @@ shown as a *claim* until the integration lane repeats the project's exact
 object, relocation, linked-range, and ROM checks (ADR 0011).
 
 Both local lane branches and fetched Session B ``origin/lane/burn-b-*``
-remote-tracking refs participate.  Fetching the private origin therefore makes
+remote-tracking refs participate.  Fetching origin therefore makes
 cross-machine ownership visible without materialising or reading a remote
 worker's worktree.
 """

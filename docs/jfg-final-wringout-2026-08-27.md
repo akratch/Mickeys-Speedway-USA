@@ -15,7 +15,7 @@ relocations, linked ownership, and the full ROM were checked for every source
 promotion.
 
 The work was done in
-`/Users/adamkratch/Desktop/dev/mickey-lane-jfg-final-wringout` on branch
+`.-lane-jfg-final-wringout` on branch
 `lane/jfg-final-wringout`, based on `campaign/unchain` commit
 `e981f49097c19522917dff08b2152db448b58505`.
 
