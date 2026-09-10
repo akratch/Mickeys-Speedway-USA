@@ -6,5 +6,5 @@
 - frame: 0x28
 - relocations: 38
 - first mismatch: none
-- summary: Exact: uopt peels two iterations of the six-trip constant loop and leaves the unrolled body's induction variable register-resident; the one-line loop statement fixes as1 tie-breaking and a leading pad array restores the 0x28 frame.
+- summary: Exact candidate; promotion is blocked on overlay-57 BSS ownership, since the shared lui at over the two setup stores exists only while this TU defines the block and a defined .bss cannot carry the module-relative absolutes.
 <!-- plateau-handoff:overlay57UpdateModeTrigger:end -->

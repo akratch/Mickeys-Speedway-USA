@@ -58,7 +58,17 @@ extern void overlay57AdvanceReloc(s32 updateRate);
  *
  * framePad is declared before `trigger` because the declaration order fixes
  * which frame cells the two spill homes take; declared after, the frame
- * closes at 0x20 instead of the target's 0x28. */
+ * closes at 0x20 instead of the target's 0x28.
+ *
+ * NOT PROMOTABLE AS WRITTEN. The BSS block below has to be *defined* here:
+ * IDO shares one `lui $at` between the two constant-index setup stores only
+ * for a locally-defined symbol, and emits a second `lui` for the same array
+ * declared `extern`. That single instruction is the entire difference (and
+ * 74 masked words once the rest shifts). A defined `.bss` links inside
+ * .overlay_057_bss at 0xF00xxxxx, where %hi is not zero, so the linked
+ * words would be wrong; the module-relative absolutes in
+ * overlay_undefined_syms.us.txt are only generated for *undefined* names.
+ * See docs/nm-blockers.md. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 framePad[2];
@@ -123,6 +133,6 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
  * frame: 0x28
  * relocations: 38
  * first-mismatch: none
- * summary: Exact: uopt peels two iterations of the six-trip constant loop and leaves the unrolled body's induction variable register-resident; the one-line loop statement fixes as1 tie-breaking and a leading pad array restores the 0x28 frame.
+ * summary: Exact candidate; promotion is blocked on overlay-57 BSS ownership, since the shared lui at over the two setup stores exists only while this TU defines the block and a defined .bss cannot carry the module-relative absolutes.
  * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
  */
