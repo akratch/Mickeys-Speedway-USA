@@ -425,9 +425,32 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
          * the target's loop body allocates three temps more than the plain
          * spelling does.  Removing any of them costs 87 words of pure ring
          * phase in the whole tail of the function.  The `*(s16 *)((i << 1) +
-         * (u32)base)` access, by contrast, IS evidence: levelFreeAll, matched,
-         * reads this same table that way, and it is what fixes the operand
-         * order of the address add. */
+         * (u32)base)` access, by contrast, IS evidence: levelFreeAll, in this
+         * same file and one word-pair from exact, reads this same table that
+         * way, and it is what fixes the operand order of the address add.
+         *
+         * 2026-09-10, lane c6-named: the 16-word colour term is now closed
+         * against reordering as well as against reservation, from the traced
+         * interference list rather than from a sweep.  Web 104's twelve
+         * interferers are 288, 289, 290, 291, 295, 296, 297, 298, 307, 115,
+         * 106 and 99; exactly ONE of them (298) holds a caller-saved colour,
+         * and its save is 2.5 against web 104's 26.7, so raising it above the
+         * target needs eleven more loop references.  The rest are callee-saved
+         * because they are live across the loop and this loop calls, so no
+         * reordering of existing webs can supply the two caller-saved
+         * interferers on c1 and c2 that the target's a2 requires -- the two
+         * webs would have to live inside the loop body and not cross a call,
+         * and only a new web can do that.  The mirror lever found on overlay
+         * 86 the same day does not apply either: a web whose span reaches a
+         * call result has v0 struck from its `p1cost` candidate list, but web
+         * 104's list begins at colour 1, so v0 is offered and taken and the
+         * span is already short.  Naming the masked index or the store address
+         * as a loop-body local to manufacture the missing webs fails for a
+         * third reason: uopt re-materialises a cheap masked value at each use
+         * instead of keeping the local, so the loop body comes out
+         * byte-identical and the only effect is the frame cell the twelfth
+         * declaration costs (24 words, delta 0, both carriers, and 29 with
+         * both). */
         for (off = 0; off < D_800CF508; off++) {
             s16 resourceId;
 
@@ -665,7 +688,29 @@ u8 *levelGetName(s32 arg0) {
  * before the base load, and the only thing separating them is cfe's operand
  * order for a subscript. cfe canonicalises `int + ptr` to `ptr + int` before
  * numbering, which is why integer-left pointer arithmetic and the reversed
- * subscript `(idx)[table]` land base-first too. */
+ * subscript `(idx)[table]` land base-first too.
+ *
+ * 2026-09-10, lane c6-named. The space is closed by construction rather than by
+ * exhaustion, and the reason is a uopt property, not a cfe one. Read off `cc -S`
+ * for every form rather than off the object, there are exactly two ucode orders
+ * and no third: shift-first emits mask, scale, table (3 words) and base-first
+ * emits table, mask, scale (5). The target needs mask, table, scale, which is
+ * neither, and it is only producible if the mask is computed as its own
+ * surviving statement in front of a base-first address. Every way of writing
+ * that fails identically, because **uopt forward-substitutes a
+ * single-assignment local straight back into the address expression**: across
+ * the basic-block boundary when the definition is hoisted to the loop header,
+ * through an `if (1) { }` or `do { } while (0)` region placed between the
+ * definition and the use, out of the `else if` condition when the assignment is
+ * put in a comma there, and out of a comma inside the add's own left operand
+ * (that one also lifts the base load into a pool register, 8). Twelve such
+ * forms, plus `u32` and `s16` index types, a `* 2` doubling, an explicit base
+ * local, `&p[i]`, `(u32) &p[i]` and `(u32) (p + i)`, all land on 3 or 5.
+ * Forcing the index to survive as a real web is the only remaining idea and it
+ * is priced: two uses (`m + m`) do buy the target's order but move the mask to
+ * a pool colour and turn the shift into an add, which is an opcode difference,
+ * and a `volatile` index is 43 at delta 8. levelInit's six-word twin was
+ * re-measured the same hour and behaves identically. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
@@ -764,7 +809,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Ring-index swap only; target carries the subscript signature with the index temp created before the base load, and cfe canonicalises every source form that would order it that way.
+ * summary: Ring-index swap only. Exactly two ucode orders are reachable and the target's is neither: shift-first gives mask, scale, table (3) and base-first gives table, mask, scale (5), while the target needs mask, table, scale, which requires the mask as its own surviving statement in front of a base-first address. uopt forward-substitutes a single-assignment local back into the address expression in every arrangement tried -- hoisted to the loop header, separated by an L97 region, assigned in the else-if condition's comma, or assigned in a comma inside the add's own left operand -- so twelve hoisting forms plus nine spelling variants all land on 3 or 5. Two uses (m + m) do produce the target's order but put the mask on a pool colour and turn the shift into an add, and a volatile index is 43 at delta 8.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
@@ -774,6 +819,6 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x80
  * relocations: 110
  * first-mismatch: +0x250
- * summary: 113 words to 22, and both remaining terms are now proved to need something no spelling supplies. 16 words are one caller-saved colour: web 104, the s16 resourceId, takes c1 (v0) and the target wants c5 (a2); forcing p1:w104=c5 on this source scores 6 at delta 0, its forbidden set is only c3 and c4 from the loop's own argument setup, and all twelve interferers are decided after it, so the documented lever is two more interfering caller-saved webs on c1 and c2. That lever is unavailable in this procedure, and the reason is measured rather than guessed: levelInit sits on a register-pressure cliff. One tested dead expression is byte-identical, but ANY second one costs exactly +120 bytes and 30 words -- for every expression, at every position, including a control placed at the top of the function on a parameter, 54 cells in all -- because the marginal web (save 1.18, 45 interferers, holding the last callee-saved colour s6) drops from color to split and spills. No new web can be added here for less than 30 words, so the whole reservation family is retired. The other 6 words are the table-index group, and they are now identified as the same residual as levelFreeAll's 3: both are the ugen emission order mask, table, scale against the candidate's mask, scale, table, on the same D_800C94E0 read in this file. A free-list replay of this arm shows exactly five ring pops, and the target's order is mask, table, scale, sum, phantom. Eleven access spellings were read off the object: shift-first gives mask, scale, table and base-first and both subscript forms give table, mask, scale, each at 22 extra tail words, and nothing reaches mask, table, scale. Solving levelFreeAll solves this group too. See the shard for the eliminated families.
+ * summary: 113 words to 22; both terms are now closed against every lever this project has, with the interference structure measured rather than inferred. 16 words are web 104's colour (the s16 resourceId takes c1/v0, the target wants c5/a2, and forcing p1:w104=c5 scores 6 at delta 0). Its forbidden set is only c3 and c4 from the loop's own argument setup, so it needs two interfering caller-saved webs on c1 and c2. Adding them is barred by the measured register-pressure cliff -- any second dead expression is +120 bytes and 30 words across 54 cells -- and reordering existing ones is barred by the traced interference list: of web 104's twelve interferers exactly one holds a caller-saved colour, at save 2.5 against 26.7, and the other eleven are callee-saved because they live across a loop that calls. The span lever that closed overlay 86 does not apply either: web 104's p1cost list begins at colour 1, so v0 is offered and its span is already short. Naming the masked index or the store address to manufacture the missing webs fails a third way -- uopt re-materialises a cheap masked value at each use, leaving the loop body byte-identical and only paying the twelfth declaration's frame cell (24 words, 24, and 29 for both). The other 6 words are levelFreeAll's 3: exactly two ucode orders are reachable, shift-first mask/scale/table and base-first table/mask/scale, the target needs mask/table/scale, and uopt forward-substitutes any hoisted index local back into the address expression across block boundaries, L97 regions and condition commas alike.
  * PLATEAU-HANDOFF:levelInit:end
  */
