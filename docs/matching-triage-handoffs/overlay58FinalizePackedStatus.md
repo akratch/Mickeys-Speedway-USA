@@ -2,11 +2,11 @@
 ### `overlay58FinalizePackedStatus` plateau handoff
 
 - source: `src/overlays/o058/overlay58FinalizePackedStatus.c`
-- score: 127/304 words
+- score: 200/304 words
 - frame: 0x48
 - relocations: 48
 - first mismatch: +0x18
-- summary: Exact geometry remains blocked by mixed control-flow and register allocation after the full flag lattice.
+- summary: Three zero-instruction discarded-expression probes take the masked residual from 177 to 104 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`
