@@ -2980,6 +2980,9 @@ overlay101SetScissorReloc = 0xf0000000;
 /* overlay 101: overlay101BuildFrame.c.o */
 overlay101BuilderCreateReloc = 0xf0000000;
 
+/* overlay 101: overlay101BuildBorder.c.o */
+overlay101BuildIntensityColorsReloc = 0xf0000000;
+
 /* overlay 101: overlay101DrawPanel.c.o */
 D_1F4 = 0x000001f4;
 
