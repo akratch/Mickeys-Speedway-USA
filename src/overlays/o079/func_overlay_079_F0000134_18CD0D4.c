@@ -140,7 +140,8 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
  * Extent closed, 882 candidate instructions against 882, frame 0xB8 exact,
  * 88 static relocations matching the module's shipped records by count, type
  * histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and per-callee multiplicity.
- * 288 positional words still differ, raw and relocation-masked alike.
+ * 198 positional words still differ, raw and relocation-masked alike; the
+ * integer temp ring is closed and 167 of the 198 are fp rows.
  *
  * There is no low-based-overlay rendering artifact here, and the count is
  * zero rather than small.  The project's comparators mask the union of both
@@ -223,14 +224,46 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
  * here with an unused `s32`.  A 25-minute randomizing permuter run found no
  * improvement on the pre-edit base.
  *
- * Open lever, not adopted.  `*(s32 *)state->target->state = 1` reaches its
- * pointer through a temp where the target reaches it through a pool colour
- * (`lw v0,0x64(t9)` against `lw t0,0x64(t9)`).  Routing it through the
- * already-declared `spawned` reproduces the target's register class and moves
- * the pool lane's first divergence from slot 52 to slot 176, but the
- * recolouring it cascades costs 86 words, so it is a causal advance that is
- * not yet a numeric one; it is recorded here rather than adopted.  It is the
- * same shape as the two ring onsets: one coloured web short, three times.
+ * What closed 90 words this pass, and why none of it was reachable one edit
+ * at a time.  The integer ring's onset and the pool-colour lever above are
+ * one question, and the composition is the whole result:
+ *
+ *   1. The race-state bit test spelled `((flags << 0xD) & 0x80000000U) == 0`
+ *      in place of `!(flags & 0x40000)` burns exactly one ugen ring temp
+ *      between the `bne` at +0x54 and the `sll` at +0x58 and emits nothing:
+ *      both forms compile to the same two words, but the target's `sll t3`
+ *      against the candidate's `sll t2` becomes exact and the integer ring
+ *      stays aligned for the next 210 rows.  Alone it measures 328, because
+ *      the ring is then one step AHEAD from +0x3A4 onward -- the 7 rows the
+ *      decomposition above records as "one step back".
+ *   2. `spawned = (Overlay79Object *)state->target->state; *(s32 *)spawned = 1;`
+ *      is the lever the previous lane recorded and declined: it spends a
+ *      pool colour where the candidate spent a ring temp, which is exactly
+ *      the one step the ring needs giving back at +0x3A4.  Alone it measures
+ *      374.  Together with (1) the pair measures 229.
+ *   3. `dx = state->targetX; dx -= object->x;` at the mode-0 dot product, in
+ *      place of the single subtraction, is the recorded copy-back-into-the-
+ *      carrier lever; it closes 31 more, to 198.  It is site-specific: the
+ *      same rewrite measured at seven other dx/dz sites is flat at best, and
+ *      at the mode-0 retarget site it drops four instructions outright.
+ *
+ * Each of (1) and (2) is a regression alone and neither is reachable by a
+ * single-edit accept rule.  `spawned` is safe: its only other definition
+ * dominates its only other uses, in the mutually exclusive `else` arm.
+ *
+ * Remaining, and measured flat here: eleven further spellings of the
+ * race-state clauses (`>= 0xF`, `> 0xE`, `^ 0xF) == 0`, `- 0xF) == 0`,
+ * `!(... != 0xF)`, `0xFU`, the `>> 23 & 0xF` form, `(... < 0xF) == 0`,
+ * `(... != 0xF) == 0`, `> 2` for `>= 3`, and the `& 7` form) -- the ones that
+ * do advance the ring emit a real `sltiu` into it and cost 40+; six
+ * respellings of the first `dot` including the split, the copy-back and a
+ * second carrier; `do { } while (0)` and `if (1) { }` regions around the dot
+ * statement and around its two operand statements, all byte-identical to
+ * nothing; and `(f32)` on `update`.
+ *
+ * The residual is now the fp side of the same question: the fp scratch ring
+ * is one web short from +0x368, `update` reads f12 where the target reads
+ * f16, and the four fp families plus the +0xB80 tail are the 198.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
@@ -259,7 +292,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
     update = updateRate;
     if (((*(u16 *)&gOverlay79FlagsReloc[0xE] & 0x1C0) >> 6) >= 3 &&
         (((*(u32 *)&gOverlay79FlagsReloc[0] << 5) >> 28) == 0xF) &&
-        !(*(u32 *)&gOverlay79FlagsReloc[0] & 0x40000)) {
+        (((*(u32 *)&gOverlay79FlagsReloc[0] << 0xD) & 0x80000000U) == 0)) {
         raceActive = 1;
     } else {
         raceActive = 0;
@@ -333,7 +366,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             dy = state->target->y - object->y;
             dz = state->target->z - object->z;
             if (sqrtf((dx * dx) + (dy * dy) + (dz * dz)) < 30.0f) {
-                *(s32 *)state->target->state = 1;
+                spawned = (Overlay79Object *)state->target->state;
+                *(s32 *)spawned = 1;
             }
         }
         if (state->effectTimer != 0) {
@@ -359,7 +393,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             forward.y = 0.0f;
             forward.z = -1.0f;
             mathOneFloatRPY(object, &forward);
-            dx = state->targetX - object->x;
+            dx = state->targetX;
+            dx -= object->x;
             dz = state->targetZ - object->z;
             dot = (forward.z * dz) + (dx * forward.x);
             if ((dot < 0.0f) || (state->collisionFlags & 4)) {
@@ -540,10 +575,10 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
 
 /* PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:start
  * symbol: func_overlay_079_F0000134_18CD0D4
- * score: 288/882 words
+ * score: 198/882 words
  * frame: 0xB8
  * relocations: 88
- * first-mismatch: +0x58
- * summary: extent closed -- 882 vs 882 instructions, frame exact, 88 relocations exact, stack-home census exact but for one slot, no relocation-rendering artifact (raw and masked both 288); 170 of the 288 are two single-step scratch-ring rotations, the fp ring from +0x4B4 and the integer ring from +0x58, each one coloured web short; the remaining 96 tail words are one unfilled delay slot that costs 24 shape rows and cannot be bought back at 882 instructions
+ * first-mismatch: +0x7C
+ * summary: integer ring closed. Two composed edits, each a regression alone, take 288 to 229: spelling the race-state bit test as (flags << 0xD) & 0x80000000U == 0 burns the ugen ring temp the target burns between +0x54 and +0x58 (328 alone), and routing state->target->state through the already-declared spawned gives that pointer the target's pool colour instead of a ring temp (374 alone). Splitting dx = state->targetX - object->x into dx = state->targetX; dx -= object->x at the mode-0 dot product then closes 31 more. The remaining 198 are 167 fp rows: the fp scratch ring is still one web short from +0x368, and roughly 81 of them are the +0xB80 tail that cannot be bought back at 882 instructions
  * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
  */
