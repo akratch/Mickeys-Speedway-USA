@@ -1902,7 +1902,11 @@ overlay57StartQueryReloc = 0xf0000000;
 D_36C = 0x0000036c;
 
 /* overlay 57: overlay57UpdateModeTrigger.c.o */
-D_168 = 0x00000168;
+overlay57TailFindObjectReloc = 0xf0000000;
+overlay57TailPrepareObjectReloc = 0xf0000000;
+overlay57TailQueryChoiceReloc = 0xf0000000;
+overlay57TailQueryModeReloc = 0xf0000000;
+overlay57TailStartObjectReloc = 0xf0000000;
 
 /* overlay 57: overlay57InitializeMode.c.o */
 overlay57FindResultReloc = 0xf0000000;

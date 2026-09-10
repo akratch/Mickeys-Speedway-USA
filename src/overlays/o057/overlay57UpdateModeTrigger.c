@@ -9,32 +9,40 @@ typedef struct Overlay57ModeResult {
     u8 flags16;
 } Overlay57ModeResult;
 
-extern s32 gOverlay57Countdown;
-extern s32 gOverlay57Timer;
-extern s32 gOverlay57ModeFlag;
-extern s32 gOverlay57SetupValues[6];
-extern Overlay57ModeObject gOverlay57Object;
-extern u8 gOverlay57ObjectId;
-extern s32 gOverlay57SetupStatus;
-extern s32 gOverlay57SetupDelay;
-extern s32 gOverlay57TriggerLatched;
-extern s32 gOverlay57ObjectStatus;
 
+/* Global so the promotion proof has a named canonical .bss ownership witness;
+ * it sits at offset 0, is never referenced, and every other object in the
+ * block stays static so its accesses keep their section-relative addends. */
 u8 gOverlay57BssPad000[0x114];
-s32 gOverlay57Countdown;
-s32 gOverlay57Timer;
-u8 gOverlay57BssPad11C[0x20];
-s32 gOverlay57SetupStatus;
-s32 gOverlay57SetupDelay;
-s32 gOverlay57ModeFlag;
-u8 gOverlay57BssPad148[0x20];
-s32 gOverlay57SetupValues[6];
-Overlay57ModeObject gOverlay57Object;
-s32 gOverlay57BssPad184;
-s32 gOverlay57TriggerLatched;
-s32 gOverlay57BssPad18C[2];
-s32 gOverlay57ObjectStatus;
-u8 gOverlay57BssPad198[0x20];
+static s32 gOverlay57Countdown;
+static s32 gOverlay57Timer;
+static s32 gOverlay57BssPad11C;
+static s32 gOverlay57BssPad120;
+static s32 gOverlay57BssPad124;
+static s32 gOverlay57BssPad128;
+static s32 gOverlay57BssPad12C;
+static s32 gOverlay57BssPad130;
+static s32 gOverlay57BssPad134;
+static s32 gOverlay57BssPad138;
+static s32 gOverlay57SetupStatus;
+static s32 gOverlay57SetupDelay;
+static s32 gOverlay57ModeFlag;
+static s32 gOverlay57BssPad148;
+static s32 gOverlay57BssPad14C;
+static s32 gOverlay57BssPad150;
+static s32 gOverlay57BssPad154;
+static s32 gOverlay57BssPad158;
+static s32 gOverlay57BssPad15C;
+static s32 gOverlay57BssPad160;
+static s32 gOverlay57BssPad164;
+static s32 gOverlay57SetupValues[6];
+static Overlay57ModeObject gOverlay57Object;
+static s32 gOverlay57BssPad184;
+static s32 gOverlay57TriggerLatched;
+static s32 gOverlay57BssPad18C;
+static s32 gOverlay57BssPad190;
+static s32 gOverlay57ObjectStatus;
+static u8 gOverlay57BssPad198[0x20];
 
 /* Physical a0 retains updateRate at this site; consumption is not proven. */
 extern void *overlay57TailQueryModeReloc(void);
@@ -45,31 +53,31 @@ extern Overlay57ModeResult *overlay57TailFindObjectReloc(u8 id);
 extern void overlay57SetNodeValue(s32 id, s32 argument, f32 value);
 extern void overlay57AdvanceReloc(s32 updateRate);
 
-/* Exact under the canonical -O2 -mips2 flags: 0 masked words of 94.
+/* Overlay 57 text +0x4C18..+0x4D90. Exact: 94 words, frame 0x28, 38/38
+ * relocation identities.
  *
- * The setup-array block is one six-iteration constant loop. uopt unrolls it
- * by four, so it peels 6 % 4 = 2 iterations -- those fold to the literal
- * stores of 0 and 0x30 -- and emits a single unrolled body whose induction
- * variable stays register-resident at 2 rather than being propagated. A
- * straight-line reconstruction of the six stores cannot reach that shape.
- * The body is written on the `for` line because as1 breaks scheduling ties
- * on the source line, and a braced body puts the unrolled copies on a
- * different line than the peeled ones.
+ * The setup array is one six-iteration constant loop. uopt unrolls it by four,
+ * so it peels 6 % 4 = 2 iterations -- those fold to the literal stores of 0 and
+ * 0x30 -- and emits a single unrolled body whose induction variable stays
+ * register-resident at 2 rather than being propagated. A straight-line
+ * reconstruction of the six stores cannot reach that shape. The body is on the
+ * `for` line because as1 breaks scheduling ties on the source line, and a
+ * braced body puts the unrolled copies on a different line than the peeled
+ * ones.
  *
  * framePad is declared before `trigger` because the declaration order fixes
- * which frame cells the two spill homes take; declared after, the frame
- * closes at 0x20 instead of the target's 0x28.
+ * which frame cells the two spill homes take; declared after, the frame closes
+ * at 0x20 instead of 0x28.
  *
- * NOT PROMOTABLE AS WRITTEN. The BSS block below has to be *defined* here:
- * IDO shares one `lui $at` between the two constant-index setup stores only
- * for a locally-defined symbol, and emits a second `lui` for the same array
- * declared `extern`. That single instruction is the entire difference (and
- * 74 masked words once the rest shifts). A defined `.bss` links inside
- * .overlay_057_bss at 0xF00xxxxx, where %hi is not zero, so the linked
- * words would be wrong; the module-relative absolutes in
- * overlay_undefined_syms.us.txt are only generated for *undefined* names.
- * See docs/nm-blockers.md. */
-#ifdef NON_MATCHING
+ * The BSS block below is this TU's: IDO shares one `lui $at` across the two
+ * constant-index setup stores only for a locally-defined symbol, and that
+ * shared materialisation is in the shipped bytes. `static` makes every access
+ * a section-relative record whose addend is already the module-relative offset
+ * the shipped word carries, so the static link must not adjust it a second
+ * time -- overlay 57's own runtime relocation table owns those 31 records, and
+ * mk/overlays.mk drops them with filter_elf_relocations.py. IDO 4-aligns .bss
+ * scalars and 8-aligns arrays, which is why the interior pads are scalars:
+ * 0x13C, 0x144 and 0x194 are not 8-aligned. */
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 framePad[2];
     s32 trigger;
@@ -123,16 +131,3 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 
     overlay57AdvanceReloc(updateRate);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeTrigger/func_overlay_057_F0004C18_18A8810.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay57UpdateModeTrigger:start
- * symbol: overlay57UpdateModeTrigger
- * score: 0/94 words
- * frame: 0x28
- * relocations: 38
- * first-mismatch: none
- * summary: Exact candidate; promotion is blocked on overlay-57 BSS ownership, since the shared lui at over the two setup stores exists only while this TU defines the block and a defined .bss cannot carry the module-relative absolutes.
- * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
- */
