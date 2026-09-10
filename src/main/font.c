@@ -407,15 +407,70 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 /* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
  * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
  * structure only; neither is genuine donor C. Mickey remains authoritative.
- * Clean configured C is exactly 46 words with all nine relocation identities,
- * but differs at ten words from +0x18 and has a 0x20 frame versus the target's
- * 0x30. The full 119-mode flag lattice and natural glyph-index, declaration,
- * width, association, and lifetime forms are non-improving. The rejected
- * stackPad/empty-condition form is not a source lever; recover an authentic
- * address-taken local or stack-home lifetime before reopening permutation. */
+ *
+ * 2026-09-10, lane o7-mid: ten words to six, and the category is now
+ * register-only. The frame and BOTH spill homes are exact; every remaining
+ * word is one colour. What moved it was a measured home-placement rule rather
+ * than another permutation:
+ *
+ *   IDO gives a four-byte frame home only to a local it leaves memory-class,
+ *   and it assigns those homes DESCENDING from the top of the local block in
+ *   DECLARATION order. Coloured locals own no slot at all.
+ *
+ * Measured on this function: with the six original locals only fontData and
+ * spacing are memory-class, so the block is two words (frame 0x20) and they
+ * take sp+0x1C and sp+0x18 -- the top two slots, in declaration order. Adding
+ * n further memory-class locals makes the block n+2 words, rounded to 8, and
+ * every home moves with its declaration position. The target's block is six
+ * words (frame 0x30, slots sp+0x2C..sp+0x18) with spacing at sp+0x20 (fourth)
+ * and fontData at sp+0x18 (sixth), so the target's source has four further
+ * memory-class locals, three of them declared before spacing and one between
+ * spacing and fontData. Reproducing that arrangement puts both homes on the
+ * target's offsets and closes four words at once.
+ *
+ * This corrects the earlier reading that "the rejected stackPad form is not a
+ * source lever". Padding alone is indeed not one -- three pads anywhere reach
+ * the 0x30 frame and still miss both homes (8 words). The lever is the
+ * declaration POSITION of the two memory-class locals inside a six-slot
+ * block, which is a different edit and was not tried.
+ *
+ * The residual six words are one web: fontData takes a3 where the target
+ * takes v0. Both sides spill it to the same sp+0x18 home across the
+ * conversion call, so it is a colour and not a lifetime. Falsified at this
+ * base (all flat at six, category register-only): every (spacing, fontData)
+ * slot pair in five-, six- and seven-slot blocks other than (4th, 6th);
+ * fontData as a pointer add rather than &D_800D60E4[font]; spacing[current],
+ * current[spacing], *(spacing + current) and *(current + spacing); both
+ * orders and both constant-first spellings of the 0/0xF tests; s32 rather
+ * than u8 defaultWidth; pointer- and char-pointer-typed slot locals; a named
+ * 0xF and a named 0x80 initialised before the call in every slot position
+ * (uopt re-materialises both, L102). Moving either assignment past the
+ * if-block, inlining either global subscript, and reading characterWidth
+ * before or inside the loop all change the instruction geometry.
+ *
+ * Next lever: fontData -> v0. Its web spans the call in the target too, so
+ * L101's call-result exclusion is not what is holding v0 back here; the
+ * question is p1/p2's visit order between this web and the inner `current`
+ * web, which also holds v0. A CDX force sweep would settle whether v0 is on
+ * this web's candidate list at all before any further spelling is tried. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
-    FontSpacingData *fontData;
+    /* frameSlot0..3 are a measured reconstruction of the target's local
+     * block, not recovered source. The target's frame is 0x30 with six
+     * four-byte home slots; only two are addressed (fontData and spacing).
+     * IDO gives a home only to a local it leaves memory-class, and assigns
+     * those homes DESCENDING from the top of the block in declaration order,
+     * so slot 1 is sp+0x2C ... slot 6 is sp+0x18. width/current/
+     * defaultWidth/glyphWidth are all coloured here and own no slot, which
+     * is why four further memory-class locals are needed to reach six.
+     * Placing spacing fourth and fontData sixth puts them at the target's
+     * sp+0x20 and sp+0x18 exactly. Replace these four with the real locals
+     * if they are ever recovered; the object must not change. */
+    s32 frameSlot0;
+    s32 frameSlot1;
+    s32 frameSlot2;
     u8 *spacing;
+    s32 frameSlot3;
+    FontSpacingData *fontData;
     s32 width;
     u8 current;
     u8 defaultWidth;
@@ -1182,11 +1237,11 @@ u8 func_8004D5C0(s32 font) {
 
 /* PLATEAU-HANDOFF:func_8004BA8C:start
  * symbol: func_8004BA8C
- * score: 10 differing words
- * frame: 0x20
+ * score: 6 differing words
+ * frame: 0x30
  * relocations: 9
- * first-mismatch: +0x18
- * summary: Donor probes exhausted; diagnostic frame aid reached 8 words but wrong spill homes; next use allocator ownership trace.
+ * first-mismatch: +0x30
+ * summary: Frame and both spill homes now exact via the declaration-order home rule; residual is register-only, one web (fontData a3 vs v0).
  * PLATEAU-HANDOFF:func_8004BA8C:end
  */
 /*
@@ -1204,6 +1259,13 @@ u8 func_8004D5C0(s32 font) {
  * subscript, the (s32)base cast that works in textures_35024.c, moving the
  * characterWidth read before or into the loop, declaration order, s32 vs u8
  * character locals, and 0xF-on-the-left compares.
+ *
+ * 2026-09-10, lane o7-mid: that decomposition was right and its "six
+ * slot-owning webs" reading is now a measured rule with a source lever behind
+ * it -- see the block above the function. Six of the ten words are closed;
+ * the four the note calls consequences (both spill homes and the frame) are
+ * exact, and the two commutative operand orders remain, still tied to the
+ * fontData colour exactly as this note predicted.
  */
 
 /* PLATEAU-HANDOFF:func_8004C690:start

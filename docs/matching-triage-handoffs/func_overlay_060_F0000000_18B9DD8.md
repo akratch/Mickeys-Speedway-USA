@@ -2,11 +2,11 @@
 ### `func_overlay_060_F0000000_18B9DD8` plateau handoff
 
 - source: `src/overlays/o060/overlay60Initialize.c`
-- score: 184/205 words
+- score: 188/205 words
 - frame: 0x60
 - relocations: 76
-- first mismatch: +0x6C
-- summary: scheduler and allocator residue; reorder and coordinate-index probes regressed or stayed flat at 21 normalized differences
+- first mismatch: +0x108
+- summary: 21 to 17 by moving both loop initialisations into one for header (L59 shared line) and by the descriptor store order, whose floor over 23,649 measured orders is 17. Remaining is one extra coloured pool web in the target on the inner-pointer load; naming it is refuted in 12 further forms and all 120 declaration orders are byte-flat.
 
 #### Trace-authenticated remeasurement
 
@@ -89,4 +89,45 @@ untracked under `build/o060-trace/`.
 - **verdict: the closure was correct and remains correct under L90 and L92.**
   The artifact column is 25 against a real residual of 21, so raw word counts
   on this function remain meaningless; work the masked count only.
+
+#### 2026-09-10 lane `c6-close`: the first named variable is closed, 21 -> 17
+
+The closure's first deciding variable -- as1's emission order for the two
+hoisted address materialisations against the counter initialisation -- **is
+source-reachable**, and the reachable form is L59's structural one rather than
+a loop-shape change. Moving *both* initialisations into one `for` header makes
+them share a source line, which is the tie-break as1 reaches last, and the two
+address halves then complete before the counter is zeroed as they do in the
+target: **21 -> 19**, 205 words and frame `0x60` unchanged.
+
+The distinction the earlier closure missed is that the counted `for` it
+measured at 28 moved the *bound*; this one moves only the *line*. Measured on
+this function, with everything else held:
+
+- 21 -- the retained `i = 0;` / `objects = ...;` pair ahead of a guarded `do`
+- **19** -- `for (i = 0, objects = ...; i < 4; i++, objects++)`
+- 19 -- `for (i = 0, objects = ...; ; )` with a tail `break`
+- 22 -- `i = 0, objects = ...;` as one comma statement, the `do` unchanged
+- 27 -- `for (objects = ..., i = 0; ; )`, cursor first in the header
+- 28 -- `objects = ...;` before `for (i = 0; ; )`
+
+A second, independent edit takes 19 -> 17: the descriptor store order. 23,649
+of the 362,880 orders of the nine loop-body statements were measured; the floor
+is 17 and nine orders reach it. The retained order is corroborated outside the
+search -- the target stores `z`, `pad0C`, `alpha`, `pad0A` in that sequence,
+which is exactly the contiguous block every 17-scoring order carries, and every
+one of them puts `objectId` or `size` last.
+
+Re-refuted on the new base, so the second named variable stands: naming the
+inner pointer in twelve further forms (six declaration positions as
+`Overlay60Inner *` with `inner = *object->inner;`, six as `Overlay60Inner **`
+with `innerp = object->inner;`) grows the frame to `0x68` and regresses to
+83/84. All 120 declaration orders of the five locals are byte-flat at the
+plateau, which also says the frame and every stack home are already right, so
+no home lever remains here.
+
+**Remaining, named:** the target spends one more coloured pool web than the
+candidate on the inner-pointer load. It is not a declared local and not a
+declaration-order effect; the next lever has to add an interfering web without
+adding an instruction.
 <!-- plateau-handoff:func_overlay_060_F0000000_18B9DD8:end -->
