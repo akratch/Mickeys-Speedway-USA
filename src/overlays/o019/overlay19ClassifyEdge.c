@@ -7,42 +7,16 @@
  * func_overlay_30_000012F0_1F4A3C0 at 0.443 and DKR public
  * src/object_models.c:func_80060C58, a five-argument edge classifier, at 0.227;
  * neither is an exact donor and no external C is adapted here.
- * Bounded full-TU reproof (2026-08-29): configured V0 is exact-sized at
- * 120 words / 0x1E0, frameless, and has no relocations or owned padding. It
- * matches 110/120 positional words, first +0x138. Six sites are one visible
- * carrier web at +0x138/+0x140/+0x148/+0x154/+0x15C/+0x164; two final y/z
- * load pairs account for +0x194/+0x198 and +0x1B0/+0x1B4. Candidate `.text`
- * SHA-256 is cbc6e4fc4f6b5b810bc239c6cef0ea183c1084cf4c2eafa35269ee3d04acbca5.
  * The sole inbound is overlay19FindAdjacent+0xD8; this function is unexported.
  *
- * 2026-09-10, lane nm-ovlsmall: 110/120 -> 114/120. An as1 schedule trace
- * (`cc -Wa,-R`, byte-inert on .text at this TU's flags) reads the four
- * schedule words out completely. The final y/z pairs sit in a four-node block
- * whose two `lh` nodes tie at aftercycles 5, so as1 breaks the tie on the
- * lower ugen emission index and emits whichever operand cfe emitted first --
- * which for `queryEnd->y < candidateStart->y` is the left one. Staging
- * `candidateStart->y` into `queryStartX` ahead of the pair emits that load
- * first while the test still reads the field (the value is a common
- * subexpression, so no instruction is added), and the pair lands in the
- * target's order. This is the same staged shape the reversed-coordinate block
- * already uses.
+ * Matched 2026-09-10 by two edits, neither of which works alone:
  *
- * The residual is now the six-word carrier alone, at +0x138/+0x140/+0x148 and
- * +0x154/+0x15C/+0x164: the target holds `candidateEnd->y` and `->z` in t3,
- * the candidate in v1. v1 is demonstrably free across that region in the
- * target, so uopt would have taken it had the value been a pool web at all;
- * the target's carrier is a ugen block temp, not a coloured web, which is
- * also what the register-lane census says (the target has two more `shared`
- * entries and four fewer pool assignments). Newly falsified, each measured:
- * dropping the staged name entirely, and folding the pair into one `||`
- * expression, both make the value a temp candidate but reverse the two `lh`
- * loads (8 words); `(s32)` casts on either operand produce that same object,
- * so the cast that reorders a commutative arithmetic operand pair does not
- * reach comparison evaluation order; carrying the pair in `queryEndX`
- * regresses to 12; fresh `register`-qualified carriers and a staged
- * `queryStart->y` both explode past 125. Reaching t3 needs an unnamed
- * carrier whose defining load is still emitted first, and no spelling tried
- * here supplies both at once.
+ * 1. The reversed-orientation block compares against `queryStartX` rather than
+ *    re-reading `candidateEnd->y`/`->z`. The direct read is a separate common
+ *    subexpression, and its web is barred from `queryStartX`'s register
+ *    because the staged variable stays live into the trailing block; comparing
+ *    through the staged name lets the load land in that register directly, the
+ *    way the forward block already did.
  *
  * 2026-09-10, lane c6-close: the carrier is now *identified*, and closing it
  * opens a second, larger defect. The reversed-coordinate block reads
@@ -84,8 +58,13 @@
  * only that fallback. Resume only with a new natural pool-to-temporary or
  * line-association mechanism; do not repeat flags, these three forms, forced
  * colors, or the old broad batch.
+ * 2. `candidateStart` is defined above the early-exit test rather than below
+ *    it. Web identifiers follow first-definition order and the second
+ *    allocator phase colours in that order, so hoisting the definition puts
+ *    this web ahead of the stack-passed fifth argument's and it takes the
+ *    first free colour. Written below the test, the argument is coloured
+ *    first and the two swap registers across sixteen words.
  */
-#ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(
     O19Vertex *vertices,
     s32 queryStartIndex,
@@ -102,6 +81,7 @@ s32 overlay19ClassifyEdge(
     s32 candidateEndX;
     s32 candidateStartXMinusOne;
 
+    candidateStart = &vertices[candidateStartIndex];
     if (((queryStartIndex == candidateStartIndex) &&
          (queryEndIndex == candidateEndIndex)) ||
         ((queryStartIndex == candidateEndIndex) &&
@@ -109,7 +89,6 @@ s32 overlay19ClassifyEdge(
         return 1;
     }
 
-    candidateStart = &vertices[candidateStartIndex];
     queryStart = &vertices[queryStartIndex];
     candidateStartX = candidateStart->x;
     candidateStartXMinusOne = candidateStartX - 1;
@@ -168,14 +147,14 @@ check_reversed_coordinates:
         goto no_match;
     }
     queryStartX = candidateEnd->y;
-    if (queryStart->y < candidateEnd->y) {
+    if (queryStart->y < queryStartX) {
         goto no_match;
     }
     if (queryStartX < queryStart->y) {
         goto no_match;
     }
     queryStartX = candidateEnd->z;
-    if (queryStart->z < candidateEnd->z) {
+    if (queryStart->z < queryStartX) {
         goto no_match;
     }
     if (queryStartX < queryStart->z) {
@@ -207,6 +186,3 @@ check_reversed_coordinates:
 no_match:
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19ClassifyEdge/func_overlay_019_F0000D78_1875FD0.s")
-#endif

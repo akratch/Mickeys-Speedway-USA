@@ -28,34 +28,59 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
  * instead copy-propagates the pointer expression, whose surviving value spills
  * at sp+0x28. A byte-array spelling and a source-line tie are flat. Ordered
  * three- and five-member aggregates regress, while a late D_0 carrier grows
- * the frame to 0x60. Volatile and address-exposed copy-propagation barriers,
- * each composed with the source-line tie, add one instruction and trigger a
- * structural cascade. All 21 candidate relocations remain present. Preserve
- * the assembly fallback pending an instruction-neutral copy-propagation
- * barrier or authenticated original declaration shape.
+ * the frame to 0x60. All 21 candidate relocations remain present.
  *
- * A 2026-09-10 pass (lane c4-o11) closes the slot family arithmetically and
- * names the barrier class for the first residual. The debug local table gives
- * a seven-name declared block of 44 bytes, contact at the top and planes at
- * its bottom, and the pooled temporary that carries the propagated pointer
- * sits immediately below it. Pooled temporaries are laid strictly below the
- * declared block and never take a declared local's home, and planes has to
- * stay a declared volatile local or the plane-table address is rematerialised,
- * so the block bottom is pinned and no census edit can move that temporary up
- * to the target's slot. The value at the target's slot must therefore be a
- * declared local that cfe does not copy-propagate.
+ * A 2026-09-10 pass (lane c4-o11) closed the slot family arithmetically for
+ * the seven-local block: pooled temporaries are laid strictly below the
+ * declared block, `planes` has to stay a declared volatile local or the
+ * plane-table address is rematerialised, so the block bottom is pinned and no
+ * census edit moves the pooled cell up to the target's slot. The first form
+ * measured that defeats the copy propagation is a variable array index, and it
+ * costs two instructions.
  *
- * The first form measured that actually defeats that copy propagation is a
- * variable array index: indexing the object as an array of the position type
- * by a variable moves the value out of the pool and into the declared home at
- * the target's slot. It costs two instructions, an index reload and a
- * multiply, and it collapses straight back to the pooled slot as soon as the
- * index is constant-foldable by cfe, so it is evidence rather than a
- * candidate. Four further constant spellings of the same address, including
- * the indexed and pointer-increment forms, are flat, which extends the
- * spelling-inertness finding to the indexed family. The open lever for the
- * first residual is now an index expression cfe cannot fold and uopt can, at
- * zero net instructions; the second residual is unchanged. */
+ * 2026-09-10, lane o7-ovl: the two residuals are ONE residual, and the
+ * five-local configuration is the frame in which to see it. Drop both
+ * `objectPosition` and `planes` and inline their expressions. Normalise the
+ * resulting object by adding 8 to every sp displacement at or above 40 (the
+ * argument and save slots below that are already exact) and the first 55
+ * instructions, +0x0 through +0xDC, are byte-identical to the target. The
+ * first divergence is the target's `&D_A7C` home store, which the candidate
+ * does not emit at all; after it the two streams carry the same instructions
+ * one position apart, with the integer ring rotated by exactly one temp.
+ *
+ * So a single decision explains all of it: whether the plane-table address is
+ * a spilled web or a rematerialised temp. Being a web supplies the missing
+ * store, supplies the pool cell that lifts every frame slot by 8 at once
+ * (block+pool 36+8 -> 36+12, frame 0x50 -> 0x58 after rounding), and supplies
+ * the v0 colour that un-rotates the ring for the remaining words. That is the
+ * whole open lever, and it is the same one the fin-near closure named.
+ *
+ * Newly falsified this pass, each byte-flat unless noted. Declaration order:
+ * ALL 5,040 orders of the seven declarations were compiled; only the shipped
+ * order and the one that swaps `contact` with `objectPosition` reach 5, the
+ * next is 6, and the median is 30. The block is 44 bytes in every order --
+ * three Vec3f and four 4-byte scalars leave no alignment slack -- so the block
+ * bottom is 0x2C and the first pool cell 0x28 in all 5,040. That axis is
+ * closed by exhaustion and by arithmetic. uopt region boundaries: `if (1) {}`
+ * and `do {} while (0)`, empty or wrapping the definition, on either side of
+ * `objectPosition` and of `planes` and both together -- eleven placements, all
+ * flat. The region boundary that broke an address reassociation in overlay 38
+ * does not reach cfe's copy propagation. A second, LIVE definition of
+ * `objectPosition` with a different value (the else branch's `object + 0x1C`,
+ * feeding the second func_80029A24) is flat, which retires the duplicate- and
+ * dead-definition family as a class: the propagation is not single-assignment
+ * driven. Also flat: self-assignment, `+ 0`, an `(s32)` round trip,
+ * `&FIELD(object, Vec3f, 0xC)`, `register`, a const-initialised declaration,
+ * and the definition hoisted to the first statement. On the store order,
+ * folding `planes = D_A7C;` onto the `if` line, folding the whole condition
+ * onto one line, and both together are flat, so the reversal is not an as1
+ * line-number tie. A non-volatile `planes`, and no `planes` at all, are 62
+ * words with the store dropped, and that is independent of where the
+ * assignment is written -- four positions measured (shipped site, before
+ * `distance`, before `keep`, before the first call), all 62. Position does not
+ * open the web.
+ *
+ * Preserve the assembly fallback. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -140,6 +165,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0xCC
- * summary: Pooled temporaries sit strictly below the declared block whose bottom is pinned by the volatile plane carrier, so the target slot must be a declared local cfe does not copy-propagate; a variable array index is the first form that defeats it, at two instructions.
+ * summary: The two residuals are one: in a five-local source every word up to +0xDC is exact under a uniform 8-byte slot shift, and the sole open lever is making the plane-table address a spilled web rather than a rematerialised temp.
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */

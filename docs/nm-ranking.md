@@ -258,6 +258,7 @@ Text outside the markers remains authored and is preserved byte-for-byte.
 > `--check-doc` and `gmake check-docs` fail on any drift.
 
 The snapshot contains **355 queued identities**: **355 resolved measurements** and **0 unresolved identities**. Resolved target size totals **438,732 bytes (428.4 KiB)**.
+The snapshot contains **355 queued identities**: **355 resolved measurements** and **0 unresolved identities**. Resolved target size totals **438,604 bytes (428.3 KiB)**.
 
 Resolved rows span **66 overlays** and **2 resident TU groups** (`libultra`, `main`).
 
@@ -271,9 +272,10 @@ Relocation-masked mismatch evidence covers **355 / 355** resolved rows. The raw 
 
 | Category | Count | Share of resolved |
 |---|---:|---:|
-| `register-only` | 17 | 4.8% |
+| `register-only` | 16 | 4.5% |
 | `schedule-only` | 1 | 0.3% |
 | `other` | 163 | 45.9% |
+| `other` | 164 | 46.2% |
 | `size-mismatch` | 174 | 49.0% |
 
 ### Differing-word thresholds
@@ -286,6 +288,12 @@ Relocation-masked mismatch evidence covers **355 / 355** resolved rows. The raw 
 | relocation-masked `differing_words <= 10` | 22 |
 | raw `differing_words <= 20` | 45 |
 | relocation-masked `differing_words <= 20` | 48 |
+| raw `differing_words <= 5` | 11 |
+| relocation-masked `differing_words <= 5` | 11 |
+| raw `differing_words <= 10` | 22 |
+| relocation-masked `differing_words <= 10` | 22 |
+| raw `differing_words <= 20` | 45 |
+| relocation-masked `differing_words <= 20` | 47 |
 
 ### Complete ranked queue
 
@@ -313,6 +321,21 @@ units remain distinct.
 | 16 | `src/main/objects.c` | `func_80006534` | `main` | `register-only` | 820 | 63 | 63 | 56 | 56 | 0 | — |
 | 17 | `src/main/particles.c` | `func_8003D25C` | `main` | `register-only` | 672 | 68 | 68 | 80 | 80 | 0 | — |
 | 18 | `src/overlays/o001/overlay_001_head.c` | `overlay1MeasureCurves` | `o001` | `schedule-only` | 316 | 27 | 27 | 12 | 12 | 0 | — |
+| 4 | `src/main/textures_35024.c` | `func_8003484C` | `main` | `register-only` | 84 | 5 | 5 | 28 | 28 | 0 | — |
+| 5 | `src/main/saves.c` | `func_8002C69C` | `main` | `register-only` | 112 | 11 | 11 | 16 | 16 | 0 | — |
+| 6 | `src/main/models.c` | `func_80020D8C` | `main` | `register-only` | 192 | 17 | 17 | 56 | 56 | 0 | — |
+| 7 | `src/main/track.c` | `func_8000FAE0` | `main` | `register-only` | 248 | 20 | 20 | 28 | 28 | 0 | — |
+| 8 | `src/main/level.c` | `levelInit` | `main` | `register-only` | 2,064 | 22 | 22 | 592 | 592 | 0 | — |
+| 9 | `src/main/objects.c` | `func_80007C68` | `main` | `register-only` | 472 | 25 | 25 | 148 | 148 | 0 | — |
+| 10 | `src/overlays/o001/overlay_001_middle.c` | `overlay1AdvanceGauge` | `o001` | `register-only` | 168 | 25 | 25 | 24 | 24 | 0 | — |
+| 11 | `src/overlays/o001/overlay_001_tail.c` | `overlay1ConsumeNearbyPending` | `o001` | `register-only` | 276 | 31 | 31 | 64 | 64 | 0 | — |
+| 12 | `src/overlays/o019/overlay19BuildAdjacency.c` | `overlay19BuildAdjacency` | `o019` | `register-only` | 492 | 41 | 41 | 124 | 124 | 0 | — |
+| 13 | `src/overlays/o022/overlay22RemoveObject.c` | `func_overlay_022_F0000D30_1878E38` | `o022` | `register-only` | 364 | 43 | 43 | 16 | 16 | 0 | — |
+| 14 | `src/overlays/o016/overlay_016.c` | `overlay16ApplyGradient` | `o016` | `register-only` | 580 | 60 | 60 | 60 | 60 | 0 | — |
+| 15 | `src/main/objects.c` | `func_80006534` | `main` | `register-only` | 820 | 63 | 63 | 56 | 56 | 0 | — |
+| 16 | `src/main/particles.c` | `func_8003D25C` | `main` | `register-only` | 672 | 68 | 68 | 80 | 80 | 0 | — |
+| 17 | `src/overlays/o001/overlay_001_head.c` | `overlay1MeasureCurves` | `o001` | `schedule-only` | 316 | 27 | 27 | 12 | 12 | 0 | — |
+| 18 | `src/overlays/o001/overlay_001_end.c` | `overlay1ResolvePathPoint` | `o001` | `other` | 608 | 4 | 1 | 148 | 292 | 0 | — |
 | 19 | `src/main/models_5B300.c` | `func_8005ABA8` | `main` | `other` | 444 | 2 | 2 | 60 | 60 | 0 | — |
 | 20 | `src/overlays/o022/overlay22InitializeObject.c` | `func_overlay_022_F0000000_1878108` | `o022` | `other` | 688 | 5 | 5 | 204 | 204 | 0 | — |
 | 21 | `src/overlays/o033/overlay33InitializeBuffers.c` | `overlay33InitializeBuffers` | `o033` | `other` | 324 | 5 | 5 | 116 | 116 | 0 | — |
@@ -325,6 +348,12 @@ units remain distinct.
 | 28 | `src/main/menu_3B1A0.c` | `func_8003A5A0` | `main` | `other` | 224 | 9 | 9 | 0 | 0 | 0 | — |
 | 29 | `src/main/objects.c` | `func_80006448` | `main` | `other` | 236 | 9 | 9 | 80 | 80 | 0 | — |
 | 30 | `src/overlays/o043/overlay43ComputeMotion.c` | `func_overlay_043_F00010A8_188B078` | `o043` | `other` | 220 | 9 | 9 | 116 | 116 | 0 | — |
+| 25 | `src/overlays/o009/overlay_009.c` | `func_overlay_009_F0000540_1866BB8` | `o009` | `other` | 516 | 9 | 8 | 76 | 76 | 0 | — |
+| 26 | `src/main/audiomgr.c` | `func_80002134` | `main` | `other` | 84 | 9 | 9 | 24 | 24 | 0 | — |
+| 27 | `src/main/menu_3B1A0.c` | `func_8003A5A0` | `main` | `other` | 224 | 9 | 9 | 0 | 0 | 0 | — |
+| 28 | `src/main/objects.c` | `func_80006448` | `main` | `other` | 236 | 9 | 9 | 80 | 80 | 0 | — |
+| 29 | `src/overlays/o043/overlay43ComputeMotion.c` | `func_overlay_043_F00010A8_188B078` | `o043` | `other` | 220 | 9 | 9 | 116 | 116 | 0 | — |
+| 30 | `src/main/font.c` | `func_8004BA8C` | `main` | `other` | 184 | 10 | 10 | 24 | 24 | 0 | — |
 | 31 | `src/main/main.c` | `func_80028FCC` | `main` | `other` | 108 | 10 | 10 | 28 | 28 | 0 | — |
 | 32 | `src/main/models_5B300.c` | `func_8005A7A0` | `main` | `other` | 424 | 10 | 10 | 0 | 0 | 0 | — |
 | 33 | `src/overlays/o068/overlay68CheckKind.c` | `overlay68CheckKind` | `o068` | `other` | 320 | 10 | 10 | 80 | 80 | 0 | — |
@@ -353,6 +382,21 @@ units remain distinct.
 | 56 | `src/overlays/o001/overlay_001_tail.c` | `overlay1BendPathPoint` | `o001` | `other` | 428 | 21 | 21 | 12 | 12 | 0 | — |
 | 57 | `src/overlays/o003/overlay3SelectScoredObject.c` | `overlay3SelectScoredObject` | `o003` | `other` | 472 | 21 | 21 | 72 | 72 | 0 | — |
 | 58 | `src/overlays/o033/overlay33PresentAndSwap.c` | `overlay33PresentAndSwap` | `o033` | `other` | 156 | 22 | 21 | 16 | 16 | 0 | — |
+| 44 | `src/overlays/o014/overlay14CreateValue.c` | `overlay14CreateValue` | `o014` | `other` | 384 | 15 | 14 | 84 | 164 | 0 | — |
+| 45 | `src/overlays/o029/overlay29InitializeObject.c` | `func_overlay_029_F000042C_187D6DC` | `o029` | `other` | 408 | 15 | 15 | 20 | 20 | 0 | — |
+| 46 | `src/overlays/o041/overlay41UpdateColorRecords.c` | `func_overlay_041_F0000124_188745C` | `o041` | `other` | 392 | 20 | 15 | 48 | 64 | 0 | — |
+| 47 | `src/overlays/o017/overlay17DrawStrip.c` | `overlay17DrawStrip` | `o017` | `other` | 476 | 16 | 16 | 0 | 0 | 0 | — |
+| 48 | `src/overlays/o043/overlay43FilterImage.c` | `overlay43FilterImage` | `o043` | `other` | 172 | 16 | 16 | 4 | 4 | 0 | — |
+| 49 | `src/overlays/o007/overlay_007.c` | `overlay7AcquireEntry` | `o007` | `other` | 384 | 17 | 16 | 8 | 260 | 0 | — |
+| 50 | `src/overlays/o001/overlay_001.c` | `overlay1FindType47ByAngle` | `o001` | `other` | 296 | 19 | 18 | 8 | 8 | 0 | — |
+| 51 | `src/overlays/o027/overlay_027.c` | `overlay27UpdateCoordinates` | `o027` | `other` | 260 | 19 | 19 | 0 | 0 | 0 | — |
+| 52 | `src/overlays/o001/overlay_001_tail.c` | `overlay1UpdateAimedTransient` | `o001` | `other` | 996 | 29 | 19 | 12 | 12 | 0 | — |
+| 53 | `src/main/track.c` | `func_80010900` | `main` | `other` | 588 | 20 | 20 | 20 | 20 | 0 | — |
+| 54 | `src/overlays/o009/overlay_009.c` | `func_overlay_009_F00010B4_186772C` | `o009` | `other` | 1,128 | 28 | 20 | 156 | 172 | 0 | — |
+| 55 | `src/overlays/o001/overlay_001_tail.c` | `overlay1BendPathPoint` | `o001` | `other` | 428 | 21 | 21 | 12 | 12 | 0 | — |
+| 56 | `src/overlays/o003/overlay3SelectScoredObject.c` | `overlay3SelectScoredObject` | `o003` | `other` | 472 | 21 | 21 | 72 | 72 | 0 | — |
+| 57 | `src/overlays/o033/overlay33PresentAndSwap.c` | `overlay33PresentAndSwap` | `o033` | `other` | 156 | 22 | 21 | 16 | 16 | 0 | — |
+| 58 | `src/overlays/o060/overlay60Initialize.c` | `func_overlay_060_F0000000_18B9DD8` | `o060` | `other` | 820 | 46 | 21 | 124 | 124 | 0 | — |
 | 59 | `src/overlays/o034/overlay34CreateRecord.c` | `overlay34CreateRecord` | `o034` | `other` | 500 | 26 | 24 | 0 | 0 | 0 | — |
 | 60 | `src/main/models.c` | `func_80020E4C` | `main` | `other` | 452 | 25 | 25 | 12 | 12 | 0 | — |
 | 61 | `src/overlays/o096/overlay96Unregister.c` | `overlay96Unregister` | `o096` | `other` | 136 | 25 | 25 | 0 | 0 | 0 | — |

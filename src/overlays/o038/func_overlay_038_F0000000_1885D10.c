@@ -34,43 +34,39 @@ typedef struct O38Descriptor {
 } O38Descriptor;
 
 typedef struct O38DirectionInput {
-    char pad00[0xC];
+    char pad00[0x4];
     s16 angles[2];
 } O38DirectionInput;
 
 extern s32 mathRnd(s32 minimum, s32 maximum);
 extern void mathOneFloatPY(s16 *rotation, f32 *vector);
 
-/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, with
- * seven schedule words at +0x48..+0x60. The module relocation table resolves
- * six calls to resident mathRnd and the seventh to resident mathOneFloatPY;
- * they are not masked match credit.
- * Particle/direction declaration initializers regress to 11 words and swap
- * s2/s3. A fidelity-clean as1 -R trace and byte-identical stock ugen/as1
- * replay isolate an upstream operand wall: C folds direction to pool + 0x18,
- * while retail retains particle + 0x10. A fidelity-gated CFE/uopt boundary
- * capture now proves that CFE emits the particle-derived chain and uopt folds
- * it to the pool-derived chain. A 2026-09-04 pass tested stride-cursor, nested
- * direction, particle-wrapper, pool-header, two-step, and type-erased pointer
- * forms; all are byte-identical, so none breaks that reassociation. Preserve
- * the natural 0x60 source absent a non-constant-offset lifetime barrier.
+/* Emit one burst of particles for an object, seeding each with a random
+ * horizontal offset, speed and pitch.
+ * PROVENANCE: Mickey-derived; no external C is adapted here.
  *
- * 2026-09-10, lane nm-ovlsmall: the seven schedule words are downstream of the
- * one structural fold, not independent of it. The target forms the direction
- * cursor as `addiu s3,s0,16`, so it DEPENDS on the particle cursor; the
- * candidate's `addiu s3,v0,24` does not. That dependence edge is what
- * reorders the six-instruction prologue block, so the schedule follows the
- * fold and there is exactly one thing to fix.
+ * Matched 2026-09-10 by three edits that only work together:
  *
- * Newly falsified: moving `pool->count`/`pool->alpha` above the particle and
- * direction setup, or between them, changes the schedule (9 words) but leaves
- * `addiu s3,v0,24` intact -- so the fold does not depend on `pool` still being
- * live where the direction value is formed, and the L81 reading does not apply
- * at this site. Byte-flat: `&particle->direction[0]`,
- * `(f32 *)((char *)particle + 16)`, `(*particle).direction`,
- * `particle[0].direction`, `&particle->velocity + 4`, indexing through a
- * zero-valued variable, and `register` on the particle cursor. */
-#ifdef NON_MATCHING
+ * 1. `direction` is initialised inside a `if (1) { }` region. Written as a
+ *    plain statement, uopt reassociates `particle + 16` through `particle`'s
+ *    own definition into `pool + 24`, and the direction cursor stops
+ *    depending on the particle cursor -- which is what reorders the whole
+ *    six-instruction preheader. Only control flow opens a uopt region, and a
+ *    region boundary anywhere between the two definitions blocks the fold; a
+ *    bare block does not, and neither does any spelling of the address.
+ *
+ * 2. The scratch rotation aggregate is eight bytes, not sixteen. The region
+ *    costs eight bytes of compiler temporary below the declared block, so the
+ *    aggregate has to give the same eight back for the frame to stay 0x60 and
+ *    for its address to stay at sp+76.
+ *
+ * 3. `offset = 0;` and the region sit on one physical line. as1 breaks a tie
+ *    between two ready nodes on their source line numbers, and on separate
+ *    lines it emits the counter's clear ahead of the direction cursor; equal
+ *    line numbers drop the tie to ready-list position, which is the shipped
+ *    order. Reversing the two statements instead of folding them regresses,
+ *    because the definition order is also what assigns s2 and s3.
+ */
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
 {
@@ -82,8 +78,7 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
 
     object->type = descriptor->type;
     particle = pool->particles;
-    offset = 0;
-    direction = particle->direction;
+    offset = 0; if (1) { direction = particle->direction; }
     pool->count = 60;
     pool->alpha = 255;
     for (; offset != 0x230; offset += sizeof(O38Particle)) {
@@ -99,16 +94,3 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
         direction += sizeof(O38Particle) / sizeof(f32);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/func_overlay_038_F0000000_1885D10/func_overlay_038_F0000000_1885D10.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:start
- * symbol: func_overlay_038_F0000000_1885D10
- * score: 78/85 words
- * frame: 0x60
- * relocations: 7
- * first-mismatch: +0x48
- * summary: Pointer reassociation remains flat across prior source forms; next lever is a non-constant-offset lifetime scheduling trace.
- * PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:end
- */

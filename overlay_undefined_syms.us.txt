@@ -1123,6 +1123,10 @@ D_80000078 = 0x80000078;
 /* overlay 37: overlay37RecordMinimum.c.o */
 gOverlay37Records = 0x000000b8;
 
+/* overlay 38: func_overlay_038_F0000000_1885D10.c.o */
+mathOneFloatPY_o038Reloc = 0xf0000000;
+mathRnd_o038Reloc = 0xf0000000;
+
 /* overlay 38: func_overlay_038_F000047C_188618C.c.o */
 D_80000048 = 0x80000048;
 D_80000070 = 0x80000070;
