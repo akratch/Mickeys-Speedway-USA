@@ -194,4 +194,19 @@ free-list trace (`DKWB_UGEN_TRACE` on the instrumented ugen at
 `~/Desktop/dev/ido-instrumented`, which this lane confirmed is built and
 fidelity-clean), used to ask whether any construct can free a temp between the
 left chain's survivor and the right chain's first -- not another C lattice.
+
+#### 2026-09-10, lane `w8-tu`: the free-order conflict survives the neighbouring expressions
+
+The recorded conflict is stated over the angle block alone, and the ring queue
+is a function-wide FIFO, so the two integer expressions that sit *between* the
+angle block and the switch are a separate axis: the vertical-scale conversion
+in the height test and the squared-range product. Fifty-four cells crossing six
+spellings of the vertical scale, three of the range product and three case-1
+carrier shapes were compiled and scored against the whole 120-instruction
+target. Every cell that keeps the instruction count is exactly 2; the two
+spellings that change it are 54 and 90 words at +16 bytes. So the queue
+reaching the switch is not reachable from those expressions either, and the
+structural conflict the win-b pass recorded now covers the whole loop body
+rather than the angle block alone.
+
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->

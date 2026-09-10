@@ -80,6 +80,20 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
  * `distance`, before `keep`, before the first call), all 62. Position does not
  * open the web.
  *
+ * 2026-09-10, lane w8-tu: the census is now read off the target, and the
+ * lever the closure names is measured not to exist. Listing every sp
+ * displacement the shipped function touches shows 0x28 and 0x54 are never
+ * touched, so `contact` is register-allocated with a dead home, the declared
+ * block's bottom is 0x34, and the block is 36 bytes -- five declared locals
+ * exactly. That confirms the five-local reading from the target's own bytes.
+ * Against it: a standalone probe at these flags shows uopt never merges an
+ * address constant across a basic-block boundary -- three reads in three
+ * blocks give three materialisations, two reads in one block give one for that
+ * block -- so there is no web for it to spill, and only a volatile local
+ * produces the single materialisation the target shows. The two facts are in
+ * tension, and the next pass should attack the census side rather than look
+ * for a spelling that spills. See the handoff shard for the rest.
+ *
  * Preserve the assembly fallback. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {

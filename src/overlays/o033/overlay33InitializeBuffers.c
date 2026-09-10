@@ -75,8 +75,35 @@ extern void overlay33AllocationFailedReloc(void);
  * branch; hoisting the copy above the test instead lets uopt delete the
  * matching `move` at the join (80 words). The sixth word, the `addu` at +0xDC,
  * is the same operand-order question and never moves alone.
+ *
+ * 2026-09-10, lane w8-tu: MATCHED. The two halves of the closure above are
+ * both right and they compose -- but only with a uopt region boundary between
+ * them, which is why each alone regressed.
+ *
+ * Hoisting `original = allocation;` above the null test is the schedule half.
+ * It does not give the volatile store a dependence successor, which is what
+ * the as1 trace asked for; it puts a THIRD node in the store's basic block.
+ * as1 then picks the branch (aftercycles 1), the store next on the emission
+ * index, and the copy last -- and the last pick is what fills the delay slot.
+ * `sw`, `beqz`, `move`(delay) is the target's order, so the cluster is a block
+ * SIZE question, not a dependence one. That correction matters for the next
+ * function: a two-node block always sinks its non-branch node into the slot.
+ *
+ * The hoist alone costs a word because uopt then knows `original` equals
+ * `allocation` and deletes the else arm's `move v0,v1` at the join (80 words,
+ * 52 masked). `if (1) { }` around the hoisted copy is a uopt region boundary
+ * (L97), and a boundary blocks that propagation while changing no instruction.
+ * A bare brace block around the same statement is byte-identical to no block
+ * at all -- 52 masked again -- which is L97's own control: the lever is region
+ * structure, not lexical scope.
+ *
+ * Measured alternatives, all at delta 0: an empty `if (1) { }` before the
+ * hoisted copy and `do { original = allocation; } while (0)` are each also 0;
+ * reading `original` from the volatile global instead of copying it does fix
+ * the store order (the successor route the trace named) but rewrites the else
+ * arm, 8 words; an `| 0` lock-break keeps the else copy alive without a region
+ * and lands at 13 because it manufactures a second carrier.
  */
-#ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
     s32 width;
     s32 height;
@@ -95,8 +122,8 @@ void overlay33InitializeBuffers(void) {
         allocation = overlay33AllocateReloc((width * height * 4) + 0x40,
                                              0x87);
         gOverlay33Allocation = allocation;
+        if (1) { original = allocation; }
         if (allocation != 0) {
-            original = allocation;
             if (original & 0x3F) {
                 allocation = (original & ~0x3F) + 0x40;
             } else {
@@ -119,16 +146,3 @@ void overlay33InitializeBuffers(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33InitializeBuffers/func_overlay_033_F0000000_18807E8.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay33InitializeBuffers:start
- * symbol: overlay33InitializeBuffers
- * score: 76/81 words
- * frame: 0x38
- * relocations: 25
- * first-mismatch: +0x74
- * summary: Five words are two as1 delay-slot fill choices; uopt sinks the partially dead `original` copy past the null test, leaving the store as the only fill above the branch. The coupled addu is closed by an operand-weight cast.
- * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
- */
