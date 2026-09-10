@@ -854,6 +854,54 @@ class IncrementalRefreshTests(unittest.TestCase):
             self.assertEqual(path.read_text(encoding="utf-8"), original)
 
 
+class RegisterMaskTests(unittest.TestCase):
+    """instr_reg_mask decides the `register-only` label, so a field it treats
+    as a register when it is not (or the reverse) mislabels a whole class of
+    residual. Both cases below were wrong until 2026-09-10."""
+
+    def test_shift_amount_is_an_immediate_not_a_register(self) -> None:
+        # sll $t0, $t1, 3   vs   sll $t0, $t1, 5
+        by_three = (0x00 << 26) | (9 << 16) | (8 << 11) | (3 << 6) | 0x00
+        by_five = (0x00 << 26) | (9 << 16) | (8 << 11) | (5 << 6) | 0x00
+        self.assertNotEqual(
+            ranking.instr_reg_mask(by_three), ranking.instr_reg_mask(by_five),
+            "a differing shift amount is a real difference, not a register swap")
+
+    def test_special_still_erases_its_register_fields(self) -> None:
+        # addu $t0,$t1,$t2  vs  addu $s0,$s1,$s2, same shamt and function
+        a = (0x00 << 26) | (9 << 21) | (10 << 16) | (8 << 11) | 0x21
+        b = (0x00 << 26) | (17 << 21) | (18 << 16) | (16 << 11) | 0x21
+        self.assertEqual(ranking.instr_reg_mask(a), ranking.instr_reg_mask(b))
+
+    def test_float_register_rotation_is_a_register_difference(self) -> None:
+        # add.s $f4,$f6,$f8   vs   add.s $f16,$f18,$f20
+        low = (0x11 << 26) | (0x10 << 21) | (8 << 16) | (6 << 11) | (4 << 6)
+        high = (0x11 << 26) | (0x10 << 21) | (20 << 16) | (18 << 11) | (16 << 6)
+        self.assertEqual(
+            ranking.instr_reg_mask(low), ranking.instr_reg_mask(high),
+            "a rotated float ring is a naming difference, not a structural one")
+
+    def test_float_format_is_semantic_and_survives_the_mask(self) -> None:
+        # add.s vs add.d on the same registers
+        single = (0x11 << 26) | (0x10 << 21) | (8 << 16) | (6 << 11) | (4 << 6)
+        double = (0x11 << 26) | (0x11 << 21) | (8 << 16) | (6 << 11) | (4 << 6)
+        self.assertNotEqual(
+            ranking.instr_reg_mask(single), ranking.instr_reg_mask(double),
+            ".s versus .d is a real difference, not a register swap")
+
+    def test_bc1_names_no_register_and_is_left_alone(self) -> None:
+        # bc1t with a branch offset: bits 20-16 are cc/nd/tf, not a register
+        word = (0x11 << 26) | (0x08 << 21) | (1 << 16) | 0x0042
+        self.assertEqual(ranking.instr_reg_mask(word), word)
+
+    def test_float_load_erases_base_and_ft_but_keeps_the_offset(self) -> None:
+        near = (0x31 << 26) | (29 << 21) | (4 << 16) | 0x0010   # lwc1 $f4,16($sp)
+        far = (0x31 << 26) | (16 << 21) | (20 << 16) | 0x0010   # lwc1 $f20,16($s0)
+        other = (0x31 << 26) | (29 << 21) | (4 << 16) | 0x0020  # different offset
+        self.assertEqual(ranking.instr_reg_mask(near), ranking.instr_reg_mask(far))
+        self.assertNotEqual(ranking.instr_reg_mask(near), ranking.instr_reg_mask(other))
+
+
 class MismatchEvidenceTests(unittest.TestCase):
     def test_reports_raw_and_relocation_masked_evidence(self) -> None:
         base = [0x0C000001, 0x3C021234, 0x24420001, 0x24030001]
