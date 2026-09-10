@@ -159,8 +159,11 @@ D_1BA4 = 0x00001ba4;
 gOverlay1DistanceObject = 0x00001d98;
 gOverlay1Mode = 0x00000000;
 gOverlay1SelectedIndex = 0x00000000;
+overlay1ClearReloc = 0xf0000000;
 overlay1DistanceReloc = 0xf0000154;
+overlay1ErrorReloc = 0xf0000000;
 overlay1GetSelectionReloc = 0xf0000000;
+overlay1SegmentReloc = 0xf0000000;
 
 /* overlay 1: overlay_001_scaled.c.o */
 gOverlay1DistanceScale = 0x00001da8;
@@ -3251,12 +3254,12 @@ func_overlay_001_F00078DC_1853CBC = overlay1AdvancePath;
 func_overlay_001_F0007BDC_1853FBC = overlay1CreateRecord;
 
 /* overlay 1: overlay_001_end.c.o */
+func_overlay_001_F0007D6C_185414C = overlay1ResolvePathPoint;
 func_overlay_001_F0007FCC_18543AC = overlay1ModeIsOne;
 func_overlay_001_F0007FE0_18543C0 = overlay1ModeIsTwo;
 func_overlay_001_F0007FF4_18543D4 = overlay1ModeIsThree;
 func_overlay_001_F0008008_18543E8 = overlay1DistanceFromCurrent;
 func_overlay_001_F0008048_1854428 = overlay1DistanceFromSelected;
-func_overlay_001_F0007D6C_185414C = overlay1ResolvePathPoint;
 
 /* overlay 1: overlay_001_scaled.c.o */
 func_overlay_001_F00080BC_185449C = overlay1ScaledDistance;

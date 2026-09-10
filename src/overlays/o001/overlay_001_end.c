@@ -37,15 +37,17 @@ extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
                                                u8 selector, u8 mode);
 
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
- * Plateau (2026-08-29): retained configured evidence is exact-sized at 152
- * words. Raw sites are +0x090/+0x094/+0x0C8/+0x0EC/+0x124/+0x148/+0x14C/
- * +0x150/+0x1C8/+0x1CC; addend normalization removes +0x0C8/+0x0EC. Only
- * 19/22 runtime relocation tuples agree: D_218 LO16 and D_1D88 HI16 exchange
- * +0x090/+0x094, and D_1BA4 LO16 is +0x14C instead of target +0x148. Ten
- * source forms exhausted the manual route. Rebuild one ABI/identity-correct
- * V0, then run one bounded annotated-target permutation if the eight sites
- * reproduce; neither retained comparison is linked/ROM-exact candidate C. */
-#ifdef NON_MATCHING
+ * Matched 2026-09-10.  Three edits carried this body from 8 differing words
+ * to zero, and each one is a placement, not a rewrite:
+ *   - the two globals are spelled directly (`D_1D88 = 0x3F; D_1D88--;`)
+ *     rather than through an address carrier, which lets the twice-spelled
+ *     global interleave its own `%hi` between the `lui $at` and the `sw`;
+ *   - the six locals are declared in the order below because that is the one
+ *     that leaves `result` fifth and so at frame offset 0x60;
+ *   - the induction pointer is re-formed inside the scan loop, so the
+ *     loop-entry pointer is drawn from the saved copy of `record`.
+ * The last word, and the reason `point` is assigned once after the if/else
+ * rather than in each arm, is explained where it is written. */
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                              s16 *outX, s16 *outY, void *unused) {
     s32 index;
@@ -71,7 +73,6 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
 
     D_1D88--;
     index = 2;
-    point = &record->x[2];
     if (record->count >= 2) {
         scanIndex = 2;
         if (record->count >= 3) {
@@ -80,16 +81,14 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                 if (overlay1SegmentReloc((f32)x0, (f32)y0,
                                          (f32)point[0], (f32)point[32],
                                          D_1BA4, result, -1, 0xFFFF) != 0) {
-                    /* The doubled value is a second statement value, not
-                     * an in-place update of `product`.  Spelling the product
-                     * twice lets uopt fold the two into one multiply while
-                     * ugen still computes the product into its first
-                     * statement register and the sum into its second, which
-                     * is the target's `addu $v1, $v0, $v0`.  `product =
-                     * product + product` writes back in place on $v0, and
-                     * `product * 2`, `product << 1`, an inline
-                     * `(product + product)` and a seventh local all demote
-                     * the doubling to a ugen ring temp. */
+                    /* Spelling the product twice lets uopt fold the pair into
+                     * one multiply while ugen still computes the product into
+                     * its first statement register and the sum into its
+                     * second, which is the `addu $v1, $v0, $v0` the target
+                     * shows.  `product = product + product` writes back in
+                     * place on $v0; `product * 2`, `product << 1`, an inline
+                     * `(product + product)` and a seventh local all demote the
+                     * doubling to a ugen ring temp. */
                     product = ((result[0] - point[0]) *
                                (result[0] - point[32])) +
                               ((result[0] - point[0]) *
@@ -101,11 +100,15 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                 scanIndex++;
             } while (scanIndex < record->count);
         }
-        point = &record->x[scanIndex];
     } else {
         scanIndex = index;
-        point = &record->x[index];
     }
+    /* One assignment after the if/else, not one per arm.  An assignment
+     * before the `if` shares the block with the call, so uopt forwards the
+     * call's own return register into it and the base reads $v0; written
+     * here it belongs to the join block, where the raw return web has ended
+     * and the base is the saved copy $s4 the target uses. */
+    point = &record->x[scanIndex];
 
     if (record->selector[scanIndex - 1] != 0xFF) {
         func_overlay_001_F0007730_1853B10(
@@ -116,10 +119,6 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
     *outY = point[31];
     return record->count;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_end/func_overlay_001_F0007D6C_185414C.s")
-#endif
 
 /* ---- overlay1ModeChecks ---- */
 
@@ -171,12 +170,3 @@ f32 overlay1DistanceFromSelected(void *object) {
     return 0.0f;
 }
 
-/* PLATEAU-HANDOFF:overlay1ResolvePathPoint:start
- * symbol: overlay1ResolvePathPoint
- * score: 151/152 words
- * frame: 0x78
- * relocations: 22
- * first-mismatch: +0x6C
- * summary: One word: the else-branch base reads the raw call-result web (v0) where the target reads the saved copy (s4); the doubled product is closed
- * PLATEAU-HANDOFF:overlay1ResolvePathPoint:end
- */
