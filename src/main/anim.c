@@ -3793,80 +3793,28 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: JFG efd5abb's src/hit.c leaves hitGetInelasticVelocity as an
  * assembly fallback; its 0.0484 masked similarity supplies no donor C body.
  * Mickey's fields, behavior, and compiled bytes remain authoritative.
  *
- * 2026-09-09 (second pass): seven differing words to five, and the whole
- * instruction stream is now exact -- every one of the 80 words, the register
- * assignment included, matches the target. The five that differ are the five
- * `sp`-relative accesses to `bounce`, which land at 0(sp) where the target
- * homes it at 4(sp).
+ * Matched 2026-09-10. The last words closed on two levers, neither of them an
+ * expression tree:
  *
- * The earlier residual was read as "the target spends ring temporaries on the
- * negation, the volatile reload, the doubling and the product". That is right,
- * and the cause is one keyword: with `volatile f32 bounce` the reload has to be
- * named (`doubled = bounce`), and a named local takes a pool colour, so all
- * four values collapse onto `doubled`'s f16. Dropping `volatile` leaves the
- * memory round trip intact -- uopt cannot colour a seventh floating-point
- * symbol, because the six caller-saved FP colours are already spent on
- * velocityX/Y/Z, `target->unk4`, `doubled` and `normalX` (read directly out of
- * the instrumented allocator: six `p2color` records, colours 24-29, and a
- * seventh web whose best colour costs 4.0 and is declined) -- while letting
- * `bounce + bounce` load once and hand the sum to ordinary ugen ring temps.
- * That is exactly the target's f10/f8/f6/f4 rotation, and it also removes the
- * tenth declaration.
- *
- * What is left is one frame cell. The home is `frame_top - 4*(cell + 1)` and
- * cells run in web order, so the whole question is how many cells precede
- * `bounce`. Measured on this function: with a volatile `bounce` the cell count
- * equals the declaration count exactly (8 declarations -> frame 0x20,
- * 9 -> 0x28); dropping `volatile` adds exactly two cells whatever the
- * declaration count (8 -> 10 cells, 9 -> 11). The target needs nine cells with
- * `bounce` last, i.e. seven declarations, and seven is one below the floor:
- * five (`target`, `source`, velocityX/Y/Z) are load-bearing, and the two FP
- * carriers are both needed -- `doubled` for the sum that must reach f16 and
- * `normalX` for the x value that must survive to the product in f18. Drop
- * either and the FP pressure falls to five symbols, uopt colours `bounce`, and
- * the seven-instruction memory round trip disappears (73 words).
- * Eliminated this pass, all at nine or eleven cells and never at ten with the
- * home at 4: `source` or `target` re-read from `state` (9 cells, home 4, but
- * two extra instructions and the source load leaves its slot); `normal->x`
- * read twice (11 cells, home 4, instruction-exact -- lever 45 folds the second
- * load); every position of `source`'s assignment; `bounce = 0.0f` and every
- * other dead-store colour reservation; both `bounce + bounce` and `bounce +=
- * bounce` and `bounce * 2.0f`; a separate `reloaded` carrier; and every
- * declaration order including `bounce` first and last.
- * Resume by removing one cell that is not a declaration, or by finding what
- * puts one cell *after* `bounce` while keeping ten.
- *
- * 2026-09-10, lane nm-mixed: five differing words to three, and the cell
- * arithmetic above is now closed-form. With N cells the frame is align8(4N)
- * and the last cell's home is align8(4N) - 4N, so home 4 needs N odd: N = 9
- * (frame 0x28, a match) or N = 11 (frame 0x30, two frame words wrong).
- * Confirmed by measurement: a ninth declaration with `volatile bounce` gives
- * N = 9 and home 4 exactly as predicted, and any ninth declaration at all --
- * used, unused, f32 or s32, first or last -- gives N = 11, home 4, frame 0x30
- * (7 words). `volatile` itself costs two instructions whatever else is done,
- * so that route cannot close.
- *
- * The improvement drops the `bounce` declaration and spells the doubling
- * inline as `(-doubled + -doubled)` at each of the three velocity stores.
- * That leaves seven declarations and three ugen temps: the SUM temp lands one
- * cell earlier than `bounce` did and homes at 4(sp) -- the target's home --
- * while the NEGATION temp becomes a second, separate cell at 0(sp). So three
- * words remain: the neg temp's store/reload pair, plus the operand order of
- * the x-axis product, which follows the split and is not source-spellable
- * (both operand orders emit the same word).
- * The target has ONE cell holding both values, i.e. a declared `bounce`, at
- * cell index 8 of 9. So the remaining question is unchanged in kind but now
- * exact: keep the single `bounce` web and remove exactly one cell created
- * before it. Additionally falsified this pass: `-(doubled + doubled)`
- * (78 words), swapping which carrier holds the negation versus the sum,
- * hoisting `target->unk4` or `state->velocity.x * timeStep` into a local
- * (both N = 11), inlining the whole dot product into `bounce` (73 words),
- * and every operand order of the three axis products. */
+ * - Frame cells. With N cells the frame is align8(4N) and the last cell homes
+ *   at align8(4N) - 4N, so a home of 4 needs N odd. Seven declarations plus
+ *   the compiler's own temporaries give N = 9; adding a declared carrier for
+ *   the doubled value makes it ten and drops that home to 0, which is five
+ *   words. Spelling the doubling as `-doubled * 2.0f` keeps seven
+ *   declarations and uopt rewrites the multiply by two into the same sum,
+ *   so one temporary serves both the negation and the doubling.
+ * - Operand weight (workbench law L92). The x-axis product's two float
+ *   operands land on the side their weight chooses, not the side they are
+ *   written: `normalX * (...)` and `(...) * normalX` are byte-identical. An
+ *   explicit `(f32)` cast on `normalX` changes that operand's weight and moves
+ *   it left, which is field-guide lever 54 read on a float multiply rather
+ *   than an address sum. The same cast on the right operand is inert, and so
+ *   is a unary `+`.
+ */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -3891,9 +3839,9 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     doubled = (normalX = normal->x);
     doubled = (normal->z * velocityZ) +
               ((velocityX * doubled) + (velocityY * normal->y));
-    state->velocity.x = ((normalX * (-doubled + -doubled)) + velocityX) * target->unk4;
-    state->velocity.y = ((normal->y * (-doubled + -doubled)) + velocityY) * target->unk4;
-    state->velocity.z = ((normal->z * (-doubled + -doubled)) + velocityZ) * target->unk4;
+    state->velocity.x = (((f32) normalX * (-doubled * 2.0f)) + velocityX) * target->unk4;
+    state->velocity.y = ((normal->y * (-doubled * 2.0f)) + velocityY) * target->unk4;
+    state->velocity.z = ((normal->z * (-doubled * 2.0f)) + velocityZ) * target->unk4;
 
     state->position.x = source->current.x;
     state->position.y = source->current.y;
@@ -3902,9 +3850,6 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     source->previous.y = source->current.y + (state->velocity.y * timeStep);
     source->previous.z = source->current.z + (state->velocity.z * timeStep);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005716C.s")
-#endif
 void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat) {
     f32 currentX;
@@ -4211,16 +4156,6 @@ void fmvInit(void) {
  * first-mismatch: +0x38
  * summary: Frame now matches at 0xB8 and the first fourteen words are exact; candidate is 431 of 445 words, so the deficit is real missing code rather than allocation.
  * PLATEAU-HANDOFF:func_80055104:end
- */
-
-/* PLATEAU-HANDOFF:func_8005716C:start
- * symbol: func_8005716C
- * score: 3 differing words
- * frame: 0x28
- * relocations: 2
- * first-mismatch: +0x7C
- * summary: instruction stream exact; the doubling is now inline so the sum temp homes at the target's 4(sp), leaving the negation temp's store/reload at 0(sp) and one product operand order; closing needs one cell removed ahead of a single re-declared bounce
- * PLATEAU-HANDOFF:func_8005716C:end
  */
 
 /* PLATEAU-HANDOFF:func_800563B4:start

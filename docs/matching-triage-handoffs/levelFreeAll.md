@@ -139,4 +139,55 @@ line, joining `D_800CF490[i] = NULL;` onto the closing brace line, and four
 address spellings. This is a different space from the recorded 192 line
 *splits* of the arm, and it is equally inert; the L87 line-key lever does not
 reach this site from either direction.
+
+#### 2026-09-10, lane c2-resident: the expression space is closed, exhaustively
+
+Still 3, and the residual is confirmed unchanged: the mask, the table load and
+the scale occupy the same three positions on both sides and only their creation
+order differs, so this is uopt/ugen emission order and nothing else.
+
+The candidate creates the mask first, then the scale, then the table; the
+base-first class creates the table first, then the mask, then the scale; the
+target creates the mask first, then the *table*, then the scale. Reading the
+compiler's own listing (`cc -S` at the TU's flags) makes the three classes
+visible directly, and it is a faster instrument than the score for this
+residual: the class is legible in one line, before the assembler's scheduling
+hides it.
+
+Newly measured and eliminated this pass, about **1,030 further candidates**, all
+of them landing in the same two classes (3 or 5) and none below:
+
+- A **960-cell cross product**: six base spellings (`(u32)`, `(s32)`, `(u8 *)`,
+  a double-dereference through the symbol's own address, an address-of-element,
+  and the raw pointer) x fifteen index spellings (plain, four integer casts,
+  five arithmetic-identity locks, an unsigned constant, a complement of the
+  inverse mask, and a shift-pair sign extension) x six scale spellings (shift,
+  multiply, `sizeof`, two casts of the shifted value, and self-addition) x both
+  written operand orders, plus every subscript, reversed-subscript and
+  pointer-sum form of each index spelling.
+- **Compound and nested address shapes**: `*&a[i]`, `(&a[i])[0]`, `(&a[0])[i]`,
+  a `char *` base, a re-cast base, three-term sums with an added zero in every
+  position, a double negation of the sum, an array-typed pointer cast, and a
+  `volatile`-qualified read of the base pointer (the last is +1 instruction).
+- **Two-statement forms**, re-measured against the compiler listing rather than
+  the score: a hoisted `s32`/`u32` index folds back into the base-first
+  expression with an *identical compiler listing* over the whole arm, so
+  hoisting is not a near miss but an exact no-op, and `register` on the index
+  does not change that. `s16` and `u16` index locals cost 8 and 0 bytes respectively and both
+  regress.
+
+What this pass adds beyond the elimination: the target's order requires the
+mask to be a ring temporary that is *emitted before the address expression
+begins*, while remaining single-use. Every construct that emits it early
+(a second surviving use, a comma, an assignment inside the index) makes it a
+uopt symbol instead, which takes a pool colour rather than a ring number, and
+every construct that keeps it a ring temporary emits it inside the expression.
+Confirmed on the self-addition spelling, whose listing shows exactly the
+target's *order* with the mask on a pool colour and an add where the target has
+a shift. So the remaining question is sharper than "which spelling": what makes
+IDO emit a single-use masked value as its own ring temporary ahead of the
+expression that consumes it. A scan of every matched `main` TU's compiler
+listing for the target's signature found five instances of "index materialised
+before the base load", and in all five the index was an *already-live variable*
+(a loop counter or a parameter), never a mask computed at the site.
 <!-- plateau-handoff:levelFreeAll:end -->
