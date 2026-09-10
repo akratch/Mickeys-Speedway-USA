@@ -31,14 +31,39 @@ at all.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import pathlib
+import shutil
 import sys
+import tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import nm_ranking as nr  # noqa: E402
 import permute_batch as pb  # noqa: E402
+
+
+@contextlib.contextmanager
+def _isolated_workdir():
+    """Give this run its own scratch, so it cannot collide with anything.
+
+    nm_ranking keeps a fixed work directory under build/. That is right for a
+    whole-queue pass, which owns the tree while it runs, and wrong here: this
+    tool is meant to be called in a tight loop while a build is going, and two
+    callers -- or a caller and a `gmake` touching build/ -- would otherwise
+    write the same object paths. A lane hit exactly that and worked around it
+    by writing its own scorer, which is the outcome this tool exists to
+    prevent.
+    """
+    previous = nr.WORK_DIR
+    scratch = pathlib.Path(tempfile.mkdtemp(prefix="score-symbol-"))
+    nr.WORK_DIR = scratch
+    try:
+        yield
+    finally:
+        nr.WORK_DIR = previous
+        shutil.rmtree(scratch, ignore_errors=True)
 
 
 def score(symbols: list[str]) -> tuple[list[dict], list[str]]:
@@ -55,6 +80,11 @@ def score(symbols: list[str]) -> tuple[list[dict], list[str]]:
     if not wanted:
         return [], errors
 
+    with _isolated_workdir():
+        return _measure(wanted, errors)
+
+
+def _measure(wanted, errors) -> tuple[list[dict], list[str]]:
     commands = nr.configured_compile_commands(wanted)
     compiled = {source: nr.compile_configured_tu(source, commands[source])
                 for source in commands}
