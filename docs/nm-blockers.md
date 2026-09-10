@@ -21,7 +21,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80055970` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80055B24` | `src/main/anim.c` | matched | — | Promoted to exact C with a typed callback alias; no ownership work remains. |
 | `func_80056DD8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8005716C` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8005716C` | `src/main/anim.c` | matched | — | Exact 320-byte / 80-word C with frame `0x28` and a 2-record relocation surface; no ownership change was needed. |
 | `func_800573C8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005776C` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800033B0` | `src/main/audio_manager_36D0.c` | none | — | No ownership change; continue source/codegen work. |

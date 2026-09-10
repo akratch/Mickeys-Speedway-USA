@@ -1498,6 +1498,48 @@ bytes and disassembly never belong here.
   allocator question. Evidence: `func_8005A948`, where patching the two names
   in the phase input takes a three-word residual to zero.
 
+- **`as1` picks a call's delay-slot filler by memory disambiguation against
+  `$sp`, not by emission index or source line.** Where the register holding a
+  call's first argument is one `as1` cannot prove disjoint from the stack, it
+  sinks the *earlier* of two adjacent caller-save spill stores into the delay
+  slot and leaves the later one in front of the call, inverting `ugen`'s
+  emission order. Three byte-inert facts restore that order, each measured on
+  `overlay11UpdateMenu` (1,204 bytes, 301 words) where the inversion is the
+  entire two-word residual and each perturbation scores exact under listing
+  replay: a `.noalias <reg>,$sp` naming the argument register, anywhere from
+  the loop preheader through the point between the two stores; a `.loc` naming
+  a greater line between the stores; and `.set volatile` around the **first**
+  store. Inert: `.noalias` naming any other register; `.noalias` placed after
+  both stores; `.noalias` opened before the load and closed with `.alias`
+  before the second store, so the fact has to hold *at* that store;
+  `.set volatile` around the second store alone; and `.livereg` in every form
+  tried -- moved ahead of the pair, deleted, and with two other masks. This is
+  a different position and a different decision from the block-head duplication
+  question above, where `.noalias` is measured inert; the two results do not
+  conflict.
+
+- **`ugen` emits `.noalias <reg>,$sp` for a reference to a *named* static
+  object, never for a user-declared pointer variable.** It fires where a static
+  address is materialised and then dereferenced, including for `uopt`'s own
+  induction pointer over a named array -- there it is re-asserted at the top of
+  every iteration and closed with `.alias` after the loop, so it survives the
+  pointer's own spill and reload. It does not fire for a pointer local that the
+  source assigns from an array name and then increments, whatever the
+  declaration, initialiser, `register`, `volatile`-pointee or loop form. So the
+  disambiguation fact above is reachable from C only by spelling the reference
+  as an index into the named object, or by materialising the address adjacent
+  to its dereference. On `overlay11UpdateMenu` the indexed spelling does produce
+  the fact, and reproduces the target's spill order and argument-load form
+  exactly -- but it is still excluded, because the fact costs compiler temps
+  and that target's frame has none. `cc -g3`'s `.mdebug` local table is what
+  settles it: outgoing-argument area plus the return-address save, plus the
+  declared block the table enumerates, already accounts for the whole target
+  frame, so any spelling that adds a temp cell is out on arithmetic. The indexed
+  forms add three temp cells with the pointer declaration dropped and four with
+  it kept. **Read a frame residual this way before searching spellings:** the
+  local table says whether the deficit is in the declared block or in the temps,
+  and only the first is reachable by declaration surgery.
+
 - **`cc -S` ignores `-o`.** The listing is written to the *current directory*
   under the source's base name. Move it into a scratch directory as the next
   command; a stray `.s` in the worktree root is exactly the kind of file the
@@ -1564,6 +1606,34 @@ bytes and disassembly never belong here.
   emitted words are then identical and only the frame's split changes. Removing
   such a `while` outright is the cheap detector -- if the aggregate's home drops
   by 8 with the loop gone, its condition owns two temporaries.
+
+- **The commutative-weight rule reaches a float multiply, and an explicit
+  `(f32)` cast is the lever there.** Upstream L92 and field-guide lever 54 are
+  both written against integer/pointer arithmetic -- cast an address base to
+  `s32` and ugen sums it base-first. The same rule governs `mul.s`. On
+  `func_8005716C` the x-axis product's two float operands are byte-identical
+  written either way (`normalX * (...)` and `(...) * normalX` emit the same
+  word, which is why an earlier pass filed that word as not source-reachable),
+  and an explicit `(f32)` cast on `normalX` -- a no-op on an `f32` local --
+  changes that operand's weight and moves it to the left. The cast on the
+  *right* operand is inert, and so is a unary `+`; only the left one moves the
+  word. Worth one word there, and it was the second of the two edits that took
+  the function to byte-identical. File it upstream as a receipt on L92 rather
+  than as a new law.
+- **The frame's cell census is readable directly out of uopt, not inferred
+  from frame sizes.** `cc -Wo,-zdbug:2` writes a `uoptlist` whose global-
+  colouring section prints one `isvar M <class> <offset>` row per declared
+  local and one `isvar P` row per parameter (never commit it -- it is
+  ROM-adjacent build output and gitignored nowhere). Read against the emitted
+  frame it gives the cell law for a function in one compile: with N cells the
+  frame is `align8(4N)` and the last cell homes at `align8(4N) - 4N`, so a
+  target home fixes N's parity. The trap it exposes is that dropping a
+  declaration and dropping a *cell* are not the same move: on `func_8005716C`,
+  removing the `normalX` local and re-reading `normal->x` keeps the census at
+  ten because the re-read's own web takes the freed slot. The move that works
+  is to trade a declaration for a compiler temporary the compiler was going to
+  create anyway -- there, spelling a doubling as `-x * 2.0f`, which uopt
+  rewrites into the sum it was already emitting.
 
 ## Adding a learning
 
