@@ -689,10 +689,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41InterpolateAngle.c.o: POSTPROCESS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration where needed
 # and trailing-section trimming metadata for these extracted functions.
+# overlay41UpdateCurveObject's six float constants are the module's own
+# +0x3C..+0x54 rodata, already shipped in overlay_041_data_rodata.bin. The C
+# reproduces them exactly (guarded by the digest below), so anchor the
+# references at +0x3C and contribute no bytes: emitting the section as well
+# would append a second copy and grow the module by 0x20.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41UpdateCurveObject.c.o: CFLAGS += \
 	-Wab,-r4300_mul
+# The three-component sampler is reached through Overlay 41's own runtime
+# export table, so every shipped call to it stores immediate zero. Give the
+# site a module placeholder -- resolving the real same-overlay symbol would
+# link the module-local target into the word instead.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41UpdateCurveObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F8
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_041_F00002AC_18875E4=overlay41SampleCurveReloc \
+		$@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F8 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:0a69e9d2d2e87ba3149239321e9ffda3704af5b6c5c406af7af8907809282651 \
+		0x3C && \
+	$(OBJCOPY) --remove-section .rel.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41IsUnitScale.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41AdvanceStepRecords.c.o: POSTPROCESS = \
