@@ -3824,13 +3824,12 @@ void func_80008B94(void *arg0) {
         object->unk8 = -object->unk8;
     }
 
-    multiplier = NULL;
     candidateMultiplier = object->unk50;
     if (candidateMultiplier != NULL) {
         multiplier = candidateMultiplier;
+        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
         useColourState = 1;
         useMultiplier = 1;
-        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
     }
     alpha = object->unk39;
     if (alpha >= 0x100) {
@@ -3909,8 +3908,8 @@ void func_80008B94(void *arg0) {
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk0 = 0xFA000000;
             command->unk4 = (u32)-1;
+            command->unk0 = 0xFA000000;
         }
         if (useMultiplier) {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
@@ -3922,8 +3921,8 @@ void func_80008B94(void *arg0) {
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk0 = 0xFB000000;
             command->unk4 = (u32)-0x100;
+            command->unk0 = 0xFB000000;
         }
     }
 
@@ -3947,14 +3946,14 @@ void func_80008B94(void *arg0) {
     if (useColourState) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk0 = 0xFA000000;
         command->unk4 = (u32)-1;
+        command->unk0 = 0xFA000000;
     }
     if (useMultiplier) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk0 = 0xFB000000;
         command->unk4 = (u32)-0x100;
+        command->unk0 = 0xFB000000;
     }
     object->unk8 = savedScale;
 }
@@ -5822,11 +5821,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80008B94:start
  * symbol: func_80008B94
- * score: 126 differing words
+ * score: 111 differing words
  * frame: 0xB8
  * relocations: 45
- * first-mismatch: +0xA8
- * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the optional multiplier home transfer and remaining floating-point allocation.
+ * first-mismatch: +0xD0
+ * summary: Multiplier null-init dropped and four command-word pairs reordered (126 to 111); the shape multiset is now exact, so all 111 are role or placement.
  * PLATEAU-HANDOFF:func_80008B94:end
  */
 
