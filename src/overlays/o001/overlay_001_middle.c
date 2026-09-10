@@ -189,31 +189,54 @@ typedef struct O1AdvanceGaugeObject { u8 pad00[0x64]; O1AdvanceGaugeState *state
 extern s32 D_0;
 extern O1AdvanceGaugeObject **overlay1GetGaugeObjects(s32 *count);
 
-/* Plateau (batch 14): exact 0xA8 size; 26 words differ first at +0x14.
- * Count lands at stack +0x38 versus target +0x30, cascading register colors;
- * declaration, scalar/array, s64, and aggregate-slot variants regressed. */
+/* Plateau: exact 0xA8 size and exact 0x40 frame; 25 words differ, first at
+ * +0x18, and the residual is now `register-only` -- every instruction, opcode
+ * and immediate agrees and only the register names do.
+ *
+ * The stack home is closed. `count` used to land at sp+0x38 against the
+ * target's sp+0x30; moving the `volatile s32 private` pad to the END of the
+ * declaration list puts it on the target's slot exactly, and the sibling
+ * idioms from the matched `overlay1AdvanceObjectGauges` above (`object =
+ * *objects;` with a separate `objects--;`, and the packed
+ * `index = count - 1; objects += index; do { object = *objects;` line) come
+ * with it. Together those took the residual 26 -> 25 and the category from
+ * `other` to `register-only`.
+ *
+ * What is left is one pool/ring population difference, the same shape
+ * `overlay1ConsumeNearbyPending` carries in the tail TU: the target spends
+ * four pool colours (count v1, D_0's address a3, objects a2, object a0) and
+ * puts the `5` multiplier in a ring temp, while the candidate spends five
+ * (count a2, objects a0, `5` a3, object v1, state v0) and every ring value
+ * slides one position. One extra pool web explains all 25 words.
+ *
+ * Measured and flat from this base, do not repeat: all 367 distinct
+ * permutations of the six non-pad declarations (337 byte-flat at 25, 30 at
+ * 26) and all seven positions of the volatile pad; the getter's return type
+ * as `s32`, `void *` and a no-prototype declaration with an explicit cast,
+ * all byte-flat; `5 * amount`, `state->value = state->value + amount * 5`,
+ * `> 540000` for `>= 540001`, the nested and packed spellings of the guard,
+ * and `!state->disabled`, all byte-flat. Swapping the two `&&` operands costs
+ * an instruction. */
 #ifdef NON_MATCHING
 void overlay1AdvanceGauge(s32 amount) {
-    volatile s32 private;
-    s32 count;
-    s32 index;
-    s32 loopValue;
     O1AdvanceGaugeObject **objects;
     O1AdvanceGaugeObject *object;
     O1AdvanceGaugeState *state;
+    s32 count;
+    s32 index;
+    s32 loopValue;
+    volatile s32 private;
 
     objects = overlay1GetGaugeObjects(&count);
     if (count != 0) {
-        index = count - 1;
-        objects += index;
-        do {
-            object = *objects--;
+        index = count - 1; objects += index; do { object = *objects;
             state = object->state;
             if ((D_0 == 0) && (state->disabled == 0)) {
                 state->value += amount * 5;
                 if (state->value >= 540001) state->value = 540000;
             }
             loopValue = index;
+            objects--;
             index--;
         } while (loopValue != 0);
     }
@@ -225,10 +248,10 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1AdvanceGauge:start
  * symbol: overlay1AdvanceGauge
- * score: 26 differing words
+ * score: 25 differing words
  * frame: 0x40
  * relocations: 3
- * first-mismatch: +0x14
- * summary: Fresh exact-size V0: 26 diffs and exact 0x40 frame; candidate 3 vs target 1 reloc, with D_0 HI/LO runtime identity ambiguous.
+ * first-mismatch: +0x18
+ * summary: register-only at 25 words; the volatile pad moved last closes the stack home, and one extra pool web is the whole residual.
  * PLATEAU-HANDOFF:overlay1AdvanceGauge:end
  */
