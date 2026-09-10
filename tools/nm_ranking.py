@@ -2070,6 +2070,13 @@ def main() -> int:
         help="emit machine-readable coverage (requires --check-freshness)",
     )
     maintenance_mode.add_argument(
+        "--check-retired", action="store_true",
+        help="without compiling, fail only if the retained ranking lists a "
+             "function that is no longer queued (already matched). Narrower "
+             "than --check-freshness, which also fails on stale scores and so "
+             "cannot gate ordinary commits",
+    )
+    maintenance_mode.add_argument(
         "--prune-stale",
         action="store_true",
         help="without compiling, remove rows from --out whose exact file/symbol "
@@ -2114,6 +2121,39 @@ def main() -> int:
             print("ranking freshness: run tools/nm_ranking.py --refresh-stale "
                   "to measure all stale/new/unresolved rows", file=sys.stderr)
         return 0 if coverage["complete"] else 1
+
+    if args.check_retired:
+        # Deliberately narrower than --check-freshness. A *stale score* is a
+        # normal consequence of editing a candidate-bearing TU, so gating on
+        # it would fail nearly every commit. A *retired row* is different: it
+        # names a function that has been matched and is no longer queued, so
+        # the row is not out of date, it is wrong. Planning reads this file to
+        # choose targets, and a retired row invites re-deriving a match that
+        # already landed -- which is exactly what happened on 2026-09-10, when
+        # a sweep for work stranded on unmerged branches reported a function
+        # as still queued hours after it was matched, briefly making a closed
+        # problem look like an open systemic one.
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            contexts = current_source_contexts(pb.discover_queue())
+            legacy = legacy_source_contexts(args.evidence_ref, args.out, document)
+            coverage = source_coverage(document, contexts, legacy)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(f"ranking retired-check: {exc}", file=sys.stderr)
+            return 2
+        retired = coverage["retired"]
+        if not retired:
+            print(f"ranking: no retired rows ({coverage['retained']} retained, "
+                  f"{coverage['live']} live)")
+            return 0
+        print(f"ranking lists {len(retired)} function(s) that are no longer "
+              f"queued (already matched):", file=sys.stderr)
+        for key in retired[:10]:
+            print(f"  {'::'.join(str(part) for part in key)}", file=sys.stderr)
+        if len(retired) > 10:
+            print(f"  (and {len(retired) - 10} more)", file=sys.stderr)
+        print("run tools/nm_ranking.py --refresh-stale", file=sys.stderr)
+        return 1
 
     if args.jobs < 1:
         print("error: --jobs must be at least 1", file=sys.stderr)
