@@ -57,30 +57,24 @@ void overlay57EaseAndLatch(s32 updateRate) {
     O57Ease28B4Transform *target;
     u32 flags;
     s32 i;
-    s32 x;
-    s32 y;
 
     gO57Ease28B4State144 = 0;
 
     i = 0;
     if (updateRate > 0) {
         do {
-            x = gO57Ease28B4Record21C.x;
-            y = gO57Ease28B4Record21C.y;
             i++;
-            gO57Ease28B4Record21C.y = (s16)(y + ((0xBE - y) >> 3));
-            gO57Ease28B4Record21C.x = (s16)(x + ((0x104 - x) >> 3));
+            gO57Ease28B4Record21C.x = (s16)(gO57Ease28B4Record21C.x + ((0x104 - gO57Ease28B4Record21C.x) >> 3));
+            gO57Ease28B4Record21C.y = (s16)(gO57Ease28B4Record21C.y + ((0xBE - gO57Ease28B4Record21C.y) >> 3));
         } while (i != updateRate);
     }
 
     i = 0;
     if (updateRate > 0) {
         do {
-            x = gO57Ease28B4Record23C.x;
-            y = gO57Ease28B4Record23C.y;
             i++;
-            gO57Ease28B4Record23C.y = (s16)(y + ((0xBE - y) >> 3));
-            gO57Ease28B4Record23C.x = (s16)(x + ((0x32 - x) >> 3));
+            gO57Ease28B4Record23C.x = (s16)(gO57Ease28B4Record23C.x + ((0x32 - gO57Ease28B4Record23C.x) >> 3));
+            gO57Ease28B4Record23C.y = (s16)(gO57Ease28B4Record23C.y + ((0xBE - gO57Ease28B4Record23C.y) >> 3));
         } while (i != updateRate);
     }
 
@@ -123,10 +117,10 @@ void overlay57EaseAndLatch(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57EaseAndLatch:start
  * symbol: overlay57EaseAndLatch
- * score: 129/221 words
+ * score: 0/221 words
  * frame: 0x28
  * relocations: 36
- * first-mismatch: +0x2C
- * summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
+ * first-mismatch: none
+ * summary: Exact: reading each halfword field in place rather than through an s32 local removes the whole private allocation web, and emitting the horizontal statement first fixes the paired load order.
  * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
  */

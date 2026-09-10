@@ -2,9 +2,9 @@
 ### `overlay57EaseAndLatch` plateau handoff
 
 - source: `src/overlays/o057/overlay57EaseAndLatch.c`
-- score: 129/221 words
+- score: 0/221 words
 - frame: 0x28
 - relocations: 36
-- first mismatch: +0x2C
-- summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
+- first mismatch: none
+- summary: Exact: reading each halfword field in place rather than through an s32 local removes the whole private allocation web, and emitting the horizontal statement first fixes the paired load order.
 <!-- plateau-handoff:overlay57EaseAndLatch:end -->
