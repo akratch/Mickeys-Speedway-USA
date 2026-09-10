@@ -74,9 +74,12 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/* Workbench p5: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
- * Levers: short-lived selection scopes improved the count only to 416 and expanded the frame; constant/CFG probes remain ruled out.
- * Remains: target -96 frame, array lifetime, and register web; no exact candidate within the attempt cap. */
+/* Workbench: exact-size at 441 instructions and frame 0x60; 256 masked words.
+ * `controller` is s8, not s32 -- as an s32 the two writes through it cost the
+ * candidate 16 instructions of sign handling, and the size delta closes with
+ * the narrower type alone. The menu-fill walk reuses `index` as its byte
+ * offset rather than declaring one more local, which is the last 8 bytes of
+ * frame. What remains is a temp-ring offset with its onset at +0x7C. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     Overlay57MenuSource *source;
@@ -86,8 +89,7 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     s32 selection;
     s32 index;
     s32 count;
-    s32 controller;
-    s32 offset;
+    s8 controller;
 
     if (overlay84GetActive() != 0) {
         return;
@@ -191,13 +193,13 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
         }
 
         controller = 0;
-        offset = gOverlay57MenuCount * sizeof(Overlay57MenuEntry);
-        while (offset < 6 * (s32)sizeof(Overlay57MenuEntry)) {
+        index = gOverlay57MenuCount * sizeof(Overlay57MenuEntry);
+        while (index < 6 * (s32)sizeof(Overlay57MenuEntry)) {
             while (activePlayers[controller] == 0) {
                 controller++;
             }
-            ((Overlay57MenuEntry *)((u8 *)gOverlay57MenuEntries + offset))->controller = controller++;
-            offset += sizeof(Overlay57MenuEntry);
+            ((Overlay57MenuEntry *)((u8 *)gOverlay57MenuEntries + index))->controller = controller++;
+            index += sizeof(Overlay57MenuEntry);
         }
 
         joyCreateMap(playerOrder);
@@ -238,10 +240,10 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F00060F8_18A9CF0:start
  * symbol: func_overlay_057_F00060F8_18A9CF0
- * score: 263 differing words
- * frame: 0x68
+ * score: 256/441 words
+ * frame: 0x60
  * relocations: 175
- * first-mismatch: +0x0
- * summary: Candidate 437 words/frame 0x68 versus target 441/0x60; 278 raw differences. Relocations 175/171, with 122 sites and 70 identities aligned.
+ * first-mismatch: +0x14
+ * summary: s8 controller closes the 16-instruction size delta and reusing index as the menu-fill offset closes the frame at 0x60; 256 words remain as a temp-ring offset with onset +0x7C.
  * PLATEAU-HANDOFF:func_overlay_057_F00060F8_18A9CF0:end
  */
