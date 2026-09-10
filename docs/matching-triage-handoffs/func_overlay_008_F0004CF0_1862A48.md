@@ -63,4 +63,55 @@ exact.
   comment carries the full exhaustion list: carrier relocation, operand order,
   volatile placement over four members, 37 physical line joins, and three
   statement-group permutations, all flat or worse.
+#### Carrier-identity and region axes, all flat (2026-09-10, lane/c6-band-a)
+
+Base `bfa8365f`, 39 masked / 44 raw, 270/270 instructions, exact `0x90` frame,
+every integer lane identical, every stack home exact. The axis tested here is
+the one that closed two other functions this week and is **not** in the
+exhaustion list above: which *existing* local carries which value, and where
+the block boundaries sit. 34 forms, none better than 39.
+
+- **Carrier identity for the rotation pair.** `axisA` is uniquely correct: the
+  eight cross-product forms that move it to `motionTarget`, `blendFactor` or
+  `horizontalA` cost 13 words or a whole instruction. `axisB`'s carrier is
+  inert (`motionTarget` and `blendFactor` are byte-identical to it), because
+  `axisB` is never a coloured web at all -- it stays in `$f0`, the second
+  call's return.
+- **Carrier identity for the tail block.** Also uniquely `axisA`: `axisB`,
+  `horizontalA`, `motionTarget` and `blendFactor` each cost 12 words,
+  `surfaceHeight` 6, and `horizontalB` grows the frame. The blend-rate carrier
+  is inert across `surfaceHeight`, `horizontalA` and `motionTarget`.
+- **Inner-block scope.** Moving `targetA` to function scope costs 24 or 26
+  words, moving `factor` there 24; `factor` before `targetA` is byte-identical.
+  A fresh inner-block `f32` carrier for `normal.x` loses an instruction (269),
+  the same failure every carrier-removal form has.
+- **Splitting the negation** (`horizontalA = ...; horizontalA = -horizontalA;`),
+  routing it through `factor`, and the `-(a) - (b)` rewrite: the first two are
+  byte-identical, the third loses an instruction. uopt folds the split back, so
+  the target's separate `add.s $f16` / `neg.s $f12,$f16` pair is not reachable
+  by splitting the statement.
+- **`volatile` placement, re-measured.** `volatile x` with the carrier is 39.
+  Direct reads with `volatile x` are 57 (two loads, same instruction count).
+  All four members volatile with direct reads scores **37**, but it is
+  structurally further away, not closer: it emits five loads where the target
+  emits three and fills both r4300 multiply-hazard `nop` slots the target
+  keeps. Recorded so the next lane does not chase it -- a lower masked count is
+  not automatically a closer candidate when the schedule moves.
+- **Read-back and guard forms.** `surfaceHeight = surfaceHeight;`,
+  `axisA = axisA;` before the carrier, `normal.y` through a local, and
+  `point.y < surfaceHeight` for `surfaceHeight > point.y` are all
+  byte-identical.
+
+**The variable, restated with what is now excluded.** uopt gives the
+`horizontalB = normal.x` copy its own FP *pool* colour (`f2`), and the target
+leaves that value in ugen's FP ring (`f8`); as a consequence the target's
+`axisA` reload takes the first pool colour `f2` where the candidate's takes
+`f16`, and the target's `horizontalA` intermediate gets its own colour `f16`
+where the candidate coalesces it into `f12`. That is 21 fp-pool sites against
+the target's 19. Nothing in the *source* neighbourhood -- 15 declaration
+orders, 16 operand orders, 15 volatile placements, 37 line joins, 3 statement
+groups, 34 carrier/scope forms here -- changes which of those two webs uopt
+colours first. Resume with a calibrated FP colouring receipt that attributes
+the two webs to source, or with a matched sibling that reads a stack aggregate
+member once and uses it twice from the FP ring.
 <!-- plateau-handoff:func_overlay_008_F0004CF0_1862A48:end -->
