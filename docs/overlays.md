@@ -1910,7 +1910,7 @@ complete overlay, and full US ROM are byte-identical.
 
 `overlay 99 +0x02A0..+0x0638` (`overlay99ApplySegment`) — 920 bytes / 230 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bijective private-representation rewrite, plus removal of a 16-byte compiler-private `.rodata` duplicate already covered by the retained runtime table); source kept as decomp-permuter input. The object covers 13 static and 27 runtime relocation roles.
 
-`overlay 11 +0x1398..+0x184C` (`overlay11UpdateMenu`) — 1,204 bytes / 301 words. NON_MATCHING: the bounded retained C has the exact `0x48` frame and 299/301 relocation-masked positional words; only the spill stores at `+0x138/+0x140` are reversed around one call. All 102 runtime relocation offsets, types, identities, and addends are exact. The exact linked range is fallback assembly only and contributes 0 exact C bytes.
+`overlay 11 +0x1398..+0x184C` (`overlay11UpdateMenu`) contributes **1,204 exact C bytes / 301 words**, at the exact `0x48` frame with no padding. All 102 runtime relocation offsets, types, identities, and addends are exact; symbol renaming and the section trim are metadata-only. The linked range and the full US ROM are recorded exact.
 
 `overlay 63 +0x077C..+0x0928` (`overlay63UpdateSequence`) — 428 bytes / 107 words; the separate `+0x0928..+0x0930` eight-byte zero padding remains assembly with no C credit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via restoring one folded identity copy and rotating a `v0`/`v1` register pair); source kept as decomp-permuter input. The object retains all 39 runtime relocation roles.
 
