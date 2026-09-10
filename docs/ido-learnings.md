@@ -988,6 +988,62 @@ bytes and disassembly never belong here.
   a flag lattice at three register words each; all three are byte-identical
   with this edit, and the translation unit's other functions do not move.
 
+- **Before adding a web, try moving a symbol boundary: it reorders `globalcolor`
+  for free.** The reservation lever above adds a web to make a lower colour
+  unavailable. On a procedure that cannot afford one -- or where the residual is
+  a whole ladder rather than a single register -- the same reordering is bought
+  by changing which *symbol* a value's references belong to, at zero width. uopt
+  colours by descending `save = totalsave / nocs`; `totalsave` is the web's
+  reference count with references inside a loop weighted x10, and `nocs` grows
+  with the web's span. Both terms are moved by declaration scope alone:
+
+  * **Merging raises save.** A variable declared once per block in two arms of a
+    dispatch is two webs; declared once at function scope it is one, with double
+    the references. On `overlay57UpdateModeState` the marked-entry pointer went
+    from 42/3 = 14 to 84/4 = 21 and jumped four places up the colouring order.
+  * **Naming splits, and splitting lowers save.** One cfe temporary serves the
+    same construct in every arm, so a compiler temporary is usually the *longest*
+    web in the region. Giving it an explicit per-arm name halves it: the same
+    function's dead post-decrement copy went from 44/2 = 22 to 22/2 = 11 and
+    fell three places.
+
+  Neither edit alone helped -- each was a 31-word regression, the L88
+  composition rule again -- and together they put the three loop webs in exactly
+  the target's order (21 > 17 > 11) and closed 16 words. Read the saves out of
+  the traced `p1dec` rows first and solve for the order you need; do not sweep
+  spellings. Evidence:
+  [the mode-state dispatch](matching-triage-handoffs/overlay57UpdateModeState.md).
+
+- **A web whose span reaches a call result has v0 struck from its candidate list
+  entirely, so "one register too low" can be a span question, not a colour
+  one.** The instrumented `p1cost` rows list only admissible colours. For a web
+  live across a call whose result is used they begin at colour 2: v0 is not
+  forbidden by an interfering coloured web, it is simply not offered, and
+  `CDX_FORCE ...=c1` on it is declined silently. A residual where the target
+  reads v0 and the candidate reads anything else is then unreachable by any
+  colouring lever, and the fix is to *shorten* the web until it no longer spans
+  the call. Shortening is the mirror of the naming lever above: on
+  `func_overlay_086_F0000474_18D22AC` two dereference sites in different switch
+  arms shared one cfe temporary, making a six-reference web that spanned both;
+  carrying one site in an already-declared local split it, and the other site
+  became a one-block web that regained v0, took it, and pulled a ten-row
+  caller-saved family down a step with it -- 51 words to 30 at delta 0, with no
+  new declaration and no frame move. Check `p1cost` before assuming a colour is
+  reachable. Evidence:
+  [the overlay 86 update](matching-triage-handoffs/func_overlay_086_F0000474_18D22AC.md).
+
+- **uopt re-materialises a cheap masked value instead of keeping a hoisted local,
+  so you cannot buy a web by naming one.** Hoisting `x & M` into a local used
+  four times inside a loop leaves the loop body byte-identical -- the mask is
+  recomputed at each use and no web appears -- and the only effect is the frame
+  cell the declaration costs. The same holds for a single-use local in an
+  address expression: uopt forward-substitutes it back into the expression
+  across basic-block boundaries, through an `if (1) { }` or `do { } while (0)`
+  region, and out of a condition's comma. Twelve hoisting forms on
+  `levelFreeAll` all collapse to one of the two orders the two literal
+  spellings already produce. If a value must become a web, it has to be
+  expensive enough that uopt will not recompute it.
+
 - **Check the procedure for a register-pressure cliff before spending a day on
   a reservation.** The dead-expression lever above adds a web, and a procedure
   whose marginal web is already at the edge of its colour pays a fixed toll for

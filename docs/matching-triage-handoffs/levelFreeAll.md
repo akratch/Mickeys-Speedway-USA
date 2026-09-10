@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Ring-index swap only; target carries the subscript signature with the index temp created before the base load, and cfe canonicalises every source form that would order it that way.
+- summary: Ring-index swap only. Exactly two ucode orders are reachable and the target's is neither: shift-first gives mask, scale, table (3) and base-first gives table, mask, scale (5), while the target needs mask, table, scale, which requires the mask as its own surviving statement in front of a base-first address. uopt forward-substitutes a single-assignment local back into the address expression in every arrangement tried -- hoisted to the loop header, separated by an L97 region, assigned in the else-if condition's comma, or assigned in a comma inside the add's own left operand -- so twelve hoisting forms plus nine spelling variants all land on 3 or 5. Two uses (m + m) do produce the target's order but put the mask on a pool colour and turn the shift into an add, and a volatile index is 43 at delta 8.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
