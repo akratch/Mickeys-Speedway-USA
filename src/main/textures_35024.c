@@ -210,76 +210,23 @@ void func_800347A0(TextureHeader *tex) {
         }
     }
 }
-/* Bounded full-TU reproof (2026-09-04): configured C is exact-sized and
- * frameless at 11/21 words, first +0x8, with four resolved static relocation
- * identities; three retain the target offset/type. Ten natural loop,
- * declaration, parameter-type, and pointer-lifetime forms were tested. Direct
- * indexing shrank to 19 instructions, explicit early exit grew to 23, a named
- * cache base worsened allocation, and the remaining forms were byte-identical.
- *
- * 2026-09-10, lane nm-mixed: 10 -> 5 differing words by composing two edits,
- * each of which is inert on its own.
- *  1. Copying the parameter into a local frees the incoming argument register:
- *     the entry-pointer web outranks the parameter web on uopt's priority and
- *     takes the parameter's home register, forcing a copy. Naming the local
- *     splits the two webs and the parameter keeps its home (10 -> 8).
- *  2. Hoisting the cache base into a local ASSIGNED INSIDE THE GUARD (not at
- *     the top of the function, which is 20 words) puts the base web ahead of
- *     the entry web, so the base wins the lower colour (8 -> 5).
- *  3. Casting the base to s32 before the byte offset is what makes ugen emit
- *     the address sum base-first; every pointer-arithmetic spelling tried
- *     (&cache[i], cache + i, &i[cache], (u8 *)cache + (i << 3)) emits the
- *     scaled index first. This is a spelling lever and is worth reusing.
- * Falsified here: a local trip count (unrolls the loop -- this TU has no
- * -Wo,-loopunroll,0), while/for loop forms, explicit index locals, u8/u32/s32
- * base types, subscript reversal, and every guard spelling.
- *
- * The whole 5-word residual is now ONE mechanism: a uniform +1 rotation of
- * ugen's temp ring. The target's first ring pop in the preheader is the second
- * slot of the FIFO, ours the first, so the shift temp and the field-load temp
- * are each one position early. Per the ring law that is a COUNT question: the
- * target pops and frees exactly one ring temp in the entry block that emits no
- * instruction. Twenty-eight further forms did not produce it.
- *
- * The ugen ring-pop family in docs/ido-learnings.md ("an index scaled twice
- * costs one more pop than an index scaled once") IS the right family and was
- * tested directly. Scaling twice does buy the pop and does rotate the ring to
- * the target's two slots exactly -- but only in the spellings where IDO keeps
- * both shifts, which costs two instructions ((i << 1) << 2, (i << 2) << 1,
- * (i << 1) * 4 and the u32 variant all land at 23 words). Every spelling that
- * folds the two scalings into one shift also folds the pop away and stays at
- * five ((i << 0) << 3, (i << 3) << 0, (i << 3) | 0), and every spelling that
- * strength-reduces to a pointer increment loses the shift altogether
- * ((i * 2) * 4, (i + i) * 4, 4 * (i * 2), i * 8, and a word-typed pair table).
- * So the pop and the folded shift are, in this construct, mutually exclusive;
- * closing this needs a pop bought somewhere other than the index. */
-#ifdef NON_MATCHING
-s32 func_8003484C(void *arg0) {
-    void *texture = arg0;
-    TextureCacheEntry *cache;
-    s32 i = 0;
+/* Matched from a 5-word plateau by one edit: indexing the cache as the
+ * two-word pair table the rest of this TU already uses. The residual was a
+ * uniform +1 rotation of ugen's integer temp ring -- the target's shift and
+ * field-load temps are t7/t8 where a hand-scaled byte offset gives t6/t7 --
+ * and an index that is scaled twice (by TEXTURE_CACHE_PTR and again by the
+ * union's own element size) buys exactly the one extra ring pop that rotation
+ * needs, with no instruction. The hand-scaled `(s32)cache + (i << 3)` forms
+ * that preceded this could not: every spelling that kept both shifts cost two
+ * instructions and every spelling that folded them lost the pop.
+ * func_800347A0 above indexes the same table the same way. */
+s32 func_8003484C(void *texture) {
+    s32 i;
 
-    if (D_800D2FE0 > 0) {
-        cache = (TextureCacheEntry *)D_800D2FD8;
-        do {
-            TextureCacheEntry *entry = (TextureCacheEntry *)((s32)cache + (i << 3));
-            i++;
-            if (texture == entry->texture) {
-                return entry->id;
-            }
-        } while (i < D_800D2FE0);
+    for (i = 0; i < D_800D2FE0; i++) {
+        if (texture == ((TextureCacheWord *)D_800D2FD8)[TEXTURE_CACHE_PTR(i)].texture) {
+            return ((TextureCacheWord *)D_800D2FD8)[TEXTURE_CACHE_ID(i)].id;
+        }
     }
     return -1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_8003484C.s")
-#endif
-/* PLATEAU-HANDOFF:func_8003484C:start
- * symbol: func_8003484C
- * score: 16/21 words
- * frame: frameless
- * relocations: 4
- * first-mismatch: +0x1C
- * summary: Parameter, base-hoist and s32-cast edits closed the colour and operand-order questions; the residual is a uniform one-slot rotation of ugen's temp ring and needs one extra instruction-free ring pop in the entry block.
- * PLATEAU-HANDOFF:func_8003484C:end
- */
