@@ -6,7 +6,7 @@
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x40
-- summary: Six carrier-colour sites; the frame admits exactly seven locals, so no boolean can be named. 1,200 new cells flat at 39.
+- summary: Not a colouring residue: 168 single-web globalcolor forces leave it at 39 or worse. The shipped short-circuit blocks emit sltu/bnez/move, the signature of a C short-circuit or and not of an if-return-1; the short-circuit spelling reproduces that triple exactly in the object and costs one duplicated node->side load per block, so it lands eight bytes short. The boolean shape and the duplicated load are wanted together and no spelling yet gives both.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
