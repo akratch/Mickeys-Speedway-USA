@@ -37,8 +37,6 @@ extern void o57Tail2C28FinishReloc(void);
 #ifdef NON_MATCHING
 void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     s32 i;
-    s32 x;
-    s32 y;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -48,26 +46,18 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     i = 0;
     if (smoothingSteps > 0) {
         do {
-            x = gO57Tail2C28Record21C.x;
-            y = gO57Tail2C28Record21C.y;
             i++;
-            gO57Tail2C28Record21C.y =
-                (s16)(y + ((0xBE - y) >> 3));
-            gO57Tail2C28Record21C.x =
-                (s16)(x + ((0x17C - x) >> 3));
+            gO57Tail2C28Record21C.x = (s16)(gO57Tail2C28Record21C.x + ((0x17C - gO57Tail2C28Record21C.x) >> 3));
+            gO57Tail2C28Record21C.y = (s16)(gO57Tail2C28Record21C.y + ((0xBE - gO57Tail2C28Record21C.y) >> 3));
         } while (i != smoothingSteps);
     }
 
     i = 0;
     if (smoothingSteps > 0) {
         do {
-            x = gO57Tail2C28Record23C.x;
-            y = gO57Tail2C28Record23C.y;
             i++;
-            gO57Tail2C28Record23C.y =
-                (s16)(y + ((0xBE - y) >> 3));
-            gO57Tail2C28Record23C.x =
-                (s16)(x + ((-0x46 - x) >> 3));
+            gO57Tail2C28Record23C.x = (s16)(gO57Tail2C28Record23C.x + ((-0x46 - gO57Tail2C28Record23C.x) >> 3));
+            gO57Tail2C28Record23C.y = (s16)(gO57Tail2C28Record23C.y + ((0xBE - gO57Tail2C28Record23C.y) >> 3));
         } while (i != smoothingSteps);
     }
 
@@ -98,10 +88,10 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
 
 /* PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:start
  * symbol: overlay57SmoothAndCheckDistance
- * score: 108/200 words
+ * score: 0/200 words
  * frame: 0x30
  * relocations: 24
- * first-mismatch: +0x24
- * summary: Authorized V0 reproduced 800B, 97 raw/92 masked diffs, 24/24 relocation shape, 18 exact identities, and six unresolved calls.
+ * first-mismatch: none
+ * summary: Exact by direct transfer of the overlay57EaseAndLatch smoothing-loop idiom: in-place halfword fields, no s32 locals, horizontal statement before vertical.
  * PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:end
  */
