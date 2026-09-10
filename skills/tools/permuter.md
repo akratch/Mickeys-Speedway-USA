@@ -41,6 +41,20 @@ project's backslash-continued C rule) and how to retarget it for `src/main`
 or `src/overlays` functions (`-O2 -mips2 -32`) or the other libultra flag
 groups.
 
+**The importer reformats the source, so a physical-line lever does not
+survive into the scratch.** `import.py` re-prints the translation unit from
+its own parse -- braces moved, statements re-split one per line -- and
+`as1`'s scheduler tie-break reads physical source line numbers
+([L59](../../docs/ido-learnings.md)), so any statement fold that is load
+bearing is undone before the first candidate is generated. Measured on
+`func_overlay_071_F0000870_18CA390`, 2026-09-10: the tree's source scores 11
+relocation-masked words and the permuter reported `base score = 420`, the
+unfolded form's score, then spent fourteen minutes improving the wrong base
+to 200. Check the scratch `base.c` against the real object before believing a
+base score, and treat a base score that disagrees with
+`tools/score_symbol.py` as a scratch-fidelity failure rather than a scoring
+convention.
+
 A zero score is not the goal here -- the goal is a shorter list of candidate
 edits for a human (or the matching loop) to evaluate. Never commit anything
 from `build/permuter/`.

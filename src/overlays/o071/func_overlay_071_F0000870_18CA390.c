@@ -59,6 +59,16 @@ extern void func_800241BC(Overlay71Command **commands);
  * lattice (`register` is inert at -O2, `volatile` changes the frame), six
  * uopt region boundaries (L97), `!= 0` and unsigned-literal test spellings,
  * hoisting `*object->resourceIndex`, and reloading `state` inside the block.
+ * Also inert, all twenty of them byte-identical to this file: wrapping each
+ * command word's constant in a nested assignment to a named local, the
+ * `w0 = (x = 0xE7000000)` idiom a permuter run proposed. The pointer form of
+ * that idiom is a real web on overlay101DrawTransformed because the pointer
+ * escapes; a constant one is propagated away here.
+ *
+ * That permuter run is also why `skills/tools/permuter.md` now warns that the
+ * importer reformats the TU: it undoes the fold above before generating a
+ * single candidate, reported this function's unfolded score of 420 as its
+ * base, and spent its whole budget improving that.
  */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
