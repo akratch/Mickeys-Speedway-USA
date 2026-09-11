@@ -114,4 +114,21 @@ Validation: `tools/finalize_plateau.py` records the guarded candidate;
 No matched bytes, symbol promotion or atlas credit is claimed. Source/object,
 score, mismatch and rationale artifacts for all attempts are retained under
 ignored `build/reconstruction/`; typed drafts are under ignored `m2cfiles/`.
+
+#### 2026-09-11, coordinator: four-bucket split, no source attempt
+
+Measured with tools/align_symbol.py on the integration branch and reproduced independently of the lane that first ran it, whose numbers were identical but whose worktree persisted nothing.
+
+  - size delta: +8
+  - positional masked: 1421
+  - byte-exact aligned rows: 456
+  - register-naming rows: 628
+  - immediate-only rows: 53
+  - really-different rows: 384
+  - displacement tax: 356
+
+Frame 0x50 is exact on both sides. The strongest lever named by the measuring pass is the node-pool liveness across the loader call; both direct-counter spellings it tried regressed, 1421 to 1425.
+
+This procedure issues calls, so by the call test it is p1-only: definition position, declaration order and statement order decide nothing here, and L100's save ratio is the axis.
+
 <!-- plateau-handoff:func_overlay_101_F0003A58_18DF278:end -->
