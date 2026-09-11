@@ -1059,9 +1059,37 @@ void func_80022E80(CameraScaledTransform *transform) {
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
  * this substantially different body is reconstructed from Mickey-only data.
  *
- * Workbench plateau: structure-mismatch; 369/369 instructions, 0xB8 candidate versus 0xB0 target frame, 203 positional words, first +0x0.
- * Levers: an explicit default-color else and gDPSetPrimColor were strict gains; the bounded permuter improved 7104 to 5720 without zero.
- * Remaining: eight-byte frame excess, twenty-byte transformed-coordinate home shift, and 55/58 relocations with 53 exact identities.
+ * The eight-byte frame excess and the twenty-byte transformed-coordinate home
+ * shift were ONE fault, and tools/frame_census.py separated them from the
+ * scheduling residual they were hiding behind.  The candidate's ladder was the
+ * target's ladder plus eight, slot for slot, once the declarations were put in
+ * the target's order; the two numbers were the same declaration list read two
+ * ways.  What the census forced:
+ *
+ *  a. angle, pitch and frameStep move ABOVE transformedX.  The target's homed
+ *     block starts transformedX three slots further down than a naive order
+ *     gives, and those three slots are register-class -- they never reach
+ *     memory, so nothing but the census could see them.
+ *
+ *  b. sine moves between rotatedX and rotatedZ, one slot the target reserves
+ *     and never writes.
+ *
+ *  c. `transform` is the LAST homed object.  Everything m2c declared after it
+ *     -- wrappedFrame, color -- has to go, because the block has to be exactly
+ *     0x68 bytes of declarations plus the 0x18 struct.  Both of those live
+ *     ranges are disjoint from `pitch`, which is dead from the angleProduct
+ *     store onwards, so one s32 carries all three (L115: reusing a local that
+ *     is already dead imports no interference at zero width).
+ *
+ * Measured with tools/align_symbol.py: 203 -> 157 masked words, frame
+ * 0xB8 -> 0xB0 exact, the ladders identical slot for slot, immediate-only
+ * 60 -> 1, byte-exact 172 -> 219 of 369, really different 62 -> 45.
+ *
+ * Measured and REJECTED: spelling the wrapped frame `sprite->frame & 0xFFFF`
+ * to reproduce the target's lh-plus-andi instead of the candidate's lhu is
+ * +4 bytes and 263 words.  The remaining 109 words are register naming, a
+ * whole-function rotation of the caller-saved bank (the candidate reloads
+ * `sprite` into a2 where the target uses a3), and five scheduling swaps.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
@@ -1069,6 +1097,9 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
     register CameraSprite *spriteEarly;
     volatile s32 angleProduct;
     s32 quadrant;
+    s32 angle;
+    s32 pitch;
+    s32 frameStep;
     f32 transformedX;
     f32 transformedY;
     f32 transformedZ;
@@ -1076,18 +1107,13 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
     f32 localY;
     f32 localZ;
     f32 rotatedX;
+    f32 sine;
     f32 rotatedZ;
     f32 cosine;
     f32 matrixScale;
     f32 horizontal;
     CameraScaledTransform transform;
-    f32 sine;
-    s32 angle;
-    s32 pitch;
-    s32 frameStep;
-    s32 wrappedFrame;
     u16 divisor;
-    s32 color;
     Gfx *cmd;
 
     spriteEarly = sprite;
@@ -1132,11 +1158,11 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
     }
     angle = (angle * frameStep) >> 14;
     if ((s32)divisor >= 2) {
-        wrappedFrame = (u16)sprite->frame;
-        while (wrappedFrame >= sprite->frameCount) {
-            wrappedFrame -= sprite->frameCount;
+        pitch = (u16)sprite->frame;
+        while (pitch >= sprite->frameCount) {
+            pitch -= sprite->frameCount;
         }
-        angle += frameStep * (((s32)divisor * wrappedFrame) /
+        angle += frameStep * (((s32)divisor * pitch) /
                               sprite->frameCount);
     }
 
@@ -1172,20 +1198,20 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 
     if (D_8007C854 != 0) {
         if (opacity != NULL) {
-            color = *opacity * D_8007C85C;
+            pitch = *opacity * D_8007C85C;
         } else {
-            color = D_8007C85C;
+            pitch = D_8007C85C;
         }
     } else {
         if (opacity != NULL) {
-            color = *opacity * 255.0f;
+            pitch = *opacity * 255.0f;
         } else {
-            color = 255;
+            pitch = 255;
         }
     }
 
-    color &= 0xFF;
-    gDPSetPrimColor((*dlist)++, 0, 0, color, color, color, alpha);
+    pitch &= 0xFF;
+    gDPSetPrimColor((*dlist)++, 0, 0, pitch, pitch, pitch, alpha);
 
     cmd = *dlist;
     *dlist = cmd + 1;
@@ -1981,11 +2007,11 @@ f32 D_80079F54 = 0.0f;
 
 /* PLATEAU-HANDOFF:func_80022FD4:start
  * symbol: func_80022FD4
- * score: 203/369 words
- * frame: 0xB8
+ * score: 157/369 words
+ * frame: 0xB0
  * relocations: 55
- * first-mismatch: +0x0
- * summary: JFG efd5abb camDoSprite is unchanged from the donor already exhausted by this plateau; next lever is Mickey-authenticated original source context.
+ * first-mismatch: +0x9C
+ * summary: The eight-byte frame excess and the twenty-byte transformed-coordinate home shift were one declaration-order fault, and tools/frame_census.py showed the candidate's whole ladder was the target's ladder plus eight. Moving angle, pitch and frameStep above transformedX, sine between rotatedX and rotatedZ, and making transform the last homed object -- which needs wrappedFrame and color gone, both carried by pitch, dead from the angleProduct store onward, under L115 -- makes the two ladders identical slot for slot at frame 0xB0 and takes 203 to 157 with immediate-only 60 -> 1 and byte-exact 172 -> 219. Rejected with a measurement: sprite->frame & 0xFFFF for the target's lh-plus-andi is +4 bytes and 263 words. What is left is 109 register-naming words -- a whole-function rotation of the caller-saved bank -- and five scheduling swaps.
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 

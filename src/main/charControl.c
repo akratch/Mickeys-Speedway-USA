@@ -1427,58 +1427,96 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 433 differing words, first mismatch +0x0. */
 /* Candidate shape: 533 instructions and frame -0x268, both exact; 260 alignment gaps. */
-/* The 0x38-byte frame excess this candidate used to carry was a declaration
- * census, not an allocation problem: fourteen m2c-only carriers (the
- * horizontal/vertical aliases of normalX/normalZ, the write-only spC0 and
- * sp84 slots, the dead `remainder`, the rotation-clamp temporaries, the
- * one-use scale factors, the sp8C alias of &player->unk2F0, the `dot`
- * carrier and the two velocity carriers) sized the local block in 8-byte
- * steps.  Removing them left the instruction count untouched and took the
- * frame -0x2A0 -> -0x268.  The last pair costs +3 words, which is the price
- * of reading actor->velocityX/Z directly; that is the next thing to buy back.
- * Remaining gap: 260 alignment gaps and 238 opcode differences -- the block
- * geometry inside the collision loop, not the frame. */
+/* Declared to the target's own stack ladder, read off tools/frame_census.py.
+ * The frame was already exact at 0x268 and the census still reported 19 slots
+ * only this candidate used and 24 only the target did, so the excess was never
+ * a size question -- it was ORDER, and the four rules the census pinned down
+ * are worth stating because none of them is visible in a frame total:
+ *
+ *  a. EVERY declared local reserves a home, in declaration order, descending
+ *     from the frame top and aligned to its own type, whether or not it ever
+ *     reaches memory.  The seven register-class locals this function used to
+ *     declare first reserved 0x1C bytes above `points` and pushed every
+ *     homed object 0xF8 too low.  That is L99 read forwards: the ladder is a
+ *     linear readout of the declaration list, so the list can be solved for.
+ *
+ *  b. The target's order is records, points, radius -- largest first, and
+ *     three register-class slots above records -- then the accumulator triple,
+ *     the RPY triple, endpoint, the spEC triple, the spE0 triple, spD4, the
+ *     three spilled floats, spB8, spAC, the rotation shorts.
+ *
+ *  c. A three-float local whose address escapes only through its FIRST member
+ *     loses the other two: they are separate symbols, nothing escapes them,
+ *     and uopt constant-propagates their stores away.  The target stores all
+ *     three, so the target declares them as ONE object.  spE0 and sp104 are
+ *     ControlVector3 here for that reason, and spA4 is an s16 array.  This is
+ *     L118 in the other direction -- not "does the target declare it at all"
+ *     but "does the target declare it SEPARATELY at all".
+ *
+ *  d. spEC/spF0/spF4 must stay three separate locals: the target hoists the
+ *     spF0 and spF4 loads out of the accumulate loop exactly as separate
+ *     non-escaping locals do, and making them one aggregate keeps them inside.
+ *     Making spEC an aggregate and reverting was worth 109 words on its own.
+ *
+ * Two further edits were measured here, both structural rather than home:
+ * `record = records` moved inside the `spB8 > 0` preheader so uopt cannot
+ * merge the array's address with the call argument's (L110), worth 9 words
+ * and the second `addiu ...,sp,348` the target emits; and the two `!= spB8`
+ * loop guards respelled `< spB8` for the target's `blez`.
+ *
+ * Measured with tools/align_symbol.py: 433 -> 299 masked words, byte-exact
+ * 146 -> 390 of 533, register naming 241 -> 79, really different 131 -> 57,
+ * size delta 0 throughout.  The home set is now exact except for two compiler
+ * temps (0x7C here against the target's 0x84 and 0x8C).
+ *
+ * Measured and REJECTED: merging pointIndex and collisionIndex into a single
+ * index -- the target's `move s2,zero` sits on the collision loop's exit path,
+ * which reads like one shared index, but the merge drops ten instructions
+ * (size delta -40) and byte-exact to 288, so the target has at least two.
+ * Hoisting either index reset to the previous loop's exit costs +4 words. */
 s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
+    ControlVector3 *pointSource;
+    u8 *pointDest;
+    u32 temp_v0;
+    u8 records[0x100];
+    u8 points[0x30];
+    f32 radius[4];
+    volatile f32 sp118;
+    volatile f32 sp114;
+    f32 sp110;
+    ControlVector3 sp104;
+    ControlVector3 endpoint;
+    ControlVector3 spEC;
+    ControlVector3 spE0;
+    CharControlGroundRecord *record;
+    u8 *player320;
+    f32 spD4;
+    u8 *player324;
+    u32 bit;
+    f32 directionX;
+    f32 directionZ;
+    f32 normalZ;
+    f32 var_f18;
+    s32 spB8;
+    f32 normalX;
+    u32 collisionMask;
+    s32 spAC;
+    s16 spA4[4];
     s16 spA2;
     s16 spA0;
     s32 pointIndex;
-    u32 collisionMask;
-    u32 bit;
     s32 collisionIndex;
-    u8 *pointSource;
-    u8 *pointDest;
-    u32 temp_v0;
-    f32 spD4;
-    u8 points[0x30];
+    f32 var_f4;
+    f32 temp_f14;
+    u32 temp_v0_2;
 
     func_8001EFFC((ControlTransform *) actor, player, (f32 *) points);
+    spB8 = player->unk2BC;
     {
-        const s32 spB8 = player->unk2BC;
-        s32 spAC;
-
         {
-        f32 radius[4];
-        u8 records[0x100];
-        CharControlGroundRecord *record;
-        u8 *player320;
-        u8 *player324;
-        f32 spE8;
-        f32 spE4;
-        f32 spE0;
-        s16 spA8;
-        s16 spA6;
-        s16 spA4;
-        f32 normalZ;
-        f32 normalX;
-        f32 directionX;
-        f32 directionZ;
-        f32 temp_f14;
-        f32 var_f18;
-        f32 var_f4;
-        u8 temp_v0_2;
 
         pointIndex = 0;
-        while (pointIndex != spB8) {
+        while (pointIndex < spB8) {
             radius[pointIndex] = player->unk2B8[pointIndex].w;
             pointIndex += 1;
         }
@@ -1502,8 +1540,8 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
             bit = 1;
             collisionMask = temp_v0 & 0x3FFFFFFF;
             collisionIndex = 0;
-            record = (CharControlGroundRecord *) records;
             if (spB8 > 0) {
+                record = (CharControlGroundRecord *) records;
                 player320 = (u8 *) player;
                 player324 = (u8 *) player;
                 do {
@@ -1519,21 +1557,21 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                             player->unk34B = (u8) (player->unk34B | bit);
                         }
                         if (record->unk3D & 0x24) {
-                            spE0 = 0.0f;
-                        spE4 = 0.0f;
-                        spE8 = -1.0f;
-                        spA6 = 0;
-                        spA8 = 0;
-                        spA4 = actor->rotationX;
-                        mathOneFloatRPY((ControlTransform *) &spA4, &spE0);
+                            spE0.x = 0.0f;
+                        spE0.y = 0.0f;
+                        spE0.z = -1.0f;
+                        spA4[1] = 0;
+                        spA4[2] = 0;
+                        spA4[0] = actor->rotationX;
+                        mathOneFloatRPY((ControlTransform *) spA4, &spE0.x);
                         spD4 = sqrtf((record->unk18 * record->unk18) +
                                      (record->unk10 * record->unk10));
                         normalZ = record->unk18 / spD4;
                         normalX = record->unk10 / spD4;
-                        player->unk90 = (normalZ * spE0) -
-                                        (spE8 * normalX);
-                        var_f18 = (spE8 * normalZ) +
-                                  (spE0 * normalX);
+                        player->unk90 = (normalZ * spE0.x) -
+                                        (spE0.z * normalX);
+                        var_f18 = (spE0.z * normalZ) +
+                                  (spE0.x * normalX);
                         player->unk8C = var_f18;
                         if (var_f18 < 0.0f) {
                             var_f18 = -var_f18;
@@ -1563,9 +1601,6 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                             player->unk8 *= 0.5f;
                         } else if (player->flags1A8 & 1) {
                             var_f4 = (f32) temp_v0_2;
-                            if ((s32) temp_v0_2 < 0) {
-                                var_f4 += 4294967296.0f;
-                            }
                             if (var_f4 < 240.0f) {
                                 player->unk198 = (u8) (temp_v0_2 +
                                                        (s32) updateRate);
@@ -1594,48 +1629,34 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         }
     }
     {
-        volatile f32 sp118;
-        volatile f32 sp114;
-        f32 sp110;
-        f32 spEC;
-        f32 spF0;
-        f32 spF4;
-        f32 sp10C;
-        f32 sp108;
-        f32 sp104;
-
         sp110 = 0.0f;
         sp114 = 0.0f;
         sp118 = 0.0f;
         if (player->unk16C != 1) {
-            ControlVector3 endpoint;
-
-            sp104 = 0.0f;
-            sp10C = 0.0f;
-            sp108 = -50.0f;
-            mathOneFloatRPY((ControlTransform *) actor, &sp104);
+            sp104.x = 0.0f;
+            sp104.z = 0.0f;
+            sp104.y = -50.0f;
+            mathOneFloatRPY((ControlTransform *) actor, &sp104.x);
             collisionIndex = 0;
             if (spB8 > 0) {
+                pointSource = (ControlVector3 *) points;
                 do {
-                    ControlVector3 *point;
-
-                    point = (ControlVector3 *)
-                        ((u8 *) points + (collisionIndex * 0x0C));
-                    endpoint.x = sp104 + point->x;
-                    endpoint.y = sp108 + point->y;
-                    endpoint.z = sp10C + point->z;
+                    endpoint.x = sp104.x + pointSource->x;
+                    endpoint.y = sp104.y + pointSource->y;
+                    endpoint.z = sp104.z + pointSource->z;
                     spD4 = 1.0f;
-                    if (func_80010654(point, &endpoint,
-                                      (ControlVector3 *) &spEC, &spD4) != 0) {
-                        sp110 += spEC;
-                        sp114 += spF0;
-                        sp118 += spF4;
+                    if (func_80010654(pointSource, &endpoint,
+                                      &spEC, &spD4) != 0) {
+                        sp110 += spEC.x;
+                        sp114 += spEC.y;
+                        sp118 += spEC.z;
                     }
+                    pointSource += 1;
                     collisionIndex += 1;
                 } while (collisionIndex != spB8);
             }
         }
-        pointSource = (u8 *) points;
+        pointSource = (ControlVector3 *) points;
         if (player->unk173 == 0) {
             func_8001DCD0(actor->rotationX, (ControlVector3 *) &sp110,
                           &spA2, &spA0);
@@ -1665,12 +1686,12 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     }
     pointIndex = 0;
     pointDest = (u8 *) &player->unk2F0;
-    while (pointIndex != spB8) {
-        *(f32 *) (pointDest + 0x00) = *(f32 *) (pointSource + 0x00);
-        *(f32 *) (pointDest + 0x04) = *(f32 *) (pointSource + 0x04);
-        *(f32 *) (pointDest + 0x08) = *(f32 *) (pointSource + 0x08);
+    while (pointIndex < spB8) {
+        *(f32 *) (pointDest + 0x00) = pointSource->x;
+        *(f32 *) (pointDest + 0x04) = pointSource->y;
+        *(f32 *) (pointDest + 0x08) = pointSource->z;
         pointDest += 0x0C;
-        pointSource += 0x0C;
+        pointSource += 1;
         pointIndex += 1;
     }
         return spAC;
@@ -2196,10 +2217,10 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001DD70:start
  * symbol: func_8001DD70
- * score: 433 differing words
+ * score: 299/533 words
  * frame: 0x268
  * relocations: 23
- * first-mismatch: +0x0
- * summary: Frame and instruction count are both exact now; the 0x38-byte excess was fourteen m2c-only declared carriers, and removing them also cut the alignment gaps 260 -> 86. Remaining: block geometry in the collision loop (238 opcode differences).
+ * first-mismatch: +0x54
+ * summary: tools/frame_census.py named the cause the frame total hid: 19 slots only this candidate used and 24 only the target did, at an already-exact 0x268. Declaring to the target's ladder closed the home set -- one flat list in the target's order, records before points before radius, the spE0/sp104/spA4 triples spelled as single objects so uopt cannot constant-propagate the members whose address never escapes, spEC left as three separate locals so its tail members still hoist out of the accumulate loop -- and with record = records moved into the loop preheader (L110) and both != spB8 guards respelled < spB8, 433 falls to 299 with byte-exact 146 -> 390 and really different 131 -> 57. Only two compiler temps differ now, 0x7C against 0x84 and 0x8C. Rejected with measurements: one shared loop index is -40 bytes and 288 byte-exact, so the target has at least two; hoisting either index reset to the previous loop's exit is +4 words.
  * PLATEAU-HANDOFF:func_8001DD70:end
  */
