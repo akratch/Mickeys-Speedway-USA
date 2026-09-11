@@ -193,10 +193,10 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
 
 /* PLATEAU-HANDOFF:overlay2ChooseBoundary:start
  * symbol: overlay2ChooseBoundary
- * score: 195/292 words
+ * score: 97/292 words
  * frame: 0x90
  * relocations: 64
  * first-mismatch: +0x5C
- * summary: Declaring to the target frame ladder read off the objects (side1 116, side2 112, bestScore 104, axis 96, endpoint 92) takes 106 masked words to 97 with every stack home exact; the extra sltu at +0x5C and 44 naming rows remain.
+ * summary: p1-only; 95% coherent ring. Direct-count rewrite regressed to 260; line self-assignment text-flat at 97.
  * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
  */
