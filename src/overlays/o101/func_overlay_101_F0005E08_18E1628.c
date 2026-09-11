@@ -111,100 +111,46 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* Workbench: structure-mismatch, mixed constant/structure/register residual; best is size-exact at 298 positional words, first relocation divergence +0x8.
- * Lever 1 reordered the initial constant stores to kind/width/height, improving one word; sibling-equivalent asset/root variants were already regressive.
- * Remaining: 37 relocation-symbol differences and the same early temp/pool divergence as the F000512C structural twin. */
+/* Two source-shape levers took this family from 296/298 masked words to 213/211.
+ * L59 -- every per-element assignment group is ONE physical line. as1 minimises
+ *   (start_time, -aftercycles, -latency, addr, lineno, list position); with a
+ *   group's stores on separate lines `lineno` is the deciding key and orders them
+ *   in source order, while the ROM emits that group reversed. Folding the group
+ *   retires the key, the raw list order supplies the reversal, and the prologue
+ *   goes byte-exact. Worth 26 words and 3 of the 25 insertion sites on its own.
+ * L100/L115 -- the counter locals are partitioned, not shared. `index` carries the
+ *   panel-order counter D_1C4 and the text-row counter D_1D0; `slot` carries the
+ *   two node counters. That is what puts `index` in the ROM's callee-saved home
+ *   with the ROM's save placement; one shared counter gives that home to `slot`
+ *   instead and rotates the ugen ring for the rest of the function. Worth a
+ *   further 57 words, and it closed 18 of the 25 insertion sites.
+ * Measured inert (p1-only by the call test): declaration order, `register`, the
+ *   local's type, and statement order inside the text-row macro.
+ * Measured regressive: splitting `slot` per block or per call side, dropping
+ *   `slot` for a direct counter read anywhere, and moving the opacity store later.
+ * Remaining: the naming residual is nearly all ugen ring phase (L114) downstream
+ *   of `slot` taking v1 where the ROM splits it across two scratch registers;
+ *   the structural remainder is the text rows' tail, which no statement order
+ *   inside the macro reaches. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0005E08_18E1628(void) {
     s32 index;
+    s32 slot;
     s32 length;
     void *handle;
     Node20 *node20;
     Node24 *node24;
     Node32 *node32;
 
-    D_0.kind = 4;
-    D_0.width2E = 0x140;
-    D_0.height30 = 0xF0;
-    D_0.asset34 = &D_CA0;
-    D_0.color32 = 0xFF;
-    D_0.color33 = 0xFF;
-    D_0.value26 = 0;
-    D_0.value28 = 0;
-    D_0.value2A = 0;
-    D_0.value2C = 0;
-    D_0.chainType = 0;
-    D_0.chain = 0;
-    index = D_1C4;
-    D_1C0[index] = &D_1C;
-    D_1C4 = index + 1;
+    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_CA0; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; index = D_1C4; D_1C0[index] = &D_1C; D_1C4 = index + 1;
 
-    index = D_1CC;
-    node32 = &D_340[index];
-    node32->x = 0xF2;
-    node32->y = 0x14E;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = func_overlay_101_F0000000_18DB820(0x93, 0);
-    index = D_1CC;
-    node32 = &D_340[index];
-    node32->previousType = D_0.chainType;
-    node32->previous = D_0.chain;
-    node32->handle = handle;
-    D_0.chainType = 2;
-    D_0.chain = node32;
-    D_1CC = index + 1;
+    slot = D_1CC; node32 = &D_340[slot]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); slot = D_1CC; node32 = &D_340[slot]; node32->previousType = D_0.chainType; node32->previous = D_0.chain; node32->handle = handle; D_0.chainType = 2; D_0.chain = node32; D_1CC = slot + 1;
 
-    index = D_1C4;
-    D_0.x42 = 0x20;
-    D_0.width44 = 0x18;
-    D_0.y46 = 0x5A;
-    D_0.height48 = 0x20;
-    D_0.value4A = 0x4C;
-    D_0.value4C = 0x54;
-    D_0.mode40 = 0;
-    D_0.color4E = 0xFF;
-    D_0.color4F = 0xFF;
-    D_0.childType = 0;
-    D_0.child = 0;
-    D_0.data50 = D_INPUT.data98;
-    D_1C0[index] = &D_38;
-    D_1C4 = index + 1;
+    index = D_1C4; D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x5A; D_0.height48 = 0x20; D_0.value4A = 0x4C; D_0.value4C = 0x54; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data98; D_1C0[index] = &D_38; D_1C4 = index + 1;
 
-    index = D_1C8;
-    node20 = &D_200[index];
-    node20->x = 6;
-    node20->y = 0xE;
-    node20->scale = 1.0f;
-    handle = func_overlay_101_F0000000_18DB820(7);
-    index = D_1C8;
-    node20 = &D_200[index];
-    node20->previousType = D_0.childType;
-    node20->previous = D_0.child;
-    node20->handle = handle;
-    D_0.childType = 1;
-    D_0.child = node20;
-    D_1C8 = index + 1;
+    slot = D_1C8; node20 = &D_200[slot]; node20->x = 6; node20->y = 0xE; node20->scale = 1.0f; handle = func_overlay_101_F0000000_18DB820(7); slot = D_1C8; node20 = &D_200[slot]; node20->previousType = D_0.childType; node20->previous = D_0.child; node20->handle = handle; D_0.childType = 1; D_0.child = node20; D_1C8 = slot + 1;
 
-    index = D_1C4;
-    D_0.x5E = 0x20;
-    D_0.width60 = 0x40;
-    D_0.y62 = 0x20;
-    D_0.height64 = 0x78;
-    D_0.value66 = 0xC0;
-    D_0.value68 = 0x46;
-    D_0.mode5C = 0;
-    D_0.color6A = 0xFF;
-    D_0.color6B = 0xFF;
-    D_0.secondChildType = 0;
-    D_0.secondChild = 0;
-    D_0.data6C = D_INPUT.data9C;
-    D_1C0[index] = &D_54;
-    D_1C4 = index + 1;
+    index = D_1C4; D_0.x5E = 0x20; D_0.width60 = 0x40; D_0.y62 = 0x20; D_0.height64 = 0x78; D_0.value66 = 0xC0; D_0.value68 = 0x46; D_0.mode5C = 0; D_0.color6A = 0xFF; D_0.color6B = 0xFF; D_0.secondChildType = 0; D_0.secondChild = 0; D_0.data6C = D_INPUT.data9C; D_1C0[index] = &D_54; D_1C4 = index + 1;
 
 #define ADD_TEXT_ROW(field, rowY)                                            \
     index = D_1D0;                                                          \
@@ -245,10 +191,10 @@ void func_overlay_101_F0005E08_18E1628(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F0005E08_18E1628:start
  * symbol: func_overlay_101_F0005E08_18E1628
- * score: 82/380 words
+ * score: 169/380 words
  * frame: 0x38
  * relocations: 49
- * first-mismatch: +0x2C
- * summary: 298 masked/raw differences; 31 relocation sites and 6 identities align, with 37 candidate identities unresolved. Repeated-node allocation remains divergent.
+ * first-mismatch: +0x8C
+ * summary: 211 masked words; the diagnosed sibling's two levers transferred whole, structure 131 to 40 and insertions 23 to 7.
  * PLATEAU-HANDOFF:func_overlay_101_F0005E08_18E1628:end
  */
