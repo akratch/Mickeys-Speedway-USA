@@ -66,4 +66,55 @@ unreachable by any source edit -- or a construct that gives the carrier a
 definition not derived from a call result while keeping all three `jal`s and
 their argument setup byte-exact. The donor line is closed: JFG's
 `mainAnyoneHas` is still GLOBAL_ASM at efd5abb and supplies no C body.
+#### 2026-09-12 (lane `lane/p7-res2`): the or-chain DOES reach the target's control flow; the 2026-09-10 closure is wrong about that
+
+The retained early-return body still measures 10. The value of this pass is a
+falsification, and it is worth more than the three words it did not buy.
+
+**The 2026-09-10 note says "every `||`/`goto`/`do-while-break`/nested-if/early-
+return spelling collapses to the same 25-instruction a0 form". It does not.**
+That pass varied the operand spelling as one axis, applying the same spelling
+to all three operands: six spellings crossed with groupings, paddings, result
+forms and reservation webs, 1,440 cells. Varying the three operands
+*independently* -- 216 cells over six spellings -- separates them. Sixteen
+mixed forms measure **27 instructions, size delta 0, and 14 masked words**, and
+their control flow is the target's: three blocks, each normalising the call
+result, branching on it straight to the epilogue, and the branch not falling
+through to a join above it.
+
+The split is entirely predicted by the operand's *instruction count*. The 64
+forms whose three operands all normalise in one instruction (`!= 0`, `!!`,
+`(u32) != 0`, `0 !=`) are one object at 25 instructions and 19 masked, exactly
+as the closure describes. The 16 forms whose first two operands normalise in
+**two** instructions (`!(x == 0)`, or `x > 0U`, which IDO lowers the same way)
+are 27 and 14. So the two-instruction normalisation is what keeps uopt from
+commoning the three normalised results into one web, and one web is the whole
+of the old 25-instruction form.
+
+**What is left after that is the carrier, and it is the one thing the old note
+named correctly.** In the 14-word forms the chain's value still lands in a0 and
+is copied to v0 once, in the epilogue, where the target keeps each arm's value
+in a ring temporary and copies *that* into v0 in the branch's own delay slot.
+The candidate spends its extra instruction on the second half of the
+normalisation and the target spends its on the per-arm copy; the counts agree at
+27 either way. So the decision variable is unchanged -- v0 for the chain's web,
+which L101 withholds because every operand's definition reads a call result --
+but the surrounding structure is no longer in the way, and a lane resuming here
+inherits a body whose branches and blocks already agree.
+
+Two readings follow that the old note forecloses and should not:
+
+1. **A structurally exact base exists at 14**, and it is a better place to test
+   a carrier lever than the 10-word early-return body, whose eight
+   really-different words are the arms themselves.
+2. **The "six operand spellings" axis was never exhausted**, because it was
+   swept as a single uniform choice. Any lattice on this function that treats
+   the three operands as one axis is measuring 6 cells where there are 216.
+
+Axes covered this pass: the full 216-cell independent-operand cross product over
+six normalisation spellings in the plain or-chain. Not covered: the same cross
+product crossed with the groupings, result forms and reservation webs of the
+2026-09-10 lattice, and an instrumented `p1cost` capture confirming v0's absence
+from the 14-word form's carrier candidate list -- which is now a different web
+from the one that capture would have found in the 25-word form.
 <!-- plateau-handoff:func_80028FCC:end -->
