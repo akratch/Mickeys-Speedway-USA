@@ -2112,84 +2112,32 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
         }
     }
 }
-#ifdef NON_MATCHING
-/* Structural plateau: candidate and target are both 456 words with frame
- * 0x168 and all four relocation identities exact; 36 raw and relocation-masked
- * words differ, first +0x4C, while the FP schedule is exact.
- *
- * The declaration list below is a frame census, not a style choice. The
- * per-particle cursor, the two display-list command scalars and the triangle
- * list pair are declared where the target's own stack homes put them: moving
- * the cursor out of the outer list is what puts both point arrays at their
- * observed displacements, and placing the list pair two slots below the
- * triangle count reproduces the eight-byte hole the target leaves between
- * them. Nine of the twelve homes now agree. `volatile` on the command length
- * is load-bearing -- without it IDO moves the whole frame to 0x170. What
- * remains is the command length's own home and the cursor's.
- *
- * 2026-09-10, lane w8-bigclose: the head is now re-derived FROM THE OBJECTS,
- * which is what the previous pass asked for, and it separates two facts that
- * three passes have conflated.
- *
- * First, the score falsification stands and is reproduced: the two-shift
- * spelling of the command length measures 107 masked at delta 0 with the first
- * differing word still at +0x4C, and the parenthesisation variants are 107,
- * 107 and 108; carrying the count into the sum is 109, and computing the count
- * first so the sum can read it back is 411 at delta -1.  So no spelling of the
- * length's arithmetic improves on 36, exactly as the 2026-09-10 pass measured.
- *
- * Second, and this is new: the target's head arithmetic really IS the two-shift
- * form, and it shares one value with the count.  Read off the objects rather
- * than the earlier note, the target computes the eight-times value once into a
- * caller-saved temp that dies immediately, doubles the vertex count separately,
- * sums the two, adds eight, stores that sum as the command length, and stores
- * the eight-times value itself as the command count.  The candidate instead
- * builds the length as a four-times / add / double chain and stores the
- * COMMON-SUBEXPRESSION-ELIMINATED eight-times value out of a callee-saved
- * register.  So the head is two independent problems, and every pass so far has
- * moved only the first:
- *
- *   - the arithmetic, where the target shares the count's value with the sum
- *     and the candidate does not (this is the CSE the notes above describe);
- *   - the command length's stack HOME, which is frame offset 72 in the target
- *     and 96 here.  The recorded 200-cell declaration sweep reached 92, 96,
- *     100 and 104 and never 72, so the home is not a position in the existing
- *     declaration list at all -- reaching it needs the list's SHAPE to change,
- *     which declaration ORDER cannot do ([L99] orders the list; it does not
- *     resize it).  A second home differs the same way: one loop carrier spills
- *     to 108 here and to 92 in the target.
- *
- * The home is now bounded rather than merely unreached.  Reading the whole
- * frame back from the candidate object -- every stack pointer displacement the
- * function touches -- the candidate occupies 76, 96, 108, 120, 124, 136, 140,
- * 144, 148 and 152 and the target occupies 72, 76, 92, 120, 124, 136, 140,
- * 144, 148 and 152: ten memory-resident items each, agreeing everywhere except
- * that one pair.  Sweeping the ladder with that readout, not just the score:
- * 110 single-element moves of the eleven inner declarations, 72 of the nine
- * outer ones, all six orders of the three innermost, the volatile in all four
- * placements over the two command scalars, and the pair relocated to every
- * position of both other scopes -- 190-odd cells -- reach 80, 92, 96, 100 and
- * 104 for the length and never 72.  Nor can the list grow into it: a twelfth
- * declaration moves the frame to 0x170 in every form measured, INCLUDING the
- * one that ought to be free, naming the shared `(s32)vertexStart +
- * addressBase` temporary that already owns a spill slot.  So the ladder's
- * floor at eleven declarations is 76, the target has an item below it at the
- * same total frame size, and neither declaration order nor declaration count
- * reaches that.
- *
- * Next lever: the frame's SHAPE, and it needs the .mdebug census rather than
- * another order sweep -- which item owns each slot, and what makes the
- * candidate leave 80..92 empty where the target leaves 96..116 empty.  Price
- * the length's spelling only after that; pricing the spelling first is what
- * produced two contradictory head claims. */
+/* Matched 2026-09-11 (lane f10-mid). Four edits from the 36-word plateau, each
+ * measured alone against the target and read from the objects:
+ *  - the two display-list command scalars are not locals: uopt hoists
+ *    `vertexCount << 3` and `(vertexCount << 3) + (vertexCount << 1) + 8` out
+ *    of the particle loop as loop-invariant temps and spills them to the
+ *    temp slots at 76 and 72, which is why no declaration order ever reached
+ *    a 72 home for a declared length (36 -> 89, head exact through +0xFC);
+ *  - the particle cursor is `entry->particles[particleIndex]`, not a pointer
+ *    local: its strength-reduced induction temp spills to the temp slot at
+ *    92 rather than to a declared home at 108 (frame exact, 89 -> 87);
+ *  - the scale loop shares `i * 3` between the two arrays, so `points` is
+ *    read through a flat f32 view and `input` is indexed `i * 3 + k`; with
+ *    `entry->points[i].x` and `input[i][k]` the shared temp is `i * 12`,
+ *    globalcolor gives it a1, and the ring is out of phase for the rest of
+ *    the function (87 -> 4);
+ *  - two as1 tie-breaks (L59): `i = 0` first at the loop top with
+ *    `vertexStart = vertices` last, and `command = displayList++` folded
+ *    onto the w0 line of the triangle command (4 -> 2 -> 0). */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     Gfx *displayList;
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
-    f32 output[8][3];
-    f32 input[8][3];
+    f32 output[24];
+    f32 input[24];
     f32 *outputPtr;
     s32 particleIndex;
     s32 i;
@@ -2202,7 +2150,6 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
         void *triangleLists[2];
         s32 vertexIndex;
         s32 addressBase;
-        CircularParticle **particlePtr;
         u8 red;
         u8 green;
         u8 blue;
@@ -2224,23 +2171,18 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                       (s32)(entry->textureFrame * 65536.0f));
 
         particleIndex = 0;
-        particlePtr = entry->particles;
         if (entry->particleCount > 0) {
-            s32 vertexCommandCount;
-            volatile s32 vertexCommandLength;
             CircularParticle *particle;
 
-            vertexCommandLength = (vertexCount * 10) + 8;
-            vertexCommandCount = vertexCount * 8;
             do {
-                particle = *particlePtr;
-                vertexStart = vertices;
-                outputPtr = &output[0][0];
+                particle = entry->particles[particleIndex];
                 i = 0;
+                outputPtr = &output[0];
+                vertexStart = vertices;
                 while (i < vertexCount) {
-                    input[i][0] = entry->points[i].x * particle->scale;
-                    input[i][1] = entry->points[i].y * particle->scale;
-                    input[i][2] = entry->points[i].z * particle->scale;
+                    input[i * 3 + 0] = ((f32 *)entry->points)[i * 3 + 0] * particle->scale;
+                    input[i * 3 + 1] = ((f32 *)entry->points)[i * 3 + 1] * particle->scale;
+                    input[i * 3 + 2] = ((f32 *)entry->points)[i * 3 + 2] * particle->scale;
                     i++;
                 }
 
@@ -2248,7 +2190,7 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                 green = particle->green;
                 blue = particle->blue;
                 alpha = (particle->intensity >> 8) & 0xFF;
-                pointListRPY(vertexCount, (s16 *)particle, &input[0][0], &output[0][0]);
+                pointListRPY(vertexCount, (s16 *)particle, &input[0], &output[0]);
                 addressBase = 0x80000000;
                 i = 0;
                 if (vertexCount > 0) {
@@ -2268,12 +2210,11 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
 
                 command = displayList++;
                 command->words.w0 =
-                    ((vertexCommandCount | (((s32)vertexStart + addressBase) & 6)) & 0xFF) << 16 |
-                    0x04000000 | ((vertexCommandLength | (vertexIndex << 9)) & 0xFFFF);
+                    (((vertexCount << 3) | (((s32)vertexStart + addressBase) & 6)) & 0xFF) << 16 |
+                    0x04000000 | ((((vertexCount << 3) + (vertexCount << 1) + 8) | (vertexIndex << 9)) & 0xFFFF);
                 command->words.w1 = (s32)vertexStart + addressBase;
                 if (particleIndex > 0) {
-                    command = displayList++;
-                    command->words.w0 = ((((((triangleCount - 1) << 4) | 1) & 0xFF) << 16) |
+                    command = displayList++; command->words.w0 = ((((((triangleCount - 1) << 4) | 1) & 0xFF) << 16) |
                                          0x05000000 | ((triangleCount << 4) & 0xFFFF));
                     command->words.w1 = (s32)triangleLists[triangleListIndex] + addressBase;
                     triangleListIndex ^= 1;
@@ -2284,16 +2225,12 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                     vertexIndex = 0;
                 }
                 particleIndex++;
-                particlePtr++;
             } while (particleIndex < entry->particleCount);
         }
         *(Gfx **)arg0 = displayList;
         *(ParticleVertex **)arg1 = vertices;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041530.s")
-#endif
 void func_80041C50(s32 arg0, s32 arg1) {
     ParticleModelEntry *entry;
     s32 i;
@@ -2646,12 +2583,3 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 
-/* PLATEAU-HANDOFF:func_80041530:start
- * symbol: func_80041530
- * score: 36 differing words
- * frame: 0x168
- * relocations: 4
- * first-mismatch: +0x4C
- * summary: 36 words, and the head twelve are now explained. The candidate lets uopt CSE vertexCount * 8 from the triangle-list bases into a callee-saved colour across the func_800349A4 call; the target recomputes it into a ring temp that dies at once, and that single colour offsets the ring for every word from +0x4C to +0x94. Breaking the CSE -- shift spelling on the triangle-list bases together with vertexCommandLength written as vertexCommandCount plus vertexCount times two plus eight -- makes every word through +0xE4 exact and moves the first mismatch to +0xE8 at delta 0. That is the shape the withdrawn claim described, reached by a different spelling and landing at a different offset, and it is not adopted because it costs 56 words in the vertex loop and moves the volatile length home from 96 to 80 where the target has 72; the base spelling already places vertexCommandCount at the target's 76. Flat and eliminated at delta 0: four operand orders of that sum compile byte-identically, which is the L92 signature; six declaration positions and volatile placements for the length local cost one to two words; five triangle-list index spellings either restore the CSE or add a word.
- * PLATEAU-HANDOFF:func_80041530:end
- */
