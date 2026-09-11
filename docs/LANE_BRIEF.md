@@ -173,6 +173,8 @@ it end to end. The ones that carry most of the weight:
   ignored and it writes `<base>.s` beside the input.
 - `cc -Wa,-R` — as1's scheduler trace, byte-inert.
 - `cc -g3` plus the `.mdebug` reader — exact frame home census.
+**Scoring a forced object.** `score_symbol.py`, `align_symbol.py`, `frame_census.py` and `register_census.py` all recompile the TU with the *configured* command before measuring, which overwrites whatever object a `CDX_FORCE`d or instrumented run produced — so they report the **unforced** build. A lane read the same score for twelve different forces before noticing. They now warn when force or instrumented-compiler environment is set; score a forced object against its target directly instead.
+
 - `uopt -Wo,-zdbug:2` — writes `./uoptlist` with the colouring decision records.
   **Never commit it.**
 - The instrumented toolchain at `~/Desktop/dev/ido-instrumented` (`CDX_LOG`,

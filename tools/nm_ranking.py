@@ -196,6 +196,35 @@ def assemble_target(target_asm: pathlib.Path, target_o: pathlib.Path) -> None:
         raise RuntimeError(proc.stderr.strip() or "target assembly failed")
 
 
+#: Environment that means the caller is running the instrumented compiler or
+#: forcing an allocator decision. Every scorer here recompiles the TU with the
+#: *configured* command before measuring, which overwrites whatever object such
+#: a run produced -- so the number returned describes the unforced build. A lane
+#: read the same score for twelve different forces before noticing. Warn once.
+_FORCED_ENV = ("CDX_FORCE", "CDX_LOG", "CDX_PROC", "CDX_DETAIL_WEB",
+               "CDX_LINEAGE_TABLES", "IDO_DIR")
+_forced_warning_emitted = False
+
+
+def _warn_if_a_forced_object_would_be_discarded() -> None:
+    global _forced_warning_emitted
+    if _forced_warning_emitted:
+        return
+    present = [name for name in _FORCED_ENV if os.environ.get(name)]
+    if not present:
+        return
+    _forced_warning_emitted = True
+    print(
+        "warning: " + ", ".join(present) + " is set, and this scorer recompiles "
+        "the translation unit with the configured command before measuring.\n"
+        "         Any object your instrumented or forced run produced is "
+        "overwritten, so the number below\n"
+        "         describes the UNFORCED build. Score a forced object against "
+        "its target directly instead.",
+        file=sys.stderr,
+    )
+
+
 def compile_configured_tu(
     source: str, command: list[str],
 ) -> tuple[Optional[pathlib.Path], Optional[str]]:
@@ -206,6 +235,7 @@ def compile_configured_tu(
     Objects are refreshed once per TU per measurement pass; no old object is
     accepted after a failed compiler invocation.
     """
+    _warn_if_a_forced_object_would_be_discarded()
     output = WORK_DIR / "configured" / f"{source}.o"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.unlink(missing_ok=True)
