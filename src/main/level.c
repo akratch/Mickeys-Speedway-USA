@@ -477,21 +477,41 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
          * colour taken and falls one further, which is the target's pair
          * exactly.  The 16 words really are one decision, and the two
          * interfering caller-saved webs it needs must be decided in the first
-         * eleven -- a constraint on their save, not on their position. */
+         * eleven -- a constraint on their save, not on their position.
+         *
+         * 2026-09-11, lane f9-audit: those two webs were already in the
+         * function.  uopt's web is the SYMBOL, not the def-use chain --
+         * f_intfering intersects two live-BLOCK bit vectors, and a symbol's
+         * live blocks are the union over all of its uses -- so carrying the
+         * resource id in `shouldPlay` (the first tune loop's flag: a2, save
+         * 40, decided seventh, live in the blocks where the v0/v1 tune-loop
+         * temps 223/224 live) hands the loop value a web whose forbidden set
+         * is c1..c4.  It takes a2 and the address web falls to a3 behind it:
+         * 22 -> 6 at delta 0, frame unchanged.  Every other existing local
+         * was measured as the carrier (tune 17, lvlCount 30, j 31, freeSlot
+         * and i move the frame); a fresh local cannot do it because it has
+         * no second use.  `s16 resourceId` stays declared only to hold the
+         * frame cell the original spent on some local this function no
+         * longer reads; nothing in the object says which local that was.
+         * The same carrier trick does NOT reach the 6-word order term: a
+         * masked index named into j/lvlCount/i at the top of the body is
+         * copy-propagated back into every arm before live ranges form (88
+         * and 92), so L102 holds for a shared symbol too -- a carrier only
+         * works on a value that survives copy propagation. */
         for (off = 0; off < D_800CF508; off++) {
             s16 resourceId;
 
-            resourceId = D_8007A0F4[off];
-            if ((resourceId & 0xC000) == 0xC000) {
-                D_800CF490[off] = func_80034448(resourceId & 0x3FFF);
-            } else if ((resourceId & 0x8000) & 0x8000) {
-                D_800CF490[off] = func_800355A0(resourceId & 0x3FFF, 0);
-            } else if ((resourceId & 0x4000) & 0x4000) {
+            shouldPlay = D_8007A0F4[off];
+            if ((shouldPlay & 0xC000) == 0xC000) {
+                D_800CF490[off] = func_80034448(shouldPlay & 0x3FFF);
+            } else if ((shouldPlay & 0x8000) & 0x8000) {
+                D_800CF490[off] = func_800355A0(shouldPlay & 0x3FFF, 0);
+            } else if ((shouldPlay & 0x4000) & 0x4000) {
                 D_800CF490[off] = func_8000486C(
-                    *(s16 *) ((((resourceId & 0x3FFF) & 0x3FFF) << 1) +
+                    *(s16 *) ((((shouldPlay & 0x3FFF) & 0x3FFF) << 1) +
                               (u32) D_800C94E0));
             } else {
-                D_800CF490[off] = func_8001F520(resourceId & 0x3FFF, 0);
+                D_800CF490[off] = func_8001F520(shouldPlay & 0x3FFF, 0);
             }
         }
         runlinkDownloadCode(0x17);
@@ -842,10 +862,10 @@ s32 levelInitRegionFlags(void) {
 
 /* PLATEAU-HANDOFF:levelInit:start
  * symbol: levelInit
- * score: 22 differing words
+ * score: 6 differing words
  * frame: 0x80
  * relocations: 110
- * first-mismatch: +0x250
- * summary: 113 words to 22; both terms are now closed against every lever this project has, with the interference structure measured rather than inferred. 16 words are web 104's colour (the s16 resourceId takes c1/v0, the target wants c5/a2, and forcing p1:w104=c5 scores 6 at delta 0). Its forbidden set is only c3 and c4 from the loop's own argument setup, so it needs two interfering caller-saved webs on c1 and c2. Adding them is barred by the measured register-pressure cliff -- any second dead expression is +120 bytes and 30 words across 54 cells -- and reordering existing ones is barred by the traced interference list: of web 104's twelve interferers exactly one holds a caller-saved colour, at save 2.5 against 26.7, and the other eleven are callee-saved because they live across a loop that calls. The span lever that closed overlay 86 does not apply either: web 104's p1cost list begins at colour 1, so v0 is offered and its span is already short. Naming the masked index or the store address to manufacture the missing webs fails a third way -- uopt re-materialises a cheap masked value at each use, leaving the loop body byte-identical and only paying the twelfth declaration's frame cell (24 words, 24, and 29 for both). The other 6 words are levelFreeAll's 3: exactly two ucode orders are reachable, shift-first mask/scale/table and base-first table/mask/scale, the target needs mask/table/scale, and uopt forward-substitutes any hoisted index local back into the address expression across block boundaries, L97 regions and condition commas alike.
+ * first-mismatch: +0x328
+ * summary: 2026-09-11, lane f9-audit: 22 to 6 at delta 0. The 16-word colour term was never a colouring problem. uopt forms one web per SYMBOL (f_intfering is a bit-vector intersection of live BLOCKS, and a symbol's live blocks are the union over all its uses), so carrying the resource id in the existing `shouldPlay` local -- a2 already, decided seventh at save 40, live beside the v0/v1 tune-loop temps -- forbids c1 and c2 for the loop value with no new web and no frame change; the address web falls to a3 behind it exactly as predicted. The earlier closure held the CARRIER IDENTITY fixed while it varied everything around it: a six-cell sweep over the existing locals finds it (shouldPlay 6, tune 17, lvlCount 30, j 31, freeSlot and i move the frame). The remaining 6 words are the levelFreeAll order term (target pops mask, table, scale, sum, then one phantom; candidate pops phantom, mask, scale, table, sum), re-measured flat across 32 spellings on the new base, including index-first pointer adds and named-mask carriers in every existing local.
  * PLATEAU-HANDOFF:levelInit:end
  */

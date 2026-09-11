@@ -2,11 +2,11 @@
 ### `levelInit` plateau handoff
 
 - source: `src/main/level.c`
-- score: 22 differing words
+- score: 6 differing words
 - frame: 0x80
 - relocations: 110
-- first mismatch: +0x250
-- summary: 113 words to 22; both terms are now closed against every lever this project has, with the interference structure measured rather than inferred. 16 words are web 104's colour (the s16 resourceId takes c1/v0, the target wants c5/a2, and forcing p1:w104=c5 scores 6 at delta 0). Its forbidden set is only c3 and c4 from the loop's own argument setup, so it needs two interfering caller-saved webs on c1 and c2. Adding them is barred by the measured register-pressure cliff -- any second dead expression is +120 bytes and 30 words across 54 cells -- and reordering existing ones is barred by the traced interference list: of web 104's twelve interferers exactly one holds a caller-saved colour, at save 2.5 against 26.7, and the other eleven are callee-saved because they live across a loop that calls. The span lever that closed overlay 86 does not apply either: web 104's p1cost list begins at colour 1, so v0 is offered and its span is already short. Naming the masked index or the store address to manufacture the missing webs fails a third way -- uopt re-materialises a cheap masked value at each use, leaving the loop body byte-identical and only paying the twelfth declaration's frame cell (24 words, 24, and 29 for both). The other 6 words are levelFreeAll's 3: exactly two ucode orders are reachable, shift-first mask/scale/table and base-first table/mask/scale, the target needs mask/table/scale, and uopt forward-substitutes any hoisted index local back into the address expression across block boundaries, L97 regions and condition commas alike.
+- first mismatch: +0x328
+- summary: 2026-09-11, lane f9-audit: 22 to 6 at delta 0. The 16-word colour term was never a colouring problem. uopt forms one web per SYMBOL (f_intfering is a bit-vector intersection of live BLOCKS, and a symbol's live blocks are the union over all its uses), so carrying the resource id in the existing `shouldPlay` local -- a2 already, decided seventh at save 40, live beside the v0/v1 tune-loop temps -- forbids c1 and c2 for the loop value with no new web and no frame change; the address web falls to a3 behind it exactly as predicted. The earlier closure held the CARRIER IDENTITY fixed while it varied everything around it: a six-cell sweep over the existing locals finds it (shouldPlay 6, tune 17, lvlCount 30, j 31, freeSlot and i move the frame). The remaining 6 words are the levelFreeAll order term (target pops mask, table, scale, sum, then one phantom; candidate pops phantom, mask, scale, table, sum), re-measured flat across 32 spellings on the new base, including index-first pointer adds and named-mask carriers in every existing local.
 
 #### 2026-09-10, lane c4-resident: 113 to 22, and the ring term closed
 
@@ -174,5 +174,83 @@ fix web 104 and the address web finds that colour taken and falls one further --
 the target's pair exactly. So the 16 words are one decision, and the two
 interfering caller-saved webs it needs have to be decided **within the first
 eleven**, which is a constraint on their `save`, not on their position.
+
+#### 2026-09-11, lane f9-audit: the closure held the carrier identity fixed, 22 -> 6
+
+The 16-word colour term is closed by an edit the three previous passes could
+not reach, because every one of them assumed the loop value was a web of its
+own. It is not, and the reason is a mechanism worth carrying to every other
+"needs an interfering web I cannot add" residual.
+
+**The mechanism, read from uopt itself.** `f_intfering` in the recompiled
+`uopt` is a bit-vector intersection of two live ranges' *block* sets (the
+`lineage_member` records are exactly that set: web 104 is live in seven
+blocks, the loop header and the six pre-call arm blocks -- uopt splits a block
+at a call, which is why the call result on v0 never forbids it). A live range
+is formed per **symbol**: two def-use chains of one local are one web, and
+its block set is the union. Two earlier probes on this page were read as
+"byte-identical, so no effect" when they were in fact consistent with exactly
+that: routing the switch value through the same s16 (byte-identical) and
+carrying the bound loop's load in it (126 words, the loop value still on v0)
+both put a *v0* chain into the union, which forbids nothing new.
+
+**The lever.** `shouldPlay` is web 217: a2, save 40, decided seventh, and live
+in the first tune loop's blocks beside the v0/v1 temps 223 and 224 that are
+decided first. Carrying the resource id in it instead of in `resourceId`
+(`shouldPlay = D_8007A0F4[off];` and the same name in the four tests) gives
+the loop value a web whose forbidden set is c1..c4 -- c1/c2 from the tune
+loop, c3/c4 from the arm argument setup as before -- so it takes a2, and the
+address web finds a2 taken and falls to a3. That is the pair the closure
+predicted, reached with no new web, no dead expression, no frame change and
+no region boundary. 22 -> 6, size delta 0, all 110 relocations unchanged.
+
+The carrier is unique among the existing locals, measured with the s16 cell
+kept declared: `shouldPlay` 6, `tune` 17, `lvlCount` 30, `j` 31, `freeSlot`
++16 bytes, `i` +32 bytes. `arg1`/`arg2` as carriers (a parameter is
+precoloured only on its entry chain) 504 and 31. A fresh local cannot do this,
+which is why the reservation family was measured flat: it has no second use
+to union with. So the variable the closure held fixed was the **carrier
+identity** -- it varied spelling, reservation, region, declaration order and
+statement position around a fixed set of symbols.
+
+`s16 resourceId` stays declared and unread. The frame is `0x80` only with a
+tenth cell, and the object does not say which local the original spent it on.
+
+**The remaining 6 words are the levelFreeAll order term and they did not
+move.** On the new base the target pops mask (t0), table (t1), scale (t2),
+sum (t3) and one phantom (t4) inside the table-read arm; the candidate pops
+phantom, mask, scale, table, sum. Re-measured flat, delta 0 unless noted:
+the 20-form access-spelling lattice (plain, doubled and cast subscripts,
+`*(p + i)`, `u8 *` and `u32` bases, shift-first and base-first, `* 2`),
+index-first pointer adds (`*((m & 0x3FFF) + D_800C94E0)` and
+`(m & 0x3FFF)[D_800C94E0]`, both base-first in the listing, 88), post-sum
+phantoms (`+ 0`, `(s32)(s16)`, an `& 0xFFFFFFFF` on the address, `volatile`),
+and the masked index named in `j`, `i`, `lvlCount` or `freeSlot` (88, 88, 88,
+and the frame). Every base-first form is 28 (6 plus 22 words of tail phase,
+one pop short); every shift-first form is 88 or 92. Nothing on this page
+emits the mask before the table load without also emitting the shift before
+it, so the next lever for the 6 is whatever cfe construct yields an index-add
+whose index is evaluated first -- not another spelling of this one.
+
+Whoever solves levelFreeAll's 3 solves these 6 the same hour; the carrier
+finding does not transfer there (its residual is the order term alone).
+**Second bounded round on the 6, same day: the mask's own carrier is not the
+lever.** The shouldPlay mechanism was applied to the mask itself -- the masked
+index computed once at the top of the loop body into an existing local with
+other live ranges (`j`, `lvlCount`, `i`; `tune` and `freeSlot` move the
+frame), with all four arms reading it and with only the table arm reading
+it, shift-first and subscript spellings of the arm. Every delta-0 cell is 88
+or 92, and the `cc -S` listing shows why: copy propagation substitutes the
+named mask back into the address expression in every arm before live ranges
+are formed, so the symbol's other uses never enter it and it never becomes a
+web. L102 therefore holds for a shared symbol too, not only for a fresh one:
+the carrier trick reaches a value only when it survives copy propagation
+(the loop value does, because it has four distinct reads; a single-use mask
+does not). Conversions on the loaded value (`(s16)`, `(s32)(s16)`, `(u16)`,
+`*(u16 *)`), and `+ 0` or a bitwise-or with zero on the address after the
+sum, are all exactly 6 (two of them with an lhu opcode difference the masked
+count does not price); `(u8 *)` bases 28 and 88. The target's load is lh and
+func_8000486C takes s32, so no conversion node is missing. levelFreeAll
+re-scored at 3.
 
 <!-- plateau-handoff:levelInit:end -->

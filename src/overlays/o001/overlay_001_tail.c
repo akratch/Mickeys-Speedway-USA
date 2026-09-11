@@ -2702,7 +2702,8 @@ extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
 /* Plateau: the exact 996-byte extent, 249 instructions, the 0x80 frame, the
- * one stack home and all 43 relocation records. Nineteen words differ, and
+ * one stack home and all 43 relocation records. Nineteen words differed at
+ * the previous pass (fourteen now, see the 2026-09-11 note below), and
  * NINE of them are phantom. The target's own extraction materialises nine
  * overlay-local addresses as a literal `lui reg,0x0` / `lw reg,<addend>(reg)`
  * pair carrying no relocation, where the candidate emits the same pair with an
@@ -2740,7 +2741,40 @@ extern f32 sqrtf(f32 value);
  * Note for the next reader: the positional score falls 21 to 19 on this edit
  * while the insertion-tolerant aligned count rises 32 to 34 (lever 48). The
  * aligned count rises because the trig pair is now a two-row move rather than
- * a two-row absence; the cluster itself is strictly closer. */
+ * a two-row absence; the cluster itself is strictly closer.
+ *
+ * 2026-09-11, lane f9-audit: the trig cluster is CLOSED, 19 -> 14, and the
+ * else arm is now exact. The closure had read it as ugen emission order and
+ * swept twenty spellings of the trig statement; the variable it held fixed was
+ * the basic block the -30.0f constant's definition is hoisted to. uopt places
+ * a CSE'd constant at the head of the block that first uses it, so in every
+ * one-block form the immediate lands ahead of the trig load no matter which
+ * statement comes first. Loading trig in its own statement AFTER the call
+ * (the call result carried in `factor`; `distance` and `predictedX` tie, the
+ * other five f32 locals are worse) and opening an L97 region with the three
+ * velocity stores inside puts the block head after the load. A bare block is
+ * +1 instruction like every one-block form, `do while (0)` ties `if (1)`, and
+ * the region must contain all three stores: with velocityY/Z outside, or the
+ * trig load inside, it is +1 again. The `mov.s` the previous lane recorded for
+ * the call-result carrier does not appear in this form.
+ *
+ * The 14 words are the prologue world load and nothing else. Read off the
+ * objects rather than the as1 trace: a direct `D_1DA0` read is scheduled
+ * ABOVE every prologue save (it lands at +0x4), so as1 has no store-to-load
+ * edge for a symbol-class load, and the closure's "ugen must emit the load
+ * before the saves" is not the mechanism. The candidate's load is held below
+ * the saves because it is an indirect load through an opaque carrier. The
+ * target has a symbol-class load whose address is nevertheless shared in s0
+ * with the store site. Every carrier spelling (u32, typed pointer through an
+ * integer cast, volatile pointee, subscript, this pass) keeps the sharing and
+ * the opaque class; every typed carrier, array decay or struct-holder spelling
+ * folds to two separate symbol loads (51 words, the same object as all-direct)
+ * and loses the sharing. The mixed forms (first read direct with the carrier
+ * kept for the store, and the reverse) each cost one instruction. A region
+ * boundary anywhere in the head block moves the frame. `const` on the trig
+ * import and `static` file-scope data were also measured: IDO 5.3 reloads
+ * both across a call, so neither explains the single trig load. L108 census:
+ * 310 p1 records, zero p2, so definition order is not an axis here. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
@@ -2826,13 +2860,15 @@ void overlay1UpdateAimedTransient(void) {
             object->velocityZ = func_8002A8BC(sourceAngle) * trig * 30.0f;
         } else {
             state->linkedIndex = -1;
-            object->velocityX =
-                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) *
-                -30.0f * (trig = overlay1AimedTrigReloc);
-            object->velocityY = overlay1AimedVelocityYReloc;
-            object->velocityZ =
-                func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
-                -30.0f;
+            factor = func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle);
+            trig = overlay1AimedTrigReloc;
+            if (1) {
+                object->velocityX = factor * trig * -30.0f;
+                object->velocityY = overlay1AimedVelocityYReloc;
+                object->velocityZ =
+                    func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
+                    -30.0f;
+            }
         }
         *object->flags &= ~2;
         world = D_1DA0;
@@ -3414,11 +3450,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 230/249 words
+ * score: 235/249 words
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: placement-only address and trig clusters remain; carrier, declaration, order, and flag lattices are exhausted
+ * summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
