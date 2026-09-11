@@ -84,8 +84,13 @@ So on a naming residual, **the order is records first, lattice second**:
    `frame_census.py` and `register_census.py` all recompile the TU with the
    configured command first, so they report the *unforced* build — one lane
    read the same score for twelve consecutive forces before noticing.
-4. Check the force was **accepted** (L101). A force already forbidden at
-   decision time returns a byte-identical object and proves nothing.
+4. **Set `CDX_PROC` alongside `CDX_FORCE`.** Without it the force is *silently
+   ignored*: the record reads `forced=-2` and the object comes back
+   byte-identical — which is indistinguishable from L101's already-forbidden
+   decline, so a dropped experiment reads as a real negative. Verify acceptance
+   by reading the `forced` value (`-1` accepted, `-2` never applied), never by
+   whether the object changed. A sweep inherited from a handoff is only evidence
+   if it recorded acceptance.
 
 What this buys is a *number*: "this one decision is worth N words". Two
 functions were priced at 48 → 9 and 26 → 11 this way, both at size delta 0.
@@ -112,9 +117,17 @@ leaf emits **p2 only**. 59 procedures classified, zero counterexamples.
   have.
   **Check the offer list before the ratio (L142).** A web live across a call is
   denied `v0`/`v1` *and exactly those argument registers the spanned calls
-  load*, and the denial shows as **absence from the `p1cost` list**, not as a
-  mask or a losing bid. Calls loading `a0`/`a1` give a list starting at c5;
-  calls loading `a0`–`a3` give c7. If the register you want is not in the list,
+  load*. The denial is recorded in the web's **`forbidden` mask**; it also shows
+  as absence from the `p1cost` list, because that list omits every forbidden
+  colour. Calls loading `a0`/`a1` give a list starting at c5; calls loading
+  `a0`–`a3` give c7.
+  **Two limits, both measured:** the denial is **per call, not per call-set** —
+  one spanned call can carry it while another does not, and one argument on one
+  call is worth exactly one colour. And it reaches **only the caller-saved head
+  of the colour table**, so where the contested colours are `s`-registers the
+  arity lever is entirely inert (1, 3 and 4 arguments left every web's `save`,
+  `nocs`, `totalsave`, mask and colour bit-for-bit identical). **Establish which
+  bank the contest is in before spending a pass on arity.** If the register you want is not in the list,
   no ratio, carrier or spelling reaches it and raising `totalsave` will move the
   number without ever producing the colour — two closures were written demanding
   exactly that. The lever that does exist is **the arity of the calls inside the
@@ -290,8 +303,11 @@ it end to end. The ones that carry most of the weight:
     `git status` shows `overlay_undefined_syms.us.txt` turning a
     `<sym>_oNNReloc` back into a bare `<sym>`, that is lost-rename build drift —
     regenerate and rebuild, never commit that diff.
-12. **Give yourself a private scratch subdirectory.** The session scratchpad is
-    shared and two lanes have overwritten each other's files.
+12. **Give yourself a private scratch subdirectory, outside the tree.** The
+    session scratchpad is shared and two lanes have overwritten each other's
+    files. Note that `mickey-lane-<name>` is a **symlink** to
+    `mickey-lane-<name>.noindex`, so a directory you create as a "sibling" at
+    `.../mickey-lane-<name>/foo` lands *inside the repository*.
 13. **A debug dump's contents are evidence about the dump, not about the
     decision.** Two halves of one closure fell to this in one session. An
     `available` mask is written *after* the choice, recording what stays
