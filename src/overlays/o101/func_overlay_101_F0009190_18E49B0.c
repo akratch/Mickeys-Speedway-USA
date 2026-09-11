@@ -60,14 +60,20 @@ typedef struct Node24 {
     void *text;
 } Node24;
 
+typedef struct Inputs {
+    u8 pad00[0xF8];
+    void *dataF8;
+    u8 padFC[0x24];
+    void *text120;
+    void *text124;
+    void *text128;
+} Inputs;
+
 extern Root D_0;
+extern Inputs D_INPUT;
 extern void *D_1C;
 extern void *D_38;
 extern u32 D_F4;
-extern void *D_F8;
-extern void *D_120;
-extern void *D_124;
-extern void *D_128;
 extern void *D_D18;
 extern void *D_2F8C;
 extern void *D_1C0[];
@@ -80,95 +86,61 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* Lane c2-o101 (2026-09-10) measured this family as one shape over four data
- * sets: the four candidates differ only in data symbols, two coordinates and
- * one asset id, so any mechanism found on one is testable on all four in
- * minutes. Measured basin is 461 masked words of 525 for all four.
+/* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
+ * TU; this consumer uses that owner for the root and node pools. */
+/* Four source-shape levers took this family from 461 masked words to 311, and
+ * closed the missing callee-saved web that every earlier note named as the gate.
  *
- * The gate is one missing callee-saved web. The target's 0x40 frame homes SIX
- * saved GPRs (s0..s5) plus two saved doubles; this candidate homes five, so
- * the float homes sit at 0x18/0x20 instead of 0x10/0x18 and every s-register
- * is renumbered by one. That single shift is why 324 of 524 words still
- * differ with the register fields masked out: the streams are the same
- * instructions in a different schedule, not different code. The missing web
- * is the node-32 pointer, which the target keeps in s0 for the whole body
- * while this candidate rotates it through v0 before each call and v1 after.
- * The -4 size delta is exactly that: minus the missing save/restore pair,
- * plus one extra address materialization.
+ * L59 -- the three non-macro assignment groups are ONE physical line each. With
+ *   the stores on separate lines as1's `lineno` key emits them in source order;
+ *   the ROM emits each group reversed, and folding retires the key so the raw
+ *   ready-list order supplies the reversal. The macro bodies need no fold: a
+ *   multi-line macro expansion already carries the invocation's line.
+ *   The same reading fixes the root header's order: the ROM emits height, width,
+ *   kind, so the source writes kind, width, height.
+ * L115/L101 -- the node-32 pointer is USED after the call, before the counter is
+ *   re-read. `node32->handle`, `->previousType` and `->previous` all store
+ *   through the pre-call pointer (the same address the re-read recomputes), so
+ *   the symbol's live range spans the call, v0 costs more than a save/restore
+ *   pair, and the web takes s0. That is the whole of the missing sixth web: the
+ *   frame ladder goes from eight slots to the ROM's nine, the float homes move
+ *   from 0x18/0x20 to the ROM's 0x10/0x18, and s0..s5 land as the ROM has them
+ *   (node pointer / text index, &D_0, the counter address, the pool address,
+ *   0xFF and 0x80, the literal 2). Measured with the instrumented uopt: before
+ *   the edit the node-pointer web decides `bestcost=0.0 bestreg=v0`; after it,
+ *   `color=14 reg=s0`. Worth 78 masked words and the whole -4 size delta.
+ * L110 -- the text pointers are fields of the shared input block, not separate
+ *   globals. One `lui`+`addiu` base then two displaced loads is what the ROM
+ *   emits; three independent `lui`/`lw` pairs is what separate externs give.
+ *   Worth 11 words and the last mnemonic-census difference.
  *
- * Falsified levers, each measured: plain `Node32 *`, `register Node32 *` and
- * `volatile Node32 *` all sit in the same 461/469 basins, so IDO ignores a
- * bare `register` here; hoisting the 0xFF or the literal 2 into a named local
- * regresses to 465 and 530; naming the node pool through a local pointer
- * regresses to 513. `register volatile` on the node pointer is worth eight
- * masked words over every other spelling and is the only spelling that
- * reaches 461. */
-/* Workbench p5: mixed structure/register mismatch; 524/525 candidate/target instructions, 461 words from +0x4.
- * Lever: constant-audit plus retained-node lifetime and root/register forms shared by the sibling set; no exact variant emerged.
- * Remains: one missing instruction plus root/node register and relocation schedule cascades; frame exact. */
+ * Refuted here, each measured: `register volatile Node32 *` was recorded as the
+ *   only spelling reaching 461 and worth eight words over every other; on the
+ *   corrected shape it is the WORST, 405 against plain `Node32 *` at 386, and
+ *   `register` alone is inert either way. Merging the counter locals (the L100
+ *   partition that paid on the F63F8 relative) regresses: {owner,node} 461,
+ *   {owner,text} 513, all three 483, against 456 for three separate locals.
+ * Measured inert (p1-only by the call test): statement order inside either
+ *   macro, the order of the twelve stores in the root's second group (311-316
+ *   over six orders including the full reversal), and the order of the three
+ *   pre-`d` stores in the post-call sequence.
+ * Remaining: the instruction multiset and the frame are exact; 215 of the 311
+ *   are register naming and the rest is schedule order. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0009190_18E49B0(void) {
-    register volatile Node32 *node32;
+    Node32 *node32;
     Node24 *node24;
     void *handle;
-    s32 *ownerCount;
     s32 length;
     s32 nodeIndex;
     s32 ownerIndex;
     s32 textIndex;
 
-    D_0.height30 = 0xF0;
-    D_0.width2E = 0x140;
-    D_0.kind = 4;
-    D_0.asset34 = &D_D18;
-    D_0.color32 = 0xFF;
-    D_0.color33 = 0xFF;
-    D_0.value26 = 0;
-    D_0.value28 = 0;
-    D_0.value2A = 0;
-    D_0.value2C = 0;
-    D_0.chainType = 0;
-    D_0.chain = 0;
-    ownerCount = &D_1C4;
-    ownerIndex = *ownerCount;
-    D_1C0[ownerIndex] = &D_1C;
-    *ownerCount = ownerIndex + 1;
+    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_D18; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_1C; D_1C4 = ownerIndex + 1;
 
-    node32 = &D_340[D_1CC];
-    node32->x = 0xF2;
-    node32->y = 0x14E;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = func_overlay_101_F0000000_18DB820(0x93, 0);
-    nodeIndex = D_1CC;
-    node32 = &D_340[nodeIndex];
-    node32->previousType = D_0.chainType;
-    node32->previous = D_0.chain;
-    node32->handle = handle;
-    D_0.chainType = 2;
-    D_0.chain = (void *)node32;
-    D_1CC = nodeIndex + 1;
+    node32 = &D_340[D_1CC]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); node32->handle = handle; node32->previousType = D_0.chainType; node32->previous = D_0.chain; nodeIndex = D_1CC; node32 = &D_340[nodeIndex]; D_0.chainType = 2; D_0.chain = node32; D_1CC = nodeIndex + 1;
 
-    D_0.x42 = 0x20;
-    D_0.width44 = 0x18;
-    D_0.y46 = 0x20;
-    D_0.height48 = 0x14;
-    D_0.value4A = 0x100;
-    D_0.value4C = 0xB4;
-    D_0.mode40 = 0;
-    D_0.color4E = 0xFF;
-    D_0.color4F = 0xFF;
-    D_0.childType = 0;
-    D_0.child = 0;
-    D_0.data50 = D_F8;
-    ownerCount = &D_1C4;
-    ownerIndex = *ownerCount;
-    D_1C0[ownerIndex] = &D_38;
-    *ownerCount = ownerIndex + 1;
+    D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x20; D_0.height48 = 0x14; D_0.value4A = 0x100; D_0.value4C = 0xB4; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.dataF8; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_38; D_1C4 = ownerIndex + 1;
 
 #define ADD_IMAGE_NODE(nodeX, nodeY, imageId)                                \
     node32 = &D_340[D_1CC];                                                  \
@@ -181,13 +153,13 @@ void func_overlay_101_F0009190_18E49B0(void) {
     node32->value14 = 0.0f;                                                  \
     node32->value18 = 0;                                                     \
     handle = func_overlay_101_F0000000_18DB820((imageId), 0);                 \
-    nodeIndex = D_1CC;                                                       \
-    node32 = &D_340[nodeIndex];                                              \
     node32->handle = handle;                                                 \
     node32->previousType = D_0.childType;                                    \
     node32->previous = D_0.child;                                            \
+    nodeIndex = D_1CC;                                                       \
+    node32 = &D_340[nodeIndex];                                              \
     D_0.childType = 2;                                                       \
-    D_0.child = (void *)node32;                                              \
+    D_0.child = node32;                                                      \
     D_1CC = nodeIndex + 1
 
     if (((D_F4 << 5) >> 28) & 1) {
@@ -234,12 +206,12 @@ void func_overlay_101_F0009190_18E49B0(void) {
     node24->previousType = D_0.childType;                                    \
     node24->previous = D_0.child;                                            \
     D_0.childType = 3;                                                       \
-    D_0.child = node24;                                                      \
+    D_0.child = node24;                                                       \
     D_1D0 = textIndex + 1
 
-    ADD_TEXT_ROW(D_120, 0x92);
-    ADD_TEXT_ROW(D_124, 0x9C);
-    ADD_TEXT_ROW(D_128, 0xA6);
+    ADD_TEXT_ROW(D_INPUT.text120, 0x92);
+    ADD_TEXT_ROW(D_INPUT.text124, 0x9C);
+    ADD_TEXT_ROW(D_INPUT.text128, 0xA6);
 
 #undef ADD_TEXT_ROW
 
@@ -251,10 +223,10 @@ void func_overlay_101_F0009190_18E49B0(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F0009190_18E49B0:start
  * symbol: func_overlay_101_F0009190_18E49B0
- * score: 461 differing words
+ * score: 311/525 words
  * frame: 0x40
- * relocations: 61
- * first-mismatch: +0x4
- * summary: 524/525 words, exact 0x40 frame, 461 masked and 464 raw differences. The gate is one missing callee-saved web: the target homes six saved GPRs and this candidate five, which renumbers every s-register and shifts both float homes.
+ * relocations: 59
+ * first-mismatch: +0xA8
+ * summary: 311 masked words from 461; size, frame and instruction multiset all exact. Residual is 215 register naming and 111 schedule order.
  * PLATEAU-HANDOFF:func_overlay_101_F0009190_18E49B0:end
  */
