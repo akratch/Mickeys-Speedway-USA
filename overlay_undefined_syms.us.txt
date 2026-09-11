@@ -2474,6 +2474,13 @@ D_1900 = 0x00001900;
 D_2978 = 0x00002978;
 D_297C = 0x0000297c;
 D_800000C0 = 0x800000c0;
+camSetNo_o065Reloc = 0xf0000000;
+func_80021970_o065Reloc = 0xf0000000;
+func_800221E8_o065Reloc = 0xf0000000;
+func_8002A8BC_o065Reloc = 0xf0000000;
+func_8002A8C0_o065Reloc = 0xf0000000;
+func_800349A4_o065Reloc = 0xf0000000;
+mathRnd_o065Reloc = 0xf0000000;
 
 /* overlay 66: overlay66Select.c.o */
 gOverlay66Current = 0x000000fc;
