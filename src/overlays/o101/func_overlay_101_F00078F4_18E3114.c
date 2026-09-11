@@ -195,14 +195,28 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  *   the direct read: 160, and ROM-exact through row 1's first store group except
  *   that row 1's pre-call pointer then becomes its own range and takes v0 rather
  *   than v1 -- L101 withholds v0 only from a range that reaches a call result.
- *  (b) The eight image node groups are a SCHEDULE residual, not a colouring one:
- *   every register in them already agrees with the ROM. The ROM issues both
- *   old-link loads back to back before it computes the node address; ours puts
- *   the first link store between them. Statement order cannot reach it (630
- *   orders, above) and L59 cannot reach it (folding is inert inside a macro,
- *   above). What has NOT been tried is writing the eight groups out longhand
- *   instead of through a macro, which is the only way to give their statements
- *   distinct physical line numbers and put L59's key back in play.
+ *  (b) The eight image node groups, 56 words, are a SCHEDULE residual and not a
+ *   colouring one: every register in them already agrees with the ROM. The ROM
+ *   issues both old-link loads back to back before it computes the node address;
+ *   ours puts the first link store between them. This region is now CLOSED on
+ *   every axis that reaches it from source, and the last of them was measured
+ *   here rather than assumed:
+ *     - statement order, all 630 dependence-respecting orders, unique optimum;
+ *     - L59 folding inside the macro, byte-inert in every combination;
+ *     - the eight groups written out LONGHAND instead of through the macro.
+ *   The longhand measurement is the one that settles it. One statement per
+ *   physical line reads 152, thirteen worse; the post-call group folded back
+ *   onto one line reads 136 and is byte-identical to the macro; and all 128 ways
+ *   of partitioning that group across physical lines read 136 or worse. So A
+ *   MACRO EXPANSION BEHAVES EXACTLY LIKE ONE FOLDED LINE, which is also why
+ *   folding inside it is inert -- there was never a `lineno` key there to
+ *   retire, and longhand does not put one back in play that helps.
+ *   The order the ROM emits is in fact UNREACHABLE under that key: it stores the
+ *   counter bump, then the handle, then the chain head, then the chain type,
+ *   then the two old links. Under the key, emission follows source order, and
+ *   that source order would have to write the old-link loads after the two
+ *   stores that overwrite what they read. Whatever produces the ROM's block, it
+ *   is not a statement order of this shape.
  *
  * SUPERSEDED, with the measurement. The previous note closed the image groups on
  *   the colour table -- "the carried values come out in a0 and a1 where the ROM
@@ -211,6 +225,19 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  *   re-testing. The premise about the residual does not: on the 136 shape the
  *   image groups' link loads already land in the ROM's own temporaries, and what
  *   is left there is ordering. That argument retires carriers, not the region.
+ * Also measured here and negative, so nobody re-runs them: the three one-line
+ *   assignment groups (first root header, chain group, second root header) are a
+ *   local optimum under every swap and every insertion on this shape, the call
+ *   held as a barrier and the read-before-write pairs held in order; a discarded
+ *   expression probe of L109's three reliable forms, placed at the head of the
+ *   text region, is byte-inert on all of `D_1D0`, `D_1CC`, `D_1C4` and a root
+ *   field, so it buys no ring draw outside a loop; and forcing the shared index
+ *   range to split reads 255 at +4 bytes, so the ROM's layout is not a split.
+ *   The sibling `func_overlay_101_F000C6E8_18E7F08` does NOT take this family's
+ *   lever: all 64 combinations of pointer-local, direct-read, inline-array and
+ *   index-local spellings across its three builder blocks leave it at its
+ *   incumbent 106, and its residue is an incoherent free-list permutation
+ *   (59% mapping coherence) rather than this one colour rotation.
  * Also still true: `register volatile Node32 *` is the worst pointer spelling,
  *   not the best; merging the three counter locals regresses; declaration order
  *   of the locals is inert over twenty permutations; a `do { } while (0)` region
