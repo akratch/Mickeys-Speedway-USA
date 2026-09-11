@@ -2230,8 +2230,15 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
  * aggregate with direct reads scores 37 and is NOT closer -- it emits five
  * loads where the target emits three and fills both r4300 multiply-hazard nop
  * slots the target keeps.
- * Resume with a mechanism that stops uopt colouring a single-block named-local
- * web, not with another spelling of this block. */
+ * Corrected 2026-09-11 (lane p7-ovl2): this is NOT a globalcolor decision.
+ * Thirty single-web forces over the five float webs of this region, crossed
+ * with the split verdict and the five lowest float colours, leave it at 39 or
+ * worse in every cell.  The corrected float-bank census reads all 39 sites as
+ * float with a closed two-cycle over the two lowest scratch registers on 32 of
+ * them, and those two are ugen's rotation, never a p1 colour -- so the residual
+ * is a ugen float free-list phase.  The carrier-free form is also no longer an
+ * instruction short: it is delta 0 at 270 words and 57 masked.  Resume with a
+ * ugen float free-list trace, not a colouring receipt. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x27C..+0x2AC .rodata range;
  * linked promotion is text-differs after removing the TU growth; codegen remains.
  * The candidate's literal pool is retained as the remaining structural gap. */

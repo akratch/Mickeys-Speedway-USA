@@ -69,4 +69,39 @@ adding a reload, or that makes uopt create two more temporaries against a
 276-byte block. The decision variable is the declared-symbol count, not a
 colour and not a spelling.
 
+
+#### 2026-09-11, lane p7-ovl2: the array length is pinned, and the struct-slot
+#### carrier is refuted
+
+Baseline reproduces: 1,072 bytes, 268 of 268 words, delta 0, masked 36, first
+mismatch +0xB4, frame 0x178. Aligner buckets, unchanged before and after
+because nothing was adopted: 234 byte-exact, 16 register naming, 8
+immediate-only, 13 really different.
+
+**L112 is closed on this function.** The decision variable asks for a declared
+block twelve bytes smaller, and the record block in the work struct is the one
+unobservable length in the source, so it is the obvious free parameter. It is
+not free. Sweeping the record count from 14 to 24 gives frames 0x130, 0x140,
+0x148, 0x158, 0x160, 0x170, 0x178, 0x188, 0x190, 0x1A0 and 0x1A8 in order, and
+only the incumbent 20 holds the shipped 0x178. Every other count scores 46 or
+92 with the first mismatch at word 0. So the twelve bytes cannot come from the
+array, and the frame identity has no cell to give here.
+
+**The struct-slot carrier is refuted too.** The one form that removes a declared
+scalar without declaring anything new is to carry the two derived edges in the
+work struct's own width and height members, which already have homes inside the
+block and are already loaded. Measured: the bottom edge alone costs 80 bytes
+and 251 masked words, the right edge alone 60 bytes and 252, both together 140
+bytes and 271, with the frame falling to 0x170, 0x168 and 0x160 respectively.
+The cause is the one the closure already names for inlining, now measured for
+the reuse form as well: the work struct's address escapes through the four
+pointers handed to the intensity-colour builder, so every write to a member is a
+store and every later read is a reload.
+
+**So the decision variable stands, with two more routes closed.** A source form
+that drops one declared four-byte scalar at zero byte cost, where the value does
+not live in the escaping struct and is not re-derived from it. The array length,
+the struct-member carrier, the declaration orders, the qualifier and type
+lattices, the padding declarations, the nested-assignment carrier and the region
+spans are all recorded as measured and negative.
 <!-- plateau-handoff:overlay101DrawPanel:end -->

@@ -114,4 +114,56 @@ groups, 34 carrier/scope forms here -- changes which of those two webs uopt
 colours first. Resume with a calibrated FP colouring receipt that attributes
 the two webs to source, or with a matched sibling that reads a stack aggregate
 member once and uses it twice from the FP ring.
+
+#### 2026-09-11, lane p7-ovl2: the stated decision variable is refuted; this is
+#### the ugen float free list, not globalcolor
+
+Baseline reproduces: 1,080 bytes, 270 of 270 words, delta 0, masked 39, raw 44,
+exact 0x90 frame. Aligner buckets, unchanged before and after because nothing
+was adopted: 231 byte-exact, 39 register naming, 0 immediate-only, 0 really
+different.
+
+**The closure says to resume with a calibrated float colouring receipt. That
+instrument has now been brought, and it says no.** This function is the
+twenty-first to enter global colouring in its translation unit, so it is
+procedure ordinal 20; the traced object scores the same 39 at delta 0 as the
+stock configured object, so the trace is faithful. A 30-cell force sweep over
+the five float webs that carry the rotation region, crossed with the split
+verdict and the five lowest float colours, leaves the object at 39 in
+seventeen cells and at 40 through 60 in the rest. Not one cell improves it.
+The two webs the closure names are therefore not the decision.
+
+**The corrected census says the same thing from the other end.** The float-bank
+fix merged today changes this function's reading completely: all 39 sites are
+float, and the dominant fact is a closed two-cycle over the two lowest scratch
+registers covering 32 of the 39 sites, at 92 percent coherence in two windows
+with the second opening at +0x1F4. Those two registers are ugen's scratch
+rotation and are never a globalcolor colour in either direction, so 32 of the
+39 words are a **ugen float free-list phase**, not an allocator decision. The
+older census could not see the float bank at all, which is why the residual was
+attributed to a pool web.
+
+**One stale measurement corrected.** The closure records that removing the
+normal-x carrier drops an instruction, 269 words and 159 masked. On the current
+exact-home baseline it does not: the carrier-free form is delta 0 at 270
+instructions and 57 masked, and three operand orders of it plus a normal-z
+carrier all land at 57 to 59 at delta 0. The carrier is still wrong, but it is
+wrong by 18 words, not by an instruction.
+
+**Ring probes negative, 63 cells.** Nine probe forms, float self-assignments on
+the three normal members, on the surface height and on the point's y, discarded
+float reads of two members, an integer mask, and an empty region marker, each
+placed at seven points spanning the two trigonometric calls, the two rotation
+products, the two angle calls and the first blend call. Every cell is 39 or far
+worse. No zero-byte float ring draw was found in that neighbourhood.
+
+**Reopen with the right instrument.** The question is which ugen float free-list
+position the shipped code is at when it enters the rotation region, and what
+consumes the one position this candidate has already spent. That is a
+DKWB-FREELIST float allocation trace read against a reconstruction, or a matched
+sibling in the same overlay whose rotation block has the same shape. It is not a
+globalcolor receipt, and it is not another spelling of the rotation block: the
+carrier, operand-order, volatile-placement, line-join, statement-group,
+carrier-identity and scope lattices recorded above, plus the force sweep and the
+ring probes here, have all been measured.
 <!-- plateau-handoff:func_overlay_008_F0004CF0_1862A48:end -->
