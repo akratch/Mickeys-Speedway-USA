@@ -2,11 +2,11 @@
 ### `overlay1UpdateAimedTransient` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 230/249 words
+- score: 235/249 words
 - frame: 0x80
 - relocations: 43
 - first mismatch: +0xC
-- summary: placement-only address and trig clusters remain; carrier, declaration, order, and flag lattices are exhausted
+- summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned
@@ -156,4 +156,82 @@ or one that emits a float import load before a float immediate in the same
 block. Do not spend another lane on placement, grouping or declaration
 lattices here -- three lanes have now closed those, and this one closed the
 mechanism behind them.
+#### 2026-09-11, lane f9-audit: the trig cluster falls to a region boundary, 19 -> 14; the prologue cluster re-read
+
+Measured with the direct `cc` loop (the TU's own `-Wab,-r4300_mul` row; without
+it the direct object is four instructions short, so check the flag before
+trusting any score here) against the ranking's comparator. Base reproduced at
+19 masked, 249 of 249 instructions, frame `0x80`, delta 0.
+
+**Cluster two does not stand, and the variable it held fixed was block
+membership of the constant's definition, not ugen emission order.** uopt hoists
+a CSE'd float constant to the head of the first block that uses it, so in every
+form where the trig load and the multiply share a block the `-30.0f` immediate
+is emitted ahead of the load, whatever the statement order. Read off the
+objects: the three-statement form (call result into an existing f32 local,
+`trig = ...;` next, the product third) already gives the target's operand
+order and the post-call load, and costs exactly one stall `nop` -- no `mov.s`,
+contrary to the previous lane's note -- because the immediate is still first.
+Opening an L97 region after the trig load, with all three velocity stores
+inside, moves the block head below the load: **14 masked, delta 0, and the
+whole else arm is exact.**
+
+Measured on that form, all delta 0 unless noted:
+
+- carrier for the call result: `factor`, `distance`, `predictedX` 14; `deltaY`
+  16, `deltaZ` 17, `predictedY` 20, `predictedZ` 23, `deltaX` 25 -- carrier
+  identity is the lever again (L44) and the object cannot say which of the
+  three tied names is original;
+- `do { } while (0)` ties `if (1)`; a bare block is +1 instruction (the L97
+  control);
+- region extent: velocityX alone inside, the trig load inside, the call inside,
+  or the whole else arm inside are all +1 instruction; only "load outside,
+  three stores inside" reaches 14;
+- the assignment-expression forms `call * (trig = X) * -30.0f` and the comma
+  form `(trig = X, trig)` are +1 and also flip the first multiply's operand
+  order, so the `(trig = X)` operand carries a different L92 weight from a plain
+  local read -- which is why the retained 19-word form had the operand order
+  wrong at both multiplies;
+- `-(30.0f)` and `(0.0f - 30.0f)` are byte-identical to `-30.0f`; negating the
+  call instead is +3;
+- `extern const f32` for the trig import, and a `static` file-scope float, are
+  both reloaded across the call (+2 instructions): IDO 5.3 does not treat
+  either as call-invariant, so the single load in the target needs a local.
+
+**Cluster one, the 14 words, re-read against the objects rather than the as1
+trace.** The closure said as1 orders every prologue store before every later
+load and therefore ugen would have to emit the dereference before the saves.
+The all-direct form (51 words) shows otherwise: its first `D_1DA0` read is
+scheduled at `+0x4`, above every save, so a symbol-class load has no
+store-to-load edge at all. What holds the candidate's load below the saves is
+its memory class -- an indirect load through an opaque integer carrier -- and
+what the target has is a symbol-class load whose address is nevertheless kept
+in `s0` for the store site. No spelling measured has both:
+
+- opaque carriers keep the sharing and the class: `u32` (19 then), a typed
+  pointer assigned through `(u32)`, a volatile pointee, a `[0]` subscript --
+  all byte-identical to the base;
+- typed carriers fold to two separate symbol loads and lose the sharing: a
+  plain `Overlay1TransientWorld **`, a one-element array decay, a struct-holder
+  pointer -- all 51, the same object as reading the global directly at both
+  sites;
+- mixed forms (first read direct, store through the carrier; or the reverse; or
+  a second direct read of `source` in the head block) each cost +1 instruction
+  because the address is then materialised twice;
+- a region boundary anywhere in the head block moves the frame (delta -16 or a
+  changed frame word), so L97 does not reach this cluster.
+
+The census for L108: 310 p1 records, zero p2, so definition order (L106) is
+not an axis for either cluster.
+
+**Next lever for the 14 words, stated as the requirement:** a source form in
+which uopt shares the `&D_1DA0` materialisation between the head-block read and
+the store inside `if (object == 0)` while the read keeps its symbol memory
+class. L110 says uopt does not merge an address constant across a basic-block
+boundary, and every typed form here confirms it; the target did it anyway, so
+either the original's store site is in the head block's region in a way this
+reconstruction does not reproduce, or the sharing comes from a construct that
+is not a plain local. Do not spend another pass on carrier types, declaration
+order, or statement order in the head block -- this pass and the three before
+it have closed those on the same objects.
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->

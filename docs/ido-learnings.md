@@ -1969,6 +1969,56 @@ bytes and disassembly never belong here.
   rather than in the subscript syntax. Useful as a diagnostic for "is this
   residual a slot or a propagation", cheap to run, and not yet free.
 
+- **A live range is formed per symbol, so a second use of an existing local
+  elsewhere in the function imports that region's interference into a web at
+  zero width.** `uopt` builds a live range from the union of every chain that
+  reads or writes one symbol, and `f_intfering` intersects the *block sets* of
+  two ranges. So carrying a loop value in a local that already has a live
+  range in a later loop -- rather than in a fresh local, which has no second
+  range -- gives the loop's web the later loop's interferers and moves its
+  colour. On `levelInit` (2026-09-11) three closures had proved that no new
+  web could be added (a register-pressure cliff at s6) and none reordered;
+  carrying the resource id in `shouldPlay`, whose other live range sits beside
+  the v0/v1 temps of the first tune loop, took the loop value from v0 to the
+  target's a2 and the function 22 -> 6 at delta 0, frame and relocations
+  unchanged. Carrier identity is the whole lever: of nine declared locals only
+  one reaches it, and a parameter is precoloured only on its entry chain. The
+  bound, measured the same day: the value has to *survive copy propagation*
+  (four distinct reads did; a single-use mask carried the same way was
+  substituted back into its address expression and formed no web, so L102
+  holds for a shared symbol as much as for a fresh one). This also explains
+  why a reservation probe on a fresh local is inert here: a new symbol has no
+  second range to import.
+- **When a residual reads as "the target has one more coloured web" and the
+  loop's temp ring is one slot off, they are one lever seen twice: fix the
+  phase first, then re-measure the naming edit.** A pool colour *replaces* a
+  ring pop, so a naming edit measured on a base whose ring is already one
+  behind shifts the whole tail one further and reads as a large regression.
+  `func_overlay_060_F0000000_18B9DD8` (2026-09-11, matched): twelve named
+  forms of the inner pointer had been refuted at 71-84 words and 0x68 frames.
+  The phase was one phantom pop -- `&array[i << 1]` on an `s16` table, where
+  the doubled index folds into the one shift and still costs a temp (L65 on a
+  shift) -- and with it in place the same named local colours v1 at the same
+  0x60 frame and closes the function. The 0x68 frames came from the `(u32)`
+  address carrier needing a cell, not from the extra declaration.
+- **uopt places a CSE'd float constant at the head of the first block that
+  uses it, so which block a constant is hoisted to is a region question, not
+  an emission-order one.** On `overlay1UpdateAimedTransient` (2026-09-11,
+  19 -> 14) twenty forms had all emitted a `-30.0f` immediate before a trig
+  import load because every form kept the three stores in one block; an
+  `if (1) { }` region around the three stores, with the import read outside
+  it, puts the load first and makes the arm byte-exact. A bare block is +1
+  instruction; `do { } while (0)` ties; carrier identity for the call result
+  still matters (three of eight f32 locals tie, the rest are worse).
+- **A declared local that carries a byte offset rather than an element index
+  removes the scaled-index CSE web.** `func_overlay_009_F00010B4_186772C`
+  (2026-09-11, 20 -> 6): with `tableIndex` as the element index, the shared
+  `<< 2` at two array reads is a uopt web (save 3.0, nocs 1) that globalcolor
+  always colours, and no force reaches the target because the target's scaled
+  index is a ring temp. Carrying `tableIndex` pre-scaled and reading through
+  `(u8 *)` bases makes the pre-scale sum the coloured web, as the target has
+  it. A ten-probe standalone TU reproduces the mechanism.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable

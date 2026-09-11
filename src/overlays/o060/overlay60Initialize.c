@@ -101,18 +101,27 @@ extern Overlay60Object *overlay60FindReloc(u8 index);
  * and one of objectId/size has to sit last. Nine orders reach 17; this is the
  * one closest to declaration order.
  *
- * Still open, and unchanged by either edit: the target spends one more coloured
- * pool web than the candidate on the inner-pointer load. Naming that pointer is
- * refuted again on this base -- six declaration positions as `Overlay60Inner *`
- * and six as `Overlay60Inner **` all grow the frame to 0x68 and regress to
- * 83/84 -- so it is not a declared local. All 120 declaration orders are
- * byte-flat at the plateau, so the frame and every home are already right. */
-#ifdef NON_MATCHING
+ * 2026-09-11, lane f9-audit: 17 -> 0, byte-exact. The closure above held ONE
+ * variable fixed while it varied the rest: the coordinate index was always
+ * spelled as an integer add on a `(u32)` cast (or `i * 2` in the indexed
+ * form, which is -4 bytes). The ring told the story: with objectId and size
+ * stored first the target's coordinate shift takes the ring slot AFTER the one
+ * the candidate gives it, so the target spends one pop that emits nothing
+ * between the size store and the address. `&gOverlay60CoordsD8[i << 1]` is
+ * that pop -- the doubled index folds into the one shift and still costs a
+ * temp (L65's phantom, on a shift rather than a mask). With the ring phase
+ * right, the named `inner` local takes v1 at save 20 / nocs 1 with no frame
+ * growth, which is the "one more coloured pool web" the closure had correctly
+ * seen and wrongly refuted: every refutation named `inner` while the phase was
+ * still one behind, so the tail shifted and read as a 71-84 word regression.
+ * The 0x68 frames it measured came from that same `(u32)` address spelling,
+ * not from the sixth declaration. */
 void func_overlay_060_F0000000_18B9DD8(void) {
     Overlay60Object **objects;
     Overlay60SpawnDesc desc;
     Overlay60Object *object;
     s16 *coordinate;
+    Overlay60Inner *inner;
     s32 i;
 
     gOverlay60Data00[0] = SOURCE(u32, 0x44);
@@ -140,17 +149,18 @@ void func_overlay_060_F0000000_18B9DD8(void) {
 
     for (i = 0, objects = &gOverlay60ObjectC8; i < 4; i++, objects++) {
         desc.objectId = 0x138;
-        coordinate = (s16 *)((u32)gOverlay60CoordsD8 + (i << 2));
+        desc.size = 0xE;
+        coordinate = &gOverlay60CoordsD8[i << 1];
         desc.x = coordinate[0];
         desc.y = coordinate[1];
         desc.z = 0;
         desc.pad0C = 0;
         desc.alpha = 0x80;
         desc.pad0A = 0;
-        desc.size = 0xE;
         object = overlay60SpawnReloc(&desc, 0);
         *objects = object;
-        (*object->inner)->mode = 2;
+        inner = *object->inner;
+        inner->mode = 2;
         overlay60ConfigureReloc(*objects, 0, 0, 0.0f);
     }
 
@@ -182,16 +192,4 @@ void func_overlay_060_F0000000_18B9DD8(void) {
     }
     gOverlay60Bss174 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60Initialize/func_overlay_060_F0000000_18B9DD8.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:start
- * symbol: func_overlay_060_F0000000_18B9DD8
- * score: 188/205 words
- * frame: 0x60
- * relocations: 76
- * first-mismatch: +0x108
- * summary: 21 to 17 by moving both loop initialisations into one for header (L59 shared line) and by the descriptor store order, whose floor over 23,649 measured orders is 17. Remaining is one extra coloured pool web in the target on the inner-pointer load; naming it is refuted in 12 further forms and all 120 declaration orders are byte-flat.
- * PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:end
- */
