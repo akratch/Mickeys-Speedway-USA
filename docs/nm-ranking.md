@@ -422,11 +422,11 @@ units remain distinct.
 | 125 | `src/overlays/o063/overlay63UpdateEffects.c` | `overlay63UpdateEffects` | `o063` | `other` | 1,400 | 142 | 139 | 88 | 364 | 0 | — |
 | 126 | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | `func_overlay_079_F0000FA0_18CDF40` | `o079` | `other` | 736 | 144 | 143 | 56 | 60 | 0 | — |
 | 127 | `src/main/particles.c` | `func_80040B88` | `main` | `other` | 1,208 | 145 | 145 | 48 | 48 | 0 | — |
-| 128 | `src/overlays/o068/overlay68DrawSortedEntries.c` | `overlay68DrawSortedEntries` | `o068` | `other` | 852 | 146 | 146 | 0 | 0 | 0 | — |
-| 129 | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | `func_overlay_101_F00078F4_18E3114` | `o101` | `other` | 2,100 | 151 | 149 | 148 | 168 | 0 | — |
-| 130 | `src/overlays/o101/func_overlay_101_F0008128_18E3948.c` | `func_overlay_101_F0008128_18E3948` | `o101` | `other` | 2,100 | 151 | 149 | 148 | 168 | 0 | — |
-| 131 | `src/overlays/o101/func_overlay_101_F000895C_18E417C.c` | `func_overlay_101_F000895C_18E417C` | `o101` | `other` | 2,100 | 151 | 149 | 148 | 168 | 0 | — |
-| 132 | `src/overlays/o101/func_overlay_101_F0009190_18E49B0.c` | `func_overlay_101_F0009190_18E49B0` | `o101` | `other` | 2,100 | 151 | 149 | 148 | 168 | 0 | — |
+| 128 | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | `func_overlay_101_F00078F4_18E3114` | `o101` | `other` | 2,100 | 147 | 145 | 148 | 168 | 0 | — |
+| 129 | `src/overlays/o101/func_overlay_101_F0008128_18E3948.c` | `func_overlay_101_F0008128_18E3948` | `o101` | `other` | 2,100 | 147 | 145 | 148 | 168 | 0 | — |
+| 130 | `src/overlays/o101/func_overlay_101_F000895C_18E417C.c` | `func_overlay_101_F000895C_18E417C` | `o101` | `other` | 2,100 | 147 | 145 | 148 | 168 | 0 | — |
+| 131 | `src/overlays/o101/func_overlay_101_F0009190_18E49B0.c` | `func_overlay_101_F0009190_18E49B0` | `o101` | `other` | 2,100 | 147 | 145 | 148 | 168 | 0 | — |
+| 132 | `src/overlays/o068/overlay68DrawSortedEntries.c` | `overlay68DrawSortedEntries` | `o068` | `other` | 852 | 146 | 146 | 0 | 0 | 0 | — |
 | 133 | `src/main/objects.c` | `func_8000590C` | `main` | `other` | 2,876 | 150 | 150 | 436 | 436 | 0 | — |
 | 134 | `src/main/menu.c` | `func_80039E34` | `main` | `other` | 1,048 | 156 | 156 | 20 | 20 | 0 | — |
 | 135 | `src/main/camera.c` | `func_80022FD4` | `main` | `other` | 1,476 | 157 | 157 | 156 | 156 | 0 | — |
