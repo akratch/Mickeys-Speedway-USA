@@ -88,8 +88,7 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
     if (vertices != 0);
 
     gfx = gOverlay58PointDisplayListReloc++;
-    gfx->w0 = 0x05110020U;
-    gfx->w1 = (u32)D_80000078;
+    gfx->w0 = 0x05110020U; gfx->w1 = (u32)D_80000078;
 
     vertices = gOverlay58PointVertexCursorReloc;
     vertices[1].r = 0xFF;
