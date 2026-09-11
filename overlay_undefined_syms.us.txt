@@ -826,6 +826,14 @@ overlay21GetReferenceReloc = 0xf0000000;
 
 /* overlay 22: overlay22InitializeObject.c.o */
 D_A7C = 0x00000a7c;
+func_80006A50_o022Reloc = 0xf0000000;
+func_8000F690_o022Reloc = 0xf0000000;
+func_800104B0_o022Reloc = 0xf0000000;
+func_800150F0_o022Reloc = 0xf0000000;
+func_80029A24_o022Reloc = 0xf0000000;
+func_8003E99C_o022Reloc = 0xf0000000;
+func_overlay_022_F0000D30_1878E38Reloc = 0xf0000000;
+gOverlay22DistanceReloc = 0x00000000;
 
 /* overlay 23: overlay23SpawnAttachments.c.o */
 overlay23RandomRangeReloc = 0xf0000000;
