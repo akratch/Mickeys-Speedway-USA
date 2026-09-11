@@ -73,5 +73,33 @@ class CycleTests(unittest.TestCase):
         self.assertEqual(rc.cycles(collections.Counter({("t6", "t6"): 5})), [])
 
 
+class CoherenceTests(unittest.TestCase):
+    """Cycle presence alone is not the tell. A transfer was applied on it and
+    refused: the lead's mapping was functional and covered most of its residual,
+    while the sibling mapped one source register three ways. These pin the
+    measured separation -- 88% on the lead, 51% on the sibling."""
+
+    def test_a_clean_permutation_is_fully_coherent(self) -> None:
+        pairs = collections.Counter({("t6", "t7"): 50, ("t7", "t6"): 40})
+        self.assertEqual(rc.coherence(pairs)["share_following_dominant"], 1.0)
+
+    def test_a_source_splitting_three_ways_lowers_coherence(self) -> None:
+        pairs = collections.Counter({("t6", "t7"): 10, ("t6", "t8"): 9,
+                                     ("t6", "t9"): 8})
+        c = rc.coherence(pairs)
+        self.assertLess(c["share_following_dominant"], 0.5)
+        self.assertEqual(c["least_coherent_source"], "t6")
+
+    def test_the_least_coherent_source_is_named(self) -> None:
+        pairs = collections.Counter({("t6", "t7"): 100,          # clean
+                                     ("v1", "a0"): 5, ("v1", "a1"): 5})
+        self.assertEqual(rc.coherence(pairs)["least_coherent_source"], "v1")
+
+    def test_an_empty_mapping_does_not_divide_by_zero(self) -> None:
+        c = rc.coherence(collections.Counter())
+        self.assertEqual(c["sources"], 0)
+        self.assertEqual(c["share_following_dominant"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()

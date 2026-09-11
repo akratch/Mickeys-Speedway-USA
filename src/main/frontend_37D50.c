@@ -437,21 +437,17 @@ extern void func_80037BF4(void);
         *(pkt) = _cmd + 1; \
     } while (0)
 
-/* Workbench verdict: structure-mismatch, 324 differing words; target 327/candidate 308 words. */
-/* First mismatch: +0x0; target frame 0xE0 versus candidate 0xF0. */
-/* Structural gap: Gfx emission schedule and jump-table/render-loop shape. */
+/* Workbench verdict: structure-mismatch, 314 differing words; target 327/candidate 311 words. */
+/* First mismatch: +0x0; both frames now 0xE0. */
+/* Structural gap: uopt hoists this loop's opcode and address constants into
+ * callee-saved registers where the ROM re-materialises them inside the loop. */
 #ifdef NON_MATCHING
 void func_80037C74(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
     s32 spD8;
     s32 spB8;
     s32 sp40;
-    s32 temp_a1;
-    s32 temp_s2;
     s32 temp_s3;
     s32 temp_t0;
-    s32 temp_t1;
-    s32 temp_t5;
-    s32 temp_v0;
     s32 temp_v1;
     s32 temp_v1_2;
     s32 var_a0;
@@ -490,23 +486,20 @@ void func_80037C74(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
             var_s0 = spB8;
             var_ra = sp40 * 0xA;
             var_s1 = 0;
-            temp_s2 = var_a0 - 1;
             temp_s3 = var_a0 + 0xF;
 loop_7:
-            temp_v0 = var_v1 - 1;
-            temp_t5 = var_v1 + 0x28;
-            if (temp_v0 > 0) {
-                var_t3 = temp_v0;
+            if (var_v1 - 1 > 0) {
+                var_t3 = var_v1 - 1;
             } else {
                 var_t3 = 0;
             }
-            if (temp_s2 > 0) {
-                var_t4 = temp_s2;
+            if (var_a0 - 1 > 0) {
+                var_t4 = var_a0 - 1;
             } else {
                 var_t4 = 0;
             }
-            if (temp_t5 < 0x13F) {
-                var_t2 = temp_t5;
+            if (var_v1 + 0x28 < 0x13F) {
+                var_t2 = var_v1 + 0x28;
             } else {
                 var_t2 = 0x13F;
             }
@@ -516,8 +509,7 @@ loop_7:
             } else {
                 var_a2 = 0xEF;
             }
-            temp_t1 = ((((temp_t0 * 2) + 9) >> 3) & 0x1FF) << 9;
-            FRONTEND_EMIT(arg0, temp_t1 | 0xF5100000, 0x07080200);
+            FRONTEND_EMIT(arg0, (((((temp_t0 * 2) + 9) >> 3) & 0x1FF) << 9) | 0xF5100000, 0x07080200);
             FRONTEND_EMIT(arg0, 0xE6000000, 0);
             FRONTEND_EMIT(arg0,
                           (((var_t3 * 4) & 0xFFF) << 12) |
@@ -525,6 +517,7 @@ loop_7:
                           (((var_t2 * 4) & 0xFFF) << 12) |
                               0x07000000 | ((var_a2 * 4) & 0xFFF));
             FRONTEND_EMIT(arg0, 0xE7000000, 0);
+            FRONTEND_EMIT(arg0, (((((temp_t0 * 2) + 9) >> 3) & 0x1FF) << 9) | 0xF5100000, 0x00080200);
             FRONTEND_EMIT(arg0, 0xF2000000,
                           ((((temp_t0 - 1) * 4) & 0xFFF) << 12) |
                               (((var_a2 - var_t4 - 1) * 4) & 0xFFF));
@@ -547,18 +540,17 @@ loop_7:
                           temp_v1_2);
             FRONTEND_EMIT(arg0, 0x05310040, D_7BE40);
             var_ra += 0x14;
-            var_v1 = temp_t5;
+            var_v1 = var_v1 + 0x28;
             if (var_s1 != 0x10) {
                 goto loop_7;
             }
             var_a0 = temp_s3;
-            temp_a1 = spD8 + 1;
             if (spD8 & 1) {
                 spB8 ^= -0x100;
             }
-            spD8 = temp_a1;
+            spD8 = spD8 + 1;
             sp40 += 0x11;
-        } while (temp_a1 != 0x10);
+        } while (spD8 != 0x10);
         func_80034920(arg0);
     }
 }
@@ -699,11 +691,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_80037C74:start
  * symbol: func_80037C74
- * score: 324 differing words
- * frame: 0xF0
+ * score: 314 differing words
+ * frame: 0xE0
  * relocations: 18
  * first-mismatch: +0x0
- * summary: Both sides save s0-s8, but the candidate's frame is 0xF0 against the target's 0xE0 -- two 8-byte steps too many, which is a declaration census (lever 46): the m2c draft declares twenty locals, several of them pure draft artifacts. Candidate is also 19 words short at 308 against 327. The incoming Gfx** is homed from a3 in the target and from a0 in the candidate.
+ * summary: Frame closed and one missing emit site restored, 324 to 314 words and size delta -76 to -64. The frame was a pointer census, not a scalar one: every block-scoped Gfx cursor inside the emit macro owns four bytes of frame even though it is register-allocated, so the frame is 0x40 plus four bytes per cursor plus four per declared scalar plus twelve bytes of compiler temp, rounded to eight -- collapsing twenty-one per-site cursors to one shared cursor moved the frame 0xF0 to 0xA0, exactly four times twenty. The target's 0xE0 solves to twenty-two cursors and sixteen declared scalars where the m2c draft had twenty-one and twenty-one; four of the draft's temps were inlined to reach it and the masked count fell only ten words, so the frame was never the dominant cause. Counting the target's cursor write-backs gives twenty-two emit sites against the draft's twenty-one; the missing one repeats the loop's first command word against a different second word, immediately after the fourth command of the loop body, and restoring it is worth six words of the size deficit. What remains is one axis and it is not colouring: uopt hoists this loop's opcode and address constants into callee-saved registers and the ROM does not, re-materialising each one inside the loop through the assembler's own temporary. Both sides use all nine callee-saved registers and disagree only on which invariants win them, so the lever is loop register pressure, not declaration order.
  * PLATEAU-HANDOFF:func_80037C74:end
  */
 
