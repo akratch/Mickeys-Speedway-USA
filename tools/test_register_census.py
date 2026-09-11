@@ -185,6 +185,77 @@ class CoherenceTests(unittest.TestCase):
         self.assertEqual(c["sources"], 0)
         self.assertEqual(c["share_following_dominant"], 0.0)
 
+class ColouredCycleCitationTests(unittest.TestCase):
+    """L127 is a ugen scratch-ring fact. A cycle over registers globalcolor
+    assigns is a p1 save-ratio residual instead, and citing L127 at it sends
+    the reader to the wrong allocator.
+
+    Reported from overlay 92, where the tool printed a clean coherent
+    s1 -> s2 cycle with "see L127" beside it. The real lever was the save
+    ratio, and a force on the ranking took that object 26 masked words to 11.
+    """
+
+    def _row(self, cycle, share=0.95):
+        return {
+            "pairs": [{"ours": cycle[0], "theirs": cycle[1], "count": 9}],
+            "coherence": {"share_following_dominant": share, "sources": 2,
+                          "least_coherent_source": None,
+                          "least_coherent_share": 0.0},
+            "windows": {"global_share": 0.95, "windows": 1, "boundaries": []},
+            "cycles": [list(cycle)],
+        }
+
+    def test_a_cycle_over_saved_registers_does_not_cite_l127(self) -> None:
+        out = "\n".join(rc.render_bank(self._row(("s1", "s2")), "", "int", "ring"))
+        self.assertNotIn("see L127", out)
+        self.assertIn("does NOT", out)
+        self.assertIn("save-ratio", out)
+
+    def test_that_note_names_the_offending_registers(self) -> None:
+        """A bare 'L127 may not apply' makes the reader re-derive which
+        registers triggered it."""
+        out = "\n".join(rc.render_bank(self._row(("s1", "s2")), "", "int", "ring"))
+        self.assertIn("s1", out)
+        self.assertIn("s2", out)
+
+    def test_it_routes_to_the_colour_table_and_l100(self) -> None:
+        out = "\n".join(rc.render_bank(self._row(("s1", "s2")), "", "int", "ring"))
+        self.assertIn("p1cost", out)
+        self.assertIn("L100", out)
+
+    def test_a_cycle_over_ring_temporaries_still_cites_l127(self) -> None:
+        """The guard must not suppress the citation where it is correct."""
+        out = "\n".join(rc.render_bank(self._row(("t7", "t8")), "", "int", "ring"))
+        self.assertIn("see L127", out)
+        self.assertNotIn("does NOT", out)
+
+    def test_one_saved_register_in_a_mixed_cycle_is_enough(self) -> None:
+        """A cycle that touches a colour at all cannot be a pure ring phase."""
+        row = self._row(("t7", "s0"))
+        row["cycles"] = [["t7", "s0", "t8"]]
+        out = "\n".join(rc.render_bank(row, "", "int", "ring"))
+        self.assertNotIn("see L127", out)
+        self.assertIn("s0", out)
+
+    def test_callee_saved_float_registers_are_treated_the_same(self) -> None:
+        """L133: f20-f30 are the callee-saved half of the float colour table."""
+        out = "\n".join(rc.render_bank(self._row(("f20", "f22")), "", "fpr", "pool"))
+        self.assertNotIn("see L127", out)
+        self.assertIn("f20", out)
+
+    def test_low_float_registers_are_not_treated_as_colours(self) -> None:
+        """L133 measured f0-f6 outside the table entirely -- pure ring
+        temporaries, which is exactly where L127 does apply."""
+        out = "\n".join(rc.render_bank(self._row(("f4", "f6")), "", "fpr", "pool"))
+        self.assertIn("see L127", out)
+
+    def test_an_incoherent_coloured_cycle_keeps_the_incoherence_warning(self) -> None:
+        """The pre-existing warning is about a different failure and must
+        still fire ahead of the colour note."""
+        out = "\n".join(rc.render_bank(self._row(("s1", "s2"), share=0.51),
+                                        "", "int", "ring"))
+        self.assertIn("incoherent", out)
+        self.assertNotIn("see L127", out)
 
 if __name__ == "__main__":
     unittest.main()
