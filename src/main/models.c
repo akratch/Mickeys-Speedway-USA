@@ -846,9 +846,9 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
 /* PROVENANCE: declaration and cursor lifetimes are adapted from JFG upstream
  * efd5abb's corresponding makeModelGfx function. JFG retains that function as
  * GLOBAL_ASM; Mickey's own layout, constants, and bytes remain authority. */
-/* PLATEAU (2026-08-31): workbench structure-mismatch; 249/342 words differ, first +0x0.
- * Block-scoping the s16 texture parameter is a two-word gain; ten source forms and one bounded batch are exhausted.
- * Exact size remains 342 words; frame is 0xC0 vs 0xD0, with 20/21 relocation identities exact. */
+/* PLATEAU (2026-09-11): 229/342 words differ, first +0x3C; frame 0xD0 on both sides.
+ * The 2026-08-31 plateau was measured at frame 0xC0 against the target's 0xD0: the
+ * slots[] length is the L112 free parameter that solves it, and 13..16 all give 0xD0. */
 #ifdef NON_MATCHING
 s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
                   s32 lowerGroup, s32 upperGroup, s32 forceSimple) {
@@ -860,11 +860,11 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
     s32 lastParameter;
     s32 cacheCount;
     s32 partIndex;
+    s8 slots[16];
     s32 cacheEnabled;
     s32 vertexCount;
     s32 triangleCount;
     s32 commandCount;
-    s8 slots[3];
     u32 i;
     s32 previousVertex;
     Gfx *command;
@@ -1385,11 +1385,11 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_8002057C:start
  * symbol: func_8002057C
- * score: 249/342 words
- * frame: 0xC0
+ * score: 229/342 words
+ * frame: 0xD0
  * relocations: 21
- * first-mismatch: +0x0
- * summary: JFG stack map is confirmed, but declaration, scope, and parameter forms were flat or regressed; matched donor C is needed.
+ * first-mismatch: +0x3C
+ * summary: Frame closed at 0xD0 by the slots[] length (L112): 249 to 229 words. The 2026-08-31 closure never measured the frame.
  * PLATEAU-HANDOFF:func_8002057C:end
  */
 
