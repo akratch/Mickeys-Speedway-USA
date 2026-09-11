@@ -64,8 +64,15 @@ BANKS = {"int": GPR, "fpr": FPR}
 # and a cycle over registers globalcolor assigns is a p1 save-ratio residual
 # instead. Reported on overlay 92, where a clean coherent s1 -> s2 cycle was
 # printed with "see L127" beside it and the real lever was the save ratio.
-ALWAYS_COLOURED = frozenset([f"s{n}" for n in range(9)]
-                            + [f"f{n}" for n in range(20, 32, 2)])
+# INTEGER ONLY, deliberately. The float table's boundary varies by procedure in
+# a way the integer callee-saved half does not: one procedure decodes as c24 f0,
+# c25 f2, c26 f12 ... c31 f22 (eight colours, with f4-f10 outside), another as
+# twelve colours c24-c35 covering the whole even-numbered file, and a third
+# shows a coherent f22 -> f30 -> f24 -> f28 cycle that is a ugen ring phase and
+# SHOULD cite L127. Listing float registers here would suppress the citation on
+# exactly that case. Decode the float table per procedure from a web with an
+# empty forbidden mask (L133) instead of guessing it from a fixed set.
+ALWAYS_COLOURED = frozenset(f"s{n}" for n in range(9))
 
 # Where each format keeps its register fields, as (bank, shift, width) triples.
 R_FIELDS = (("int", 21, 0x1F), ("int", 16, 0x1F), ("int", 11, 0x1F))  # rs,rt,rd
