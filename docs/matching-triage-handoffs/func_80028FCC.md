@@ -2,11 +2,11 @@
 ### `func_80028FCC` plateau handoff
 
 - source: `src/main/main.c`
-- score: 17/27 words
+- score: 10/27 words
 - frame: 0x18
 - relocations: 3
 - first mismatch: +0x1C
-- summary: Not a donor question: the target is cfe's short-circuit-or value expansion with its carrier on the return register, and v0 is struck from that carrier web's candidate list because every operand's definition reads a call result (L101), which two probes here demonstrate directly.
+- summary: A two-instruction normalise in the first two or-chain arms reaches the target's 27-instruction three-branch shape at 14; the carrier colour still blocks
 
 #### Owned pass, 2026-09-10 (lane/o7-small): the shape is known, not a donor
 
@@ -71,8 +71,9 @@ their argument setup byte-exact. The donor line is closed: JFG's
 The retained early-return body still measures 10. The value of this pass is a
 falsification, and it is worth more than the three words it did not buy.
 
-**The 2026-09-10 note says "every `||`/`goto`/`do-while-break`/nested-if/early-
-return spelling collapses to the same 25-instruction a0 form". It does not.**
+**The 2026-09-10 note says every or-chain, goto, do-while-break, nested-if and
+early-return spelling collapses to the same 25-instruction a0 form. It does
+not.**
 That pass varied the operand spelling as one axis, applying the same spelling
 to all three operands: six spellings crossed with groupings, paddings, result
 forms and reservation webs, 1,440 cells. Varying the three operands
