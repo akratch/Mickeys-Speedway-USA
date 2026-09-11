@@ -59,10 +59,15 @@ ring phase that follows from that one choice, which is why the naming bucket is
 167 words and is almost entirely ring-to-ring: by L114 those rows are ring
 phase, not colour, and no save edit or force reaches them. The axis is what
 makes ugen treat a named local as scratch rather than as a dedicated register.
-`uopt -Wo,-zdbug:2` reports `colorcand` empty for this function, so globalcolor
-colours nothing here and L100's ratio is not the lever that decides it; the
-stock listing then dies in `wrapper_ecvt` inside the static-recomp libc before
-printing any save, so the instrumented toolchain is the instrument this needs.
+`uopt -Wo,-zdbug:2` reports `colorcand` empty for this function. **Do not read
+that as globalcolor being idle -- that inference was recorded here and is
+wrong.** A sibling was measured on the instrumented compiler and its
+`[CDX] p1cand`/`p1dec`/`p1color` records show globalcolor colouring six webs
+while `colorcand` reads empty; the bitset is a different thing from the
+colouring decisions. The stock listing also dies in `wrapper_ecvt` inside the
+static-recomp libc before printing any save, so the instrumented toolchain is
+the instrument this needs -- and it is the one that settles whether L100's
+ratio is a lever here, which remains untested rather than excluded.
 The remaining 41 structural words are the text rows' tail, where the ROM emits
 the text store before the chain store and the opacity store last; statement
 order inside the macro is inert against it, so that residual needs the as1
