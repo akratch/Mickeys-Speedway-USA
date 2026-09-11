@@ -158,7 +158,37 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
  *   The 2 structural are the maintain call: the target has `move a0,s0` then `move a1,a2`, reusing
  *   the state pointer it reloads from sp+0x38, where we emit `move a0,s0` then `lw a1,100(s0)`.
  *   Passing `state` there instead of `object->state` is NOT that edit -- it deletes four more
- *   instructions (delta -16, 195 words). */
+ *   instructions (delta -16, 195 words).
+ *
+ * 2026-09-12, lane p8-close: the colour half is bounded harder and the blocker is renamed.
+ *
+ *   The earlier note priced colour from a one-web sweep. The JOINT grid -- both class-2 webs
+ *   against all six offered colours, 36 cells, plus both split paths -- floors at 17, at web 42
+ *   on c24 with web 16 on c28. So colour is worth at most 4 of the 21, not 2, and it still
+ *   cannot close the function: both webs take the same colour and the ugen float ring only
+ *   shifts when NO web holds it.
+ *
+ *   Read from the object, the first float block makes the fact exact. The target draws five
+ *   scratch float registers there and we draw four, because our conversion result lands in the
+ *   coloured web instead of the ring; every later float register in the procedure is one ring
+ *   position behind as a result. Deleting the `size` local is the whole 17 words.
+ *
+ *   The inline form already has the right ring -- five scratch draws, and the multiply's
+ *   destination is the target's -- and loses on ONE thing: it evaluates the scale load before
+ *   the conversion, so the load takes the first ring slot and everything else moves up. The two
+ *   source operand orders compile BYTE-IDENTICALLY, so IDO canonicalises the commutative
+ *   multiply and the source cannot choose the order by writing it. Measured flat at 26 on top of
+ *   the nineteen forms already recorded: `const` and sized array declarations of the scale
+ *   symbol, `*(g + 1)`, `(g + 1)[0]`, an extra parenthesisation, `| 0` and `+ 0` folded into the
+ *   conversion, and `if (1) { }`, `do { } while (0)` and a bare brace before or around the
+ *   statement. Also refuted, none at 21 or better: the assignment-in-expression and comma forms
+ *   (55 each), `object->size` as its own intermediate (187), a ternary (200) and a second use of
+ *   `size` (197); reusing `range` as the intermediate and an integer-typed intermediate are
+ *   byte-identical to the incumbent.
+ *
+ *   Decision variable for the next lane: a source form in which the multiply's conversion operand
+ *   is evaluated before its memory operand while both remain in one statement. Nothing measured
+ *   moves IDO's canonicalisation, so this is a weight question inside ugen, not a spelling. */
 #ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
                                Overlay89Init *init) {
@@ -262,6 +292,6 @@ void overlay89InitializeEffect(Overlay89Object *object,
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x40
- * summary: 58 fell to 21 in three separable steps. Assigning `colors` before `source` closes a coherent v0/v1 cycle at zero width ([L127]) and is 58 to 45, while swapping their declarations is byte-identical, so definition order is what decides. Dropping both re-reads of `object->state` is 45 to 27 although each half alone regresses, -4 bytes and 69 words for one and +4 and 77 for the other ([L100]). Declaration order is then 27 to 21 by moving the a2 spill home from sp+0x54 to sp+0x38, and 11,520 orders put 21 at the floor with the frame never leaving 0x58. Of the 21 left, 17 are one float ring phase: the instrumented uopt shows exactly two class-2 webs, both taking colour 24 with an EMPTY forbidden mask, which is what makes the reading the table and not a constraint, and this procedure offers c24 to c29 only. c24 is f0, so the `size` local is coloured f0 and the float ring starts one position after the target's. Inlining the expression reaches the colour, naming 18 to 13, but hoists the scale load ahead of the conversion for 8 structural words; nineteen forms of the inline family, covering both operand orders, a pointer-arithmetic spelling, a dead trailing assignment, two statement positions, four region boundaries and a block-scoped scale local, bottom out at 26 while the local family holds 21, and there is nothing between the two minima. Forcing that web off c24 is worth at most 2 words, so the lever is not colour. The last 2 are the maintain call, where the target reuses the reloaded state pointer and we reload from the object.
+ * summary: 58 fell to 21 in three separable steps. Assigning `colors` before `source` closes a coherent v0/v1 cycle at zero width ([L127]) and is 58 to 45, while swapping their declarations is byte-identical, so definition order is what decides. Dropping both re-reads of `object->state` is 45 to 27 although each half alone regresses, -4 bytes and 69 words for one and +4 and 77 for the other ([L100]). Declaration order is then 27 to 21 by moving the a2 spill home from sp+0x54 to sp+0x38, and 11,520 orders put 21 at the floor with the frame never leaving 0x58. Of the 21 left, 17 are one float ring phase: the instrumented uopt shows exactly two class-2 webs, both taking colour 24 with an EMPTY forbidden mask, which is what makes the reading the table and not a constraint, and this procedure offers c24 to c29 only. c24 is f0, so the `size` local is coloured f0 and the float ring starts one position after the target's. Inlining the expression reaches the colour, naming 18 to 13, but hoists the scale load ahead of the conversion for 8 structural words; nineteen forms of the inline family, covering both operand orders, a pointer-arithmetic spelling, a dead trailing assignment, two statement positions, four region boundaries and a block-scoped scale local, bottom out at 26 while the local family holds 21, and there is nothing between the two minima. Forcing that web off c24 is worth at most 2 words, so the lever is not colour. The last 2 are the maintain call, where the target reuses the reloaded state pointer and we reload from the object. Lane p8-close floored the JOINT force grid, both class-2 webs against all six colours plus both splits, at 17, so colour is worth at most 4 and cannot close it. The inline form already has the target's ring and loses only on evaluating the scale load before the conversion; both source operand orders compile byte-identically, so IDO canonicalises the multiply and no spelling chooses.
  * PLATEAU-HANDOFF:overlay89InitializeEffect:end
  */

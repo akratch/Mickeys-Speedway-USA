@@ -235,7 +235,45 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
  * This is inference from the two colour sequences (tier D), not a trace. The
  * one instrument that would settle it is a CDX capture: if the five webs tie
  * on save the record says so directly, and if they do not, the save arithmetic
- * names a cost lever the group framing hides. */
+ * names a cost lever the group framing hides.
+ *
+ * 2026-09-12, lane p8-close: the target's assignment is now a FORCED RESULT,
+ * not an inference, and the reopen condition splits into one half that is
+ * reached and one that is arithmetic.
+ *
+ * Forcing this procedure's five callee-saved float webs to c35, c34, c33 for
+ * the three loads in hoist order and c31, c32 for the two sixteens returns an
+ * object at zero masked words and size delta 0. So the whole residual is that
+ * colour order; nothing else in the function is in question, and any future
+ * pass can check a candidate against that one ladder.
+ *
+ * Phase one colours in decreasing save, lowest free colour first, ties on
+ * ascending web number. Our ladder is zero at 20/4, the three loads at 11/4
+ * and the two sixteens at 10/4; the target's requires the sixteens strictly
+ * ABOVE the loads and the loads strictly DESCENDING in web number.
+ *
+ * Half one is reached. The divisor is not a constant of the procedure: it is
+ * per web, and a basic block placed after the sixteens' last use but inside
+ * the loads' live range raises only the loads' divisor. An `if (1) { }` at the
+ * end of the else arm takes the loads to 11/5 = 2.2 while the sixteens hold
+ * 10/4 = 2.5, and the records then show the sixteens coloured first -- the
+ * first time this file has produced that order. It costs four bytes in this
+ * spelling and it also stops the twenty splitting, so the candidate scores
+ * 101; the value here is the mechanism, not the number.
+ *
+ * Half two is the blocker and it is now arithmetic. With the loads at divisor
+ * 5 and the sixteens at 4, separating the three loads needs three integer
+ * numerators a > b > c with a/5 < 2.5, so a <= 12, while c cannot fall below
+ * 11 -- ten for the single in-loop reference plus one for the definition
+ * occurrence -- and no such triple exists. At divisor 6 the triple 13, 12, 11
+ * does exist, so reopening needs TWO such zero-cost blocks plus one extra
+ * out-of-loop occurrence of the second load and two of the third, against a
+ * target pinned at 129 instructions. L109 supplies none of them for an f32.
+ *
+ * One more negative, because it is the obvious thing to try: occurrence weight
+ * is NOT discounted by conditional nesting. Moving the damping multiply behind
+ * an `if` leaves its numerator at 11 and raises every web's divisor uniformly,
+ * so per-arm placement cannot separate the three loads. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
@@ -705,6 +743,6 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x4C
- * summary: 8 words, one saved-FPR colour cycle. 2026-09-11 lane w3-low took the CDX capture the previous pass named as the deciding instrument, and its tier-D inference is FALSIFIED: the five webs do not tie on save. The zero constant is net 20 over divisor 4; each hoisted global load is net 11 over 4; each materialized sixteen is net 10 over 4. The two allocation groups are one arithmetic fact -- a load's web carries its definition occurrence and a materialized constant's does not -- and the records also name them: the loads are type-3 webs numbered from the local symbol table, the constants type-3's opposite, type-2 webs numbered from the constant table, so the two families can never interleave by number and a tie always goes to the load. Reversing all five declarations and, separately, all five hoist statements leaves that arithmetic bit-for-bit unchanged in the records, which is why the recorded 15,360-point lattice floors at eight. Reopen needs a constant at net 12 or above, or a load at net 9 or below, plus the three loads separated by net rather than by web number. L109 does not reach it: 80 in-loop probe cells are byte-identical and 20 pre-loop cells cost 4 bytes.
+ * summary: 8 words, one saved-FPR colour ordering. 2026-09-12 lane p8-close force-verified the target assignment instead of inferring it: colouring the first hoisted load to c35, the second to c34, the third to c33 and the two sixteens to c31 and c32 returns an object at ZERO masked words and delta 0, so the residual is exactly that colour order and nothing else. The ladder it demands is strict -- zero, then the negative sixteen, the sixteen, the third load, the second, the first -- and the two halves now have different status. Half one, the constants above the loads, is REACHED for the first time: a zero-instruction basic block at the end of the else arm raises only the three loads' divisor from 4 to 5, taking their save from 2.75 to 2.2 while the sixteens hold 2.5, because a block after the constants' last use still sits inside the loads' range. It costs 4 bytes in the one spelling measured and it un-splits the twenty, so the candidate scores 101, but the mechanism is real and is not in any earlier record. Half two is the blocker: the three loads tie, a tie breaks on ascending web number, and their numbers track the emission order the object pins. 120 hoist orders and 120 declaration orders, each crossed with three region placements, are all 8 or worse, and the class-2 ladder is bit-identical across all 32 hoist-membership subsets.
  * PLATEAU-HANDOFF:func_overlay_009_F0000540_1866BB8:end
  */
