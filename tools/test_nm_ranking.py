@@ -9,7 +9,9 @@ import shutil
 from pathlib import Path
 import sys
 import tempfile
+import os
 import unittest
+import unittest.mock
 from unittest import mock
 
 import nm_ranking as ranking
@@ -852,6 +854,42 @@ class IncrementalRefreshTests(unittest.TestCase):
             ):
                 self.assertEqual(ranking.main(), 2)
             self.assertEqual(path.read_text(encoding="utf-8"), original)
+
+
+class ForcedObjectGuardTests(unittest.TestCase):
+    """Every scorer here recompiles the TU before measuring, which overwrites
+    an object an instrumented or forced run produced. A lane read the same
+    score for twelve different forces before noticing, so the condition warns."""
+
+    def setUp(self) -> None:
+        ranking._forced_warning_emitted = False
+        self.addCleanup(setattr, ranking, "_forced_warning_emitted", False)
+
+    def _warn(self, env: dict) -> str:
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with unittest.mock.patch.dict(os.environ, env, clear=True):
+            with contextlib.redirect_stderr(buf):
+                ranking._warn_if_a_forced_object_would_be_discarded()
+        return buf.getvalue()
+
+    def test_a_force_variable_warns(self) -> None:
+        self.assertIn("CDX_FORCE", self._warn({"CDX_FORCE": "p1:w1=c2"}))
+
+    def test_an_instrumented_compiler_warns(self) -> None:
+        self.assertIn("IDO_DIR", self._warn({"IDO_DIR": "/tmp/instrumented"}))
+
+    def test_a_clean_environment_is_silent(self) -> None:
+        self.assertEqual(self._warn({}), "")
+
+    def test_an_empty_value_is_not_treated_as_set(self) -> None:
+        self.assertEqual(self._warn({"CDX_FORCE": ""}), "")
+
+    def test_the_warning_is_emitted_once_not_per_translation_unit(self) -> None:
+        env = {"CDX_FORCE": "p1:w1=c2"}
+        self.assertNotEqual(self._warn(env), "")
+        self.assertEqual(self._warn(env), "", "a sweep would drown in repeats")
 
 
 class RegisterMaskTests(unittest.TestCase):
