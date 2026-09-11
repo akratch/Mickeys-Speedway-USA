@@ -121,7 +121,33 @@ extern void o101TailC6E8TailFinalReloc();
  * and 49); six head rewrites of the selector/queue block are all >= 124, and
  * `end = cursor + count` and `end = count + gO101TailC6E8QueueBytes` both cost
  * one word against the retained `count + cursor`. Reopen on the colouring, not
- * on statement order. */
+ * on statement order.
+ *
+ * Lane p2-close (2026-09-11): 119 -> 106 masked at unchanged size and 0x18
+ * frame, immediate-only words 2 -> 0 and structural words 31 -> 26.  Two
+ * independent levers, both cheap and both reusable:
+ *
+ * 1. L59 group folds.  The builders here emit each per-element assignment
+ *    group in a fixed order and as1 breaks the resulting ties on physical
+ *    line number, so folding a whole group onto ONE line retires the tie.  All
+ *    1,024 subsets of the ten foldable groups were measured twice, once on the
+ *    plain baseline and once on top of lever 2; the paying set is the second
+ *    node32 assignment group, the second chain fixup, the node20 assignment
+ *    group and the node20 chain fixup.  The root-field group, the order-slot
+ *    pair, the first node32 group and the first chain fixup are inert, and the
+ *    two handle pairs regress.  A five-pattern greedy refinement over each
+ *    group -- none, fold all, fold pairs, fold first half, fold second half --
+ *    finds nothing better than fold-all on those four.
+ * 2. `*cursor = cursor[1] & 0xFF;`.  The mask is a no-op on a `u8 *`, the
+ *    `andi` after a `lbu` is removed by the peephole, and the object is the
+ *    same size -- but cfe still emits the operation, so ugen allocates one
+ *    more expression temporary in that block and the whole caller-saved free
+ *    list moves one place.  Worth 5 words on its own.  Doubling or tripling
+ *    the mask regresses (118, 119), and the same trick on `selector` or on the
+ *    switch costs four bytes.
+ *
+ * The residue is still register naming: 75 of the 106 words.  Reopen on the
+ * root-region colouring, and re-derive the web numbers before forcing. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000C6E8_18E7F08(void) {
     s32 count;
@@ -152,7 +178,7 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
             }
             end = gO101TailC6E8QueueCount + cursor;
             do {
-                *cursor = cursor[1];
+                *cursor = cursor[1] & 0xFF;
                 cursor++;
             } while (cursor < end);
         }
@@ -231,47 +257,24 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
         priorNodeIndex = nodeIndex;
         nodeIndex = gO101TailC6E8Node32Count;
         node32 = &gO101TailC6E8Nodes32[nodeIndex];
-        node32->x = 0xC0;
-        node32->y = 0xE0;
-        node32->scale = 1.0f;
-        node32->value10 = 0;
-        node32->color0 = 0xFF;
-        node32->color1 = 0;
-        node32->value14 = 0.0f;
-        node32->value18 = 0;
+        node32->x = 0xC0; node32->y = 0xE0; node32->scale = 1.0f; node32->value10 = 0; node32->color0 = 0xFF; node32->color1 = 0; node32->value14 = 0.0f; node32->value18 = 0;
         handle = o101TailC6E8Create90Reloc(
             0x90, NULL, &gO101TailC6E8Root, priorNodeIndex);
         nodeIndex = gO101TailC6E8Node32Count;
         node32 = &gO101TailC6E8Nodes32[nodeIndex];
-        previousType = gO101TailC6E8Root.chainType;
-        previous = gO101TailC6E8Root.chain;
-        gO101TailC6E8Root.chainType = 2;
-        gO101TailC6E8Root.chain = node32;
-        node32->previousType = previousType;
-        node32->previous = previous;
-        node32->handle = handle;
-        gO101TailC6E8Node32Count = nodeIndex + 1;
+        previousType = gO101TailC6E8Root.chainType; previous = gO101TailC6E8Root.chain; gO101TailC6E8Root.chainType = 2; gO101TailC6E8Root.chain = node32; node32->previousType = previousType; node32->previous = previous; node32->handle = handle; gO101TailC6E8Node32Count = nodeIndex + 1;
 
         priorNodeIndex = nodeIndex;
         nodeIndex = gO101TailC6E8Node20Count;
         node20 = &gO101TailC6E8Nodes20[nodeIndex];
-        node20->x = 0x20;
-        node20->y = 0x18;
-        node20->scale = 1.0f;
+        node20->x = 0x20; node20->y = 0x18; node20->scale = 1.0f;
         handle = o101TailC6E8CreateCompactReloc(
             1, node20, &gO101TailC6E8Root, priorNodeIndex);
         if (1) {
         }
         nodeIndex = gO101TailC6E8Node20Count;
         node20 = &gO101TailC6E8Nodes20[nodeIndex];
-        previousType = gO101TailC6E8Root.chainType;
-        previous = gO101TailC6E8Root.chain;
-        gO101TailC6E8Root.chainType = 1;
-        gO101TailC6E8Root.chain = node20;
-        node20->previousType = previousType;
-        node20->previous = previous;
-        node20->handle = handle;
-        gO101TailC6E8Node20Count = nodeIndex + 1;
+        previousType = gO101TailC6E8Root.chainType; previous = gO101TailC6E8Root.chain; gO101TailC6E8Root.chainType = 1; gO101TailC6E8Root.chain = node20; node20->previousType = previousType; node20->previous = previous; node20->handle = handle; gO101TailC6E8Node20Count = nodeIndex + 1;
 
         gO101TailC6E8Handle1D4 = o101TailC6E8Acquire5F1Reloc(0x5F1);
         gO101TailC6E8Handle1F4 = o101TailC6E8Acquire5F2Reloc(0x5F2);
@@ -292,10 +295,10 @@ common_tail:
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:start
  * symbol: func_overlay_101_F000C6E8_18E7F08
- * score: 119 differing words
+ * score: 106 differing words
  * frame: 0x18
  * relocations: 91
- * first-mismatch: +0x8
- * summary: Two uopt region boundaries take 124 masked words to 119 at exact size and 0x18 frame; the residue is a global colouring shift, with the target holding selector in a1 and the root region's hoisted webs three ring steps lower.
+ * first-mismatch: +0x4C
+ * summary: Two uopt region boundaries took 124 masked words to 119 at exact size and 0x18 frame. 2026-09-11, lane p2-close, 119 -> 106 with immediate-only words 2 -> 0 and structural 31 -> 26: four L59 group folds, chosen by measuring all 1,024 subsets of the ten foldable assignment groups, plus a no-op `& 0xFF` on the queue copy, which folds away at zero byte cost but still makes ugen allocate one more expression temporary and so moves the caller-saved free list one place. The shard's older claim that the target holds `selector` in a1 and this candidate a2 is stale: both hold it in a1 now, and the visible difference is the queue-byte base, t7 there against a2 here. The residue is 75 register-naming words, and it is p1 colouring in the root-initialisation region.
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */
