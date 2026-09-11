@@ -207,6 +207,15 @@ void spranimOnceControl(SpranimOnceState *state, s32 updateRate) {
 /* Workbench verdict: structure-mismatch, 60 differing words, first mismatch +0x48. */
 /* Candidate: 193/193 instructions with an exact 0x80 frame and five exact relocation identities; four opcode residuals remain. */
 /* Shape status: the ten-entry hit list and loop extent are exact, but stack homes and the integer register web remain non-exact. */
+/*
+ * 2026-09-12 (lane p7-res2): the `st` local in the store body is load-bearing.
+ * Naming the hit's state pointer before storing through it is worth three words
+ * (60 -> 57): it draws the allocator slot that puts the second unrolled loop
+ * body back on the target's temporaries (L76). Five other store spellings --
+ * a typed destination cast, word-indexing at 0x32, and a typed hit list --
+ * are byte-flat. The hit list stays at ten entries: eleven lengths were
+ * measured and every other one is worse.
+ */
 /* PROVENANCE: JFG's public effectboxControl assembly establishes the trigger/hit-list idiom; all Mickey offsets and calls below are reconstructed locally. */
 typedef struct SpranimEffectBox {
     u8 pad0[0xC];
@@ -261,7 +270,9 @@ void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
                     if ((state->active == 0) ||
                         ((state->normalX * hit->x) + (state->normalY * hit->y) +
                          (state->normalZ * hit->z) + state->distance < 0.0f)) {
-                        *(void **)((u8 *) hit->state64 + 0xC8) = arg0;
+                        void *st = hit->state64;
+
+                        *(void **)((u8 *) st + 0xC8) = arg0;
                     }
                     processed++;
                 } while (processed < hitCount);
@@ -409,11 +420,11 @@ void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
 
 /* PLATEAU-HANDOFF:effectboxControl:start
  * symbol: effectboxControl
- * score: 133/193 words
+ * score: 57/193 words
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x48
- * summary: Exact frame and relocation identities; trigger stack homes and the hit-loop integer register web remain.
+ * summary: Naming the state64 read in a local took 60 to 57; the rest is the a2/a3 web cycle and two spill homes the compiler always parks at the frame top
  * PLATEAU-HANDOFF:effectboxControl:end
  */
 

@@ -139,10 +139,18 @@ s32 joyInit(void) {
  * 48 differing words and six relocation-identity mismatches. The full flag
  * lattice was unchanged. A bounded permuter improved 5,795 to 5,305 only by
  * inventing a do-while guard, which was rejected.
+ *
+ * 2026-09-12 (lane p7-res2): `i` is declared before `unusedMsg` on purpose.
+ * That order, and only that order, puts the message local on the stack slot
+ * the target uses; frame_census then reports the same four-rung ladder on both
+ * sides and the first mismatch moves from +0x18 to +0x2C. It is worth one word
+ * (48 -> 47) and it is all but one of the immediate-only bucket. Eight other
+ * declaration and padding forms, every array length for the message local
+ * among them, are flat or worse.
  */
 s32 joyRead(s32 saveDataFlags, s32 updateRate) {
-    OSMesg unusedMsg;
     s32 i;
+    OSMesg unusedMsg;
 
     if (osRecvMesg(&D_800CF340, &unusedMsg, OS_MESG_NOBLOCK) == 0) {
         for (i = 0; i < 4; i++) {
@@ -348,10 +356,10 @@ s32 joyCharVal(void) {
 
 /* PLATEAU-HANDOFF:joyRead:start
  * symbol: joyRead
- * score: 111/159 words
+ * score: 47/159 words
  * frame: 0x38
- * relocations: 6
- * first-mismatch: +0x18
- * summary: Verdict mixed(constant/structural/register); lever none-known. JFG efd5abb leaves joyRead unchanged; next: donor with new declaration/lifetime evidence.
+ * relocations: 55
+ * first-mismatch: +0x2C
+ * summary: Declaring i before unusedMsg made the frame ladder exact, 48 to 47; the rest is the two loops' register webs
  * PLATEAU-HANDOFF:joyRead:end
  */

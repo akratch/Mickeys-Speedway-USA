@@ -1713,11 +1713,11 @@ void func_800293D0(void) {
 
 /* PLATEAU-HANDOFF:func_80028FCC:start
  * symbol: func_80028FCC
- * score: 17/27 words
+ * score: 10/27 words
  * frame: 0x18
  * relocations: 3
  * first-mismatch: +0x1C
- * summary: Not a donor question: the target is cfe's short-circuit-or value expansion with its carrier on the return register, and v0 is struck from that carrier web's candidate list because every operand's definition reads a call result (L101), which two probes here demonstrate directly.
+ * summary: A two-instruction normalise in the first two or-chain arms reaches the target's 27-instruction three-branch shape at 14; the carrier colour still blocks
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
 /*
@@ -1738,11 +1738,11 @@ void func_800293D0(void) {
 
 /* PLATEAU-HANDOFF:func_80029274:start
  * symbol: func_80029274
- * score: 48/87 words
+ * score: 39/87 words
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: JFG efd5abb keeps donor assembly-only; verdict structure-mismatch, lever authenticated matched donor C or source-lifetime evidence.
+ * summary: Every differing word is a float register: one coherent f12/f14 cycle at 93% over 24 sites, so the axis is the float pool's c26/c27, not structure
  * PLATEAU-HANDOFF:func_80029274:end
  */
 
