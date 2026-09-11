@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 48
 - first mismatch: +0x30
-- summary: JFG donor body unchanged after symbol renames; structure residual retained; reopen requires new setup or glyph-command evidence
+- summary: Half the 465 is a t6-t9 ring phase downstream of the eight-word size deficit; the +0x54 head is caller-saved naming and schedule, not structure.
 - current assignment base: `8aafabd4945580f6ba72e3c7bb7744a6a063198e`
 - current configured baseline and retained candidate: 2,192 candidate bytes / 548 words against 2,224 target bytes / 556 words; size delta is -32 bytes, with 466 raw and 465 relocation-masked differing words; both frames are `0x80`
 - first mismatch distinction: direct object words first differ at `+0x30` (the early branch displacement); the workbench's aligned structural report begins at `+0x54`. The header now records the raw mismatch and the candidate's 48 relocations; the target has 42.
@@ -33,4 +33,39 @@
 - rejected plateaus: the most structurally compact alternate reached 554/556 words and 60 relocation mismatches but regressed to 474 positional differences; the target-supported glyph guard plus that texture form overshot by one word and regressed to 478
 - tooling: no permuter batch was run because the retained residual remains broadly structural rather than a close allocator/scheduler finish; every attempt and object is retained under ignored `build/wb/` state
 - next action: preserve the macro-authentic colour/sync/fill spelling and manual scissor/texture spelling, then explain the `+0x54` setup address-carrier web before revisiting the custom glyph-command pointer chronology
+
+## 2026-09-11 (lane `lane/w3-mid`): half the residual is downstream of the size deficit
+
+Unchanged at 465 words. Aligned: 182 byte-exact, 232 register naming, 18
+immediate only, 136 really different; size delta -32 bytes; displacement tax 79.
+First naming difference +0x54, first immediate-only +0x30, first structural
++0x60.
+
+`tools/frame_census.py` reports frame 0x80 and fifteen stack slots on both
+sides. The ladders agree on the top two entries and from +0x3C downward; three
+homes sit at +0x50, +0x64 and +0x68 here and at +0x60, +0x6C and +0x70 in the
+target. Same count, same frame: the difference is how much unhomed space sits
+between +0x3C and the first home above it, 0x20 bytes in the target against
+0x10 here, which by L121 is a count of register-class scalars rather than a gap.
+
+The 232-word naming bucket is not an independent problem and should not be
+worked as one. The register census shows 234 substitution instances confined to
+t6, t7, t8 and t9, with the phase differing between regions because the stream
+is eight words short and displaced at seventeen separate sites. That ring will
+follow the structure.
+
+The size deficit is eight words net: twelve surplus candidate words in eight
+groups, and twenty missing target words in seventeen groups. The largest single
+sites are three words missing at target +0x710 and two each at +0x6F4 and
++0x1DC-adjacent positions; the rest are one word apiece.
+
+The prior handoff routes the head at +0x54 through structure-buckets. Under
+alignment that is the wrong bucket: +0x54 to +0x98 is register naming and
+schedule with the same instruction multiset on both sides, the candidate holding
+a setup address and the reloaded output pointer in two temporaries where the
+target holds them in two argument registers. The first genuinely structural site
+is +0x60, and the first missing target word is at +0x74. A lane picking this up
+should start from the size deficit and the caller-saved allocation of the setup
+block, and should not open a register-class investigation until the eight words
+close.
 <!-- plateau-handoff:func_8004B1DC:end -->

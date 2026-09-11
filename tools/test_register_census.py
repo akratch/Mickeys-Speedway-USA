@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Unit tests for the register-substitution census.
+
+Synthetic encodings only. The value of this tool is telling a ring-phase cycle
+apart from scattered colour problems, so that is what the tests pin.
+"""
+import collections
+import pathlib
+import sys
+import unittest
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
+import nm_ranking as nr  # noqa: E402
+import register_census as rc  # noqa: E402
+
+T6, T7, T8, T9 = 14, 15, 24, 25
+S0, S1 = 16, 17
+
+
+def addu(rd, rs, rt):
+    return (0x00 << 26) | (rs << 21) | (rt << 16) | (rd << 11) | 0x21
+
+
+def streams(base, target):
+    return nr.WordStreams(base_words=base, target_words=target,
+                          base_reloc={}, target_reloc={},
+                          base_size=len(base) * 4, target_size=len(target) * 4)
+
+
+class CensusTests(unittest.TestCase):
+    def test_a_register_swap_is_counted_once_per_field(self) -> None:
+        out = rc.census(streams([addu(T6, S0, S1)], [addu(T7, S0, S1)]))
+        self.assertEqual(out["sites"], 1)
+        self.assertEqual(out["pairs"][("t6", "t7")], 1)
+
+    def test_identical_words_contribute_nothing(self) -> None:
+        out = rc.census(streams([addu(T6, S0, S1)], [addu(T6, S0, S1)]))
+        self.assertEqual(out["sites"], 0)
+
+    def test_a_different_opcode_is_not_a_substitution(self) -> None:
+        subu = (0x00 << 26) | (S0 << 21) | (S1 << 16) | (T6 << 11) | 0x23
+        out = rc.census(streams([addu(T6, S0, S1)], [subu]))
+        self.assertEqual(out["sites"], 0)
+
+    def test_a_shifted_stream_still_pairs_correctly(self) -> None:
+        """The reason this reads the alignment rather than matching indices: a
+        size delta shifts the streams, and a positional read would pair
+        unrelated instructions and invent substitutions."""
+        body = [addu(T6, S0, S1), addu(T7, S0, S1), addu(T8, S0, S1)]
+        shifted = [addu(S0, S0, S1)] + body      # one extra instruction in front
+        out = rc.census(streams(shifted, body))
+        self.assertEqual(out["sites"], 0, "aligned bodies are identical")
+
+
+class CycleTests(unittest.TestCase):
+    def test_a_closed_cycle_is_found(self) -> None:
+        pairs = collections.Counter({("t6", "t7"): 9, ("t7", "t8"): 8,
+                                     ("t8", "t6"): 7})
+        self.assertEqual(rc.cycles(pairs), [["t6", "t7", "t8"]])
+
+    def test_scattered_substitutions_are_not_a_cycle(self) -> None:
+        """These are per-web colour questions and must not read as ring phase."""
+        pairs = collections.Counter({("t6", "s0"): 4, ("t7", "a1"): 3})
+        self.assertEqual(rc.cycles(pairs), [])
+
+    def test_the_dominant_mapping_wins_a_contested_source(self) -> None:
+        pairs = collections.Counter({("t6", "t7"): 40, ("t6", "s0"): 2,
+                                     ("t7", "t6"): 30})
+        self.assertEqual(rc.cycles(pairs), [["t6", "t7"]])
+
+    def test_a_self_mapping_is_not_reported_as_a_cycle(self) -> None:
+        self.assertEqual(rc.cycles(collections.Counter({("t6", "t6"): 5})), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

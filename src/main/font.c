@@ -1255,7 +1255,7 @@ u8 func_8004D5C0(s32 font) {
  * frame: 0x80
  * relocations: 48
  * first-mismatch: +0x30
- * summary: JFG donor body unchanged after symbol renames; structure residual retained; reopen requires new setup or glyph-command evidence
+ * summary: Half the 465 is a t6-t9 ring phase downstream of the eight-word size deficit; the +0x54 head is caller-saved naming and schedule, not structure.
  * PLATEAU-HANDOFF:func_8004B1DC:end
  */
 

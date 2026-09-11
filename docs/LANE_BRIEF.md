@@ -34,6 +34,8 @@ It also prints a **displacement tax** — how much of the positional count is
 pure shift — and the offsets where instructions are surplus or missing. On a
 size mismatch that last pair is the whole question.
 
+`tools/register_census.py <symbol>` says *which* registers the two sides disagree on and whether they form a cycle. A closed cycle over the temp ring is one ring-phase fact with a single cause (L127, fixable from source at zero byte cost); scattered substitutions are per-web colour questions. Reading a cycle as N colour problems is how a lane spends a day on the wrong axis -- on one function 195 of 279 words were a single four-cycle.
+
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
 them: each side's ladder from the frame top down, the slots only one side uses,
 and shared slots with different traffic. Run it on any residual with a frame or
