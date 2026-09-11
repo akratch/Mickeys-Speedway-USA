@@ -106,9 +106,22 @@ Every procedure that issues a call emits **p1 allocator records only**; every
 leaf emits **p2 only**. 59 procedures classified, zero counterexamples.
 
 - **Your function contains a call** ⇒ p1 only ⇒ the axis is the `save` ratio
-  (L100). **Definition position, declaration order and statement order decide
-  nothing.** L106 does not apply. A closure that swept them measured an axis
-  the function does not have.
+  (L100) **only for colours the web is actually offered**. **Definition
+  position, declaration order and statement order decide nothing.** L106 does
+  not apply. A closure that swept them measured an axis the function does not
+  have.
+  **Check the offer list before the ratio (L142).** A web live across a call is
+  denied `v0`/`v1` *and exactly those argument registers the spanned calls
+  load*, and the denial shows as **absence from the `p1cost` list**, not as a
+  mask or a losing bid. Calls loading `a0`/`a1` give a list starting at c5;
+  calls loading `a0`–`a3` give c7. If the register you want is not in the list,
+  no ratio, carrier or spelling reaches it and raising `totalsave` will move the
+  number without ever producing the colour — two closures were written demanding
+  exactly that. The lever that does exist is **the arity of the calls inside the
+  web's range**: dropping one argument moved a mask from `0x7803e000` to
+  `0x7003e000` and globalcolor then chose the wanted register at an unchanged
+  save. The float bank behaves identically — `f12`/`f14` are argument registers,
+  so a call taking two floats masks them both.
 - **Your function is a leaf** ⇒ p2 only ⇒ the axis is ascending web number, and
   moving a defining statement is a lever (L106).
 
