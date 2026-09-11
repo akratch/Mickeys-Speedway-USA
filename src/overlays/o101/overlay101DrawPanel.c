@@ -95,7 +95,41 @@ void func_overlay_101_F0000000_18DB820();
  * BuildIntensityColors call and its two neighbouring assignments. Two carrier
  * locals for the fifth mode-1/3 argument regress from +0x80, and the
  * one-step, two-step and `32 +` spellings of such a carrier are
- * byte-identical to each other, so that lattice is one point, not three. */
+ * byte-identical to each other, so that lattice is one point, not three.
+ *
+ * Lane p2-close (2026-09-11) measured the frame instead of the score, and the
+ * direction of the older diagnosis is wrong.  `frame_census` puts the target's
+ * spills at +0x48 (one store, three loads), +0x5C and +0x60 (one store, one
+ * load each) against this candidate's +0x5C, +0x50 and +0x54 -- the same three
+ * values, `x + work.width`, `y + 2` and `x + 14`, in the same pattern, at
+ * different displacements, which is all eight immediate-only words.  Since the
+ * compiler temps sit immediately below the declared block and the target
+ * touches +0x60, the target's block ENDS at +0x64; `work` is pinned there by
+ * the four addresses passed to BuildIntensityColors, so the target's block is
+ * 276 bytes and this candidate's is 288.  `frame = round8(56 + temps + block)`
+ * holds on both sides, so the shipped code has eleven temp cells against this
+ * candidate's eight: three declared scalars became compiler temps.  Measured
+ * on this baseline, each delta 0 unless stated: one to five unused pointers
+ * after `bottom` give frames 0x180, 0x180, 0x188, 0x188, 0x190, so the temp
+ * pool is rigid at eight cells for this declaration set and no padding edit
+ * reaches the target's layout; deleting any of `x`, `y`, `right` or `bottom`
+ * and inlining the expression costs 48 to 436 bytes, because `&work.full`
+ * escapes and `work.width`/`work.height` must therefore reload after every
+ * call; splitting `width`/`height` out of the struct and dropping `right` and
+ * `bottom` keeps size and frame exactly (87 masked) and is the only form found
+ * that does; and a full reconstruction as nine separate scalars above a
+ * trailing `records[20]` reproduces the target's spill pattern exactly but
+ * lands eight bytes low, because uopt then makes nine temporaries where the
+ * target makes eleven.
+ *
+ * The ring reading agrees.  The instrumented ugen's free list for this
+ * procedure is only {t6, t7, t8, t9}: globalcolor takes v0, v1 and t0 through
+ * t5, and `REMOVE` strikes those from the pool at procedure entry.  The
+ * shipped code uses t1 as an expression temporary in the mode-1/3 arm, so it
+ * runs a wider ring, which means one fewer p1 web -- the same fact as three
+ * fewer declared scalars, not a missing web.  So the lever is to remove a
+ * declared symbol at zero byte cost, and the `L120` commoned-load form does
+ * not apply here because the struct's address escapes. */
 #ifdef NON_MATCHING
 void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
     Overlay101PanelRect *out;
@@ -247,6 +281,6 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
  * frame: 0x178
  * relocations: 18
  * first-mismatch: +0xB4
- * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36. The residue is NOT colouring: 240 single-web globalcolor forces leave it at 36 or worse. It is one missing expression-ring web, visible as a t1 census of 4 against the target's 12 and a ring running one place behind from +0xB4; a seventh declared local would supply it but moves the frame.
+ * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36. The residue is NOT colouring: 240 single-web globalcolor forces leave it at 36 or worse. 2026-09-11, lane p2-close, measured and it inverts the older reading: the shipped frame's declared block ENDS at +0x64 and is 276 bytes where this candidate's ends at +0x58 and is 288, so the target declares three FEWER homed scalars, not a seventh more, and its compiler-temp pool is eleven cells against this candidate's eight. The eight immediate-only words are exactly the three spill displacements that follow from that, and the t1 census of 4 against 12 is the same fact seen from ugen: globalcolor here holds t0 through t5, leaving a four-register expression ring, while the shipped code spends t1 as an expression temp, so it carries one p1 web fewer. Decision variable: the declared-symbol count. Reopen with a source form that drops one declared scalar without adding a reload; naive inlining costs 48 to 436 bytes because the work struct's address escapes.
  * PLATEAU-HANDOFF:overlay101DrawPanel:end
  */

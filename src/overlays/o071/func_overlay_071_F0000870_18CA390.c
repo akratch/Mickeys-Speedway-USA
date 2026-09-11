@@ -70,6 +70,20 @@ extern void func_800241BC(Overlay71Command **commands);
  * single candidate, reported this function's unfolded score of 420 as its
  * base, and spent its whole budget improving that.
  *
+ * 2026-09-11, lane p2-close: the colour table and the three decision records
+ * were re-derived from this procedure's own log rather than quoted -- c1 v0,
+ * c2 v1, c3 a0, c4 a1, c5 a2, c6 a3, c7 t0 through c13 t6, c14 s0 -- and they
+ * reproduce exactly: web 25 save 2.0 nocs 1 totalsave 2 takes c3, web 27 save
+ * 2.0 nocs 2 totalsave 4 takes c4, web 50 save 2.0 nocs 2 totalsave 4 takes
+ * c3.  What the earlier passes did not say is that there are FOUR flag loads,
+ * and the shipped code puts all four in a2 while this candidate splits them
+ * a1/a1/a0/a0.  Because webs 27 and 50 each have two live-range components and
+ * the components are separated by calls, no single web can interfere with both
+ * -- so the lever has to supply an interferer per component, on c3 and on c4,
+ * and it has to be a web that does not span a call, since a call-spanning web
+ * is forbidden a0 through a3 intrinsically.  That is four webs to create, not
+ * one.  See the handoff shard for the forms falsified this pass.
+ *
  * 2026-09-10, lane w8-tu: the instrumented allocator names the requirement.
  * The two flag-load webs are both p1 decisions at save 2.0; the first has
  * three colours plus a callee-saved one forbidden and takes the fourth, the
@@ -167,6 +181,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x94
- * summary: Folding each command's w0/w1 pair onto one physical line makes their as1 line-number tie fall through to ready-list position and reproduces the shipped store order at all ten simple command sites, 33 -> 11 words at unchanged size and frame. The residue is ONE colour and the two structural words are a consequence of it, not a second residual: forcing web 27 to c5 alone takes 11 -> 5 and moves the first mismatch from +0x94 to +0x228, so every word in that window including both structural ones goes with that colour; forcing web 50 too gives 0 masked at delta 0. Web 27's cost list is 0.0 at every available caller-saved colour, so each web takes the FIRST available one and reaching a2 needs v0, v1, a0 and a1 all forbidden -- but only three caller-saved colours are consumed before the flag webs are decided. 2026-09-11, lane s1-one: the constant-web route is now dead for real rather than dead by declined force (the interferers were freed first and re-read, and every one still forbids a0-a3 intrinsically because it spans a call), flag chains coalesce so no second carrier ever becomes a third web, L109 probes are inert here, and L100 is quantified: a statement-form carrier is fixed at save 2.0 and a pointer carrier at 4.0, so the (2.0, 3.5) window the closure needs is unreachable by any carrier shape in this body. Reopen condition: a source form that makes some NON-call-spanning value other than the flag reads and command live in the flag-read basic blocks.
+ * summary: Folding each command's w0/w1 pair onto one physical line makes their as1 line-number tie fall through to ready-list position and reproduces the shipped store order at all ten simple command sites, 33 -> 11 words at unchanged size and frame. The residue is ONE colour and the two structural words are a consequence of it, not a second residual: forcing web 27 to c5 alone takes 11 -> 5 and moves the first mismatch from +0x94 to +0x228, so every word in that window including both structural ones goes with that colour; forcing web 50 too gives 0 masked at delta 0. Web 27's cost list is 0.0 at every available caller-saved colour, so each web takes the FIRST available one and reaching a2 needs v0, v1, a0 and a1 all forbidden -- but only three caller-saved colours are consumed before the flag webs are decided. 2026-09-11, lane s1-one: the constant-web route is now dead for real rather than dead by declined force (the interferers were freed first and re-read, and every one still forbids a0-a3 intrinsically because it spans a call), flag chains coalesce so no second carrier ever becomes a third web, L109 probes are inert here, and L100 is quantified: a statement-form carrier is fixed at save 2.0 and a pointer carrier at 4.0, so the (2.0, 3.5) window the closure needs is unreachable by any carrier shape in this body. Reopen condition: a source form that makes some NON-call-spanning value other than the flag reads and command live in the flag-read basic blocks. 2026-09-11, lane p2-close: the requirement is FOUR interferers, not one -- the object carries four flag loads and webs 27 and 50 each have two components, so each component separately needs c3 and c4 forbidden by a web that does not span a call. Argument-constant carriers, the context parameter, hoisted command-word and asset-address carriers and a 31-cell no-op-mask lattice are all newly falsified; see the shard.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */
