@@ -106,4 +106,65 @@ definition of the same value is either folded away or folded into the advance.
 The requirement from the previous pass is unchanged -- the pointer web needs
 `totalsave` above 20 at `nocs` 3 or a span short enough for `nocs` 1 -- and the
 live-range route to it is now closed too.
+
+#### 2026-09-12, lane p7-ovl3: the stated requirement is the wrong variable, and the arity of one call is the right one
+
+Baseline reproduces exactly: 2,648 bytes, delta 0, 29 masked, aligned 640
+byte-exact, 14 register naming, 2 immediate-only, 8 structural. The
+instrumented uopt gives the command pointer as web 40 (save 2.666667, nocs 3,
+totalsave 8) and the a1 holder as web 274 (save 6.666667), reproducing the
+recorded figures, and its object is byte-identical to the tree's.
+
+**The closure above asks for a save the pointer can never spend.** Three
+records, none of which fits "a1 is held by a web that outranks it":
+
+- web 40's `p1cost` list **starts at colour 5**. v0, v1, a0 and a1 are absent
+  from it, not outbid in it. A save ratio cannot buy a colour that is never
+  priced, so "totalsave above 20 at nocs 3, or a span short enough for nocs 1"
+  would not deliver a1 even if it were met.
+- web 40's interference list contains **no neighbour assigned colour 4**. The
+  forbidden bit for a1 is set with nothing holding a1.
+- forcing web 274 off a1 onto c5, c6 and c7 leaves web 40 on a2 in all three
+  runs (211, 211 and 344 words), and a direct `CDX_FORCE=p1:w40=c4` comes back
+  byte-identical, which is the declined-at-decision-time case and proves
+  nothing on its own. Read with the three forced runs, it does: freeing the
+  incumbent does not open the colour.
+
+**What opens it is the arity of `ext_o0_2d98` inside the pointer's live
+range.** Compiling `ext_o0_2d98(temp_a0)` in place of
+`ext_o0_2d98(temp_a0, var_a1)` at both sites clears exactly bit 27 of web 40's
+forbidden mask, `0x7803e000` becomes `0x7003e000`, and globalcolor reports
+`bestcolor=4 bestreg=a1` for the same web at the same save. The mechanism
+generalises: a web live across a call is denied the argument registers that
+call loads. These calls load a0 and a1, which is why a2 and a3 stay priced
+here, and the o046 residual measured the same day is the same shape with
+calls that load a0 to a3 and a cost list that starts at colour 7.
+
+**The one-argument form is not a match, and its defect is now a single named
+word.** It is four bytes short: aligned 593 byte-exact, 10 naming, 6
+immediate-only, 54 structural, and every naming row in that region reads a1 on
+both sides. The target emits `move a1,s5` then `addiu a1,a1,12` where the
+candidate folds both into `addiu a1,s5,12`. Seven advance spellings on top of
+the one-argument form are identical at delta -4, so this is not an
+advance-spelling question.
+
+Worth stating because it is what makes the hypothesis admissible: `ext_o0_2d98`
+is declared here with **no prototype**, and the third call to it in this same
+function already passes one argument. The ROM cannot distinguish a
+two-argument call whose a1 already holds the pointer from a one-argument call,
+so the two-argument reconstruction at these two sites is an m2c guess rather
+than evidence.
+
+Axes this pass covered, all flat at 29 or worse: nine call-site spellings of
+the two-argument form (an inline base expression at both sites, `&var_a1[0]`, a
+`(u32)` cast round trip, `(void *)`, `(u8 *)`, a second local carrying the same
+value, a third argument, swapped arguments), and seven advance spellings on the
+one-argument form. uopt folds every call-site spelling back onto the same web
+and the forbidden mask does not move.
+
+Decision variable for the next lane: with a1 available to the pointer web, what
+source form emits the target's separate `move a1,s5` at +0x17C instead of the
+folded `addiu a1,s5,12`. The record that blocks it is the four-byte deficit,
+not a colour.
+
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

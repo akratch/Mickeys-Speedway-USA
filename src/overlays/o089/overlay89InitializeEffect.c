@@ -121,20 +121,55 @@ extern void *overlay89CreatePrimaryReloc(Overlay89Object *object,
 extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
-/* Workbench: structure-mismatch, 58 raw differences / 147 of 205 words match, first +0x40.
- * Instruction count/frame and five relocation sites align; state lifetime and create/maintain proxy identities remain divergent.
- * Candidate is not permuter-ready; the fallback remains canonical. */
+/* 205 instructions, frame 0x58 and five relocation sites are exact.  58 masked words fell to 21
+ * on 2026-09-12 (lane p7-ovl3) in three steps, each measured against the whole 205-word target:
+ *
+ *   - Assigning `colors` before `source` in the nested-colour loop is 58 -> 45.  The two pointers
+ *     are a closed v0/v1 cycle in `register_census` (one global mapping, one window, 100% coherent),
+ *     which [L127] says is ONE ring-phase fact and not thirteen colour problems: initialising them
+ *     in the other order swaps the pair and closes all thirteen at zero width.  Swapping their
+ *     DECLARATIONS instead is byte-identical, so it is the definition order that decides.
+ *   - Dropping both re-reads of `object->state` -- the one after the create call and the one inside
+ *     `if (root != NULL)` -- is 45 -> 27.  Neither edit pays alone: the first alone is -4 bytes and
+ *     69 words, the second alone +4 and 77.  Together they are delta 0 and 27, which is [L100]'s
+ *     warning that a direction must not be discarded because one half of it regresses.
+ *   - Declaration order is then worth 27 -> 21 (`root` first, `state` after `descriptor`), fixing
+ *     the a2 spill home: sp+0x54 -> sp+0x38, aligned immediate-only 7 -> 1.  11,520 orders were
+ *     measured and 21 is the floor; all of them keep the 0x58 frame.
+ *
+ * The 21 that remain are 18 register naming, 1 immediate-only and 2 structural:
+ *
+ *   17 of the 18 are one float ring phase.  The instrumented uopt records exactly two class-2 webs
+ *   in this procedure, webs 42 and 16, and BOTH take colour 24 with an EMPTY forbidden mask
+ *   (`available0=0x000000fc`, numintf=0, cost 0).  An empty mask is what makes this reading the
+ *   TABLE rather than one web's constraint: this procedure offers c24..c29 only.  c24 is f0, so the
+ *   `size` local is coloured f0 and the ugen float ring starts one position later than the target's
+ *   -- the target spends f6/f8/f10/f16 where we spend f0/f6/f8/f10.  The target has no such web.
+ *   Removing it by inlining the expression does reach the colour (naming 18 -> 13) but hoists the
+ *   `gOverlay89InitScale[1]` load ahead of the conversion and costs 8 structural words (diff 2 -> 10,
+ *   masked 26).  Nineteen forms of the inlined family were measured -- both operand orders, an
+ *   extra parenthesisation, `*(gOverlay89InitScale + 1)`, a dead trailing assignment, two
+ *   statement positions, four region boundaries and a block-scoped scale local -- and the family
+ *   bottoms at 26 while the local family holds 21, with nothing between the two minima.  Naming
+ *   an integer intermediate instead (`count = (u32)init->size`) deletes real instructions
+ *   (delta -16 and -36) and is not the same edit.
+ *   Forcing web 42 off c24 is worth 2 words at most (c28 gives 19), so colour is not the lever --
+ *   the web has to stop existing without moving the load.
+ *   The 2 structural are the maintain call: the target has `move a0,s0` then `move a1,a2`, reusing
+ *   the state pointer it reloads from sp+0x38, where we emit `move a0,s0` then `lw a1,100(s0)`.
+ *   Passing `state` there instead of `object->state` is NOT that edit -- it deletes four more
+ *   instructions (delta -16, 195 words). */
 #ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
                                Overlay89Init *init) {
-    Overlay89EffectState *state;
-    Overlay89CreateDescriptor descriptor;
     Overlay89NestedRoot *root;
+    Overlay89CreateDescriptor descriptor;
+    Overlay89EffectState *state;
     Overlay89ColorEntry *source;
     Overlay89ColorEntry *colors;
     s32 count;
-    f32 range;
     f32 size;
+    f32 range;
 
     object->angleA = init->angleA << 8;
     state = object->state;
@@ -191,7 +226,6 @@ void overlay89InitializeEffect(Overlay89Object *object,
 
     state->primaryHandle =
         overlay89CreatePrimaryReloc(object, &descriptor, state, init);
-    state = object->state;
     state->scale = (f32)(init->scale * 8);
     state->radius = (f32)(init->radius * 8);
 
@@ -204,9 +238,8 @@ void overlay89InitializeEffect(Overlay89Object *object,
 
     root = *object->nested;
     if (root != NULL) {
-        state = object->state;
-        source = root->header->entries;
         colors = root->colors;
+        source = root->header->entries;
         count = root->header->count;
         while (count--) {
             if (source->red == 0 && source->green == 0 && source->blue == 0) {
@@ -225,10 +258,10 @@ void overlay89InitializeEffect(Overlay89Object *object,
 
 /* PLATEAU-HANDOFF:overlay89InitializeEffect:start
  * symbol: overlay89InitializeEffect
- * score: 147/205 words
+ * score: 21 differing words
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x40
- * summary: 205 instructions/frame and five relocation sites align; state lifetime and create/maintain proxy identities remain divergent
+ * summary: 58 fell to 21 in three separable steps. Assigning `colors` before `source` closes a coherent v0/v1 cycle at zero width ([L127]) and is 58 to 45, while swapping their declarations is byte-identical, so definition order is what decides. Dropping both re-reads of `object->state` is 45 to 27 although each half alone regresses, -4 bytes and 69 words for one and +4 and 77 for the other ([L100]). Declaration order is then 27 to 21 by moving the a2 spill home from sp+0x54 to sp+0x38, and 11,520 orders put 21 at the floor with the frame never leaving 0x58. Of the 21 left, 17 are one float ring phase: the instrumented uopt shows exactly two class-2 webs, both taking colour 24 with an EMPTY forbidden mask, which is what makes the reading the table and not a constraint, and this procedure offers c24 to c29 only. c24 is f0, so the `size` local is coloured f0 and the float ring starts one position after the target's. Inlining the expression reaches the colour, naming 18 to 13, but hoists the scale load ahead of the conversion for 8 structural words; nineteen forms of the inline family, covering both operand orders, a pointer-arithmetic spelling, a dead trailing assignment, two statement positions, four region boundaries and a block-scoped scale local, bottom out at 26 while the local family holds 21, and there is nothing between the two minima. Forcing that web off c24 is worth at most 2 words, so the lever is not colour. The last 2 are the maintain call, where the target reuses the reloaded state pointer and we reload from the object.
  * PLATEAU-HANDOFF:overlay89InitializeEffect:end
  */

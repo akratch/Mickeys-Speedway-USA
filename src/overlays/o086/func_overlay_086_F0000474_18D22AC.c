@@ -133,6 +133,60 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  * pointer needs totalsave above 20 at nocs 3, which is thirteen more counted
  * references, or a span short enough for nocs 1 at its present 8.  Neither is
  * reachable from the forms above.
+ *
+ * 2026-09-12, lane p7-ovl3: THAT REQUIREMENT IS THE WRONG VARIABLE, and the
+ * records say so.  Baseline reproduces exactly -- 2648 bytes, delta 0, 29
+ * masked, aligned 640 byte-exact / 14 naming / 2 immediate / 8 structural.
+ * The instrumented uopt (object byte-identical to the tree's, which is the
+ * identity gate) gives the pointer web as web 40, save 2.666667, nocs 3,
+ * totalsave 8, and the a1 holder as web 274, save 6.666667.  Three facts, none
+ * of which fits "a1 is held by a web that outranks it":
+ *
+ *   - web 40's `p1cost` list STARTS AT COLOUR 5.  v0, v1, a0 and a1 are not
+ *     priced for it at all -- they are absent from the list, not outbid in it.
+ *     No save ratio can buy a colour that is never offered, so the recorded
+ *     requirement (totalsave above 20, or nocs 1) cannot deliver a1 however it
+ *     is met.
+ *   - its interference list holds NO neighbour assigned colour 4.  The
+ *     forbidden bit for a1 is set with nothing holding a1.
+ *   - forcing web 274 off a1 to c5, c6 and c7 leaves web 40 on a2 in all three
+ *     runs (211, 211 and 344 words), and a direct `CDX_FORCE=p1:w40=c4` is
+ *     declined byte-identically.  Freeing the incumbent does not open the
+ *     colour.
+ *
+ * What does open it is the ARITY of the `ext_o0_2d98` call sites inside the
+ * pointer's live range.  Compiling `ext_o0_2d98(temp_a0)` in place of
+ * `ext_o0_2d98(temp_a0, var_a1)` at both sites clears exactly bit 27 of web
+ * 40's forbidden mask -- 0x7803e000 becomes 0x7003e000 -- and globalcolor then
+ * reports `bestcolor=4 bestreg=a1` for the same web at the same save 2.666667.
+ * The rule underneath is that a web live across a call is denied the argument
+ * registers that call actually loads: this procedure's calls in that range load
+ * a0 and a1, which is why a2 and a3 stay priced for it, and it is the same
+ * shape as the o046 residual measured the same day where the spanned calls load
+ * a0..a3 and the cost list starts at colour 7.
+ *
+ * That form is not a match and the reason is now isolated rather than diffuse:
+ * it is exactly four bytes short, aligned 593 byte-exact / 10 naming / 6
+ * immediate / 54 structural, because the target emits `move a1,s5` followed by
+ * `addiu a1,a1,12` where the one-argument candidate folds both into
+ * `addiu a1,s5,12`.  With the arity changed, every one of the naming rows in
+ * that region reads a1 on both sides.  Seven advance spellings on top of the
+ * one-argument form (`+= 6`, `&var_a1[6]`, a `(u32)` cast, a store after the
+ * advance, two region boundaries and a re-assignment from the base) are all
+ * identical at delta -4, so the missing `move` is not an advance-spelling
+ * question.  Note also that `ext_o0_2d98` is declared here with NO prototype
+ * and the third call site in this same function passes ONE argument, so the
+ * two-argument reconstruction at these two sites is an m2c guess, not
+ * evidence; the ROM cannot distinguish a two-argument call whose a1 already
+ * holds the pointer from a one-argument call.
+ *
+ * The decision variable is therefore: what emits the target's separate
+ * `move a1,s5` at +0x17C once a1 is available to the pointer web.  Nine
+ * call-site spellings of the two-argument form (an inline base expression at
+ * both sites, `&var_a1[0]`, a `(u32)` cast round trip, `(void *)`, `(u8 *)`, a
+ * second local carrying the same value, a third argument and swapped
+ * arguments) are all 29 or worse, because uopt folds every one of them back
+ * onto the same web and the mask does not move.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
