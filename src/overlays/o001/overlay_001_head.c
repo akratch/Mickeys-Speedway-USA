@@ -146,91 +146,29 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
 
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
-/* Retained plateau: schedule-only at 52/79 positional words, first mismatch
- * +0x0C, with the exact 79-word extent, 0x70 frame, CFG, and instruction
- * multiset. All 119 flag rows are nonexact. A bounded two-thread permuter
- * improves its private score only through an inert comma expression, which is
- * rejected; traditional declaration/assignment separation is byte-flat.
- * Resume only with a source-authentic statement-line or grouping model.
- *
- * 2026-09-10: the residual is 27 words in four clusters and all four are
- * as1's instruction scheduler: 17 in the prologue permutation, 4 and 4 in
- * where the call-result copy lands after calls 1 and 3, and 2 in the delay
- * slot chosen for call 3. Opcode multiset, CFG, frame and both register
- * lanes already agree apart from what those moves drag with them.
- *
- * as1's scheduler can be read directly here, and cheaply. `cc -Wa,-R` on the
- * project's exact flags prints its dependence graph and every selection, and
- * is byte-inert: the .text of the object is identical with -R on, verified.
- * Two facts come straight off those records and neither needs an
- * instrumented toolchain to reproduce.
- *
- * (1) The pick rule is: highest `aftercycles` -- the node's longest path to
- * the end of the block -- wins, and ties go to the lowest ugen emission
- * index. Source line number is the last key in the chain; 25 of this unit's
- * 2272 selections were decided on it.
- *
- * (2) A `.set volatile` reference IS a scheduling barrier, and specifically
- * every volatile reference in a block is chained to the next by an explicit
- * dependence edge -- the trace shows the edges even between sp-relative
- * slots the assembler could trivially prove disjoint. So the order of the
- * volatile references in the object is ugen's emission order, full stop. Do
- * not read a schedule difference between two volatile references as as1
- * having reordered them; it cannot.
- *
- * Those two together turn the residual into a contradiction, which is the
- * useful result. In the block after call 1 the four argument loads are a
- * four-long volatile chain, so their `aftercycles` run 4, 3, 2, 0 while the
- * call-result copy is a dead end at 0; the copy therefore loses to three of
- * them and lands fourth, which is the candidate. The target places the copy
- * FIRST. Under the pick rule that is reachable exactly one way: the four
- * loads must carry no volatile edges at all, so that all five nodes tie at 0
- * and the order collapses to the emission order, which is the target's. But
- * unqualifying the parameters is what promotes the four s32 controls into
- * s1..s4, which costs five more saves and a 0x80 frame. The prologue says
- * the same thing from the other side: the target issues call 1's four
- * argument loads as controlX2, endX, controlX1, startX, and that is neither
- * ugen's emission order nor anything the tie rule produces from it.
- *
- * So the parameter model, not the statement shape, is what is wrong. Eight
- * volatile qualifications of the parameter list were measured; the ordering
- * is 27 (all volatile), 28 (s32-only volatile, with the store below), 31,
- * 83, 83, 88, 88. Something in the original makes IDO reload all four
- * integer parameters from their homes at every call without promoting them
- * to saved registers and without emitting volatile edges between them.
- * That is the question to answer next; statement grouping is not.
- *
- * Two smaller measured results. The physical-line lever is live but flat
- * here: joining each adjacent statement pair onto one physical line, all 24
- * of them plus the folded signature, is byte-identical everywhere except the
- * two call-pair statements, and those each cost one word. And moving the
- * volatile total initialisation out of its declaration into the first call's
- * fifth argument slot -- `volatile f32 total;` with `..., controlX2,
- * (total = 0.0f))` -- scores 25 and makes the four words before that call
- * exact, because it puts that store last in the volatile chain where its
- * `aftercycles` fall to 0. It is left unadopted: an initialisation written
- * into an argument slot is not plausible original source. It is recorded
- * because it is the only thing found that moves this function, and because
- * the inert comma spelling of the same idea scores 27, i.e. nothing, so it
- * is not the mutation an earlier pass rejected.
- *
- * Measured and flat, do not repeat: dropping or moving `unusedLocal`, which
- * shifts the frame offsets and costs 8 to 11 operand words; five declaration
- * orders; declaration/assignment separation; reading the four arguments
- * through locals in the target's order, which does reproduce the target's
- * chain order and still scores 26; and a 90-cell sweep of prologue by
- * if-form by loop-body spelling whose floor is 27. */
-#ifdef NON_MATCHING
-f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
-                          volatile f32 endX, volatile f32 endY,
-                          volatile s32 controlX1, volatile s32 controlY1,
-                          volatile s32 controlX2, volatile s32 controlY2,
+/* Matched 2026-09-12. The residual was never statement shape: it was the
+ * parameter model. The four integer controls have to be reloaded from their
+ * argument homes at every call WITHOUT carrying volatile scheduling edges,
+ * and `volatile` gives the reloads and the edges together -- as1's trace
+ * chains every volatile reference in a block to the next, which pinned the
+ * call-result copy fourth where the target places it first. Taking each
+ * control's address instead makes it memory class, so every read is a load
+ * from its home, and no edge is emitted; the copy then ties at aftercycles 0
+ * with the four loads and the block collapses to ugen's emission order, which
+ * is the target's. The same `*(s32 *)&x` bit-pattern idiom is used by
+ * overlay1FindClosestSample in the sibling TU. Declaring the four controls
+ * `f32` and passing their bit patterns is byte-identical, so the bytes do not
+ * decide the parameter type; the narrower s32 reading is kept. */
+f32 overlay1MeasureCurves(f32 startX, f32 startY,
+                          f32 endX, f32 endY,
+                          s32 controlX1, s32 controlY1,
+                          s32 controlX2, s32 controlY2,
                           s32 segmentCount) {
     f32 t = 0.0f;
     volatile f64 unusedLocal;
     volatile f32 total = 0.0f;
-    f32 previousX = overlay1EvaluateCurve(startX, endX, controlX1, controlX2, 0.0f);
-    f32 previousY = overlay1EvaluateCurve(startY, endY, controlY1, controlY2, 0.0f);
+    f32 previousX = overlay1EvaluateCurve(startX, endX, *(s32 *)&controlX1, *(s32 *)&controlX2, 0.0f);
+    f32 previousY = overlay1EvaluateCurve(startY, endY, *(s32 *)&controlY1, *(s32 *)&controlY2, 0.0f);
     f32 step;
     f32 x;
     f32 y;
@@ -241,8 +179,8 @@ f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
         step = 1.0f / (f32)segmentCount;
         do {
             t += step;
-            x = overlay1EvaluateCurve(startX, endX, controlX1, controlX2, t);
-            y = overlay1EvaluateCurve(startY, endY, controlY1, controlY2, t);
+            x = overlay1EvaluateCurve(startX, endX, *(s32 *)&controlX1, *(s32 *)&controlX2, t);
+            y = overlay1EvaluateCurve(startY, endY, *(s32 *)&controlY1, *(s32 *)&controlY2, t);
             dx = x - previousX;
             dy = y - previousY;
             total += overlay1SquareRoot((dx * dx) + (dy * dy));
@@ -252,10 +190,6 @@ f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
     }
     return total;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000F84_184D364.s")
-#endif
 
 /* ---- overlay1Noop ---- */
 
@@ -899,16 +833,6 @@ extern void overlay1ResetReloc(void);
 void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
-
-/* PLATEAU-HANDOFF:overlay1MeasureCurves:start
- * symbol: overlay1MeasureCurves
- * score: 27 differing words
- * frame: 0x70
- * relocations: 5
- * first-mismatch: +0x0C
- * summary: Exact instruction multiset remains schedule only after all flags and a bounded search rejected an inert best mutation
- * PLATEAU-HANDOFF:overlay1MeasureCurves:end
- */
 
 /* PLATEAU-HANDOFF:overlay1BuildObjectMappings:start
  * symbol: overlay1BuildObjectMappings
