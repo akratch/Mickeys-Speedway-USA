@@ -173,4 +173,107 @@ needs an input ugen does not emit, and the two source-side routes to that input
 (a directive, a branch-class head) are each excluded by measurement. Anything
 further belongs in an as1 instrumentation pass, not in a source lattice. Do not
 spend another lane on spellings.
+
+#### Owned pass, 2026-09-11 (lane/w3-low): the assembler-flag question closed, one recorded sensitivity withdrawn, and the suppressor mechanism named
+
+Still 2, nothing adopted, the source file is unchanged. Before and after are the same
+measurement: 444 bytes, 111 of 111 words, size delta 0, positional masked 2, aligner
+buckets 109 byte-exact, 0 register naming, 0 immediate only, 2 really different, first
+structural difference +0x3C.
+
+**The branch-likely flag hypothesis is refuted, and at function scope rather than file
+scope.** Census of this translation unit's own text in the ROM, all eleven functions,
+full coverage of its 0x1010-byte text block: 96 conditional-branch-class words, of
+which 29 are in a branch-likely form. Ten of those 29 are inside this function itself,
+out of its thirteen conditional branches. A per-file flag that disables the assembler's
+branch-likely conversion is therefore refuted by trap 10 whatever it scores, and so is a
+per-function one. Per function the counts are: 0, 0, 0, 1, 2, 2, 0, 10, 7, 7, 0.
+
+The flag exists, and was measured anyway so that the refutation is concrete. as1's
+option table, recovered from the shipped binary, carries -nobopt, -no_branch_target,
+-noxbb, -aggr_xbb, -nopeep, -peepdbg, -noswpipe, -swpdbg, -multi_issue, -noglobal,
+-nosymregs, -newhilo, -domtag, -fpstall_nop and roughly ninety more, and the driver
+passes them through with -Wb. Two of them, -nobopt and -no_branch_target, have exactly
+the effect the hypothesis wants: they reproduce the target's own two words at +0x3C and
++0x40 exactly. They also decline the ten conversions the target *has*, so the function
+goes from 2 differing words to 20 in ten branch-and-delay-slot pairs, and five other
+functions in the TU stop matching. -noxbb costs 21 words and six functions, -aggr_xbb
+and -multi_issue change the function's size, and the other nine flags tried are either
+fully inert, seven of them, or leave this function at 2 while unmatching others, which
+is what a peephole switch and an at-compression switch do. No assembler option
+reaches this residual. The question is closed; do not reopen it.
+
+**The one recorded input sensitivity is an artefact, and should be struck from the
+retired-lever list as evidence.** The previous pass recorded that replacing the byte
+load which defines the test's condition register with an ALU definition makes the
+assembler decline, and filed it as the only unexplained perturbation that flips the
+decision without a directive. It does not flip the decision. Every such variant changes
+the function's *size*: the ALU forms come out at 109 or 110 words against 111, because
+the assembler's own peephole recognises the copy, propagates it into the branch, and
+deletes the defining instruction, after which the branch's operand is long since live,
+the block's spare instruction fills the delay slot locally, and there is no empty slot
+left for the duplication to fill. The earlier reading took a fixed byte offset in a
+shorter function, which is trap 2. Re-measured with a structural locator instead of an
+offset, and scored across the load and ALU families: the three other byte and halfword
+and word loads all still convert at 111 words, and every ALU form shrinks. So the rule
+is not load-versus-ALU and not a latency class; it is that in those variants the delay
+slot stopped being empty. That axis is spent, and it never was an axis.
+
+**What the scheduler trace says, and what it does not.** The assembler's own node dump
+is available through the driver as -Wb,-R, and it prints, per basic block, every node
+with its instruction word, its source line, its predecessor count, its critical-path
+length, its hazard, and its after-node list with per-edge latencies, followed by the
+whole list-scheduling decision sequence. For the contested branch the block holds three
+nodes: the frame carrier copy with no edges at all, the byte load with a single
+after-edge to the branch at latency three, and the branch itself. For the target block
+it holds nine nodes; the duplicated multiply is a source with one after-edge at latency
+seven and the largest critical-path length in the block, which is why the scheduler
+picks it first and therefore why it is the instruction that gets duplicated. There is
+no tie to break: its critical-path length is the unique maximum among the block's three
+entry nodes. The block's only memory pairs share one base and one displacement, so the
+one L125 ordering edge present is a same-base store-to-load edge that the disambiguator
+resolves correctly, and there is no different-base pair in either block for L125 to
+order conservatively.
+
+The decisive negative is this: the node tables and the entire scheduling sequence are
+**bit-identical** between a run that converts and a run that declines. Diffing the two
+traces over the whole function yields exactly one difference, and it is not in any node
+or any edge. So the duplication decision is not downstream of a dependence edge and not
+downstream of a scheduling tie-break. Which instruction is duplicated is DAG-determined;
+whether duplication happens at all is decided somewhere the node dump does not print.
+The other debug options tried, -xbbdbg, -peepdbg, -swpdbg and -diag, print nothing for
+this TU, so -R is the only trace available.
+
+**The suppressor mechanism is now named, and it explains all of them.** The one
+difference between the converting and declining traces is an extra basic block with no
+nodes in it, standing at the head of the else arm. Every known suppressor produces it:
+a location-counter directive splits a zero-node block off at the label, and the
+conversion then has no first instruction to duplicate. Re-measured at the block head,
+the suppressor set is four items, not three: the three location-counter directives, and
+an empty noreorder-then-reorder pair, which is byte-exact at 444 bytes and zero
+differing words like the others and produces the same empty block in the trace. A
+duplicate label, a live-register annotation, a debug-line directive, a mask, a frame, an
+option, a scope-begin and a volatile set are all inert; a file directive is a wrecker
+rather than a suppressor at 43 differing words, and an unclosed noreorder truncates the
+function to 93 words. The fourth
+suppressor is no more reachable from C than the other three: this compiler has no inline
+assembly statement at all, and the two spellings tried compile as ordinary calls, adding
+a frame and 20 words. The second decline rule, a branch-class head, remains separately
+argued in the pass above.
+
+So the closure survives, with its reasoning sharpened from "three directives ugen emits
+only at function starts" to "the branch's target block must hold zero nodes when the
+branch optimiser runs, and nothing a C source can say produces a zero-node block".
+
+**What is left, and what to spend it on.** One in-function counter-example is still
+unexplained and is the only remaining lead: the conditional branch at +0x180 declines
+the conversion on *both* sides, with an empty delay slot and a target block whose head
+is an ordinary register copy, and that same block's head is duplicated successfully by
+two other branches in the same function. Whatever second condition makes that one branch
+decline is the same kind of condition the contested branch needs. It is not distance, it
+is not the head's opcode class, it is not a first-use cap, and it is not visible in the
+node dump. Finding it means reading the assembler's branch optimiser itself rather than
+its output. Do not spend another lane on source spellings, on the phase-input move space,
+on debug levels, on block membership, or on assembler flags: all five are now measured
+out.
 <!-- plateau-handoff:func_8005ABA8:end -->
