@@ -56,6 +56,17 @@ GPR = ["zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
 FPR = [f"f{n}" for n in range(32)]
 BANKS = {"int": GPR, "fpr": FPR}
 
+# Registers globalcolor is known to colour in EVERY procedure measured. L114
+# says the colour table's boundary is per procedure and reaches further down
+# the caller-saved registers than once believed, so this is deliberately not a
+# full table -- only the part that does not vary. It exists to stop the tool
+# citing L127 at a cycle it cannot explain: L127 is a ugen scratch-ring fact,
+# and a cycle over registers globalcolor assigns is a p1 save-ratio residual
+# instead. Reported on overlay 92, where a clean coherent s1 -> s2 cycle was
+# printed with "see L127" beside it and the real lever was the save ratio.
+ALWAYS_COLOURED = frozenset([f"s{n}" for n in range(9)]
+                            + [f"f{n}" for n in range(20, 32, 2)])
+
 # Where each format keeps its register fields, as (bank, shift, width) triples.
 R_FIELDS = (("int", 21, 0x1F), ("int", 16, 0x1F), ("int", 11, 0x1F))  # rs,rt,rd
 I_FIELDS = (("int", 21, 0x1F), ("int", 16, 0x1F))                     # rs, rt
@@ -326,7 +337,17 @@ def render_bank(row: dict, prefix: str, title: str, law: str) -> list[str]:
         out.append("  cycles in the dominant mapping:")
         for cycle in found:
             out.append("    " + " -> ".join(cycle) + f" -> {cycle[0]}")
-        if share >= 0.80:
+        coloured = sorted({r for cycle in found for r in cycle}
+                          & ALWAYS_COLOURED)
+        if share >= 0.80 and coloured:
+            out.append("    NOTE: this cycle runs over "
+                       + ", ".join(coloured)
+                       + ", which globalcolor colours -- so L127 does NOT"
+                       " reach it. A coherent cycle over coloured registers"
+                       " is a p1 save-ratio residual, not a ring phase.")
+            out.append("    Decode this procedure's colour table from its own"
+                       " p1cost rows and work the save ratio (L100).")
+        elif share >= 0.80:
             out.append(f"    coherent cycle: one {law} fact, not N colour"
                        " problems -- see L127")
         else:

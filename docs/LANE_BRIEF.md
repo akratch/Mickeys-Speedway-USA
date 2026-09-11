@@ -60,6 +60,46 @@ a whole-queue pass is meant to own the tree. So do not start a `--refresh-stale`
 or `--out` pass while a harness is measuring in the same worktree; that is the
 one combination that collides.
 
+## Go to the records early, not after the lattice fails
+
+**This is the biggest measured difference in how lanes spend their time.** The
+instrumented-`uopt` loop — dump the decision records, force the decision you
+think is wrong, score the *forced object directly* — has been **decisive in
+about twenty minutes per function**, twice in one lane, and the harness runs
+roughly 1.5 candidates/sec against the full configured TU. Over the same period
+spelling lattices have overwhelmingly come back flat: a 64-cell
+commutativity lattice, a 128-point region sweep, a 162-placement sweep, and one
+closure recording 4,190 flat forms whose function then moved on a single
+hoisted definition.
+
+So on a naming residual, **the order is records first, lattice second**:
+
+1. Confirm the instrumented toolchain's `.text` is byte-identical to the tree's
+   object. That is the identity gate; an ungated instrument attributes
+   decisions to the wrong pass, which is worse than having no instrument.
+2. Dump the records and read the ladder — each web's `save`, `nocs` and
+   `totalsave`, in the order they are offered a colour.
+3. Force the decision you believe is wrong and **score the forced object
+   against its target directly**. `score_symbol.py`, `align_symbol.py`,
+   `frame_census.py` and `register_census.py` all recompile the TU with the
+   configured command first, so they report the *unforced* build — one lane
+   read the same score for twelve consecutive forces before noticing.
+4. Check the force was **accepted** (L101). A force already forbidden at
+   decision time returns a byte-identical object and proves nothing.
+
+What this buys is a *number*: "this one decision is worth N words". Two
+functions were priced at 48 → 9 and 26 → 11 this way, both at size delta 0.
+That converts an open-ended search into arithmetic — you then know what the
+source form has to achieve, and often that the requirement is unreachable,
+which is equally valuable and far cheaper than discovering it by sweeping.
+
+A worked example of the second outcome: on one function the force proved 15 of
+26 words were a single ranking, and the ladder then showed the wanted web
+carries one occurrence more than its rival at the same net. Since `nocs` is
+non-decreasing, no added basic block can reverse the ranking — a closure with a
+named decision variable and an argument, reached in one sitting, where a
+spelling lattice would have returned "flat" with nothing learned.
+
 ## The call test — ask this before any allocator work
 
 Every procedure that issues a call emits **p1 allocator records only**; every
