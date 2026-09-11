@@ -253,4 +253,97 @@ count does not price); `(u8 *)` bases 28 and 88. The target's load is lh and
 func_8000486C takes s32, so no conversion node is missing. levelFreeAll
 re-scored at 3.
 
+
+#### 2026-09-11, lane s1-one: the order term read off both objects, and three mechanisms retired against it
+
+Re-measured on the direct-compile loop: `levelInit` 6 relocation-masked words,
+2064 bytes, 516 of 516 words, delta 0, all register-naming, first mismatch
++0x328. `levelFreeAll` 3, 468 bytes, delta 0. Both reproduce.
+
+**The twin's three words are a two-slot ring swap and nothing else.** Read off
+the objects rather than off the aligned rows: in `levelFreeAll` the emission
+order is identical on both sides -- table pointer load, mask, shift, address
+add, table read -- and only the ring assignment differs, the table pointer and
+the shift trading one slot. The address add and the table read are
+byte-identical on both sides precisely because the add's two operands swap
+along with the registers. So this is not an emission-order residual at all,
+which is a sharper statement than the recorded one, and it is why every
+spelling that moves emission order overshoots.
+
+**`levelInit`'s arm spends five ring temps on both sides.** The target's are
+mask, table, scale, sum, phantom; the candidate's are phantom, mask, scale,
+table, sum. The fifth pop cannot simply be dropped: removing the index's
+redundant mask takes the arm to four pops and costs 88 to 95 words, with the
+first mismatch moving from +0x328 back to +0x238 -- so that pop is
+load-bearing well before the loop it sits in.
+
+**The phantom cannot be moved after the address add by any spelling.** A
+redundant AND node takes its ring slot *before* its own operand subtree is
+evaluated, which is why the candidate's phantom pops first wherever inside the
+index expression it is written. Measured, each against the whole target: a
+triple mask, the redundant mask moved onto the shifted value, onto the base,
+onto the whole address, the `& -1` and `& 0xFFFFFFFF` spellings (which fold at
+the front end and buy no pop, reconfirming the recorded narrowing rule), `* 2`
+for the doubling, and the `m + m` doubling. Every cell is 6 and
+byte-identical, or 28, or 88 to 95.
+
+**Carrier identity does not reach this term, and that is now measured rather
+than argued.** L115 -- one web per symbol, interference a block-set
+intersection -- is the mechanism that closed this function's 16-word colour
+term and overlay 9's two FP colours. On the order term it is inert. Measured
+on `levelFreeAll`, the cheaper twin: the masked index named into that
+function's existing `void *` local, which has its own earlier live range and
+therefore is exactly the shape the colour term needed; into its `s8` local;
+and into the `s16` loop value itself -- each crossed with five address
+spellings. Every cell is either byte-identical to the inline form or costs 4
+to 8 bytes of narrowing. The reason is the one the previous pass named and it
+is a real constraint, not a gap in the sweep: uopt forward-substitutes the
+mask before live ranges are formed, and a value with one read never becomes a
+symbol for L115 to work on.
+
+**L109 discarded-expression probes are inert here too.** OR-with-zero,
+AND-with-minus-one and XOR-with-zero on the named mask, each measured on the
+twin: byte-identical to the un-probed form. The probe does not survive to give
+the mask its second read, so the one documented way to raise an occurrence
+count at zero instruction cost does not apply.
+
+**`resourceId` is a plausible source form for its cell but not a lever.**
+Carrying the table read in the declared-and-unread `s16 resourceId` --
+`resourceId = <the table read>; D_800CF490[off] = func_8000486C(resourceId);`
+-- is byte-identical to the inline form at 6 words, so the local the original
+spent that frame cell on may well have been this one. Carrying the masked
+index in it instead costs 8 bytes.
+
+**Named decision variable, unchanged in kind but now bounded on three sides:**
+a construct that gives the masked index a second read surviving uopt's forward
+substitution at zero instruction cost, or a redundant-mask pop that can be
+placed after the address add. Carrier identity, discarded-expression probes
+and phantom repositioning are each measured not to supply it.
+
+
+##### Addendum, same lane: the corrected L114 does not open this residual, with a receipt
+
+L114 as it was written said globalcolor never assigns `t3`-`t9`. That is wrong
+in general -- the caller-saved table runs c1 `v0`, c2 `v1`, c3-c6 `a0`-`a3`,
+c7-c12 `t0`-`t5`, c14-c22 `s0`-`s8`, c23 `ra` -- so a naming row spelled with
+`t0`-`t5` can be a colour a force reaches. It is not one here, and this
+procedure's own records say so rather than the law:
+
+- proc 8 is `levelInit`, 58 p1 decisions and 46 colour records. **Every
+  coloured web takes `v0`, `v1`, `a0`-`a3` or `s0`-`s6`. Not one takes
+  `t0`-`t5`.**
+- `t0`-`t5` are not merely unused, they are *offered*: c7 through c13 appear in
+  the available set of 27 of the 58 decisions. The ascending scan simply never
+  gets that far, because six caller-saved colours always suffice.
+- The four values in the residual -- the mask, the table pointer, the shift and
+  the address sum -- carry no web number in any record. They are ugen ring
+  temporaries allocated after globalcolor has finished, so there is no colour
+  for a force to move and no interferer to free. Both sides allocate them from
+  the same five-wide ring; only the order differs.
+
+So the classification stands after the correction, and the reason is a measured
+per-procedure fact rather than the law's wording. Anyone re-opening this should
+re-read the records, not the law: the boundary between colour and ring is per
+procedure.
+
 <!-- plateau-handoff:levelInit:end -->
