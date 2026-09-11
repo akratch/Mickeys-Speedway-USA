@@ -190,4 +190,42 @@ expression that consumes it. A scan of every matched `main` TU's compiler
 listing for the target's signature found five instances of "index materialised
 before the base load", and in all five the index was an *already-live variable*
 (a loop counter or a parameter), never a mask computed at the site.
+
+#### 2026-09-11, lane s1-one: carrier identity and discarded probes both retired here
+
+Re-measured: 3 relocation-masked words, 468 bytes, delta 0, first mismatch
++0x13C. The twin `levelInit` re-measured at 6 the same hour, and its arm
+differs from this one only by the phantom pop.
+
+The previous entry's closing observation -- that in all five matched instances
+of the target's signature the index was an *already-live variable*, never a
+mask computed at the site -- points straight at L115, the one-web-per-symbol
+mechanism that closed `levelInit`'s 16-word colour term and overlay 9's two FP
+colours the same week. It does not reach this residual, and that is now
+measured rather than assumed. The masked index was named into every local this
+function already has: the `void *` local, which carries its own earlier live
+range and is therefore exactly the shape the colour term needed; the `s8`
+local; and the `s16` loop value itself. Each was crossed with five address
+spellings -- base-first, shift-first, the plain subscript, a pre-scaled
+byte-offset carrier, and a byte-pointer base. Every cell is either
+byte-identical to the inline form (3 or 5 words, so the carrier is
+forward-substituted away exactly as recorded) or costs 4 to 8 bytes of
+narrowing. Naming it in the `s16` loop value is 42 at delta 8, because the
+assignment needs its own narrowing.
+
+L109's discarded-expression probes are inert too: OR-with-zero,
+AND-with-minus-one and XOR-with-zero on the named carrier, placed between the
+definition and the use, are each byte-identical to the un-probed form. So the
+one documented way to raise an occurrence count at zero instruction cost does
+not survive to be counted here, and the "give the index a second use" family is
+closed at zero cost as well as at instruction cost.
+
+A doubled mask at the index -- the phantom-pop carrier `levelInit` uses -- is
+9 words here in both address orders, so this function does not want the extra
+pop.
+
+The decision variable is unchanged: what makes IDO emit a single-use masked
+value as its own ring temporary ahead of the expression that consumes it.
+Three mechanisms are now measured not to be the answer.
+
 <!-- plateau-handoff:levelFreeAll:end -->

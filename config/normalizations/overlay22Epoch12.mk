@@ -13,8 +13,8 @@ $(O22_UPDATE_OBJECT_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O22_UPDATE_OBJECT_OBJ): POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7CC
 
-# NON_MATCHING fallback assembly supplies the retail body. The self-rename is
-# a historical no-op metadata marker; it does not make the C candidate exact.
+# The compiler reproduces the retail body; the flag is load-bearing. The
+# self-rename is a historical no-op metadata marker and changes no instruction.
 $(O22_INITIALIZE_OBJECT_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O22_INITIALIZE_OBJECT_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_022_F0000000_1878108=func_overlay_022_F0000000_1878108 $@

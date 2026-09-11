@@ -497,7 +497,28 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
          * masked index named into j/lvlCount/i at the top of the body is
          * copy-propagated back into every arm before live ranges form (88
          * and 92), so L102 holds for a shared symbol too -- a carrier only
-         * works on a value that survives copy propagation. */
+         * works on a value that survives copy propagation.
+         *
+         * 2026-09-11, lane s1-one: three mechanisms retired against the order
+         * term, measured on levelFreeAll (the cheaper twin) and confirmed
+         * here.  Carrier identity is inert: the masked index named into every
+         * local that function already has, including the one with its own
+         * earlier live range, crossed with five address spellings, is either
+         * byte-identical to the inline form or costs four to eight bytes of
+         * narrowing.  L109's discarded-expression probes are inert: all three
+         * named forms are byte-identical, so the probe never survives to give
+         * the mask a second read.  And the phantom cannot be moved after the
+         * address add: a redundant AND takes its ring slot before its own
+         * operand subtree is evaluated, so it pops first wherever inside the
+         * index expression it is written -- a triple mask, the redundant mask
+         * on the shifted value, on the base and on the whole address, the
+         * all-ones spellings, `* 2` and the self-addition were each measured.
+         * Deleting the pop is not available either: the arm then spends four
+         * temps and costs 88 to 95 words, with the first mismatch moving back
+         * to +0x238, so the fifth pop is load-bearing well before this loop.
+         * Carrying the table read in the declared-and-unread `resourceId` is
+         * byte-identical, so that may be the local the frame cell belongs to,
+         * but it is not a lever. */
         for (off = 0; off < D_800CF508; off++) {
             s16 resourceId;
 
