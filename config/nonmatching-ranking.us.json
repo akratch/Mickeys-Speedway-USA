@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 351,
-  "resolved": 351,
+  "queue_size": 350,
+  "resolved": 350,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 351,
-  "relocation_masked_coverage": 351,
+  "source_context_coverage": 350,
+  "relocation_masked_coverage": 350,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -2680,21 +2680,6 @@
       "source_context_sha256": "UWbF.cWpS.ex1m.jyRP.dk5s.i9W8.CBmE.ecTe.gREg.RY6d.xB8"
     },
     {
-      "name": "func_8005807C",
-      "file": "src/main/flash_58C10.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 116,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 108,
-      "relocation_masked_differing_words": 2,
-      "relocation_masked_first_mismatch_offset": 108,
-      "size_delta": -8,
-      "category": "size-mismatch",
-      "source_context_sha256": "Us8q.x_CK._1e9.-yRr.MU5b.ZgpE.fOGM.3zND.ZX2Z.ldeV.zso"
-    },
-    {
       "name": "func_80058250",
       "file": "src/main/vehicle_sounds.c",
       "overlay": null,
@@ -2782,7 +2767,7 @@
       "relocation_masked_first_mismatch_offset": 12,
       "size_delta": -8,
       "category": "size-mismatch",
-      "source_context_sha256": "9Yvb.z9I9.rWs2.4Lx2.QqdV.hS6b.2Ydk.N85p.YunV.sA-t.z2M"
+      "source_context_sha256": "B1Qx.fSPG.7TbR.hlvk.iXhm.92UW.GnEk.M7rb.gdsz.D5pq.zb0"
     },
     {
       "name": "overlay48InitializeState",
