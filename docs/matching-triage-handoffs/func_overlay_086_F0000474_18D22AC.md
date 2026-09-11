@@ -248,4 +248,20 @@ Decision variables for the next lane, both named and both small:
   the L59 key is not the definition's own line; the next thing to vary is the
   physical line of the `0x2C` store beside it.
 
+
+**Both remaining families are bounded, and neither is a colouring decision.** A
+full greedy force ceiling over the procedure -- all 64 p1 decisions against
+colours 1 to 22 and 24 to 30 and the split path, 1,470 objects of which 938 were
+accepted and 532 declined byte-identically -- finds nothing better than 9, with
+the best accepted cell at 12. Web 28 is the merged `temp_a0` symbol: forcing it
+to t0 moves the case-0 +0x48 read, the case-2/3 +0x3E0 read and the
+`ext_o0_2d98` argument together, and its cost list offers v1 at infinite cost,
+a0 at zero (the argument affinity), t0 to t5, c13 and s3 to s8, omitting v0, a1,
+a2 and a3. v0 is L101's call-result denial rather than interference, so neither a
+force nor an arity change reaches it and the web must instead become shorter --
+for which the only split is a twelfth declaration, and that is a 0xB0 frame. The
++0xA8 slot is not a source-order tie either: all 120 permutations of the five
+head-block statements including the pointer's definition score exactly 9, as do
+twelve physical-line foldings of adjacent pairs.
+
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

@@ -236,6 +236,27 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  * +0x330 and the +0x3E0 pointer at +0x630), and 2 words at +0xA8 where as1
  * schedules the `move a1,s5` one slot after `sh t8,44(s0)` and the target puts
  * it one slot before.
+ *
+ * Both are now bounded rather than merely named, and neither is a single
+ * colouring decision:
+ *
+ *   - A full greedy force ceiling over this procedure -- all 64 p1 decisions
+ *     against colours 1..22 and 24..30 and the split path, 1,470 objects of
+ *     which 938 were accepted and 532 declined byte-identically -- finds
+ *     NOTHING better than 9.  The best accepted cell is 12.  So the residual
+ *     is not one globalcolor decision and a colour lattice is not the lever.
+ *   - Web 28 is the merged `temp_a0` symbol.  Forcing it to t0 moves the
+ *     +0x48 read, the +0x3E0 read AND the `ext_o0_2d98` argument together,
+ *     which is what makes it one web; its `p1cost` list offers v1 at infinite
+ *     cost, a0 at zero (the argument affinity), t0..t5, c13 and s3..s8, and
+ *     omits v0, a1, a2 and a3 entirely.  v0 is the L101 call-result denial,
+ *     not interference, so no force and no arity change reaches it; the web
+ *     has to become shorter, and the only split available is a twelfth
+ *     declaration, which is 0xB0.
+ *   - The +0xA8 slot is not a source-order tie: all 120 permutations of the
+ *     five head-block statements including the pointer's definition score
+ *     exactly 9, and so do twelve physical-line foldings of adjacent pairs
+ *     ([L59]/[L132]).  The pair simply moves; it never closes.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
