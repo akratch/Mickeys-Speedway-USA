@@ -205,52 +205,18 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
 /*
- * 2 differing words at delta 0: every instruction and every register now agrees
- * with the ROM, and the only residual is one compiler temp's displacement --
- * the slot-pointer save around the first split call sits at +0x38 here and at
- * +0x3C in the ROM.
- *
- * That residual is a frame-geometry identity, not an allocator one. Homes
- * descend from frame-4 in declaration order, one word each, and the first
- * compiler temp sits directly below the lowest home; the frame itself is
- * round8(48 + 4*locals + temp_area). The ROM's temp at +0x3C therefore fixes
- * six declared locals with a temp area of 13..16 bytes, whereas every form that
- * produces the two live ranges above needs a seventh symbol and so gets seven
- * homes with an 8-byte temp area. slotIndex, slot, slots, moduleId,
- * moduleAddress and callerAddress are all forced (dropping `slot` also drops
- * the slot-pointer copy the ROM has), so the seventh symbol has nowhere to go.
- * Reopening this needs a construct that either splits the value with no named
- * local or raises the temp area by eight bytes at zero instruction cost.
- * Measured and reaching neither: every lvalue spelling and cast of the value,
- * nested-block and inner-scope declarations, register/volatile/static storage
- * classes, uopt region openers and discarded-expression probes, self-assignment
- * and cast-round-trip no-ops at two insertion points, and 64-bit or array
- * locals. A wider local only adds local words, which moves the temp the wrong
- * way; note the ROM's temp at +0x3C is not eight-byte aligned, so forcing
- * alignment is the wrong direction too.
- *
- * Reuse instead of adding a symbol is the other door, and it is shut for a
- * reason worth writing down. Only three of the six locals are dead across the
- * contested region -- moduleId, moduleAddress and callerAddress are last
- * touched in the prologue, while slotIndex, slot and slots all span it -- and
- * all three are memory class, the first two because their address is taken and
- * the third because it is volatile. Carrying the value in one of them does cost
- * no home, and the frame duly drops, but it costs eight extra instructions for
- * the module pair and twenty for the volatile.
- *
- * Also worth recording because it is the premise everything above rests on: in
- * this compilation an unused local is NOT eliminated before the frame is sized.
- * An unused `s32` and an unused pointer produce identical frames, and deleting
- * one moves the whole ladder, so the former `s32 pad` was occupying a home and
- * `data` replaced it rather than adding an eighth. The local count, the frame
- * and these two words are all unchanged from the pre-edit baseline.
- *
- * The likeliest place for the missing evidence is the `callerAddress`
- * stand-in, which is the one part of this body known not to be the ROM's own
- * construct; four rewritings of it were measured and none turns its slot into a
- * compiler temp, which is what would free the sixth home.
+ * Matched 2026-09-11 by deleting the `data` carrier and writing its three uses
+ * as unsigned arithmetic on the field itself.  The last two words were never an
+ * allocator question: every declared local consumes a four-byte cell from the
+ * frame top downward in declaration order -- register class, unreferenced and
+ * block-scoped locals included -- and the compiler temporary area sits below
+ * the last cell, so a seventh local pushed the slot-pointer save one word low.
+ * The carrier existed only to split the field's single web into the ROM's two
+ * live ranges; spelling the two range tests and the split-call offset in `u32`
+ * does the same split through two expression webs instead, which costs no cell.
+ * The equality test and the direct return keep reading the field as a pointer,
+ * which is what keeps those two webs apart.
  */
-#ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
     MemoryPoolSlot *slot;
@@ -258,16 +224,6 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 moduleId;
     s32 moduleAddress;
     volatile s32 callerAddress = 0x666;
-    /* `data` carries slot->data for the two range tests and the split-call
-     * offset, while the equality test and the direct return keep reading
-     * slot->data. That is what splits the one value into the two live ranges
-     * the ROM allocates: the range-test range takes a0 (the copy into v0 then
-     * fills the delay slot of the first range branch, turning a branch-likely
-     * into a plain branch), which in turn pushes the slot-pointer copy to a1.
-     * As one symbol the range reaches the split call's argument setup, so a0
-     * is genuinely forbidden to it and no save ratio can reach a0. Declared
-     * last, in place of the former `s32 pad`, so the frame stays 0x58. */
-    u8 *data;
 
     D_8007A270 = colourTag;
     if (D_8007A278 != -1) {
@@ -291,14 +247,15 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     for (slotIndex = 0; slotIndex != -1; slotIndex = slot->nextIndex) {
         slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
         if (slot->flags == MEMORY_SLOT_FREE) {
-            data = slot->data;
-            if (address >= data && address + size <= data + slot->size) {
+            if ((u32)address >= (u32)slot->data &&
+                (u32)address + size <= (u32)slot->data + slot->size) {
                 if (address == slot->data) {
                     func_8002BB40(MEMORY_POOL_MAIN, slotIndex, size, TRUE, FALSE, colourTag);
                     return slot->data;
                 }
                 slotIndex = func_8002BB40(MEMORY_POOL_MAIN, slotIndex,
-                                          address - data, FALSE, TRUE, colourTag);
+                                          (u32)address - (u32)slot->data,
+                                          FALSE, TRUE, colourTag);
                 func_8002BB40(MEMORY_POOL_MAIN, slotIndex, size, TRUE, FALSE, colourTag);
                 return *(u8 **)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
             }
@@ -307,9 +264,6 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
 
     return NULL;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B524.s")
-#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmSetDelay. */
 void mmSetDelay(s32 state) {
@@ -574,12 +528,4 @@ u8 *align4(u8 *address) {
     return address;
 }
 
-/* PLATEAU-HANDOFF:func_8002B524:start
- * symbol: func_8002B524
- * score: 2/116 words
- * frame: 0x58
- * relocations: 12
- * first-mismatch: +0x138
- * summary: 14 -> 2 (2026-09-11, lane w3-low), and the recorded 'no source change adopted' is refuted. The 10 naming and 2 structural words were ONE decision and the structure was downstream of the colouring: the slot pointer's field was a single web where the ROM has two ranges, an argument register for the range tests plus a copy for the split-call offset, and that copy is what fills the delay slot the candidate was filling by duplicating a load. Caching the field at exactly three of its five uses, with the carrier declared last, closes all twelve. Neighbouring partitions regress to 49-56, which is very likely what the earlier lane measured and over-generalised. What is left is 2 immediate-only words: one compiler temp sits one word low, and the identity is frame = round8(48 + 4 locals + temp area) with the ROM fixing six homed locals while every form producing the two live ranges needs seven. Newly falsified on this compilation: L99's clause that an unused s32 is eliminated before the frame is sized -- an unused s32 and an unused pointer behave identically here and both occupy a home. Reuse of the three locals dead across the loop is free in homes and costs 8 to 20 bytes, all three being memory class.
- * PLATEAU-HANDOFF:func_8002B524:end
- */
+
