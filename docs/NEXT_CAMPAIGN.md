@@ -1,100 +1,84 @@
-# Next campaign: overlay 101, and the one-decision set
+# Strategy to 60%
 
-Scoped 2026-09-11 from `config/nonmatching-ranking.us.json`,
-`tools/align_symbol.py` and `tools/frame_census.py`. Every number here is
-measured; re-derive rather than trust them if the tree has moved.
+Run `tools/triage.py` before every wave; it recomputes everything below in one
+command with no compiles. The numbers here are from 2026-09-11 at 52.80%.
 
-Queue at the time of writing: **344 functions, 429,056 bytes**.
+## The arithmetic
 
-## The headline: overlay 101 is a campaign, not a cohort
+    resolved 498,608 / 944,344 = 52.80%
+    60%      566,606 bytes
+    GAP      67,998 bytes -- 16% of the 427,704 still queued
 
-**23 queued functions, 40,160 bytes — 9.4% of everything remaining — and every
-single one is the last queued function in its own translation unit.** Every
-match there completes a TU.
+**The cheapest set covering that gap is 60 functions and 3,059 masked words**,
+ordered by words per byte. The worst function in it carries 149 words on 2,100
+bytes. This is not a grind: it is about five times what one good session
+closes, and the work is concentrated.
 
-It also holds three clusters of identical-size siblings, and the transfer
-mechanism is proven: a lane diagnosed one function of a triplet, applied the
-result to the twins by line range with no per-function tuning, measured each
-separately, and both came out *two words better* than the one it was diagnosed
-on.
+## The strategy, in one line
 
-| cluster | bytes | masked each | state |
-|---|---|---|---|
-| 4 × 2,100 B | 8,400 | 311 | worked; instruction multiset equals the target's, opcode for opcode; frame ladder identical at all nine offsets |
-| 3 × 1,520 B | 4,560 | 211 / 211 / 213 | worked; structural rows down to ~41 |
-| 3 × 832 B (`BuildPresentationA/B/C`) | 2,496 | 157 / 161 / 163 | **untouched** — the obvious next lane |
+**Work cluster leads in the low bands.** Two multipliers compound:
 
-The 832 B trio is the best first move in the whole queue: three near-identical
-functions nobody has opened, in a family whose levers are already documented in
-the neighbouring shards.
+**Clusters — 2.9x.** 21 groups of identical-size siblings in the same overlay
+hold 50 functions and 46,152 bytes, which is **68% of the entire gap**. Working
+every sibling separately is 7,088 words; working one lead per group is 2,457.
+Three transfers this week applied a diagnosis by line range with no per-function
+tuning and twice landed siblings *better* than the function it came from. The
+method, with its two cautions, is in the workbench field guide under *Work a
+cluster's lead, not its members*.
 
-**Levers that are established on this family** (and the one that is not):
+**Bands — the low two are two thirds of the gap for a tenth of the words.**
 
-- **L59 fold** — this family emits each per-element assignment group *reversed*;
-  folding a group onto one physical line retires the `lineno` key and the raw
-  ready-list order supplies the reversal. Worth 26 words on the triplet, 5 on
-  the quadruplet, 27 on the fifth sibling. Check for macro-built rows first:
-  a multi-line macro expansion carries the invocation's line, so no fold applies
-  to it.
-- **The call-spanning web** — the gate on the quadruplet. A pointer web that
-  never crosses a call decides `bestcost=0` and takes v0; using the pointer
-  after the call makes it span one, it takes s0, and a −4 size delta closes.
-  456 → 326 in one step.
-- **Counter partitioning is refuted on five of this family** and paid on three
-  others. Check whether the counters are already separated before trying it.
+| band | functions | bytes | words | behaviour |
+|---|---|---|---|---|
+| 0–20 | 40 | 17,592 | 439 | closes often |
+| 21–60 | 53 | 27,716 | 2,011 | one or two decisions |
+| 61–150 | 94 | 73,012 | 9,850 | a region or two |
+| 151–400 | 101 | 132,740 | 24,559 | several regions |
+| 401+ | 54 | 176,644 | 35,295 | reduces, rarely closes |
 
-## Tier 1: five functions, one decision each
+The first two bands are 45,308 bytes for 2,450 words. Add the cluster
+multiplier where they overlap and the gap is covered.
 
-5,796 bytes behind 41 words, and the aligner says each has exactly **one**
-cause — no displacement tax, no mixed buckets:
+**So the priority order is:** a low-band function that is *also* a cluster lead;
+then the rest of the low band; then cluster leads in the middle bands; and the
+401+ band only for what a lane can partition and hand on. Do not chase the
+largest residuals — 54 functions hold 35,295 words there and historically they
+reduce without closing.
 
-| symbol | bytes | words | cause |
-|---|---|---|---|
-| `levelInit` | 2,064 | 6 | all register naming |
-| `func_8003F154` | 1,188 | 13 | all register naming |
-| `func_overlay_009_F00010B4_186772C` | 1,128 | 6 | all register naming |
-| `func_overlay_071_F0000870_18CA390` | 728 | 11 | 9 naming, 2 structural |
-| `func_overlay_022_F0000000_1878108` | 688 | 5 | **all immediate-only** |
+## Where the tooling still costs more than it should
 
-That last one is the single most tractable function in the queue: five words,
-every one an immediate or displacement difference, which `frame_census.py`
-names directly and L119/L121 solve rather than sweep.
+Three instruments are in the tree: `align_symbol.py` (cause split),
+`frame_census.py` (stack slots), `triage.py` (wave scoping). One is not, and it
+is now the most-needed:
 
-The three all-naming functions are p1-only (they contain calls), so their axis
-is L100's save ratio — and note L114's bound is a *floor*: a colour another web
-has forbidden is never offered by a force sweep, so free the interferer before
-concluding a lever is out of reach.
+**The ugen free-list trace.** L127 established that a peephole-deleted no-op
+still consumes a ring temp, which makes whole-function ring phase a source-level
+fix at zero byte cost — and ring phase is a large share of what is left. The
+instrument is the instrumented ugen at `~/Desktop/dev/ido-instrumented`, outside
+the tree, and three lanes have now needed it. Bringing a free-list reader
+in-tree is the next tool to build.
 
-## Tier 2: the whale, at 733
+## How to run a wave without wasting it
 
-`func_overlay_058_F000138C_18B0574`, 14,456 bytes, 733 masked, delta 0. Four
-lanes took it 3,215 → 733. Its partition is in the shard; the largest regions
-are case 9 (119 words), case 8 (69) and case 12 (40). Its prologue is
-force-declined with a `forbidden` mask — genuine interference, not preference —
-so leave it. All 428 of its decisions are p1.
+1. `tools/triage.py`, then `tools/align_symbol.py` on the shortlist. Pick by
+   cause, not by residual size.
+2. Dispatch against `docs/LANE_BRIEF.md`; the message carries targets, measured
+   numbers, and what **not** to redo. Briefs that restate the standing rules
+   drift — the L106 premise was stated wrongly to two lanes that way.
+3. **Re-run any specific measurement before quoting it into a brief.** Three
+   claims travelled report → brief → lane unverified in one session and all
+   three were wrong: a frame offset neither object touched, a debug bitset
+   misread as an idle pass, and an axis that did not exist. Each cost a lane
+   part of its budget. With the census and aligner the check is one command.
+4. Batch merges: regenerate the ranking once per wave, not once per lane.
+5. Gate commits on **exit status**, and on the edit having applied. A filtered
+   gate output hid a red `check-docs` twice; a half-applied edit script produced
+   a commit message describing work that had not happened.
 
-## Do not spend a lane on these
+## Do not spend a lane on this
 
-- **`overlay57UpdateModeState`** — 1,416 bytes at 5 masked words, which puts it
-  second in the whole tree by bytes-per-word. **It is proven unmatchable at a
-  floor of 2.** A trace replay reproduced 244 of 244 multi-candidate selections
-  with zero mispredictions, and the target needs the first node of one dependent
-  pair and the second of the other — opposite demands on a single per-pair key,
-  with the whole key space covered using `#line` to reach positions no legal
-  statement order can produce. Any ranking sorted by ratio will surface it; it
-  is not a candidate.
-
-## How to run it
-
-Read `docs/LANE_BRIEF.md` — the standing brief — and dispatch with targets and
-measured numbers only. Three habits that were learned expensively:
-
-1. **Re-run a measurement before quoting it into a brief.** Two claims travelled
-   handoff → brief → lane unverified in one session and both were wrong; one was
-   a frame offset neither object touches, the other a debug bitset misread as an
-   idle compiler pass. With the census and aligner that check is one command.
-2. **Read a gate's exit status, not the tail of its output.** Filtering until it
-   looks clean is how a red gate gets committed, which happened twice.
-3. **Ask the call test before naming L106.** A procedure that issues a call is
-   p1-only, so definition position, declaration order and statement order decide
-   nothing. It was named as the lever for two lanes that had no such axis.
+`overlay57UpdateModeState` — 1,416 bytes at 5 words, second in the tree by
+bytes-per-word, and **proven unmatchable at a floor of 2**. A trace replay
+reproduced 244 of 244 multi-candidate selections with zero mispredictions, with
+the key space covered using `#line` to reach positions no legal statement order
+produces. Any ratio-sorted list will surface it. It is not a candidate.

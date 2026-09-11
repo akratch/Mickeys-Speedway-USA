@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""Answer "what should the next wave work on", in one command.
+
+    tools/triage.py [--target-pct 60] [--top N] [--json]
+
+Built because the same scoping pass was hand-assembled four times in one day,
+each time from the ranking plus ad-hoc `align_symbol`/`frame_census` runs. It
+reports the three things that have actually decided where to send a lane:
+
+**The gap.** How many bytes stand between the tree and a stated whole-program
+percentage, and the cheapest set of functions that covers it — cheapest by
+*words per byte*, because a 2,100-byte function at 149 words is a better buy
+than a 200-byte function at 40.
+
+**Clusters.** Functions of identical size in the same overlay are, in this
+codebase, the same routine specialised N ways. That has been measured three
+times: a diagnosis on one sibling transferred to the others by line range with
+no per-function tuning, twice landing them at the same score or better. The
+leverage is real and it is large -- at the time of writing, one lead per
+cluster is 2,457 words against 7,088 for working every sibling separately. So
+a cluster's cost is roughly its lead's word count, not its total.
+
+**Bands.** Where the queue's words sit. Functions under about 20 words close at
+a high rate; functions over 400 reduce but rarely close. Work that moves a
+function *into* the low band is worth counting differently from work inside it.
+
+This tool reads the ranking only -- no compiles -- so it is cheap to run before
+every wave. For the cause split of a specific function use `align_symbol.py`,
+and for its stack slots `frame_census.py`.
+"""
+from __future__ import annotations
+
+import argparse
+import collections
+import json
+import pathlib
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
+# Whole-program text, the denominator README's headline percentage uses.
+WHOLE_PROGRAM = 944344
+
+BANDS = ((0, 20, "closes often"), (21, 60, "one or two decisions"),
+         (61, 150, "a region or two"), (151, 400, "several regions"),
+         (401, None, "reduces, rarely closes"))
+
+
+def load() -> list[dict]:
+    return json.loads(RANKING.read_text(encoding="utf-8"))["functions"]
+
+
+def resolved_bytes() -> int:
+    """What README's Progress block currently reports as resolved."""
+    text = (ROOT / "README.md").read_text(encoding="utf-8", errors="replace")
+    for line in text.splitlines():
+        if "**Whole program**" in line:
+            cells = [c.strip() for c in line.split("|")]
+            for cell in cells:
+                digits = cell.replace(",", "")
+                if digits.isdigit():
+                    return int(digits)
+    raise SystemExit("could not read the resolved byte count from README.md")
+
+
+def clusters(rows: list[dict]) -> list[dict]:
+    """Identical size in the same overlay: the same routine, specialised."""
+    grouped: dict[tuple, list[dict]] = collections.defaultdict(list)
+    for row in rows:
+        grouped[(row["size_bytes"], row["overlay"])].append(row)
+    out = []
+    for (size, overlay), members in grouped.items():
+        if len(members) < 2:
+            continue
+        words = sorted(m["relocation_masked_differing_words"] for m in members)
+        out.append({
+            "size_bytes": size, "overlay": overlay, "count": len(members),
+            "total_bytes": size * len(members), "words": words,
+            "lead_words": words[0], "spread": words[-1] - words[0],
+            "members": [m["name"] for m in members],
+        })
+    return sorted(out, key=lambda c: -c["total_bytes"])
+
+
+def cheapest_route(rows: list[dict], gap: int) -> dict:
+    """The fewest bytes-cheapest functions that cover the gap."""
+    ordered = sorted(
+        rows, key=lambda r: r["relocation_masked_differing_words"] / max(r["size_bytes"], 1))
+    picked, acc, words = [], 0, 0
+    for row in ordered:
+        picked.append(row)
+        acc += row["size_bytes"]
+        words += row["relocation_masked_differing_words"]
+        if acc >= gap:
+            break
+    return {"functions": len(picked), "bytes": acc, "words": words,
+            "worst": picked[-1] if picked else None,
+            "names": [r["name"] for r in picked]}
+
+
+def report(target_pct: float, top: int) -> dict:
+    rows = load()
+    have = resolved_bytes()
+    target = int(WHOLE_PROGRAM * target_pct / 100.0)
+    gap = max(target - have, 0)
+    queue_bytes = sum(r["size_bytes"] for r in rows)
+    cl = clusters(rows)
+    cluster_bytes = sum(c["total_bytes"] for c in cl)
+    lead = sum(c["lead_words"] for c in cl)
+    every = sum(w for c in cl for w in c["words"])
+    band_rows = []
+    for lo, hi, note in BANDS:
+        sel = [r for r in rows
+               if lo <= r["relocation_masked_differing_words"] <= (hi or 10 ** 9)]
+        band_rows.append({"lo": lo, "hi": hi, "note": note, "functions": len(sel),
+                          "bytes": sum(r["size_bytes"] for r in sel),
+                          "words": sum(r["relocation_masked_differing_words"] for r in sel)})
+    return {
+        "resolved_bytes": have, "whole_program": WHOLE_PROGRAM,
+        "pct": 100.0 * have / WHOLE_PROGRAM, "target_pct": target_pct,
+        "target_bytes": target, "gap_bytes": gap,
+        "queue": {"functions": len(rows), "bytes": queue_bytes},
+        "route": cheapest_route(rows, gap),
+        "clusters": {"groups": len(cl), "functions": sum(c["count"] for c in cl),
+                     "bytes": cluster_bytes,
+                     "pct_of_gap": (100.0 * cluster_bytes / gap) if gap else 0.0,
+                     "words_every_sibling": every, "words_one_lead": lead,
+                     "leverage": (every / lead) if lead else 0.0,
+                     "top": cl[:top]},
+        "bands": band_rows,
+    }
+
+
+def render(r: dict) -> str:
+    out = [
+        f"resolved {r['resolved_bytes']:,} / {r['whole_program']:,} = {r['pct']:.2f}%",
+        f"target   {r['target_pct']:.0f}% = {r['target_bytes']:,} bytes",
+        f"GAP      {r['gap_bytes']:,} bytes  "
+        f"({100.0 * r['gap_bytes'] / max(r['queue']['bytes'], 1):.0f}% of the "
+        f"{r['queue']['bytes']:,} still queued)",
+        "",
+        "cheapest route (by words per byte):",
+        f"  {r['route']['functions']} functions, {r['route']['bytes']:,} bytes, "
+        f"{r['route']['words']:,} masked words to close",
+    ]
+    worst = r["route"]["worst"]
+    if worst:
+        out.append(f"  worst in that set: {worst['relocation_masked_differing_words']}"
+                   f" words on {worst['size_bytes']} bytes ({worst['name']})")
+    c = r["clusters"]
+    out += ["",
+            f"clusters: {c['groups']} groups, {c['functions']} functions, "
+            f"{c['bytes']:,} bytes = {c['pct_of_gap']:.0f}% of the gap",
+            f"  every sibling separately: {c['words_every_sibling']:,} words",
+            f"  one lead per cluster    : {c['words_one_lead']:,} words "
+            f"({c['leverage']:.1f}x leverage)", ""]
+    for cl in c["top"]:
+        tight = "  <- tight, expect transfer" if cl["spread"] <= 10 else ""
+        out.append(f"  {cl['count']}x {cl['size_bytes']:5d}B "
+                   f"ov={str(cl['overlay'] or 'main'):5s} "
+                   f"{cl['total_bytes']:6,}B  words {cl['words']}{tight}")
+    out += ["", "bands:"]
+    for b in r["bands"]:
+        hi = b["hi"] if b["hi"] is not None else "+"
+        out.append(f"  {b['lo']:4d}-{str(hi):<5s} {b['functions']:3d} fns "
+                   f"{b['bytes']:9,}B {b['words']:8,}w   {b['note']}")
+    return "\n".join(out)
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(description="Scope the next wave from the ranking.")
+    ap.add_argument("--target-pct", type=float, default=60.0)
+    ap.add_argument("--top", type=int, default=12)
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args(argv)
+    r = report(args.target_pct, args.top)
+    print(json.dumps(r, indent=2) if args.json else render(r))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
