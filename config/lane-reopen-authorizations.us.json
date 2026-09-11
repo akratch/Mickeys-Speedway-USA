@@ -676,14 +676,14 @@
       "source_commit": "e39c665934647ee79903e791dfff5076b97c6d86"
     },
     "func_800517E0": {
-      "ledger_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518"
+      "ledger_commit": "5c4b675d8f209bc557c28f21cffbb02087e61de1",
+      "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
+      "source_commit": "fd58c99c286e594771667281836aadbee6e6cc3a"
     },
     "func_80053868": {
-      "ledger_commit": "3dd14287b1d7bcbeac4f00adaabb7bfb5f7662d5",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240"
+      "ledger_commit": "5c4b675d8f209bc557c28f21cffbb02087e61de1",
+      "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
+      "source_commit": "cef6604c3a97e6e81d4afd692f5eaf50a4943867"
     },
     "func_80054B3C": {
       "ledger_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61",
@@ -971,8 +971,8 @@
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": "dbd497a8ffd9dbd3eb988a4eaec4b350417ede6f",
-      "reason": "ADR 0018 stall rule, and at delta -32 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "4bc0660db182f1e7c7a9074a08c313cb54fa4548",
+      "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
       "source_commit": "dbd497a8ffd9dbd3eb988a4eaec4b350417ede6f"
     },
     "func_overlay_050_F0000334_1896CA4": {
