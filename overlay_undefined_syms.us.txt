@@ -2078,6 +2078,46 @@ overlay59FrameDrawReloc = 0xf0000000;
 overlay59FrameSetup0Reloc = 0xf0000000;
 overlay59FrameSetup1Reloc = 0xf0000000;
 
+/* overlay 60: overlay60Initialize.c.o */
+gOverlay60Bss00 = 0x00000000;
+gOverlay60Bss174 = 0x00000174;
+gOverlay60Bss20 = 0x00000020;
+gOverlay60Bss40 = 0x00000040;
+gOverlay60Bss60 = 0x00000060;
+gOverlay60Bss80 = 0x00000080;
+gOverlay60CoordE8 = 0x000000e8;
+gOverlay60CoordEA = 0x000000ea;
+gOverlay60CoordEC = 0x000000ec;
+gOverlay60CoordEE = 0x000000ee;
+gOverlay60CoordF0 = 0x000000f0;
+gOverlay60CoordF2 = 0x000000f2;
+gOverlay60CoordF4 = 0x000000f4;
+gOverlay60CoordF6 = 0x000000f6;
+gOverlay60CoordsD8 = 0x000000d8;
+gOverlay60Data00 = 0x00000000;
+gOverlay60Data28 = 0x00000028;
+gOverlay60Data38 = 0x00000038;
+gOverlay60Data40 = 0x00000040;
+gOverlay60Data44 = 0x00000044;
+gOverlay60Data48 = 0x00000048;
+gOverlay60Data4C = 0x0000004c;
+gOverlay60Data58 = 0x00000058;
+gOverlay60ObjectC8 = 0x000000c8;
+gOverlay60ObjectCC = 0x000000cc;
+gOverlay60ObjectCCY = 0x000000cc;
+gOverlay60ObjectD0 = 0x000000d0;
+gOverlay60ObjectD0Y = 0x000000d0;
+gOverlay60ObjectD4 = 0x000000d4;
+gOverlay60ObjectD4Y = 0x000000d4;
+gOverlay60PostSourceReloc = 0x00000000;
+gOverlay60SourceReloc = 0x00000000;
+overlay60ConfigureReloc = 0xf0000000;
+overlay60FindReloc = 0xf0000000;
+overlay60InitReloc = 0xf0000000;
+overlay60ReadyReloc = 0xf0000000;
+overlay60SelectReloc = 0xf0000000;
+overlay60SpawnReloc = 0xf0000000;
+
 /* overlay 60: overlay60Prefix.c.o */
 D_8007BF14_o060Reloc = 0x00000000;
 D_8007BF1C_o060Reloc = 0x00000000;
