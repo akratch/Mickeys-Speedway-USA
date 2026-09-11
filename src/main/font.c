@@ -452,7 +452,31 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
  * L101's call-result exclusion is not what is holding v0 back here; the
  * question is p1/p2's visit order between this web and the inner `current`
  * web, which also holds v0. A CDX force sweep would settle whether v0 is on
- * this web's candidate list at all before any further spelling is tried. */
+ * this web's candidate list at all before any further spelling is tried.
+ *
+ * 2026-09-11, lane f9-small: the force sweep was run and the mechanism is
+ * named. fontData's cost list omits v0 because uopt records an INTERFERENCE
+ * between fontData and the inner `current` web (the `*text++` escape byte,
+ * save 26, visited first, v0) -- not L101. That interference is not a
+ * liveness fact: the escape web lives only inside the loop. It is inherited
+ * from the SYMBOL: `current` is defined in the join block (the `*text` read
+ * that guards the loop), fontData is live there, and every web of `current`
+ * interferes with everything the symbol's range touches. Measured: giving
+ * the escape byte its own local removes the interference (fontData's list
+ * drops it) but also removes the escape/loop-byte interference that puts the
+ * loop byte in v1, so both take v0 (14 words); reading the guard byte into
+ * its own local and copying it into `current` inside the `if` frees v0 for
+ * fontData exactly (fontData = v0, 12 of the 46 rows) but the copy is not
+ * coalesced -- `first` is live-in to the block that defines `current`, so
+ * block-level interference keeps them apart -- and costs one word for every
+ * type pairing (16 measured). Sharing the symbol between the escape byte and
+ * the loop-end read (`next`) merges those two webs into one of save 35.
+ * Join-block statement order is inert (the liveness is per block); reading
+ * characterWidth inside the loop or inside the guard changes geometry.
+ * What is still open: a spelling in which `current` is not defined in the
+ * join block AND the loop's first-iteration byte reaches the top without a
+ * separate copy. The candidate that has the right symbol shape and the
+ * wrong word count is the `first`/copy form above. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     /* frameSlot0..3 are a measured reconstruction of the target's local
      * block, not recovered source. The target's frame is 0x30 with six
