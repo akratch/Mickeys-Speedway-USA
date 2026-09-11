@@ -2,11 +2,11 @@
 ### `overlay58DrawSegmentStrip` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawSegmentStrip.c`
-- score: 133/201 words
+- score: 68/201 words
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: One zero-instruction probe plus two inert write-order moves take the masked residual from 102 to 68 at unchanged geometry and frame; the point-quad argument-affinity lever is falsified for this call site at 152.
+- summary: p1-only; 95% coherent. c1-c12 plus c13 unnamed, c14-c22 s0-s8; t6-t9 are ring temps. Force w225=c3 flips w226=c2: 68->37; source probes flat or regressed.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
@@ -16,6 +16,10 @@
 - exhausted prior work: ten cursor, alias, color-carrier, declaration/lifetime, scalar-carrier, and command-store forms plus all 119 flag combinations remain closed; no permutation was run because none of the three new probes produced a strict gain
 - retained source: the original negative-index cursor spelling remains best and fixes one dead-pointer advance immediate without changing write order or semantics
 - blocker: workbench still reports broad allocation mismatch, with the global-cursor/color and floating-point pools cyclically recolored; relocation identities also require resolution before any future promotion
+- fresh baseline buckets: 133 byte-exact, 60 register naming, 0 immediate-only, 10 structural; size delta 0 and the same four buckets held after every retained source probe
+- allocator evidence: the procedure is p1-only; its integer color table is c1 v0 through c12 t5, c13 unnamed, and c14 through c22 s0 through s8. The t6 through t9 residuals are ring temporaries and cannot be reached by declarations.
+- causal force: forcing p1 web 225 to c3 a0 automatically put web 226 at c2 v1 and reduced the masked score from 68 to 37 at size delta 0. This proves the target swap is legal in the web graph, but no source form tested induced that save-ratio ordering.
+- attempts 1 through 5: the L59 store-line fold and named color carrier were flat at 68; pointer and OR-zero ring probes regressed to 128, 107, and 143 masked words. All regressions were reverted.
 - next action: do not reopen the prior ten forms, flag lattice, or these three FP-order probes; require a new source-authentic lever for the global-cursor/color web or whole floating-point pool
 - donor check: no credible JFG use location exists; the nearest cross-title skeleton remains Conker at 0.048, with no exact coddog window or source analogue
 <!-- plateau-handoff:overlay58DrawSegmentStrip:end -->
