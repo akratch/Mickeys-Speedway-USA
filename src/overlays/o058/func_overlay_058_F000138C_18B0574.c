@@ -1422,6 +1422,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: 3614 instructions per side; the whole residual is p1 colour, and the axis is L100's save ratio because every one of the procedure's 428 allocator decisions is phase one. The s7-with-s8 transposition three grinds named is now closed (0 transposed saved-register slots against 187) by two dials on that ratio: depth-2 discarded-expression probes on the index, and giving two inner loops index carriers of their own so their occurrences leave the index's web
+ * summary: 3614 instructions per side; the whole residual is p1 colour, and the axis was L100's save ratio because every one of the procedure's 428 allocator decisions is phase one. The s7-with-s8 transposition three grinds named is closed (0 transposed saved-register slots against 187) by two dials on that ratio: depth-2 discarded-expression probes on the index, and giving two inner loops index carriers of their own. Both dials are now exhausted -- 1,604 carrier x probe-count cells and 288 probe-site cells, no adoption -- and what is left is two web PARTITION problems, the prologue and case 10's `&character[0]` temp (web 978), each force-declined on all nine callee-saved colours
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
