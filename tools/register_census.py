@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Census which register each side uses where, and find the permutation.
+
+    tools/register_census.py <symbol> [<symbol> ...] [--json]
+
+The fourth instrument to be rebuilt in scratch and thrown away, after the shape
+aligner, the frame census and a fast scorer. A lane wrote one to get a
+four-cycle out of a 279-word residual, and that cycle *was* the residual: 195 of
+the 279 words were one permutation over the integer temp ring, and naming it
+turned a "structural" plateau into a one-edit fix that closed 188 words.
+
+`align_symbol.py` says how many rows differ only by register. This says **which
+registers**, and whether they form a cycle.
+
+That distinction decides the toolkit. A handful of scattered substitutions is a
+colouring question per web. A clean cycle over `t6`-`t9` is one ring-phase fact
+with a single cause, and by L127 a phase error is fixable from source at zero
+byte cost by consuming one more ring temp. Reading a cycle as N independent
+colour problems is how a lane spends a day on the wrong axis.
+
+Pairs are counted only where the two words agree on everything except their
+register fields, so a genuinely different instruction never contributes. Both
+streams come from `nm_ranking.word_streams`, the path the ranking scores by.
+"""
+from __future__ import annotations
+
+import argparse
+import collections
+import contextlib
+import json
+import pathlib
+import shutil
+import sys
+import tempfile
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
+import align_symbol as al  # noqa: E402
+import nm_ranking as nr  # noqa: E402
+import permute_batch as pb  # noqa: E402
+
+GPR = ["zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
+       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+       "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
+       "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"]
+
+# Where each format keeps its register fields, as (shift, width) triples.
+R_FIELDS = ((21, 0x1F), (16, 0x1F), (11, 0x1F))   # rs, rt, rd
+I_FIELDS = ((21, 0x1F), (16, 0x1F))               # rs, rt
+
+
+def fields(word: int) -> tuple[tuple[int, int], ...]:
+    op = (word >> 26) & 0x3F
+    if op in (0x02, 0x03):          # j / jal carry no register
+        return ()
+    if op == 0x00:                  # SPECIAL
+        return R_FIELDS
+    if op == 0x11:                  # COP1: its registers are float, not GPR
+        return ()
+    return I_FIELDS
+
+
+def census(streams: "nr.WordStreams") -> dict:
+    """Count register-for-register substitutions between *aligned* words.
+
+    The pairs must come from the alignment, not from matching indices. A
+    function with a size delta has its streams shifted, so past the shift point
+    a positional comparison pairs unrelated instructions and invents
+    substitutions that are not there -- which is exactly the noise this tool
+    exists to cut through. The first draft did that and reported a muddled
+    two-cycle on a function whose streams are 32 bytes out of step.
+    """
+    pairs: collections.Counter = collections.Counter()
+    sites = 0
+    base, target = streams.base_words, streams.target_words
+    b_reloc, t_reloc = streams.base_reloc, streams.target_reloc
+
+    def key(words, reloc, other):
+        return [nr.instr_reg_mask(al.reloc_masked(w, i * 4, reloc, other))
+                for i, w in enumerate(words)]
+
+    script = al._banded_edit_script(key(base, b_reloc, t_reloc),
+                                    key(target, t_reloc, b_reloc))
+    for op, i, j in script:
+        if op not in ("equal", "replace"):
+            continue
+        a = al.reloc_masked(base[i], i * 4, b_reloc, t_reloc)
+        b = al.reloc_masked(target[j], j * 4, t_reloc, b_reloc)
+        if a == b or nr.instr_reg_mask(a) != nr.instr_reg_mask(b):
+            continue                # identical, or not a pure register difference
+        sites += 1
+        for shift, mask in fields(a):
+            ra, rb = (a >> shift) & mask, (b >> shift) & mask
+            if ra != rb:
+                pairs[(GPR[ra], GPR[rb])] += 1
+    return {"sites": sites, "pairs": pairs}
+
+
+def cycles(pairs: collections.Counter) -> list[list[str]]:
+    """Closed cycles in the dominant mapping, which is what a ring phase looks like."""
+    best: dict[str, str] = {}
+    for (src, dst), count in pairs.items():
+        if src not in best or count > pairs[(src, best[src])]:
+            best[src] = dst
+    found, seen = [], set()
+    for start in best:
+        if start in seen:
+            continue
+        chain, node = [], start
+        while node in best and node not in chain:
+            chain.append(node)
+            node = best[node]
+        if node == start and len(chain) > 1:
+            found.append(chain)
+            seen.update(chain)
+    return sorted(found, key=len, reverse=True)
+
+
+@contextlib.contextmanager
+def _isolated_workdir():
+    previous = nr.WORK_DIR
+    scratch = pathlib.Path(tempfile.mkdtemp(prefix="register-census-"))
+    nr.WORK_DIR = scratch
+    try:
+        yield
+    finally:
+        nr.WORK_DIR = previous
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def measure(symbols: list[str]) -> tuple[list[dict], list[str]]:
+    queue = {item.func: item for item in pb.discover_queue()}
+    wanted, errors = [], []
+    for symbol in symbols:
+        item = queue.get(symbol)
+        if item is None:
+            errors.append(f"{symbol}: not in the NON_MATCHING queue")
+        else:
+            wanted.append(item)
+    if not wanted:
+        return [], errors
+    rows = []
+    with _isolated_workdir():
+        commands = nr.configured_compile_commands(wanted)
+        compiled = {s: nr.compile_configured_tu(s, commands[s]) for s in commands}
+        for item in wanted:
+            candidate, error = compiled[item.rel_c_file]
+            if candidate is None:
+                errors.append(f"{item.func}: {error}")
+                continue
+            streams, error = nr.word_streams(item, candidate)
+            if streams is None:
+                errors.append(f"{item.func}: {error}")
+                continue
+            out = census(streams)
+            rows.append({
+                "symbol": item.func,
+                "substitution_sites": out["sites"],
+                "pairs": [{"ours": a, "theirs": b, "count": c}
+                          for (a, b), c in out["pairs"].most_common()],
+                "cycles": cycles(out["pairs"]),
+            })
+    return rows, errors
+
+
+def render(row: dict) -> str:
+    out = [f"{row['symbol']}",
+           f"  pure register-substitution sites: {row['substitution_sites']}"]
+    if not row["pairs"]:
+        out.append("  no register-only differences")
+        return "\n".join(out)
+    out.append("  most common substitutions (ours -> theirs):")
+    for p in row["pairs"][:10]:
+        out.append(f"    {p['ours']:>4} -> {p['theirs']:<4} x{p['count']}")
+    if row["cycles"]:
+        out.append("  cycles in the dominant mapping:")
+        for cycle in row["cycles"]:
+            out.append("    " + " -> ".join(cycle) + f" -> {cycle[0]}")
+        out.append("    a closed cycle is one ring-phase fact, not N colour"
+                   " problems -- see L127")
+    else:
+        out.append("  no closed cycle: treat these as per-web colour questions")
+    return "\n".join(out)
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(
+        description="Census register substitutions and find ring-phase cycles.")
+    ap.add_argument("symbols", nargs="+")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args(argv)
+    rows, errors = measure(args.symbols)
+    if args.json:
+        print(json.dumps({"functions": rows, "errors": errors}, indent=2))
+    else:
+        for row in rows:
+            print(render(row))
+            print()
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
+    return 1 if errors and not rows else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
