@@ -2,11 +2,11 @@
 ### `func_80046BCC` plateau handoff
 
 - source: `src/main/diCpu.c`
-- score: 31 differing words
+- score: 16 differing words
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: the masked char is uopt web 32, coloured before every local and holding v0; forcing var_v0 back to v0 is declined, so the temp has to stop existing
+- summary: register-only at 106/106 words; web 32 is gone and the residual is one span fact, var_v0 doubling as the working copy so it colours callee-saved s0 where the target keeps it in v0
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 
