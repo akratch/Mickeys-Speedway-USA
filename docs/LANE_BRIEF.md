@@ -246,6 +246,18 @@ it end to end. The ones that carry most of the weight:
 - Do not refresh `docs/nm-ranking.md` unless `check-docs` fails without it; the
   coordinator regenerates it.
 
+## When your lane is merged
+
+The coordinator removes integrated lane worktrees with
+`tools/reclaim_worktrees.py --apply`, which keeps every branch and only deletes
+checkouts that are not running, have nothing uncommitted, and carry no commit
+missing from the integration branch. Each lane's `build/` tree is hundreds of
+megabytes and the fleet does not shrink on its own -- one sweep reclaimed 31 GB
+across 106 worktrees.
+
+So **commit everything you want kept.** A worktree that reports clean is a
+worktree whose findings live only in your report, and a report is not the tree.
+
 ## Reporting
 
 Pair every claim with its measurement. Give the aligner's four buckets before
