@@ -96,6 +96,38 @@ def census(streams: "nr.WordStreams") -> dict:
     return {"sites": sites, "pairs": pairs}
 
 
+def coherence(pairs: collections.Counter) -> dict:
+    """How functional the mapping is: does each source register go to ONE target?
+
+    Cycle presence alone is not a usable tell, which was learned by acting on
+    it. A lead whose residual was a temp-ring four-cycle closed on one edit; the
+    sibling's census also printed a closed cycle, the transfer was applied, and
+    it refused. The difference is that the lead's mapping was *functional* --
+    each source register went to a single target and the cycle covered 195 of
+    279 words -- while the sibling maps one source register to three different
+    targets and the cycle covers a minority of its residual.
+
+    So report the share of each source's substitutions that follow its dominant
+    target. Near 1.0 is a permutation, which is one ring-phase fact. Far below
+    is scattered colouring that happens to contain a loop.
+    """
+    by_source: dict[str, collections.Counter] = collections.defaultdict(
+        collections.Counter)
+    for (src, dst), count in pairs.items():
+        by_source[src][dst] += count
+    total = sum(pairs.values())
+    dominant = sum(counts.most_common(1)[0][1] for counts in by_source.values())
+    worst = min(
+        (counts.most_common(1)[0][1] / sum(counts.values()), src)
+        for src, counts in by_source.items()) if by_source else (1.0, "")
+    return {
+        "share_following_dominant": (dominant / total) if total else 0.0,
+        "sources": len(by_source),
+        "least_coherent_source": worst[1],
+        "least_coherent_share": worst[0],
+    }
+
+
 def cycles(pairs: collections.Counter) -> list[list[str]]:
     """Closed cycles in the dominant mapping, which is what a ring phase looks like."""
     best: dict[str, str] = {}
@@ -159,6 +191,7 @@ def measure(symbols: list[str]) -> tuple[list[dict], list[str]]:
                 "pairs": [{"ours": a, "theirs": b, "count": c}
                           for (a, b), c in out["pairs"].most_common()],
                 "cycles": cycles(out["pairs"]),
+                "coherence": coherence(out["pairs"]),
             })
     return rows, errors
 
@@ -172,12 +205,24 @@ def render(row: dict) -> str:
     out.append("  most common substitutions (ours -> theirs):")
     for p in row["pairs"][:10]:
         out.append(f"    {p['ours']:>4} -> {p['theirs']:<4} x{p['count']}")
+    c = row["coherence"]
+    share = c["share_following_dominant"]
+    out.append(f"  mapping coherence: {share:.0%} of substitutions follow their "
+               f"source's dominant target ({c['sources']} source registers)")
+    if c["least_coherent_source"]:
+        out.append(f"    least coherent: {c['least_coherent_source']} at "
+                   f"{c['least_coherent_share']:.0%}")
     if row["cycles"]:
         out.append("  cycles in the dominant mapping:")
         for cycle in row["cycles"]:
             out.append("    " + " -> ".join(cycle) + f" -> {cycle[0]}")
-        out.append("    a closed cycle is one ring-phase fact, not N colour"
-                   " problems -- see L127")
+        if share >= 0.80:
+            out.append("    coherent cycle: one ring-phase fact, not N colour"
+                       " problems -- see L127")
+        else:
+            out.append("    NOTE: a cycle in an incoherent mapping is not a ring"
+                       " phase. Cycle presence alone is not the tell -- a"
+                       " transfer was applied on it and refused.")
     else:
         out.append("  no closed cycle: treat these as per-web colour questions")
     return "\n".join(out)
