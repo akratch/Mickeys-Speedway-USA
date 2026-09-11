@@ -88,8 +88,10 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
  * TU; this consumer uses that owner for the root and node pools. */
-/* Four source-shape levers took this family from 461 masked words to 311, and
- * closed the missing callee-saved web that every earlier note named as the gate.
+/* Five source-shape levers took this family from 461 masked words to 189. The
+ * fifth closed the gate every earlier note on this family named and none
+ * reached: the ROM holds the node pointer's web across the call AND stores
+ * through the pointer it recomputes after the call.
  *
  * L59 -- the three non-macro assignment groups are ONE physical line each. With
  *   the stores on separate lines as1's `lineno` key emits them in source order;
@@ -98,34 +100,62 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  *   multi-line macro expansion already carries the invocation's line.
  *   The same reading fixes the root header's order: the ROM emits height, width,
  *   kind, so the source writes kind, width, height.
- * L115/L101 -- the node-32 pointer is USED after the call, before the counter is
- *   re-read. `node32->handle`, `->previousType` and `->previous` all store
- *   through the pre-call pointer (the same address the re-read recomputes), so
- *   the symbol's live range spans the call, v0 costs more than a save/restore
- *   pair, and the web takes s0. That is the whole of the missing sixth web: the
- *   frame ladder goes from eight slots to the ROM's nine, the float homes move
- *   from 0x18/0x20 to the ROM's 0x10/0x18, and s0..s5 land as the ROM has them
- *   (node pointer / text index, &D_0, the counter address, the pool address,
- *   0xFF and 0x80, the literal 2). Measured with the instrumented uopt: before
- *   the edit the node-pointer web decides `bestcost=0.0 bestreg=v0`; after it,
- *   `color=14 reg=s0`. Worth 78 masked words and the whole -4 size delta.
+ * L115/L101 -- THE RECOMPUTE READS THE COUNTER GLOBAL DIRECTLY. `node32 =
+ *   &D_340[D_1CC]` on BOTH sides of the call leaves the address in the symbol
+ *   `node32`, so uopt forms one live range per symbol (L115), that range spans
+ *   the call, every caller-saved colour prices 18.0 against 6.5 for s0, and both
+ *   the pre-call and the post-call definition land in the ROM's s0. Spelling the
+ *   recompute through an index local -- `nodeIndex = D_1CC; node32 =
+ *   &D_340[nodeIndex]` -- lets uopt forward-substitute the address into each
+ *   field store instead: the post-call value becomes its own expression web that
+ *   crosses no call, prices every caller-saved colour at 0.0, and takes a ring
+ *   register, and s0 is not even offered to it because the pre-call symbol web
+ *   already holds it. Read from the instrumented uopt (p1cost/p1dec, .text
+ *   confirmed byte-identical to the tree's object with traces off). With the
+ *   direct read the whole callee-saved bank falls into the ROM's layout at once:
+ *   s0 node pointer, s1 &D_0, s2 the counter address, s3 the pool address, s4
+ *   0xFF, s5 the literal 2. Worth 311 to 208, and it closes the whole post-call
+ *   block: re-read, recompute, then handle, chain and previous-link stores
+ *   through the recomputed pointer, which is the ROM's shape.
+ * The counter bump must not sit behind a store. `D_1CC = D_1CC + 1` placed after
+ *   any store makes uopt re-read the counter -- one extra load in each of the
+ *   eight groups, +36 bytes. `nodeIndex = D_1CC` written immediately after the
+ *   pointer expression is CSE'd onto the same load for free and lets the bump
+ *   sit anywhere; that is the only thing the index local is for now.
  * L110 -- the text pointers are fields of the shared input block, not separate
  *   globals. One `lui`+`addiu` base then two displaced loads is what the ROM
  *   emits; three independent `lui`/`lw` pairs is what separate externs give.
- *   Worth 11 words and the last mnemonic-census difference.
+ * Statement order in the post-call block is worth 208 to 189 over the 180 valid
+ *   orders of the six statements, exhaustively measured; the macro takes
+ *   previous-link, chain, handle, bump and the root group takes handle first.
  *
- * Refuted here, each measured: `register volatile Node32 *` was recorded as the
- *   only spelling reaching 461 and worth eight words over every other; on the
- *   corrected shape it is the WORST, 405 against plain `Node32 *` at 386, and
- *   `register` alone is inert either way. Merging the counter locals (the L100
- *   partition that paid on the F63F8 relative) regresses: {owner,node} 461,
- *   {owner,text} 513, all three 483, against 456 for three separate locals.
- * Measured inert (p1-only by the call test): statement order inside either
- *   macro, the order of the twelve stores in the root's second group (311-316
- *   over six orders including the full reversal), and the order of the three
- *   pre-`d` stores in the post-call sequence.
- * Remaining: the instruction multiset and the frame are exact; 215 of the 311
- *   are register naming and the rest is schedule order. */
+ * Refuted here, with the measurement. The previous note closed this family on
+ *   "the ROM needs both the web across the call and the handle store after the
+ *   recompute, and no source form found so far gives both", over six post-call
+ *   orderings. All six held the index local fixed, which is the decision
+ *   variable; the direct counter read gives both. Also refuted earlier and still
+ *   true: `register volatile Node32 *` is the worst pointer spelling, not the
+ *   best, and merging the three counter locals regresses.
+ * Remaining, 189 masked: the instruction multiset and the frame are exact, and
+ *   the residual splits cleanly by region. Below +0x5B0 (the node groups) it is
+ *   58 words of as1 schedule order with 14 insertion and 14 deletion words and
+ *   one naming row. From +0x5B0 (the text rows) it is 81 naming rows and no
+ *   structural word at all, a uniform one-step register rotation.
+ * L114, corrected for this procedure. Do NOT classify those 81 rows by register
+ *   bank. This procedure's own p1cost rows decode as c1 v0, c2 v1, c3 a0, c4 a1,
+ *   c5 a2, c6 a3, c7 t0, c8 t1, c9 t2, c10 t3, c11 t4, c12 t5, c13 unnamed,
+ *   c14-c22 s0-s8: t3, t4 and t5 are ordinary caller-saved candidates here,
+ *   priced exactly like a0-a3, and only t6-t9 and c13 sit outside the table.
+ *   What is true is measured, not categorical: globalcolor assigns no t register
+ *   in this compilation (22 p1color rows, none of them t; 21 further webs
+ *   declined with decision=split and fall to ugen). Forcing each of those 40
+ *   webs to c10, c11 or c12 is ACCEPTED every time -- 78 accepted forces, object
+ *   changed in all of them, so none is L101's third kind -- and every one
+ *   regresses, 189 to 394 at best. The rotation does move: the best force takes
+ *   the text region's naming from 81 to 37, but adds 53 structural words there
+ *   and 44 in the node groups. Reachable and unprofitable, not ring-only.
+ * So the next lever is the node groups' as1 order; the text rows follow how many
+ *   scratch registers those groups consume and fall behind that. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0009190_18E49B0(void) {
     Node32 *node32;
@@ -138,7 +168,7 @@ void func_overlay_101_F0009190_18E49B0(void) {
 
     D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_D18; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_1C; D_1C4 = ownerIndex + 1;
 
-    node32 = &D_340[D_1CC]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); node32->handle = handle; node32->previousType = D_0.chainType; node32->previous = D_0.chain; nodeIndex = D_1CC; node32 = &D_340[nodeIndex]; D_0.chainType = 2; D_0.chain = node32; D_1CC = nodeIndex + 1;
+    node32 = &D_340[D_1CC]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); node32 = &D_340[D_1CC]; nodeIndex = D_1CC; node32->handle = handle; node32->previousType = D_0.chainType; node32->previous = D_0.chain; D_0.chain = node32; D_0.chainType = 2; D_1CC = nodeIndex + 1;
 
     D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x20; D_0.height48 = 0x14; D_0.value4A = 0x100; D_0.value4C = 0xB4; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.dataF8; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_38; D_1C4 = ownerIndex + 1;
 
@@ -153,13 +183,13 @@ void func_overlay_101_F0009190_18E49B0(void) {
     node32->value14 = 0.0f;                                                  \
     node32->value18 = 0;                                                     \
     handle = func_overlay_101_F0000000_18DB820((imageId), 0);                 \
-    node32->handle = handle;                                                 \
+    node32 = &D_340[D_1CC];                                                  \
+    nodeIndex = D_1CC;                                                       \
     node32->previousType = D_0.childType;                                    \
     node32->previous = D_0.child;                                            \
-    nodeIndex = D_1CC;                                                       \
-    node32 = &D_340[nodeIndex];                                              \
     D_0.childType = 2;                                                       \
     D_0.child = node32;                                                      \
+    node32->handle = handle;                                                 \
     D_1CC = nodeIndex + 1
 
     if (((D_F4 << 5) >> 28) & 1) {
@@ -223,10 +253,10 @@ void func_overlay_101_F0009190_18E49B0(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F0009190_18E49B0:start
  * symbol: func_overlay_101_F0009190_18E49B0
- * score: 311/525 words
+ * score: 189/525 words
  * frame: 0x40
  * relocations: 59
  * first-mismatch: +0xA8
- * summary: 311 masked words from 461; size, frame and instruction multiset all exact. Residual is 215 register naming and 111 schedule order.
+ * summary: 189 masked words from 311; size, frame and instruction multiset all exact. The node groups hold 58 schedule words and one naming row; the text rows hold 81 naming rows and no structural word, a uniform ugen ring rotation.
  * PLATEAU-HANDOFF:func_overlay_101_F0009190_18E49B0:end
  */
