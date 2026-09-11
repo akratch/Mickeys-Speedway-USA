@@ -42,4 +42,34 @@ The residual is therefore a uopt web-priority tie between a parameter that is
 live from entry and a loop-invariant read that is live from the guard, both
 used exactly once. Reopen with an extra interfering web or a measured
 priority dial, not with another placement.
+
+
+#### p8-o001: the float pool swap is priced at 4 of the 18 words
+
+The records were read for the first time here. This procedure issues calls, so
+p1 only; the instrumented object scores 18/19 exactly as the configured one
+does. Four `class=2` float webs are coloured, in descending save: web 5
+(save 7.0, totalsave 21) takes colour 30, web 28 (3.667) colour 31, web 44
+(3.333) colour 32 and web 77 (3.333) colour 33. The seven integer webs run
+`v0`, then `s0` through `s4`, then `v1`.
+
+A force sweep of all four float webs against colours 28 to 35 plus the split
+path, and then nine two- and three-way combinations of them, bottoms out at
+**14**, reached by `p1:w28=c32` alone. So the contested float-pool ordering the
+previous record describes is worth 4 words, not 18, and the remaining 14 are
+elsewhere -- consistent with the aligner, which reads 5 really-different words
+and a displacement tax of 7 with one instruction surplus at +0x88 against one
+missing at +0xA8.
+
+Two things follow. The pool priority is a smaller prize than it looked, and any
+further work should start from the surplus/missing pair rather than from the
+`f22`/`f24` exchange. And the L142 arity lever does not apply: the contested
+colours here are callee-saved float registers, which that law does not reach.
+
+Also eliminated, from the newly-matched `overlay1MeasureCurves` lever (an
+address-taken parameter is reloaded from its home with no volatile scheduling
+edge): reading `angle` through `*(f32 *)&angle` at the call is 64 and a word
+short, `scale` through its address is 68, both together 56 and two words short,
+`volatile f32 angle` is 74, and `volatile f32 scale` is 64. The lever does not
+transfer to this function.
 <!-- plateau-handoff:overlay1FindType47ByAngle:end -->

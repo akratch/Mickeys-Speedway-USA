@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 182392,
-  "nonmatching_overlay_c_bytes": 286228,
+  "matched_overlay_c_bytes": 182708,
+  "nonmatching_overlay_c_bytes": 285912,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1179,6 +1179,14 @@
      "label": "overlay1ResolveMotionPoint",
      "source": "overlays/o001/overlay_001_head",
      "evidence": "canonical mixed-TU object, 11 runtime relocations, and linked bytes exact"
+    },
+    {
+     "offset": "0xF84",
+     "end_offset": "0x10C0",
+     "size": "0x13C",
+     "label": "overlay1MeasureCurves",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
     },
     {
      "offset": "0x10C0",
