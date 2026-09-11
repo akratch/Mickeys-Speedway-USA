@@ -46,6 +46,14 @@ temps, which is the other half of L118.
 with the ranking by construction. **Work the masked number**, never the raw
 one: the difference is relocation artefacts, already partitioned and stored.
 
+**Concurrency.** `score_symbol.py`, `align_symbol.py` and `frame_census.py`
+each swap `nm_ranking`'s work directory for private scratch, so any number of
+them can run at once in one worktree — measured: three in parallel return the
+same numbers as a serial run. **`nm_ranking.py` run directly does not**, because
+a whole-queue pass is meant to own the tree. So do not start a `--refresh-stale`
+or `--out` pass while a harness is measuring in the same worktree; that is the
+one combination that collides.
+
 ## The call test — ask this before any allocator work
 
 Every procedure that issues a call emits **p1 allocator records only**; every
