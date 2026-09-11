@@ -1473,6 +1473,73 @@ bytes and disassembly never belong here.
   result matters, verify it against the object rather than assuming cpp keeps
   your grouping.
 
+- **`globalcolor` runs phase one for a procedure that contains a call and
+  phase two for a leaf, and never both.** Read from the instrumented `uopt`
+  index capture (`CDX_LOG=1` with a nonnumeric `CDX_PROC`) over three whole
+  translation units -- 61 procedures in `overlay_001_tail.c`,
+  `overlay_008.c` and `overlay52TailB.c`. Every procedure whose body issues at
+  least one call emits `p1dec` records and zero `p2dec`; every leaf emits
+  `p2dec` and zero `p1dec`; a procedure with no allocator decisions emits
+  neither. 59 of the 61 classify and the two that do not emit no allocator
+  decision at all; there are no counterexamples.
+  The consequence is a search-space theorem for the whole queue: the phase-two
+  web-numbering axis -- first-definition order, coloured ascending, so moving a
+  defining statement moves a colour -- is **dead for any function containing a
+  call**, which is every whale left in the ranking. Run the index capture and
+  read the phase before spending a lattice on declaration, definition or
+  statement position.
+
+- **The class-2 (floating) colour table is c24=`f0`, c25=`f2`, c26=`f12`,
+  c27=`f14`, c28=`f16`, c29=`f18`; c30 and above are callee-saved and pay
+  prologue words.** Established by force-and-diff on
+  `func_overlay_008_F00034A0_18611F8` (uopt procedure 14): its web 187 sits at
+  c24 and, forced through c25..c29 one at a time, its register moved to `f2`,
+  `f12`, `f14`, `f16`, `f18` in that order; web 29, which sits at c26, forced
+  to c27 swapped `f12` with `f14` against its neighbour, confirming both
+  entries from a second web; c30 grew the function by a word. The pool is six
+  wide (`available0=0x000000fc`, bit index 31 - colour). This extends the
+  workbench's integer `COLOR_REGISTERS` decode, which stops at c23, and it is
+  what makes a floating residual readable: a difference among these six is an
+  allocator decision, and a difference outside them is not.
+
+- **`f4`, `f6`, `f8`, `f10` and `t3`..`t9` are never globalcolor colours in
+  these procedures; they are ugen expression temporaries.** A residual spelled
+  in those registers is therefore not reachable by any save ratio, priority or
+  scan-order argument, and the four allocator laws that act on `save` cannot
+  price it. Measured on the aligned naming residual of three whales: 622 of
+  739 differing pairs in `func_overlay_052_F000063C_189ACAC` name a register
+  `globalcolor` never assigned in that procedure, 209 of 557 in
+  `func_overlay_001_F000438C_185076C`, 91 of 209 in
+  `func_overlay_008_F00034A0_18611F8`; the purely allocator-named share is 48,
+  36 and 13. The ring is not *independent* of the allocator, though: forcing a
+  single class-2 colour on `func_overlay_008...` rotated the whole
+  `f4`/`f6`/`f8`/`f10` ring, so the ring's phase is set by how many pool
+  colours are consumed upstream of it, not by the ring itself.
+
+- **Size the allocator's share of a residual with a greedy force ceiling
+  before opening any allocator lattice.** Sweep every web against every colour
+  and the split path, keep the best, repeat with that force as a prefix. The
+  instrumented compiler runs whole translation units at about 35 a second
+  under `xargs -P8`, so a 736-cell round on a 21-procedure unit costs 21
+  seconds:
+
+  ```sh
+  CDX_LOG=1 CDX_PROC=<n> CDX_FORCE=p1:w<web>=<c<colour>|s> CDX_OUT=/dev/null \
+    IDO_DIR=~/Desktop/dev/ido-instrumented \
+    .venv/bin/python tools/ido-phases.py <the configured flags>
+  ```
+
+  On `func_overlay_008_F00034A0_18611F8` five rounds moved the aligned split
+  from 592 byte-exact / 209 naming / 101 different to 642 / 167 / 94 and then
+  found nothing further: **at most 50 of that function's 310 residual words
+  are globalcolor's to give.** Two cautions the sweep also settled. A single
+  force (`p1:w597=s`) closed the function's -4 size deficit on its own, so a
+  candidate one instruction short is not automatically missing a source
+  operation -- it can be one web the target spills and the candidate keeps.
+  And a force that reports `forced=-2` in its own `p1color` record never
+  applied, so its byte-identical object proves nothing; check the record, not
+  the object.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
