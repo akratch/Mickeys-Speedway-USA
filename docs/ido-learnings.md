@@ -1473,6 +1473,31 @@ bytes and disassembly never belong here.
   result matters, verify it against the object rather than assuming cpp keeps
   your grouping.
 
+- **uopt's `<`-to-`!=` loop-exit rewrite (EQ_INEQ) runs before copy
+  propagation, so a counter initialised from a local copy of a constant keeps
+  its `slti`.** The rewrite needs a constant initial value at the moment it
+  runs; `i = zero` where `zero = 0` was assigned earlier is not one, so the
+  test survives as `slti` against the literal bound, and the later propagation
+  still emits `move i, zero`. A literal `i = 0` is rewritten for every loop
+  spelling (nine test forms, all statement orders). A register-resident bound
+  (`i < n`) also blocks the rewrite but is *not* folded afterwards: the bound
+  stays a hoisted register and the compare a `slt`. Evidence: `func_8003A754`,
+  where this was the structural half of a twelve-word residual; the `uoptlist`
+  phase listing names the pass (`EQ_INEQ at BB:`) ahead of `COPY PROPAGATION`.
+- **A call result kept live to the exit holds `v0` through the whole body,
+  and uopt deletes an empty conditional after liveness.** With every web
+  otherwise identical, `func_8003A754`'s target had no web on `v0` at all and
+  every colour shifted by one from the candidate. Keeping the returned pointer
+  live to the exit with a trailing `if (walked != base) { }` reproduced the
+  target's seven colours exactly and emitted no instruction: the branch is
+  folded away after interference is computed. `return base` does not do it (it
+  creates a copy web coloured last), and neither does a non-void return type
+  without a return statement. The trailing compare's extra site also decided a
+  save tie between the byte-offset counter and the walked pointer, so the
+  offset could be defined first (as1 emits its move first) and still be
+  coloured second. Diagnostic-only until a natural source form is found; the
+  committed function says so at the point of use.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.

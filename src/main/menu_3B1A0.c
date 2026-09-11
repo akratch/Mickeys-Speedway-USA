@@ -156,49 +156,64 @@ s32 func_8003A700(u8 arg0) {
         return (temp_v1 + 0x41) & 0xFF;
     }
 }
-/* Workbench verdict: structure-mismatch, 12 differing words; target/candidate 31 words. */
-/* First mismatch: +0x10; both frames are 0x18, with scalar inner-loop carriers differing. */
-/* Structural gap: inner-loop counter/base carrier order remains unresolved. */
-#ifdef NON_MATCHING
+/* Clears ten 0x28-byte records: each record's half26, byte07 and bytes20[],
+ * then the next record's byte00..byte03.  Matched 2026-09-11; three edits
+ * closed the last twelve words and each is a measured reconstruction, not
+ * recovered source (see docs/ido-learnings.md):
+ *  - `zero`: the inner counter starts from a local copy of 0.  uopt's EQ_INEQ
+ *    pass rewrites a basic induction variable's `i < 6` into `i != 6` with the
+ *    6 hoisted to a register, and it runs BEFORE copy propagation; a
+ *    copy-initialised counter is not constant there, so the `slti` survives,
+ *    and the later propagation still emits `move v1, zero`.
+ *  - the trailing empty `if`: it keeps the call result live to the exit, which
+ *    holds v0 through both loops; uopt deletes the folded branch after
+ *    liveness, so no instruction is emitted, and every web takes its target
+ *    colour.  Without it the inner counter takes v0 and all seven webs shift.
+ *  - `offset = 0` written before the pointer copies: the comparison against
+ *    `record` in that `if` weighs the walked-pointer web above the offset web,
+ *    so the offset is defined first (as1 emits its move first) yet coloured
+ *    second.
+ * Four explicit induction variables are the target's: uopt merges any two
+ * pointers derived from one expression, so the three record pointers and the
+ * byte offset are separate variables in the source. */
 void func_8003A754(void) {
-    s32 var_t0;
-    s32 var_v1;
-    u8 *var_a0;
-    Menu3B1A0Record *var_a1;
-    Menu3B1A0Record *var_a2;
-    Menu3B1A0Record *var_a3;
+    u8 *base;
+    Menu3B1A0Record *record;
+    Menu3B1A0Record *header;
+    Menu3B1A0Record *tail;
+    u8 *cursor;
+    s32 offset;
+    s32 i;
+    s32 zero;
 
-    var_a3 = (Menu3B1A0Record *) func_80028F54();
-    var_t0 = 0;
-    var_a1 = var_a3;
-    var_a2 = var_a3;
-loop_outer:
-    var_a2->half26 = 0;
-    var_a2->byte07 = 0;
-    var_v1 = 0;
-    var_a0 = (u8 *) var_a3;
-loop_inner:
-    var_v1 += 1;
-    var_a0 += 1;
-    var_a0[0x1F] = 0;
-    if (var_v1 < 6) {
-        goto loop_inner;
-    }
-    var_t0 += 0x28;
-    var_a3 += 1;
-    var_a1 += 1;
-    var_a2 += 1;
-    var_a1->byte01 = 0;
-    var_a1->byte02 = 0;
-    var_a1->byte03 = 0;
-    var_a1->byte00 = 0;
-    if (var_t0 != 0x190) {
-        goto loop_outer;
+    base = func_80028F54();
+    zero = 0;
+    offset = 0;
+    record = (Menu3B1A0Record *) base;
+    header = (Menu3B1A0Record *) base;
+    tail = (Menu3B1A0Record *) base;
+    do {
+        tail->half26 = 0;
+        tail->byte07 = 0;
+        i = zero;
+        cursor = (u8 *) record;
+        do {
+            i++;
+            cursor++;
+            cursor[0x1F] = 0;
+        } while (i < 6);
+        offset += 0x28;
+        record++;
+        header++;
+        tail++;
+        header->byte01 = 0;
+        header->byte02 = 0;
+        header->byte03 = 0;
+        header->byte00 = 0;
+    } while (offset < 0x190);
+    if ((u8 *) record != base) {
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A754.s")
-#endif
 /* PROVENANCE: no donor counterpart -- JFG's src/menu.c has no function of
  * this shape, so this is ordinary matching against Mickey's own bytes.
  * The target's 4x-unrolled accumulation loop is the compiler's, not the
@@ -237,14 +252,4 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
  * first-mismatch: +0x0
  * summary: Cursor/end register pair and the %lo materialization order that follows it; every declaration, initialization, line-grouping and loop-shape spelling measured flat at 9.
  * PLATEAU-HANDOFF:func_8003A5A0:end
- */
-
-/* PLATEAU-HANDOFF:func_8003A754:start
- * symbol: func_8003A754
- * score: 12/31 words
- * frame: 0x18
- * relocations: 1
- * first-mismatch: +0x10
- * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding. The -Wo,-loopunroll,0 removal from this TU is byte-inert here as well: 36 loop shapes (4 head orders x 5 inner forms x 2 outer forms) all measure flat at 12, so the reopen this flag change would otherwise justify is already spent.
- * PLATEAU-HANDOFF:func_8003A754:end
  */
