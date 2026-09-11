@@ -429,25 +429,42 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Bounded plateau: configured full-TU C is exact-sized and frameless at 17/28
- * words, first +0x10, with eleven register-only differences and no relocations.
- * All 119 flag identities are nonexact; thirteen O2/MIPS-II rows tie V0. A
- * fidelity-clean proc-11 trace plus lane analysis finds one four-web crossing:
- * target keeps the reset constant in a3 and routes the value test, next bit,
- * and shifted mask through t1/t4/t5, while V0 uses t1/a2/a3/t4. Named unsigned
- * and signed reset-mask forms retain eleven differences and each introduce one
- * opcode mismatch, so neither gains and no combination is eligible. The old
- * 10/28 control was skipped because current V0 materially improves it. ORT 727
- * has five direct callers in func_8002C94C; fallback linkage remains exact.
+/* Bounded plateau: configured full-TU C is exact-sized and frameless at 8/28
+ * words, first +0x18, with eight register-only differences and no relocations.
+ *
+ * 11 -> 8, lane p7-res: this is a leaf, so globalcolor runs phase two only and
+ * the axis is ascending web number with each web taking the lowest free colour.
+ * Two independent edits move it, both measured against the full TU:
+ *   1. the bit advance belongs at the *end* of the loop body. Eight of the 72
+ *      legal orderings of the six statement groups score 9 and every one of
+ *      them puts the advance last; the previous body had it in the loop head.
+ *   2. the `nextBit` carrier must go. With `bit >>= 1` and `while (bit != 0)`,
+ *      `nextBit` stops being a p2 web, the reset constant becomes the first
+ *      web coloured after the parameters, and it lands where the target keeps
+ *      it. Dropping the carrier costs no instruction here (delta 0), which is
+ *      the opposite of what the earlier note recorded for the old body.
+ * The `valueBit`/`isSet` copy pair and the `cursorField` hoist are still
+ * load-bearing: removing the hoist costs eight bytes.
+ *
+ * What is left is one ugen ring phase, not an allocator decision. The target
+ * draws one more integer temp than this body does before the set test, so the
+ * value test, the two store temps and the shifted mask each sit one position
+ * further along the ring; the advance itself agrees. A full p2 force sweep
+ * (every web against every colour and the split path, then a second greedy
+ * round) never beats 8, which is what says the residual is below globalcolor.
+ * Measured flat against it on this body: twelve redundant-mask and cast
+ * spellings aimed at a phantom pop, ten reset/store-arm spellings, all six
+ * placements of the advance, and 23 L97 region placements.
+ * Next lever: find the statement that gains a ugen temp pop before the set
+ * test -- read `DKWB_UGEN_TRACE` ALLOC_GP_RESULT lines for this procedure and
+ * compare the per-line pop counts, rather than sweeping spellings.
+ *
  * The unsigned initial shift is defined for the writer's 1..32-bit count
- * domain (observed direct counts: 4, 5, 18); zero remains a no-op. This
- * correctness repair leaves configured full-TU compiler output unchanged. The
- * authorized JFG efd5abb audit found no matching writer body; its analogous
- * anim reader does not resolve this register permutation. Next lever is an
- * authenticated writer donor or ownership trace. */
+ * domain (observed direct counts: 4, 5, 18); zero remains a no-op. ORT 727 has
+ * five direct callers in func_8002C94C; fallback linkage remains exact. The
+ * authorized JFG efd5abb audit found no matching writer body. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
-    u32 nextBit;
     u32 bit;
     u8 *cursor;
     s32 valueBit;
@@ -461,8 +478,6 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
             mask = writer->mask;
             valueBit = value & bit;
             isSet = valueBit;
-            nextBit = bit >> 1;
-            bit = nextBit;
             cursorField = &writer->cursor;
             if (mask == 0) {
                 writer->cursor = writer->cursor + 1;
@@ -476,7 +491,8 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
                 mask = writer->mask;
             }
             writer->mask = (u8) (mask >> 1);
-        } while (nextBit != 0);
+            bit >>= 1;
+        } while (bit != 0);
     }
 }
 #else
@@ -1461,10 +1477,10 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:func_8002C69C:start
  * symbol: func_8002C69C
- * score: 17/28 words
+ * score: 20/28 words
  * frame: frameless
  * relocations: 0
- * first-mismatch: +0x10
- * summary: Eleven register-only words are one four-web colour permutation; all 40,320 declaration orders and 1,080 body-shape cells are byte-identical, so the lever must reorder the webs' save rather than respell the body.
+ * first-mismatch: +0x18
+ * summary: 11 to 8. This is a leaf, so the axis is phase two, ascending web number, lowest free colour; putting the bit advance last and dropping the nextBit carrier moves the reset constant onto the target's colour. The remaining eight words are one ugen ring phase below globalcolor, and a full p2 force sweep never beats them.
  * PLATEAU-HANDOFF:func_8002C69C:end
  */
