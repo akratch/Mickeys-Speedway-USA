@@ -170,4 +170,25 @@ Mechanism-driven evidence from the original reconstruction base `4b4109b583ca0a3
 - The full 119-combination flag lattice found no exact result. Removing the TU-specific assembler scheduling flag reached exact size but still left 1,201 differences from `+0x0`; that flag is shared by the translation unit and is not a source-authentic promotion lever.
 - Pinned DKR v77 `src/racer.c` supplies a permitted semantic skeleton for the top-speed, spin/drift, steering, sound, and particle phases. It confirms the absolute-speed cap/subtract/floor curve, drift multiplier 68 versus 58, reverse steering sign, signed spin state, rumble, and `+/-0x2EE` yaw clamp; JFG and exact-object donor scans remain negative.
 - The linked promotion trial has no measured in-range or collateral differences because it stops on a 24-byte overlay text-size delta; it is not evidence of equality. Resume from the exact-size function by removing automatic homes without replacing explicit single-load carriers with repeated field reads: a prior 13-copy direct-access batch reached a `0x158` frame but regressed structurally. The target has nine non-save homes at `+0x44/+0x60/+0x68/+0x78/+0x84/+0x88/+0x8C/+0x94/+0x9C`; candidate still has `0xD0` excess frame. Do not run flags or generic permutation until the home set is structurally close.
+
+## 2026-09-11 closure re-test (lane `lane/f10-fell`): the f2/f12 exchange was never in the sweep
+
+No candidate change. Records from the instrumented uopt, `.text`
+byte-identical to the tree's object, procedure ordinal 7 of the TU.
+
+The f12 web is 51 (class 2, save 480/22 = 21.8, home -36 from the frame
+top). Its `p1cost` list is c26 c27 c28 c29 at 10.0 and the callee-saved
+colours at 60.0; its forbidden mask is 0xc0, which is f0 and f2. f2 is held
+by web 149 (save 400/16 = 25.0) and web 406 (save 190/7 = 27.1), both decided
+before 51. The force sweep above forced only colours each list declared
+available, so the exchange this page names as its first lever was never
+forced. Forcing 149 to f12 and 406 to f14 together, with 51 unforced, gives
+51 f2 and takes 636 to 606; the aligned naming rows that name only a float
+register go 197 to 156 while the integer ring re-phases behind it. The other
+pairing, 149 f14 and 406 f12, measures 625.
+
+The decision variable is the p1 rank of web 51 against 149 and 406, which is
+L100 arithmetic: 149 falls below 51 at nocs 19 or with 51 fewer points of
+net, and neither is a declaration or placement axis. The 24-row bound above
+is a bound on the swept colours, not on this exchange.
 <!-- plateau-handoff:func_overlay_008_F0001294_185EFEC:end -->
