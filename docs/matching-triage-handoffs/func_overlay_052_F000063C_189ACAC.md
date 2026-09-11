@@ -254,4 +254,126 @@ census rather than from the recurrence's operation graph, which the earlier
 packet exhausted. `gmake verify` passes in this worktree at this commit, so the
 link failure recorded in the previous section no longer reproduces.
 
+
+#### Phase census, the two-region partition, and the allocator's real share (2026-09-11)
+
+**Census first: this translation unit compiles to a single uopt procedure, and
+its 237 globalcolor decisions are all phase one -- 228 integer, 9 floating,
+zero phase two.** 104 are coloured and 133 split. So the phase-two
+web-numbering axis is not live here and no amount of moving a defining
+statement is a colour lever for this function. The rule is general: over the
+61 procedures of this unit, `overlay_001_tail.c` and `overlay_008.c`, every
+procedure that issues a call emitted phase-one records only and every leaf
+emitted phase-two records only, 59 classified with no counterexample
+(`docs/ido-learnings.md`).
+
+Aligned against the target on a register-erased shape
+(`tools/align_symbol.py`): 1687 words against 1687, positional 1337,
+displacement tax 306, and the residual splits 672 byte-exact / 739
+register-naming / 292 really-different. The extent agrees but not locally --
+16 candidate words in 14 spans and 16 target words in 14 spans, which is why
+the extent cancels.
+
+**The residual is two independent problems with different owners, and the
+earlier packet's segment model is one of them.**
+
+*Region 8, the opening float recurrence, +0x130 to +0x2E0.* 113 words, 19
+byte-exact, 54 naming, 40 really-different. Every one of the 54 naming rows
+is a floating-register difference; there is essentially no integer naming
+before +0x400 (nine field substitutions in the whole prefix). This region is
+the only place in the function where float allocation is in question at all --
+the aligner finds float differences in just 4 of the 65 call-delimited
+regions.
+
+*The integer body from +0x400 on.* 622 of the 739 naming rows name a register
+`globalcolor` never assigns in this procedure. The trace is explicit about
+which registers it does assign: `v0`, `v1`, `a0`-`a3`, `t0`, `t1`, `t2` and
+`s0`-`s8`, 104 colourings in all of which four are floating, and **never
+`t3` through `t9`**. Those seven
+are ugen expression temporaries, and the residual is a piecewise-constant
+permutation of them:
+
+  - +0x0 to +0x400: nine integer field substitutions in the whole prefix;
+    clean.
+  - +0x400 to +0x800: the seven-cycle `t3`->`t4`->`t5`->`t6`->`t7`->`t8`->
+    `t9`->`t3`, a one-step rotation, carrying 93 of the window's 107
+    substitutions across 78 naming rows.
+  - +0x800 to +0xC00: a transition; both permutations are present and neither
+    dominates.
+  - +0x1000 to the end: a five-cycle `t3`->`t5`->`t7`->`t9`->`t6`->`t3` with
+    `t4` and `t8` transposed, carrying 497 of the window's substitutions
+    across 376 naming rows.
+
+  Over the whole function that second permutation alone accounts for 586 field
+  substitutions, which is why an arbitrary single relabelling recovered so much
+  of the residual for the earlier packet and a rotation of a single ring did
+  not: it is a five-cycle and a transposition, not a rotation.
+
+Only 48 of the 739 naming rows are purely among the registers globalcolor
+assigned, and 19 of the 69 rows with a float difference have both sides inside
+the class-2 pool (c24=`f0`, c25=`f2`, c26=`f12`, c27=`f14`, c28=`f16`,
+c29=`f18`; decode in `docs/ido-learnings.md`). So only about 67 of the 739
+naming rows are a colour globalcolor actually picked -- though that is a
+statement about what *kind* of decision each row is, not a bound on what the
+allocator can reach, because the ring's phase is itself downstream of how many
+pool colours are consumed (the force ceiling below closes 156). The earlier
+packet's ring-rotation reading is confirmed and its owner is now named:
+it is ugen's temp ring, not a colour, and the ring's phase is set by how many
+temps are consumed upstream -- which is why that packet's exclusive-or
+diagnostic in the recurrence moved 764 words in the tail.
+
+**Where the naming actually is.** Four consecutive call intervals hold more
+than half of it: region 40 at +0xE9C (162 words, 47 exact, 101 naming), region
+41 at +0x1120 (143 words, 45 exact, 98 naming, and *zero* really-different),
+region 42 at +0x135C (200 words, 61 exact, 116 naming) and region 43 at
++0x166C (112 words, 39 exact, 68 naming). 617 words, 383 naming rows, 42
+really-different. Region 41 is the cleanest target in the function: 98 words
+wrong, all of them a register name, nothing structural at all.
+
+**The really-different bucket is mostly not different code.** 71 of the 292
+rows are the same instruction at a different `sp` displacement, 49 at a
+different non-`sp` displacement, 57 the same mnemonic with another immediate,
+83 a genuinely different opcode, and 32 present on one side alone.
+
+**The frame is one home swapped in creation order.** Both frames are 280
+bytes. The candidate's home block at +0x5C through +0x70 should be +0x60
+through +0x74 and its home at +0x9C should be at +0x98: the shipped frame
+leaves +0x5C empty and uses +0x74, the candidate uses +0x5C and leaves +0x74
+empty, and the two swap back at the later home. 36 of the 71 `sp` rows are
+exactly +4 as a consequence. That is the earlier packet's "one temporary
+created one position out of turn", now read off the home set directly rather
+than inferred from a displacement histogram.
+
+**How much of this is the allocator's to give.** Greedy force ceiling,
+sweeping all 213 webs against every colour and the split path each round and
+keeping the best (4,764 compiles per round):
+
+  - baseline 672 byte-exact / 739 naming / 292 different, positional 1337;
+  - `p1:w877=s` -> 806 / 605 / 292, positional 1210. This is a single force
+    worth 134 byte-exact words. Web 877 is one of eight webs uopt derives from
+    its symbol 102, a local with 54 references; its first decision already
+    splits, and it is the *second*, `save=30.0`/`nocs=1` piece that the
+    candidate colours and the target does not;
+  - `+p1:w882=c7` -> 821 / 590 / 292, positional 1195;
+  - `+p1:w462=c6` -> 828 / 583 / 292, positional 1189.
+
+Three rounds recover 156 byte-exact words, 15% of the 1031 wrong ones, and the
+increments are 134, 15 and 7, so the series has effectively converged. The
+same sweep on the other two whales converged at 16% and 17%, so a sixth is the
+number to budget. **The really-different bucket does not move by a single word
+under any force**, and the integer ring permutation survives all three rounds:
+what the forces buy is bought inside the naming bucket, and not enough of it to
+change the verdict.
+
+**Recommended order for the next attempt.** Region 8 first -- it is upstream of
+the ring phase, it is the only float region, and the earlier packet already
+showed that consuming one more web there corrects the tail rotation. Then the
+one swapped home. Region 41 is the cheapest confirmation that the ring moved,
+because it has no structural content to confound the reading. Do not open a
+declaration-position or statement-position lattice: the census says that axis
+is dead for this function.
+
+Nothing above is a source change, a match claim or a credit claim. The
+`GLOBAL_ASM` fallback remains canonical and `gmake verify` passes at this
+commit.
 <!-- plateau-handoff:func_overlay_052_F000063C_189ACAC:end -->

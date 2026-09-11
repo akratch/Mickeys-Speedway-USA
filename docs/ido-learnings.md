@@ -1473,6 +1473,82 @@ bytes and disassembly never belong here.
   result matters, verify it against the object rather than assuming cpp keeps
   your grouping.
 
+- **`globalcolor` runs phase one for a procedure that contains a call and
+  phase two for a leaf, and never both.** Read from the instrumented `uopt`
+  index capture (`CDX_LOG=1` with a nonnumeric `CDX_PROC`) over three whole
+  translation units -- 61 procedures in `overlay_001_tail.c`,
+  `overlay_008.c` and `overlay52TailB.c`. Every procedure whose body issues at
+  least one call emits `p1dec` records and zero `p2dec`; every leaf emits
+  `p2dec` and zero `p1dec`; a procedure with no allocator decisions emits
+  neither. 59 of the 61 classify and the two that do not emit no allocator
+  decision at all; there are no counterexamples.
+  The consequence is a search-space theorem for the whole queue: the phase-two
+  web-numbering axis -- first-definition order, coloured ascending, so moving a
+  defining statement moves a colour -- is **dead for any function containing a
+  call**, which is every whale left in the ranking. Run the index capture and
+  read the phase before spending a lattice on declaration, definition or
+  statement position.
+
+- **The class-2 (floating) colour table is c24=`f0`, c25=`f2`, c26=`f12`,
+  c27=`f14`, c28=`f16`, c29=`f18`; c30 and above are callee-saved and pay
+  prologue words.** Established by force-and-diff on
+  `func_overlay_008_F00034A0_18611F8` (uopt procedure 14): its web 187 sits at
+  c24 and, forced through c25..c29 one at a time, its register moved to `f2`,
+  `f12`, `f14`, `f16`, `f18` in that order; web 29, which sits at c26, forced
+  to c27 swapped `f12` with `f14` against its neighbour, confirming both
+  entries from a second web; c30 grew the function by a word. The pool is six
+  wide (`available0=0x000000fc`, bit index 31 - colour). This extends the
+  workbench's integer `COLOR_REGISTERS` decode, which stops at c23, and it is
+  what makes a floating residual readable: a difference among these six is an
+  allocator decision, and a difference outside them is not.
+
+- **`f4`, `f6`, `f8`, `f10` and `t3`..`t9` are never globalcolor colours in
+  these procedures; they are ugen expression temporaries.** No force can name
+  one of them directly, so a residual spelled there is not a colour the
+  allocator picked. Measured on the aligned naming residual of three whales:
+  622 of 739 differing pairs in `func_overlay_052_F000063C_189ACAC` name a
+  register `globalcolor` never assigned in that procedure, 209 of 557 in
+  `func_overlay_001_F000438C_185076C`, 91 of 209 in
+  `func_overlay_008_F00034A0_18611F8`; the purely allocator-named share is 48,
+  36 and 13. **That census is not a bound on what the allocator can reach**,
+  and reading it as one is a mistake this lane made and then measured its way
+  out of. The ring's *phase* is set by how many pool colours are consumed
+  upstream of it, so one colour change rotates the ring downstream: forcing a
+  single class-2 web on `func_overlay_008...` rotated the whole
+  `f4`/`f6`/`f8`/`f10` ring in one compile, and the greedy ceiling below
+  closed 127 naming rows on `func_overlay_001...` where the direct census
+  names 123 and 156 on `func_overlay_052...` where it names 67. Use the census
+  to say what *kind* of decision a row is, and the ceiling to say how much is
+  reachable.
+
+- **Size the allocator's share of a residual with a greedy force ceiling
+  before opening any allocator lattice.** Sweep every web against every colour
+  and the split path, keep the best, repeat with that force as a prefix. The
+  instrumented compiler runs whole translation units at about 35 a second
+  under `xargs -P8`, so a 736-cell round on a 21-procedure unit costs 21
+  seconds:
+
+  ```sh
+  CDX_LOG=1 CDX_PROC=<n> CDX_FORCE=p1:w<web>=<c<colour>|s> CDX_OUT=/dev/null \
+    IDO_DIR=~/Desktop/dev/ido-instrumented \
+    .venv/bin/python tools/ido-phases.py <the configured flags>
+  ```
+
+  Three whales came out within two points of each other, which is the useful
+  part. `func_overlay_008_F00034A0_18611F8` moved from 592 byte-exact / 209
+  naming / 101 different to 642 / 167 / 94 over five rounds and the sixth
+  found nothing: 50 recovered words of the 310 wrong, 16%.
+  `func_overlay_052_F000063C_189ACAC` reached 156 of 1031 in three rounds,
+  15%, and `func_overlay_001_F000438C_185076C` 136 of 822 in four, 17%, each
+  with the next round flat. **Budget about a sixth of a whale's residual to
+  the allocator and spend the rest elsewhere.** Two cautions the sweep also
+  settled. A single force closed the -4 size deficit on two of the three
+  functions, so a candidate one instruction short is not automatically missing
+  a source operation -- it can be one web the target spills and the candidate
+  keeps. And a force that reports `forced=-2` in its own `p1color` record
+  never applied, so its byte-identical object proves nothing; check the
+  record, not the object.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
