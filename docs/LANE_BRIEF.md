@@ -36,6 +36,8 @@ size mismatch that last pair is the whole question.
 
 `tools/register_census.py <symbol>` says *which* registers the two sides disagree on and whether they form a cycle. A closed cycle over the temp ring is one ring-phase fact with a single cause (L127, fixable from source at zero byte cost); scattered substitutions are per-web colour questions. Reading a cycle as N colour problems is how a lane spends a day on the wrong axis -- on one function 195 of 279 words were a single four-cycle.
 
+  **Read it in address order.** The tool reports how much of the residual one global mapping explains and how many windows are needed. One window function-wide is a single ring-phase fact; a mapping that changes every few sites is per-iteration consumption and each window is its own question. Measured: a function whose dominant mapping printed a clean four-cycle needed **six windows at 60%**, while a sibling two functions away was **one clean shift at 83%**.
+
   **Read the coherence line, not just the cycle.** A cycle in an incoherent mapping is not a ring phase: a transfer was applied on cycle presence alone and refused. The lead that transferred reads 88% of substitutions following their source's dominant target; the sibling that refused reads 51%, with one source register splitting three ways. Check the size delta too -- the lead was +4 with identical frames, the sibling -76 with frames 0x10 apart.
 
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
