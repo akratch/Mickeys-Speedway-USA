@@ -187,6 +187,76 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
  * second local carrying the same value, a third argument and swapped
  * arguments) are all 29 or worse, because uopt folds every one of them back
  * onto the same web and the mask does not move.
+ *
+ * 2026-09-12, lane p8-arity: 29 -> 9, and the arity lever is the first half of
+ * it.  Two edits, both measured on the instrumented allocator before they were
+ * scored:
+ *
+ *   - Dropping the second argument from BOTH `ext_o0_2d98` calls clears bit 27
+ *     of web 40's forbidden mask (0x7803e000 -> 0x7003e000) and globalcolor
+ *     then reports bestcolor=4 bestreg=a1 at the same save 2.666667, exactly as
+ *     the previous pass predicted.  The refinement this pass adds is WHICH call
+ *     does it: dropping the argument at the case-2 site alone leaves the mask
+ *     at 0x7803e000 and the pointer on a2 (28 masked, delta 0, and it does buy
+ *     the target's `nop` delay slot); dropping it at the 0x24 == 0 else site
+ *     alone clears the bit on its own.  One spanned call decides the colour,
+ *     not the set of them.  With a1 held by the pointer web the ROM cannot
+ *     distinguish a one-argument call from a two-argument one whose a1 already
+ *     holds the pointer, so the one-argument form is the evidence-preferred
+ *     reconstruction, not merely a cheaper one.
+ *   - The four-byte deficit the previous pass named is a SPLIT ADVANCE.  uopt
+ *     folds a single in-place advance into its rematerialisation
+ *     (`addiu a1,s5,12`); two successive in-place advances leave the copy
+ *     standing and combine only the constants, which is the target's
+ *     `move a1,s5` at +0x17C followed by `addiu a1,a1,12` at +0x18C.  Every
+ *     two-step spelling measured is byte-identical -- `+= 3; += 3`,
+ *     `++; += 5`, `+= 1; += 5`, `+= 2; += 4`, `+= 5; += 1`, `&var_a1[1]` then
+ *     `&var_a1[5]`, and the byte forms -- so the adopted `*var_a1++ = 0xC;`
+ *     with `var_a1 += 5;` is chosen for being the natural display-list idiom.
+ *     Delta returns to 0 and the score is 15.
+ *   - The five payload stores are then a physical-line question ([L59]).  All
+ *     120 orders were compiled: the two that reach 9 both put the -2 spA0 store
+ *     LAST, and -0xA, -8, -6, -4, -2 is the memory order.  The base order is 15
+ *     and the worst is 33.
+ *
+ * Flat on top of that 9, all at delta 0 unless noted: the 41-form lattice of
+ * advance spellings, store spellings, seven [L97] region placements plus two
+ * region wrappings, definition positions 217 to 222, extra reaching definitions
+ * in one arm and in both, and an integer-carrier round trip -- every one of
+ * them returned a byte-identical object on the one-argument base.  The 16-cell
+ * carrier lattice for the temp_a0 web (sites {case-0 +0x48, case-2/3 +0x3E0} x
+ * carriers {temp_a0, var_a1, spA0, inlined}) has its floor at the retained
+ * form; routing either site through var_a1 breaks the a1 colouring outright
+ * (first mismatch moves to +0x70) and spA0 costs 8 bytes.  `CDX_FORCE=p1:w40=s`
+ * is ACCEPTED with CDX_PROC set and gives delta +4 at 444 aligned-exact, so the
+ * target does not split web 40 either.
+ *
+ * The 9 that remain are two families and nothing else: 7 words of temp_a0's own
+ * web, which sits on a0 where the target reads v0 (the case-0 +0x48 read at
+ * +0x330 and the +0x3E0 pointer at +0x630), and 2 words at +0xA8 where as1
+ * schedules the `move a1,s5` one slot after `sh t8,44(s0)` and the target puts
+ * it one slot before.
+ *
+ * Both are now bounded rather than merely named, and neither is a single
+ * colouring decision:
+ *
+ *   - A full greedy force ceiling over this procedure -- all 64 p1 decisions
+ *     against colours 1..22 and 24..30 and the split path, 1,470 objects of
+ *     which 938 were accepted and 532 declined byte-identically -- finds
+ *     NOTHING better than 9.  The best accepted cell is 12.  So the residual
+ *     is not one globalcolor decision and a colour lattice is not the lever.
+ *   - Web 28 is the merged `temp_a0` symbol.  Forcing it to t0 moves the
+ *     +0x48 read, the +0x3E0 read AND the `ext_o0_2d98` argument together,
+ *     which is what makes it one web; its `p1cost` list offers v1 at infinite
+ *     cost, a0 at zero (the argument affinity), t0..t5, c13 and s3..s8, and
+ *     omits v0, a1, a2 and a3 entirely.  v0 is the L101 call-result denial,
+ *     not interference, so no force and no arity change reaches it; the web
+ *     has to become shorter, and the only split available is a twelfth
+ *     declaration, which is 0xB0.
+ *   - The +0xA8 slot is not a source-order tie: all 120 permutations of the
+ *     five head-block statements including the pointer's definition score
+ *     exactly 9, and so do twelve physical-line foldings of adjacent pairs
+ *     ([L59]/[L132]).  The pair simply moves; it never closes.
  * 38 relocation identities are diagnostic. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
  * linked promotion is text-differs with 660 in-range words, first at +0x0.
@@ -236,21 +306,21 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
                 } else {
                     temp_a0 = M2C_FIELD(temp_s0, s32 *, 0x40);
                     if (temp_a0 != 0) {
-                        ext_o0_2d98(temp_a0, var_a1);
+                        ext_o0_2d98(temp_a0);
                     }
                 }
                 spA0 = (s32) (ext_o0_2a470(M2C_FIELD(temp_s0, s16 *, 0x26)) * 1024.0f);
-                *var_a1 = 0xC;
-                var_a1 = (s16 *)((u8 *)var_a1 + 0xC);
-                M2C_FIELD(var_a1, s16 *, -2) = (s16) spA0;
+                *var_a1++ = 0xC;
+                var_a1 += 5;
                 M2C_FIELD(var_a1, s16 *, -0xA) = (s16) M2C_FIELD(temp_s0, s16 *, 0x24);
                 M2C_FIELD(var_a1, s16 *, -8) = 3;
                 M2C_FIELD(var_a1, s16 *, -6) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x24) * 2);
                 M2C_FIELD(var_a1, s16 *, -4) = 0xB;
+                M2C_FIELD(var_a1, s16 *, -2) = (s16) spA0;
             } else {
                 temp_a0 = M2C_FIELD(temp_s0, s32 *, 0x40);
                 if (temp_a0 != 0) {
-                    ext_o0_2d98(temp_a0, var_a1);
+                    ext_o0_2d98(temp_a0);
                 }
             }
             *var_a1 = 0x2000;
@@ -468,10 +538,10 @@ loop_52:
 
 /* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
  * symbol: func_overlay_086_F0000474_18D22AC
- * score: 29 differing words
+ * score: 9 differing words
  * frame: 0xA8
  * relocations: 38
  * first-mismatch: +0xA8
- * summary: 51 fell to 29 because the lever named as "one interfering caller-saved web removed" is a web SHORTENED, at no width. The two +0x48 dereference sites shared one cfe temporary, giving uopt a single six-reference web (save 30) that spans both switch arms and is therefore live across a call -- and a web live across a call has v0 struck from its candidate list entirely, which the traced p1cost rows show and no CDX_FORCE can override, so the target's v0 was never a colouring choice. Carrying the case-0 site in the already-declared temp_a0 splits that temporary: the case-2/3 site becomes its own one-block web, stops crossing a call, regains v0 and takes it, and the ten-row state-byte family falls into v1 behind it (51 to 30, delta 0, frame unmoved, no new declaration, L44). Writing the 0xC command word through the pointer before the advance is the target's own sh 0(s5) shape and closes one more. The 29 left are 7 words of temp_a0's own web, still spanning the head block's +0x40 reads and the f690 results and so still barred from v0 -- the only free head-block carrier, spA0, costs 579 words and 4 bytes -- and 22 words of the command pointer, whose a1 is held by a web that needs it (forcing it off costs 211 words and 4 bytes) and outranks it 6.67 to 2.67.
+ * summary: 29 fell to 9 on three edits whose cause was read off the instrumented allocator first. Dropping the second argument from the ext_o0_2d98 calls clears bit 27 of the command pointer web's forbidden mask and globalcolor gives it a1 at an unchanged save; the else-arm call alone is enough, the case-2 call alone is not. Splitting the pointer advance into two in-place steps stops uopt folding the rematerialisation into the add, which is the target's move a1,s5 plus addiu a1,a1,12 and returns delta to 0. Ordering the five payload stores by memory address, with the -2 spA0 store last, is worth six more. The 9 left are 7 words of temp_a0's own web on a0 against the target's v0 and one two-word as1 schedule slot at +0xA8.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */

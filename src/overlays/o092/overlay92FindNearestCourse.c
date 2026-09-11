@@ -48,7 +48,23 @@ extern f32 sqrtf(f32 value);
  * cannot help because the index has one occurrence more than the cursor at the
  * same net.  The float half is the delta webs reaching the sqrt result, which
  * withholds the lowest float colour; splitting them reproduces the target's
- * float colouring exactly but costs three homes and moves the frame. */
+ * float colouring exactly but costs three homes and moves the frame.
+ * 2026-09-12 (lane p8-arity): the arity lever is measured here and it is INERT on
+ * the deciding variable.  Compiling `overlay92GetObjectRange` with one, three and
+ * four arguments leaves every integer web's save, nocs, totalsave, forbidden mask
+ * and colour bit-for-bit unchanged -- the racer web stays 37/7 at s1, the index
+ * and cursor webs stay tied at 31/6 on s2 and s3 -- while the objects score 161,
+ * 155 and 156 against the base's 26.  The lever changes instructions and not the
+ * allocation, because the contested colours are CALLEE-saved and the call rule
+ * only reaches the caller-saved head of the table.
+ * The float bank does obey the rule, in the unhelpful direction: giving `sqrtf` a
+ * second float argument moves web 73's forbidden mask from 0x000000a0 to
+ * 0x000000b0, adding exactly colour 27 (f14), which is the second float argument
+ * register.  f12 is already denied for the same reason and f0 for L101's, and
+ * sqrtf cannot take fewer than one argument, so there is nothing to give back.
+ * The reopen condition in the section above is unchanged and this lane adds one
+ * exclusion to it: do not spend a pass on call arity. */
+
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
