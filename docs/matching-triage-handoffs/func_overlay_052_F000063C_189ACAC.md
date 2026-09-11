@@ -312,9 +312,12 @@ permutation of them:
 Only 48 of the 739 naming rows are purely among the registers globalcolor
 assigned, and 19 of the 69 rows with a float difference have both sides inside
 the class-2 pool (c24=`f0`, c25=`f2`, c26=`f12`, c27=`f14`, c28=`f16`,
-c29=`f18`; decode in `docs/ido-learnings.md`). **At most about 67 of the 739
-naming rows are reachable by any allocator ratio, priority or force.** The
-earlier packet's ring-rotation reading is confirmed and its owner is now named:
+c29=`f18`; decode in `docs/ido-learnings.md`). So only about 67 of the 739
+naming rows are a colour globalcolor actually picked -- though that is a
+statement about what *kind* of decision each row is, not a bound on what the
+allocator can reach, because the ring's phase is itself downstream of how many
+pool colours are consumed (the force ceiling below closes 156). The earlier
+packet's ring-rotation reading is confirmed and its owner is now named:
 it is ugen's temp ring, not a colour, and the ring's phase is set by how many
 temps are consumed upstream -- which is why that packet's exclusive-or
 diagnostic in the recurrence moved 764 words in the tail.
@@ -354,12 +357,13 @@ keeping the best (4,764 compiles per round):
   - `+p1:w882=c7` -> 821 / 590 / 292, positional 1195;
   - `+p1:w462=c6` -> 828 / 583 / 292, positional 1189.
 
-Three rounds recover 156 byte-exact words, about a sixth of the 1031 wrong
-ones, and the increments are 134, 15 and 7, so the series has effectively
-converged. **The really-different bucket does not move by a single word under
-any force**, and the integer ring permutation survives all three, which is
-exactly what the ownership census predicts: allocator forces reach the naming
-residual only where the naming residual is allocator-named.
+Three rounds recover 156 byte-exact words, 15% of the 1031 wrong ones, and the
+increments are 134, 15 and 7, so the series has effectively converged. The
+same sweep on the other two whales converged at 16% and 17%, so a sixth is the
+number to budget. **The really-different bucket does not move by a single word
+under any force**, and the integer ring permutation survives all three rounds:
+what the forces buy is bought inside the naming bucket, and not enough of it to
+change the verdict.
 
 **Recommended order for the next attempt.** Region 8 first -- it is upstream of
 the ring phase, it is the only float region, and the earlier packet already

@@ -1503,18 +1503,23 @@ bytes and disassembly never belong here.
   allocator decision, and a difference outside them is not.
 
 - **`f4`, `f6`, `f8`, `f10` and `t3`..`t9` are never globalcolor colours in
-  these procedures; they are ugen expression temporaries.** A residual spelled
-  in those registers is therefore not reachable by any save ratio, priority or
-  scan-order argument, and the four allocator laws that act on `save` cannot
-  price it. Measured on the aligned naming residual of three whales: 622 of
-  739 differing pairs in `func_overlay_052_F000063C_189ACAC` name a register
-  `globalcolor` never assigned in that procedure, 209 of 557 in
+  these procedures; they are ugen expression temporaries.** No force can name
+  one of them directly, so a residual spelled there is not a colour the
+  allocator picked. Measured on the aligned naming residual of three whales:
+  622 of 739 differing pairs in `func_overlay_052_F000063C_189ACAC` name a
+  register `globalcolor` never assigned in that procedure, 209 of 557 in
   `func_overlay_001_F000438C_185076C`, 91 of 209 in
   `func_overlay_008_F00034A0_18611F8`; the purely allocator-named share is 48,
-  36 and 13. The ring is not *independent* of the allocator, though: forcing a
-  single class-2 colour on `func_overlay_008...` rotated the whole
-  `f4`/`f6`/`f8`/`f10` ring, so the ring's phase is set by how many pool
-  colours are consumed upstream of it, not by the ring itself.
+  36 and 13. **That census is not a bound on what the allocator can reach**,
+  and reading it as one is a mistake this lane made and then measured its way
+  out of. The ring's *phase* is set by how many pool colours are consumed
+  upstream of it, so one colour change rotates the ring downstream: forcing a
+  single class-2 web on `func_overlay_008...` rotated the whole
+  `f4`/`f6`/`f8`/`f10` ring in one compile, and the greedy ceiling below
+  closed 127 naming rows on `func_overlay_001...` where the direct census
+  names 123 and 156 on `func_overlay_052...` where it names 67. Use the census
+  to say what *kind* of decision a row is, and the ceiling to say how much is
+  reachable.
 
 - **Size the allocator's share of a residual with a greedy force ceiling
   before opening any allocator lattice.** Sweep every web against every colour
@@ -1529,16 +1534,20 @@ bytes and disassembly never belong here.
     .venv/bin/python tools/ido-phases.py <the configured flags>
   ```
 
-  On `func_overlay_008_F00034A0_18611F8` five rounds moved the aligned split
-  from 592 byte-exact / 209 naming / 101 different to 642 / 167 / 94 and then
-  found nothing further: **at most 50 of that function's 310 residual words
-  are globalcolor's to give.** Two cautions the sweep also settled. A single
-  force (`p1:w597=s`) closed the function's -4 size deficit on its own, so a
-  candidate one instruction short is not automatically missing a source
-  operation -- it can be one web the target spills and the candidate keeps.
-  And a force that reports `forced=-2` in its own `p1color` record never
-  applied, so its byte-identical object proves nothing; check the record, not
-  the object.
+  Three whales came out within two points of each other, which is the useful
+  part. `func_overlay_008_F00034A0_18611F8` moved from 592 byte-exact / 209
+  naming / 101 different to 642 / 167 / 94 over five rounds and the sixth
+  found nothing: 50 recovered words of the 310 wrong, 16%.
+  `func_overlay_052_F000063C_189ACAC` reached 156 of 1031 in three rounds,
+  15%, and `func_overlay_001_F000438C_185076C` 136 of 822 in four, 17%, each
+  with the next round flat. **Budget about a sixth of a whale's residual to
+  the allocator and spend the rest elsewhere.** Two cautions the sweep also
+  settled. A single force closed the -4 size deficit on two of the three
+  functions, so a candidate one instruction short is not automatically missing
+  a source operation -- it can be one web the target spills and the candidate
+  keeps. And a force that reports `forced=-2` in its own `p1color` record
+  never applied, so its byte-identical object proves nothing; check the
+  record, not the object.
 
 ### Assembler scheduling and phase replay
 
