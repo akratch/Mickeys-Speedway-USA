@@ -875,7 +875,7 @@ tier-A threshold, so the address label remains canonical.
 |---|---|
 | `func_80036AB0` | 432 bytes under `-O2 -mips2 -32`; colour-cycle interpolation in JFG `updateMixCycle` form with DKR `update_colour_cycle` channel locals, all 108 instruction words exact (frame 0x28, no relocations). The typed `frames[]` index forwards the frame index in a register while re-reading the time at the loop bottom; declaring `table` after the channel locals keeps its web out of the first spill slot. |
 | `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
-| `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
+| `func_8003A754` | 124 bytes under `-O2 -mips2 -32`; record-clearing double loop, all 31 instruction words and its one relocation exact (matched 2026-09-11: copy-initialised inner counter, call result kept live to the exit, offset defined before the pointer copies). |
 | `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |
 | `func_800371BC` | Structure-mismatch, 148 differing words, first `+0x28`; target 150/candidate 159 words and 0x38-byte frames, with grid induction and record-store schedule unresolved. |
 | `func_80037414` | Structure-mismatch, 59 differing words, first `+0x10`; target 145/candidate 146 words, target frame 0x30 versus candidate 0x40. |
