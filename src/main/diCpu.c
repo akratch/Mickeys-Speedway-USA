@@ -663,8 +663,9 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         glyph++;
     }
 }
-/* Workbench: allocation-mismatch, 31 differing words, first mismatch +0x2C.
- * 106/106 words, frame 0x40, all three relocation sites exact.
+/* Workbench: allocation-mismatch, 16 differing words, first mismatch +0x2C.
+ * 106/106 words, frame 0x40, all three relocation sites exact, and every
+ * instruction positionally identical -- the comparator calls it register-only.
  *
  * 2026-09-09: the ninth callee-saved web is the case-conversion working copy,
  * and it is a real source variable. Folding it away closed the +4 size
@@ -713,6 +714,55 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
  * both range tests on `var_s2` with the copy after the case block (41);
  * `var_v0` masked at the load (86); and `temp_s6` taken from `var_s0` (56).
  * Resume by removing the second destination of the mask, not by reordering it.
+ *
+ * 2026-09-11 (lane `lane/p4-xfer`): 31 to 16, and the temp is gone. Three
+ * edits, none of which pays on its own:
+ *
+ *   1. The working copy is `var_v0` itself, not a fresh `var_s0` (L115). Five
+ *      carrier identities were measured across 40 forms -- `var_s0`, `var_v0`,
+ *      `x`, `y`, `temp_s6` -- and only `var_v0` reaches 16; the next best is
+ *      27. Reusing the parameter's own local ends its live range where the
+ *      copy begins, so the mask has one destination and web 32 stops existing.
+ *   2. The copy sits inside each arm of the case-state test, not ahead of it.
+ *      On its own that is 32 against 27, which is why earlier passes dropped
+ *      it; with edit 1 and edit 3 it is the shape the target schedules into
+ *      the two `bnez` delay slots.
+ *   3. The tab case is written as two statements,
+ *      `var_s1 = var_s1 - (var_s1 & 0xF); var_s1 = var_s1 + 0x10;`. Same three
+ *      instructions, one more reference to `var_s1`, which lifts its
+ *      totalsave 91 to 111 and wins the p1 tie against `var_s2` at 101/10 --
+ *      var_s1 takes s1 and var_s2 takes s2, as in the target. Written as one
+ *      expression it loses that tie and the callee-saved file rotates.
+ *   4. `var_s2 = 0` before `var_s3 = 0` in the preamble, worth two words.
+ *
+ * The 16 left are one allocation fact with no source form yet reaching it:
+ * `var_v0` doubles as the working copy, so its range crosses the call and it
+ * colours callee-saved s0, where the target keeps it caller-saved in v0 with a
+ * separate s0 copy. That accounts for the four `lbu`/`beqz` sites and the
+ * eight sites inside the two conversion bodies, where our intermediate lands
+ * in the working copy and the target's lands in the carrier. Separating them
+ * again brings web 32 straight back: all four three-variable forms measure 31,
+ * 33, 89 and 91.
+ *
+ * Measured flat this pass, exhaustively, against the axes an earlier pass left
+ * open:
+ *   - 42 structural forms (`if (1) { }` and `do { } while (0)` region openers
+ *     of L97, copy placement, test operand, two- versus three-statement
+ *     conversion) collapse to three outcomes decided by copy placement alone.
+ *     Both region openers are byte-inert here.
+ *   - 32 forms of the comparison operand order, every subset of the six
+ *     comparison groups, are one object.
+ *   - 16 forms of the range-test operands, including asymmetric ones, are one
+ *     object, and the records show `var_s2` totalsave pinned at 101 across all
+ *     of them.
+ *   - 32 forms of declared type against explicit masking (`u8` versus `s32`
+ *     for the two char variables and `var_v0`, each mask present or absent):
+ *     nothing beats the baseline, and `var_v0`'s declared type is byte-inert.
+ *   - L109's discarded-expression probe does not work on a local that is
+ *     already read. Eighteen forms -- or-with-zero, and-with-minus-one and
+ *     xor-with-zero, at nought to five copies each -- are byte-flat, and the
+ *     allocator records confirm the probe never
+ *     reaches totalsave: web 0 stays at 32.0 in every one.
  */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/nonmatchings/diCpu/func_800681D0_68DD0.s; Mickey's glyph table,
@@ -721,7 +771,6 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
 void func_80046BCC(s32 x, s32 y, char *text) {
     s32 temp_s6;
     s32 var_s1;
-    s32 var_s0;
     s32 var_s2;
     s32 var_s3;
     s32 var_s5;
@@ -732,41 +781,43 @@ void func_80046BCC(s32 x, s32 y, char *text) {
     var_s1 = x;
     var_s4 = (u8 *)text;
     var_s5 = y;
-    var_s3 = 0;
     var_s2 = 0;
+    var_s3 = 0;
     if (var_v0 != 0) {
         do {
             temp_s6 = var_s2 & 0xFF;
             var_s2 = var_v0 & 0xFF;
             var_s4 += 1;
-            var_s0 = var_s2;
             if (var_s3 != 0) {
-                if ((var_s2 >= 0x41) && (var_s0 < 0x47)) {
-                    var_s0 = (var_s0 + 0x20) & 0xFF;
-                    var_s2 = var_s0;
+                var_v0 = var_s2;
+                if ((var_s2 >= 0x41) && (var_v0 < 0x47)) {
+                    var_v0 = (var_v0 + 0x20) & 0xFF;
+                    var_s2 = var_v0;
                 }
             } else {
-                if ((var_s2 >= 0x61) && (var_s0 < 0x7B)) {
-                    var_s0 = (var_s0 - 0x20) & 0xFF;
-                    var_s2 = var_s0;
+                var_v0 = var_s2;
+                if ((var_s2 >= 0x61) && (var_v0 < 0x7B)) {
+                    var_v0 = (var_v0 - 0x20) & 0xFF;
+                    var_s2 = var_v0;
                 }
             }
-            if (var_s0 == 0xA) {
+            if (var_v0 == 0xA) {
                 var_s5 += 6;
                 var_s1 = 0x20;
-            } else if (var_s0 == 9) {
-                var_s1 = (var_s1 - (var_s1 & 0xF)) + 0x10;
-            } else if (var_s0 == 0x20) {
+            } else if (var_v0 == 9) {
+                var_s1 = var_s1 - (var_s1 & 0xF);
+                var_s1 = var_s1 + 0x10;
+            } else if (var_v0 == 0x20) {
                 var_s1 += 4;
-            } else if ((var_s0 >= 0x21) && (var_s0 < 0x67)) {
-                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s0 * 5) - 0xA5]);
+            } else if ((var_v0 >= 0x21) && (var_v0 < 0x67)) {
+                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_v0 * 5) - 0xA5]);
                 var_s1 += 8;
             }
-            if ((var_s3 != 0) && ((var_s0 < 0x30) || (var_s0 >= 0x3A)) &&
-                ((var_s0 < 0x61) || (var_s0 >= 0x67))) {
+            if ((var_s3 != 0) && ((var_v0 < 0x30) || (var_v0 >= 0x3A)) &&
+                ((var_v0 < 0x61) || (var_v0 >= 0x67))) {
                 var_s3 = 0;
             }
-            if ((temp_s6 == 0x30) && ((var_s0 == 0x78) || (var_s0 == 0x58))) {
+            if ((temp_s6 == 0x30) && ((var_v0 == 0x78) || (var_v0 == 0x58))) {
                 var_s3 = 1;
             }
             var_v0 = *var_s4;
@@ -818,11 +869,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 31 differing words
+ * score: 16 differing words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: the masked char is uopt web 32, coloured before every local and holding v0; forcing var_v0 back to v0 is declined, so the temp has to stop existing
+ * summary: register-only at 106/106 words; web 32 is gone and the residual is one span fact, var_v0 doubling as the working copy so it colours callee-saved s0 where the target keeps it in v0
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
