@@ -16,10 +16,27 @@ import register_census as rc  # noqa: E402
 
 T6, T7, T8, T9 = 14, 15, 24, 25
 S0, S1 = 16, 17
+A2, A3 = 6, 7
 
 
 def addu(rd, rs, rt):
     return (0x00 << 26) | (rs << 21) | (rt << 16) | (rd << 11) | 0x21
+
+
+def lwc1(ft, base, off):
+    return (0x31 << 26) | (base << 21) | (ft << 16) | (off & 0xFFFF)
+
+
+def add_s(fd, fs, ft):
+    return (0x11 << 26) | (0x10 << 21) | (ft << 16) | (fs << 11) | (fd << 6)
+
+
+def mtc1(rt, fs):
+    return (0x11 << 26) | (0x04 << 21) | (rt << 16) | (fs << 11)
+
+
+def bc1t(off):
+    return (0x11 << 26) | (0x08 << 21) | (1 << 16) | (off & 0xFFFF)
 
 
 def streams(base, target):
@@ -51,6 +68,38 @@ class CensusTests(unittest.TestCase):
         shifted = [addu(S0, S0, S1)] + body      # one extra instruction in front
         out = rc.census(streams(shifted, body))
         self.assertEqual(out["sites"], 0, "aligned bodies are identical")
+
+
+class FloatBankTests(unittest.TestCase):
+    """The bank tag, pinned. Without it `lwc1 $f2` against `lwc1 $f6` was read
+    as the GPR substitution `v0 -> a2`, and COP1 register format contributed
+    nothing at all -- so a wholly float residual printed as an integer ring
+    cycle with L127 beside it. Measured on `func_8003F154`: nine of thirteen
+    sites dropped, the other four mislabelled."""
+
+    def test_a_float_load_datum_is_a_float_register(self) -> None:
+        out = rc.census(streams([lwc1(2, A3, 60)], [lwc1(6, A3, 60)]))
+        self.assertEqual(out["sites"], 1)
+        self.assertEqual(out["pairs"], collections.Counter())
+        self.assertEqual(out["fpairs"][("f2", "f6")], 1)
+
+    def test_a_float_load_base_is_still_an_integer_register(self) -> None:
+        out = rc.census(streams([lwc1(2, A2, 60)], [lwc1(2, A3, 60)]))
+        self.assertEqual(out["pairs"][("a2", "a3")], 1)
+        self.assertEqual(out["fpairs"], collections.Counter())
+
+    def test_cop1_register_format_is_counted(self) -> None:
+        out = rc.census(streams([add_s(2, 18, 10)], [add_s(4, 18, 10)]))
+        self.assertEqual(out["sites"], 1)
+        self.assertEqual(out["fpairs"][("f2", "f4")], 1)
+
+    def test_mtc1_splits_the_two_banks(self) -> None:
+        out = rc.census(streams([mtc1(0, 6)], [mtc1(0, 2)]))
+        self.assertEqual(out["fpairs"][("f6", "f2")], 1)
+        self.assertEqual(out["pairs"], collections.Counter())
+
+    def test_bc1_names_no_register(self) -> None:
+        self.assertEqual(rc.fields(bc1t(4)), ())
 
 
 class CycleTests(unittest.TestCase):

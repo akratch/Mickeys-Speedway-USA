@@ -21,6 +21,16 @@ colour problems is how a lane spends a day on the wrong axis.
 Pairs are counted only where the two words agree on everything except their
 register fields, so a genuinely different instruction never contributes. Both
 streams come from `nm_ranking.word_streams`, the path the ranking scores by.
+
+**The two register banks are reported separately, and that correction matters.**
+The integer temp ring and the floating-point pool are different allocators, so a
+residual made entirely of float rows says nothing about integer colouring and
+vice versa. Until 2026-09-11 this tool had no bank tag: it treated `lwc1`/`swc1`
+as plain I-type and printed their float datum under a GPR name, and returned no
+fields at all for COP1 register format. On `func_8003F154` that dropped nine of
+thirteen substitution sites and renamed the other four, so a three-window float
+rotation printed as a coherent integer cycle with L127 beside it -- pointing a
+lane at the expression ring for a residual that is entirely fp.
 """
 from __future__ import annotations
 
@@ -43,20 +53,50 @@ GPR = ["zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
        "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
        "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
        "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"]
+FPR = [f"f{n}" for n in range(32)]
+BANKS = {"int": GPR, "fpr": FPR}
 
-# Where each format keeps its register fields, as (shift, width) triples.
-R_FIELDS = ((21, 0x1F), (16, 0x1F), (11, 0x1F))   # rs, rt, rd
-I_FIELDS = ((21, 0x1F), (16, 0x1F))               # rs, rt
+# Where each format keeps its register fields, as (bank, shift, width) triples.
+R_FIELDS = (("int", 21, 0x1F), ("int", 16, 0x1F), ("int", 11, 0x1F))  # rs,rt,rd
+I_FIELDS = (("int", 21, 0x1F), ("int", 16, 0x1F))                     # rs, rt
+# lwc1/swc1/ldc1/sdc1: the base is a GPR, `ft` is a FLOAT register.
+FP_MEM_FIELDS = (("int", 21, 0x1F), ("fpr", 16, 0x1F))
+# COP1 register format: fmt(25-21) ft(20-16) fs(15-11) fd(10-6) function(5-0).
+FP_R_FIELDS = (("fpr", 16, 0x1F), ("fpr", 11, 0x1F), ("fpr", 6, 0x1F))
+# mfc1/mtc1/cfc1/ctc1 move between banks: `rt` is a GPR, `fs` a float register.
+FP_MOVE_FIELDS = (("int", 16, 0x1F), ("fpr", 11, 0x1F))
+FP_MEM_OPS = {0x31, 0x35, 0x39, 0x3D}          # lwc1, ldc1, swc1, sdc1
+FP_MOVE_FMTS = {0x00, 0x02, 0x04, 0x06}        # mfc1, cfc1, mtc1, ctc1
 
 
-def fields(word: int) -> tuple[tuple[int, int], ...]:
+def fields(word: int) -> tuple[tuple[str, int, int], ...]:
+    """The register selectors of one word, each tagged with its register bank.
+
+    **The bank tag is the whole point, and its absence was a real fault.** The
+    first version returned bare shifts and treated every non-SPECIAL word as
+    I-type, so `lwc1 $f2,60(a3)` against `lwc1 $f6,60(a3)` was read as the GPR
+    substitution `v0 -> a2` -- and a float-ring rotation over f0/f2/f4/f6 came
+    out as an integer ring cycle with L127 printed beside it. It also returned
+    nothing at all for COP1 register format, so `add.s`/`mul.s`/`neg.s` sites
+    were invisible: on `func_8003F154` nine of thirteen substitution sites were
+    dropped and the remaining four were mislabelled. `nm_ranking.instr_reg_mask`
+    already gets COP1 right, so the aligner counted those rows as naming while
+    this tool named the wrong registers for them.
+    """
     op = (word >> 26) & 0x3F
     if op in (0x02, 0x03):          # j / jal carry no register
         return ()
     if op == 0x00:                  # SPECIAL
         return R_FIELDS
-    if op == 0x11:                  # COP1: its registers are float, not GPR
-        return ()
+    if op in FP_MEM_OPS:            # float load/store: GPR base, FPR datum
+        return FP_MEM_FIELDS
+    if op == 0x11:                  # COP1
+        fmt = (word >> 21) & 0x1F
+        if fmt == 0x08:             # BC1 names no register
+            return ()
+        if fmt in FP_MOVE_FMTS:
+            return FP_MOVE_FIELDS
+        return FP_R_FIELDS
     return I_FIELDS
 
 
@@ -72,6 +112,8 @@ def census(streams: "nr.WordStreams") -> dict:
     """
     pairs: collections.Counter = collections.Counter()
     ordered: list[tuple[int, str, str]] = []
+    fpairs: collections.Counter = collections.Counter()
+    fordered: list[tuple[int, str, str]] = []
     sites = 0
     base, target = streams.base_words, streams.target_words
     b_reloc, t_reloc = streams.base_reloc, streams.target_reloc
@@ -90,12 +132,19 @@ def census(streams: "nr.WordStreams") -> dict:
         if a == b or nr.instr_reg_mask(a) != nr.instr_reg_mask(b):
             continue                # identical, or not a pure register difference
         sites += 1
-        for shift, mask in fields(a):
+        for bank, shift, mask in fields(a):
             ra, rb = (a >> shift) & mask, (b >> shift) & mask
-            if ra != rb:
-                pairs[(GPR[ra], GPR[rb])] += 1
-                ordered.append((j * 4, GPR[ra], GPR[rb]))
-    return {"sites": sites, "pairs": pairs, "ordered": ordered}
+            if ra == rb:
+                continue
+            names = BANKS[bank]
+            if bank == "fpr":
+                fpairs[(names[ra], names[rb])] += 1
+                fordered.append((j * 4, names[ra], names[rb]))
+            else:
+                pairs[(names[ra], names[rb])] += 1
+                ordered.append((j * 4, names[ra], names[rb]))
+    return {"sites": sites, "pairs": pairs, "ordered": ordered,
+            "fpairs": fpairs, "fordered": fordered}
 
 
 def windows(sites: list[tuple[int, str, str]]) -> dict:
@@ -237,27 +286,33 @@ def measure(symbols: list[str]) -> tuple[list[dict], list[str]]:
                 "cycles": cycles(out["pairs"]),
                 "coherence": coherence(out["pairs"]),
                 "windows": windows(out["ordered"]),
+                "float_pairs": [{"ours": a, "theirs": b, "count": c}
+                                for (a, b), c in out["fpairs"].most_common()],
+                "float_cycles": cycles(out["fpairs"]),
+                "float_coherence": coherence(out["fpairs"]),
+                "float_windows": windows(out["fordered"]),
             })
     return rows, errors
 
 
-def render(row: dict) -> str:
-    out = [f"{row['symbol']}",
-           f"  pure register-substitution sites: {row['substitution_sites']}"]
-    if not row["pairs"]:
-        out.append("  no register-only differences")
-        return "\n".join(out)
-    out.append("  most common substitutions (ours -> theirs):")
-    for p in row["pairs"][:10]:
+def render_bank(row: dict, prefix: str, title: str, law: str) -> list[str]:
+    """One bank's section. The float bank gets its own because it is a different
+    allocator: the integer temp ring and the fp pool rotate independently, and a
+    residual that is entirely float rows says nothing about integer colouring."""
+    pairs = row[prefix + "pairs"] if prefix else row["pairs"]
+    if not pairs:
+        return []
+    out = [f"  {title} (ours -> theirs):"]
+    for p in pairs[:10]:
         out.append(f"    {p['ours']:>4} -> {p['theirs']:<4} x{p['count']}")
-    c = row["coherence"]
+    c = row[prefix + "coherence"] if prefix else row["coherence"]
     share = c["share_following_dominant"]
     out.append(f"  mapping coherence: {share:.0%} of substitutions follow their "
                f"source's dominant target ({c['sources']} source registers)")
     if c["least_coherent_source"]:
         out.append(f"    least coherent: {c['least_coherent_source']} at "
                    f"{c['least_coherent_share']:.0%}")
-    w = row["windows"]
+    w = row[prefix + "windows"] if prefix else row["windows"]
     out.append(f"  one global mapping explains {w['global_share']:.0%} of sites; "
                f"{w['windows']} window(s) needed")
     if w["windows"] > 1 and w["boundaries"]:
@@ -266,12 +321,13 @@ def render(row: dict) -> str:
                    + (" ..." if len(w["boundaries"]) > 6 else ""))
         out.append("    a mapping that changes by region is per-iteration"
                    " consumption, not one ring phase")
-    if row["cycles"]:
+    found = row[prefix + "cycles"] if prefix else row["cycles"]
+    if found:
         out.append("  cycles in the dominant mapping:")
-        for cycle in row["cycles"]:
+        for cycle in found:
             out.append("    " + " -> ".join(cycle) + f" -> {cycle[0]}")
         if share >= 0.80:
-            out.append("    coherent cycle: one ring-phase fact, not N colour"
+            out.append(f"    coherent cycle: one {law} fact, not N colour"
                        " problems -- see L127")
         else:
             out.append("    NOTE: a cycle in an incoherent mapping is not a ring"
@@ -279,6 +335,24 @@ def render(row: dict) -> str:
                        " transfer was applied on it and refused.")
     else:
         out.append("  no closed cycle: treat these as per-web colour questions")
+    return out
+
+
+def render(row: dict) -> str:
+    out = [f"{row['symbol']}",
+           f"  pure register-substitution sites: {row['substitution_sites']}"]
+    if not row["pairs"] and not row["float_pairs"]:
+        out.append("  no register-only differences")
+        return "\n".join(out)
+    if not row["pairs"]:
+        out.append("  NO integer-register differences: every substitution is a"
+                   " FLOAT register, so this is the fp pool/ring, not integer"
+                   " colouring")
+    out += render_bank(row, "", "most common substitutions", "ring-phase")
+    if row["float_pairs"]:
+        out.append("  float registers:")
+        out += render_bank(row, "float_", "most common float substitutions",
+                           "fp-ring-phase")
     return "\n".join(out)
 
 
