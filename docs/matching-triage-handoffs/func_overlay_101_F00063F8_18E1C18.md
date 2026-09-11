@@ -2,75 +2,76 @@
 ### `func_overlay_101_F00063F8_18E1C18` plateau handoff
 
 - source: `src/overlays/o101/func_overlay_101_F00063F8_18E1C18.c`
-- score: 167/380 words
+- score: 203/380 words
 - frame: 0x38
 - relocations: 49
-- first mismatch: +0x8C
-- summary: 213 masked words; structure fell 130 to 41 and insertions 25 to 7. Residual is ugen ring phase behind the slot local.
+- first mismatch: +0x9C
+- summary: 203 masked words from 213; size, frame and instruction multiset all exact. Naming fell 167 to 104 once the pre-call counter read became a ring temp and the node pointer kept s0; the residual is as1 schedule, led by the counter-bump store.
 
-Measured 2026-09-11, lane `lane/o11-triplet`, on the four-function overlay-101
-builder family. Numbers below are `tools/align_symbol.py`, whose positional
-figure agrees with `tools/score_symbol.py` by construction.
+Measured 2026-09-11, lane `lane/s1-o101`. Every number is
+`tools/align_symbol.py`.
 
-Before: 296 masked words, aligned 162 byte-exact, 108 register naming, 5
-immediate only, 130 really different, with 25 insertion and 25 deletion words.
-After: 213 masked, 178 byte-exact, 167 register naming, 1 immediate only, 41
-really different, 7 insertions and 7 deletions. First mismatch moved from
-+0x2C to +0x8C; the whole prologue through +0x88 is now byte-exact.
+Before: 213 masked, 178 byte-exact, 167 register naming, 1 immediate only, 41
+really different, 7 insertions and 7 deletions.
+After: 203 masked, 209 byte-exact, 104 register naming, 4 immediate only, 79
+really different, 16 insertions and 16 deletions. First mismatch moved from
++0x8C to +0x9C. Size delta 0 and the frame ladder matches at all eight offsets
+both before and after.
 
-Two levers, both source shape, neither costing an instruction:
+**The previous closure named the right decision variable and rejected the right
+edit for the wrong reason.** It said the ROM splits the slot local across two
+scratch registers, one per call side, where the candidate holds a single
+dedicated caller-saved register, and it recorded "dropping `slot` for a direct
+counter read anywhere" as regressive at 331 and "for the pre-call half only" as
+215 with worse structure. Both halves do regress on their own. Doing BOTH halves
+does not: `node32 = &D_340[D_1CC]` and `node20 = &D_200[D_1C8]` on both sides of
+each call, with the `slot` local deleted, reads 203.
 
-- L59. Every per-element assignment group is written as ONE physical line. as1
-  minimises `(start_time, -aftercycles, -latency, addr, lineno, list position)`.
-  With a group's stores on separate lines `lineno` is the deciding key and
-  emits them in source order; the ROM emits each such group reversed. Folding
-  the group retires the key and the raw list order supplies the reversal. On
-  the first group alone this flipped three stores into place; applied to all
-  five element groups it took 296 to 270 masked and 130 to 108 structural.
-  The four text rows are already one line each, because a multi-line macro
-  expansion carries the invocation's line, so no fold applies there.
-- L100 and L115, the counter partition. One shared counter local gives the
-  callee-saved home to the node counter and leaves the panel-order counter in a
-  caller-saved register, and the ugen ring then rotates for the rest of the
-  function. Splitting it so that `index` carries the panel-order counter D_1C4
-  and the text-row counter D_1D0, while `slot` carries the two node counters,
-  reproduces the ROM's home and its save placement exactly. 270 to 239 for the
-  split, then 239 to 213 for moving the text rows onto `index`.
+The two halves fix different things and each one alone breaks what the other
+fixes. The pre-call direct read is what turns the pre-call counter value from a
+globalcolor web into a ugen ring temp, which is what the ROM has; that alone
+moves the first three instructions of the node block to byte-exact and fixes the
+ring phase for the rest of the function, which is the whole 167-row naming
+bucket. But on its own it also splits the node pointer, because one definition is
+then a direct expression and the other is still through the local, and a split
+pointer loses the ROM's callee-saved home. Making both definitions the same
+expression keeps the pointer in the ROM's s0 and lets the post-call counter take
+the ROM's a1. Pre-call only reads 215, post-call only reads 314, both together
+203.
 
-Measured inert, all at exactly 213 masked: declaration order of the two counter
-locals either way, `register` on either, `u32` instead of `s32`, declaring
-`slot` last, and every statement order tried inside the text-row macro. This is
-the call test holding: the procedure issues calls, so it is p1-only and
-definition position, declaration order and statement order decide nothing.
+The counter bump must stay in front of every store, for the same reason as on the
+F78F4 quadruplet: a bump written behind a store makes uopt re-read the counter.
 
-Measured regressive, each against 213: separate counter locals per block reads
-324 at a size delta of 8; splitting the counter at the call boundary reads 250;
-dropping `slot` for a direct counter read reads 331 at a size delta of 12 for
-both node blocks and 363 at 12 for one; reading the counter global directly for
-the pre-call half only reads 215 but with 51 structural words against 41 and 11
-insertion sites against 7; moving the opacity store to the end of the text row
-costs three instructions.
+**L114 does not classify anything here, and the boundary is per procedure.** This
+procedure's `p1cost` rows decode as c2 `v1`, c4 `a1`, c5 `a2`, c6 `a3`, c7 `t0`,
+c8 `t1`, c9 `t2`, c10 `t3`, c11 `t4`, c12 `t5`, c13 unnamed, c14-c22 `s0`-`s8`,
+and globalcolor assigns three t-bank colours outright in this compilation -- two
+webs take c7 `t0` and one takes c8 `t1` -- beside 22 webs it declines to ugen. So
+a naming row spelled with a `t` register is not evidence of ring phase in this
+function. The lever above rests on something narrower and measured: `t5`, the
+register the ROM's pre-call counter needs, is not among the colours globalcolor
+assigns here, so that value has to reach the ring, and the direct counter read is
+what sends it there. Re-decode the table from your own procedure's records before
+classifying any row.
 
-Next lever, with the decision variable named. The first divergence in the whole
-function is at +0x8C, and it is `slot`'s register: the ROM splits `slot` across
-two scratch registers, one before each call and one after, while the candidate
-gives it a single dedicated caller-saved register. Everything downstream is the
-ring phase that follows from that one choice, which is why the naming bucket is
-167 words and is almost entirely ring-to-ring: by L114 those rows are ring
-phase, not colour, and no save edit or force reaches them. The axis is what
-makes ugen treat a named local as scratch rather than as a dedicated register.
-`uopt -Wo,-zdbug:2` reports `colorcand` empty for this function. **Do not read
-that as globalcolor being idle -- that inference was recorded here and is
-wrong.** A sibling was measured on the instrumented compiler and its
-`[CDX] p1cand`/`p1dec`/`p1color` records show globalcolor colouring six webs
-while `colorcand` reads empty; the bitset is a different thing from the
-colouring decisions. The stock listing also dies in `wrapper_ecvt` inside the
-static-recomp libc before printing any save, so the instrumented toolchain is
-the instrument this needs -- and it is the one that settles whether L100's
-ratio is a lever here, which remains untested rather than excluded.
-The remaining 41 structural words are the text rows' tail, where the ROM emits
-the text store before the chain store and the opacity store last; statement
-order inside the macro is inert against it, so that residual needs the as1
-dependence graph (`cc -Wa,-R`), not a respelling.
+Swept exhaustively and inert or worse: all 180 orders of the six post-call
+statements with the bump spelled directly, all 540 orders with an index local
+added, and both with and without the pre-call change -- 203 is the floor and
+every order that reaches it puts the bump first. Dropping the now-unused `slot`
+declaration is inert (L99), as is adding unused declarations.
+
+Next lever, with the decision variable named. The residual is as1 schedule, and
+the first divergence is the counter-bump STORE. The ROM computes the bump from
+the post-call counter register and emits its store late, after the previous-link
+and chain-type stores; as1 emits it immediately after the recompute here, because
+that is where the source has to put the bump to keep the counter load from being
+re-issued. So the axis is not statement order -- 540 orders say so -- it is
+whether the bump's load can sit early while its store sinks, which needs either a
+carrier uopt is willing to keep in the ring or an aliasing fact that lets as1
+move the store. Read the dependence graph with `cc -Wa,-R` before trying another
+spelling. Note also, against an assumption this lane made and then disproved: as1
+DOES reorder stores whose base registers differ, observed here moving the handle
+store past the chain-type store, so "store order is source order" is not a law to
+build on.
 
 <!-- plateau-handoff:func_overlay_101_F00063F8_18E1C18:end -->
