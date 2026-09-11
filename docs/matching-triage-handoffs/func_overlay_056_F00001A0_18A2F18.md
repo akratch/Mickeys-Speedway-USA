@@ -6,7 +6,7 @@
 - frame: 0x1F8
 - relocations: 75
 - first mismatch: +0x40
-- summary: Authenticated early gates and 21 typed calls remove 47 differing words; the candidate is two words long with exact frame geometry, while the minimap loops and remaining pointer identities are still broad.
+- summary: Authenticated early gates and 21 typed calls remove 47 differing words; the candidate is two words long with exact frame geometry, while the minimap loops and remaining pointer identities are still broad. Remeasured 2026-09-11 with tools/align_symbol.py: the +8 is a NET of 37 surplus and 35 missing instructions across 42 sites, not two missing instructions, so closing the size delta is not a lever here and the aligned split 130/237/251 is the number to work. The largest single hole is the eight words at target +0x6D0, where the target materialises the colour table base (lui v0 at +0x674, then addu v0,v0,idx*4 and lw v0,0x50(v0)) and unpacks the packed word into three components, while the M2C_FIELD((u8 *)(s32)(idx * 4), u32 *, 0x50) spelling here has no base register at all; the naive repair, indexing gOverlay56Colors by name, costs +8 bytes per site and gains nothing, so the base must be reconstructed as the live pointer the target already holds.
 
 - ownership: Overlay 56 text `+0x1A0..+0xAB4`, ROM `0x18A2F18..0x18A382C`, exactly 2,324 bytes. `overlay56UnpackColor` starts at `+0xAB4`; the separate `+0xAF4..+0xB00` alignment tail is not owned.
 - ABI: the resident inbound at ROM `0x27F18` passes the display-list pointer address, vertex-cursor address, and the current update-rate word. It is the sole direct resident relocation to export table index 1361 at `+0x1A0`.

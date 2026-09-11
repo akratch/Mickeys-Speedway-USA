@@ -440,6 +440,6 @@ void overlay56UnpackColor(s32 index, u32 *red, s32 *green, s32 *blue) {
  * frame: 0x1F8
  * relocations: 75
  * first-mismatch: +0x40
- * summary: Authenticated early gates and 21 typed calls remove 47 differing words; the candidate is two words long with exact frame geometry, while the minimap loops and remaining pointer identities are still broad.
+ * summary: Authenticated early gates and 21 typed calls remove 47 differing words; the candidate is two words long with exact frame geometry, while the minimap loops and remaining pointer identities are still broad. Remeasured 2026-09-11 with tools/align_symbol.py: the +8 is a NET of 37 surplus and 35 missing instructions across 42 sites, not two missing instructions, so closing the size delta is not a lever here and the aligned split 130/237/251 is the number to work. The largest single hole is the eight words at target +0x6D0, where the target materialises the colour table base (lui v0 at +0x674, then addu v0,v0,idx*4 and lw v0,0x50(v0)) and unpacks the packed word into three components, while the M2C_FIELD((u8 *)(s32)(idx * 4), u32 *, 0x50) spelling here has no base register at all; the naive repair, indexing gOverlay56Colors by name, costs +8 bytes per site and gains nothing, so the base must be reconstructed as the live pointer the target already holds.
  * PLATEAU-HANDOFF:func_overlay_056_F00001A0_18A2F18:end
  */
