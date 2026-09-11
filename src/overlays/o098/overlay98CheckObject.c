@@ -37,18 +37,18 @@ extern s16 overlay98UniqueYReloc[];
  * f56d08c746f891f76c4b7bab8e3a2a4332894634, which no longer resolves. All
  * retained measurements were independently derived from Mickey's own source,
  * object, relocation tables, and retail bytes. */
-/* Workbench allocation-mismatch: 35 raw words; 111 instructions, frame 0xA8,
- * and six relocation sites have exact shape. Register/operand allocation is
- * the remaining permuter-ready residual; the assembly fallback stays canonical. */
+/* Workbench allocation-mismatch: 31 raw words; 111 instructions, frame 0xA8,
+ * and six relocation sites have exact shape after moving scratch[10] before
+ * the vector locals. The remaining register/operand allocation is a coherent
+ * cycle; the assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
+    s32 scratch[10];
     Vec3f output;
     Vec3f input;
     f32 adjustment;
     s32 index;
     s32 accepted;
-    s32 scratch[10];
-
     (void)&scratch;
 
     accepted = 0;
@@ -88,10 +88,10 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
 
 /* PLATEAU-HANDOFF:overlay98CheckObject:start
  * symbol: overlay98CheckObject
- * score: 76/111 words
+ * score: 80/111 words (31 differing)
  * frame: 0xA8
  * relocations: 6
  * first-mismatch: +0x38
- * summary: frame and instruction/relocation shape exact; 35 raw words remain in register/operand allocation (permuter-ready)
+ * summary: frame and instruction/relocation shape exact; moving scratch[10] first removes the five displaced stack-home differences, leaving 31 register/operand differences. A capped permutation found no exact real-TU candidate.
  * PLATEAU-HANDOFF:overlay98CheckObject:end
  */
