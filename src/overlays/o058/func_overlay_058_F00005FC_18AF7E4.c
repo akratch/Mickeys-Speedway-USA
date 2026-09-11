@@ -165,6 +165,43 @@ extern void overlay58EnsureResource(void);
  * Prior ABI/prologue, branch-order, marker-lifetime, geometry, and
  * split-path forms remain exhausted, as does the Overlay34 conditional-start
  * precedent.
+ *
+ * Remeasured 2026-09-11 (lane/p9-oneoff) with tools/align_symbol.py. Three
+ * corrections to the numbers above, and one fork worth recording:
+ *
+ *   - The frame surplus is now 24 bytes, not 16. The candidate's prologue is
+ *     `addiu sp,sp,-160` against the target's `-136` (0xA0 against 0x88).
+ *     The `0x98 against 0x88` in cause (1) is stale.
+ *   - The uncached form is +8 bytes and 723 masked words today, not the
+ *     +24/727 recorded at the point of use above. The cached local is still
+ *     the better of the two, but by 4 bytes and 1 word, not by 20 and 5.
+ *   - The named `geometry` local is FREE. Removing it entirely --
+ *     `verts = (*path->object->geometry)->vertices;` with the declaration
+ *     deleted -- is byte-identical to the form here. So the "parks
+ *     `geometry` on the stack at 0x8C" in cause (1) is a uopt temporary,
+ *     not the declared local, and no source lever reaches it by renaming or
+ *     removing that local.
+ *
+ * What the size delta actually is. The aligner puts a 2-word insertion at
+ * candidate +0x0 and nothing else in the prologue: the candidate saves s8
+ * where the target does not, so the save/restore pair is +8 bytes on its own,
+ * and the body is -4 against it. The net +4 is a cancellation, which is why
+ * hunting for "one instruction" in the body cannot work -- there is no single
+ * surplus instruction to find. The lever is the ninth callee-saved web, and
+ * that is cause (1), already named.
+ *
+ * A measured fork, NOT adopted. Replacing the hoisted `verts` with a
+ * block-scoped `Overlay58Vec3f *v = geometry->vertices;` at the head of each
+ * of the five drawing blocks -- which is what the target's seven `64(s7)`
+ * reads look like -- moves the aligned split from 314/301/230 to 418/265/162
+ * (byte-exact 37.9% -> 49.5%) and the positional residual from 722 to 551.
+ * It also takes the size to +28 and the frame to 0xB0, because each block
+ * local is its own web and the tenth one spills. It is recorded here because
+ * it is the only form measured that moves the byte-exact count by a hundred
+ * rows; it becomes adoptable the moment the callee-saved surplus is solved,
+ * and not before. Partial forms (block locals on the two strips only, or on
+ * the three quads only) are 554/+36 and 552/+32, both worse than the whole.
+ * Reloading the cache at the top of the stage loop is 590/+12.
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
@@ -523,9 +560,9 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
 /* PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:start
  * symbol: func_overlay_058_F00005FC_18AF7E4
  * score: 722 differing words
- * frame: 0x98
+ * frame: 0xA0
  * relocations: 267
  * first-mismatch: +0x0
- * summary: Caching geometry->vertices for the drawing operands takes the surplus from +6 instructions to +1 and the masked residual from 727 to 722; what is left per side is one missing andi 0x9000, two branch-likely forms, and a three-way lw/lwc1 class split
+ * summary: The +4 size delta is a cancellation, not a findable instruction: the aligner puts a 2-word insertion at candidate +0x0 where the candidate saves s8 and the target does not, which is +8 on its own, and the body is -4 against it; the candidate frame is 0xA0 against the target's 0x88, 24 bytes and not the 16 previously recorded, so the ninth callee-saved web is the whole lever. Removing the named geometry local is byte-identical, so the stack park is a uopt temporary and no rename reaches it. Block-scoped Overlay58Vec3f *v = geometry->vertices in each of the five drawing blocks moves the aligned split from 314/301/230 to 418/265/162 and the positional residual from 722 to 551, but takes the size to +28 and the frame to 0xB0; it is recorded as a fork, adoptable only after the callee-saved surplus is solved.
  * PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:end
  */

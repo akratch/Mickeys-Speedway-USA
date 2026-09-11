@@ -150,19 +150,53 @@ extern void func_overlay_084_F0001398_18D1878(void);
  *       far more than the one slot, because it also re-colours s3 and the
  *       whole run of calls that follow it.
  *
- * What is left, measured: the candidate is ONE instruction long (delta +4),
- * and the surplus is structural, not local. From the choice loop onward the
- * candidate keeps `&gO57MiddleChoices` alive in s6 across the tail so the two
- * `gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex]` reads share one
- * address web; the target re-materialises the address at every use, which
- * costs it two instructions there and saves it the four-instruction s6/s5
- * set-up before the choice loop. That single surplus shifts every word from
- * about +0xf90 on: of the 340 raw differing words, 125 are in rows 1..990 and
- * 215 in rows 991..1208, so removing it is worth far more than one word.
- * Region markers (`if (1) {}`, `do {} while (0);`) before the tail reads,
- * around the whole choice loop, a pointer-arithmetic bound, and an
- * `(&gO57MiddleChoices[0])->` spelling of one of the two reads all measure
- * exactly 272 -- the web does not close on a boundary.
+ *  4.   THE SURPLUS INSTRUCTION, closed 2026-09-11 (lane/p9-oneoff). The
+ *       diagnosis above was right about the web and wrong about where it is
+ *       anchored. It is not the two tail reads that hold
+ *       `&gO57MiddleChoices` alive -- it is the choice loop's own BOUND.
+ *       `do { ... } while (choice < &gO57MiddleChoices[4])` makes the array's
+ *       end address a loop invariant, uopt hoists it into a callee-saved
+ *       register, and from there it reaches the two
+ *       `gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex]` reads past
+ *       the calls between them, which is why a region marker around the
+ *       reads could never close it: the marker was on the wrong end of the
+ *       web. Bounding the walk on the OTHER pointer the loop already steps,
+ *       `while (source < &sourceState[4])`, names no address of the global at
+ *       all. Both pointers advance in lockstep from the same do/while, so the
+ *       trip count is identical and the semantics are unchanged.
+ *
+ *       Measured, with tools/align_symbol.py: size delta +4 -> 0 (1209 words
+ *       -> 1208, exact), positional masked 272 -> 231, displacement tax
+ *       59 -> 26, and the aligned split 1002/113/100 -> 1012/109/96. The first
+ *       STRUCTURAL difference moves from +0x34 to +0xBC4 -- 755 words in
+ *       which nothing but register naming now differs.
+ *
+ *       `!=` instead of `<` on either pointer overshoots to delta -4
+ *       (269 and 266 words); an explicit counter in `rank` or `valueA`
+ *       is +8 and +260; `for (choice = ...; choice < &gO57MiddleChoices[4];
+ *       choice++, source++)` is +24. `<` on `sourceState` is the only
+ *       spelling in the set that is exact-sized.
+ *
+ * What is left, measured: the size is now exact and the residual is
+ * allocation. The first structural difference at +0xBC4 is a STACK HOME
+ * (`sw a1,84(sp)` against the target's `sw a1,100(sp)`), and the whole homed
+ * block is displaced: stack5C/stack64 sit at 80/84 against the target's
+ * 92/100, stack78/7C/80 at 160/164/168 against 120/124/128, the
+ * address-taken array block starts at 172 against 144, and activePlayers is
+ * at 232 against 272. The frame total is exact at 0x140 on both sides, so
+ * this is an ordering/padding question, not a size one.
+ *
+ * L112 was tested directly and does NOT apply here. Every unobservable
+ * dimension was swept: sourceState[6/8/10], activePlayers[12/16],
+ * renderState[32/40], stackB0[4/8], textureNodes[3]. Every enlargement that
+ * moves anything costs exactly the same 13 words (231 -> 244) and none gains,
+ * so no array count solves the displacement -- the target's gaps at
+ * 132..143, 168..175 and 216..271 are not a bigger array.
+ *
+ * Re-tested 2026-09-11 and still rejected, now that the size is exact:
+ * caching `choice->active` in a local is 527 words and delta -8; the
+ * activePlayers countdown pointer walk (both the `*active-- = 1` and the
+ * split `*active = 1; active--;` spellings) is 282 words and delta +4.
  *
  * Two target structures are read but NOT adoptable yet, both because they cost
  * more than they buy at this frame layout:
@@ -526,7 +560,15 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     }
                     choice++;
                     source++;
-                } while (choice < &gO57MiddleChoices[4]);
+                    /* Bound on sourceState, not on
+                     * &gO57MiddleChoices[4]: naming the global's end
+                     * address here makes it a loop invariant that uopt
+                     * parks in a callee-saved register, and it then
+                     * reaches the two gO57MiddleChoices[0] reads in the
+                     * tail. Both pointers step together, so the trip
+                     * count is the same. Worth the whole size delta:
+                     * 1209 words -> 1208, 272 -> 231 masked. */
+                } while (source < &sourceState[4]);
                 i = 0;
                 for (outputIndex = gO57MiddlePlayerCount; outputIndex < 6; outputIndex++) {
                     while (activePlayers[i] == 0) {
@@ -597,10 +639,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 272/1208 words
+ * score: 231/1208 words
  * frame: 0x140
  * relocations: 373
- * first-mismatch: +0x34
- * summary: 494 falls to 272 on three edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; what is left is ONE surplus instruction, the s6 address web the candidate keeps for gO57MiddleChoices across the tail where the target re-materialises, which shifts every word past about +0xf90 and hides a prefix residual of only 57 masked words.
+ * first-mismatch: +0x100
+ * summary: 494 falls to 231 on four edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; and the choice loop bounded on &sourceState[4] rather than &gO57MiddleChoices[4], which closes the surplus instruction -- the loop bound, not the tail reads, is what anchored the callee-saved address web -- taking the size delta to 0 and the first structural difference from +0x34 to +0xBC4; what is left is 109 register-naming and 96 structural words, led by a displaced homed block that no local array dimension moves.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */

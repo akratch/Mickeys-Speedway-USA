@@ -29,7 +29,15 @@ void func_80058010(void) {
         func_8006AC60(&D_800D7830, 0);
     }
 }
-#ifdef NON_MATCHING
+/* This body was byte-exact for years; what blocked the match was the carve.
+ * Nothing in the ROM references 0x800580E8, so splat folded the `jr $ra`/`nop`
+ * that lives there into this function's span, and every measurement read the
+ * function as two instructions short. Seven different return spellings
+ * (early return, trailing return, goto, while/break, do-while(0)) all fold to
+ * the same 27 instructions, which is what ruled a dead epilogue out. The 8
+ * bytes are func_800580E8 below, an empty stub; inter-TU padding in this
+ * region is zero-filled, not a return sequence.
+ */
 void func_8005807C(void) {
     u8 status;
 
@@ -42,9 +50,9 @@ void func_8005807C(void) {
         func_8006AC60(&D_800D7830, 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_8005807C.s")
-#endif
+
+void func_800580E8(void) {
+}
 #ifdef NON_MATCHING
 void func_800580F0(s32 arg0) {
     u8 status;
@@ -86,15 +94,6 @@ OSGbpakId *func_80058240(void) {
     return D_8007F7A0;
 }
 
-/* PLATEAU-HANDOFF:func_8005807C:start
- * symbol: func_8005807C
- * score: 27/29 words
- * frame: 0x20
- * relocations: 16
- * first-mismatch: +0x6C
- * summary: Fresh remeasurement confirms 27/29 words, exact 0x20 frame, and 16 aligned relocation identities; only an unreferenced duplicate-return tail remains.
- * PLATEAU-HANDOFF:func_8005807C:end
- */
 
 /* PLATEAU-HANDOFF:func_800580F0:start
  * symbol: func_800580F0
