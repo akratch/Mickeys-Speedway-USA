@@ -44,7 +44,16 @@ TOKENS='rate_limit[a-z_]*|quota_exceeded|insufficient_quota|usage limit reached|
 STATUS='(^|[^0-9])429([^0-9]|$)'
 CONTEXT='status|error|http|limit'
 
-hits=$( { grep -inE "$TOKENS" "$log"; grep -inE "$STATUS" "$log" | grep -iE "$CONTEXT"; } | sort -u )
+# A worker that reads or greps a source file echoes that file's content into
+# the log as `path:lineno:text`. When the file it read was THIS one, the
+# watcher matched its own documentation and reported three API-limit signals
+# on a perfectly healthy lane -- which is the same prose-versus-error mistake
+# the header warns about, arriving from the other direction. A real API error
+# is never `path:lineno:` shaped, so drop hits that are.
+ECHOED='^[0-9]+:[^ :]+:[0-9]+:'
+
+hits=$( { grep -inE "$TOKENS" "$log"; grep -inE "$STATUS" "$log" | grep -iE "$CONTEXT"; } \
+        | grep -vE "$ECHOED" | sort -u )
 if [ -n "$hits" ]; then
     echo "  BUDGET: $(printf '%s\n' "$hits" | wc -l | tr -d ' ') API-limit signal(s):"
     printf '%s\n' "$hits" | tail -3 | sed 's/^/    /'
