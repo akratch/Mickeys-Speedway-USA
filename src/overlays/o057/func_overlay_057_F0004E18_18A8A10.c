@@ -212,11 +212,42 @@ extern void func_overlay_084_F0001398_18D1878(void);
  *     post-decrement copy (`li v1,9`, `move v0,v1`, `sb`, `addiu a0,a0,-1`,
  *     `bnez v1`, `addiu v1,v1,-1`), not the `for (i = 9; i >= 0; i--)` index
  *     form here. Adopting it alone costs 301 words and +8 bytes.
- * Both are the kind that need the stack-home fix first: the homed block is
- * still 40 bytes low (activePlayers sp+232 against the target's sp+272,
- * stack78/7C/80 sp+160/164/168 against sp+120/124/128), and the target's
- * layout has gaps -- 132..143, 168..175, 216..271 -- that no current
- * declaration accounts for. */
+ *  5.  THE STACK-HOME FIX, 2026-09-11 (lane/o11-homes).  The gaps the note
+ *      above could not account for were not gaps: they are register-class
+ *      locals.  Every declared local reserves a home in declaration order,
+ *      descending from the frame top and aligned to its own type, whether or
+ *      not it ever reaches memory, so the target's "132..143, 168..175,
+ *      216..271" are three, four and eight scalars that the target declares
+ *      BETWEEN the homed objects.  tools/frame_census.py gives the object
+ *      sizes and offsets on both sides, and the gaps between them divide by
+ *      four exactly, which is what makes the list solvable rather than swept:
+ *
+ *        8 scalars, sourceState[4], activePlayers[10], 14 scalars,
+ *        textureNodes[2], 1 scalar, stackB0[2], 2 scalars, renderState[24],
+ *        3 scalars, stack80, stack7C, stack78, 4 scalars.
+ *
+ *      That is 35 four-byte cells against this candidate's 36, and the one to
+ *      drop is `activeInit`, which was declared and never used -- an unused
+ *      POINTER still reserves its home (L99), so it was costing a cell and
+ *      nothing else.  Reordering to that list, keeping the relative order of
+ *      the scalars otherwise unchanged, makes the ladder exact from +0x11C
+ *      down to +0x78.
+ *
+ *      Measured with tools/align_symbol.py: 231 -> 217 masked words at size
+ *      delta 0, byte-exact 1012 -> 1028 of 1208, really different 96 -> 68,
+ *      register naming 109 -> 112, first structural difference +0xBC4 ->
+ *      +0xCB8.  L112 was correctly rejected above: no array dimension solves
+ *      this, because the free parameter was the scalar COUNT between the
+ *      arrays, not any array's length.
+ *
+ * What is left, measured: two compiler temps (sp+0x54 and sp+0x58 against the
+ * target's sp+0x5C and sp+0x64, inside a temp region that is the same size on
+ * both sides), and one address materialisation.  The candidate takes
+ * &activePlayers three times and &sourceState once plus &sourceState[4] once;
+ * the target takes &activePlayers twice and &sourceState twice and never names
+ * the end of sourceState.  Same instruction count, so the loop bound is not a
+ * size question any more -- the target reaches the same trip count without
+ * materialising an end pointer, and finding that spelling is the next lever. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -227,6 +258,8 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 previousGroup;
     s32 currentGroup;
     s32 oldValue;
+    s8 sourceState[4];
+    u8 activePlayers[10];
     s32 nextSelection;
     s32 panelX;
     s32 characterId;
@@ -237,25 +270,22 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 valueA;
     s32 valueB;
     s32 valueC;
-    s8 sourceState[4];
-    u8 activePlayers[10];
-    O57MiddleTextureNode textureNodes[2];
-    char stackB0[2];
-    char renderState[24];
-    s32 stack80;
-    s32 stack7C;
-    s32 stack78;
     s32 stack64;
     s32 stack5C;
     O57MiddleRenderItem *renderItems;
     O57MiddleRenderItem *renderItem;
+    O57MiddleTextureNode textureNodes[2];
     O57MiddleChoice *choice;
+    char stackB0[2];
     s16 *color;
     char *palette;
+    char renderState[24];
     u8 *active;
     s8 *source;
-    s8 *activeInit;
     O57MiddleOutput *output;
+    s32 stack80;
+    s32 stack7C;
+    s32 stack78;
     s32 *list;
     s32 activeCount;
     s8 rank;
@@ -639,10 +669,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 231/1208 words
+ * score: 217/1208 words
  * frame: 0x140
  * relocations: 373
  * first-mismatch: +0x100
- * summary: 494 falls to 231 on four edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; and the choice loop bounded on &sourceState[4] rather than &gO57MiddleChoices[4], which closes the surplus instruction -- the loop bound, not the tail reads, is what anchored the callee-saved address web -- taking the size delta to 0 and the first structural difference from +0x34 to +0xBC4; what is left is 109 register-naming and 96 structural words, led by a displaced homed block that no local array dimension moves.
+ * summary: The displaced homed block closed on a declaration census. The target's unexplained gaps at 132..143, 168..175 and 216..271 are not gaps and not a bigger array -- they are three, four and eight register-class scalars declared between the homed objects, because every declared local reserves a home in declaration order whether or not it reaches memory. tools/frame_census.py gives both sides' object sizes and offsets, the gaps divide by four exactly, and the list solves to 8 scalars, sourceState, activePlayers, 14 scalars, textureNodes, 1 scalar, stackB0, 2 scalars, renderState, 3 scalars, stack80, stack7C, stack78, 4 scalars -- 35 cells against this candidate's 36, the surplus being activeInit, declared and never used, which still reserved a home under L99. Reordering to it makes the ladder exact from +0x11C down to +0x78 and takes 231 to 217 at size delta 0, byte-exact 1012 -> 1028, really different 96 -> 68. What is left is two compiler temps and one address materialisation: this candidate takes &activePlayers three times plus &sourceState and &sourceState[4] once each, the target takes &activePlayers twice and &sourceState twice and never names the array's end, at the same instruction count. Earlier history: 494 falls to 231 on four edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; and the choice loop bounded on &sourceState[4] rather than &gO57MiddleChoices[4], which closes the surplus instruction -- the loop bound, not the tail reads, is what anchored the callee-saved address web -- taking the size delta to 0 and the first structural difference from +0x34 to +0xBC4; what is left is 109 register-naming and 96 structural words, led by a displaced homed block that no local array dimension moves.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
