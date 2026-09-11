@@ -246,10 +246,10 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
 
 /* PLATEAU-HANDOFF:func_8003A5A0:start
  * symbol: func_8003A5A0
- * score: 9 differing words
+ * score: 9/56 words
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x0
- * summary: Cursor/end register pair and the %lo materialization order that follows it; every declaration, initialization, line-grouping and loop-shape spelling measured flat at 9.
+ * summary: Accepted p2 force w0=a1,w73=v0 cuts direct residual to 3 aligned rows; declaration and empty-comparison forms cannot reproduce it.
  * PLATEAU-HANDOFF:func_8003A5A0:end
  */
