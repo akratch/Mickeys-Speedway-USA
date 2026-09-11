@@ -19,25 +19,74 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
  * difference was never packet-local lifetimes -- it is the declaration ORDER,
  * and moving `textured` ahead of `vertices` and `flush` recovers 0x38 with no
  * other home moving and 119 instructions unchanged: 16 -> 14 masked words.
- * Two earlier readings hid it. Removing a declaration left the frame at 0x40
- * because the reservation is `align8(4N)` over the surviving locals, and the
- * non-save block only steps from 32 to 24 bytes between N=7 and N=6, so one
- * removal cannot move it and two would have had to. And adding declarations is
- * inert here -- an unused local is eliminated before the frame is sized, so the
- * ladder cannot be probed with dummies the way it can on a function whose
- * locals all survive. Order, not count, is the lever on this body.
+ * All 40,320 declaration orders and all 6,720 legal orders of the eight
+ * prologue statements were measured; 14 is the floor of both. Adding dummy
+ * locals is inert here, because an unused local is eliminated before the frame
+ * is sized.
  *
- * All 40,320 declaration orders were measured: the floor is 14, and every
- * 14-scoring order carries the target's 0x38 frame with the `t5` spill home at
- * sp+0x28. All 6,720 legal orders of the eight prologue statements are
- * byte-flat at 14, so the residual is not statement order either.
+ * 2026-09-11, lane w3-low: 14 -> 3, and the structural residual is gone.
+ * The three-row block that sat three rows early was never a scheduling fault.
+ * It was a web-count fault: written as a test followed by a separate
+ * decrement, the loop-entry guard and the do-while's own post-decrement built
+ * two temp symbols where the target builds one. Spelling the guard as a
+ * post-decrement makes cfe reuse a single temp for both, which merges the two
+ * webs, and the whole prologue colouring -- the packet cursor, `previous`, and
+ * the count/counter pair -- lands on the target's. Nothing else changed:
+ * frame 0x38, 119 instructions, zero size delta, zero rows structurally
+ * different, first mismatch now +0x110.
  *
- * The residual is now one three-row block that sits three rows early
- * (`move t2,zero` / `move a1,v0` / the count test, which the target emits after
- * `move a3,zero`) plus seven register webs over `start`, `previous` and the
- * packet cursor: t3->a3, a0->v1, v1->t3, t3->t1, a1->a2, a0->v0, t1->t3. Every
- * temp-ring and shared-lane slot already agrees, 33/33 and 19/19; the pool lane
- * first diverges at slot 7 as an a0/a3 permutation.
+ * What is left is exactly one web: the vertex packet's segment-relocated
+ * address, which this candidate colours one register later than the target.
+ * The decision variable is named and receipted. That address is a uopt
+ * cross-statement common subexpression, so its web is numbered after every
+ * front-end symbol, including the two packet-cursor block locals. Four webs
+ * tie at save 30.0 with one live-range chunk each -- the two packet cursors,
+ * the vertex-count shift temp, and the address -- and globalcolor breaks that
+ * tie on ascending web number, so the address is decided last of the four and
+ * takes the fifth colour instead of the fourth. Forcing the strip cursor's web
+ * to the fifth colour is ACCEPTED and reproduces the target exactly, all 119
+ * words; forcing the address web to the fourth is DECLINED with the first four
+ * colours already forbidden, which is genuine interference rather than a ratio
+ * the source can move.
+ *
+ * Measured and flat at 3 (all zero size delta unless noted): rewriting either
+ * packet macro to bind the address to a named local, before or after the
+ * cursor; fusing the two packet stores into one comma expression in either
+ * order; storing the second word first; splitting either cursor into two
+ * locals (copy propagation merges them straight back); a byte-pointer or
+ * word-pointer cursor; reordering the strip write against the start reset;
+ * and commuting the address operands. Regressions, so they are not the route:
+ * carrying either cursor in `previous` or `start`, binding the strip macro's
+ * address to a local (+8 bytes), and writing the strip packet through a
+ * negative index off the command pointer. Three discarded-expression probes on
+ * the address -- or-with-zero, and-with-minus-one, xor-with-zero -- left every
+ * save in the records untouched, so L109 does not reach a subexpression that
+ * uopt has already folded.
+ *
+ * Second pass, same lane: the other two routes are refuted from the records
+ * too. Serving both packet macros from one shared cursor local collapses the
+ * tie from four webs to two and DOES give the address the register it wants --
+ * but the counter web then takes the fifth colour where the target has it in
+ * the sixth, and the merge deletes a copy, so the candidate is 8 bytes short.
+ * The four-way tie is load-bearing: five webs must be decided before the
+ * counter so it lands in the sixth colour, and the address must be third of
+ * them. Declaration placement does not reach the numbering at all -- declaring
+ * the strip cursor first, or hoisting either cursor into the enclosing block,
+ * gives a byte-identical record set, because web numbers follow the order of
+ * the defining assignments, and reordering those means emitting the packets in
+ * the wrong order. Writing the strip packet through the command pointer with
+ * the increment last does make its cursor a uopt temp and does move the
+ * address up, but the command-value web stops being one shared four-site range
+ * and loses the first colour.
+ *
+ * The arithmetic of the remaining cell, for whoever picks it up: the strip
+ * cursor's save must land strictly between the counter web's 20.6 and the
+ * group's 30.0, or the address web must be numbered below the strip cursor's.
+ * Every reference in that block sits at loop depth one and therefore weighs
+ * ten, and every one of the four webs has a single chunk, so a save there can
+ * only be a multiple of ten -- 20.0 loses the fifth colour to the counter web
+ * and 30.0 keeps the tie. A fractional save needs the chunk count to move,
+ * which no source form measured here does.
  */
 #ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
@@ -59,8 +108,12 @@ void overlay17DrawStrip(G **commands, Strip *strip) {
     previous=0;
     pair=strip->buffers[strip->buffer];
     start=0; vertices=0; flush=0;
-    if (remaining != 0) {
-        remaining--;
+    /* Post-decrement, not a separate test-then-decrement: cfe reuses ONE temp
+     * symbol for this entry test and for the do-while's own `remaining--`, so
+     * the two share a single web instead of two. That one merge moves the
+     * prologue's whole colour assignment onto the target's and empties the
+     * structural residual: 14 -> 3 masked words, zero size delta. */
+    if (remaining--) {
         do {
             vertices += 2;
             if (remaining == 0) {
@@ -100,10 +153,10 @@ check_flush:
 
 /* PLATEAU-HANDOFF:overlay17DrawStrip:start
  * symbol: overlay17DrawStrip
- * score: 105/119 words
+ * score: 3/119 words
  * frame: 0x38
  * relocations: 1
- * first-mismatch: +0x68
- * summary: The frame blocker is closed and was declaration ORDER, not packet-local lifetimes: moving textured ahead of vertices and flush recovers 0x38 with no other home moving, 16 to 14 masked words. All 40,320 declaration orders and all 6,720 prologue statement orders were measured; 14 is the floor of both. What remains is one three-row block emitted three rows early plus seven register webs over start, previous and the packet cursor.
+ * first-mismatch: +0x110
+ * summary: 14 -> 3 (2026-09-11, lane w3-low), and the recorded structural reading is refuted. The three-row block was never a scheduling fault and the web count was not right: spelled as a test plus a separate decrement, the loop-entry guard and the do-while's own decrement build two cfe temp symbols where the target builds one. Spelling the guard as a post-decrement merges them and the whole prologue colouring lands on the target's, taking all 12 naming rows and both structural rows at once. What is left is one web, the vertex packet's segment-relocated address, coloured one register late; forcing the strip cursor one colour higher is accepted and reproduces the ROM at 119 of 119. The tie-break arithmetic is now fitted rather than guessed: save is totalsave over a divisor, totalsave sums ten to the loop depth over every reference including the defining one, and on this web the divisor is the number of DEFINITIONS -- which is movable at zero size delta while totalsave is not. A second definition halves the save for free; the save the target needs lies strictly between two of the other webs and the first reachable points all cost at least two instructions. So the interval is non-empty and empty at zero size delta.
  * PLATEAU-HANDOFF:overlay17DrawStrip:end
  */
