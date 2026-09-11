@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x34
-- summary: residual is one ugen ring-queue slot fixed by the angle block; no source form reorders that queue without breaking the sign-extension rows
+- summary: 2026-09-11, lane p6-tight re-read the ugen listing on the current base and the queue is already ascending, so the residual is an allocation-ORDER fact inside the second switch arm and not the angle block. The two arms are structurally identical yet take temps in opposite orders: the first allocates its test before its store, the second its store before its test. The recorded sixteen-bit carrier fixes the order by spending a temp -- the truncation takes the first number, the inner AND the second, as1 folds them keeping the first, and the store slides to the third -- where the target spends two. So the requirement is that the test be allocated first at a cost of ONE node. Newly flat: all eight carrier widths (unsigned sixteen and eight give 2, signed give 31 at plus eight bytes, every thirty-two-bit spelling is byte-identical to having no carrier at 4), thirteen block shapes including four early-exit forms that are all 4, a carrier on the store instead of the test, and L109's three identity-op phantoms on the angle sum, which uopt folds before the web builder and which therefore cannot move any ring draw in this function
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
@@ -287,5 +287,65 @@ produces the same words from a different expression tree, or evidence that the
 target's height test allocates a different number of ring temporaries than ours,
 which would move the phase without touching the angle block. Do not re-run the
 zero-footprint family or the phase lattice.
+
+
+#### 2026-09-11, lane p6-tight: the allocation ORDER rule, read from ugen, and block shape retired
+
+Re-measured unchanged: 480 bytes, 120 of 120 words, size delta 0, positional
+masked 2, aligner buckets 118 byte-exact, 2 register naming, 0 immediate only,
+0 really different, first naming-only difference +0x190. The census reads one
+source register mapping to one target register at both sites, 100 percent
+coherent, one window, no cycle.
+
+The ugen listing settles what the earlier passes inferred. The two arms of the
+mode switch are structurally identical, and their temps come out of the same
+free list, but they take them in OPPOSITE orders: the first arm allocates its
+test before its store, the second arm allocates its store before its test. The
+free list itself is ascending here, so the earlier reading that the angle
+block hands the switch an out-of-order queue no longer applies to this base --
+what is left is purely an allocation-order fact inside the second arm.
+
+The recorded carrier fixes the order by spending a temp rather than by
+reordering: a sixteen-bit carrier gives the test's truncation the first number
+and its inner AND the second, as1 folds the pair into one instruction keeping
+the first number, and the store therefore slides to the third. The target
+spends two: test first, store second. So the requirement is exact -- the test
+must be allocated first at a cost of ONE temp, and every construct that
+allocates it first costs two.
+
+Newly measured and flat this pass, all at zero size delta:
+
+- eight bit-width spellings of the carrier. Unsigned sixteen-bit and unsigned
+  eight-bit both give 2; `s8`, `s16` and `short` cost eight bytes and 31 words
+  because the truncation sign-extends; every thirty-two-bit spelling
+  (`u32`, `s32`, `int`, `unsigned int`, `long`) gives 4 and is byte-identical
+  to having no carrier at all, which is the measured proof that the lever is
+  the truncation node and not the declaration;
+- thirteen block shapes of the arm: an early `break` on the negated test, with
+  and without braces and with the comparison spelled three ways; an empty then
+  with the body in the `else`; a `goto` to the arm's end; a `do`-`while(0)`
+  wrapper; a `while` that breaks after one pass; an `if (1)` region around the
+  store; a bare brace pair around the store; and a nested region around the
+  whole body. The four early-exit shapes are all 4, the same as no carrier, so
+  moving the store into a later basic block does NOT make the test allocate
+  first. The region and goto shapes are 9 to 11;
+- a carrier read from the pointer rather than from the already-loaded value: 6;
+- the store re-reading the field: 6;
+- a carrier on the store instead of the test, and carriers on both: 4 and 2,
+  neither better than the recorded one;
+- identity-op phantoms on the angle sum, both operands and the whole sum, in
+  all three forms L109 names, crossed with the carrier and no-carrier arms:
+  byte-identical in every cell, so those phantoms are folded before ugen and
+  cannot move this free list either;
+- declaring the angle as a thirty-two-bit local and truncating the sum
+  explicitly: 18, because the truncation pair then lands two ring slots early
+  and shifts the rest of the arm. The one variant of that family that keeps the
+  layout, a doubled mask on the right operand, is byte-identical to the base at
+  2.
+
+Next lever, unchanged in kind but now stated against the right mechanism: a
+construct that makes the second arm allocate its test temp before its store
+temp while emitting one node, not two. Do not re-search carrier types or block
+shapes.
 
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->

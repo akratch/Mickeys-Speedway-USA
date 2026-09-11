@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Ring-index swap only. Exactly two ucode orders are reachable and the target's is neither: shift-first gives mask, scale, table (3) and base-first gives table, mask, scale (5), while the target needs mask, table, scale, which requires the mask as its own surviving statement in front of a base-first address. uopt forward-substitutes a single-assignment local back into the address expression in every arrangement tried -- hoisted to the loop header, separated by an L97 region, assigned in the else-if condition's comma, or assigned in a comma inside the add's own left operand -- so twelve hoisting forms plus nine spelling variants all land on 3 or 5. Two uses (m + m) do produce the target's order but put the mask on a pool colour and turn the shift into an add, and a volatile index is 43 at delta 8.
+- summary: 2026-09-11, lane p6-tight re-derived this from the objects and adds three negatives. The four draws are consecutive on both sides, so the phase is already right and only two adjacent draws are transposed -- no phantom draw can fix a transposition. Newly flat at zero size delta: the mask carrier declared register in s32, u32 and int spellings (byte-identical to the plain local, index-first and base-first alike); the carrier hoisted into the enclosing block in front of the arm's own guard (5, no better than inside it); and L109's three identity-op phantoms, or-with-zero, and-with-minus-one and xor-with-zero, on either operand or on the whole sum, which uopt folds before the web builder and which are byte-identical everywhere -- only a redundant AND with the same constant survives, as a copy, and it draws before its own operand subtree. Two identical masks combined with or or and common completely and waste no draw. Ring-index swap only. Exactly two ucode orders are reachable and the target's is neither: shift-first gives mask, scale, table (3) and base-first gives table, mask, scale (5), while the target needs mask, table, scale, which requires the mask as its own surviving statement in front of a base-first address. uopt forward-substitutes a single-assignment local back into the address expression in every arrangement tried -- hoisted to the loop header, separated by an L97 region, assigned in the else-if condition's comma, or assigned in a comma inside the add's own left operand -- so twelve hoisting forms plus nine spelling variants all land on 3 or 5. Two uses (m + m) do produce the target's order but put the mask on a pool colour and turn the shift into an add, and a volatile index is 43 at delta 8.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -344,5 +344,56 @@ definition to give the local two definitions; and an assignment used as a
 multiplied-by-zero or anded-with-zero operand of the sum, which either folds
 or turns the mask into a web. Sixty scored cells this pass, plus nine
 forced-colour compilations, one free-list trace and one scheduler node table.
+
+
+#### 2026-09-11, lane p6-tight: the order term re-derived from ugen, and three new negatives
+
+Re-measured unchanged: 468 bytes, 117 of 117 words, size delta 0, positional
+masked 3, aligner buckets 114 byte-exact, 3 register naming, 0 immediate only,
+0 really different, first naming-only difference +0x13C.
+`tools/register_census.py` reads it as a closed two-cycle over one adjacent
+ring pair at 100 percent coherence in a single window, which is the same fact
+the earlier passes call a ring-index swap.
+
+Read off the object rather than off the count, the three words are the table
+load and the index shift trading ring slots while the mask and the sum keep
+theirs, and the add's two operand registers are identical on both sides. The
+candidate's ring order is mask, scale, table, sum; the target's is mask, table,
+scale, sum. Both are four consecutive ring draws, so the phase is already
+right and only the ORDER of two adjacent draws is wrong. That rules out every
+phase lever: a wasted draw shifts all four and a cycle needs a transposition.
+
+Since a postorder walk of one expression can produce only mask, scale, table
+(index-first) or table, mask, scale (base-first), and both were re-measured
+here at 3 and 5, the target's order requires the mask to be a SEPARATE
+surviving evaluation in front of a base-first address. That is the 2026-09-10
+closure and it survives this pass.
+
+Newly measured and flat, all zero size delta:
+
+- the carrier declared `register`, in `s32`, `u32` and `int` spellings, with the
+  address written base-first and index-first: 5 and 3, byte-identical to the
+  plain local, so the storage-class keyword does not defeat uopt's forward
+  substitution;
+- the carrier hoisted into the ENCLOSING block, in front of the arm's own
+  guard rather than inside the arm: 5, so a block boundary above the guard is
+  no better than one below it;
+- identity-op phantoms on either operand, or on the whole sum, in all three
+  forms L109 names: or-with-zero, and-with-minus-one and xor-with-zero are
+  byte-identical to the base in every position tried, index-first and
+  base-first alike. uopt folds them before the web builder, so they never reach
+  ugen and cannot be used to buy a ring draw here. Only a redundant AND with
+  the SAME constant survives, as a copy, and it draws before its own operand
+  subtree, which is the wrong end;
+- two identical masks combined with or-of-itself and and-of-itself common
+  completely and waste no draw: 5, unchanged from the plain base-first form;
+- an explicit base local, with and without the mask named first: 8;
+- a mask carrier forced to two uses inside the address: 5.
+
+The one remaining direction is unchanged and is not a spelling: a construct
+that makes a separately assigned mask survive uopt's forward substitution
+without becoming a pool colour. Every construct measured across four lanes
+either is folded back into the address or turns the mask into a coloured
+symbol.
 
 <!-- plateau-handoff:levelFreeAll:end -->

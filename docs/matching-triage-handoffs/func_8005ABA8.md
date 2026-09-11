@@ -276,4 +276,25 @@ node dump. Finding it means reading the assembler's branch optimiser itself rath
 its output. Do not spend another lane on source spellings, on the phase-input move space,
 on debug levels, on block membership, or on assembler flags: all five are now measured
 out.
+
+#### 2026-09-11, lane p6-tight: confirmed unchanged, no new search
+
+Re-measured against the current tree: 444 bytes, 111 of 111 words, size delta
+0, positional masked 2, aligner buckets 109 byte-exact, 0 register naming, 0
+immediate only, 2 really different, first structural difference +0x3C. The two
+words are the recorded pair: this candidate's conditional branch at +0x3C takes
+the annulled form with the target block's first scheduled instruction copied
+into its slot and its displacement moved past that copy, while the ROM branches
+plainly with an empty slot; the duplicated instruction itself stands
+identically in both objects further down, so the two sides differ in exactly
+those two words and in nothing else.
+
+Nothing was searched this pass. The 2026-09-10 and 2026-09-11 closures argue
+the space shut on two independent grounds -- the assembler declines only when
+the branch's target block holds zero nodes when the branch optimiser runs, and
+no C source produces a zero-node block; and the per-file and per-function
+branch-likely flags are refuted by this translation unit's own census. The
+remaining lead is the in-function counter-example those passes name, and it
+needs the assembler's branch optimiser read rather than another lattice.
+
 <!-- plateau-handoff:func_8005ABA8:end -->

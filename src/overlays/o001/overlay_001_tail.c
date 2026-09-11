@@ -3444,7 +3444,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x34
- * summary: residual is one ugen ring-queue slot fixed by the angle block; no source form reorders that queue without breaking the sign-extension rows
+ * summary: 2026-09-11, lane p6-tight re-read the ugen listing on the current base and the queue is already ascending, so the residual is an allocation-ORDER fact inside the second switch arm and not the angle block. The two arms are structurally identical yet take temps in opposite orders: the first allocates its test before its store, the second its store before its test. The recorded sixteen-bit carrier fixes the order by spending a temp -- the truncation takes the first number, the inner AND the second, as1 folds them keeping the first, and the store slides to the third -- where the target spends two. So the requirement is that the test be allocated first at a cost of ONE node. Newly flat: all eight carrier widths (unsigned sixteen and eight give 2, signed give 31 at plus eight bytes, every thirty-two-bit spelling is byte-identical to having no carrier at 4), thirteen block shapes including four early-exit forms that are all 4, a carrier on the store instead of the test, and L109's three identity-op phantoms on the angle sum, which uopt folds before the web builder and which therefore cannot move any ring draw in this function
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 

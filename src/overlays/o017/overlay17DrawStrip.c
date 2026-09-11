@@ -79,6 +79,20 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
  * address up, but the command-value web stops being one shared four-site range
  * and loses the first colour.
  *
+ * 2026-09-11, lane p6-tight priced the second-definition half of that
+ * arithmetic and it is empty at zero size delta. A second definition alone
+ * halves 30.0 to 15.0, below the counter web, so the reachable points need a
+ * surviving copy that also adds references: five references over two
+ * definitions is 25.0, seven over three is 23.3. Twelve copy forms were
+ * measured. A self-assignment of the strip cursor placed after both packet
+ * stores is dead-code-eliminated and byte-identical to the base; placed
+ * between or before them it survives, moves the colouring, and costs eight
+ * words. A cast copy, an add-of-zero copy, an unsigned round trip, a split
+ * declaration, two self-assignments in a row and a separate named pointer for
+ * the second store are all eight words too. So on this web a copy carrier is
+ * either deleted and record-free, or surviving and expensive -- that is L126's
+ * bound measured at this site.
+ *
  * The arithmetic of the remaining cell, for whoever picks it up: the strip
  * cursor's save must land strictly between the counter web's 20.6 and the
  * group's 30.0, or the address web must be numbered below the strip cursor's.
