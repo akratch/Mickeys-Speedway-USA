@@ -51,44 +51,33 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
                                     void *object, s32 rotated, s32 color);
 
 /*
- * Overlay 101 text +0x29A4..+0x2C3C. Natural source supplies the exact size,
- * 0x90 frame, ABI, CFG, FP topology, stack homes, and seven call sites. A
- * scoped decoded ledger selects two retail command schedules and complete
- * equivalent private temporary-register webs. Earlier lanes reached a 62-word
- * basin and then 43 by an exhaustive placement sweep that put the rotation
- * test BEFORE the third command build, recording honestly that this was a
- * measurement optimum and that the target emits the branch AFTER that build.
+ * Overlay 101 text +0x29A4..+0x2C3C, matched 2026-09-11 (lane p2-close).
  *
- * Lane c6-band-b (2026-09-10) closed that contradiction and took the score to
- * 36. The move to the structurally-correct placement is worth nothing on its
- * own -- it measures 62 -- because it changes a register allocation as well as
- * an order. In the 43-word form the 0xFFFFFF00 constant is materialised in the
- * delay slot of the `overlay101GetDimensions2Reloc` call, so a0..a3 are all
- * forbidden to it and it lands on t0; the instrumented globalcolor profile
- * refuses `p1:w112=c4` outright, so a1 is not colour-reachable there at all.
- * Moving the branch shortens that live range, the constant takes a1 as the
- * target has it, and the a1 census goes 6 -> 9 exactly. What that costs is the
- * temp ring: with t0 no longer held by the constant, every expression temp in
- * the function shifts one place. Restoring the ring needs one more web parked
- * on t0, and one nested-assignment carrier at the fourth command supplies it
- * -- the same `command = (x = (*displayList)++)` idiom the second command
- * already carries, invisible in the object because the copy is peepholed away.
- * Both edits are regressions alone (62 and 66) and 36 together.
+ * How the last 36 words came out, because two of the three edits look like
+ * noise and are not:
  *
- * The residue is a uniform ring rotation from +0x128 on, beginning at the
- * 0xFB000000 constant: the target holds one further web that this candidate
- * does not. It is not colour-reachable -- 36 of 36 single-web forces over the
- * eight allocator webs leave the object unchanged or worse -- so it is a web
- * count, not a colour. Flat at 36 or worse: all 16 subsets of carriers over
- * the four plain command sites, both orders of two distinct carriers crossed
- * with dropping either frame-filler local, five source-level ring nudges
- * (read-backs of screenWidth/screenHeight/transform fields/the unused locals),
- * naming the constant in a local (byte-identical), five region boundaries
- * (L97; the bare-brace control is byte-identical, as the law predicts), and
- * folding every command's word pair onto one line (45).
- */
-#ifdef NON_MATCHING
-void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
+ * 1. `(element->color & 0xFF) | 0xFFFFFF00` -- the mask is a no-op on a `u8`
+ *    and folds away at zero byte cost, but cfe still emits it, so ugen
+ *    allocates a THIRD expression temporary at that statement instead of two.
+ *    ugen hands out caller-saved temporaries from a FIFO free list, and this
+ *    candidate was running exactly one place behind the shipped code from the
+ *    `0xFB000000` constant onwards: the whole 30-word register-naming residual
+ *    was one missing allocation in that list, not a colour and not a web the
+ *    allocator refused.  Consuming one extra temporary here puts the list back
+ *    in phase, and the residual falls 36 -> 4.
+ * 2. Building the final command's `w0` constant before its `w1` constant fixes
+ *    which of the two gets the earlier temporary (4 -> 2), and
+ * 3. folding that pair onto one physical line retires as1's `lineno` tie so the
+ *    two stores keep the shipped order anyway (2 -> 0). [L59]
+ *
+ * The earlier 62 -> 43 -> 36 work is unchanged and still load-bearing: the
+ * rotation test sits after the third command build, which is where the target
+ * has it and which frees the 0xFFFFFF00 constant onto a1, and the
+ * nested-assignment carriers at the second and fourth commands restore the
+ * temporary ring that move rotates.  `right` and `bottom` are declared and
+ * unused on purpose -- they reserve the two stack homes the shipped frame has
+ * between `new_var2` and `command` [L121].
+ */void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
                                void *vertices, Overlay101DrawNode *node,
                                Overlay101TransformElement *element) {
     s32 bounds0;
@@ -123,7 +112,7 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
         command->w0 = 0xE7000000;
         command = (new_var = (*displayList)++);
         command->w0 = 0xFA000000;
-        command->w1 = element->color | 0xFFFFFF00;
+        command->w1 = (element->color & 0xFF) | 0xFFFFFF00;
         command = (*displayList)++;
         command->w1 = 0xFFFFFF00;
         command->w0 = 0xFB000000;
@@ -145,23 +134,9 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
         command->w1 = 0;
         command->w0 = 0xE7000000;
         command = (*displayList)++;
-        command->w1 = 0xFFFFFFFF;
-        command->w0 = 0xFA000000;
+        command->w0 = 0xFA000000; command->w1 = 0xFFFFFFFF;
         overlay101SetScissor2Reloc(displayList, 0, 0, 1000, 1000);
         (void)right;
         (void)bottom;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawTransformed/func_overlay_101_F00029A4_18DE1C4.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay101DrawTransformed:start
- * symbol: overlay101DrawTransformed
- * score: 36 differing words
- * frame: 0x90
- * relocations: 7
- * first-mismatch: +0x128
- * summary: Exact 664 bytes, 166/166 words, frame 0x90 and CFG. Putting the rotation test where the target has it (after the third command build) frees the 0xFFFFFF00 constant onto a1, and one nested-assignment carrier at the fourth command restores the temp ring the move rotates; each is a regression alone and together they give 36. The residue is a uniform ring rotation from +0x128, proved to be a missing web rather than a colour.
- * PLATEAU-HANDOFF:overlay101DrawTransformed:end
- */

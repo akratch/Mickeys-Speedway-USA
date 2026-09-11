@@ -2,11 +2,11 @@
 ### `func_overlay_101_F000C6E8_18E7F08` plateau handoff
 
 - source: `src/overlays/o101/overlay101TailC6E8.c`
-- score: 119 differing words
+- score: 106 differing words
 - frame: 0x18
 - relocations: 91
-- first mismatch: +0x8
-- summary: Two uopt region boundaries take 124 masked words to 119 at exact size and 0x18 frame; the residue is a global colouring shift, with the target holding selector in a1 and the root region's hoisted webs three ring steps lower.
+- first mismatch: +0x4C
+- summary: Two uopt region boundaries took 124 masked words to 119 at exact size and 0x18 frame. 2026-09-11, lane p2-close, 119 -> 106 with immediate-only words 2 -> 0 and structural 31 -> 26: four L59 group folds, chosen by measuring all 1,024 subsets of the ten foldable assignment groups, plus a no-op `& 0xFF` on the queue copy, which folds away at zero byte cost but still makes ugen allocate one more expression temporary and so moves the caller-saved free list one place. The shard's older claim that the target holds `selector` in a1 and this candidate a2 is stale: both hold it in a1 now, and the visible difference is the queue-byte base, t7 there against a2 here. The residue is 75 register-naming words, and it is p1 colouring in the root-initialisation region.
 - assignment base: `23dd98ede1da869df2df0948c80efeeb403caa6e`
 - owned range: overlay 101 `+0xC6E8..+0xCBDC`, 1,268 bytes / 317 words, with no target-size delta
 - baseline: 131 raw and 125 relocation-aware positional differences; normalized distance 117; first raw mismatch `+0x8` and first relocation-masked mismatch `+0x34`
