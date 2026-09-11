@@ -2,11 +2,11 @@
 ### `overlay58FinalizePackedStatus` plateau handoff
 
 - source: `src/overlays/o058/overlay58FinalizePackedStatus.c`
-- score: 216/304 words
+- score: 88/304 words
 - frame: 0x48
 - relocations: 48
 - first mismatch: +0x18
-- summary: Six zero-instruction discarded-expression probes and one inert early-return move take the masked residual from 177 to 88 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
+- summary: p1-only; 76% coherent. 29 p1 decisions, no p2; candidate homes 24/60/68 versus target 28/36/48/64; probes flat.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`
@@ -30,5 +30,22 @@ web the target spills and the candidate colours; the p1dec records are in the
 lane log and were not joined to symbols this pass. The six L109 probes already
 in the source move exactly these ratios, so the next pass should read the
 records before adding a seventh.
+
+#### 2026-09-11, lane p5-ovl: joined p1 records and closed two new probes
+
+The fresh baseline remains 88/304 relocation-masked words, with aligned
+buckets 227 exact, 41 register naming, 14 immediate-only, and 26 structural;
+the frame is 0x48 and the relocation count is 48. The instrumented object is
+text-identical to stock. Its 29 p1 decisions have no p2 decisions; the
+webdetail frame ladder identifies candidate resident homes 24(sp) = web 99,
+60(sp) = web 84, and 68(sp) = webs 0/299. The target object instead uses
+28, 36, 48, and 64(sp), so the discrepancy is a resident-set difference, not
+home order. The target disassembly labels the distinct homes as records, loop
+count, current, and post-call count; the candidate shares one home for the two
+count webs. A post-increment count probe and an early records-pointer probe
+both remained exactly 88/304 with identical buckets and were reverted.
+Forcing candidate p1 count/current webs to split regressed to 100--272 masked
+words, so those controls do not identify the target path. Candidate source and
+trace evidence is now preserved; no exact source spelling was proved.
 
 <!-- plateau-handoff:overlay58FinalizePackedStatus:end -->
