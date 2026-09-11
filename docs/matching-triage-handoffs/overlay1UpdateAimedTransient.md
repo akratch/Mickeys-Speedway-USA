@@ -234,4 +234,75 @@ reconstruction does not reproduce, or the sharing comes from a construct that
 is not a plain local. Do not spend another pass on carrier types, declaration
 order, or statement order in the head block -- this pass and the three before
 it have closed those on the same objects.
+#### 2026-09-11, lane p6-mid: the prologue cluster is a structural tie in as1's ready list, read off the node graph
+
+Baseline reproduces: 996 bytes, 249 of 249 instructions, delta 0, 14 masked
+words, first mismatch +0xC. Aligner on a register-erased shape: 244 byte-exact,
+1 register naming, 2 immediate-only, 4 really different, displacement tax 7 --
+so the aligned disagreement is **seven words**, all of them the prologue
+cluster, and the other seven of the positional count are pure shift.
+
+The f9-audit closure read the mechanism as memory class and was right. This pass
+prices it from `cc -Wa,-R`'s own dependence graph for the entry block, which
+turns "the candidate's load is held below the saves" into a statement about why
+no source form can lift it.
+
+**The graph, with the numbers.** ugen emits the frame adjustment, then eleven
+register saves, then the address materialisation as a single `la`, then the
+world dereference and the two field loads. as1 expands the `la` into two nodes
+before it builds the graph. Their priorities:
+
+- frame adjustment, aftercycles 19;
+- the save of the address carrier, aftercycles 10 -- it carries an
+  anti-dependence to the address-high node, which is why as1 already hoists the
+  address-high into the middle of the save block in the candidate;
+- address-high, aftercycles 9;
+- **address-low, aftercycles 8**;
+- **each of the other ten saves, aftercycles 8**, and each lists the same three
+  afternodes: the world dereference and the two field loads;
+- the world dereference, aftercycles 7; the object field load, 4; the source
+  field load, 0.
+
+as1 selects on aftercycles and breaks ties on emission index, which the trace
+shows directly: the ten saves are emitted at indices 3 to 13 and the address-low
+at 18, and the pick order runs 3, 4, 5, 6, 8, 9, 10, 11, 12, 13 and only then
+18. The address-low can never win that tie.
+
+**And the tie is structural, not incidental.** Every save's aftercycles is
+`1 + aftercycles(world dereference)` because each one carries an ordering edge
+to it; the address-low's is `1 + aftercycles(world dereference)` because its
+only afternode is that same load. The two terms are the same expression. Any
+edit that lengthens or shortens the chain after the load moves both by the same
+amount, and any edit that adds a deeper load to the block raises the saves
+without raising the address-low. **There is no source form that wins this tie
+while the edge exists.**
+
+**The edge exists exactly when the load carries no relocation, and that is
+measured, not assumed.** Compiling the all-direct form and reading the same
+block: its world dereference is emitted as a symbol reference, its node records
+`before 1` -- the address-high, and nothing else -- and every save drops to
+aftercycles 5 with only the two field loads as afternodes. The candidate's
+node records `before 12`: eleven saves plus the address-low. So as1 disambiguates
+a stack store against a memory reference that names a static symbol, and against
+nothing else; a register-indirect load gets an ordering edge from every
+preceding store in the block no matter what its base register was just built
+from.
+
+**Which is why the requirement is now a contradiction rather than a search.**
+The target's own object was checked: its relocation surface carries a HI16 and a
+LO16 for the shared-world symbol at +0x8 and +0xC and **nothing at +0x10**, so
+its world dereference is register-indirect and reloc-free, exactly like the
+candidate's -- and it still sits above ten saves. With ugen's emission order
+fixed (all eleven saves before the first body instruction, confirmed in `cc -S`)
+and as1's tie unwinnable, the shipped arrangement cannot be produced from this
+emission order at all. Either the original's saves were not all emitted first,
+or the load was a symbol reference that the extraction cannot show. Neither is
+reachable by carrier type, spelling, statement order, declaration order or a
+region boundary, and four lanes have now exhausted those.
+
+**Do not spend another pass on the head block.** What would settle it is
+evidence about ugen's emission order rather than about as1's selection: a
+function anywhere in this tree whose ugen output puts a body instruction between
+two prologue saves. One such example turns this from a contradiction into a
+lever; without one the seven words are the price of the reconstruction.
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->
