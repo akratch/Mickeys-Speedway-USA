@@ -221,8 +221,20 @@ it end to end. The ones that carry most of the weight:
   and solve rather than guess. Frame *size* is a count, not an order. An unused
   `s32` is eliminated before the frame is sized; an unused `f32` or pointer is
   not. `align8(4N)` hides a one-slot change.
+- **L144** — `volatile` does *two* things: it makes every read a load from the
+  value's home, and it emits scheduling edges pinning those loads in order.
+  **Taking the value's address (`*(s32 *)&param`) does only the first.** With no
+  edges a call-result copy ties with the reloads at `aftercycles` 0 and the
+  block collapses to **ugen's emission order** — so where the target's order is
+  ugen's, `volatile` overshoots and the address form lands exactly. A swept and
+  failed `volatile` axis therefore does **not** retire the reload: one function
+  had eight `volatile` forms measured flat and then **matched** on the address
+  form. Ask which of the two effects the target's shape needs; on three siblings
+  the address form failed for three different measured reasons.
 - **L110** — uopt never merges an address constant across a basic-block
-  boundary, and no read count produces a stack temporary.
+  boundary, and no read count produces a stack temporary. **Contested** — see
+  L138; an address constant has been observed copied across a boundary, and
+  preheader hoisting may explain it.
 - **L105** — uopt forwards a call's return register into every use in the call's
   own block; move the assignment to a later block and it reaches the
   callee-saved copy instead.
@@ -260,7 +272,14 @@ it end to end. The ones that carry most of the weight:
   **Never commit it.**
 - The instrumented toolchain at `~/Desktop/dev/ido-instrumented` (`CDX_LOG`,
   `CDX_PROC`, `CDX_DETAIL_WEB`, `CDX_FORCE`). **Confirm its `.text` is
-  byte-identical to the tree's object before trusting any reading.**
+  byte-identical to the tree's object before trusting any reading** — and
+  **derive the compile command from the build rather than retyping it**. Take
+  `nm_ranking.configured_compile_commands` and replace only the compiler binary.
+  A hand-written line that drops a per-file flag makes *both* sides of the
+  identity gate wrong in the same way, so they agree with each other and
+  disagree with the tree: one TU's per-file `-Wab,-r4300_mul` produced 33
+  against the configured 31, a gap small enough to read as noise. Then `cmp` the
+  objects rather than trusting the gate's verdict alone.
 - Direct `cc` equals the asm-processor build for a candidate with no
   `GLOBAL_ASM` pragma, at roughly 130 candidates/sec, which makes a small
   lattice exhaustive rather than sampled.
