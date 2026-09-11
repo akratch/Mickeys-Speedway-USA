@@ -209,4 +209,83 @@ reaching the switch is not reachable from those expressions either, and the
 structural conflict the win-b pass recorded now covers the whole loop body
 rather than the angle block alone.
 
+#### 2026-09-11, lane w3-low: the ugen free-list trace was run, and it closes this
+
+Five records named a ugen free-list trace as the next lever and none of them had
+run it. It was run here. The instrumented ugen was confirmed fidelity-clean on
+this translation unit first, at this TU's real flags: the object it produces with
+the trace off and the object it produces with the trace on are both byte-identical
+to the tree's own. This procedure is ordinal 24 in the unit and emits 20 ring
+allocations and 89 releases.
+
+The trace turns the recorded free-order argument from an inference into a
+mechanism, and it confirms it exactly as written. The ring is a ten-register
+queue. Every allocation takes the head, every release appends to the tail, so the
+draw order is a pure rotation of the queue unless some temporary outlives one
+allocated after it. In this procedure exactly one does: the angle sum's left
+operand owns a temporary released only when the sum is formed, while the right
+operand's conversion releases its own first temporary one emission step earlier.
+The trace records those two releases in that order, at consecutive emission
+indices, in the two rows the earlier passes predicted.
+
+What the trace adds is that the resulting swap is permanent rather than local.
+Because a release appends to the tail, a pair released out of order stays out of
+order in the queue for the whole rest of the procedure. The queue reaching the
+switch therefore always carries the two contested slots transposed, at the same
+two queue positions, however many further allocations happen in between. The
+first arm reads the two positions ahead of them and is byte-exact, which pins the
+phase, and the second arm is then forced onto the transposed pair. This is why
+every carrier spelling ever tried on the second arm only moves the same two words
+around.
+
+That converts the plateau into a counting statement that can be checked rather
+than argued. Let k be the number of extra ring allocations added before the
+surviving temporary and m the number added after the sum. The first arm keeps the
+target's two slots only when k plus m is a multiple of ten, and the swap misses
+the second arm only when m is neither zero nor nine modulo ten. Together those
+force k to be at least two, and any k at all shifts every ring slot in the angle
+block and in the height test, all of which are byte-exact today. Measured rather
+than predicted: k of two with m of eight does give both arms the target's exact
+slots at an unchanged instruction count, and scores 16.
+
+L127 is live on this translation unit, and that was established before it was
+relied on. A redundant byte mask on a value already known to be a byte draws a
+ring temporary and is then removed at the peephole, leaving the instruction count
+at 120 and the size delta at zero. Chained masks stack, one draw per layer, so an
+arbitrary number of zero-footprint draws is available at the switch selector, at
+the vertical-scale read and at the angle-base read. This is a different family
+from ADR 0017's inert reads, which never reach ugen at all; several of those
+forms were re-measured here and confirmed to draw nothing, which is why their
+failure never bore on this.
+
+Swept and flat, every cell compiled at this TU's real flags and scored against the
+whole 120-instruction target text: 264 cells of a single zero-footprint operation,
+in twelve spellings, at eleven placements spanning the loop head, the squared
+range, the angle base, three positions inside the angle sum, both halves of the
+angle comparison, the vertical scale and the switch selector, crossed with both
+second-arm shapes; and 220 cells of the phase lattice, k from zero to nine crossed
+with m from zero to ten crossed with both second-arm shapes. Floor is exactly 2
+and nothing reaches below the retained body. The best cell in the phase lattice is
+4, which is the recorded inversion.
+
+The two contested values are ugen ring temporaries, not coloured webs, and this
+procedure's own records say so rather than a general law. Every colouring decision
+here is a phase-one decision, which is the call test agreeing with itself; there
+are 22 of them out of 169 candidate webs, none declined, and every one lands on a
+pool register or the float pool. Neither contested value appears among them. So
+save ratios, candidate ordering and colour cost have no purchase on this residual
+at all, and L127 reaches the right family but cannot pay the arithmetic above.
+
+What is left is not a C lever on the switch. The transposition is forced by the
+dataflow of an angle block that is byte-exact with the target, so the target's own
+source must carry something that changes liveness without changing a byte. The one
+shape that would do it, keeping the right operand's first temporary alive past the
+sum, was traced: it produces a different transposition rather than none, and lands
+the second arm's pair one slot further on. The next lever is therefore the angle
+block itself, not the switch: either a different type for the angle carrier that
+produces the same words from a different expression tree, or evidence that the
+target's height test allocates a different number of ring temporaries than ours,
+which would move the phase without touching the angle block. Do not re-run the
+zero-footprint family or the phase lattice.
+
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->
