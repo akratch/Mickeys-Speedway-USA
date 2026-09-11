@@ -209,4 +209,55 @@ carrier, is the whole requirement. Note the threshold for becoming a web at all:
 the case-0 fraction has only two references and never becomes one -- it stays a
 ring temporary -- so three references at loop depth 1 is the floor, and that is
 why every constant-carrier form measured this pass left the fp web set untouched.
+##### Corrected the same pass: the requirement is TWO conditions, and neither alone reads as progress
+
+The "two more fp webs above the scale carrier" reading above is wrong, and the
+records say why. Read web 257's mask in the forced run: with the scale carrier
+moved to c28, the 1.0f web still comes back with `forbidden0` 0x000000e8, so
+**c26 is forbidden to it independently of anything the scale carrier does**. The
+1.0f constant is live across the one call that takes a float argument, and the
+argument register is f12, so f12 is intrinsically out of reach for it. The scale
+carrier is not live across that call, which is the entire difference between
+them. A direct force of the 1.0f web onto c26 is declined, byte-identical, and
+proves nothing -- L101's third kind.
+
+In the forced object that scores 9, **f12 is named at exactly one site**, the
+outgoing float argument. Nothing in the colour table holds it. So the target
+does not reach f16 by stacking two more webs on top; it reaches it because f12
+is forbidden and f14 is already taken:
+
+- **Condition A -- the scale carrier must be live across the float-argument
+  call**, which puts c26 in its forbidden mask exactly as it is in the 1.0f
+  web's. Measured: moving the case-0 scale assignment above that call takes
+  web 35's `forbidden0` from 0x000000c0 to 0x000000e0 and its `save` from
+  7.100000 to 6.454545 at `nocs` 11. It also costs a spill pair, +8 bytes.
+- **Condition B -- the 1.0f web must be coloured before the scale carrier**, so
+  that c27 is taken and interfering when the scale carrier decides. Under
+  condition A that is `save` 5.454545 against 6.454545, so B is **not** met and
+  the scale carrier lands on c27 f14, not c28 f16.
+
+That is why condition A alone reads as a failure: it is +8 bytes for 46 -> 20
+naming rows and a worse positional score, and three lanes have now measured it
+and set it aside. Forcing both on the A-form -- `p1:w35=c28,p1:w257=c27` --
+gives **6 naming rows and 325 byte-exact**, with the +8 bytes and the schedule
+shift behind it the only things left. So A and B together are the complete
+colour requirement and nothing else in the fp bank is wrong.
+
+**What each condition needs, arithmetically.** B needs `save`(1.0f) above
+`save`(scale): 60/11 against 71/11 under condition A, so either the 1.0f web
+reaches `totalsave` 72 at its present eleven components -- twelve more weighted
+references, or two more at loop depth 1 -- or the scale carrier drops to
+`nocs` 14 at its present total. One form measured this pass gets startlingly
+close by accident: reading the case-0 scale use from its global directly, on top
+of condition A, takes the scale carrier to `save` 5.545455 against the 1.0f
+web's 5.454545, a gap of 0.09. It costs +16 bytes as written, but it shows the
+two saves are reachable to each other from source.
+
+A is the harder half, because the +8 bytes is a genuine spill pair and the
+target has the same 368 instructions. The 1.0f web crosses the same call without
+one because uopt rematerialises a constant; the scale carrier is a global load
+and uopt spills it instead. A form that makes the scale carrier's live range
+reach that call while still being rematerialised at each use is the missing
+piece, and it is worth noting that the carrier is already rematerialised
+everywhere else -- it has ten live-range components against eight references.
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->
