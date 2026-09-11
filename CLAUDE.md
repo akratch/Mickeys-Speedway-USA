@@ -40,6 +40,20 @@ wrong. Anything already committed is already public, so deleting a file in a
 new commit does not unpublish it -- removing it for real needs a history
 rewrite.
 
+## Dispatching a lane
+
+`docs/LANE_BRIEF.md` is the standing brief every lane reads first. It carries
+what is true for all of them -- the measurement discipline, the call test, the
+law index, the instruments, the traps and the commit rules -- so a dispatch
+message only has to carry the targets, their measured numbers, and whatever is
+specific to them.
+
+Keep it that way. Seven bespoke briefs written in one session ran about 170
+lines each with roughly 120 of those identical, and hand-copying drifted: the
+L106 premise was stated wrongly to two lanes, both of which spent a sweep on an
+axis their functions do not have. One tracked source of that rule is worth more
+than the tokens it saves.
+
 ## Nothing ROM-derived is ever tracked in git
 
 Not asm, not instruction text, not hexdumps, not extracted assets, not
