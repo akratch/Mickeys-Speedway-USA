@@ -7,6 +7,40 @@
 - relocations: 88
 - first mismatch: +0x7C
 - summary: integer ring closed. Two composed edits, each a regression alone, take 288 to 229: spelling the race-state bit test as (flags << 0xD) & 0x80000000U == 0 burns the ugen ring temp the target burns between +0x54 and +0x58 (328 alone), and routing state->target->state through the already-declared spawned gives that pointer the target's pool colour instead of a ring temp (374 alone). Splitting dx = state->targetX - object->x into dx = state->targetX; dx -= object->x at the mode-0 dot product then closes 31 more. The remaining 198 are 167 fp rows: the fp scratch ring is still one web short from +0x368, and roughly 81 of them are the +0xB80 tail that cannot be bought back at 882 instructions
+## 2026-09-11 phase census and force-sweep verdict (lane `lane/p9-alloc`)
+
+Two cheap measurements, both of which close a lever rather than open one.
+Nothing in the candidate changed.
+
+**Phase census.** The instrumented IDO 5.3 uopt -- `.text` first checked
+byte-identical to the tree's own object for this TU -- emits **77 p1 decisions
+for this procedure (39 `color`, 38 `split`) and zero p2 records.** So L106 has
+no axis here: web numbering, definition position, declaration order and
+statement order cannot move a colour in this function, and only L100's
+`save = totalsave/nocs` ratio decides anything p1 decides.
+
+**And p1 decides almost nothing of this residual.** Splitting the 148 aligned
+naming rows by register bank: **139 name only floating-point registers, 7 name
+only integer registers, and 2 name both.** That agrees with this page's own
+earlier reading of "167 fp rows", and it explains the sweep result below,
+because L38 says p1 never colours into the local fp ring.
+
+**Force-sweep verdict.** Forcing every colour each web's own `p1cost` record
+declares available -- 174 (web, colour) cells, each force confirmed accepted in
+the decision records rather than assumed -- moves the count at all in exactly
+**one** cell, and that one is worth 4 words (198 -> 194). A greedy search
+stops there. So **p1 colouring reaches 4 of the 148 naming rows and no more.**
+
+The consequence for the next lane is a routing decision, not a new idea: this
+function is a **ugen fp-scratch-ring** problem (L13, L23, L61, L92), and no
+amount of save-ratio work, declaration reordering or web partitioning on the
+p1 side can reach it. The dominant family is a three-cycle in the scratch ring,
+`$f6 -> $f10 -> $f8 -> $f6`, at 32, 32 and 31 slots, first differing around
++0x4F8, with a separate `$f12 -> $f16` family of 12 from +0x3D8. A ring phase
+is set by the order in which expression temporaries are allocated and freed, so
+the levers are expression shape and commutative operand order at the sites
+*before* +0x3D8, not anything downstream of them.
+
 #### Region partition
 
 Re-measured against the configured TU: 882 words on each side, size delta 0,
