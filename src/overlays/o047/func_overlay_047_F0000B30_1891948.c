@@ -693,6 +693,6 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
  * frame: 0x280
  * relocations: 316
  * first-mismatch: +0x4
- * summary: Gap audit: 45 movement entries, 11 address-web, 3 relocation-form, 2 copies and 2 hazard slots; p1 only. Stale assignment pin blocks source experiments.
+ * summary: Paired audit: 45 movement, 11 address-web, 3 relocation-form, 2 copies, 2 hazards; six attempts flat; next lever is argument-home reload.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
