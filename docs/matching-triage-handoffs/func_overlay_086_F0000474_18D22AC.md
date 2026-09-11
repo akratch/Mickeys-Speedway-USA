@@ -2,11 +2,11 @@
 ### `func_overlay_086_F0000474_18D22AC` plateau handoff
 
 - source: `src/overlays/o086/func_overlay_086_F0000474_18D22AC.c`
-- score: 29 differing words
+- score: 9 differing words
 - frame: 0xA8
 - relocations: 38
 - first mismatch: +0xA8
-- summary: 51 fell to 29 because the lever named as "one interfering caller-saved web removed" is a web SHORTENED, at no width. The two +0x48 dereference sites shared one cfe temporary, giving uopt a single six-reference web (save 30) that spans both switch arms and is therefore live across a call -- and a web live across a call has v0 struck from its candidate list entirely, which the traced p1cost rows show and no CDX_FORCE can override, so the target's v0 was never a colouring choice. Carrying the case-0 site in the already-declared temp_a0 splits that temporary: the case-2/3 site becomes its own one-block web, stops crossing a call, regains v0 and takes it, and the ten-row state-byte family falls into v1 behind it (51 to 30, delta 0, frame unmoved, no new declaration, L44). Writing the 0xC command word through the pointer before the advance is the target's own sh 0(s5) shape and closes one more. The 29 left are 7 words of temp_a0's own web, still spanning the head block's +0x40 reads and the f690 results and so still barred from v0 -- the only free head-block carrier, spA0, costs 579 words and 4 bytes -- and 22 words of the command pointer, whose a1 is held by a web that needs it (forcing it off costs 211 words and 4 bytes) and outranks it 6.67 to 2.67.
+- summary: 29 fell to 9 on three edits whose cause was read off the instrumented allocator first. Dropping the second argument from the ext_o0_2d98 calls clears bit 27 of the command pointer web's forbidden mask and globalcolor gives it a1 at an unchanged save; the else-arm call alone is enough, the case-2 call alone is not. Splitting the pointer advance into two in-place steps stops uopt folding the rematerialisation into the add, which is the target's move a1,s5 plus addiu a1,a1,12 and returns delta to 0. Ordering the five payload stores by memory address, with the -2 spA0 store last, is worth six more. The 9 left are 7 words of temp_a0's own web on a0 against the target's v0 and one two-word as1 schedule slot at +0xA8.
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 
@@ -166,5 +166,86 @@ Decision variable for the next lane: with a1 available to the pointer web, what
 source form emits the target's separate `move a1,s5` at +0x17C instead of the
 folded `addiu a1,s5,12`. The record that blocks it is the four-byte deficit,
 not a colour.
+
+#### 2026-09-12, lane p8-arity: the arity lever lands, and the four-byte deficit is a split advance
+
+Baseline reproduced exactly before anything was changed: 2,648 bytes, delta 0,
+29 masked, aligned 640 byte-exact / 14 naming / 2 immediate / 8 structural, and
+the instrumented toolchain's `.text` byte-identical to the tree's stock object.
+Web 40's `p1cost` list starts at colour 5 (a2), with a3, t0 to t5 and an unnamed
+c13 at cost 1.0 and s5 to s8 at 33.0; colours 1 to 4 are absent from the list,
+exactly as recorded.
+
+**Which spanned call denies a1, measured one call at a time.** The function has
+two `ext_o0_2d98(temp_a0, var_a1)` sites inside the pointer's range, one in the
+state == 2 arm and one in the `0x24 == 0` else arm.
+
+- both dropped to one argument: forbidden mask 0x7803e000 -> 0x7003e000,
+  `bestcolor=4 bestreg=a1` at the same save 2.666667;
+- the else-arm site alone dropped: same mask, same colour;
+- the case-2 site alone dropped: mask unchanged at 0x7803e000, pointer still on
+  a2 -- but the argument move vanishes from the delay slot at +0x164 and the
+  object goes to 28 masked at delta 0.
+
+So the denial is not the union of the spanned calls' argument loads; **one of
+the two calls carries it and the other does not**, and the arity of that one is
+the lever. That refines L142 and is worth carrying to the next function.
+
+**The four-byte deficit is a fold, and two in-place advances stop it.** uopt
+folds the pointer's rematerialisation into its advance, emitting
+`addiu a1,s5,12` where the target emits `move a1,s5` then `addiu a1,a1,12`.
+Writing the advance as two successive in-place steps leaves the copy standing
+and combines only the constants: `*var_a1++ = 0xC;` followed by `var_a1 += 5;`
+reproduces both target instructions at their exact offsets, delta returns to 0
+and the score falls to 15. Every two-step spelling measured is byte-identical
+(`+= 3; += 3`, `++; += 5`, `+= 1; += 5`, `+= 2; += 4`, `+= 5; += 1`,
+`+= 5; ++`, `&var_a1[1]` then `&var_a1[5]`, and the two byte-arithmetic forms),
+so the adopted spelling is chosen for being the natural display-list idiom
+rather than for its bytes. A single advance is one instruction in all nine
+spellings of it.
+
+**The five payload stores are then a physical-line question.** All 120
+permutations were compiled. The two that reach 9 both put the `-2` spA0 store
+last; `-0xA, -8, -6, -4, -2` is the memory order and is the adopted one. The
+inherited order scores 15 and the worst permutation 33.
+
+Adopted state: 9 masked, delta 0, frame 0xA8 unmoved, aligned 653 byte-exact /
+7 naming / 0 immediate / 2 structural, no insertions or deletions, first
+structural difference +0xA8 and first naming difference +0x330.
+
+**Measured flat on the one-argument base, and none of it is worth repeating:**
+41 forms, every one returning a byte-identical object -- four advance spellings,
+four store spellings, seven L97 region placements (`if (1) { }` and
+`do { } while (0)` after the definition, inside the arm, at the end of the arm,
+before and after the angle call, after the store) plus two region wrappings of
+the definition and of the store-and-advance pair, definition positions 217
+through 222, an extra reaching definition in the then arm, in the else arm and
+in both, and an integer-carrier round trip through `temp_a0`. Statement-order
+moves of the `ext_o0_2a470` call are 23 to 193 and all worse.
+
+`CDX_FORCE=p1:w40=s` is **accepted** once `CDX_PROC=0` is also set -- without
+it the force is silently ignored and the record reads `forced=-2`, which is the
+same byte-identical trap L101 names. Forced, it gives delta +4 at 444
+aligned-exact, so the target does not split web 40.
+
+**The 16-cell carrier lattice for the remaining temp_a0 web is closed.** Sites
+{case-0 +0x48 read, case-2/3 +0x3E0 read} against carriers {temp_a0, var_a1,
+spA0, inlined at either line} measure 9 at the retained form and 39 to 596
+everywhere else. Routing either site through `var_a1` breaks the a1 colouring
+outright (first mismatch moves to +0x70) and `spA0` costs 8 bytes.
+
+Decision variables for the next lane, both named and both small:
+
+- 7 words: `temp_a0`'s web takes a0 where the target reads v0, at the case-0
+  +0x48 read (+0x330) and the +0x3E0 pointer (+0x630). The web still spans call
+  results, so v0 is absent from its cost list for the L101 reason rather than
+  outbid, and the carrier lattice above says no existing local splits it. What
+  has not been tried is the same arity reading applied to *this* web: enumerate
+  the calls inside its range and ask which one denies it, the way the pointer
+  web's denial turned out to rest on one call rather than all of them.
+- 2 words: at +0xA8 as1 emits the `move a1,s5` one slot after `sh t8,44(s0)`
+  and the target one slot before. Definition positions 217 to 222 are flat, so
+  the L59 key is not the definition's own line; the next thing to vary is the
+  physical line of the `0x2C` store beside it.
 
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->
