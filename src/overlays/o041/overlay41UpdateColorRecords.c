@@ -88,10 +88,10 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
 
 /* PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:start
  * symbol: func_overlay_041_F0000124_188745C
- * score: 83/98 words
+ * score: 15/98 words
  * frame: 0x30
  * relocations: 4
- * first-mismatch: +0x30
- * summary: Absolute-address reshape exhausted: symbolic C grows the function; exact-size baseline has zero opcode differences and a 15-word color/snapshot web.
+ * first-mismatch: +0x40
+ * summary: Two-window, 79-percent-coherent group-membership residual is not a transferable phase; new allocator evidence is required.
  * PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:end
  */

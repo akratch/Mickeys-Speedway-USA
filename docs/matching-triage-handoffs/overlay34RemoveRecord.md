@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 9
 - first mismatch: +0x14
-- summary: size-closed shadow/cursor form; residual is register-carrier allocation and relocation identity drift
+- summary: Making shadow the decrement carrier regressed to 43 words; retained p1 carrier allocation and relocation identity block closure.
 
 #### 2026-09-11, lane `f9-small`: the copy-site lattice is flat at 12
 
