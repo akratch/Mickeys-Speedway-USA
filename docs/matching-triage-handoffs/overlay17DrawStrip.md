@@ -255,4 +255,38 @@ reasoning, not a measurement, and it is the first thing the next lane should
 falsify. Third pass cell counts: 5 perturbation cells with records, plus the
 base control.
 
+
+#### 2026-09-11, lane p6-tight: the second-definition lever is not byte-free at this site
+
+Re-measured unchanged: 476 bytes, 119 of 119 words, size delta 0, positional
+masked 3, aligner buckets 116 byte-exact, 3 register naming, 0 immediate only,
+0 really different, first naming-only difference +0x110. One source register
+maps to one target register at all three sites, 100 percent coherent, one
+window, no cycle -- one web, as recorded.
+
+The recorded arithmetic says the strip cursor's save has to land strictly
+between the counter web's 20.6 and the tied group's 30.0, and that the divisor
+is the number of definitions. A second definition alone halves 30.0 to 15.0,
+which is below the counter, so the only reachable points are a second
+definition PLUS two more references: five references over two definitions is
+25.0, seven over three is 23.3. Both need a copy of the cursor that survives
+into the records.
+
+Twelve such copies were measured, and the lever is empty at zero size delta:
+
+- a self-assignment of the cursor placed after both packet stores is
+  dead-code-eliminated and is byte-identical to the base at 3, twice over;
+- the same self-assignment placed between the two stores, or before them, is
+  11 words at zero size delta -- it survives, it does move the colouring, and
+  it moves it the wrong way;
+- a cast copy, an add-of-zero copy, a copy through an unsigned round trip, a
+  declaration split from the assignment, two self-assignments in a row, and
+  binding the second store to a separate named pointer are all 11 as well.
+
+So on this web the two outcomes are "the copy is deleted and the save does not
+move" or "the copy survives and costs eight words". That is the measured form
+of L126's bound for this site: a copy carrier is byte-free only where it is
+also record-free. The interval the recorded arithmetic identifies is still
+non-empty in principle and still unreached.
+
 <!-- plateau-handoff:overlay17DrawStrip:end -->

@@ -240,4 +240,21 @@ forms, and two address-of-element forms -- crossed with the hoist placed before
 and after the count store, are all seven words, so the three words the hoist
 costs are not a property of how the copy is written.
 
+
+#### 2026-09-11, lane p6-tight: confirmed unchanged, no new search
+
+Re-measured against the current tree: 212 bytes, 53 of 53 words, size delta 0,
+positional masked 2, aligner buckets 51 byte-exact, 2 register naming, 0
+immediate only, 0 really different, first naming-only difference +0x6C. One
+source register maps to one target register at both sites, 100 percent
+coherent, one window, no closed cycle -- the compaction limit, as recorded.
+
+Nothing was searched this pass. The 2026-09-10 closure is a contradiction
+argument rather than an exhaustion claim: under the measured ascending-web-
+number order, the cursor reaches its target colour only when the same three
+webs that must not forbid the limit are coloured in front of it, and there is
+always exactly one holder of the wanted colour numbered below the limit, so
+moving one only promotes the next. The numbering axis is open and priced at
+three words; nothing in this lane's levers reaches it.
+
 <!-- plateau-handoff:overlay20RemoveEntry:end -->

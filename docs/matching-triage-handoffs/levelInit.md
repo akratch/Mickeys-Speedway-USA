@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 110
 - first mismatch: +0x328
-- summary: 2026-09-11, lane f9-audit: 22 to 6 at delta 0. The 16-word colour term was never a colouring problem. uopt forms one web per SYMBOL (f_intfering is a bit-vector intersection of live BLOCKS, and a symbol's live blocks are the union over all its uses), so carrying the resource id in the existing `shouldPlay` local -- a2 already, decided seventh at save 40, live beside the v0/v1 tune-loop temps -- forbids c1 and c2 for the loop value with no new web and no frame change; the address web falls to a3 behind it exactly as predicted. The earlier closure held the CARRIER IDENTITY fixed while it varied everything around it: a six-cell sweep over the existing locals finds it (shouldPlay 6, tune 17, lvlCount 30, j 31, freeSlot and i move the frame). The remaining 6 words are the levelFreeAll order term (target pops mask, table, scale, sum, then one phantom; candidate pops phantom, mask, scale, table, sum), re-measured flat across 32 spellings on the new base, including index-first pointer adds and named-mask carriers in every existing local.
+- summary: 2026-09-11, lane p6-tight: the remaining 6 are the levelFreeAll order term, re-derived from the objects -- the target draws mask, table, scale, sum then the phantom, this candidate draws the phantom first -- and the three new negatives (register storage class, a carrier hoisted above the arm's guard, and L109's identity-op phantoms, which uopt folds before the web builder) were exercised on the cheaper twin and hold here. 2026-09-11, lane f9-audit: 22 to 6 at delta 0. The 16-word colour term was never a colouring problem. uopt forms one web per SYMBOL (f_intfering is a bit-vector intersection of live BLOCKS, and a symbol's live blocks are the union over all its uses), so carrying the resource id in the existing `shouldPlay` local -- a2 already, decided seventh at save 40, live beside the v0/v1 tune-loop temps -- forbids c1 and c2 for the loop value with no new web and no frame change; the address web falls to a3 behind it exactly as predicted. The earlier closure held the CARRIER IDENTITY fixed while it varied everything around it: a six-cell sweep over the existing locals finds it (shouldPlay 6, tune 17, lvlCount 30, j 31, freeSlot and i move the frame). The remaining 6 words are the levelFreeAll order term (target pops mask, table, scale, sum, then one phantom; candidate pops phantom, mask, scale, table, sum), re-measured flat across 32 spellings on the new base, including index-first pointer adds and named-mask carriers in every existing local.
 
 #### 2026-09-10, lane c4-resident: 113 to 22, and the ring term closed
 
@@ -345,5 +345,26 @@ So the classification stands after the correction, and the reason is a measured
 per-procedure fact rather than the law's wording. Anyone re-opening this should
 re-read the records, not the law: the boundary between colour and ring is per
 procedure.
+
+
+#### 2026-09-11, lane p6-tight: confirmed as the same order term, measured on the twin
+
+Re-measured unchanged: 2064 bytes, 516 of 516 words, size delta 0, positional
+masked 6, aligner buckets 510 byte-exact, 6 register naming, 0 immediate only,
+0 really different, first naming-only difference +0x328.
+
+The six words are the same four-draw transposition as `levelFreeAll`'s three,
+plus the phantom draw this arm spends: read off the object, the target draws
+mask, table, scale, sum and then the phantom, while the candidate draws the
+phantom first and then mask, scale, table, sum. Both spend five draws, so the
+phase into the rest of the loop is already right in both.
+
+Because the arm is byte-for-byte the twin's, the levers were exercised on
+`levelFreeAll` this pass, where one candidate costs a sixth of a second rather
+than a full translation unit. See that shard for the three new negatives
+retired: the `register` storage class, the mask hoisted above the arm's own
+guard, and L109's three identity-op phantoms, which uopt folds before the web
+builder and which therefore cannot buy or spend a ring draw in either
+function.
 
 <!-- plateau-handoff:levelInit:end -->
