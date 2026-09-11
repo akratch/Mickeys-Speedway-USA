@@ -80,6 +80,10 @@ Levers measured and flat, 126 forms in total:
   and the loaded word named or inlined -- crossed with the `u32` cast. Naming
   the base is 38; everything else is 28 or, with the cast, 29.
 
+Three L97 `if (1)` regions -- around the two load calls, around the table access
+and its uses, and around the language fetch -- measure 28, 29 and 28, so the
+region opener is byte-inert here except where it forces the cast's rotation.
+
 Resume with the free-list trace, and read it for *order* rather than for a count:
 the question this pass leaves is why eleven draws on each side hand out different
 registers, which is a question about when each temporary is returned to the list,

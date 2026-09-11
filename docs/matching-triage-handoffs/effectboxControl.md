@@ -56,8 +56,14 @@ the copy; the copy is what gives as1 an ordinary delay slot to fill, so the
 candidate never emits the likely form. Removing that copy is the same question
 as the a2/a3 cycle.
 
+Four L97 `if (1)` regions -- around the hit block, around the search call and
+its loop, around the unrolled body, and around the state fetch at the top -- are
+byte-inert at 57. L136's lever is for a symbol-level interference and this
+residual is not one.
+
 Axes covered: 24 store/hit-list spellings; 120 declaration-order, scope, array-
-length and pad forms; 11 array lengths on the pre-adoption base. Not covered:
+length and pad forms; 11 array lengths on the pre-adoption base; four L97
+regions. Not covered:
 an instrumented free-list capture at the unrolled body, which is what would
 turn the a2/a3 cycle from a coherent mapping into a named draw.
 <!-- plateau-handoff:effectboxControl:end -->
