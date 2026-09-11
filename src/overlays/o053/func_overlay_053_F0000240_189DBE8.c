@@ -4,8 +4,42 @@ typedef s32 O53Unknown;
 
 #define O53_FIELD(base, type, offset) (*(type)((u8 *)(base) + (offset)))
 
+/*
+ * Tier D (frame identity): the target writes 0x84, 0x88, 0x8C, 0x94 and the
+ * halfword pair 0x90/0x92 and then passes sp+0x84 to the eight-argument draw
+ * call, so those six slots are one address-taken aggregate rather than six
+ * scalars.  Split into scalars, five of the six stores are dead and uopt
+ * removes them; that is what the missing-instruction runs at target +0x898
+ * and the two +0x7C0/+0x828 arms of this block turned out to be.
+ */
+typedef struct O53DrawPacket {
+    u32 unk00;
+    s32 unk04;
+    s32 unk08;
+    s16 unk0C;
+    s16 unk0E;
+    s32 unk10;
+} O53DrawPacket;
+
 extern O53Unknown **overlay53ExternalReloc();
 extern void overlay53CopyOffsetEntries();
+
+/*
+ * The overlay reaches these through runtime LOCAL relocation records, so the
+ * extracted object carries no static symbol for them and the scaffold rendered
+ * every one as an absolute address.  An absolute address compiles to a single
+ * $zero-based access; the target materialises %hi/%lo, which is where the
+ * missing words at target +0x10, +0x328, +0x3DC and their siblings live.
+ * The names below assert nothing but distinctness.
+ */
+extern s32 D_0;
+extern s16 D_84;
+extern f32 D_8C;
+extern f32 D_90;
+extern O53Unknown *D_110;
+extern s8 D_114;
+extern s16 D_T16[];
+extern u32 D_T32[];
 
 extern O53Unknown D_1C;
 extern O53Unknown D_DC;
@@ -38,12 +72,7 @@ void func_overlay_053_F0000240_189DBE8(s32 arg0) {
     s32 spAC;
     s32 spA8;
     s32 spA4;
-    s32 sp94;
-    s16 sp92;
-    s16 sp90;
-    s32 sp8C;
-    s32 sp88;
-    u32 sp84;
+    O53DrawPacket sp84;
     O53Unknown sp80;
     u32 sp7C;
     s32 *sp78;
@@ -90,51 +119,17 @@ void func_overlay_053_F0000240_189DBE8(s32 arg0) {
     sp7C >>= 1;
     overlay53ExternalReloc(0, 0);
     temp_s7 = overlay53ExternalReloc(&spB4);
-    if (*(s32 *)0 == 0) {
-        var_a1 = 0;
-        if (arg0 > 0) {
-            temp_v0 = arg0 & 3;
-            if (temp_v0 != 0) {
-                var_a1 = 1;
-                var_f16 = (-11.0f - D_290) * 0.125f;
-                if (temp_v0 != 1) {
-                    do {
-                        var_a1++;
-                        D_290 += var_f16;
-                        var_f16 = (-11.0f - D_290) * 0.125f;
-                    } while (temp_v0 != var_a1);
-                }
-                D_290 += var_f16;
-                if (var_a1 != arg0) {
-                    goto block_6;
-                }
-            } else {
-block_6:
-                var_a1_2 = var_a1 + 4;
-                var_f16_2 = (-11.0f - D_290) * 0.125f;
-                if (var_a1_2 != arg0) {
-                    do {
-                        var_a1_2 += 4;
-                        D_290 += var_f16_2;
-                        D_290 += (-11.0f - D_290) * 0.125f;
-                        D_290 += (-11.0f - D_290) * 0.125f;
-                        D_290 += (-11.0f - D_290) * 0.125f;
-                        var_f16_2 = (-11.0f - D_290) * 0.125f;
-                    } while (var_a1_2 != arg0);
-                }
-                D_290 += var_f16_2;
-                D_290 += (-11.0f - D_290) * 0.125f;
-                D_290 += (-11.0f - D_290) * 0.125f;
-                D_290 += (-11.0f - D_290) * 0.125f;
-            }
+    if (D_0 == 0) {
+        for (var_a1 = 0; var_a1 < arg0; var_a1++) {
+            D_290 += (-11.0f - D_290) * 0.125f;
         }
     }
     spA4 = (s32)D_290;
     temp_v0_2 = overlay53ExternalReloc();
-    temp_t3 = *(s8 *)0x114 + 1;
-    *(s8 *)0x114 = temp_t3;
+    temp_t3 = D_114 + 1;
+    D_114 = temp_t3;
     spC4 = temp_v0_2;
-    *(s8 *)0x114 = temp_t3 % 10;
+    D_114 = temp_t3 % 10;
     spC8 = -1;
     spCC = -1;
     sp70 = 0;
@@ -233,13 +228,13 @@ loop_40:
                     overlay53ExternalReloc(
                         O53_FIELD(temp_s2_2, O53Unknown **, 0x400),
                         &spB0, &spAC, &spA8);
-                    if ((*(s32 *)0 == 0) &&
+                    if ((D_0 == 0) &&
                         (O53_FIELD(spC4, s8 *, 0x86) !=
                          O53_FIELD(temp_s2_2, s8 *, 0x383)) &&
                         (overlay53ExternalReloc() == 0) &&
                         (O53_FIELD(temp_s2_2, O53Unknown **, 0x400) !=
                          (O53Unknown *)0x83D60)) {
-                        spA8 = (spA8 - (spA8 % 10)) + *(s8 *)0x114;
+                        spA8 = (spA8 - (spA8 % 10)) + D_114;
                     }
                     overlay53CopyOffsetEntries(&D_1C, temp_v0_6, var_fp, 0);
                     O53_FIELD(temp_v0_6, s32 *, 8) = (spB0 / 10) << 0x10;
@@ -267,16 +262,16 @@ loop_40:
                                            0xFF);
                     overlay53ExternalReloc(0);
                     if (overlay53ExternalReloc() == (O53Unknown **)1) {
-                        *(f32 *)0x90 = (f32)(0x50 - spA4);
-                        *(f32 *)0x8C =
+                        D_90 = (f32)(0x50 - spA4);
+                        D_8C =
                             (f32)O53_FIELD(temp_s3, s16 *, 0xEC);
                     } else {
-                        *(f32 *)0x8C = -44.0f;
-                        *(f32 *)0x90 =
+                        D_8C = -44.0f;
+                        D_90 =
                             (f32)(O53_FIELD(temp_s3, s16 *, 0xDC) - spA4 +
                                   0x5C);
                     }
-                    *(s16 *)0x84 =
+                    D_84 =
                         (s32)((s32)O53_FIELD(temp_s2_2, O53Unknown **, 0x400) *
                               -0x10000) /
                         300;
@@ -291,40 +286,40 @@ loop_40:
                         sp5C = temp_a1_2;
                         if (overlay53ExternalReloc() != 0) {
                             if (*temp_a1_2 == 0x35) {
-                                sp92 = 0xB4;
-                                sp90 = O53_FIELD(temp_s3_2, s16 *, 0xE4);
+                                sp84.unk0E = 0xB4;
+                                sp84.unk0C = O53_FIELD(temp_s3_2, s16 *, 0xE4);
                             } else {
-                                sp92 = 0xBA;
-                                sp90 = O53_FIELD(temp_s3_2, s16 *, 0xE8);
+                                sp84.unk0E = 0xBA;
+                                sp84.unk0C = O53_FIELD(temp_s3_2, s16 *, 0xE8);
                             }
                         } else {
                             temp_v0_7 = temp_s3_2 + &D_DC;
                             if (*temp_a1_2 == 0x35) {
-                                sp90 = 0x19;
-                                sp92 = 0x3E - *temp_v0_7;
+                                sp84.unk0C = 0x19;
+                                sp84.unk0E = 0x3E - *temp_v0_7;
                             } else {
-                                sp90 = 0x1F;
-                                sp92 = 0x44 - *temp_v0_7;
+                                sp84.unk0C = 0x1F;
+                                sp84.unk0E = 0x44 - *temp_v0_7;
                             }
                         }
-                        sp8C = 0;
-                        sp88 = 0;
-                        sp94 = 0;
-                        sp84 = *(u32 *)(*temp_a1_2 * 4);
+                        sp84.unk08 = 0;
+                        sp84.unk04 = 0;
+                        sp84.unk10 = 0;
+                        sp84.unk00 = *(u32 *)(*temp_a1_2 * 4);
                         overlay53ExternalReloc(0, &sp84, 0, 0, 0xFF, 0xFF,
                                                0xFF, *temp_s1_2);
                     }
                 }
                 if ((overlay53ExternalReloc() == 0) &&
                     ((s32)*overlay53ExternalReloc() == 5) &&
-                    (*(s32 *)0 == 0) && (*(O53Unknown **)0x110 == 0)) {
+                    (D_0 == 0) && (D_110 == 0)) {
                     overlay53ExternalReloc(1);
                     overlay53ExternalReloc(1);
                     overlay53ExternalReloc();
                     overlay53ExternalReloc(2, 4.0f, -1.0f, 0, 0, 0, 0);
                     overlay53ExternalReloc(0x12, 0, 0, 7, 1, 1);
                     overlay53ExternalReloc(3.0f, 0);
-                    *(s32 *)0x110 = 1;
+                    D_110 = (O53Unknown *)1;
                 }
                 var_fp++;
                 sp6C += 4;
@@ -347,10 +342,10 @@ loop_40:
 
 /* PLATEAU-HANDOFF:func_overlay_053_F0000240_189DBE8:start
  * symbol: func_overlay_053_F0000240_189DBE8
- * score: 709/636 words
+ * score: 636 differing words
  * frame: 0x178
- * relocations: 61
+ * relocations: 91
  * first-mismatch: +0x0
- * summary: V0 is 713/636 words (+77), frame 0x178 vs 0xD8, and overruns its 2544-byte owner by 308 bytes; relocation identities are unavailable.
+ * summary: 608/636 instructions, -112 bytes (was +308). Residual: loop store rotation, frame 0x178 vs 0xD8, unrecovered indexed tables.
  * PLATEAU-HANDOFF:func_overlay_053_F0000240_189DBE8:end
  */
