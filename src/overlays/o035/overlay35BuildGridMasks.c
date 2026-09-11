@@ -27,9 +27,31 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
-/* Workbench: structure-mismatch, 59 raw differences / 185 of 244 words match, first +0x0.
- * Instruction count/frame 0x80 and empty relocation surface are exact; six loop-order gaps remain.
- * Candidate is not permuter-ready; fallback remains canonical. */
+/* 244 instructions, frame 0x80 and an empty relocation surface are exact; 59 masked words
+ * fell to 54 on 2026-09-12 (lane p7-ovl3) by two independent levers, each measured alone:
+ *
+ *   - Declaring `end` before `vertex` in the inner block is 59 -> 57.  [L99]: cfe homes a
+ *     memory-class local in declaration order, and this one transposition moves two stack
+ *     displacements onto the target's (aligned immediate-only 12 -> 10, byte-exact 197 -> 199).
+ *     Declaration order is NOT free here: of 1,500 random permutations of the three blocks only
+ *     42 keep the 0x80 frame at all, the rest pad out to 0x88 or 0x90, and a permutation that
+ *     scores better while growing the frame is not closer.  Permuting only WITHIN a same-type
+ *     run preserves the padding and therefore the frame; 600 such points were measured and
+ *     every one holds 0x80, with the aligned residual flat at byte-exact 199 -- so this axis
+ *     is at its floor, not merely sampled.
+ *   - Pairing the four loop-tail statements two per physical line (`value += step; start += step;`
+ *     then `bit *= 2; x++;`) is 59 -> 56 with the aligned buckets UNCHANGED: it buys displacement
+ *     tax (9 -> 6), not agreement.  [L59]/[L132].  All 24 statement orders x 8 line groupings were
+ *     measured; folding all four onto ONE line scores 51 but costs 6 byte-exact rows and adds 3
+ *     structural ones, which is the trap in reading the positional number alone.
+ *
+ * The 54 that remain are 27 register naming (s1/s2, a2/a3 and v1/a0 transpositions), 10
+ * immediate-only (two stack homes still on the wrong slot) and 11 structural.  The structural
+ * eleven are three copies of one fact, at +0x214, +0x298 and +0x334: the target sign-extends the
+ * s16 loop counter immediately after the two `sll`s and tests it three words earlier than we do,
+ * so `sra`/`slti` land ahead of the `value`/`start` extensions.  Measured flat against that:
+ * every statement order and line grouping above, `} while (++x < 16)`, `x != 16`, s32 counters
+ * (all three explode the frame), and both operand orders of the `&&`. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
@@ -41,9 +63,9 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
         groupOffset = 0;
         do {
             u8 *group;
-            s32 vertex;
-            s32 flags;
             s32 end;
+            s32 flags;
+            s32 vertex;
             s16 startVertex;
             s16 baseIndex;
 
@@ -114,10 +136,8 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             if ((value >= minX) && (maxX >= start)) {
                                 mask |= bit;
                             }
-                            value += step;
-                            start += step;
-                            bit *= 2;
-                            x++;
+                            value += step; start += step;
+                            bit *= 2; x++;
                         } while (x < 16);
 
                         origin = bounds->y0;
@@ -129,10 +149,8 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             if ((value >= minZ) && (maxZ >= start)) {
                                 mask |= bit;
                             }
-                            value += step;
-                            start += step;
-                            bit *= 2;
-                            x++;
+                            value += step; start += step;
+                            bit *= 2; x++;
                         } while (x < 16);
                         *(u32 *)((u8 *)source->masks + vertex * 4) = mask;
 
@@ -147,10 +165,8 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             if ((value >= minY) && (maxY >= start)) {
                                 zMask |= bit;
                             }
-                            value += step;
-                            start += step;
-                            bit *= 2;
-                            x++;
+                            value += step; start += step;
+                            bit *= 2; x++;
                         } while (x < 8);
                         source->zMasks[vertex] = zMask;
                     }
@@ -168,10 +184,10 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
 
 /* PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:start
  * symbol: func_overlay_035_F0000770_1882450
- * score: 185/244 words
+ * score: 54 differing words
  * frame: 0x80
  * relocations: 0
- * first-mismatch: +0x0
- * summary: 244 instructions and frame 0x80 exact with empty relocations; six loop-order gaps remain
+ * first-mismatch: +0x2C
+ * summary: 59 fell to 54 on two separable levers. Declaring `end` before `vertex` is 59 to 57 and moves two stack homes onto the target's (immediate-only 12 to 10, byte-exact 197 to 199), which is [L99] read as a linear order. Pairing the four loop-tail statements two per physical line is 59 to 56 with the aligned buckets unchanged, so it buys displacement tax and not agreement ([L59]). Declaration order is bounded rather than sampled: permuting within a same-type run preserves cfe's padding and therefore the 0x80 frame, 600 such points are all 0x80 and all flat at byte-exact 199, while 1,458 of 1,500 unconstrained permutations grow the frame to 0x88 or 0x90 and several of those score better while being further away. The 54 left are 27 naming, 10 immediate-only and 11 structural, and the eleven are three copies of one fact at +0x214, +0x298 and +0x334: the target sign-extends the s16 loop counter right after the two shifts and tests it three words earlier. Flat against that fact: all 24 tail statement orders by 8 line groupings, `while (++x < 16)`, `x != 16`, s32 counters and both operand orders of the guard.
  * PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:end
  */

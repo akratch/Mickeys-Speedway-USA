@@ -73,9 +73,47 @@ extern s32 func_overlay_046_F0000874_188EC6C();
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Workbench verdict=allocation-mismatch; 54 masked/70 raw words differ in the exact 317-word frame, first real mismatch +0x78.
- * Flag lattice, temp/materialization variants, and the bounded -mips2 permuter were tried; mixed residual is schedule/register allocation.
- * Remains: packet-carrier lifetime at temp slot 7 and pool slot 58, with overlay relocation aliases. */
+/* 317 words, delta 0, frame exact, 118 relocation records aligned; 54 masked words remain and
+ * the aligner puts ALL 54 in one bucket -- register naming, with zero immediate-only, zero
+ * structural and zero displacement tax.  This is a pure colouring residual and nothing else.
+ *
+ * 2026-09-12, lane p7-ovl3, read off the instrumented allocator rather than inferred.  The
+ * procedure is p1-only (331 p1cand, 24 p1dec, 21 p1color, no p2), so [L106] does not apply and
+ * `save = totalsave/nocs` is the whole order.  globalcolor consumes colours 1..7 -- v0, v1, a0,
+ * a1, a2, a3 and t0 -- and colour 7 is taken by exactly ONE web, web 51, the case-5 `matched`
+ * flag (class 1, save 1.5, nocs 4, totalsave 6).  ugen's expression ring then starts at t1
+ * because t0 is spoken for, where the target's starts at t0, and that single position is the
+ * entire residual: ours reads t1/t2/t3/t4 where the target reads t0/t1/t2/t3, with five windows
+ * of re-phasing after it.
+ *
+ * Web 51's own records say why it needs a seventh colour and what would retire it:
+ *   - `forbidden0=0x7e000000` -- colours 1..6, every argument and return register -- and its
+ *     `p1cost` list STARTS AT COLOUR 7, so those six are not priced for it at all.
+ *   - it interferes with the webs holding all six (77 v0, 63 v1, 74 a0, 58 a1, 70 a2, 105 a3).
+ *   - freeing one of them is not enough and this was measured, not assumed: forcing web 70 off
+ *     a2 leaves a2 unassigned at web 51's decision and web 51 still takes t1, because its
+ *     forbidden mask is 0x7f000000 by then; the object is 90 words, worse.
+ * The same day the sibling residual in o086 read the same way, and there the mask cleared when a
+ * call inside the web's range dropped an argument: a web live across a call is denied the
+ * argument registers that call loads.  Here the spanned calls load a0..a3, which is why all six
+ * are gone rather than two.
+ *
+ * Measured flat at 54 on this base, all against the whole 317-word target: seven `if (1) { }`
+ * region placements plus eight more inside case 5 ([L97]/[L107] -- three of the sixteen are
+ * worse, none is better, so a region does not reach this residual); splitting the tail alpha out
+ * of `matched` (59) or into `value` (63); block-scoping `matched` (70); merging `matched` and
+ * `value` (60); u8/s16/u32 spellings of the flag (55, 66, 54); inverting the flag (55); testing
+ * it against 1 (149); a while-loop form of the name compare (54); hoisting the status-flag
+ * address into a local (163); and 24 declaration orders, whose floor is the order already here.
+ * One spelling IS adopted-in-waiting rather than adopted: writing the compare as
+ * `expected != current` restores the target's own `beql a0,<current>` operand order and is flat
+ * at 54 today, because the site stays a naming difference until the colour is right.  It is
+ * recorded here so the next lane does not have to rediscover it after the ring lands.
+ *
+ * Next lever: shorten web 51's span so that it stops crossing a call which loads a2 or a3, or
+ * find a source form in which the flag is not a distinct symbol at all.  Raising its save cannot
+ * work; a colour absent from a web's cost list is not for sale at any ratio. */
+/* Ownership trial note kept from 2026-08-28 is below. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x364..+0x378 .rodata range;
  * linked promotion is text-differs with 315 in-range words, first at +0x0.
  * Module growth is cleared; the remaining gap is codegen/register allocation. */
@@ -233,6 +271,6 @@ compare_name:
  * frame: -0x30
  * relocations: 118
  * first-mismatch: +0x4
- * summary: Exact 317-word geometry; allocation/schedule residual remains, while candidate relocation identity proof is partial.
+ * summary: Exact 317-word geometry and 118 aligned relocation records; the aligner puts all 54 residual words in the register-naming bucket with zero immediate, zero structural and zero displacement tax, so this is purely a colouring residual. Read off the instrumented allocator on 2026-09-12: the procedure is p1-only, globalcolor consumes colours 1 to 7, and colour 7 is taken by exactly one web, the case-5 `matched` flag, which pushes ugen's expression ring from t0 to t1 and re-phases the whole function. That web is forbidden colours 1 to 6 and its own p1cost list starts at colour 7, so the six argument and return registers are never priced for it; forcing the a2 holder off its colour leaves the flag on t1 and costs 90 words, so freeing an incumbent is not the route. Flat at 54: sixteen region placements, five symbol-boundary splits and merges, four flag spellings, an inverted flag, a while-loop compare, a hoisted flag address and 24 declaration orders. Writing the name compare as `expected != current` restores the target's own operand order at that site and is flat today, and is recorded for the lane that lands the ring. The next lever is to shorten the flag's span until it stops crossing a call that loads a2 or a3, or to find a form in which it is not a distinct symbol; raising its save cannot work, because a colour absent from a web's cost list is not for sale at any ratio.
  * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
  */
