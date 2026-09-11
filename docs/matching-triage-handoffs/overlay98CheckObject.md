@@ -2,11 +2,11 @@
 ### `overlay98CheckObject` plateau handoff
 
 - source: `src/overlays/o098/overlay98CheckObject.c`
-- score: 80/111 words (31 differing)
+- score: 80/111 words
 - frame: 0xA8
 - relocations: 6
 - first mismatch: +0x38
-- summary: frame and instruction/relocation shape exact; moving scratch[10] first removes the five displaced stack-home differences, leaving 31 register/operand differences. A capped permutation found no exact real-TU candidate.
+- summary: 31 differences after declaration-order repair; coherent s7/fp cycle remains
 
 Fresh lane measurement (2026-09-11, lane/p7-mix): moving `s32 scratch[10]`
 before the vector/local declarations is a strict configured-TU gain, 35 to 31

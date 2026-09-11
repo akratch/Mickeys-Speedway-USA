@@ -88,10 +88,10 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
 
 /* PLATEAU-HANDOFF:overlay98CheckObject:start
  * symbol: overlay98CheckObject
- * score: 80/111 words (31 differing)
+ * score: 80/111 words
  * frame: 0xA8
  * relocations: 6
  * first-mismatch: +0x38
- * summary: frame and instruction/relocation shape exact; moving scratch[10] first removes the five displaced stack-home differences, leaving 31 register/operand differences. A capped permutation found no exact real-TU candidate.
+ * summary: 31 differences after declaration-order repair; coherent s7/fp cycle remains
  * PLATEAU-HANDOFF:overlay98CheckObject:end
  */
