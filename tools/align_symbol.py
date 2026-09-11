@@ -34,7 +34,12 @@ percent; two were naming problems where chasing the first divergence could not
 have paid more than a sixth of the residual.
 
 **Displacement tax** is what the positional count exceeds the aligned
-disagreement by. A large tax means the stream is shifted, not wrong, and the
+disagreement by. It can come out slightly *negative*, and that is not a fault:
+the alignment is free to accept a few more disagreeing pairs in one place to
+win many more exact matches elsewhere, and the positional count has no such
+freedom. Measured across the 40 largest queued functions, one came out at -13
+and the rest were zero or positive. Read a small negative as "no displacement
+to recover", not as an error. A large tax means the stream is shifted, not wrong, and the
 lever is whatever caused the shift -- usually one instruction, named in the
 `insertions`/`deletions` this tool prints.
 
