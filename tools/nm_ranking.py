@@ -1854,10 +1854,30 @@ def classify(
     return ("other", *evidence)
 
 
-def process_item(
+@dataclasses.dataclass
+class WordStreams:
+    """Both instruction streams for one symbol, with their relocation surfaces.
+
+    Split out of `process_item` so that a tool which needs to *align* the two
+    streams reads them by exactly the path the ranking scores them by. Two
+    lanes wrote their own extractor into scratch and both had to rediscover
+    that `objdump -r` prints relocation offsets in section coordinates while a
+    hand-rolled reader indexes from the function's base -- see the header of
+    `tools/score_symbol.py`. There is now one reader.
+    """
+
+    base_words: list[int]
+    target_words: list[int]
+    base_reloc: dict[int, tuple[str, str]]
+    target_reloc: dict[int, tuple[str, str]]
+    base_size: int
+    target_size: int
+
+
+def word_streams(
     item: "pb.QueueItem", base_o: pathlib.Path,
-) -> tuple[Optional[FuncResult], Optional[str]]:
-    """Compare one owned symbol from the already compiled configured TU."""
+) -> tuple[Optional[WordStreams], Optional[str]]:
+    """Assemble the target and read both streams out of the two objects."""
     safe = item.func.replace("/", "_")
     out_dir = WORK_DIR / safe
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1875,10 +1895,29 @@ def process_item(
     target_start, target_size = target_span
     base_start, base_size = base_span
 
-    base_words = words_of(text_bytes(base_o, base_start, base_size))
-    target_words = words_of(text_bytes(target_o, target_start, target_size))
-    base_reloc = relocations(base_o, base_start, base_size)
-    target_reloc = relocations(target_o, target_start, target_size)
+    return WordStreams(
+        base_words=words_of(text_bytes(base_o, base_start, base_size)),
+        target_words=words_of(text_bytes(target_o, target_start, target_size)),
+        base_reloc=relocations(base_o, base_start, base_size),
+        target_reloc=relocations(target_o, target_start, target_size),
+        base_size=base_size,
+        target_size=target_size,
+    ), None
+
+
+def process_item(
+    item: "pb.QueueItem", base_o: pathlib.Path,
+) -> tuple[Optional[FuncResult], Optional[str]]:
+    """Compare one owned symbol from the already compiled configured TU."""
+    streams, error = word_streams(item, base_o)
+    if streams is None:
+        return None, error
+    base_words = streams.base_words
+    target_words = streams.target_words
+    base_reloc = streams.base_reloc
+    target_reloc = streams.target_reloc
+    base_size = streams.base_size
+    target_size = streams.target_size
 
     (
         category,
