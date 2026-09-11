@@ -124,4 +124,20 @@ here is a colour decision a force can reach, not ring phase.
 The post-increment order-counter spelling was this relative's entire gap to A
 and B. With it retained, the fold alone stops at 159.
 
+Lane `lane/p2-pres`, 2026-09-11, re-measured this function alongside its
+relatives. The source is unchanged; everything here is a negative, and the
+full working is in
+`docs/matching-triage-handoffs/overlay101BuildPresentationB.md`.
+
+- The forced-colour census reproduces: 145 to 136 to 130 to 127 on `p1:w186=c11`, `p1:w31=c2`, `p1:w78=c8`, measured on the B relative and identical here at every step. Every force was checked for a
+  `p1color` record carrying `forced` before its object was scored.
+- The intra-group line-break axis, which the previous lane did not measure (it
+  measured whole-group fold subsets), is flat. All 81 break positions
+  across the folded groups: nothing raises aligned byte-exact above 77.
+  One break, the first group at its fourth statement, reads 144 masked but 75 byte-exact and 34 structural, so it trades two agreeing words for one positional word and is not adopted.
+- The tail statement order, widened from the previous lane's eight statements
+  to the whole tail under its real dependences: 19,630 constrained orders
+  searched by single-move greedy plus random restarts, never beating
+  145. The displacement-pair sweep that refutes the interfering-web hypothesis was run on the B relative, which is identical to this one in every bucket and at every insertion offset.
+
 <!-- plateau-handoff:overlay101BuildPresentationC:end -->

@@ -126,4 +126,59 @@ carried no `volatile` casts, so the fold is the whole of its gain. Adopting the
 other relatives' tail shape on it regresses 145 to 149, which is the same
 four-word step measured in the other direction.
 
+Lane `lane/p2-pres`, 2026-09-11, re-measured this cluster and pushed the two
+axes the campaign brief named. The source is unchanged: everything below is a
+negative, and each one names what it varied.
+
+The forced-colour census reproduces exactly. 145 to 136 to 130 to 127, flat on
+the fourth round, with the same prefix: `p1:w186=c11`, `p1:w31=c2`, `p1:w78=c8`,
+every force checked for a `p1color` record carrying `forced` before its object
+was scored. Of 587 single forces tried, 324 were accepted, 18 improved, 58 were
+exactly flat and 248 regressed; the improving forces touch twelve distinct webs.
+
+The 127 is NOT a sweep artefact. The brief's caution is that a sweep never
+offers a colour another web has forbidden, so this lane swept the displacement
+move directly: for every coloured web, move it off its colour (to the split
+path or to any of colours 1 through 22) AND force another web onto the colour
+it vacated, both forces verified accepted. 12,320 such pairs at the 127
+plateau, 2,474 of them accepted, and not one beat 127. From the unforced 145
+base, 15,004 pairs, 3,291 accepted, best 135 -- worse than the single-force
+greedy reaches. So the interfering-web hypothesis is refuted on this function:
+freeing an incumbent colour does not hand it to any other web profitably, and
+127 is the allocator's floor for this source shape rather than a lower bound
+on one.
+
+Three new source axes, all flat.
+
+- Line breaks INSIDE a folded group. The previous lane measured all 1,024
+  whole-group fold subsets; it did not measure where a group is broken. All 81
+  intra-group break positions across the seven folded groups were measured
+  here, then greedily accumulated. Nothing raises aligned byte-exact above 77.
+  One break, the first group at its fourth statement, reads 144 masked but 75
+  byte-exact and 34 structural, so it trades two agreeing words for one
+  positional word and is not adopted. A, C and D give the identical picture
+  (144 at 75 exact, 144 at 75, and 130 at 80), which is a fourth independent
+  confirmation that the trio moves together.
+- Tail statement order, widened. The previous lane measured 1,440 orders of
+  eight tail statements. This lane searched the whole twenty-statement tail
+  under its real dependences: a constrained single-move greedy is flat at the
+  first round over 209 neighbours, and 88 random restarts with hill climbing
+  spent 19,630 evaluations without ever beating 145. The sibling function
+  `func_overlay_101_F000C144_18E7964` moves 24 words on exactly this axis, so
+  the axis is live in the family and exhausted here.
+- Compiler flags. `tools/flag_sweep.py`, 119 combinations: the configured
+  `-O2 -mips2 -32` is first at 145 and no override, including every loop-unroll
+  level, `-Wab,-r4300_mul`, `-g3`, `-mips1`, `-mips3` and an all-phase `-O3`,
+  improves on it.
+
+One mechanism worth carrying forward, read from this procedure's own records.
+A caller-saved colour costs 2 for each call the web spans beyond the first, and
+once a web's `nocs` reaches 3 the `available0` mask offers NO caller-saved
+colour at all -- every such web takes `s0` upward in descending `save`. That is
+why the seven declined webs here all sit at `save` 0.5 with `bestcost` 2.0: the
+decision variable is `totalsave` against `nocs`, and on this function no source
+form reached above it. `p1:w186=c11`, which pays 9 words, wants the node-20
+array base's `totalsave` above 4 at `nocs` 2, and the web has two references.
+Holding that base in a local pointer instead reads 170 at a size delta of 8.
+
 <!-- plateau-handoff:overlay101BuildPresentationB:end -->
