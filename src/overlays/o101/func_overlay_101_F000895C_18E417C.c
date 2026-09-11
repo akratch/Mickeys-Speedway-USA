@@ -88,7 +88,7 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
  * TU; this consumer uses that owner for the root and node pools. */
-/* Five source-shape levers took this family from 461 masked words to 189. The
+/* Six source-shape levers took this family from 461 masked words to 149. The
  * fifth closed the gate every earlier note on this family named and none
  * reached: the ROM holds the node pointer's web across the call AND stores
  * through the pointer it recomputes after the call.
@@ -136,26 +136,76 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  *   variable; the direct counter read gives both. Also refuted earlier and still
  *   true: `register volatile Node32 *` is the worst pointer spelling, not the
  *   best, and merging the three counter locals regresses.
- * Remaining, 189 masked: the instruction multiset and the frame are exact, and
- *   the residual splits cleanly by region. Below +0x5B0 (the node groups) it is
- *   58 words of as1 schedule order with 14 insertion and 14 deletion words and
- *   one naming row. From +0x5B0 (the text rows) it is 81 naming rows and no
- *   structural word at all, a uniform one-step register rotation.
- * L114, corrected for this procedure. Do NOT classify those 81 rows by register
- *   bank. This procedure's own p1cost rows decode as c1 v0, c2 v1, c3 a0, c4 a1,
- *   c5 a2, c6 a3, c7 t0, c8 t1, c9 t2, c10 t3, c11 t4, c12 t5, c13 unnamed,
- *   c14-c22 s0-s8: t3, t4 and t5 are ordinary caller-saved candidates here,
- *   priced exactly like a0-a3, and only t6-t9 and c13 sit outside the table.
- *   What is true is measured, not categorical: globalcolor assigns no t register
- *   in this compilation (22 p1color rows, none of them t; 21 further webs
- *   declined with decision=split and fall to ugen). Forcing each of those 40
- *   webs to c10, c11 or c12 is ACCEPTED every time -- 78 accepted forces, object
- *   changed in all of them, so none is L101's third kind -- and every one
- *   regresses, 189 to 394 at best. The rotation does move: the best force takes
- *   the text region's naming from 81 to 37, but adds 53 structural words there
- *   and 44 in the node groups. Reachable and unprofitable, not ring-only.
- * So the next lever is the node groups' as1 order; the text rows follow how many
- *   scratch registers those groups consume and fall behind that. */
+ * Remaining, 149 masked (was 189): size, frame and the nine-slot frame ladder
+ *   are exact. By region: the eight image node groups hold 40 schedule words
+ *   with 8 insertion and 8 deletion words; the chain group and the two root
+ *   headers hold 14 more schedule words and 4 naming rows; the three text rows
+ *   hold 47 naming rows and 4 schedule words.
+ *
+ * REFUTED, with the measurement. The previous note said "the next lever is the
+ *   node groups' as1 order; the text rows follow how many scratch registers
+ *   those groups consume". The text rows do NOT follow the node groups. Their
+ *   81 naming rows were their own defect, and the fix is the L115/L101 lever
+ *   this file already applies to the node macro but which was never applied to
+ *   the text macro: read the counter global directly in the pointer expression.
+ *   `node24 = &D_540[D_1D0]` in place of `textIndex = D_1D0; node24 =
+ *   &D_540[textIndex]` on the FIRST text row's pre-call read is worth 189 to
+ *   165 on its own, with the node groups untouched.
+ * Only the first row, and that is not a coincidence. Rows 2 and 3 fold their
+ *   pre-call index into the previous row's increment, so the spelling only
+ *   reaches row 1; applying it to all three instead reads 175, and the records
+ *   say exactly why. The pre-call reference is what keeps the `node24` symbol
+ *   web's totalsave at 48 over nocs 2, i.e. save 24, above the node pointer
+ *   web's save of 21. p1 is repeated max-save selection, so node24 is decided
+ *   first, while s0 is still unpaid at 6.5, and the first caller-saved colour
+ *   at 6.0 wins -- which is the ROM's v1. Drop those references and node24's
+ *   save falls to 19.5, the node pointer web takes s0 first, s0 becomes free at
+ *   0.0 for everything after it, and node24 takes s0 where the ROM has v1.
+ *   `CDX_FORCE=p1:w99=c2` on that shape reads 158 against 175, confirming the
+ *   colour is the whole difference.
+ * Statement order then pays 165 to 149 over six blocks -- two root headers, the
+ *   chain group, the image macro and the two text macros -- by pairwise-swap
+ *   hill climbing with eight random restarts, all of which reconverge on 149.
+ *   1500 random text-macro orders measured separately are all at or above 189,
+ *   so this is a narrow optimum and not a plateau.
+ *
+ * THE NODE GROUPS ARE DAG-CLOSED, and this is the useful negative. as1 orders
+ *   every memory reference after any preceding store whose base register
+ *   differs, and disambiguates only same-base/different-displacement pairs;
+ *   read that off the `-Wa,-R` node table, where the previous-link store lists
+ *   the chain-pointer load as an after-node. Because of that edge the target's
+ *   node block -- which issues both old-link loads before every store -- is
+ *   INFEASIBLE in this candidate's dependence graph. No as1 tie-break, no
+ *   physical-line fold and no statement order reaches it; the graph has to
+ *   change, and only a carried old-link value changes it.
+ * Every carrier spelling was measured and every one lands on 421 (from 149's
+ *   sibling shape), with the carriers in a globalcolor colour where the ROM has
+ *   ring registers: a new s32/void* pair, a new u32/Node32* pair, eight
+ *   distinct per-invocation symbols, `register`-qualified carriers, and four
+ *   reuses of existing locals. The records say it is not a spelling problem. A
+ *   carrier web spans no call, so after globalcolor splits it the residue reads
+ *   `nocs=1 totalsave=1.000000 bestcost=0.000000` and the pass colours whenever
+ *   totalsave exceeds bestcost -- which for a single-block range is always,
+ *   while any caller-saved colour is free. Any colour at all removes two ring
+ *   consumers from each of the eight node blocks, so the ring re-phases
+ *   throughout: naming goes 0 to 109 there, against a structural gain of 40 to
+ *   38. The carrier direction is closed on arithmetic, not on spellings.
+ * Two instrument facts worth inheriting. `CDX_FORCE=p1:wN=s` does NOT apply to
+ *   a web whose first decision is already `split`; the second, colouring
+ *   decision on the same web number records `forced=-1` and colours anyway, so
+ *   the split path cannot be forced on a split residue (colour forces do apply
+ *   and record `forced=<colour>`). And L109 probes are inert on this procedure:
+ *   `(s32)node24 | 0`, `& -1`, `^ 0`, at one, two and four copies, all leave
+ *   `totalsave=39.000000` unchanged and the object byte-identical.
+ * L114 for this procedure, unchanged and re-confirmed: its own p1cost rows
+ *   decode as c1 v0, c2 v1, c3 a0, c4 a1, c5 a2, c6 a3, c7 t0, c8 t1, c9 t2,
+ *   c10 t3, c11 t4, c12 t5, c13 unnamed, c14-c22 s0-s8. Do not classify a
+ *   naming row by register bank; decode the table from your own records.
+ * Next: the 40 image-group schedule words are closed as argued above. The 47
+ *   text naming rows are a ugen ring phase that diverges at the second multiply
+ *   result of row 1 while every preceding register agrees, so the lever is
+ *   ugen's pre-schedule order rather than a colour; read `cc -S` for that
+ *   procedure and find what the ROM allocates a ring register to there. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000895C_18E417C(void) {
     Node32 *node32;
@@ -170,7 +220,7 @@ void func_overlay_101_F000895C_18E417C(void) {
 
     node32 = &D_340[D_1CC]; node32->x = 0x4E; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x92, 0); node32 = &D_340[D_1CC]; nodeIndex = D_1CC; node32->handle = handle; node32->previousType = D_0.chainType; node32->previous = D_0.chain; D_0.chain = node32; D_0.chainType = 2; D_1CC = nodeIndex + 1;
 
-    D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x20; D_0.height48 = 0x14; D_0.value4A = 0x100; D_0.value4C = 0xB4; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.dataF8; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_38; D_1C4 = ownerIndex + 1;
+    D_0.value4A = 0x100; D_0.height48 = 0x14; D_0.color4F = 0xFF; D_0.value4C = 0xB4; D_0.color4E = 0xFF; D_0.mode40 = 0; D_0.y46 = 0x20; D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.data50 = D_INPUT.dataF8; D_0.childType = 0; D_0.child = 0; ownerIndex = D_1C4; D_1C0[ownerIndex] = &D_38; D_1C4 = ownerIndex + 1;
 
 #define ADD_IMAGE_NODE(nodeX, nodeY, imageId)                                \
     node32 = &D_340[D_1CC];                                                  \
@@ -182,7 +232,7 @@ void func_overlay_101_F000895C_18E417C(void) {
     node32->color13 = 0;                                                     \
     node32->value14 = 0.0f;                                                  \
     node32->value18 = 0;                                                     \
-    handle = func_overlay_101_F0000000_18DB820((imageId), 0);                 \
+    handle = func_overlay_101_F0000000_18DB820((imageId), 0);                \
     node32 = &D_340[D_1CC];                                                  \
     nodeIndex = D_1CC;                                                       \
     node32->previousType = D_0.childType;                                    \
@@ -215,17 +265,20 @@ void func_overlay_101_F000895C_18E417C(void) {
 
 #undef ADD_IMAGE_NODE
 
-#define ADD_TEXT_ROW(field, rowY)                                            \
-    textIndex = D_1D0;                                                       \
-    node24 = &D_540[textIndex];                                              \
+/* Row 1 only: the pre-call read is the counter global itself, so the address
+ * is an expression web in the temp ring rather than a coloured index local.
+ * Rows 2 and 3 fold their pre-call index into the previous row's increment,
+ * so the spelling never reaches them, and forcing it there costs the node24
+ * web the save that wins it v1. See the note above. */
+#define ADD_TEXT_ROW_FIRST(field, rowY)                                       \
+    node24 = &D_540[D_1D0];                                                  \
     node24->x = 0x80;                                                        \
     node24->y = (rowY);                                                      \
     length = func_overlay_101_F000CEA8_18E86C8(field);                       \
     textIndex = D_1D0;                                                       \
     node24 = &D_540[textIndex];                                              \
     node24->length = (u8)length;                                             \
-    node24->opacity =                                                        \
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);                  \
+    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);    \
     node24->mode = 2;                                                        \
     node24->color0 = 0;                                                      \
     node24->color1 = 0;                                                      \
@@ -236,14 +289,38 @@ void func_overlay_101_F000895C_18E417C(void) {
     node24->previousType = D_0.childType;                                    \
     node24->previous = D_0.child;                                            \
     D_0.childType = 3;                                                       \
-    D_0.child = node24;                                                       \
+    D_0.child = node24;                                                      \
     D_1D0 = textIndex + 1
 
-    ADD_TEXT_ROW(D_INPUT.text114, 0x92);
+#define ADD_TEXT_ROW(field, rowY)                                            \
+    textIndex = D_1D0;                                                       \
+    node24 = &D_540[textIndex];                                              \
+    node24->x = 0x80;                                                        \
+    node24->y = (rowY);                                                      \
+    length = func_overlay_101_F000CEA8_18E86C8(field);                       \
+    textIndex = D_1D0;                                                       \
+    node24 = &D_540[textIndex];                                              \
+    node24->length = (u8)length;                                             \
+    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);    \
+    node24->mode = 2;                                                        \
+    node24->color0 = 0;                                                      \
+    node24->color1 = 0;                                                      \
+    node24->color2 = 0;                                                      \
+    node24->color3 = 0;                                                      \
+    node24->kind = 4;                                                        \
+    node24->text = (field);                                                  \
+    D_1D0 = textIndex + 1;                                                   \
+    node24->previousType = D_0.childType;                                    \
+    node24->previous = D_0.child;                                            \
+    D_0.child = node24;                                                      \
+    D_0.childType = 3
+
+    ADD_TEXT_ROW_FIRST(D_INPUT.text114, 0x92);
     ADD_TEXT_ROW(D_INPUT.text118, 0x9C);
     ADD_TEXT_ROW(D_INPUT.text11C, 0xA6);
 
 #undef ADD_TEXT_ROW
+#undef ADD_TEXT_ROW_FIRST
 
     func_overlay_101_F0000000_18DB820(&D_2C60);
 }
@@ -253,10 +330,10 @@ void func_overlay_101_F000895C_18E417C(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000895C_18E417C:start
  * symbol: func_overlay_101_F000895C_18E417C
- * score: 189/525 words
+ * score: 149/525 words
  * frame: 0x40
  * relocations: 59
- * first-mismatch: +0xA8
- * summary: 189 masked words from 311; size, frame and instruction multiset all exact. The node groups hold 58 schedule words and one naming row; the text rows hold 81 naming rows and no structural word, a uniform ugen ring rotation.
+ * first-mismatch: +0xB0
+ * summary: 149 masked from 189; size, frame and the nine-slot frame ladder exact. The text rows' rotation was their own pre-call index local, not the node groups' ring consumption; the node groups' 40 schedule words are DAG-closed.
  * PLATEAU-HANDOFF:func_overlay_101_F000895C_18E417C:end
  */
