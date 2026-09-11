@@ -693,6 +693,6 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
  * frame: 0x280
  * relocations: 316
  * first-mismatch: +0x4
- * summary: Icon search now compiles to the target's counted body shape with the slot-table address in its preheader; 1580 differing words, residual is 408 temp-ring naming rows, 130 callee-saved/cross-class rows and one surplus word in the label loop.
+ * summary: Gap audit: 45 movement entries, 11 address-web, 3 relocation-form, 2 copies and 2 hazard slots; p1 only. Stale assignment pin blocks source experiments.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
