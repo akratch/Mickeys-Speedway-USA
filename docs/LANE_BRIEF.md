@@ -248,6 +248,11 @@ it end to end. The ones that carry most of the weight:
     was idle; the instrumented records showed it colouring six webs. **Read the
     cost list and the decision records.** A pass is idle when its *records* are
     empty.
+14. **Never pipe a gate's output.** `gmake check-docs 2>&1 | tail -3; echo
+    "exit=$?"` reports *tail's* status, always 0, so a failing gate reads as a
+    pass. Three times here, twice landing a commit on a red gate. Run
+    `tools/gates.sh` (add `--staged` before a commit, `--promotion` after one),
+    which keeps status and output apart and names every failure in a verdict.
 
 ## Rules, non-negotiable
 

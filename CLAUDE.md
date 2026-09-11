@@ -81,10 +81,29 @@ disassembly: not fine. The detectors draw that line at 40 mnemonic tokens and
 ## Before every commit
 
 ```sh
+tools/gates.sh              # verify, cleanroom, check-docs -- true exit status
+tools/gates.sh --staged     # same, with cleanroom scanning the index
+tools/gates.sh --promotion  # adds check-scoreboard/-overlay-syms/-nonmatching-builds
+```
+
+or the three individually:
+
+```sh
 gmake verify        # must print the expected SHA1
 gmake cleanroom     # or: gmake cleanroom CLEANROOM_ARGS=--staged
 gmake check-docs    # derived numbers in the docs still match the tree
 ```
+
+**Prefer `tools/gates.sh`, and never pipe a gate's output.** Writing
+
+```sh
+gmake check-scoreboard 2>&1 | tail -3; echo "exit=$?"
+```
+
+reports the exit status of `tail`, which is always 0, so a gate that failed
+three lines up reads as a pass. That has happened three times here and twice it
+put a commit on top of a red gate. `gates.sh` keeps status and output separate,
+names every failing gate in a final verdict, and exits nonzero.
 
 If matching progress changed (a function moved from asm to C, a name was
 adopted), also run `gmake scoreboard` and commit the README diff it produces;
