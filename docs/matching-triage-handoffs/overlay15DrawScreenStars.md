@@ -55,4 +55,45 @@
   and one temp-ring slot.
 - **verdict: the closure was correct and remains correct under L90**, with one
   raw-word fidelity correction adopted.
+#### 2026-09-11, lane `p6-small`: the named decision variable IS reachable from source
+
+The 2026-09-10 closure named the deciding variable exactly right -- which basic
+block owns the fade load -- and then asserted that no statement placement
+reaches it because the zero-trip guard is synthesised at the loop rather than
+written. **That assertion is false, and the counter-example is cheap:** read the
+fade scale through a `const f32 *` set before the loop and dereferenced inside
+it. uopt then hoists the load as a loop invariant into the PREHEADER, below the
+guard, and the entry block becomes byte-exact against the target through the
+guard and its delay slot -- the first ten words of the residual close.
+
+It does not pay yet. Measured, all size delta 0 unless stated:
+
+- pointer view with the dereference at the loop top: 20 words (base 13).
+- pointer view with the dereference inside the depth test: 33.
+- pointer view with the dereference inside the viewport test, or inlined at the
+  shade site: 54 and 52 -- the load is then conditional and is not hoisted.
+- the same four placements without the pointer, reading the global directly:
+  84 to 88, size delta +4, because the load stays in the loop.
+- the read at the end of the loop body, with and without a pre-loop read, and
+  with the star increment on either side of it: delta +4 or +8, never hoisted.
+
+**What replaces the old decision variable: the preheader's hoist ORDER.** With
+the fade load hoisted, the preheader holds three loop invariants -- the fade
+scale and the two depth constants -- and the target emits them fade first, then
+the far constant, then the near one, taking the three callee-saved float
+registers descending in that order. Every form measured here emits them in the
+opposite order and assigns the registers accordingly, which is what the extra
+seven words are. The order is NOT the reverse of source order: swapping the two
+halves of the depth test, writing both comparisons with the constant on the
+left, splitting the test, and inserting an unrelated statement ahead of the
+read are all byte-flat at 20 (19 points). IDO appears to hoist only invariants
+that sit in the loop HEADER -- a read placed after the first branch in the body
+is never hoisted, which is the same evidence from the other direction -- and
+within the header the emission order is fixed by something other than
+statement order.
+
+So the residual is now two facts rather than one, and the next lane should work
+the hoist order, not the block ownership. The retained body is unchanged
+because 13 beats 20; the pointer-view form is a diagnostic, not an improvement.
+
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->
