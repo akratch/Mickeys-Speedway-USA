@@ -73,6 +73,42 @@ class CycleTests(unittest.TestCase):
         self.assertEqual(rc.cycles(collections.Counter({("t6", "t6"): 5})), [])
 
 
+class WindowTests(unittest.TestCase):
+    """Coherence counts fan-out but not where it happens. A census printed a
+    clean four-cycle whose dominant mapping hid that one source went three ways;
+    offset-resolved, 60% of its pairs fit a single global mapping and six
+    windows were needed. Two functions away the same instrument saw 83% and one
+    clean shift, so it discriminates -- but only in address order."""
+
+    def test_one_mapping_function_wide_is_a_single_window(self) -> None:
+        sites = [(0, "t6", "t7"), (4, "t7", "t6"), (8, "t6", "t7")]
+        w = rc.windows(sites)
+        self.assertEqual(w["windows"], 1)
+        self.assertEqual(w["global_share"], 1.0)
+
+    def test_a_mapping_that_changes_midway_opens_a_window(self) -> None:
+        sites = [(0, "t6", "t7"), (4, "t6", "t7"), (0x40, "t6", "t8")]
+        w = rc.windows(sites)
+        self.assertEqual(w["windows"], 2)
+        self.assertEqual(w["boundaries"], [0x40])
+
+    def test_per_iteration_consumption_needs_many_windows(self) -> None:
+        sites = []
+        for row in range(4):
+            base = row * 0x40
+            sites += [(base, "t6", "t7"), (base + 4, "t6", "t8")]
+        self.assertGreaterEqual(rc.windows(sites)["windows"], 4)
+
+    def test_global_share_counts_sites_not_distinct_pairs(self) -> None:
+        sites = [(0, "t6", "t7")] * 9 + [(0x40, "t6", "t9")]
+        self.assertAlmostEqual(rc.windows(sites)["global_share"], 0.9)
+
+    def test_no_substitutions_is_one_trivial_window(self) -> None:
+        w = rc.windows([])
+        self.assertEqual(w["windows"], 1)
+        self.assertEqual(w["boundaries"], [])
+
+
 class CoherenceTests(unittest.TestCase):
     """Cycle presence alone is not the tell. A transfer was applied on it and
     refused: the lead's mapping was functional and covered most of its residual,

@@ -71,6 +71,7 @@ def census(streams: "nr.WordStreams") -> dict:
     two-cycle on a function whose streams are 32 bytes out of step.
     """
     pairs: collections.Counter = collections.Counter()
+    ordered: list[tuple[int, str, str]] = []
     sites = 0
     base, target = streams.base_words, streams.target_words
     b_reloc, t_reloc = streams.base_reloc, streams.target_reloc
@@ -93,7 +94,50 @@ def census(streams: "nr.WordStreams") -> dict:
             ra, rb = (a >> shift) & mask, (b >> shift) & mask
             if ra != rb:
                 pairs[(GPR[ra], GPR[rb])] += 1
-    return {"sites": sites, "pairs": pairs}
+                ordered.append((j * 4, GPR[ra], GPR[rb]))
+    return {"sites": sites, "pairs": pairs, "ordered": ordered}
+
+
+def windows(sites: list[tuple[int, str, str]]) -> dict:
+    """Does ONE mapping hold across the function, or does it change by region?
+
+    Coherence counts fan-out but not *where* it happens, and that hides the
+    distinction that matters. A census printed a clean four-cycle whose dominant
+    mapping discarded the fact that one source register went three ways and
+    another four; offset-resolved, only 60% of its pairs fit a single global
+    permutation and six windows were needed. Two functions away the same
+    instrument saw one clean shift at 83%, so it does discriminate -- but only
+    once the sites are read in address order.
+
+    A permutation that holds function-wide is one ring-phase fact. A mapping
+    that changes every few sites is per-iteration or per-region consumption,
+    and each window is its own question.
+
+    Returns the share of sites explained by the single best global mapping, and
+    the offsets where a greedy scan has to start a new window.
+    """
+    if not sites:
+        return {"global_share": 1.0, "windows": 1, "boundaries": []}
+    best: dict[str, str] = {}
+    counts: collections.Counter = collections.Counter()
+    for _, src, dst in sites:
+        counts[(src, dst)] += 1
+    for (src, dst), n in counts.items():
+        if src not in best or n > counts[(src, best[src])]:
+            best[src] = dst
+    fits = sum(1 for _, src, dst in sites if best.get(src) == dst)
+
+    # Greedy: extend a window while its own mapping stays consistent.
+    boundaries: list[int] = []
+    current: dict[str, str] = {}
+    for offset, src, dst in sites:
+        if current.get(src, dst) != dst:
+            boundaries.append(offset)
+            current = {}
+        current[src] = dst
+    return {"global_share": fits / len(sites),
+            "windows": len(boundaries) + 1,
+            "boundaries": boundaries}
 
 
 def coherence(pairs: collections.Counter) -> dict:
@@ -192,6 +236,7 @@ def measure(symbols: list[str]) -> tuple[list[dict], list[str]]:
                           for (a, b), c in out["pairs"].most_common()],
                 "cycles": cycles(out["pairs"]),
                 "coherence": coherence(out["pairs"]),
+                "windows": windows(out["ordered"]),
             })
     return rows, errors
 
@@ -212,6 +257,15 @@ def render(row: dict) -> str:
     if c["least_coherent_source"]:
         out.append(f"    least coherent: {c['least_coherent_source']} at "
                    f"{c['least_coherent_share']:.0%}")
+    w = row["windows"]
+    out.append(f"  one global mapping explains {w['global_share']:.0%} of sites; "
+               f"{w['windows']} window(s) needed")
+    if w["windows"] > 1 and w["boundaries"]:
+        shown = ", ".join(f"+0x{b:X}" for b in w["boundaries"][:6])
+        out.append(f"    new mapping starts at {shown}"
+                   + (" ..." if len(w["boundaries"]) > 6 else ""))
+        out.append("    a mapping that changes by region is per-iteration"
+                   " consumption, not one ring phase")
     if row["cycles"]:
         out.append("  cycles in the dominant mapping:")
         for cycle in row["cycles"]:
