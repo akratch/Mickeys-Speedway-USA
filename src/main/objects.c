@@ -5812,7 +5812,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x38
- * summary: Three independent residuals over an exact layout: an s1<->s2 exchange between `sprite` and the list->entries induction pointer, a caller-saved lane rotation ([v1,a0,a1] against [a0,a1,a2]) over the record->unk8 carrier, and five ring lanes behind it. Initialiser order, declaration order, an explicit entries cursor and the whole member-access spelling family are exhausted.
+ * summary: 63 words in three priced regions: an s1/s2 save-ratio exchange worth 27, a phantom p1 web holding v1 worth 8, and 28 words of temp-ring phase.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
