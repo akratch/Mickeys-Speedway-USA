@@ -545,7 +545,34 @@ void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
  * yawA wants FP pool colour f18 and gets f14, and 2 where the tilt constant
  * wants f12 and gets f14 -- both want a HIGHER colour, so the target has an
  * interfering FP web this body does not.  Opcodes, schedule, size, frame and
- * all 31 relocation offsets/types align.  Retain NON_MATCHING. */
+ * all 31 relocation offsets/types align.  Retain NON_MATCHING.
+ *
+ * 2026-09-11, lane f9-audit: 20 -> 6.  The "ugen ring fact" above was a
+ * globalcolor fact read from the wrong side: the candidate spent a coloured
+ * web on the scaled index (a temp, save 3.0, cost 0, always coloured) where
+ * the target holds it in a ring temp.  No spelling that keeps `tableIndex` as
+ * the element index can remove that web, because the shared `<< 2` between the
+ * two reads is a uopt CSE temp.  Making the declared local carry the BYTE
+ * offset -- `tableIndex = (... + D_388[mode]) * 4` and
+ * `*(f32 *)((u8 *)D_300 + tableIndex)` -- moves the CSE onto the pre-scale
+ * sum (coloured a0, as the target) and leaves the local itself as the ring
+ * temp: 20 -> 8, with the `(u8)` node no longer needed.  Then the first angle
+ * accumulator as `+=` is 8 -> 6 (it was flat at the old base; the ring phase
+ * moved with the first edit), and the tilt target carried in `speedTarget`
+ * rather than `yawA` puts the +-10 constant on f12.  What remains is two FP
+ * colours, proved complete by force (p1 cross=c28, yawA piece=c29 gives
+ * masked 0 at delta 0): both webs take the first free colour after c24..c26
+ * and the target takes one higher, so the target has a c27 (f14) web that
+ * interferes with both and this body does not.  In the target f14 carries
+ * only the two loop rates (D_58, D_78); neither is live in the cross block
+ * here, and hoisting `blend = D_78` above the calls is dead-store-eliminated
+ * or +12 bytes.  The census is 915 p1 / 0 p2 records, so [L108] retires
+ * definition/declaration/statement order for this procedure.  A second
+ * round measured the obvious suppliers of that web (a state->tilt carrier,
+ * the D_70 rate or the +-10 select defined before cross, a named post-loop
+ * tilt read): every one changes the instruction count or moves the select's
+ * blocks; the select in targetTilt before cross does reproduce both target
+ * colours (28 words) and is the receipt for the mechanism, not the answer. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -576,16 +603,15 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     steps = (s32) stepsFloat;
     if (state->flags & 8) D_388[mode]++;
     D_388[mode] &= 3;
-    tableIndex = ((u8)(ext_o0_214c8() & 3) * 4) + D_388[mode];
-    targetX = D_300[tableIndex] + (D_2D0 * 75.0f);
-    targetY = D_340[tableIndex];
+    tableIndex = (((ext_o0_214c8() & 3) * 4) + D_388[mode]) * 4;
+    targetX = *(f32 *)((u8 *)D_300 + tableIndex) + (D_2D0 * 75.0f);
+    targetY = *(f32 *)((u8 *)D_340 + tableIndex);
     targetAngle = D_380[mode];
     i = steps - 1;
 
     if (steps != 0) {
         do {
-            state->angle = state->angle + (ext_o0_2a5bc(state->angle,
-                                         0x8000 - state->angleTarget) >> 4);
+            state->angle += ext_o0_2a5bc(state->angle, 0x8000 - state->angleTarget) >> 4;
         } while (i--);
         i = steps - 1;
     }
@@ -614,12 +640,12 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     dot = (out->smoothX * yawA) + (out->smoothY * yawB);
     crossB = cross * trigB;
 
-    if (state->direction == 0) yawA = -10.0f;
-    else yawA = 10.0f;
+    if (state->direction == 0) speedTarget = -10.0f;
+    else speedTarget = 10.0f;
     if (steps != 0) {
         yawB = D_70;
         do {
-            state->tilt += (yawA - state->tilt) * yawB;
+            state->tilt += (speedTarget - state->tilt) * yawB;
         } while (i--);
         i = steps - 1;
     }
@@ -660,11 +686,11 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 
 /* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
  * symbol: func_overlay_009_F00010B4_186772C
- * score: 20/282 words
+ * score: 6/282 words
  * frame: 0x98
  * relocations: 31
- * first-mismatch: +0xAC
- * summary: Statement order, an unsigned-cast table index and two reused FP carriers cut 41 to 20 masked; exact size/frame/opcodes. Residual is one ugen ring fact and two FP colours.
+ * first-mismatch: +0x238
+ * summary: 20 -> 6 (2026-09-11, lane f9-audit). The closure held the VALUE the tableIndex local carries fixed: every one of its 18 statement forms kept the element index and scaled it at each read. Carrying the byte offset ((sum) * 4) and reading *(f32 *)((u8 *)table + tableIndex) is 20 -> 8; the first angle accumulator as += is 8 -> 6; the tilt target carried in speedTarget (not yawA) keeps 6 with the tilt constant on f12. Residual: exactly two FP colours (cross wants c28, yawA's post-call piece wants c29) -- forcing both gives masked 0 at delta 0. Both need c27 forbidden by an interfering FP web the candidate does not have. Procedure has 915 p1 / 0 p2 records (L108), so definition order is a dead axis here.
  * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
  */
 
