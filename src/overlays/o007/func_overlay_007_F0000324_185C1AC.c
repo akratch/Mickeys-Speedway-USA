@@ -56,24 +56,28 @@ extern s32 overlay7RuntimeChanceReloc(s32 minimum, s32 maximum);
 extern void overlay7SetRuntimeModeReloc(Overlay7RuntimeObject *object,
                                         s32 mode);
 
-/* Workbench: structure-mismatch, exact 348 instructions; 238 masked/242 raw words differ, first +0x0, frames 0x80/0x78.
- * Constant audit found no semantic literal discrepancy; loop/count/local-scope and flag-lattice levers left frame and relocation scheduling unchanged.
- * Remains: target stack homes and private relocation/register scheduling differ. */
+/* Frame closed 2026-09-11. The target's frame is 0x78 and its declaration
+ * block is 44 bytes, which is eleven four-byte locals; this candidate carried
+ * fourteen. Three came out: `handleObject` (the target reads the global's
+ * fields directly into one temp), `cursor` (strength reduction makes the
+ * walking pointer out of objects[remaining]), and the nested `scale`, whose
+ * hoisted loop invariant reuses the `difference` carrier -- their live ranges
+ * are disjoint. Declaration order then places `objects` 6th, `object` 7th and
+ * `difference` 11th, which is the target's home ladder exactly; the other
+ * eight positions are byte-inert (four permutations measured identical). */
 #ifdef NON_MATCHING
 void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
     s32 count;
-    Overlay7RuntimeObject **objects;
-    Overlay7RuntimeObject **cursor;
     u16 *timer;
     s32 remaining;
-    Overlay7RuntimeObject *object;
-    Overlay7RuntimeObject *handleObject;
     Overlay7Entry *entry;
     Overlay7RuntimeState *state;
+    Overlay7RuntimeObject **objects;
+    Overlay7RuntimeObject *object;
     s32 index;
-    f32 difference;
     s32 found;
     u16 value;
+    f32 difference;
 
     objects = overlay7CollectRuntimeObjectsReloc(&count);
     timer = &D_2AA;
@@ -99,10 +103,10 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
         }
 
         if (overlay7RuntimeHandleReloc != NULL) {
-            handleObject = overlay7RuntimeLastObjectReloc;
-            overlay7ContinueRuntimeObjectReloc(
-                overlay7RuntimeHandleReloc, handleObject->x, handleObject->y,
-                handleObject->z);
+
+            overlay7ContinueRuntimeObjectReloc(overlay7RuntimeHandleReloc,
+                overlay7RuntimeLastObjectReloc->x, overlay7RuntimeLastObjectReloc->y,
+                overlay7RuntimeLastObjectReloc->z);
         }
 
         if (elapsed < overlay7RuntimeTimerReloc) {
@@ -111,9 +115,9 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
         } else {
             if (overlay7RuntimeModeReloc == 1 && count != 0) {
                 remaining = count - 1;
-                cursor = objects + remaining;
+
                 do {
-                    object = *cursor;
+                    object = objects[remaining];
                     state = object->state;
                     if (!(state->flags & 1) && state->kind < 6 &&
                         state->cooldown == 0) {
@@ -124,7 +128,7 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
                         }
                         state->difference = difference;
                     }
-                    cursor--;
+
                 } while (remaining--);
             }
 
@@ -134,9 +138,9 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
                      (s32)overlay7RuntimeLevelReloc ==
                  1) &&
                 overlay7RuntimeLevelReloc > 0 && count != 0) {
-                cursor = objects + remaining;
+
                 do {
-                    object = *cursor;
+                    object = objects[remaining];
                     state = object->state;
                     if (!(state->flags & 1) && state->level != 0 &&
                         state->scale + (f32)state->level > 9.0f) {
@@ -144,7 +148,7 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
                         overlay7StartRuntimeValueReloc(
                             overlay7RuntimeValuesReloc[index + 0x924]);
                     }
-                    cursor--;
+
                 } while (remaining--);
                 remaining = count - 1;
             }
@@ -152,25 +156,24 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
         }
 
         if (count != 0) {
-            f32 scale = overlay7RuntimeScaleReloc;
+            difference = overlay7RuntimeScaleReloc;
 
-            cursor = objects + remaining;
             do {
-                object = *cursor;
+                object = objects[remaining];
                 state = object->state;
                 if (state->cooldown != 0) {
                     state->cooldown--;
                 }
-                state->scale *= scale;
-                cursor--;
+                state->scale *= difference;
+
             } while (remaining--);
         }
 
         if (overlay7RuntimeModeReloc == 0 && D_4 == 0) {
             found = 0;
             if (D_290 != NULL) {
-                entry = D_290->nested;
-                if (entry != NULL) {
+                if (D_290->nested != NULL) {
+                    entry = D_290->nested;
                     entry->active = 1;
                     found = 1;
                 }
@@ -211,9 +214,9 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
 
         remaining = count - 1;
         if (count != 0) {
-            cursor = objects + remaining;
+
             do {
-                object = *cursor;
+                object = objects[remaining];
                 state = object->state;
                 if (state->level < state->previousLevel) {
                     if (state->level == 0) {
@@ -228,7 +231,7 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
                     overlay7SetRuntimeModeReloc(object, 0xF);
                 }
                 state->previousLevel = state->level;
-                cursor--;
+
             } while (remaining--);
         }
 
@@ -244,10 +247,10 @@ void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
 
 /* PLATEAU-HANDOFF:func_overlay_007_F0000324_185C1AC:start
  * symbol: func_overlay_007_F0000324_185C1AC
- * score: 238 differing words
- * frame: 0x80
+ * score: 129/348 words
+ * frame: 0x78
  * relocations: 61
- * first-mismatch: +0x0
- * summary: Fresh V0 is 348 words with 238 masked and 242 raw differences; frames 0x80/0x78. Relocs 61 each; 24 sites and 13 identities align, 42 unresolved.
+ * first-mismatch: +0x7C
+ * summary: Frame closed at 0x78; every stack slot now agrees. Residual is three missing words and 30 naming rows.
  * PLATEAU-HANDOFF:func_overlay_007_F0000324_185C1AC:end
  */
