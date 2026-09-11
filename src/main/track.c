@@ -3233,7 +3233,6 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
     var_s7 = 0;
     do {
         var_s2 = 0;
-        var_s4 = 0;
         scratch.direction.x = arg1->f[0] - arg0->f[0];
         scratch.direction.y = arg1->f[1] - arg0->f[1];
         scratch.direction.z = arg1->f[2] - arg0->f[2];
@@ -3256,6 +3255,15 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                                        lengthSquared, arg2, arg2,
                                        (TrackRayHit *) scratch.result);
             }
+            /* `var_s4 = 0` belongs here, not at the top of the loop body.
+             * At the top its live range spans four calls, so its p1 save is
+             * totalsave 30 / nocs 4 = 7.5; that loses the round to the two
+             * `scratch` address webs at 8.0, which take s4 and s5, and
+             * var_s4 ends up in s6 where the target holds s4. Initialising
+             * it here drops the span, lifts the save above 8.0, and the whole
+             * s4/s5/s6 3-cycle disappears: 20 -> 3 differing words, measured
+             * against the full-TU object. */
+            var_s4 = 0;
             if (D_800C9D28 != 0) {
                 var_s4 = func_80011CDC((u8 *) arg0,
                                        (u8 *) &scratch.direction, arg2,
@@ -5698,11 +5706,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 20 differing words
+ * score: 3 differing words
  * frame: 0xb8
  * relocations: 6
- * first-mismatch: +0x18
- * summary: 41 to 20 on two edits. Declaration order closed all 21 stack-home constants -- homes descend from the frame top in declaration order, so var_s4/var_s7 move above scratch and the two flags to the end. Reusing one local across sqrtf retired the last structural word. Now register-permutation, structural 0 schedule 0: a 3-cycle over s4/s5/s6 where the target numbers var_s4 below the two scratch member-address webs, and one fp web the target colours f20 and we colour f0. Declaration order does not move either colour.
+ * first-mismatch: +0xBC
+ * summary: 20 to 3. The s4/s5/s6 3-cycle was a p1 save-order tie, not a colour: with `var_s4 = 0` at the top of the loop its live range spans four calls, so save is totalsave 30 over nocs 4 = 7.5 and it loses to the two `scratch` address webs, which are tied at 8.0 and take s4 and s5 in ascending web number. Moving the initialisation inside the length-test block shortens the span, lifts the save above 8.0, and every integer lane goes exact: pool 42 of 42, temp 7 of 7, shared 5 of 5, fp-temp 18 of 18. What remains is one fp web, the pre-sqrt length sum, which the target colours f20 and this candidate colours f0. The instrumented records say why and say it is not a spelling: that web has save 30 over nocs 1, and at nocs 1 every caller-saved fp colour costs 0.00 against 4.75 for the first callee-saved one, so f0 wins by colour index. A forced p1 colour to f20 adds eight bytes, because a fourth callee-saved fp register then has to be saved. Falsified at 3 words: single-assignment and two-step spellings of the sum, the sum carried in scratch.length, the sqrt result in its own local, both non-default associations of the three products, and all six permutations of the three fp declarations.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 

@@ -228,4 +228,121 @@ The decision variable is unchanged: what makes IDO emit a single-use masked
 value as its own ring temporary ahead of the expression that consumes it.
 Three mechanisms are now measured not to be the answer.
 
+#### 2026-09-11, lane w3-low: the ring is read directly, and the residual is closed mechanically rather than by exhaustion
+
+Re-measured first: 468 bytes, 117 of 117 words, size delta 0, 3 relocation
+masked words, first naming difference at plus 0x13C, aligner buckets 114
+byte-exact, 3 register naming, 0 immediate-only, 0 really different.
+
+Every earlier pass inferred the ring order from the emitted registers. This
+pass read the instrumented ugen free-list trace instead, so the order is now
+evidence rather than inference. Three facts come straight out of it.
+
+First, the ring free list for this procedure is built once with ten members in
+a fixed cycle and only the two value registers are struck from it, so all ten
+temporary registers are available. Second, a ring register is drawn
+immediately before each instruction is emitted, never earlier, so the draw
+order is literally the emission order and the register naming is a pure
+consequence of it. Third, the whole procedure makes twelve draws in one
+unbroken cycle, and the four draws in the world-index arm are the eighth
+through eleventh, in the order mask, scale, table, sum; the target needs mask,
+table, scale, sum.
+
+The closure argument is now structural rather than a count of forms. Colouring
+any web into the temporary-register bank strikes that register from the ring
+for the whole procedure, and because the cycle is shorter than the number of
+draws, the shift reaches every draw in the loop and not only the ones after
+the removal point. Measured three ways on the unmodified candidate by forcing
+three different existing webs into the colour that names the arm's first
+temporary: in all three the loop's guard register, the arm's four registers
+and the loop tail's register all move. The target's guard register and loop
+tail register are byte-identical to the candidate's, so the target's ring is
+the full ten-member cycle, no temporary register in this procedure is a
+coloured web, and all four of the arm's registers are consecutive ring draws.
+That kills the reading in which the target's masked value is a coloured symbol
+that happens to land on the arm's first temporary, which was the only
+remaining alternative to the recorded emission-order reading.
+
+That also settles the previous entry's closing observation, that in all five
+matched instances of this signature the index was an already-live variable.
+An already-live variable is a symbol, a symbol takes a pool colour, and a pool
+colour in the temporary bank perturbs the entire loop. So the five matched
+instances are a different configuration, not a template for this one, and the
+original's masked value is computed at the site as a ring temporary. Measured
+directly as well: giving the masked value a second surviving use makes it a
+web whose save is the highest in the procedure, and globalcolor hands it the
+lowest available colour, the first value register, displacing the entry word
+onto the second value register. It is offered every colour from the first
+value register down through the temporary bank and takes the lowest, so no
+save ratio reaches the colour the target would need.
+
+L127 was swept and it is real here, but it cannot produce the move this
+function needs. Fifteen cells on the mask, the table base, the scaled index,
+the sum, and both address orders. Identity operations, or with zero, and with
+minus one, exclusive-or with zero and shift by zero, are all folded before
+ugen and draw nothing. A redundant second mask of an already masked value is
+not folded: it survives to ugen, draws a ring temporary, and the assembler's
+peephole deletes the instruction, leaving the byte count and the frame
+unchanged. That is a clean confirmed instance of the law on this body. Its
+effect is a uniform phase shift of every later draw by one, measured at nine
+words in both address orders, and the direction this function needs is a
+transposition of two adjacent draws. A no-op can only insert a draw, never
+reorder two, so L127 is a precise negative here. The peephole keeps the last
+member of a redundant mask chain, so the surviving instruction takes the
+second draw rather than the first, which rules out the one arrangement that
+might have looked like a transposition.
+
+L125 does not apply. The assembler builds its dependence graph per basic
+block, and the arm is its own block containing one symbol load, one indexed
+load, an arithmetic chain and the call; there is no store in it, so there is
+no store-before-load edge to constrain anything. The node table also explains
+a previously unexplained negative: the six nodes in this block have six
+distinct critical-path lengths, so the scheduler never reaches a tie, and the
+line-number tie-break can therefore never fire here. That is the mechanism
+behind the 192 physical line splits and the 256 line-grouping cells both
+coming out flat, and it means the line-key lever is not merely untried but
+structurally unreachable in this block. The scheduler's chosen order is
+identical on both sides, which independently confirms that the residual is
+emission order and not schedule.
+
+The new result, and the sharpest statement of the remaining gap. One
+construct does make the mask a ring temporary emitted as its own step ahead of
+a base-first address, which the previous entries recorded as impossible: a
+comma inside the left operand of the sum, whose first element assigns the mask
+and whose value is the table base. The mask is emitted first and stays a ring
+temporary; the order is exactly the target's. It costs eight words for one
+reason only, and the reason is general. A comma's value is materialised into a
+uopt symbol, that symbol is coloured, and the table base therefore leaves the
+ring, so the arm draws three registers instead of four. Ten further cells
+confirm the pattern is the comma and not the spelling: the same construct with
+a byte-pointer base, a pointer base with a subscript, a nested comma, an
+existing local as the comma's value, a doubled comma and a preceding mask
+statement all put the base on the same pool colour, and moving the comma out
+to the call argument, to statement level, or to a value of zero lets copy
+propagation fold the mask back into the expression at five words. Forcing the
+comma's symbol into the temporary bank does not rescue it, for the ring reason
+above.
+
+So the decision variable is no longer "what makes IDO emit a single-use masked
+value as its own ring temporary". That is now answered: a comma in the left
+operand of the sum does. The decision variable is one step further in: a
+construct that orders the mask before the address expression without
+materialising any part of that address expression into a uopt symbol. Comma is
+the only side-effect ordering operator in C without control flow, and it
+necessarily materialises its own value, so no such construct exists in the
+language this compiler accepts. Unless that is wrong, the function is closed
+on the source axis and the remaining three words are not reachable by
+spelling.
+
+Also newly measured and flat or worse this pass, beyond the above: hoisted
+mask locals in five widths, where the 32-bit signed and unsigned forms fold
+back to five words, the 16-bit signed form costs eight bytes, and the 16-bit
+and 8-bit unsigned forms leave a surviving width conversion that draws a ring
+temporary and is then peepholed away, landing at nine; a two-statement form
+that masks and then re-masks the same local; a form with a dead first
+definition to give the local two definitions; and an assignment used as a
+multiplied-by-zero or anded-with-zero operand of the sum, which either folds
+or turns the mask into a web. Sixty scored cells this pass, plus nine
+forced-colour compilations, one free-list trace and one scheduler node table.
+
 <!-- plateau-handoff:levelFreeAll:end -->
