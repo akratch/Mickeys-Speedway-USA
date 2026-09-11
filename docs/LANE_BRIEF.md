@@ -107,10 +107,19 @@ it end to end. The ones that carry most of the weight:
   decision time ⇒ the force never applied and **the object returns
   byte-identical, so the experiment proved nothing**. Check a force was
   *accepted* before reading an unchanged object.
-- **L114** — globalcolor never assigns `t3`–`t9` or `f4`–`f10`; those are ugen's
-  scratch ring. Split a naming residual by register bank first: a ring register
-  is ring *phase* (L44/L76/L77), not colour. Only about a sixth of a naming
-  residual is colour at all.
+- **L114, corrected 2026-09-11** — globalcolor's colour table reaches further
+  down the caller-saved registers than this brief used to say, and **the
+  boundary is per procedure**. One procedure decodes as c1 `v0` … c9 `t2`, c10
+  `t3`, c11 `t4`, c12 `t5`, c13 unnamed, c14 `s0`, c15 `s1`, with two webs
+  carrying `color=10 reg=t3` outright — so `t3`–`t6` are priced candidates a
+  force can reach there, and only `t7`–`t9` and the float ring sit outside.
+  **Decode the table from the `p1color`/`p1cost` records on your own procedure**
+  rather than assuming a boundary. Splitting a naming residual by register bank
+  is still the right first move; just do not treat a `t`-register row as
+  unreachable until the records say so. Roughly a sixth of a naming residual is
+  colour, and that figure is a **floor** — a force sweep never offers a colour
+  another web has forbidden, so free the interferer before concluding a lever is
+  out of reach.
 - **L115** — a live range is formed per *symbol*, and interference is a
   block-set intersection. Reusing a local that is already live elsewhere imports
   its interference at zero width and no instruction; adding a fresh one does
