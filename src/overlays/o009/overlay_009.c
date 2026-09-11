@@ -635,10 +635,12 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     trigB = ext_o0_2a46c(0x8000 - state->angle);
     yawA = ext_o0_2a470(out->targetAngle - targetAngle);
     yawB = ext_o0_2a46c(out->targetAngle - targetAngle);
-    cross = (out->smoothX * yawB) - (out->smoothY * yawA);
-    crossA = cross * trigA;
+    /* baseX, not a cross of its own: its live range already overlaps
+     * blend's c27 web, so the merged symbol inherits that edge (L115). */
+    baseX = (out->smoothX * yawB) - (out->smoothY * yawA);
+    crossA = baseX * trigA;
     dot = (out->smoothX * yawA) + (out->smoothY * yawB);
-    crossB = cross * trigB;
+    crossB = baseX * trigB;
 
     if (state->direction == 0) speedTarget = -10.0f;
     else speedTarget = 10.0f;
@@ -686,11 +688,11 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 
 /* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
  * symbol: func_overlay_009_F00010B4_186772C
- * score: 6/282 words
+ * score: 3/282 words
  * frame: 0x98
  * relocations: 31
  * first-mismatch: +0x238
- * summary: 20 -> 6 (2026-09-11, lane f9-audit). The closure held the VALUE the tableIndex local carries fixed: every one of its 18 statement forms kept the element index and scaled it at each read. Carrying the byte offset ((sum) * 4) and reading *(f32 *)((u8 *)table + tableIndex) is 20 -> 8; the first angle accumulator as += is 8 -> 6; the tilt target carried in speedTarget (not yawA) keeps 6 with the tilt constant on f12. Residual: exactly two FP colours (cross wants c28, yawA's post-call piece wants c29) -- forcing both gives masked 0 at delta 0. Both need c27 forbidden by an interfering FP web the candidate does not have. Procedure has 915 p1 / 0 p2 records (L108), so definition order is a dead axis here.
+ * summary: 6 -> 3 (2026-09-11, lane s1-one). No new FP web was ever needed: blend already holds c27 and its live range overlaps baseX's, so carrying the cross product in baseX merges the two chains into ONE web (L115, block-set union), which inherits blend's edge and takes c28 -- zero instructions, zero frame change, cross lands on the shipped f16. cross must stay declared or the home ladder moves (28). The last word is web 108's colour: available c27 and c29 at equal p1cost, ascending scan takes c27, and forcing c29 is ACCEPTED and returns masked 0 at delta 0. c27 is held by blend, which spans no call and is never spilled, and the shipped function has neither a spare FP home nor a spare instruction for an interferer -- so this is now a cost-model question, not a source-form one. Ladder decoded from this procedure's own records: c24 f0, c25 f2, c26 f12, c27 f14, c28 f16, c29 f18.
  * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
  */
 
