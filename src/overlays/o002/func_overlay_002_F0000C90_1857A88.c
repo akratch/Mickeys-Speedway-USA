@@ -258,10 +258,10 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
 
 /* PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:start
  * symbol: func_overlay_002_F0000C90_1857A88
- * score: 257/355 words
+ * score: 98/355 words
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: Exact 1,420-byte geometry; 98 words and an 8-byte frame gap remain. Prior flags, scoping, copy, and permutation are exhausted; seek new local-home evidence.
+ * summary: p1-only; 88% coherent ring. 37 p1 decisions, no p2; target parameter home +0x6c vs candidate +0x64; three frame probes flat.
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */
