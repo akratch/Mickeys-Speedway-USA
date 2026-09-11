@@ -90,9 +90,10 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/* Workbench p5: structure-mismatch; 369/368 candidate/target instructions, 319 differing words from +0x0, frame -0x78 vs -0x60.
- * Levers: explicit sort guard and target-width gap both regressed to 371 instructions; prior split/cursor forms remain best.
- * Remains: 24-byte non-save frame surplus and loop/relocation structure. */
+/* Declaration order set to the target's home ladder 2026-09-11, byte-inert
+ * (295 masked, 109 aligned-exact, 165 naming, 18 immediate before and after).
+ * `count` is second only to carry the ladder; any single local does, and four
+ * choices measured identical. */
 /*
  * Plateau (2026-09-10): 295 of 368 relocation-masked words differ, down from
  * 296, at exact 368-word size.  One safe change: the two stores in the seeding
@@ -120,6 +121,7 @@ extern void overlay58FinalizePackedStatus(void);
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     register s32 i;
+    register s32 count;
     s32 left0;
     s32 right0;
     s32 left1;
@@ -134,7 +136,6 @@ void func_overlay_058_F0000000_18AF1E8(void) {
     Overlay58TagSource *tagSource;
     s8 *tag;
     s32 *classCursor;
-    register s32 count;
     register s32 limit;
     register s32 swapped;
     register s32 gap;
@@ -353,10 +354,10 @@ void func_overlay_058_F0000000_18AF1E8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F0000000_18AF1E8:start
  * symbol: func_overlay_058_F0000000_18AF1E8
- * score: 73/368 words
+ * score: 295/368 words
  * frame: 0x78
- * relocations: 101
+ * relocations: 95
  * first-mismatch: +0x0
- * summary: 295 of 368 masked words at exact size; the 24-byte frame surplus is measured to be a declared-block quantum charged per declaration, and the six address-taken out-parameter cells are the reconstruction target
+ * summary: Target block solved at 52 bytes, thirteen declarations; six carriers must merge and the surviving positions are pinned.
  * PLATEAU-HANDOFF:func_overlay_058_F0000000_18AF1E8:end
  */

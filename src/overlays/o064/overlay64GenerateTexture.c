@@ -16,29 +16,37 @@ extern u8 *gO64BuffersA[];
 extern u8 *gO64BuffersB[];
 extern s32 o64RandomRange(s32 minimum, s32 maximum);
 
-/* Workbench p4: structure-mismatch; 420/420 instructions, 401 positional words, first +0x0; frame 0x78 vs target 0x70.
- * Levers: restored the even-row temporaries and moved the buffer-flag read ahead of dimension/table selection; this is the best source candidate.
- * Remains: raw overlay relocation identities, the 8-byte frame excess, and the residual pointer/local schedule. */
+/* Declaration order set to the target's home ladder 2026-09-11, byte-inert
+ * (401 masked, 94 aligned-exact, 190 naming, 23 immediate before and after).
+ * Reading both objects' stack slots: the argument build, the `ra` save and the
+ * 64-byte declaration block are identical on the two sides, and with this order
+ * the six homed locals sit at the target's own offsets from its frame top
+ * (-4 width, -12 height, -16 selected, -40 write, -56 x, -64 distance) -- which
+ * needs `newSelect`, a u8, declared second so the following word aligns to -12.
+ * The remaining 8 bytes are NOT a declaration: the candidate materialises five
+ * stack temporaries where the target materialises four, reusing for the later
+ * spill the slot its earlier one vacated. Do not shed a declaration to buy
+ * them back -- that closes the frame and moves every home off the ladder. */
 #ifdef NON_MATCHING
 void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                                         u8 *unused)
 {
     register s32 width;
+    u8 newSelect;
     register s32 height;
     u8 *selected;
     register u8 *source;
     register u8 *dest;
-    register u8 *write;
     register s32 innerWidth;
     register s32 innerHeight;
     register s32 y;
-    register s32 x;
-    register s32 distance;
+    register u8 *write;
     register s32 maximum;
     register s32 value;
     register u8 *below;
+    register s32 x;
     register u16 *pixels;
-    u8 newSelect;
+    register s32 distance;
 
     (void)unused;
 
@@ -222,10 +230,10 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
 
 /* PLATEAU-HANDOFF:func_overlay_064_F0000000_18C3B28:start
  * symbol: func_overlay_064_F0000000_18C3B28
- * score: 19/420 words
+ * score: 401/420 words
  * frame: 0x78
  * relocations: 18
  * first-mismatch: +0x0
- * summary: Exact geometry; target frame 0x70 versus candidate 0x78. Even-row temporaries and early flag read remain best; pointer schedule and relocations unresolved.
+ * summary: Home ladder now matches the target's; the residual 8 bytes is one extra compiler temporary, not a declaration.
  * PLATEAU-HANDOFF:func_overlay_064_F0000000_18C3B28:end
  */
