@@ -88,7 +88,17 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *text);
 /* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
 /* Workbench plateau (2026-08-26): structure-mismatch; 361/361 instructions,
  * exact 0x5A4 size/frame, first divergence +0x10, and 246 masked words differ.
- * Levers: two-argument/canonical calls, cast, and declaration/order variants; node-builder drift remains. */
+ * Levers: two-argument/canonical calls, cast, and declaration/order variants; node-builder drift remains.
+ * 2026-09-11: the L59 lever that closed most of the structure on this function's
+ * three siblings (func_overlay_101_F00063F8_18E1C18 and the two twins) transfers
+ * here -- every per-element assignment group is ONE physical line, so as1's
+ * `lineno` key ties and the raw list order supplies the store reversal the ROM
+ * emits. 246 -> 209 masked, 88 -> 64 structural, first divergence unmoved at +0x10.
+ * The siblings' second lever does NOT transfer: giving the text rows the order
+ * counter's local reads 231 and giving the node32 pre-call read a named index
+ * reads 245, both regressions against 209, so this function's counter partition
+ * is already the right one. Promotion still blocked on the relocation identity
+ * for gO101TailC144OrderCount, not on source shape. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000C144_18E7964(void) {
     O101TailC144Node32 *node32;
@@ -99,174 +109,21 @@ void func_overlay_101_F000C144_18E7964(void) {
     s32 nodeIndex;
     s32 orderIndex;
 
-    orderCount = &gO101TailC144OrderCount;
-    orderIndex = *orderCount;
-    gO101TailC144Root.width2E = 0x140;
-    gO101TailC144Root.height30 = 0xF0;
-    gO101TailC144Root.asset34 = &gO101TailC144AssetDCC;
-    gO101TailC144Root.kind = 4;
-    gO101TailC144Root.color32 = 0xFF;
-    gO101TailC144Root.color33 = 0xFF;
-    gO101TailC144Root.value26 = 0;
-    gO101TailC144Root.value28 = 0;
-    gO101TailC144Root.value2A = 0;
-    gO101TailC144Root.value2C = 0;
-    gO101TailC144Root.chainType = 0;
-    gO101TailC144Root.chain = NULL;
-    gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.chainType;
-    *orderCount = orderIndex + 1;
+    orderCount = &gO101TailC144OrderCount; orderIndex = *orderCount; gO101TailC144Root.width2E = 0x140; gO101TailC144Root.height30 = 0xF0; gO101TailC144Root.asset34 = &gO101TailC144AssetDCC; gO101TailC144Root.kind = 4; gO101TailC144Root.color32 = 0xFF; gO101TailC144Root.color33 = 0xFF; gO101TailC144Root.value26 = 0; gO101TailC144Root.value28 = 0; gO101TailC144Root.value2A = 0; gO101TailC144Root.value2C = 0; gO101TailC144Root.chainType = 0; gO101TailC144Root.chain = NULL; gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.chainType; *orderCount = orderIndex + 1;
 
-    node32 = &gO101TailC144Nodes32[gO101TailC144Node32Count];
-    node32->x = 0xF2;
-    node32->y = 0x14E;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = func_overlay_101_F0000000_18DB820(0x93, NULL);
+    node32 = &gO101TailC144Nodes32[gO101TailC144Node32Count]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, NULL);  nodeIndex = gO101TailC144Node32Count; node32 = &gO101TailC144Nodes32[nodeIndex]; node32->previousType = gO101TailC144Root.chainType; node32->previous = gO101TailC144Root.chain; gO101TailC144Root.chainType = 2; gO101TailC144Root.chain = node32; node32->handle = handle; gO101TailC144Node32Count = nodeIndex + 1;
 
-    nodeIndex = gO101TailC144Node32Count;
-    node32 = &gO101TailC144Nodes32[nodeIndex];
-    node32->previousType = gO101TailC144Root.chainType;
-    node32->previous = gO101TailC144Root.chain;
-    gO101TailC144Root.chainType = 2;
-    gO101TailC144Root.chain = node32;
-    node32->handle = handle;
-    gO101TailC144Node32Count = nodeIndex + 1;
+    orderCount = &gO101TailC144OrderCount; orderIndex = *orderCount; gO101TailC144Root.value4A = 0xCC; gO101TailC144Root.height48 = 0x51; gO101TailC144Root.value4C = 0x4E; gO101TailC144Root.width44 = 0x18; gO101TailC144Root.x42 = 0x20; gO101TailC144Root.y46 = 0x20; gO101TailC144Root.color4E = 0xFF; gO101TailC144Root.color4F = 0xFF; gO101TailC144Root.mode40 = 0; gO101TailC144Root.childType = 0; gO101TailC144Root.child = NULL; gO101TailC144Root.data50 = gO101TailC144Inputs.data084; gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.childType; *orderCount = orderIndex + 1;
 
-    orderCount = &gO101TailC144OrderCount;
-    orderIndex = *orderCount;
-    gO101TailC144Root.value4A = 0xCC;
-    gO101TailC144Root.height48 = 0x51;
-    gO101TailC144Root.value4C = 0x4E;
-    gO101TailC144Root.width44 = 0x18;
-    gO101TailC144Root.x42 = 0x20;
-    gO101TailC144Root.y46 = 0x20;
-    gO101TailC144Root.color4E = 0xFF;
-    gO101TailC144Root.color4F = 0xFF;
-    gO101TailC144Root.mode40 = 0;
-    gO101TailC144Root.childType = 0;
-    gO101TailC144Root.child = NULL;
-    gO101TailC144Root.data50 = gO101TailC144Inputs.data084;
-    gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.childType;
-    *orderCount = orderIndex + 1;
+    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x10; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B0); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->text = gO101TailC144Inputs.text1B0; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.childType = 3; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1;
 
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->x = 0x66;
-    node24->y = 0x10;
-    length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B0);
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
-    node24->mode = 2;
-    node24->color0 = 0;
-    node24->color1 = 0;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailC144Inputs.text1B0;
-    node24->previousType = gO101TailC144Root.childType;
-    node24->previous = gO101TailC144Root.child;
-    gO101TailC144Root.childType = 3;
-    gO101TailC144Root.child = node24;
-    gO101TailC144Node24Count = nodeIndex + 1;
+    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x1E; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B4); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->text = gO101TailC144Inputs.text1B4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.childType = 3; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1;
 
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->x = 0x66;
-    node24->y = 0x1E;
-    length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B4);
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
-    node24->mode = 2;
-    node24->color0 = 0;
-    node24->color1 = 0;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailC144Inputs.text1B4;
-    node24->previousType = gO101TailC144Root.childType;
-    node24->previous = gO101TailC144Root.child;
-    gO101TailC144Root.childType = 3;
-    gO101TailC144Root.child = node24;
-    gO101TailC144Node24Count = nodeIndex + 1;
+    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x28; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B8); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->text = gO101TailC144Inputs.text1B8; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.childType = 3; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1;
 
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->x = 0x66;
-    node24->y = 0x28;
-    length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B8);
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
-    node24->mode = 2;
-    node24->color0 = 0;
-    node24->color1 = 0;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailC144Inputs.text1B8;
-    node24->previousType = gO101TailC144Root.childType;
-    node24->previous = gO101TailC144Root.child;
-    gO101TailC144Root.childType = 3;
-    gO101TailC144Root.child = node24;
-    gO101TailC144Node24Count = nodeIndex + 1;
+    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x36; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1BC); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->text = gO101TailC144Inputs.text1BC; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.childType = 3; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1;
 
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->x = 0x66;
-    node24->y = 0x36;
-    length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1BC);
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
-    node24->mode = 2;
-    node24->color0 = 0;
-    node24->color1 = 0;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailC144Inputs.text1BC;
-    node24->previousType = gO101TailC144Root.childType;
-    node24->previous = gO101TailC144Root.child;
-    gO101TailC144Root.childType = 3;
-    gO101TailC144Root.child = node24;
-    gO101TailC144Node24Count = nodeIndex + 1;
-
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->x = 0x66;
-    node24->y = 0x40;
-    length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1C0);
-    nodeIndex = gO101TailC144Node24Count;
-    node24 = &gO101TailC144Nodes24[nodeIndex];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
-    node24->mode = 2;
-    node24->color0 = 0;
-    node24->color1 = 0;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailC144Inputs.text1C0;
-    node24->previousType = gO101TailC144Root.childType;
-    node24->previous = gO101TailC144Root.child;
-    gO101TailC144Root.childType = 3;
-    gO101TailC144Root.child = node24;
-    gO101TailC144Node24Count = nodeIndex + 1;
+    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x40; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1C0); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->text = gO101TailC144Inputs.text1C0; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.childType = 3; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1;
 
     func_overlay_101_F0000000_18DB820(&gO101TailC144FinalObject4A90);
 }
@@ -276,10 +133,10 @@ void func_overlay_101_F000C144_18E7964(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:start
  * symbol: func_overlay_101_F000C144_18E7964
- * score: 115/361 words
+ * score: 152/361 words
  * frame: 0x38
- * relocations: 30
+ * relocations: 39
  * first-mismatch: +0x10
- * summary: Fresh configured reproof remains exact-size with 246 masked differences; 39 candidate versus 30 target relocations and ambiguous order-count identity keep promotion closed.
+ * summary: 209 masked words; the siblings' L59 fold transfers, their counter partition is refuted here. Identity gate still closed.
  * PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:end
  */
