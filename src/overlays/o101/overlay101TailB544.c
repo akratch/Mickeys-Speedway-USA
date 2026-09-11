@@ -102,77 +102,13 @@ void func_overlay_101_F000B544_18E6D64(void) {
     Node32 *node32;
     Node24 *node24;
 
-    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_DA4;
-    D_0.color32 = 0xFF;
-    D_0.color33 = 0xFF;
-    D_0.value26 = 0;
-    D_0.value28 = 0;
-    D_0.value2A = 0;
-    D_0.value2C = 0;
-    D_0.chainType = 0;
-    D_0.chain = 0;
-    index = D_1C4;
-    D_1C0[index] = &D_1C;
-    D_1C4 = index + 1;
+    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_DA4; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; index = D_1C4; D_1C0[index] = &D_1C; D_1C4 = index + 1;
 
-    index = D_1CC;
-    node32 = &D_340[index];
-    node32->x = 0x108;
-    node32->y = 0x154;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = func_overlay_101_F0000000_18DB820(0x91, 0);
-    index = D_1CC;
-    node32 = &D_340[index];
-    node32->previousType = D_0.chainType;
-    node32->previous = D_0.chain;
-    node32->handle = handle;
-    D_0.chainType = 2;
-    D_0.chain = node32;
-    D_1CC = index + 1;
+    index = D_1CC; node32 = &D_340[index]; node32->x = 0x108; node32->y = 0x154; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x91, 0); index = D_1CC; node32 = &D_340[index]; node32->previousType = D_0.chainType; node32->previous = D_0.chain; node32->handle = handle; D_0.chainType = 2; D_0.chain = node32; D_1CC = index + 1;
 
-    index = D_1C4;
-    D_0.x42 = 0x20;
-    D_0.width44 = 0x18;
-    D_0.y46 = 0x1C;
-    D_0.height48 = 0x50;
-    D_0.value4A = 0xD8;
-    D_0.value4C = 0x42;
-    D_0.mode40 = 0;
-    D_0.color4E = 0xFF;
-    D_0.color4F = 0xFF;
-    D_0.childType = 0;
-    D_0.child = 0;
-    D_0.data50 = D_INPUT.data184;
-    D_1C0[index] = &D_38;
-    D_1C4 = index + 1;
+    index = D_1C4; D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x1C; D_0.height48 = 0x50; D_0.value4A = 0xD8; D_0.value4C = 0x42; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data184; D_1C0[index] = &D_38; D_1C4 = index + 1;
 
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->x = 0x6C;
-    node24->y = 0x10;
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text188);
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0x80;
-    node24->color2 = 0;
-    node24->color3 = 0xFF;
-    node24->kind = 4;
-    node24->text = D_INPUT.text188;
-    node24->previousType = D_0.childType;
-    node24->previous = D_0.child;
-    D_0.childType = 3;
-    D_0.child = node24;
-    D_1D0 = index + 1;
+    index = D_1D0; node24 = &D_540[index]; node24->x = 0x6C; node24->y = 0x10; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text188); index = D_1D0; node24 = &D_540[index]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); node24->mode = 2; node24->color0 = 0xFF; node24->color1 = 0x80; node24->color2 = 0; node24->color3 = 0xFF; node24->kind = 4; node24->text = D_INPUT.text188; node24->previousType = D_0.childType; node24->previous = D_0.child; D_0.childType = 3; D_0.child = node24; D_1D0 = index + 1;
 
     index = D_1D0;
     node24 = &D_540[index];
@@ -220,28 +156,7 @@ void func_overlay_101_F000B544_18E6D64(void) {
     D_0.child = node24;
     D_1D0 = index + 1;
 
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->x = 0x6C;
-    node24->y = 0x32;
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text194);
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->length = (u8)length;
-    node24->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0xFF;
-    node24->kind = 4;
-    node24->text = D_INPUT.text194;
-    node24->previousType = D_0.childType;
-    node24->previous = D_0.child;
-    D_0.childType = 3;
-    D_0.child = node24;
-    D_1D0 = index + 1;
+    index = D_1D0; node24 = &D_540[index]; node24->x = 0x6C; node24->y = 0x32; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text194); index = D_1D0; node24 = &D_540[index]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); node24->mode = 2; node24->color0 = 0xFF; node24->color1 = 0xFF; node24->color2 = 0; node24->color3 = 0xFF; node24->kind = 4; node24->text = D_INPUT.text194; node24->previousType = D_0.childType; node24->previous = D_0.child; D_0.childType = 3; D_0.child = node24; D_1D0 = index + 1;
 
     func_overlay_101_F0000000_18DB820(&D_4358);
 }
@@ -251,10 +166,10 @@ void func_overlay_101_F000B544_18E6D64(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:start
  * symbol: func_overlay_101_F000B544_18E6D64
- * score: 94/316 words
+ * score: 189/316 words
  * frame: 0x38
  * relocations: 38
- * first-mismatch: +0x48
- * summary: Fresh reproof unchanged; no C caller, weak Conker donor, and ambiguous D_1C4 identity expose no new source lever.
+ * first-mismatch: +0x80
+ * summary: Selective L59 folds improve 222 to 189/316 at exact size/frame; remaining residual is structural/register allocation.
  * PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:end
  */
