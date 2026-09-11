@@ -109,7 +109,7 @@ extern Node32 D_340[];
 extern Node24 D_540[];
 
 extern void *func_overlay_101_F0000000_18DB820();
-extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
+extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Three source-shape levers took this function from 296 masked words to 203.
  * L59 -- every per-element assignment group is ONE physical line. as1 minimises
@@ -152,20 +152,40 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  *   declaration (L99).
  * Measured regressive: splitting the counter per block or per call side, and
  *   moving the opacity store later.
- * Remaining, 203 masked: 209 byte-exact, 104 naming, 4 immediate, 79 schedule,
- *   16 insertion and 16 deletion words, instruction multiset and frame both
- *   exact. The first block (below +0x1D0) is down to 13 schedule words and 4
- *   naming rows; the residual from +0x1D0 is 100 naming and 34 schedule. The
- *   named divergence is now the counter-bump STORE: the ROM emits `sw t5,0(s3)`
- *   late, after the previous-link and chain-type stores, while as1 emits it
- *   immediately after the recompute here, and every one of the 540 statement
- *   orders swept over the post-call block reaches 203 at best with the bump
- *   first. So the axis is what lets the bump's load sit early while its store
- *   sinks, not the statement order. */
+ * The byte-length local is `u8`, not `s32`, and the callee is declared `s32`
+ *   rather than `s8`. Worth 203 to 136, the largest single lever on the
+ *   function, and semantically exact rather than lucky: both uses already
+ *   truncate to eight bits -- the node field is `u8` and the opacity expression
+ *   masks with 0xFF -- so the declaration only states what the code already
+ *   guarantees. A 360-cell lattice over the callee's return type, the local's
+ *   type, the store cast and the opacity mask puts every floor cell at LOCAL
+ *   `u8`, with the return type indifferent across all six spellings.
+ * The counter-bump STORE, which this comment used to name as the next lever, is
+ *   exhausted. 659 constrained permutations of the whole post-call block -- the
+ *   bump, the three node stores and the two root stores under their two real
+ *   dependences -- across four bump spellings, all flat, measured on the
+ *   identical F000512C sibling. The reading that the axis is not statement
+ *   order holds, now over the whole block rather than six statements. The block
+ *   order was re-measured after the type lever and the adopted form is still
+ *   the floor, so it is not a stale plateau.
+ * Remaining, 136 masked: 276 byte-exact, 37 naming, 4 immediate, 79 schedule,
+ *   size and frame ladder exact. The naming rows are one PHASE -- the ring runs
+ *   exactly one position behind from +0x2BC onward, ours t2 against their t3,
+ *   t3 against t4, t6-t7, t7-t8, t8-t9 and t9 back to t2, with 83 percent of
+ *   all substitution pairs consistent with that single permutation on the
+ *   sibling. That is L127's shape and L127 does NOT reach it: 155 no-op cells
+ *   were measured on the identical sibling -- every read of the counter globals
+ *   and the loop index wrapped with OR-zero, AND-minus-one, XOR-zero, a byte
+ *   mask and two doubled forms, then every root-field and call-result read,
+ *   pointers through an integer round trip -- and all 155 are exactly flat. So
+ *   either the phase is set before any point a source no-op reaches, or these
+ *   rows are globalcolor colour, which L114 as corrected for this procedure
+ *   permits since it assigns three t-bank colours outright. Decide that from
+ *   the `p1color` records before spending another no-op lattice. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00063F8_18E1C18(void) {
     s32 index;
-    s32 length;
+    u8 length;
     void *handle;
     Node32 *node32;
     Node24 *node24;
@@ -220,10 +240,10 @@ void func_overlay_101_F00063F8_18E1C18(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F00063F8_18E1C18:start
  * symbol: func_overlay_101_F00063F8_18E1C18
- * score: 203/380 words
+ * score: 136/380 words
  * frame: 0x38
  * relocations: 49
  * first-mismatch: +0x9C
- * summary: 203 masked words from 213; size, frame and instruction multiset all exact. Naming fell 167 to 104 once the pre-call counter read became a ring temp and the node pointer kept s0; the residual is as1 schedule, led by the counter-bump store.
+ * summary: 136 masked words; the byte-length local is u8, which collapsed the naming bucket by more than four to one and left a clean one-position ring shift from +0x2BC.
  * PLATEAU-HANDOFF:func_overlay_101_F00063F8_18E1C18:end
  */
