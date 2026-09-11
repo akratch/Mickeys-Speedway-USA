@@ -74,4 +74,19 @@ not an allocation-population fact at all. It is the copy-propagation decision
 the section above names, and it will not yield to anything that only changes
 how many webs compete. The same test run on `overlay1ResolvePathPoint`, whose
 one word is the same class, is equally inert over 140 placements.
+
+#### 2026-09-11, lane `f9-small`: copy placement before the range guard, and the top-tested family, are flat
+
+Assigning `remaining = count` and `wrapCount = count` before `if (index <
+count)` (both orders, wrap site from either variable, guard on any of the
+three names) scores 25; after the guard as retained, 12. Top-tested
+`while (remaining--)`, `while (remaining-- != 0)` and `for` all lose one
+instruction (uopt shares `count - 1` between the guard decrement and the wrap
+site) and score 34, so the guarded do/while is the target's shape. The
+target's dead `move $a2,$v1` is the same "propagated but not deleted" copy
+seen on `func_80020D8C` (post-decrement temp) and closed on `func_8003A754`
+(a copy uopt's EQ_INEQ saw before propagation). Decision variable: which pass
+propagates `remaining = count` into the guard test -- cfe within the block, or
+uopt after DCE. A block boundary between the copy and its guard that emits
+nothing is the lever to look for.
 <!-- plateau-handoff:overlay1FindPreviousUsable:end -->

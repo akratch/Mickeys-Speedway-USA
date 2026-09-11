@@ -71,4 +71,36 @@ lever reaches it.
 comment saying they are a measured reconstruction, not recovered source.
 Replace them with the real locals if those are ever recovered; the object must
 not change.
+
+#### 2026-09-11, lane `f9-small`: the v0 exclusion is a symbol-level interference, not L101
+
+Still 6, register-only, delta 0. Instrumented uopt (`CDX_PROC=9` of font.c):
+fontData is web 0 (save 1.0, nocs 2, bestcost 1.0, coloured last) and its
+`p1cost` list starts at colour 6 (a3). Colours 1-5 are absent because webs
+holding them are in its `intf` list, and the one that matters is the inner
+`*text++` escape byte (save 26, first visited, v0). A force to v0 is declined.
+Forcing the escape byte off v0 only hands v0 to the loop byte, which also
+interferes. The escape web lives only inside the loop, so the interference is
+inherited from the symbol `current`, which is defined in the join block where
+fontData is live.
+
+Measured consequences (all delta 0 unless stated):
+
+- separate local for the escape byte (u8/s32/char/u32, every declaration
+  slot): fontData's `intf` drops it, but the escape and loop bytes stop
+  interfering too and both take v0 -- 14 words;
+- guard byte in its own local `first`, `current = first` inside the `if`:
+  fontData = v0 and the loop body exact, but the copy is not coalesced
+  (`first` is live-in to the block that defines `current`) -- +4 bytes for
+  all 16 type pairings, and with `(u8)` casts or a reload;
+- escape byte sharing a symbol with the loop-end read (`next`) merges the two
+  webs (save 35) -- 10 words; `next` only for the loop-end read with a copy
+  back -- 4 words, but the escape byte then follows `next` to v1;
+- join-block statement order (all 6): inert; reading `characterWidth` inside
+  the `if` or the loop: geometry changes (25 words); `while`, `for`,
+  `else`-form and separate-`if` loop shapes: flat at 6 or worse.
+
+Decision variable: the block in which the symbol that carries the escape byte
+is first defined. It must not be the join block, and the loop's first byte
+must still reach the loop top without a copy uopt refuses to coalesce.
 <!-- plateau-handoff:func_8004BA8C:end -->
