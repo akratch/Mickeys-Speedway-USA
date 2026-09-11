@@ -89,4 +89,45 @@ seen on `func_80020D8C` (post-decrement temp) and closed on `func_8003A754`
 propagates `remaining = count` into the guard test -- cfe within the block, or
 uopt after DCE. A block boundary between the copy and its guard that emits
 nothing is the lever to look for.
+
+
+#### p8-o001: the region lever and the leaf position lever are both flat
+
+This is a leaf, and its records confirm it: proc 12 emits p2 decisions only,
+ten coloured in ascending web number taking the lowest free colour, exactly as
+L141 says. So the ratio is inert here by construction and the lever is web
+numbering, which is moved by position.
+
+The previous record closed on "a block boundary between the copy and its guard
+that emits nothing is the lever to look for". It is not. Nine L97 region forms
+were measured and every one is byte-flat at 12: the two copies inside
+`do { } while (0)` and inside `if (1) { }`, each copy separately wrapped, an
+empty region placed between the copies and the guard in both spellings, two
+empty regions, the guard itself opened into a region, and the copies swapped
+inside a region.
+
+Position is equally flat. All twelve declaration orders permitted by L143 --
+six of the `s32` run by two of the pointer run -- plus six orders with the
+pointer run first and six with `flags` first are byte-flat at 12.
+
+A form the earlier records did not try is also eliminated: `if (remaining--)`
+and `if (remaining-- != 0)`, which reproduce the target's exact guard shape of
+`beqz` on the counter copy with the decrement in the delay slot, lose one
+instruction (delta -4) and score 34, with or without the wrap bound spelled from
+`count`, and with the copies in either order. So the target's `beqz a1` plus
+`addiu a1,a1,-1` pair is *not* a post-decrement guard.
+
+A twelve-cell lattice over where each of the two copies and the wrap bound reads
+from -- the `count` local or the `gOverlay1EntryCount` import, crossed with three
+wrap spellings -- confirms the retained form is the floor: 12 for the retained
+row, 17 where the wrap reads `count`, 27 where `remaining` reads the import and
+the wrap reads `wrapCount`, and 38 for every row where the counter copy reads
+the import, half of them a word short.
+
+The naming half of the residual is now measured rather than described. The
+candidate runs exactly **two** ring positions ahead of the target -- its first
+scratch temp is `t1` where the target's is `t0`, and it draws one extra for the
+commoned `count - 1`. One of the two is the shared temp the structural residual
+creates, so it is downstream of the copy question and not a separate lever; the
+other is a phase offset present before any of it.
 <!-- plateau-handoff:overlay1FindPreviousUsable:end -->

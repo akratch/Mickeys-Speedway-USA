@@ -73,4 +73,34 @@ argument home without ever storing to it.
 
 Next lever: the delay-slot choice between the parameter store and the selector
 mask, and then the reload's carrier. Both sit on the same three instructions.
+
+
+#### p8-o001: the address lever gives the reload but not the store
+
+`overlay1MeasureCurves` matched in this lane on the general form of what the
+previous record here was reaching for: taking a parameter's address makes it
+memory class, so every read is a load from its argument home and -- unlike
+`volatile` -- no scheduling edge is emitted. Applied here it does not close the
+gap, and the measurement says why.
+
+Reading `index` through `*(u8 *)&index` at all four of its uses, with the
+`volatile u8 localIndex` hack removed, produces 106 instructions against the
+target's 107 and scores 104. Adding `*(u8 *)&index = index;` before the call
+restores the count and scores 55. The store is therefore load-bearing and the
+reads are not: the target genuinely stores the parameter to the byte of its own
+home at `sp+59` and reloads from there, and address-taken reads alone give the
+reload without the store. Also measured: the same address reads alongside the
+retained volatile local (105, delta +8), and the selector read through its
+address as well (104, delta -4).
+
+So the previous record's ranking stands -- the retained hack at 21 words, the
+structurally correct address form at 55 -- and the open question is unchanged
+and now sharper: it is the *store*, not the reload, and specifically whether
+as1 can be made to put that store in the call's delay slot where the target has
+it, instead of the selector mask. Nine physical-line arrangements of the store
+and the call were measured from the address-form base and every one is byte-flat
+at 55: the two statements folded onto one line in both orders, one and two blank
+lines between them, the store after the call, the store written volatile, and the
+selector argument cast at the call. L59's line-number tie-break is live in this
+unit but does not reach this pair.
 <!-- plateau-handoff:overlay1BendPathPoint:end -->

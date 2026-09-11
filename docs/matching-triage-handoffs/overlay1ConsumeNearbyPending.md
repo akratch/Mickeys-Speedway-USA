@@ -63,4 +63,78 @@ worth eighteen of twenty-five words and leaves seven. So the two functions do
 share the pool-population mechanism, but they do not share the residual after
 it: this one keeps three quarters of its residual and that one keeps under a
 third. Treat them as one lever and two different remaining causes.
+
+
+#### p8-o001: the colour arrangement is source-reachable and worth 7, and the whole rest is one web that should not exist
+
+The function issues one call, so by the call test it emits p1 records only. The
+instrumented toolchain's object is byte-identical to the tree's, checked with
+`cmp` on the whole object; the identity gate needs the TU's own
+`-Wab,-r4300_mul` override, and a hand-written compile line without it reads 33
+instead of 31 and would have attributed everything to the wrong pass.
+
+Four webs were identified by forcing each to `s2` and reading which register
+moved, which removes the guesswork the earlier records left:
+
+- web 36, save 30.0, is `otherState`; the candidate gives it `v1`, the target
+  gives it `a0`.
+- web 30, save 25.0, is `other`; the candidate gives it `a0`, the target `v1`.
+- web 18, save 16.5, is the counter's read-modify-write value, shared by the
+  guard and the latch; the candidate gives it `v1`, the target uses `t6`.
+- web 75, save 15.0, is `pending`; candidate `a0`, target `v1`.
+
+So the target's order is other, otherState, pending, and the counter is not
+coloured at all. Forcing exactly that arrangement -- `p1:w36=c3,p1:w30=c2,
+p1:w75=c2` -- takes 31 to 24, and adding `p1:w18=c7` on top takes it to 16. The
+colour table decodes on this procedure as c1 `v0`, c2 `v1`, c3 `a0`, c4 `a1`,
+c5 `a2`, c6 `a3`, c7 `t0` through c12 `t5`, c13 unnamed, c14 `s0`. **`t6` is not
+a colour**, which is the decisive fact: the target's counter register is a ugen
+scratch temp and no globalcolor decision can produce it.
+
+The colour flip is a save-ratio question and it is reachable. `other` has
+totalsave 50 and `otherState` 60 at nocs 2 each, one reference apart at the
+loop-depth weight of 10; one more reference to `other` ties them, and a tie
+keeps the lower web number, which is `other`. One zero-footprint identity read
+of `other` placed anywhere in the loop body does it: 31 to 24, at 69 of 69
+instructions and delta 0, with `other`, `otherState` and `pending` then taking
+`v1`, `a0`, `v1` exactly as the target does. A second zero-footprint draw -- a
+u8 mask on the kind comparison, L127 -- takes 24 to 18 by putting the scratch
+ring back in phase for the second half of the loop body.
+
+Neither probe is adopted. They are artificial identity operations, the function
+does not close on them, and an artificial floor in the tracked source is worth
+less than the measurement written down. What they establish is the arithmetic:
+7 words are the save ratio, 6 are ring phase, and **18 are the counter web
+existing at all**.
+
+#### p8-o001: the blocking record, and the axes covered
+
+From the 18-word base, a force sweep of every coloured web against every colour
+c1 to c14 plus the split path -- 105 forces, 71 accepted, 13 declined, 21 split,
+acceptance read from the `forced` field rather than from whether the object
+changed -- never reaches below 18. By L140 that is an existence proof: the
+residual is below globalcolor and the lever must stop the web being formed.
+
+Decision variable: what makes the `count--` value one IR name across the guard
+and the latch. The record that blocks it is web 18's own `p1dec` line, totalsave
+33 against bestcost 0, which colours unconditionally under L139 -- no source
+form can raise bestcost above 33, so declining is unreachable and the web has to
+not exist. Note that the *index* read of the same variable is already a scratch
+temp on both sides, so the split is between the read-modify-write value and the
+plain read, not between the variable's uses.
+
+Measured and eliminated from the 31-word base, do not repeat: dropping the
+`volatile` while keeping the address escape through the getter, which is what
+the newly-matched `overlay1MeasureCurves` lever would predict -- it costs an
+instruction (delta +4, 51 words) in every read combination, so address-taking
+alone does not reproduce volatile's reloads here; `*(volatile s32 *)&count` at
+the decrements, at every read, and with the declaration non-volatile (61 to 64,
+delta +4 or +8); a one- and two-element `volatile s32` array with `count[0]`
+(64 and 67, delta +4); `(&count)[0]` (64); a single-member struct wrapper, which
+is byte-flat at 31; four guard spellings and two latch spellings; the counter
+declared `u32`; and the declaration moved to the head and the tail of the list
+(23 and 19). Substituting `((Overlay1OtherState *)other->state)` for the
+`otherState` local at each of its four uses, in all fifteen non-empty subsets,
+runs 49 to 63 -- it shifts the reference where L100 wants it but costs the
+common subexpression.
 <!-- plateau-handoff:overlay1ConsumeNearbyPending:end -->
