@@ -191,4 +191,48 @@ The decision variable is the p1 rank of web 51 against 149 and 406, which is
 L100 arithmetic: 149 falls below 51 at nocs 19 or with 51 fewer points of
 net, and neither is a declaration or placement axis. The 24-row bound above
 is a bound on the swept colours, not on this exchange.
+
+## 2026-09-11 frame arithmetic closed, and one inherited description corrected (lane `lane/o11-frames`)
+
+No source change adopted.  Two declaration reorders aimed at the target's home
+ladder were built and measured byte-identical to the current candidate (636
+masked, 711 aligned byte-exact, 475 naming, 32 immediate-only, 42
+really-different, delta 0), which is consistent with the 962-candidate move-one
+lattice already on this page.
+
+**The correction.**  A dispatch reached this lane describing the frame gap as
+"one escaping pointer homed at +0x54 instead of +0x40, under three float homes,
+with 32 of 36 sp rows being the resulting constant -4".  That does not describe
+these two objects.  Neither side touches +0x40 or +0x54 at all.  The slots each
+side actually uses, in full:
+
+- both: 0x10, 0x14, 0x18, 0x20, 0x2C, 0x30, 0x34, 0x38, 0x3C, 0x44
+- this candidate only: 0x6C, 0xA4, 0xA8, 0xB4, 0xB8, 0xBC, 0xC4, 0xD0
+- the target only: 0x60, 0x68, 0x84, 0x88, 0x8C, 0x94, 0x9C, 0xB8
+
+Whoever writes that description next should read it off the objects.
+
+**The arithmetic, which the page already had qualitatively.**  Every slot below
+0x4C -- the eight argument words, the two saved doubles at 0x20 and 0x28, the
+four saved registers and `ra` at 0x2C..0x3C, and the two-access compiler
+temporary at 0x44 -- sits at an identical absolute offset on both sides.  So the
+frame difference is block and only block: **124 bytes here, 100 in the target,
+exactly six four-byte cells**, which confirms the earlier "6 words of declared
+storage" with the slots rather than by subtraction.
+
+**Where the target's eight homes sit,** measured from its own frame top, with
+this candidate's for comparison:
+
+- target: -20 (3 loads 2 stores), -28 (1/1), -36, -40, -44 (three 1 load 2
+  stores), -56 (2/1), -72 (1/1), -80 (1/1)
+- candidate: -4 `updatesRemaining` (3/2), -12 `impactBoost` (1/2),
+  -16 and -20 `colorEnabled[1]`, `colorEnabled[0]` (1/2 each), -32 `speedLimit`
+  (1/1), -36 `scale` (1/1), -80 `turnAmount` (1/2), -92 `turnDirection` (1/1)
+
+Matching on traffic: `updatesRemaining` is the target's **fifth** declaration,
+not its first -- four cells precede it.  `impactBoost` is ninth and
+`colorEnabled` tenth and eleventh, so three cells sit between `updatesRemaining`
+and `impactBoost` where this candidate has one.  That is a constraint the six
+carrier merges have to satisfy jointly, and it is the thing to solve against
+rather than searching merges by score.
 <!-- plateau-handoff:func_overlay_008_F0001294_185EFEC:end -->
