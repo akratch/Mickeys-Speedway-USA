@@ -112,7 +112,47 @@ extern s32 func_overlay_046_F0000874_188EC6C();
  *
  * Next lever: shorten web 51's span so that it stops crossing a call which loads a2 or a3, or
  * find a source form in which the flag is not a distinct symbol at all.  Raising its save cannot
- * work; a colour absent from a web's cost list is not for sale at any ratio. */
+ * work; a colour absent from a web's cost list is not for sale at any ratio.
+ *
+ * 2026-09-12, lane p8-arity.  The arity lever named in the closure above is real here and it
+ * moves the flag by exactly one colour, which is one short.  Everything below is measured on the
+ * instrumented uopt, whose `.text` is byte-identical to the tree's stock object.
+ *
+ * Baseline reproduces: web 51 save 1.5, nocs 4, totalsave 6, forbidden0 0x7e000000, p1cost
+ * starting at colour 7, decision=color, bestreg=t0.  The interference list holds webs assigned
+ * every one of colours 1 to 6.
+ *
+ * **The a2 denial is not interference, and that is new.**  Forcing web 70 off a2 leaves a2
+ * unassigned at web 51's decision and its mask still carries colour 5 (it becomes 0x7e800000,
+ * colours 1 to 6 plus t1) -- so a2 is denied by the call rule, not by an incumbent.  A direct
+ * `CDX_FORCE=p1:w51=c5` is declined byte-identically, and so are c1 through c4 and c6, which is
+ * the L101 already-forbidden case.
+ *
+ * **The denial is a COUNT keyed to argument arity, and it saturates one colour above a2.**
+ * Varying `func_80036F08`'s argument count alone, everything else fixed:
+ *   0, 1 or 2 arguments -> forbidden 0x7c000000 (colours 1..5), web 51 takes a3;
+ *   3 arguments (the tracked form) -> 0x7e000000 (colours 1..6), web 51 takes t0;
+ *   4 arguments -> 0x7f000000 (colours 1..7), web 51 takes t1.
+ * One more argument on a call inside the web's range denies exactly one more colour, from the
+ * bottom of the table up.  `func_80028374` (six arguments) and the two `func_8004B0` calls move
+ * the mask by nothing at all, so they are outside the range; `func_80036F08` and the tail's
+ * `matched` reuse are inside it.  Inlining the tail use of `matched` drops totalsave 6 -> 4 and
+ * the mask to 0x7c000000 on its own.
+ *
+ * **The floor is a3, and it is a floor.**  With EVERY tail call cut to one argument, and with
+ * the tail use of `matched` inlined away as well, the mask stays at 0x7c000000 and the flag
+ * takes a3, never a2.  Colours 1 to 5 survive every arity reduction available.  So the target's
+ * a2 is not reachable through the call-argument rule, and this lever is closed rather than
+ * unexplored.  Each of those probes also scores worse than the base (108 to 124 against 54).
+ *
+ * **The single-decision axis is closed too, and this is the more useful number.**  A full greedy
+ * force ceiling was run: all 24 p1 decisions x colours 1..22 plus the split path, 552 cells, of
+ * which 438 were accepted (433 distinct objects).  **Not one scores better than 54.**  The best
+ * accepted cell ties at 54 and the next is 56.  So the residual is not one globalcolor decision:
+ * it needs the web SET to change, not a recolouring, and the next lane should not re-run a force
+ * sweep or a colour lattice.
+ */
+
 /* Ownership trial note kept from 2026-08-28 is below. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x364..+0x378 .rodata range;
  * linked promotion is text-differs with 315 in-range words, first at +0x0.
