@@ -3,6 +3,7 @@
 import pathlib
 import sys
 import unittest
+import unittest.mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
@@ -67,6 +68,90 @@ class RouteTests(unittest.TestCase):
         out = triage.cheapest_route(rows, 2000)
         self.assertEqual(out["words"], 35)
 
+
+
+
+class UnassignableTests(unittest.TestCase):
+    """A symbol with a proof that it cannot match must never reach a lane.
+
+    The bar is machine-enforced rather than remembered, because the symbols
+    that earn it are large and nearly closed -- exactly what a ratio-sorted
+    list puts on top -- so every wave surfaces them again.
+    """
+
+    def _fixture(self, ranking_rows, barred):
+        import json
+        import tempfile
+        tmp = pathlib.Path(tempfile.mkdtemp())
+        rank = tmp / "ranking.json"
+        rank.write_text(json.dumps({"functions": ranking_rows}), encoding="utf-8")
+        bar = tmp / "barred.json"
+        bar.write_text(json.dumps({"schema_version": 1, "symbols": barred}),
+                       encoding="utf-8")
+        return rank, bar
+
+    def test_a_barred_symbol_is_dropped_from_the_queue(self) -> None:
+        rank, bar = self._fixture(
+            [fn("keep", 100, 4, 1), fn("barred", 1416, 5, 57)],
+            {"barred": {"reason": "proven unmatchable at a floor of 2"}})
+        with unittest.mock.patch.object(triage, "RANKING", rank), \
+                unittest.mock.patch.object(triage, "UNASSIGNABLE", bar):
+            self.assertEqual([r["name"] for r in triage.load()], ["keep"])
+
+    def test_a_barred_symbol_never_appears_in_the_cheapest_route(self) -> None:
+        """It would sort first: 1416 bytes at 5 words is the best ratio here."""
+        rank, bar = self._fixture(
+            [fn("keep", 100, 4, 1), fn("barred", 1416, 5, 57)],
+            {"barred": {"reason": "proven unmatchable at a floor of 2"}})
+        with unittest.mock.patch.object(triage, "RANKING", rank), \
+                unittest.mock.patch.object(triage, "UNASSIGNABLE", bar):
+            route = triage.cheapest_route(triage.load(), 10_000)
+            self.assertNotIn("barred", route["names"])
+
+    def test_the_exclusion_is_reported_rather_than_silent(self) -> None:
+        """A silently shorter list reads as the queue having shrunk. The
+        report has to say a symbol was removed and why, or the next reader
+        re-adds it."""
+        rank, bar = self._fixture(
+            [fn("keep", 100, 4, 1), fn("barred", 1416, 5, 57)],
+            {"barred": {"reason": "proven unmatchable at a floor of 2"}})
+        with unittest.mock.patch.object(triage, "RANKING", rank), \
+                unittest.mock.patch.object(triage, "UNASSIGNABLE", bar):
+            rendered = triage.render(triage.report(60.0, 5))
+        self.assertIn("barred", rendered)
+        self.assertIn("proven unmatchable at a floor of 2", rendered)
+        self.assertIn("Never assign it", rendered)
+
+    def test_a_barred_symbol_absent_from_the_ranking_is_not_reported(self) -> None:
+        """Once a symbol leaves the queue the bar is still correct, but
+        printing it every wave trains the reader to skip the line."""
+        rank, bar = self._fixture(
+            [fn("keep", 100, 4, 1)],
+            {"gone": {"reason": "proven unmatchable"}})
+        with unittest.mock.patch.object(triage, "RANKING", rank), \
+                unittest.mock.patch.object(triage, "UNASSIGNABLE", bar):
+            self.assertEqual(triage.report(60.0, 5)["excluded"], [])
+
+    def test_a_missing_registry_bars_nothing(self) -> None:
+        rank, bar = self._fixture([fn("keep", 100, 4, 1)], {})
+        with unittest.mock.patch.object(triage, "RANKING", rank), \
+                unittest.mock.patch.object(triage, "UNASSIGNABLE", bar / "absent"):
+            self.assertEqual([r["name"] for r in triage.load()], ["keep"])
+
+
+class ShippedRegistryTests(unittest.TestCase):
+    def test_the_proven_unmatchable_overlay_57_symbol_is_barred(self) -> None:
+        """A standing project constraint. It has been re-surfaced by a
+        ratio-sorted list in more than one wave."""
+        self.assertIn("overlay57UpdateModeState", triage.unassignable())
+
+    def test_every_barred_symbol_carries_its_proof(self) -> None:
+        """'Do not assign' without the evidence is indistinguishable from a
+        plateau someone gave up on, and gets overturned."""
+        for name, entry in triage.unassignable().items():
+            with self.subTest(name):
+                self.assertTrue(entry.get("reason", "").strip(), name)
+                self.assertGreater(len(entry.get("evidence", "")), 80, name)
 
 if __name__ == "__main__":
     unittest.main()

@@ -82,3 +82,10 @@ bytes-per-word, and **proven unmatchable at a floor of 2**. A trace replay
 reproduced 244 of 244 multi-candidate selections with zero mispredictions, with
 the key space covered using `#line` to reach positions no legal statement order
 produces. Any ratio-sorted list will surface it. It is not a candidate.
+
+This is now enforced rather than remembered. `config/unassignable-symbols.us.json`
+carries the bar and the proof behind it, `tools/triage.py` drops barred symbols
+from every route, cluster, band and queue total, and prints an `EXCLUDED` line so
+the removal is visible instead of looking like the queue shrank. Add a symbol there
+only with evidence that *no legal source reaches the target* -- a plateau, however
+stubborn, is not the same thing and belongs in the handoff instead.
