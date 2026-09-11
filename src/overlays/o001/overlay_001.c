@@ -356,14 +356,19 @@ extern void *overlay1Chain40Reloc(void *source);
 extern f32 overlay1InterpolateReloc(f32 first, f32 second, s32 third,
                                    s32 fourth, f32 weight);
 
-/* Workbench: allocation-mismatch, 50 differing words, first mismatch +0x00.
- * Exact 88-instruction frame/CFG and relocation roles; residuals are GPR lanes.
- * Shape-exact and permuter-ready; no structural gap remains. */
+/* Allocation residual is three words at +0x6C, +0x70 and +0x90: the address of
+ * D_1D68 wants ugen's v0 and takes a scratch temp here.  Two edits took the
+ * residual from 47 to 3, both read off the allocator records rather than
+ * guessed: splitting the one `state` local into a pre-call `state` and a
+ * post-call `current` (one web spanning the three calls is denied v0, so the
+ * &D_1DA0 address could not reach v1), and dropping the `index` local so the
+ * record index stays an expression temp and the &D_1D68 address becomes the
+ * only value competing for a colour. */
 #ifdef NON_MATCHING
 s32 overlay1ActivateObject(Overlay1Owner *owner) {
-    s32 index;
     Overlay1Sample *record;
     Overlay1OwnerState *state;
+    Overlay1OwnerState *current;
 
     D_1D9C = 0;
     D_1DA0 = 0;
@@ -377,25 +382,24 @@ s32 overlay1ActivateObject(Overlay1Owner *owner) {
     }
     D_1DA0 = state;
     if (D_0 == 1) {
-        index = (*(Overlay1OwnerState *volatile *)&D_1DA0)->recordIndex;
-        record = (Overlay1Sample *)((u8 *)D_1D58 + index * 0x94);
+        record = (Overlay1Sample *)((u8 *)D_1D58 + (*(Overlay1OwnerState *volatile *)&D_1DA0)->recordIndex * 0x94);
         D_1D68 = record;
         D_1D64 = overlay1Chain0ContextReloc(record, &D_1D9C);
         D_1D60 = overlay1Chain0Reloc(D_1D64);
         D_1D6C = overlay1Chain40Reloc(D_1D68Read);
-        state = D_1DA0;
+        current = D_1DA0;
         D_0208 =
             (Overlay1Sample *)((u8 *)D_1D60 +
-                state->selector * 0x10 + 0x14);
+                current->selector * 0x10 + 0x14);
         D_020C =
             (Overlay1Sample *)((u8 *)D_1D64 +
-                state->selector * 0x10 + 0x14);
+                current->selector * 0x10 + 0x14);
         D_0210 =
             (Overlay1Sample *)((u8 *)D_1D68Read +
-                state->selector * 0x10 + 0x14);
+                current->selector * 0x10 + 0x14);
         D_0214 =
             (Overlay1Sample *)((u8 *)D_1D6C +
-                state->selector * 0x10 + 0x14);
+                current->selector * 0x10 + 0x14);
     }
     return 1;
 }
