@@ -13,8 +13,14 @@ build in ways that look like a compiler problem.
 moment of deletion rather than trusted from an earlier survey:
 
 1. it is not running a lane -- a `.codex-run.log` without a `.codex-status`
-   means a detached Codex worker is still writing to it, and `--exclude` covers
-   in-process agents the filesystem cannot see;
+   means a detached Codex worker is still writing to it, `--exclude` covers
+   in-process agents by name, and **nothing inside it has been modified within
+   `--min-idle-minutes`** (default 45). That last one is not redundant: the
+   other three conditions cannot tell a just-created lane from a fully
+   integrated one, because a new worktree has no commits of its own, a clean
+   tree, and a branch level with the integration ref. A sweep run while a lane
+   was starting up deleted its worktree for exactly that reason, so the idle
+   probe is the condition that actually protects live work;
 2. `git status --porcelain` is empty, so nothing uncommitted is lost;
 3. `git rev-list --count <integration>..<branch>` is 0, so every commit it
    carries is already merged.
@@ -58,7 +64,35 @@ def lane_name(path: pathlib.Path) -> str:
     return path.name.removeprefix("mickey-lane-").removesuffix(".noindex")
 
 
-def status(path: pathlib.Path, integration: str, exclude: set[str]) -> tuple[bool, str]:
+def recently_touched(path: pathlib.Path, minutes: int) -> str | None:
+    """The first file modified inside `path` within `minutes`, or None.
+
+    This is the condition a freshly-created lane fails and a finished one
+    passes. It exists because the other three conditions CANNOT distinguish a
+    lane that has just been created from one whose work is fully integrated: a
+    new worktree has no commits of its own, a clean tree, and a branch level
+    with the integration ref. A sweep run while a lane was starting up deleted
+    its worktree out from under it for exactly that reason.
+
+    `find -newermt ... -print -quit` short-circuits on the first hit, so the
+    common case (an active lane, something written seconds ago) is fast.
+    """
+    try:
+        out = subprocess.run(
+            ["find", str(path), "-newermt", f"-{minutes} minutes",
+             "-print", "-quit"],
+            capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired):
+        # Cannot tell -> assume it is live. Refusing to delete is always the
+        # recoverable direction; a stale worktree costs disk, a deleted live
+        # one costs a lane's work.
+        return "(probe failed)"
+    hit = out.stdout.strip().splitlines()
+    return hit[0] if hit else None
+
+
+def status(path: pathlib.Path, integration: str, exclude: set[str],
+           min_idle_minutes: int = 45) -> tuple[bool, str]:
     """(removable, why-not)."""
     name = lane_name(path)
     if name in exclude:
@@ -76,6 +110,9 @@ def status(path: pathlib.Path, integration: str, exclude: set[str]) -> tuple[boo
     ahead = git("rev-list", "--count", f"{integration}..{branch}")
     if ahead != "0":
         return False, f"{ahead} commit(s) not in {integration}"
+    touched = recently_touched(path, min_idle_minutes)
+    if touched is not None:
+        return False, f"active within {min_idle_minutes}m ({touched})"
     return True, ""
 
 
@@ -87,12 +124,17 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--integration", default="campaign/unchain")
     ap.add_argument("--exclude", default="",
                     help="comma-separated lane names to keep (in-process agents)")
+    ap.add_argument("--min-idle-minutes", type=int, default=45,
+                    help="refuse a worktree with any file modified this "
+                         "recently; a lane that has just been created is "
+                         "otherwise indistinguishable from an integrated one "
+                         "(default: 45)")
     args = ap.parse_args(argv)
     exclude = {n.strip() for n in args.exclude.split(",") if n.strip()}
 
     removable, kept = [], []
     for path in worktrees():
-        ok, why = status(path, args.integration, exclude)
+        ok, why = status(path, args.integration, exclude, args.min_idle_minutes)
         (removable if ok else kept).append((path, why))
 
     for path, why in kept:
@@ -106,7 +148,7 @@ def main(argv: list[str]) -> int:
 
     removed = 0
     for path, _ in removable:
-        ok, why = status(path, args.integration, exclude)   # re-verify at delete time
+        ok, why = status(path, args.integration, exclude, args.min_idle_minutes)   # re-verify at delete time
         if not ok:
             print(f"  refuse {lane_name(path):<16} changed since the survey: {why}")
             continue
