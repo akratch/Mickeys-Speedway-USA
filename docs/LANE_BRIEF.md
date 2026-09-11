@@ -34,6 +34,14 @@ It also prints a **displacement tax** — how much of the positional count is
 pure shift — and the offsets where instructions are surplus or missing. On a
 size mismatch that last pair is the whole question.
 
+`tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
+them: each side's ladder from the frame top down, the slots only one side uses,
+and shared slots with different traffic. Run it on any residual with a frame or
+displacement component -- three of six closures re-tested on 2026-09-11 were
+home-set problems nobody had measured. It reads the objects, so it is symmetric;
+`cc -g3` names which of *your* slots are declared locals rather than compiler
+temps, which is the other half of L118.
+
 `tools/score_symbol.py <symbol>` gives the positional masked count, agreeing
 with the ranking by construction. **Work the masked number**, never the raw
 one: the difference is relocation artefacts, already partitioned and stored.
