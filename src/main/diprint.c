@@ -912,22 +912,59 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Fresh configured full-TU C under -O2 -mips2 -32 -Wab,-r4300_mul is
- * 59/66 raw/relocation-normalized words, frame 0x138, first +0x38, with all
- * five relocation tuples exact and no target padding. All 119 flag rows were
- * attempted; thirteen O2/MIPS-II rows tied this best basin and none was exact.
- * One allocator trace and workbench isolate a five-site current-byte v1/v0 web
- * plus the two-word branch-likely newline lowering. A separate classification
- * scalar regressed to 57/66 by gaining a stack home; an explicit newline-tail
- * jump was flat at 59/66, so they were not combined. ORT 862 has no caller.
- * A 2026-09-04 diagnosis confirms prefix-exact@14 and the five-site web but
- * reports no known lever; the lever-only test allows no mutation. */
+/* 2026-09-11, lane p6-small: seven words to four, size delta 0, frame 0x138
+ * exact. Three edits, each measured load-bearing at the final base:
+ *
+ * 1. The `if (1)` region. The two-web form -- raw byte in `charIndex`,
+ *    copied into `pad` at the loop top, the copy kept alive because the three
+ *    index assignments redefine `charIndex` after it -- was already known and
+ *    was rejected at 20 words because it is an exact v0/v1 transposition of
+ *    the target. Opening ONE L97 region anywhere in the function turns that
+ *    transposition the right way up: 20 -> 5, category register-only, and the
+ *    target's plain `beq` with the copy in its delay slot replaces the `beql`
+ *    that pulled the latch load up. Measured at all five nesting sites and in
+ *    both `if (1)` and `do { } while (0)` spellings: every single-site
+ *    placement gives 5 and no placement gives less, so the fact is the
+ *    region's existence, not where it sits. The one-web body is flat at 7
+ *    under the same 128-point lattice.
+ * 2. `newlineMark` plus the reversed newline test. cfe canonicalises
+ *    `constant != variable` back to variable-first, so no spelling of a
+ *    literal test moves the operand order (eight measured, all flat). With
+ *    the constant in a variable the source order survives and the target's
+ *    `beq mark, current` is emitted. s32 does it; u8 and char do not.
+ * 3. `s[256]` pays for `newlineMark`. The extra scalar takes a frame home in
+ *    every declaration position (56 measured, all 15-16 words on the frame
+ *    alone), and the buffer length is unobservable, so L112 solves it: 256
+ *    through 253 all restore the 0x138 frame and 257 through 260 do not.
+ *    256 is the natural choice of those.
+ *
+ * The residual is four words and one fact: the four range tests
+ * (`slti at,x,33/128/64/96`) read the raw byte where the target reads the
+ * copy. Cause, named: uopt copy-propagates `pad` back to `charIndex` at every
+ * use up to but NOT including the statement that redefines `charIndex` -- the
+ * subtractions -- which is why exactly the compares move and the subtractions
+ * do not. Both sides' ugen listings show this before allocation, so it is a
+ * propagation decision and not a colour.
+ *
+ * Decision variable for the next lane: a definition of `pad` that ugen lowers
+ * to a bare `move` and uopt does not treat as a propagatable copy. Falsified
+ * as such at this base, all measured: fifteen no-op copy expressions
+ * (`| 0`, `^ 0`, `& -1`, `* 1`, `<< 0`, `>> 0`, `-(-x)`, `~(~x)`, casts) --
+ * the ones cfe does not fold cost an instruction and the ones it folds are
+ * propagated; five copy placements (loop top, inside the newline test, inside
+ * the else, loop bottom, preheader) -- only the loop top keeps delta 0; all
+ * 49 type pairings of the two scalars; all 120 declaration orders of the five
+ * scalars; the range tests reading the raw symbol instead of the copy (uopt
+ * makes the two spellings identical); the subtractions reading the raw symbol
+ * (the copy then dies and the score returns to 20); splitting the `&&`; and
+ * sixteen comparison spellings of each of the four range tests. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
     s32 charIndex;
+    s32 newlineMark;
     s32 pad;
-    char s[260];
+    char s[256];
     u8 *ch;
     va_list args;
 
@@ -935,38 +972,43 @@ s32 debug_text_width(const char *format, ...) {
     sprintfSetSpacingCodes(1);
     vsprintf(s, format, args);
     sprintfSetSpacingCodes(0);
-    pad = (u8)s[0];
+    newlineMark = '\n';
+    charIndex = (u8)s[0];
     stringLength = 0;
     ch = (u8 *)&s[1];
-    if (pad != '\0') {
-        do {
-            if (pad != '\n') {
-                if (pad == ' ') {
-                    stringLength += 6;
-                } else if (pad >= 0x21 && pad < 0x80) {
-                    fontTexture = 0;
-                    if (pad < 0x40) {
-                        charIndex = (pad - 0x21) & 0xFF;
-                    } else {
-                        fontTexture = 2;
-                        if (pad < 0x60) {
-                            fontTexture = 1;
-                            charIndex = (pad - 0x40) & 0xFF;
+    if (1) {
+        if (charIndex != '\0') {
+            do {
+                pad = charIndex;
+                if (newlineMark != charIndex) {
+                    if (charIndex == ' ') {
+                        stringLength += 6;
+                    } else if (pad >= 0x21 && pad < 0x80) {
+                        fontTexture = 0;
+                        if (pad < 0x40) {
+                            charIndex = (pad - 0x21) & 0xFF;
                         } else {
-                            charIndex = (pad - 0x60) & 0xFF;
+                            fontTexture = 2;
+                            if (pad < 0x60) {
+                                fontTexture = 1;
+                                charIndex = (pad - 0x40) & 0xFF;
+                            } else {
+                                charIndex = (pad - 0x60) & 0xFF;
+                            }
                         }
+                        stringLength = ((stringLength + D_8007CE98[fontTexture][charIndex].v) -
+                                        D_8007CE98[fontTexture][charIndex].u) + 1;
                     }
-                    stringLength = ((stringLength + D_8007CE98[fontTexture][charIndex].v) -
-                                    D_8007CE98[fontTexture][charIndex].u) + 1;
                 }
-            }
-            pad = *ch;
-            ch++;
-        } while (pad != '\0');
+                charIndex = *ch;
+                ch++;
+            } while (charIndex != '\0');
+        }
     }
     va_end(args);
     return stringLength;
 }
+
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_width.s")
 #endif
@@ -1160,11 +1202,11 @@ void debug_text_newline(void) {
 
 /* PLATEAU-HANDOFF:debug_text_width:start
  * symbol: debug_text_width
- * score: 59/66 words
+ * score: 4 differing words
  * frame: 0x138
  * relocations: 5
- * first-mismatch: +0x38
- * summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
+ * first-mismatch: +0x68
+ * summary: Seven words to four on an L97 region plus a named newline constant paid for by L112 buffer length; the residual is four range tests reading the raw byte where the target reads the copy, and the cause is uopt copy propagation stopping only at the statement that redefines the source.
  * PLATEAU-HANDOFF:debug_text_width:end
  */
 /*

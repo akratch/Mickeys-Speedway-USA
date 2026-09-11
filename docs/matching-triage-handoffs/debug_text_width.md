@@ -2,11 +2,11 @@
 ### `debug_text_width` plateau handoff
 
 - source: `src/main/diprint.c`
-- score: 59/66 words
+- score: 4 differing words
 - frame: 0x138
 - relocations: 5
-- first mismatch: +0x38
-- summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
+- first mismatch: +0x68
+- summary: Seven words to four on an L97 region plus a named newline constant paid for by L112 buffer length; the residual is four range tests reading the raw byte where the target reads the copy, and the cause is uopt copy propagation stopping only at the statement that redefines the source.
 
 #### 2026-09-10, lane `o7-mid`: the two-web form is buildable, and it is an exact v0/v1 transposition
 
@@ -64,4 +64,72 @@ lever for caller-saved integer webs, which no law currently supplies.
 
 **The tree keeps the one-web body**, because 7 < 20. The two-web form is a
 diagnostic, not an improvement.
+#### 2026-09-11, lane `p6-small`: seven to four, and the closure above was wrong about the two-web form
+
+The 2026-09-10 note is correct that the two-web form is the structurally right
+body and correct that it scores 20 as an exact v0/v1 transposition. What it
+missed is that the transposition is not a property of the body: **opening one
+L97 region anywhere in the function turns it the right way up.**
+
+Measured on the two-web base, 128 points: both `if (1)` and `do { } while (0)`
+spellings, at five nesting sites (around the guard read plus loop, around the
+loop, around the loop body, around the newline test body, around the range
+test body) and every combination of them. **Every point that opens at least one
+region scores 5; the point that opens none scores 20.** The one-web body is
+flat at 7 across the same 128 points. So the fact is the region's existence,
+not its placement, and the closure's "no source form reaches a lower web number
+for the copy web" was an inference from the wrong axis: the region does not
+renumber the copy web, it splits a block, and per L115 that removes a
+symbol-level interference the whole colouring was resting on. The same edit
+matched `func_8004BA8C` in `src/main/font.c` on the same day.
+
+Two further words then came off, leaving four:
+
+- **the newline test's operand order.** ugen emitted `beq mark, current` where
+  the target has `beq current, mark`. Eight literal spellings are inert
+  (`!=` both ways, `!(==)` both ways, `10` for `'\n'`, and the test moved onto
+  the copy), because cfe canonicalises `constant != variable` back to
+  variable-first -- confirmed by reading the `cc -S` listing, which is
+  identical for `charIndex != '\n'` and `'\n' != charIndex`. With the constant
+  in a VARIABLE the source order survives and the target's order is emitted.
+  `s32 newlineMark` does it; `u8`, `char`, `u32`, `s16` and `u16` do not.
+- **`char s[256]` pays for that variable.** The extra scalar takes a frame home
+  in all eight declaration positions and in all six types measured (56 points,
+  every one 15 or 16 words on the frame alone, because the 0x138 frame becomes
+  0x140 and every sp displacement moves). The buffer length is unobservable, so
+  L112 solves for it: 253, 254, 255 and 256 all restore the exact 0x138 frame,
+  and 257 through 260 do not. 256 is the natural choice.
+
+**The residual is four words and one named cause.** The four range tests
+(`slti at,x,33`, `,128`, `,64`, `,96`) read the raw byte where the target reads
+the copy. Both sides' `cc -S` listings show this before allocation, so it is
+not a colour: uopt copy-propagates `pad` back to `charIndex` at every use up to
+but NOT including the statement that redefines `charIndex`. That is why exactly
+the compares move and the three subtractions -- whose destination is
+`charIndex` -- do not, even though they sit in the same basic block as the
+first compare.
+
+**Decision variable:** a definition of `pad` that ugen lowers to a bare `move`
+and uopt does not treat as a propagatable copy.
+
+Falsified at the four-word base, all measured:
+
+- fifteen no-op copy expressions -- or-with-zero, xor-with-zero,
+  and-with-minus-one, plus zero, times one, shift left zero, shift right zero,
+  double negation, double complement, self-or, self-and, `(u8)` and
+  `(s32)(u8)`: the ones cfe does not fold cost an instruction, the ones it
+  folds are propagated;
+- five copy placements: loop top, inside the newline test, inside the else,
+  loop bottom, preheader. Only the loop top holds size delta 0; inside the
+  newline test costs 4 bytes because the copy no longer reaches the branch
+  delay slot;
+- all 49 type pairings of `charIndex` and `pad`;
+- all 120 declaration orders of the five scalars;
+- the range tests reading the raw symbol rather than the copy, and the reverse
+  (uopt makes the two spellings identical, both 4);
+- the subtractions reading the raw symbol -- the copy then dies entirely and
+  the score returns to 20, which is what keeps the copy alive;
+- splitting the `&&`, and sixteen comparison spellings of each range test;
+- naming the space constant instead of the newline constant.
+
 <!-- plateau-handoff:debug_text_width:end -->
