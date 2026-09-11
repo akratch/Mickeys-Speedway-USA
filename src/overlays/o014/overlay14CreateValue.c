@@ -17,16 +17,19 @@ extern void *overlay14LoadRelocatedValue(s32 key, s32 kind);
 extern void *func_overlay_014_F00009F4_18702CC(s32 key, s32 kind);
 
 /* Plateau (scheduler trace reopen): exact 0x180 size and 0x28 frame;
- * 82/96 relocation-aware words match. A fidelity-clean as1 -R capture proved
+ * 83/96 relocation-aware words match (14 raw, 13 masked differences). A
+ * fidelity-clean as1 -R capture proved
  * that the initial slot/end address chains are independent and selected by
  * source line. Keeping the assignment and loop label on one physical line
  * closes the two low-half schedule words and their four data identities.
  * All 15 relocation sites and identities align after authenticating the
  * resident language accessor at +0xAC. The residual begins in the chosen/slot
- * pointer web after the active-slot load. */
+ * pointer web after the active-slot load. A zero-byte if (1) region around
+ * the chosen/call block exposes one coherent three-register ring, but does
+ * not remove the extra pointer home. */
 #ifdef NON_MATCHING
 void *overlay14CreateValue(s32 key, s32 alternate) {
-    Overlay14ValueSlot *slot;
+    register Overlay14ValueSlot *slot;
     void *value;
     s32 index;
     Overlay14ValueSlot *volatile chosen;
@@ -56,9 +59,10 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
     if (index >= 32) {
         return 0;
     }
-    chosen = &gOverlay14ChosenSlots28[index];
-    kind = frontGetLanguage();
-    slot = chosen;
+    if (1) {
+        chosen = &gOverlay14ChosenSlots28[index];
+        kind = frontGetLanguage();
+        slot = chosen;
 
     switch (kind) {
         case 1:
@@ -78,16 +82,17 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
             break;
     }
 
-    if (alternate != 1) {
-        slot->value = overlay14LoadRelocatedValue(key, kind);
-    } else {
-        slot->value = func_overlay_014_F00009F4_18702CC(key, kind);
-    }
-    value = slot->value;
-    if (value != 0) {
-        slot->key = key;
+        if (alternate != 1) {
+            slot->value = overlay14LoadRelocatedValue(key, kind);
+        } else {
+            slot->value = func_overlay_014_F00009F4_18702CC(key, kind);
+        }
         value = slot->value;
-        gOverlay14SlotCountE8++;
+        if (value != 0) {
+            slot->key = key;
+            value = slot->value;
+            gOverlay14SlotCountE8++;
+        }
     }
     return value;
 }
@@ -97,10 +102,10 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
 
 /* PLATEAU-HANDOFF:overlay14CreateValue:start
  * symbol: overlay14CreateValue
- * score: 82/96 words
+ * score: 83/96 masked positional words (14 raw, 13 masked differences)
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: Resident selector identity authenticated; all 15 relocations align, with 14 positional words remaining.
+ * summary: Resident selector identity authenticated; all 15 relocations align. A zero-byte if (1) region improves the residual to 13 masked words and exposes a coherent ring phase; the extra pointer home remains.
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */

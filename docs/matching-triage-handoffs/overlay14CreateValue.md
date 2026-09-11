@@ -2,17 +2,24 @@
 ### `overlay14CreateValue` plateau handoff
 
 - source: `src/overlays/o014/overlay14CreateValue.c`
-- score: 82/96 words
+- score: 83/96 masked positional words (14 raw, 13 masked differences)
 - frame: 0x28
 - relocations: 15
 - first mismatch: +0x54
-- summary: Resident selector identity authenticated; all 15 relocations align, with 14 positional words remaining.
+- summary: Resident selector identity authenticated; all 15 relocations align. A zero-byte if (1) region improves the residual to 13 masked words and exposes a coherent ring phase; the extra pointer home remains.
 - base: `3169297845d9e4b3843c03be16cfe6d51358d280`
 - boundary: overlay 14 `+0x6FC..+0x87C`, 384 bytes / 96 words, no
   padding or export; two local callers at `+0x3C0` and `+0x40C`
-- configured result: exact geometry and frame `0x28`, 82/96
-  relocation-aware positional words, 14 differing words, first workbench
+- configured result: exact geometry and frame `0x28`, 83/96 masked
+  relocation-aware positional words (14 raw differences), first workbench
   mismatch `+0x54`
+
+Fresh lane measurement (2026-09-11, lane/p7-mix): a zero-byte `if (1)` region
+around the chosen/call block improves the configured candidate from 14 masked
+differences to 13 and exposes one coherent `v1 -> t1 -> t2 -> v1` ring. The
+equivalent `do { } while (0)` spelling and register-qualified chosen pointer
+are flat. The target still uses four homes versus the candidate's five, with
+the extra candidate home at `+0x24`; no exact result was promoted.
 - scheduler evidence: a native IDO 5.3 `as1 -R` capture was trace-off
   identical in `.text`, `.data`, `.rodata`, and relocation tuples. The first
   block contains independent slot-base and end-pointer HI16/LO16 chains. Their
