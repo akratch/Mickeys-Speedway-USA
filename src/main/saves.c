@@ -449,9 +449,10 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
  * What is left is one ugen ring phase, not an allocator decision. The target
  * draws one more integer temp than this body does before the set test, so the
  * value test, the two store temps and the shifted mask each sit one position
- * further along the ring; the advance itself agrees. A full p2 force sweep
- * (every web against every colour and the split path, then a second greedy
- * round) never beats 8, which is what says the residual is below globalcolor.
+ * further along the ring; the advance itself agrees. The claim recorded here
+ * that a full p2 force sweep (every web against every colour and the split
+ * path, then a second greedy round) never beats 8, and that the residual
+ * therefore sits below globalcolor, is FALSIFIED -- see the p8-close note.
  * Measured flat against it on this body: twelve redundant-mask and cast
  * spellings aimed at a phantom pop, ten reset/store-arm spellings, all six
  * placements of the advance, and 23 L97 region placements.
@@ -489,6 +490,17 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
  * decided before it can have colour 6 forbidden, and colour 7 is out of reach.
  * Reopening this needs an invisible web numbered above the constant table, or
  * a second mechanism that removes a register from ugen's scratch list.
+ *
+ * The prior pass's p2 force sweep is FALSIFIED, and the likely cause is the
+ * CDX_PROC trap: CDX_FORCE is silently ignored unless CDX_PROC names the
+ * procedure ordinal, and a dropped force returns a byte-identical object that
+ * reads exactly like L101's already-forbidden decline. Every force quoted here
+ * was run with CDX_PROC set and checked on the record's `forced` field, and a
+ * deliberate no-CDX_PROC control reproduces the trap on this very cell. Re-run
+ * with the force actually applied, colour 7 on the bitCount web beats 8 on the
+ * INCUMBENT body as well, reaching 6 at delta 0. So the residual is not below
+ * globalcolor: it is a globalcolor decision this procedure cannot be asked to
+ * make.
  *
  * Also measured this pass, none below eight: 6,480 built candidates covering
  * all 180 topological orders of the eight loop-body statement groups crossed

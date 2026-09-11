@@ -56,4 +56,12 @@ identity of the local does not matter -- only whether one exists.
 conversion operand is evaluated before its memory operand while both remain in
 one statement. Nothing measured moves IDO's canonicalisation, so this is a
 weight question inside ugen and not a spelling question.
+
+**Force hygiene for the 36-cell grid.** Every cell was run with `CDX_PROC=0`
+and checked on the record's `forced` field; the best cell records both webs as
+`decision=color` at the requested colours with no `force_declined` line, and
+the same force without `CDX_PROC` returns the unforced 21-word object with every
+record at `forced=-2`. Both split paths are accepted rather than declined and
+are far worse -- 165 and 187 words at delta +8 -- so the floor of 17 is a
+measured bound on the colour axis and not an artefact of dropped forces.
 <!-- plateau-handoff:overlay89InitializeEffect:end -->
