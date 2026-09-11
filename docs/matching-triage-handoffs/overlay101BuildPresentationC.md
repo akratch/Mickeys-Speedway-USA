@@ -2,11 +2,11 @@
 ### `overlay101BuildPresentationC` plateau handoff
 
 - source: `src/overlays/o101/overlay101BuildPresentationC.c`
-- score: 145 differing words
+- score: 143 differing words
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: 145 masked words from 163 at a size delta of +4, frame 0x20 and its ladder exact. L59 group fold, the text store placement, and an explicit order-counter bump.
+- summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -139,5 +139,105 @@ full working is in
   to the whole tail under its real dependences: 19,630 constrained orders
   searched by single-move greedy plus random restarts, never beating
   145. The displacement-pair sweep that refutes the interfering-web hypothesis was run on the B relative, which is identical to this one in every bucket and at every insertion offset.
+
+Lane `lane/p4-pres`, 2026-09-11. One adoption and four measured negatives, two
+of them against axes the dispatch named as this cluster's live edges.
+
+Adopted: the byte-length local is `u8`, not `s8`, the store takes an `(s8)`
+cast and the redundant mask in the opacity expression goes. 145 to 143 masked
+on each of the three, aligned byte-exact 77 to 79, register naming 106 to 104,
+immediate 1, structural 32, size delta still +4, and all three remain identical
+in every bucket. A 540-cell type lattice was measured -- the callee's declared
+return type across six spellings, the local's across six, the store cast across
+three and the opacity mask across five -- and every cell that reaches 143 has
+the local `u8` and the store cast `(s8)`, with the return type indifferent. The
+change is semantically exact: the value is only ever truncated to eight bits, so
+`& 0xFF` becomes redundant once the local says so, and the `(s8)` cast is what
+draws the extra ugen temp. The same axis is worth 67 and 81 words on the
+1520-byte relatives in this family, where nobody had swept it either; two words
+is all it is worth here.
+
+The 106 naming rows are NOT a closed cycle, which answers the question the
+dispatch asked and closes that direction. `tools/register_census.py` prints a
+four-cycle over t1, t0, t4 and t3, but that is its dominant mapping and the
+dominant mapping discards fan-out. Every heavy register fans out: ours `t7`
+goes to their `t6` eleven times, `t5` eight and `t9` six; `t4` to `t3` eleven
+and `t8` eight; `t8` to four different registers; `t1` to three. Resolved by
+offset at the adopted plateau, 80 of 133 pair-instances -- 60 percent -- are
+consistent with one global permutation; the best single prefix/suffix split, at
++0x1EC, reaches 75 percent; and six windows are needed before every window is
+internally a permutation, at boundaries +0x11C, +0x194, +0x1D4, +0x250 and
++0x2A0. The picture is the same before the type adoption, 78 of 135 and the
+same six boundaries, so it is a property of the function rather than of one
+plateau. So these rows are
+per-region colour, not one ring-phase fact, L127 has nothing here to put back in
+phase, and what remains is a colouring question per web. For contrast, the case
+that instrument was built for had 195 of 279 words in a single four-cycle, and
+the 1520-byte relatives two functions away resolve to one clean one-position
+shift at 83 percent -- so the instrument does separate the two, and this
+function is the scattered kind.
+
+The L126 copy carrier is flat here. 245 carriers were measured over all thirteen
+locals: each value copied into a fresh local of its own type, the copy placed at
+every statement boundary after the value's definition, and read by each single
+downstream use and by all of them at once. Nothing beats 145, and every one of
+the 245 leaves the size delta at +4 -- so the copy really is byte-free exactly
+as L126 says, and byte-free is all it is on this function. One corner is open
+and worth naming: four pointer locals could not be reached because their
+definition and all their uses sit on the same folded physical line, so no
+"downstream" boundary exists for them. They are all pre-call and the surplus is
+post-call.
+
+The nocs lever reaches 138 at size delta 0 and is SEMANTICALLY INVALID. This is
+recorded because it looks like a breakthrough and the next lane will find it
+again. A second definition of `previousType` placed after the root's childType
+store, or of `previous` after the root's child store, reads 138 at delta 0
+against 145 at +4, and a greedy second round is flat there. But by that point
+the root fields hold this node's own new values, so the node would link to
+itself instead of to the previous chain entry: it is trap 8 in the standing
+brief, a sweep offering a candidate that scores better and means something
+different. The same trap swallowed a second lattice: respelling the chain-head
+reads produced 136 at delta 0 across 304 cells, and every cell at 136 or 138
+turned out to read a root field after that field had been overwritten.
+
+What those invalid cells do establish is a fact about the target, and it is the
+useful part. Deleting the previous-link LOAD closes the size delta exactly. So
+the trio's surplus instruction is not only the second materialisation of the
+colour constant that the earlier shard named -- it is reachable from the load
+side as well, and a source form that legitimately removes that load would close
+the +4. The chain head is a known value at the node-24 push, since the root's
+childType and child were set to 1 and the node-20 pointer earlier in this same
+function and nothing between writes either -- but spelling them as those
+constants is strongly regressive, and that is measured rather than assumed:
+193 at a size delta of 8 with both spelled as literals, 189 at +4 with only the
+previous pointer spelled that way, and 166 at +8 with the pointer carried
+through a local of its own.
+
+The tail statement order is now exhausted exhaustively rather than by search.
+The previous lane covered 19,630 orders by constrained greedy plus random
+restarts and never beat 145; the type adoption moved the plateau, and a plateau
+that moves invalidates every order result taken above it. So this re-enumerated
+the tail COMPLETELY: all 4,480 permutations of the eight tail statements that
+respect the four real dependences -- each chain-head read happens before the
+root field it reads is overwritten, and before it is stored into the node. 143
+is the floor, the adopted order sits on it, and the worst valid order reads 149.
+Those four dependences are exactly what every 136 and 138 cell above violates,
+which is why this sweep cannot emit one.
+
+Next lever, with the decision variable named. The +4 is one surplus instruction
+and there are now TWO independent routes to it rather than the one the earlier
+shard named. The first is that shard's: a second materialisation of the 0xC0
+colour constant, web 198 at `save=1.0 nocs=1` whose `p1dec` carries
+`forbidden0=0x7fc30000`, forbidding c1 through c9 -- so a force on it is
+silently declined and, by L101's third kind, proves nothing. The second is the
+previous-link LOAD, which every invalid variant above deletes to reach size
+delta 0, and which no lattice has yet attacked from a semantically valid form.
+The load side is the newer and the cheaper-looking of the two.
+
+Order the work that way rather than by bucket size. The 104 naming rows are a
+separate question and the census above says they are per-web colour, so they
+will not fall to one edit; and the previous lane's forced-colour ceiling of 127
+was measured on a source shape that no longer exists, so it should be
+re-derived, not inherited, once the +4 is closed.
 
 <!-- plateau-handoff:overlay101BuildPresentationC:end -->
