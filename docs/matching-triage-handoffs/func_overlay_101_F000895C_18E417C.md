@@ -2,103 +2,109 @@
 ### `func_overlay_101_F000895C_18E417C` plateau handoff
 
 - source: `src/overlays/o101/func_overlay_101_F000895C_18E417C.c`
-- score: 149/525 words
+- score: 145/525 words
 - frame: 0x40
 - relocations: 59
-- first mismatch: +0xB0
-- summary: 149 masked from 189; size, frame and the nine-slot frame ladder exact. The text rows' rotation was their own pre-call index local, not the node groups' ring consumption; the node groups' 40 schedule words are DAG-closed.
+- first mismatch: +0xA8
+- summary: 145 masked from 149; frame and ladder exact. The direct counter read in rows 2 and 3 is a free ring draw and lands the whole ring phase.
 
-Measured 2026-09-11, lane `lane/p2-quad`, on the four-function overlay-101
+Measured 2026-09-11, lane `lane/p4-quad`, on the four-function overlay-101
 builder quadruplet. All four carry the same shape over different data, all four
-were measured separately, and all four moved 189 to 149 with identical buckets.
+were measured separately, and all four moved 149 to 145 with identical buckets.
 
-Before: 189 masked, aligned 370 byte-exact, 82 register naming, 1 immediate
-only, 86 really different, size delta 0, frame 0x40 exact.
-After: 149 masked, aligned 401 byte-exact, 51 register naming, 1 immediate
+Before: 149 masked, aligned 401 byte-exact, 51 register naming, 1 immediate
 only, 86 really different, size delta 0, frame 0x40 exact, displacement tax 11.
+After: 145 masked, aligned 410 byte-exact, 29 register naming, 1 immediate
+only, 102 really different, size delta 0, frame 0x40 with the nine-slot ladder
+exact, displacement tax 13.
 
-**The previous closure's named next axis was wrong, and the measurement that
-breaks it is one edit.** That note said the residual's 81 text-row naming rows
-were a ugen ring rotation that "follows how many scratch registers the node
-groups consume", and sent the next lane at the node groups' as1 order. The text
-rows do not follow the node groups. Their rotation was their own defect: the
-text macro still spelled its pre-call pointer through an index local, which is
-exactly the form the same note had already retired in the node macro. Writing
-the FIRST text row's pre-call read as the counter global inside the pointer
-expression, with the node groups untouched, reads 165.
+**The previous note's "row 1 only" is refuted, and the refutation is the lever.**
+That note said the direct counter read in the pre-call pointer expression "only
+reaches row 1", because applying it to all three read 175 against 165. It
+reaches all three. The measurement that said otherwise was taken without the
+second half of the edit, and without re-running the statement-order search that
+the old spelling had been tuned against. Rows 2 and 3 reading `D_1D0` directly,
+row 2 carrying its own index local, and the three row tails re-climbed reads
+145. The text region's residual falls from 51 rows to 46, of which the naming
+part falls from 47 to 26.
 
-It is the first row only, and the records say why rather than the score. Rows 2
-and 3 fold their pre-call index into the previous row's increment, so the
-spelling reaches only row 1; applying it to all three reads 175. The pre-call
-references are what hold the `node24` symbol web's totalsave at 48 over nocs 2,
-a save of 24, above the node-pointer web's 21. p1 is repeated max-save
-selection, so node24 is decided first, while the first callee-saved colour is
-still unpaid at 6.5, and the first caller-saved colour at 6.0 wins, which is
-the ROM's choice. Drop those references and node24's save falls to 19.5, the
-node-pointer web is decided first and pays for the callee-saved colour, that
-colour then prices 0.0 for everyone after it, and node24 takes it where the ROM
-has the caller-saved one. A recorded `CDX_FORCE` of that one web to the ROM's
-colour reads 158 against 175, so the colour is the whole difference.
+**A redundant load into an expression temporary is a free ring draw.** This is
+the reusable finding, and it is what the direct read is actually buying.
+`textIndex = D_1D0;` written after `D_1D0 = textIndex + 1;` compiles to a load
+into the symbol's colour; as1's peephole deletes that load because the value was
+just stored from a register, and because the destination was a coloured symbol
+ugen's temp ring never advanced. `node24 = &D_540[D_1D0]` compiles to the same
+load into a ring temp: as1 deletes exactly the same instruction, but the ring HAS
+advanced. One position of ring phase at zero bytes. That single draw per row is
+the whole of the rotation the previous note described as diverging at the second
+multiply result of row 1: with the direct read, our mflo and every register after
+it in rows 2 and 3 land on the target's. It is the inverse of the copy rule, in
+that a copy of a value already in a register draws nothing and leaves no trace
+while a redundant load draws and leaves no trace.
 
-Statement order then pays 165 to 149 across six blocks: the two root headers,
-the chain node group, the image macro and the two text macros. Pairwise-swap
-hill climbing with eight random restarts reconverges on 149 every time. As a
-separate control, 1500 random orders of the text macro's post-call block are
-all at or above 189, so 149 is a narrow optimum rather than a plateau.
+What the direct read costs, named from the records rather than the score. The
+pre-call reference is what held the node24 web at totalsave 45 over nocs 2; the
+direct read drops it to 39, so its save falls from 22.5 to 19.5, under the node32
+web's 21.0 at totalsave 126 over nocs 6, and p1's repeated max-save order flips.
+node32 then takes s0 first and node24 is left paying for it. Giving row 2 its own
+index local splits the node24 web into two ranges of save 13.0 that both take v1
+again. Read from the instrumented uopt's p1dec and p1color records, with the
+instrumented object's .text confirmed byte-identical to the tree's with traces
+off.
 
-**The node groups are dependence-graph closed, and that is a real negative.**
-as1 orders every memory reference after any preceding store whose base register
-differs, and disambiguates only same-base, different-displacement pairs. Read
-it off the `-Wa,-R` node table: in the node block the previous-link store lists
-the chain-pointer load as an after-node, with `before` incremented on the load.
-The ROM's node block issues both old-link loads before every store, which is
-therefore INFEASIBLE in this candidate's graph. No as1 tie-break, no physical
-line fold and no statement order reaches it. The graph changes only if the two
-old-link values are carried, and carrying them is closed on arithmetic:
+**The eight image node groups are closed by the colour table, which is a stronger
+statement than the spelling argument the previous note gave and supersedes it.**
+A carrier pair does reproduce the target's block: the seven differing words per
+group fall to two, and the block issues both old-link loads before every store,
+which is the shape no statement order can reach. But the carried values come out
+in a0 and a1 where the target has t8 and t9, and this procedure's globalcolor
+table, decoded from its own p1cost rows, runs c1 v0, c2 v1, c3 to c6 a0 to a3,
+c7 to c12 t0 to t5, c13 unnamed, c14 to c22 s0 to s8. t8 and t9 are not in it at
+all. A source-level local is a symbol; a symbol is either coloured from that
+table or given a stack home; it is never a ring temp. So no carrier spelling can
+reach the target's registers, and the 409 to 413 that every carrier form measures
+is the arithmetic of that rather than a tuning failure. Re-measured on the 145
+shape at 411 and 413.
 
-- Every carrier spelling measured lands on the same 421 with the carriers in a
-  globalcolor colour where the ROM has ring registers: a new `s32`/`void *`
-  pair, a new `u32`/`Node32 *` pair, eight distinct per-invocation symbols,
-  `register`-qualified carriers, and four reuses of existing locals. Carrier
-  identity is inert here, which extends rather than repeats the earlier finding.
-- The records say it is not a spelling problem. A carrier's live range spans no
-  call, so after globalcolor splits the whole-symbol web the residue reads
-  `nocs=1 totalsave=1.000000 bestcost=0.000000`, and the pass colours whenever
-  totalsave exceeds bestcost. For a single-block range with any free
-  caller-saved colour that is unconditional.
-- Any colour at all removes two ring consumers from each of the eight node
-  blocks, so the ring re-phases throughout them: naming goes 0 to 109 there
-  against a structural gain of 40 to 38. The direction loses whatever colour
-  the carriers get.
+Residual by region at 145, counted from the aligner's per-offset rows: prologue
+and the first root header 10 words; the chain group and the second root header
+21; the eight image node groups 56; the three text rows 46, of which 26 are
+naming and 20 schedule. The first three regions are unchanged from 149.
 
-The carrier form does reproduce the ROM's block shape, which is how the above
-was established: with carriers the block issues both loads first and differs
-from the target in five positions instead of five different ones. It is the
-price, not the shape, that closes it.
+Measured negatives, so nobody re-runs them.
 
-Two instrument facts worth inheriting. `CDX_FORCE=p1:wN=s` does NOT apply to a
-web whose first decision is already `split`: the second, colouring decision on
-the same web number records `forced=-1` and colours anyway, so the split path
-cannot be forced on a split residue. Colour forces do apply and record
-`forced=<colour>`, so a colour census is sound and a split census is not. And
-L109 probes are inert on this procedure: an OR-with-zero, an AND-with-minus-one
-and an XOR-with-zero probe on the node24 pointer, at one, two and four copies,
-all leave `totalsave=39.000000` unchanged in the
-records and the object byte-identical, so the probe never reached the count.
+- Declaration order of the locals is inert. Twenty permutations, moving each
+  declaration to the front and to the back and swapping each with the index
+  local, all read the same score.
+- A `do { } while (0)` region boundary (L97) round each text row reads 540, and
+  round the image macro 548. It is the wrong lever here by a wide margin.
+- A redundant definition of node32 never reaches nocs. `node32 = node32;` and a
+  duplicated `node32 = &D_340[D_1CC];` are both eliminated before web formation
+  and leave the object byte-identical, so L100's "a second definition halves the
+  rank" is not available on that web.
+- The pre-call pointer spelled inline as `D_540[D_1D0].x = 0x80`, or through a
+  separate pointer local, is no better across all 27 combinations of the three
+  rows.
+- The 78-force census an earlier lane recorded was not re-run, on its own record
+  of every force accepted and zero improvements.
 
-L114 for this procedure is unchanged and re-confirmed from its own `p1cost`
-rows: c1 v0, c2 v1, c3 a0, c4 a1, c5 a2, c6 a3, c7 t0, c8 t1, c9 t2, c10 t3,
-c11 t4, c12 t5, c13 unnamed, c14 to c22 s0 to s8. Do not classify a naming row
-by register bank; decode the table from your own procedure's records.
+`tools/register_census.py` reads the change directly, and its verdict flips.
+Before: 51 pure substitution sites carrying a closed cycle t5 to t6 to t8 to t9
+to t0 to t4 and back to t5, which is the ring phase. After: 29 sites and no
+closed cycle at all, the dominant substitutions being a1 to s0 ten times, s0 to
+v1 eight times, a3 to a2 five times and a2 to a1 three times. The one ring-phase
+fact has been paid; what remains is the per-web colour chain below.
 
-What is left, by region. The eight image node groups hold 40 schedule words
-with 8 insertion and 8 deletion words, and they are closed as argued above. The
-chain group and the two root headers hold 14 more schedule words and 4 naming
-rows. The three text rows hold 47 naming rows and 4 schedule words, and that is
-the live axis: the ring phase diverges at the second multiply result of row 1
-while every preceding register on both sides agrees, so it is ugen's
-pre-schedule order rather than a colour. Read `cc -S` for this procedure and
-find what the ROM gives a ring register to there; a colour force on the webs
-that surround it moves at most 3 words.
+Next, and it is one named blocker rather than 26 separate problems. The text
+rows' remaining naming rows are a single colour rotation: the pre-call node24
+pointer takes s0 where the target has v1, the index takes a1 where the target has
+s0, and the constant 24 and the D_INPUT base each shift one colour down behind
+them. The pre-call pointer's web records `available0=0x00020000`, exactly one
+colour, c14 s0, with numintf 13, so every caller-saved colour is forbidden to it
+and no save ratio or spelling reaches v1; the index web records
+`available0=0x0ffc0000`, c4 to c13, and cannot reach s0. The lever is therefore
+that interference set and not the save ratio. Find why a range whose only uses
+are the two pre-call stores interferes with thirteen webs, and whether the
+target's pre-call and post-call pointers are one range rather than two.
 
 <!-- plateau-handoff:func_overlay_101_F000895C_18E417C:end -->
