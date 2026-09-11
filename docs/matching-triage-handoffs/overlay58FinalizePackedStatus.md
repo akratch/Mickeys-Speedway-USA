@@ -17,4 +17,18 @@
 - retained improvement: preserve the desired-first first-loop condition; every other source form regressed geometry, frame, or difference count, and no generic permuter was run
 - next action: reopen only with new evidence for the stack-home/declaration web and the mask/shift carrier allocation, together with authenticated candidate relocation identities; do not repeat these ten forms or the completed flag lattice
 - JFG: no credible insertion point was found. The pinned JFG overlay donor row is `none`; the nearest JFG skeleton, `func_overlay_3_00304968_1ED9E48`, has only 0.032 similarity and supplies neither a source analogue nor reusable code
+#### 2026-09-11, lane f10-mid: the memory-resident set differs, which no home order reaches
+
+Still 88. The function contains calls; the instrumented uopt (text confirmed
+identical) records 29 p1 decisions and no p2 records, so declaration order
+decides no colour here. The closure's "stack-home order" axis is real for
+homes ([L99]) but the census shows the sets differ, not the order: with frame
+0x48 on both sides the candidate is resident at 24, 60 and 68 and the target
+at 28, 36, 48 and 64, three items against four. Which webs are left in memory
+is a p1 colour-or-split decision, so the variable is the save ratio of the
+web the target spills and the candidate colours; the p1dec records are in the
+lane log and were not joined to symbols this pass. The six L109 probes already
+in the source move exactly these ratios, so the next pass should read the
+records before adding a seventh.
+
 <!-- plateau-handoff:overlay58FinalizePackedStatus:end -->
