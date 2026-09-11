@@ -936,6 +936,8 @@ typedef struct AnimCommandObject {
     struct AnimCommandSub *sub;
     u8 pad50[0x18];
     struct AnimCommandAnimation **animations;
+    /* Tier D layout evidence places table70 at 0x70, after this pad. */
+    u8 pad6C[4];
     void **table70;
     void **table74;
     u8 pad78[8];
@@ -4184,6 +4186,6 @@ void fmvInit(void) {
  * frame: 0x160
  * relocations: 245
  * first-mismatch: +0x0
- * summary: Structural plateau: 1722/1808 words; call identities recovered; next prove the shared divisor and path-table allocation cause.
+ * summary: 0x6C layout pad improves structure; shared-divisor/path-table allocation remains unproved after four tests.
  * PLATEAU-HANDOFF:func_800517E0:end
  */
