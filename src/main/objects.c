@@ -5689,7 +5689,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x28
  * relocations: 4
  * first-mismatch: +0x50
- * summary: Nine words, one web v0->a0 at six sites: the resource is each free call's sole argument and coalesces into a0, which is free because arg0 is copied to s0. Carrier spelling, loop form, dispatch shape, callee declarations and every member-access spelling are exhausted; making v0 provably free does not move it, and the permuter agrees at nine.
+ * summary: Nine words, one web. The instrumented capture the earlier note asked for was run: the resource web prices a0 at 0.0 and v0 at infinity, so v0 is not a priced candidate in this procedure and no source form that keeps the value as a globalcolor web can reach the target. Forcing that web to v0 is byte-exact. Regions and twelve further spellings are flat.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 
@@ -5772,7 +5772,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x60
  * relocations: 4
  * first-mismatch: +0x94
- * summary: Frame, stack homes and opcode schedule are exact; 25 words of pure register naming remain from +0x94. Instrumented allocator receipts now pin the cause and close three routes. The procedure has 22 p1 webs and 18 decisions; the target colours one more value than this candidate does, the `temp_v0 & 0xFF` at +0x94, which here stays a ugen temp. The three webs that go uncoloured have save 0.00 and never enter the decision loop at all, so a forced colour on any of them returns a byte-identical object with forced=-2 and proves nothing. Force-splitting each of the 15 coloured webs regresses to between 63 and 120 words and changes the size, so the target's web count is the same, not one higher by subtraction. Forcing every caller-saved colour c1 through c12 onto each of the four caller-saved webs never beats 25. Naming the value costs a frame home, 0x60 to 0x68, in all nine declaration positions, and the p1 candidate list is unchanged at the same 21 webs with the same saves, so the named local never becomes a web. L109 discarded-expression probes, OR-with-zero, AND-with-minus-one and XOR-with-zero, are byte-inert here both bare and on the named local, and six cast and index spellings of the fetch are flat. The lever must raise that value's totalsave above zero from source; nothing measured so far does.
+ * summary: 25 words of pure register naming from +0x94, frame and stack homes exact. The target colours one value this body leaves to ugen, and a full phase-one force sweep over every web against every colour and the split path (522 compiles) never beats 25, which is what a missing web looks like. The ugen freelist trace shows the ring two draws ahead: v1 is held by the frame -12 local's web, and there is a phantom pop on the texture-fetch line. Naming the index costs the frame and still does not make a web, including across an L97 region; 23 region placements never improve.
  * PLATEAU-HANDOFF:func_80007C68:end
  */
 
@@ -5802,7 +5802,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x58
  * relocations: 3
  * first-mismatch: +0x4
- * summary: Extra saved start-index lifetime and counter placement remain; trace caller-cost producers and recover a full-width lifetime split.
+ * summary: 37 words and one surplus instruction. The target spills the unmodified first parameter to its incoming home and keeps the return address at +0x14; a spelling that takes the object base from an inline shift and the sort offset from a separate product reproduces that entry block exactly, but overshoots the frame by eight bytes and loses the copy the target emits after the matrix loads. Those are now two separable decision variables rather than one coupled pair.
  * PLATEAU-HANDOFF:func_8000A39C:end
  */
 

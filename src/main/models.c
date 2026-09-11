@@ -1409,7 +1409,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: JFG efd5abb still has GLOBAL_ASM; next lever is a matched donor C body with original declaration/lifetime shape.
+ * summary: 25 words, frame and all ten stack slots exact; the structural half is one surplus word at +0xC0 against one missing at +0xAC, in the inner exception loop where the target runs a strength-reduced pointer cursor. Seven cursor and index spellings all compile to one object four bytes short at 77 words, so the cursor is not reachable by respelling the loop. The naming half is 85% coherent with two closed cycles, an L127 shape, but it sits behind the structural word.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
@@ -1419,7 +1419,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x8
  * relocations: 0
  * first-mismatch: +0x38
- * summary: JFG efd5abb still has GLOBAL_ASM; next lever is new register-ownership evidence or a matched donor C body.
+ * summary: 17 register-only words from +0x38, frame and stack slot exact. Two windows at 60% coherence with no closed cycle, so this is per-iteration ugen consumption rather than one ring phase. The loop-branch axis is refuted: seven spellings of the counter test all regress, two of them by unrolling. 16 L97 region placements never improve.
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
 
