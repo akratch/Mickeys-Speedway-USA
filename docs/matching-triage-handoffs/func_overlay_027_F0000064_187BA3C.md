@@ -260,4 +260,151 @@ and uopt spills it instead. A form that makes the scale carrier's live range
 reach that call while still being rematerialised at each use is the missing
 piece, and it is worth noting that the carrier is already rematerialised
 everywhere else -- it has ten live-range components against eight references.
+
+#### 2026-09-11, lane p7-fp: the forbidding rule is named, and the cost of condition A drops from a spill pair to one store
+
+Baseline reproduces at 1472 bytes, 368 of 368 instructions, delta 0, 48 masked,
+and the instrumented toolchain's text section is byte-identical to the tree's
+object, which is the identity gate. `CDX_FORCE=p1:w35=c28` reproduces at 9
+masked, delta 0, scored on the forced object directly. Two new facts settle
+what the previous pass could only bound.
+
+**The colour table is not what this shard has been recording, and the two
+lowest entries were wrong.** Decoded by forcing the case-1 fraction web -- three
+references, one component, so its move is a clean three-mention swap in the
+float histogram -- onto every colour in turn: c24 f0, c25 f2, c26 f12, c27 f14,
+c28 f16, c29 f18, c30 f20, c31 f22. Each force moves exactly three mentions off
+the register the web held and onto the named one. **So f4, f6, f8 and f10 are
+the registers outside the colour table, not f0 and f2**, and the section above
+that records c24 f8 and c25 f10 is wrong on those two rows. Everything it
+concluded from c26 upward survives, because c26 through c31 decode identically.
+Two consequences worth keeping. The case-1 fraction web is on f0 and the case-0
+scale-target web is on f2, not f8 and f10. And the note in the overlay 79 shard
+that reads a forbidden mask of 0xf0 as f0, f2, f12, f14 is correct, not a
+misreading; it and this shard disagreed and the overlay 79 note was right.
+
+The bit encoding in the decision records is bit equals 31 minus colour,
+confirmed on three independent rows: the carrier's own available mask, the 1.0f
+web's forbidden mask under a force, and an overlay 79 web whose three declined
+forces land exactly on its three forbidden bits.
+
+**The float histogram proves the target's allocation exactly, and it proves the
+target does not spill.** Candidate against target, float registers only: f0 4/4,
+f2 3/3, f4 13/14, f6 12/14, f8 12/14, f10 12/14, f12 9/1, f14 9/9, f16 12/8,
+f18 10/15. Under `p1:w35=c28` every one of the ten becomes identical. So the
+target is this candidate with one colour changed, f12 carries nothing but the
+outgoing argument, and no float web anywhere is on f12. Separately, the
+candidate's whole opcode histogram already equals the target's, including zero
+float traffic to the stack on either side, so **the target has no float spill
+and uses no callee-saved float register at all.** Any adopted form must keep
+both.
+
+**The forbidding rule, stated and controlled.** A web is forbidden a call's
+float argument colours exactly when it is live in that call's own basic block
+at or before the call. Three controls, each at delta 0 or with the size change
+accounted:
+
+- Giving the call a second float argument adds c27 to the 1.0f web's forbidden
+  mask, on top of the c26 it already had. So the forbidden colours are the
+  argument registers of that call, not caller-saved registers in general.
+- Putting a single float store of the loop-carried carrier in case 0 before the
+  call takes the carrier's forbidden mask from c24,c25 to c24,c25,c26 -- and
+  **emits no spill**, because the value dies at the store rather than crossing
+  the call. The stack traffic census is identical to the target's. The whole
+  cost is the store itself, four bytes.
+- The same store with the call's float argument replaced by an integer one
+  leaves the mask at c24,c25. The same store moved into case 2, a block with no
+  call, also leaves it at c24,c25 while still adding ten to the carrier's
+  totalsave. So the forbid needs the call, and it needs the reference to be in
+  the call's own block before the call.
+
+This replaces the previous pass's condition A. Condition A is not "live across
+the call" and does not cost a spill pair. It is "referenced in the call's block
+before the call", and it costs exactly one instruction.
+
+**Which sharpens the blocker to one sentence: the pre-call reference has to
+emit an instruction.** Eight forms that would have made it free were measured,
+each byte-identical to the base and, more to the point, each leaving every
+decision record unchanged -- the carrier stays at totalsave 71 over nocs 10 with
+forbidden c24,c25:
+
+- a void cast of the carrier, of the carrier times one, and of the carrier plus
+  zero, all three placed in case 0 immediately before the call;
+- a self-assignment;
+- a comma expression discarding it;
+- a reference inside `if (0)`;
+- a conditional expression with the carrier on both arms;
+- an assignment into an otherwise unused float local. This one is not
+  byte-identical -- it scores 59 at delta 0 because the unused float still takes
+  a frame home, which is L99 -- but the carrier's records are untouched, so it
+  is the same negative.
+
+A dead pre-call definition of the carrier, immediately overwritten after the
+call, is also byte-identical with unchanged records: uopt eliminates it before
+the web builder runs.
+
+**The L109 probe family is closed on this function, checked in the records
+rather than in the score.** All three reliable identity probes -- or with zero,
+and with minus one, exclusive-or with zero -- plus five float forms, placed at
+loop depth one, are text-identical to the base AND leave every `p1dec` record
+identical. No new web is created and no totalsave moves. This is the check the
+coordinator asked for before building on a probe, and it comes back negative:
+whatever L109 reaches, it does not reach this procedure.
+
+**So the reopen condition, restated.** A reference to the scale carrier inside
+case 0, positioned before the float-argument call, that costs no instruction.
+That reference gives condition A at four bytes with no spill; condition B still
+needs the 1.0f web's save above the carrier's, which under the store form is 60
+over 11 against 81 over 11.
+
+One reframing the corrected table offers, which is worth checking on a function
+that has it: **c26 and c27 are f12 and f14, which are the first and second float
+argument registers, and the argument rule forbids both at once.** Giving the
+call a second float argument forbids c26 and c27 together to any web live at it,
+which would supply conditions A and B in a single edit and make the 1.0f web's
+ratio irrelevant. It does not apply here -- this call's second parameter is an
+integer, and changing that costs a conversion -- but on a sibling whose target
+call already takes two floats, the whole two-condition problem collapses to the
+one-instruction pre-call reference. Measured as a diagnostic rather than
+inferred: the pre-call store together with a second float parameter on that call
+takes the carrier's forbidden mask to c24, c25, c26, c27 and the carrier lands
+on c28 f16, the target's colour, with the 1.0f web's ratio playing no part. The
+form is not adoptable here because the second argument is fiction and the 1.0f
+web is pushed to c29, but it proves the rule supplies both conditions at once.
+
+Two arithmetic dead ends closed while checking that. Adding pre-call references
+cannot buy condition B: each adds ten to the carrier's totalsave and one to its
+nocs, and 81 plus 10k over 11 plus k rises, so more references always move the
+carrier further above the 1.0f web, never below it. And the carrier cannot be
+pushed below the 1.0f web by component count either -- at totalsave 81 it needs
+nocs 15 to fall under 5.4545, against the 11 it reaches.
+
+Two further negatives from this pass. Qualifying the four float globals `const`
+changes nothing anywhere, so IDO 5.3 does not use const to let a global load be
+rematerialised across a call, and that route to a spill-free crossing is shut.
+**And the second intrinsic forbid in this procedure turns out to be L101 in the
+float bank.** The case-0 scale-target web arrives with c24 forbidden before any
+float web is coloured, its cost list starts at c25 rather than c24, and a direct
+force onto c24 is declined -- so it is a real forbid and not a post-hoc mask.
+With the corrected table c24 is f0, which is the float return register, and that
+web's value is multiplied by the call's own result, so its range reaches the
+call result. Removing the call from case 0 removes the forbid. That is exactly
+L101 -- a web whose span reaches a call result is not offered the return
+register -- holding for f0 as it does for v0. The case-1 fraction web, which is
+in a block with no call, has an empty forbidden mask and takes f0 freely.
+
+So this procedure has three forbidding rules and all three are now named: a
+colour taken by an interfering web that decided earlier; the float argument
+registers of a call the web is live at, at or before the call; and the float
+return register of a call whose result the web's range reaches.
+
+**Cross-function note, corrected.** Overlay 79 is not the same problem. Its own
+float ladder was decoded this pass and is reported in its shard.
+
+**A stale premise, for the record.** The dispatch that opened this lane stated
+the requirement as two further float webs above save 7.1, which the previous
+section of this shard had already corrected to the two-condition form. The
+two-web reading is refuted independently by the float histogram: any such web
+would sit on f12, and the target names f12 once.
+
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->
