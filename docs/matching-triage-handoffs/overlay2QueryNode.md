@@ -62,4 +62,47 @@ these knobs are independent and flat. The next lever should be a colour
 argument, not another spelling sweep -- three of the four sites reduce to "the
 target spends `a0` where the candidate spends a pool temp or a saved register".
 
+
+#### 2026-09-11, lane p7-ovl2: the short-circuit block's target shape read off
+#### the object, and 32 carrier forms measured against it
+
+Baseline reproduces: 1,012 bytes, 253 of 253 words, delta 0, masked 39, raw 51,
+frame 0x68. Aligner: sizes exact, with three surplus candidate words at +0x17C,
++0x314 and +0x3A8 paired against three missing ones at +0x194, +0x32C and
++0x3C0. Corrected census after today's float-bank fix: 15 substitution sites,
+all integer, 88 percent coherence, three windows opening at +0x2FC and +0x390,
+no closed cycle. Nothing was adopted, so the buckets are the same after.
+
+**The target's short-circuit shape is not a shared tail, and that is new.** At
+the first of the two mirror blocks the shipped code normalises the call result
+to a boolean in a scratch temporary, branches on that temporary straight to the
+function epilogue, and puts the copy of the temporary into the return register
+in the branch's delay slot; the block is four instructions and the argument
+reload that follows it is issued four words later. This candidate branches on
+the call result itself, hoists that same argument reload into the delay slot,
+and then jumps to the epilogue with a literal one. Both blocks are four
+instructions, so the sizes agree and the difference is which four. The earlier
+reading that the boolean shape necessarily costs a duplicated load is only true
+of the short-circuit-or spelling, which folds the two reloads and lands eight
+bytes short; the shipped shape keeps the size.
+
+**32 boolean-carrier forms, measured on this baseline.** Four carriers, the
+three dead-in-this-arm integer locals and the one-element result array, crossed
+with eight return and branch shapes, each applied to one block alone and to both
+mirror blocks. Results, all at the exact 0x68 frame: assigning the boolean and
+then returning a literal one is byte-identical to the incumbent in every
+carrier, because uopt folds the boolean away when it is not the returned value;
+every form that returns the carrier costs four bytes per block and scores 80 or
+81; the test-for-zero family that assigns the second call's boolean into the
+same carrier and returns it once is eight bytes short and scores 78; and the
+ternary and inline-assignment variants run eight to twelve bytes over.
+
+**So the trade is confirmed and sharpened.** The boolean is reachable only by
+returning it, and returning it costs exactly the word the incumbent spends
+materialising the literal one, which is why every carrier lattice run so far
+lands four bytes over or eight bytes under and never on. The next lever has to
+be a form in which the boolean is already the value of the expression being
+returned without a separate copy, not another carrier and not another branch
+polarity. Do not re-run the carrier, polarity, or-operand, node-selection,
+leaf-head or line-join lattices; they are recorded above and here.
 <!-- plateau-handoff:overlay2QueryNode:end -->

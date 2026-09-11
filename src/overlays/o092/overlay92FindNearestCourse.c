@@ -39,7 +39,16 @@ extern f32 sqrtf(f32 value);
 /* Workbench: mixed(structural:2, schedule:4, register:24), exact 168 instructions/26 words, first +0x48.
  * Levers: course-position cache, racer alias, index order, valid-branch initialization,
  * L90 exit-test shapes, L92 operand orders, and carrier identity; inert or regressed.
- * Remains: index/cursor pool swap, one schedule pair, and first-distance FP coloring. */
+ * Remains: index/cursor pool swap, one schedule pair, and first-distance FP coloring.
+ * 2026-09-11 (lane p7-ovl2): the records name the row.  The racer parameter web
+ * ranks at 37/7 and the scaled-index web at 31/6, the cursor web ties the index,
+ * and forcing the racer web one colour down takes the object from 26 to 11 at
+ * delta 0.  The index web needs net 32 at nocs 6; every zero-instruction
+ * occurrence form is eliminated before compute_save, and adding basic blocks
+ * cannot help because the index has one occurrence more than the cursor at the
+ * same net.  The float half is the delta webs reaching the sqrt result, which
+ * withholds the lowest float colour; splitting them reproduces the target's
+ * float colouring exactly but costs three homes and moves the frame. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
