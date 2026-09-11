@@ -138,4 +138,61 @@ takes the 2.5 tie on web number and holds f16 first. With 346 forced off f2
 and 213 forced to f16 the count is 533, with web 70 also on f16, so the tail is
 not one force away from that state; it is a second decision (213 against 70
 and 143) to be measured after the first is closed from source.
+
+#### 2026-09-11, lane p7-fp: this is not overlay 27's problem, and the ladders say so
+
+Sent here as the paired half of overlay 27's single-allocator-decision lane, on
+the premise that the two share a mechanism because this candidate names f12
+eleven times more than its target and f16 nine times fewer. The premise does not
+hold. Baseline reproduces at 3528 bytes, 882 of 882 instructions, delta 0, 198
+masked, with the per-file `-Wab,-r4300_mul` override in the harness; the
+instrumented toolchain's text section is byte-identical to the tree's object.
+
+**The buckets are a different shape.** Aligned against a register-erased target:
+703 byte-exact, 148 register naming, 3 immediate-only, 30 really different, with
+a displacement tax of 17 and two surplus and two missing instructions. Overlay
+27 at the same moment is 320, 46, 0, 2 with no displacement tax and no surplus
+or missing words. So this function still has structure to close; overlay 27 has
+none.
+
+**The float residual is mostly a ring rotation, not a colour.** The float bank
+alone: f6 to f10 at 32 sites, f10 to f8 at 32, f8 to f6 at 31. That is one
+closed three-cycle over the scratch pool accounting for 95 of the 148 naming
+rows. The f12-to-f16 substitution the dispatch quoted is 12 sites. Coherence is
+72 percent over ten source registers and the tool wants ten windows, which is
+per-iteration consumption rather than one global phase. Overlay 27's float
+residual is the opposite: one substitution, f12 to f16, at seven sites, and the
+rest of its ring follows from that single colour.
+
+**The float ladder.** This procedure emits p1 records only and no p2, so it is a
+calling procedure and the axis is the save ratio. Its allocator makes 77
+decisions, 45 of them class 2. Twenty float webs take a colour and twenty-five
+split. Saves run from 5.4 down to 0.04; the largest is 5.4 at five components
+and the second 5.0. There is no dominant carrier: overlay 27 has one web at 7.1
+carrying 46 of its 48 words, and here the top four webs together carry a
+fraction of the residual. The callee-saved colours cost 47.25 to 47.55 apiece
+rather than overlay 27's 20.25, which is the call count showing through, and it
+is why so many webs split rather than reach for one.
+
+**The colour table is the same table.** Forcing the save-7.0 single-component
+web onto each colour and reading the float histogram gives c26 f12 and c27 f14,
+and c30 brings f20 into the function for the first time. Its forbidden mask of
+0xc8 predicts declines at c24, c25 and c28 and all three are declined, which
+confirms the bit encoding of 31 minus colour here as well. Combined with the
+decode done on overlay 27 this pass, the table is c24 f0, c25 f2, c26 f12,
+c27 f14, c28 f16, c29 f18, c30 f20, c31 f22 on both procedures, with f4, f6, f8
+and f10 outside it. **So the note above reading a 0xf0 mask as f0, f2, f12, f14
+is right**, and the overlay 27 shard's older claim of c24 f8 and c25 f10 was the
+wrong one; it has been corrected there.
+
+**What that means for whoever takes this next.** A solution to overlay 27 will
+not transfer, because overlay 27's whole residual is one globalcolor tie and
+this one's is a scratch-ring phase plus thirty structural words. The ring
+three-cycle is the thing to attack first and it is an L127 question, not an
+L100 one. The f12-to-f16 rows are a real but small colour component and the
+forbidding rules named in the overlay 27 shard this pass apply to them: a float
+argument register is forbidden to a web live in the call's block at or before
+the call, and the float return register f0 is forbidden to a web whose range
+reaches a call result.
+
 <!-- plateau-handoff:func_overlay_079_F0000134_18CD0D4:end -->
