@@ -403,92 +403,55 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
  * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
  * structure only; neither is genuine donor C. Mickey remains authoritative.
  *
- * 2026-09-10, lane o7-mid: ten words to six, and the category is now
- * register-only. The frame and BOTH spill homes are exact; every remaining
- * word is one colour. What moved it was a measured home-placement rule rather
- * than another permutation:
+ * Matched 2026-09-11, lane p6-small, six words to zero. Three edits, each
+ * measured to be load-bearing on its own (removing any one costs 4, 1 and 1
+ * word respectively, all at size delta 0):
  *
- *   IDO gives a four-byte frame home only to a local it leaves memory-class,
- *   and it assigns those homes DESCENDING from the top of the local block in
- *   DECLARATION order. Coloured locals own no slot at all.
+ * 1. The `if (1)` around the guard read and the loop. IDO forms a live range
+ *    per SYMBOL and takes interference as a block-set intersection (L115), so
+ *    `current` -- defined by the join-block `*text` read -- interfered with
+ *    `fontData`, which is live in that same block, and fontData's cost list
+ *    began at a3 with v0 absent. L97's region form splits the join block, the
+ *    interference goes away, and fontData takes the target's v0. A bare `{ }`
+ *    does not do it and `do { } while (0)` does; the guard read must be
+ *    INSIDE the new block and `fontData->characterWidth` outside it.
+ *    This retires the prior handoff's open question, which asked for a form
+ *    where `current` is not defined in the join block and the first-iteration
+ *    byte still reaches the loop top without a copy. The copy was never
+ *    needed: the block boundary alone moves the symbol's range.
+ * 2. `escapeMark` and the reversed test. ugen emits a commutative compare in
+ *    REVERSE source order, and a bare literal is materialised as the LEFT
+ *    operand, so `current != 0xF` emits `beq mark, current`. Naming the
+ *    constant and writing the test the other way round emits the target's
+ *    `beq current, mark`. u8, char and u16 all work; s32, u32 and s16 do not.
+ * 3. The integer-typed address add. `spacing[current]` is reassociated by
+ *    uopt into index-plus-base; adding the two as u32 leaves the target's
+ *    base-plus-index. Both casts are needed -- casting only one is worse by
+ *    22 words. Semantically identical here: spacing is u8 *, so the pointer
+ *    arithmetic scales by one either way.
  *
- * Measured on this function: with the six original locals only fontData and
- * spacing are memory-class, so the block is two words (frame 0x20) and they
- * take sp+0x1C and sp+0x18 -- the top two slots, in declaration order. Adding
- * n further memory-class locals makes the block n+2 words, rounded to 8, and
- * every home moves with its declaration position. The target's block is six
- * words (frame 0x30, slots sp+0x2C..sp+0x18) with spacing at sp+0x20 (fourth)
- * and fontData at sp+0x18 (sixth), so the target's source has four further
- * memory-class locals, three of them declared before spacing and one between
- * spacing and fontData. Reproducing that arrangement puts both homes on the
- * target's offsets and closes four words at once.
- *
- * This corrects the earlier reading that "the rejected stackPad form is not a
- * source lever". Padding alone is indeed not one -- three pads anywhere reach
- * the 0x30 frame and still miss both homes (8 words). The lever is the
- * declaration POSITION of the two memory-class locals inside a six-slot
- * block, which is a different edit and was not tried.
- *
- * The residual six words are one web: fontData takes a3 where the target
- * takes v0. Both sides spill it to the same sp+0x18 home across the
- * conversion call, so it is a colour and not a lifetime. Falsified at this
- * base (all flat at six, category register-only): every (spacing, fontData)
- * slot pair in five-, six- and seven-slot blocks other than (4th, 6th);
- * fontData as a pointer add rather than &D_800D60E4[font]; spacing[current],
- * current[spacing], *(spacing + current) and *(current + spacing); both
- * orders and both constant-first spellings of the 0/0xF tests; s32 rather
- * than u8 defaultWidth; pointer- and char-pointer-typed slot locals; a named
- * 0xF and a named 0x80 initialised before the call in every slot position
- * (uopt re-materialises both, L102). Moving either assignment past the
- * if-block, inlining either global subscript, and reading characterWidth
- * before or inside the loop all change the instruction geometry.
- *
- * Next lever: fontData -> v0. Its web spans the call in the target too, so
- * L101's call-result exclusion is not what is holding v0 back here; the
- * question is p1/p2's visit order between this web and the inner `current`
- * web, which also holds v0. A CDX force sweep would settle whether v0 is on
- * this web's candidate list at all before any further spelling is tried.
- *
- * 2026-09-11, lane f9-small: the force sweep was run and the mechanism is
- * named. fontData's cost list omits v0 because uopt records an INTERFERENCE
- * between fontData and the inner `current` web (the `*text++` escape byte,
- * save 26, visited first, v0) -- not L101. That interference is not a
- * liveness fact: the escape web lives only inside the loop. It is inherited
- * from the SYMBOL: `current` is defined in the join block (the `*text` read
- * that guards the loop), fontData is live there, and every web of `current`
- * interferes with everything the symbol's range touches. Measured: giving
- * the escape byte its own local removes the interference (fontData's list
- * drops it) but also removes the escape/loop-byte interference that puts the
- * loop byte in v1, so both take v0 (14 words); reading the guard byte into
- * its own local and copying it into `current` inside the `if` frees v0 for
- * fontData exactly (fontData = v0, 12 of the 46 rows) but the copy is not
- * coalesced -- `first` is live-in to the block that defines `current`, so
- * block-level interference keeps them apart -- and costs one word for every
- * type pairing (16 measured). Sharing the symbol between the escape byte and
- * the loop-end read (`next`) merges those two webs into one of save 35.
- * Join-block statement order is inert (the liveness is per block); reading
- * characterWidth inside the loop or inside the guard changes geometry.
- * What is still open: a spelling in which `current` is not defined in the
- * join block AND the loop's first-iteration byte reaches the top without a
- * separate copy. The candidate that has the right symbol shape and the
- * wrong word count is the `first`/copy form above. */
+ * Flat at the final base and therefore not levers: all 24 declaration orders
+ * of the four register-class locals; nine index spellings including
+ * current[spacing], *(current + spacing) and a u8 * temp; eight spellings of
+ * the 0xF test; all 64 placements of a region boundary at five nesting sites;
+ * and the loop-body statement orders. frameSlot0..3 remain the measured
+ * reconstruction of the target's six-word local block described below. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     /* frameSlot0..3 are a measured reconstruction of the target's local
      * block, not recovered source. The target's frame is 0x30 with six
      * four-byte home slots; only two are addressed (fontData and spacing).
      * IDO gives a home only to a local it leaves memory-class, and assigns
      * those homes DESCENDING from the top of the block in declaration order,
-     * so slot 1 is sp+0x2C ... slot 6 is sp+0x18. width/current/
-     * defaultWidth/glyphWidth are all coloured here and own no slot, which
-     * is why four further memory-class locals are needed to reach six.
-     * Placing spacing fourth and fontData sixth puts them at the target's
-     * sp+0x20 and sp+0x18 exactly. Replace these four with the real locals
-     * if they are ever recovered; the object must not change. */
+     * so slot 1 is sp+0x2C ... slot 6 is sp+0x18. width/current/defaultWidth/
+     * glyphWidth/escapeMark are all coloured here and own no slot, which is
+     * why four further memory-class locals are needed to reach six. Placing
+     * spacing fourth and fontData sixth puts them at the target's sp+0x20 and
+     * sp+0x18 exactly. Replace these four with the real locals if those are
+     * ever recovered; the object must not change. */
     s32 frameSlot0;
     s32 frameSlot1;
     s32 frameSlot2;
@@ -499,6 +462,7 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     u8 current;
     u8 defaultWidth;
     u8 glyphWidth;
+    u8 escapeMark;
 
     fontData = &D_800D60E4[font];
     spacing = D_800D6628[font];
@@ -507,28 +471,29 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
         text = D_800D6644;
     }
 
-    current = *text;
     width = 0;
     defaultWidth = fontData->characterWidth;
-    if (current != 0) {
-        do {
-            text++;
-            glyphWidth = defaultWidth;
-            if (current & 0x80) {
-                current = *text++;
-                if (current != 0 && current != 0xF) {
-                    glyphWidth = spacing[current];
+    escapeMark = 0xF;
+    if (1) {
+        current = *text;
+        if (current != 0) {
+            do {
+                text++;
+                glyphWidth = defaultWidth;
+                if (current & 0x80) {
+                    current = *text++;
+                    if (current != 0 && escapeMark != current) {
+                        glyphWidth = *(u8 *)((u32)spacing + (u32)current);
+                    }
                 }
-            }
-            current = *text;
-            width += glyphWidth;
-        } while (current != 0);
+                current = *text;
+                width += glyphWidth;
+            } while (current != 0);
+        }
     }
     return width;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
-#endif
+
 void func_8004BB44(s32 windowId, s32 x1, s32 y1, s32 x2, s32 y2) {
     if (windowId > 0 && windowId < 8) {
         DialogueBoxBackground *window = &D_800D64E8[windowId];
@@ -1257,39 +1222,6 @@ u8 func_8004D5C0(s32 font) {
  * first-mismatch: +0x30
  * summary: Half the 465 is a t6-t9 ring phase downstream of the eight-word size deficit; the +0x54 head is caller-saved naming and schedule, not structure.
  * PLATEAU-HANDOFF:func_8004B1DC:end
- */
-
-/* PLATEAU-HANDOFF:func_8004BA8C:start
- * symbol: func_8004BA8C
- * score: 6 differing words
- * frame: 0x30
- * relocations: 9
- * first-mismatch: +0x30
- * summary: Frame and both spill homes now exact via the declaration-order home rule; residual is register-only, one web (fontData a3 vs v0).
- * PLATEAU-HANDOFF:func_8004BA8C:end
- */
-/*
- * 2026-09-10, lane nm-mixed: the ten words decompose into one upstream cause
- * and three consequences. The fontData web takes a3 where the target takes v0;
- * both spill it across the conversion call, so this is a colour choice and not
- * a lifetime one. The spill homes follow (target fontData at 0x18 and spacing
- * at 0x20 with 0x1c skipped; ours spacing at 0x18, fontData at 0x1c), and the
- * frame follows from the home count: 0x30 means the target has six slot-owning
- * webs against our two. The remaining two words -- the 0xF compare and the
- * spacing-index add -- are commutative operand orders that are NOT source
- * levers here: reversing either in C leaves the emitted word unchanged, and
- * both sides already hold the same registers, so they flip only when the
- * colouring does. Falsified: dropping either local for a direct global
- * subscript, the (s32)base cast that works in textures_35024.c, moving the
- * characterWidth read before or into the loop, declaration order, s32 vs u8
- * character locals, and 0xF-on-the-left compares.
- *
- * 2026-09-10, lane o7-mid: that decomposition was right and its "six
- * slot-owning webs" reading is now a measured rule with a source lever behind
- * it -- see the block above the function. Six of the ten words are closed;
- * the four the note calls consequences (both spill homes and the frame) are
- * exact, and the two commutative operand orders remain, still tied to the
- * fontData colour exactly as this note predicted.
  */
 
 /* PLATEAU-HANDOFF:func_8004C690:start
