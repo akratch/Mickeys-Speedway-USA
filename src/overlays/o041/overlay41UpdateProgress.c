@@ -92,10 +92,10 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
 
 /* PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:start
  * symbol: func_overlay_041_F0001298_18885D0
- * score: 81/115 words
+ * score: 34/115 words
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0xE8
- * summary: 115 instructions and frame exact; target divisor-copy carrier remains a source-level structural gap
+ * summary: Calls make this p1-only; the coherent tail phase is not a statement-position lever, and the divisor-copy carrier remains blocked.
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */

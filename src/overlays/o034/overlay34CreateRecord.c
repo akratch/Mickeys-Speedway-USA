@@ -166,6 +166,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
  * frame: 0x30
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Declaring width/height ahead of candidate/index grew the declared block by two cells and closed the frame at 0x30; masked 30 to 24. Residual is three colour pairs: the global address web against the constant 2 (t2/t1), index against record (v0/v1), and a coalesced current whose copy the target keeps as move a0,v1.
+ * summary: Frame and homes are exact; the missing producer-home identity and unresolved shared-global carrier are the blocking decision.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

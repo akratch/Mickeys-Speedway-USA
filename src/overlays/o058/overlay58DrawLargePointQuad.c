@@ -147,10 +147,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 80/104 words
+ * score: 24/104 words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: 26 to 24 by folding the two second-gfx stores onto one physical source line, which retires the as1 line-number tie that transposed the two `lui`s at +0x88 (ido-5.3 L59); the aligner's structural bucket is now zero and all 24 words are register naming. A complete forced-colour oracle over all 17 p1 webs and all 259 legal web-colour pairs was run against this candidate: the best single force is p1 w58 to t1 at 21 words, the best pair p1 w58 to t1 with p1 w91 to t1 at 19, and nothing reaches below 19, so the residual is a diffuse colouring outcome rather than one reachable decision. A greedy line-folding hill climb over every adjacent statement pair found no second fold.
+ * summary: Exact Group B residual transfer confirms the same p1 phase-and-colour blocker; no source-authentic web evidence yet changes it.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */

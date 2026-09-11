@@ -101,10 +101,10 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
 
 /* PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:start
  * symbol: func_overlay_041_F000195C_1888C94
- * score: 76/105 words
+ * score: 29/105 words
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: independent-if block-order reshape was byte-flat; the one-cursor allocation residual remains
+ * summary: Leaf cursor-definition placement regressed to 30 words; exact relocation identity leaves only an authentic cursor-lifetime decision.
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */

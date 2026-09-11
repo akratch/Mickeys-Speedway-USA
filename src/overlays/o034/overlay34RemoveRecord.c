@@ -63,6 +63,6 @@ void overlay34RemoveRecord(Overlay34Record *record) {
  * frame: 0x18
  * relocations: 9
  * first-mismatch: +0x14
- * summary: size-closed shadow/cursor form; residual is register-carrier allocation and relocation identity drift
+ * summary: Making shadow the decrement carrier regressed to 43 words; retained p1 carrier allocation and relocation identity block closure.
  * PLATEAU-HANDOFF:overlay34RemoveRecord:end
  */
