@@ -902,7 +902,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: structure-mismatch; bounds de-declaration fixes sp+0x34, reduced-local carriers stall; next capture target-correlated CFE temp birth-site evidence
+ * summary: Still 10, and two exhaustive measurements now say what it is not. First, a complete forced-colour oracle: this procedure emits 14 p1 decisions and every one of them is coloured, and forcing each web to each colour its own p1cost list prices, 145 web-colour pairs in all, never scores below 10 -- only the identity force of each web onto the colour it already holds reaches 10. So the residual is not a colouring outcome and the forced-colour route is closed. Second, the frame. Both sides address the same seven slots at +0x18 through +0x34; the 24-byte gap is unaddressed local block above them. A 49-form carrier-identity lattice, assigning the seven value roles across two declared names plus the dead modelId parameter under liveness, quantises the frame 0x50 to 0x48 to 0x30 and never produces the target's 0x38, and every form below 0x48 scores 54 or worse. Unused declared locals are not frame-inert here: two of them move 0x50 to 0x58. The decision variable is the size of the local block, and no carrier assignment reaches its target value.
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 

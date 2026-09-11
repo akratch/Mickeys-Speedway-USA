@@ -2,11 +2,11 @@
 ### `overlay58DrawLargePointQuad` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawLargePointQuad.c`
-- score: 78/104 words
+- score: 80/104 words
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: Argument-affinity and discarded-expression levers take the masked residual from 70 to 26 at exact geometry and frame; the remainder is p1 colour and ring phase.
+- summary: 26 to 24 by folding the two second-gfx stores onto one physical source line, which retires the as1 line-number tie that transposed the two `lui`s at +0x88 (ido-5.3 L59); the aligner's structural bucket is now zero and all 24 words are register naming. A complete forced-colour oracle over all 17 p1 webs and all 259 legal web-colour pairs was run against this candidate: the best single force is p1 w58 to t1 at 21 words, the best pair p1 w58 to t1 with p1 w91 to t1 at 19, and nothing reaches below 19, so the residual is a diffuse colouring outcome rather than one reachable decision. A greedy line-folding hill climb over every adjacent statement pair found no second fold.
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding

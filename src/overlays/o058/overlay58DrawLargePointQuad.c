@@ -89,8 +89,11 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     if (vertices != 0);
 
     gfx = gOverlay58LargePointDisplayListReloc++;
-    gfx->w0 = 0x05110020U;
-    gfx->w1 = (u32)D_80000098;
+    /* One physical line, deliberately: as1's scheduling tie-break reads source
+     * line numbers (ido-5.3 L59), and folding these two stores onto one line
+     * retires the tie that transposes the two `lui`s at +0x88.  26 -> 24
+     * differing words, measured. */
+    gfx->w0 = 0x05110020U; gfx->w1 = (u32)D_80000098;
 
     vertices = gOverlay58LargePointVertexCursorReloc;
     vertices[1].r = 0xFF;
@@ -144,10 +147,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 78/104 words
+ * score: 80/104 words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Argument-affinity and discarded-expression levers take the masked residual from 70 to 26 at exact geometry and frame; the remainder is p1 colour and ring phase.
+ * summary: 26 to 24 by folding the two second-gfx stores onto one physical source line, which retires the as1 line-number tie that transposed the two `lui`s at +0x88 (ido-5.3 L59); the aligner's structural bucket is now zero and all 24 words are register naming. A complete forced-colour oracle over all 17 p1 webs and all 259 legal web-colour pairs was run against this candidate: the best single force is p1 w58 to t1 at 21 words, the best pair p1 w58 to t1 with p1 w91 to t1 at 19, and nothing reaches below 19, so the residual is a diffuse colouring outcome rather than one reachable decision. A greedy line-folding hill climb over every adjacent statement pair found no second fold.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */
