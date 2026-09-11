@@ -869,11 +869,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 16 differing words
+ * score: 16/106 words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: register-only at 106/106 words; web 32 is gone and the residual is one span fact, var_v0 doubling as the working copy so it colours callee-saved s0 where the target keeps it in v0
+ * summary: Register-only at 106/106; the three-variable family is closed at 192 forms, all 83-91, and the 16 are four windows of per-iteration consumption
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 

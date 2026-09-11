@@ -2,11 +2,11 @@
 ### `func_80046BCC` plateau handoff
 
 - source: `src/main/diCpu.c`
-- score: 16 differing words
+- score: 16/106 words
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: register-only at 106/106 words; web 32 is gone and the residual is one span fact, var_v0 doubling as the working copy so it colours callee-saved s0 where the target keeps it in v0
+- summary: Register-only at 106/106; the three-variable family is closed at 192 forms, all 83-91, and the 16 are four windows of per-iteration consumption
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 
@@ -78,4 +78,46 @@ target's source cannot be creating a second name for that value in the same
 block. Everything else -- instruction count, frame, branch structure, the three
 relocation sites and the two hoisted constants -- already agrees.
 
+#### 2026-09-12 (lane `lane/p7-res2`): the three-variable family is closed at 192 forms
+
+Still 16, register-only at 106/106 words with the frame, the branch structure
+and all three relocation sites exact. The 2026-09-11 note closes on "separating
+them again brings web 32 straight back: all four three-variable forms measure
+31, 33, 89 and 91". Those four were re-tested as a lattice rather than four
+points, and the closure holds with a great deal more force than it was written
+with.
+
+**192 three-variable forms measured, every one between 83 and 91.** The lattice
+crosses eight declaration positions for the reinstated working copy, three
+spellings of the copy itself (a plain copy of the masked character, a recomputed
+mask of the loaded character, and an or-with-zero barrier), both operands for the
+first range bound, both assignment orders inside the conversion body, and an L97
+`if (1)` region around each arm's body present and absent. The distribution is
+eight cells at 83, eight at 84, forty at 86, eight at 87, forty-eight at 88,
+forty at 90 and forty at 91 -- no cell anywhere near the two-variable 16, and
+none below 83.
+
+The cause is visible in every one of them and is the same cause the earlier note
+named: giving the working copy its own name gives the character mask a second
+destination, uopt commons it into a temporary, the temporary takes the first
+caller-saved colour and the loaded character is pushed one place down the pool.
+The or-with-zero barrier does not prevent it, which is L135 doing exactly what
+it says -- uopt folds the identity operation before the web builder, so the
+probe is not a probe.
+
+**So the decision variable is unchanged and now has a much wider negative under
+it**: the loaded character's live range has to stop before the working copy's
+begins without a second IR name existing, and no declaration, copy spelling,
+bound operand, assignment order or region opener in this family does that.
+Resume on something that splits one symbol's range rather than on adding a
+symbol -- L131 is explicit that differing *spellings* at the def sites, not
+differing locals, are what split a range.
+
+Two smaller facts for whoever resumes. The remaining 16 words are not one
+window: `register_census` reads 68% global coherence over five source registers
+with four windows opening at +0x78, +0xAC and +0x164, so this is per-iteration
+consumption and each window is its own question. And two of the sixteen are pure
+comparison operand order against the two loop-hoisted constants -- the candidate
+puts the character first and the target the constant first at both sites -- which
+is a smaller and separable question from the twelve-word pool rotation.
 <!-- plateau-handoff:func_80046BCC:end -->
