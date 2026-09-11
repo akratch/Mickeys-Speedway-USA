@@ -8,6 +8,37 @@
 - first mismatch: +0x0
 - summary: Exact-size structural reconstruction; 24 excess frame bytes and 18 opcode edits remain. Next: scoped allocation/alias analysis, not flags or permutation.
 
+## 2026-09-11 phase census and force-sweep verdict (lane `lane/p9-alloc`)
+
+No source change is adopted. Three measurements that narrow what the naming
+bucket actually is.
+
+**Phase census.** The instrumented IDO 5.3 uopt -- `.text` first checked
+byte-identical to the tree's own object for this TU -- emits **124 p1 decisions
+for this procedure (55 `color`, 69 `split`) and zero p2 records.** L106 has no
+axis here, so web numbering, definition position, declaration order and
+statement order are all dead ends; only L100's ratio decides anything p1
+decides.
+
+**The naming rows are mixed, and that matters for routing.** Splitting them by
+register bank: **197 name only floating-point registers, 263 name only integer
+registers, and 15 name both.** Two different mechanisms are therefore active
+at once, and an edit aimed at one will not move the other. The integer side is
+a four-step ring rotation -- t5 to t6, t4 to t5, t7 to t4, t6 to t7 at 25, 22,
+20 and 17 slots -- which is a ugen temp-ring phase (L41, L64), not a colour.
+The floating-point side is two *pairwise* exchanges rather than a rotation:
+`$f12` with `$f2` at 56 and 55 slots, and `$f16` with `$f10` at 41 and 41,
+both starting in the first 0x300 bytes.
+
+**Force-sweep verdict.** Forcing every colour each web's own `p1cost` record
+declares available, each force confirmed accepted in the records, and then
+searching greedily three deep, moves the count from 636 to **612** -- naming
+475 to 451, structural unchanged at 74, size delta 0. So **p1 colouring
+reaches about 24 of the 475 naming rows.** The other 451 are ring phase, and
+the ring is set by the order in which expression temporaries are allocated and
+freed, which is an expression-shape and operand-order question at the earliest
+differing site, not an allocator-cost question anywhere.
+
 ## 2026-09-10 region partition (lane `lane/w8-recon`): the residual is naming, not structure
 
 No source change is adopted here. The pass replaces the standing description of
