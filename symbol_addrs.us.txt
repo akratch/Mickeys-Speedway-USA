@@ -2734,6 +2734,13 @@ osFlashSectorErase = 0x80057D28; // type:func size:0xD4 tier-B matched C, JFG li
 osFlashWriteArray = 0x80057E84; // type:func size:0xD0 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0xD4 bytes with different TU scheduling
 // jfg:libultra/src/flash/flashreadarray.c.o
 osFlashReadArray = 0x80057F54; // type:func size:0xB4 tier-B matched C, JFG libultra/src/flash/flashreadarray.c body, JFG object is 0xB4 bytes, followed by 8 bytes of target padding
+// ROM 0x58CE8 holds `jr $ra` + `nop` and nothing in the 32MB image calls,
+// jumps to or stores 0x800580E8, so splat folded it into func_8005807C's
+// span and made that function read as two instructions too short. It is an
+// empty stub of flash_58C10.c's own TU, the same shape as func_80028F3C and
+// the camlight family: the 8 bytes are a return island, not padding (real
+// inter-TU padding in this region, at 0x80058008, is zero-filled).
+func_800580E8 = 0x800580E8; // type:func size:0x8 ROM 0x58CE8 tier-D return-island boundary, empty stub
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 func_8005A948 = 0x8005A948; // type:func size:0x178 ROM 0x5b548 tier-B JFG models animation-loader role/callgraph NON_MATCHING
 // donor-jfg-src/camera.c.o

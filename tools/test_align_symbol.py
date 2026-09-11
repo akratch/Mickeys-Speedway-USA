@@ -117,11 +117,49 @@ class RelocationMaskTests(unittest.TestCase):
         self.assertEqual(out["aligned_register_naming"], 0)
 
     def test_an_unrelocated_immediate_difference_still_counts(self) -> None:
+        """It counts -- but as its own bucket, not as structure."""
         addiu_a = (0x09 << 26) | (9 << 21) | (8 << 16) | 0x0010
         addiu_b = (0x09 << 26) | (9 << 21) | (8 << 16) | 0x0020
         out = al.align(streams([addiu_a], [addiu_b]))
         self.assertEqual(out["aligned_exact"], 0)
+        self.assertEqual(out["aligned_immediate_only"], 1)
+        self.assertEqual(out["aligned_really_different"], 0)
+
+
+class ImmediateBucketTests(unittest.TestCase):
+    """A lane measured 62 of 101, 177 of 292 and 172 of 265 "really different"
+    rows on three functions as the same instruction on the same registers at a
+    different displacement. Two thirds of a structural bucket being frame
+    displacement changes what a lane does next, so it gets its own bucket."""
+
+    def test_a_stack_displacement_is_not_structural(self) -> None:
+        near = (0x23 << 26) | (29 << 21) | (4 << 16) | 0x0040   # lw $a0,0x40($sp)
+        far = (0x23 << 26) | (29 << 21) | (4 << 16) | 0x0054    # lw $a0,0x54($sp)
+        out = al.align(streams([near], [far]))
+        self.assertEqual(out["aligned_immediate_only"], 1)
+        self.assertEqual(out["aligned_really_different"], 0)
+        self.assertEqual(out["first_immediate_offset"], 0)
+
+    def test_a_different_register_still_reads_as_naming(self) -> None:
+        a = (0x23 << 26) | (29 << 21) | (4 << 16) | 0x0040
+        b = (0x23 << 26) | (29 << 21) | (5 << 16) | 0x0040
+        out = al.align(streams([a], [b]))
+        self.assertEqual(out["aligned_register_naming"], 1)
+        self.assertEqual(out["aligned_immediate_only"], 0)
+
+    def test_a_different_opcode_is_still_structural(self) -> None:
+        lw = (0x23 << 26) | (29 << 21) | (4 << 16) | 0x0040
+        sw = (0x2B << 26) | (29 << 21) | (4 << 16) | 0x0040
+        out = al.align(streams([lw], [sw]))
         self.assertEqual(out["aligned_really_different"], 1)
+        self.assertEqual(out["aligned_immediate_only"], 0)
+
+    def test_a_shift_amount_difference_is_immediate_not_structural(self) -> None:
+        by_three = (0x00 << 26) | (9 << 16) | (8 << 11) | (3 << 6)
+        by_five = (0x00 << 26) | (9 << 16) | (8 << 11) | (5 << 6)
+        out = al.align(streams([by_three], [by_five]))
+        self.assertEqual(out["aligned_immediate_only"], 1)
+        self.assertEqual(out["aligned_really_different"], 0)
 
 
 if __name__ == "__main__":

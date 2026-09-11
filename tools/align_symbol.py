@@ -25,8 +25,11 @@ each aligned pair into one of three buckets.
     byte-exact          agreed, once linker-controlled bits are masked
     register-naming     same instruction, different register -- an ALLOCATION
                         problem: colour, save ratio, web numbering
+    immediate only      same instruction and registers, different displacement
+                        or constant -- usually a FRAME problem, sometimes a
+                        wrong literal; never reconstruction
     really different    different instruction, or present on one side only --
-                        a STRUCTURE problem: spelling, control flow, frame
+                        a STRUCTURE problem: spelling, control flow
 
 Those three point at different levers, and the split says which one you have.
 Three whales measured this way came apart as 53/43/4, 16/77/9 and 7/84/9
@@ -83,6 +86,28 @@ def _isolated_workdir():
     finally:
         nr.WORK_DIR = previous
         shutil.rmtree(scratch, ignore_errors=True)
+
+
+def instr_imm_mask(word: int) -> int:
+    """Drop the immediate/displacement, keeping opcode, function and registers.
+
+    The complement of `nm_ranking.instr_reg_mask`, and the pair of them sorts an
+    aligned disagreement into *which field* differs. Without this the third
+    bucket over-reads badly: a lane measuring three functions found 62 of 101,
+    177 of 292 and 172 of 265 "really different" rows were the same instruction
+    on the same registers at a different displacement. Two thirds of a
+    structural bucket being frame displacement changes what a lane does next.
+    """
+    op = (word >> 26) & 0x3F
+    if op in (0x02, 0x03):  # j, jal: the whole payload is the target
+        return word & 0xFC000000
+    if op == 0x00:  # SPECIAL: shamt is the immediate here
+        return word & 0xFFFF083F
+    if op == 0x11:  # COP1: register format carries no immediate
+        if ((word >> 21) & 0x1F) == 0x08:  # BC1: low half is a branch offset
+            return word & 0xFFFF0000
+        return word
+    return word & 0xFFFF0000
 
 
 def reloc_masked(word: int, offset: int, a_reloc: dict, b_reloc: dict) -> int:
@@ -211,10 +236,11 @@ def align(streams: "nr.WordStreams") -> dict:
     target_key = key(target, t_reloc, b_reloc)
     script = _banded_edit_script(base_key, target_key)
 
-    exact = naming = different = 0
+    exact = naming = immediate = different = 0
     insertions: list[dict] = []
     deletions: list[dict] = []
     naming_sites: list[int] = []
+    immediate_sites: list[int] = []
     different_sites: list[int] = []
 
     for op, i, j in script:
@@ -223,12 +249,32 @@ def align(streams: "nr.WordStreams") -> dict:
             tw = reloc_masked(target[j], j * 4, t_reloc, b_reloc)
             if bw == tw:
                 exact += 1
-            else:
+            elif nr.instr_reg_mask(bw) == nr.instr_reg_mask(tw):
                 naming += 1
                 naming_sites.append(j * 4)
+            elif instr_imm_mask(bw) == instr_imm_mask(tw):
+                immediate += 1
+                immediate_sites.append(j * 4)
+            else:
+                different += 1
+                different_sites.append(j * 4)
         elif op == "replace":
-            different += 1
-            different_sites.append(j * 4)
+            # A substitution still has to be sorted by *which field* differs.
+            # The alignment key keeps the immediate, so two loads on the same
+            # registers at different displacements arrive here rather than as
+            # an "equal" pair -- which is exactly how the third bucket came to
+            # over-read frame displacement as structure.
+            bw = reloc_masked(base[i], i * 4, b_reloc, t_reloc)
+            tw = reloc_masked(target[j], j * 4, t_reloc, b_reloc)
+            if nr.instr_reg_mask(bw) == nr.instr_reg_mask(tw):
+                naming += 1
+                naming_sites.append(j * 4)
+            elif instr_imm_mask(bw) == instr_imm_mask(tw):
+                immediate += 1
+                immediate_sites.append(j * 4)
+            else:
+                different += 1
+                different_sites.append(j * 4)
         elif op == "delete":  # present in candidate, absent from target
             different += 1
             if insertions and insertions[-1]["candidate_offset"] + \
@@ -247,10 +293,12 @@ def align(streams: "nr.WordStreams") -> dict:
     return {
         "aligned_exact": exact,
         "aligned_register_naming": naming,
+        "aligned_immediate_only": immediate,
         "aligned_really_different": different,
         "insertions": insertions,
         "deletions": deletions,
         "first_naming_offset": naming_sites[0] if naming_sites else None,
+        "first_immediate_offset": immediate_sites[0] if immediate_sites else None,
         "first_different_offset": different_sites[0] if different_sites else None,
     }
 
@@ -296,7 +344,9 @@ def measure(symbols: list[str]) -> tuple[list[dict], list[str]]:
                 "target_words": len(streams.target_words),
             }
             row.update(align(streams))
-            disagree = row["aligned_register_naming"] + row["aligned_really_different"]
+            disagree = (row["aligned_register_naming"]
+                        + row["aligned_immediate_only"]
+                        + row["aligned_really_different"])
             positional = row["positional_masked"]
             row["displacement_tax"] = (
                 positional - disagree if positional is not None else None
@@ -319,9 +369,11 @@ def render(row: dict) -> str:
                       else ""))
     out.append("  aligned:")
     total = (row["aligned_exact"] + row["aligned_register_naming"]
+             + row["aligned_immediate_only"]
              + row["aligned_really_different"]) or 1
     for label, field in (("byte-exact", "aligned_exact"),
                          ("register naming", "aligned_register_naming"),
+                         ("immediate only", "aligned_immediate_only"),
                          ("really different", "aligned_really_different")):
         value = row[field]
         out.append(f"    {label:<18} {value:>6}  ({100.0 * value / total:.1f}%)")
@@ -335,6 +387,8 @@ def render(row: dict) -> str:
             out.append(f"    +0x{span['target_offset']:X}  {span['words']} word(s)")
     if row["first_naming_offset"] is not None:
         out.append(f"  first naming-only difference   +0x{row['first_naming_offset']:X}")
+    if row["first_immediate_offset"] is not None:
+        out.append(f"  first immediate-only difference +0x{row['first_immediate_offset']:X}")
     if row["first_different_offset"] is not None:
         out.append(f"  first structural difference    +0x{row['first_different_offset']:X}")
     return "\n".join(out)

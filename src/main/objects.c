@@ -1976,6 +1976,23 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (size & 0xF) {
         size = (size & ~0xF) + 0x10;
     }
+    /* p1 colours webs in descending save = totalsave/nocs, and `size` and
+     * `cursor` interfere, so whichever is decided first takes s0 and the other
+     * takes s1. The target has size in s0 and cursor in s1; measured here,
+     * cursor ranks 39/11 = 3.545455 against size's 10/5 = 2.0, so the candidate
+     * has them the other way round. Each `size | 0` adds 2 to size's totalsave
+     * without emitting an instruction -- `+ 0`, `+= 0`, `size = size`,
+     * `(void)size` and a bare `size;` are all copy-propagated away and add
+     * nothing -- so six of them carry size to 22/5 = 4.4 and flip the order.
+     * The object is then byte-identical to CDX_FORCE=p1:w156=c15. This is a
+     * placeholder for whatever natural form gave size that weight in the
+     * original source; it is not itself believable C. */
+    size = size | 0;
+    size = size | 0;
+    size = size | 0;
+    size = size | 0;
+    size = size | 0;
+    size = size | 0;
     newObject = object;
     object = (Objects0590CObject *)func_8002B4C0(D_800C94A0, size);
     if ((object == NULL) && (D_80078F88 != 0)) {
@@ -5761,11 +5778,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 186/719 words
+ * score: 150/719 words
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x1B4
- * summary: Nested-fixup carrier and header order recovered 352 words; stack homes now exact; residual is the s0/s1 saved exchange plus the temp ring.
+ * summary: p1 is the only allocator phase here (74 p1 decisions, zero p2). Six zero-width save probes put `size` ahead of `cursor` and moved cursor into s1, 186 -> 150. The rest is a web-partition problem: the asset-pointer reload is one web here and two in the target.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
