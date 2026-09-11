@@ -17,4 +17,18 @@
 - retained improvement: spell the queue end as count plus cursor, matching the target's commutative operand order and closing one positional/register word without changing semantics
 - next action: reopen only with new source evidence for the root-initialization constant-preload schedule and selector/temp allocation web; do not repeat these five forms or the prior flag lattice
 - JFG utility: the overlay donor scan reports no JFG candidate for overlay 101. JFG `src/overlays/o19/overlay_19.c::pauseUpdate` is the nearest skeleton at only 0.0691 and remains assembly-only, so it is context rather than a credible source or insertion point; there is no JFG ledger entry to publish from this plateau
+#### 2026-09-11, lane f10-mid: p1-only, and the a1 holder is web 101
+
+Still 119. Frame 0x18 and every stack home agree on both sides, so the
+residual is allocation and ring phase only. The instrumented uopt (text
+confirmed identical) records 31 p1 decisions and no p2 records: the function
+contains calls, so "selector declaration order" measured an axis it does not
+have. The closure says the target holds the selector in a1; in the candidate
+a1 goes to web 101 (save 5.0, totalsave 10, nocs 2, cost 0) and later to
+web 4 (save 0.667, nocs 3). The decision variable is therefore the ratio
+that orders the selector's web against web 101 ([L100]); a symbol-boundary
+edit or an L109 probe on the selector is the lever, and neither has been
+measured. The web numbers are from this lane's own compilation and must be
+re-derived before forcing.
+
 <!-- plateau-handoff:func_overlay_101_F000C6E8_18E7F08:end -->
