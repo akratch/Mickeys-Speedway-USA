@@ -573,7 +573,6 @@ void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
  * tilt read): every one changes the instruction count or moves the select's
  * blocks; the select in targetTilt before cross does reproduce both target
  * colours (28 words) and is the receipt for the mechanism, not the answer. */
-#ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
     O9MotionState *state = owner->state;
@@ -591,7 +590,7 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     f32 trigA;
     f32 trigB;
     f32 yawA;
-    f32 cross;
+    f32 smoothY;
     f32 yawB;
     f32 targetX;
     f32 targetY;
@@ -636,8 +635,14 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     yawA = ext_o0_2a470(out->targetAngle - targetAngle);
     yawB = ext_o0_2a46c(out->targetAngle - targetAngle);
     /* baseX, not a cross of its own: its live range already overlaps
-     * blend's c27 web, so the merged symbol inherits that edge (L115). */
-    baseX = (out->smoothX * yawB) - (out->smoothY * yawA);
+     * blend's c27 web, so the merged symbol inherits that edge (L115).
+     * And smoothY is cached for this one use only.  The copy is deleted by
+     * as1's peephole, so it costs no instruction, but the web it creates
+     * survives into the colouring, takes f14, and interferes with yawA --
+     * which is what puts yawA on f18 instead.  Caching it at its second use
+     * as well, or caching smoothX at both, is 28 and 34 words. */
+    smoothY = out->smoothY;
+    baseX = (out->smoothX * yawB) - (smoothY * yawA);
     crossA = baseX * trigA;
     dot = (out->smoothX * yawA) + (out->smoothY * yawB);
     crossB = baseX * trigB;
@@ -682,19 +687,7 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
         } while (i--);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F00010B4_186772C.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
- * symbol: func_overlay_009_F00010B4_186772C
- * score: 3/282 words
- * frame: 0x98
- * relocations: 31
- * first-mismatch: +0x238
- * summary: 3 words, one register field in three instructions (the yawA home reload and its two consuming multiplies). 2026-09-11 lane w3-low: the p1cost term was instrumented as the previous pass asked and it is NOT the variable -- web 108 is offered c27 and c29 at cost 2.0 each and available0 is the minimum-cost TIE SET, not the free set, so no cost lever exists between two colours equal by construction. Only the forbidden mask can move, which needs a neighbour already coloured c27. That shape is proved reachable: naming the first cross-block product in a carrier that holds nothing gives a web at nocs 1 and save 2.0 which takes c27 and pushes yawA to the shipped register -- and it costs exactly one FP scratch-ring draw, 56 naming rows at delta 0 from +0x240 to the end (L126). L127 cannot pay it: 14 no-op families by 2 placements are byte-flat, while the same probes move the INTEGER ring, so the lever exists for one ring and not the other. Read from the shipped bytes the target has no carrier there either, so its c27 web is live THROUGH the cross block and draws no ring temp; search for that and nothing else. Also falsified this pass: the claim that symbol-level merging does not reach a split piece -- merging yawA with the speed-target role does forbid c27, it just also lifts the merged save past baseX's 1.75 and swaps the two.
- * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_009_F0000000_1866678:start
  * symbol: func_overlay_009_F0000000_1866678
