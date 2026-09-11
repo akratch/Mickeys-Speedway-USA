@@ -176,4 +176,37 @@ carrier spelling tried so far coalesces into an existing constant web instead of
 becoming a new one, so the form has to be one uopt cannot fold -- and note that
 the two webs already above the scale carrier both have `nocs` 1 with
 `totalsave` 30, which is the shape to reproduce, not a long-lived value.
+##### The fp colour table decoded to registers, and the four webs named
+
+Forcing the scale carrier onto each colour in turn and reading the register it
+lands on settles the mapping without guessing: c26 f12, c27 f14, c28 f16,
+c29 f18, and by descending order c24 f8 and c25 f10. **So this procedure's
+floating-point colour table is f8, f10, f12, f14, f16, f18 for the caller-saved
+half and f20 through f30 for the callee-saved half -- and f0, f2, f4 and f6 are
+not in it at all.** They appear all over the residual because they are pure ring
+temporaries. That is L130 for the float bank: no declaration, carrier, qualifier
+or spelling can put a value in f0, f2, f4 or f6 here, and any lattice that tries
+is refuted as a class before it is run. Worth checking on a second procedure
+before it is written up as a law, but it is a one-command decode.
+
+The four webs that take a colour, identified the same way -- force each onto a
+callee-saved colour and read which value moves:
+
+- web 120, c24 f8: the case-1 fraction, defined from the timer division and read
+  twice, once into the state's float field and once for the byte scale. Three
+  references at loop depth 1 and one component, so `totalsave` 30 and `nocs` 1.
+- web 64, c25 f10: the case-0 read of the state's scale target, three references
+  at loop depth 1 against one component, the same 30 over 1.
+- web 35, c26 f12: the scale carrier itself, `totalsave` 71 over `nocs` 10.
+  71 is seven references at loop depth 1 plus the one before the loop.
+- web 257, c27 f14: the 1.0f constant, `totalsave` 60 over `nocs` 11.
+
+Which makes the shape to reproduce concrete rather than abstract: the two webs
+that outrank the scale carrier are **short-lived expression values with exactly
+three references inside the loop and a single live-range component**, not
+long-lived carriers. A fourth such value, plus a fifth, coloured before the scale
+carrier, is the whole requirement. Note the threshold for becoming a web at all:
+the case-0 fraction has only two references and never becomes one -- it stays a
+ring temporary -- so three references at loop depth 1 is the floor, and that is
+why every constant-carrier form measured this pass left the fp web set untouched.
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->
