@@ -88,6 +88,13 @@ Measured negatives, so nobody re-runs them.
 - The 78-force census an earlier lane recorded was not re-run, on its own record
   of every force accepted and zero improvements.
 
+`tools/register_census.py` reads the change directly, and its verdict flips.
+Before: 51 pure substitution sites carrying a closed cycle t5 to t6 to t8 to t9
+to t0 to t4 and back to t5, which is the ring phase. After: 29 sites and no
+closed cycle at all, the dominant substitutions being a1 to s0 ten times, s0 to
+v1 eight times, a3 to a2 five times and a2 to a1 three times. The one ring-phase
+fact has been paid; what remains is the per-web colour chain below.
+
 Next, and it is one named blocker rather than 26 separate problems. The text
 rows' remaining naming rows are a single colour rotation: the pre-call node24
 pointer takes s0 where the target has v1, the index takes a1 where the target has
