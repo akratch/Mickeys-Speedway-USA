@@ -237,17 +237,20 @@ class ColouredCycleCitationTests(unittest.TestCase):
         self.assertNotIn("see L127", out)
         self.assertIn("s0", out)
 
-    def test_callee_saved_float_registers_are_treated_the_same(self) -> None:
-        """L133: f20-f30 are the callee-saved half of the float colour table."""
-        out = "\n".join(rc.render_bank(self._row(("f20", "f22")), "", "fpr", "pool"))
-        self.assertNotIn("see L127", out)
-        self.assertIn("f20", out)
-
-    def test_low_float_registers_are_not_treated_as_colours(self) -> None:
-        """L133 measured f0-f6 outside the table entirely -- pure ring
-        temporaries, which is exactly where L127 does apply."""
-        out = "\n".join(rc.render_bank(self._row(("f4", "f6")), "", "fpr", "pool"))
-        self.assertIn("see L127", out)
+    def test_float_cycles_are_never_suppressed(self) -> None:
+        """The float table's boundary varies by procedure in a way the integer
+        callee-saved half does not. One procedure decodes as c24 f0 ... c31 f22
+        with f4-f10 outside; another as twelve colours covering the whole
+        even-numbered file; and a third shows a coherent f22 -> f30 -> f24 ->
+        f28 cycle that is a genuine ugen ring phase. Suppressing the citation
+        on any fixed float set would silence that last case, so the guard is
+        integer-only and float cycles keep their L127 line."""
+        for pair in (("f20", "f22"), ("f24", "f28"), ("f4", "f6")):
+            with self.subTest(pair=pair):
+                out = "\n".join(
+                    rc.render_bank(self._row(pair), "", "fpr", "pool"))
+                self.assertIn("see L127", out)
+                self.assertNotIn("does NOT", out)
 
     def test_an_incoherent_coloured_cycle_keeps_the_incoherence_warning(self) -> None:
         """The pre-existing warning is about a different failure and must
