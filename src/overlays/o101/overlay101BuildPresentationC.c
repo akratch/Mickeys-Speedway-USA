@@ -145,6 +145,24 @@ extern s32 overlay101ByteLength(u8 *text);
  *   Inlining the node-24 or node-32 index local reads 148 and 155; merging the
  *   two node-24 index locals reads 206 at +8, so the counter partition is
  *   already separated as it should be.
+ * The byte-length local is `u8`, not `s8`, the store takes an `(s8)` cast and
+ *   the mask in the opacity expression goes. 145 to 143 on each of the three.
+ *   Semantically exact: the value is only ever truncated to eight bits, so the
+ *   declaration states what the code already guarantees and `& 0xFF` becomes
+ *   redundant; the cast is what draws the extra ugen temp. Every one of 540
+ *   type cells that reaches 143 has the LOCAL `u8` and the store cast `(s8)`.
+ *   The same axis is worth 67 and 81 words on the 1520-byte relatives.
+ * Do NOT re-run these, all measured 2026-09-11 by lane p4-pres and all flat:
+ *   245 L126 copy carriers over all thirteen locals; the whole tail statement
+ *   order, EXHAUSTIVELY, all 4,480 permutations that respect the four chain
+ *   dependences. And do not adopt what the nocs sweep offers: a second
+ *   definition of `previousType` or `previous` reads 138 at size delta 0, and
+ *   respelling the chain-head reads reaches 136, but every such cell reads a
+ *   root field after that field has been set to this node, which self-links the
+ *   chain. What they do prove is that deleting the previous-link LOAD closes
+ *   the +4, so the surplus is reachable from the load side as well as from the
+ *   colour constant. See the shard for the register census, which shows these
+ *   naming rows are per-web colour and not one ring cycle.
  * See docs/matching-triage-handoffs/overlay101BuildPresentationC.md for the
  * remaining residual and the decision variable that blocks it. */
 #ifdef NON_MATCHING
@@ -158,7 +176,7 @@ void overlay101BuildPresentationC(void) {
     s32 previousType;
     void *previous;
     void *handle;
-    s8 length;
+    u8 length;
     f32 opacityScale;
     s32 dimColor;
     Overlay101Node32 *node32A;
@@ -185,9 +203,9 @@ void overlay101BuildPresentationC(void) {
     dimColor = 0xC0;
     node24IndexB = gOverlay101BuilderNode24CountB;
     node24B = &gOverlay101BuilderNodes24B[node24IndexB];
-    node24B->length = length;
+    node24B->length = (s8)length;
     node24B->opacity =
-        (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
+        (s8)(s32)((f32)(u32)length * opacityScale);
     node24B->kind = 4;
     node24B->mode = 2;
     node24B->color0 = dimColor;
@@ -213,10 +231,10 @@ void overlay101BuildPresentationC(void) {
 
 /* PLATEAU-HANDOFF:overlay101BuildPresentationC:start
  * symbol: overlay101BuildPresentationC
- * score: 145 differing words
+ * score: 143 differing words
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: 145 masked words from 163 at a size delta of +4, frame 0x20 and its ladder exact. L59 group fold, the text store placement, and an explicit order-counter bump.
+ * summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
  * PLATEAU-HANDOFF:overlay101BuildPresentationC:end
  */

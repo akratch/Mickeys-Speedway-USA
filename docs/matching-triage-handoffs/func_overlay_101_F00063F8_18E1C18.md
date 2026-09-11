@@ -2,11 +2,11 @@
 ### `func_overlay_101_F00063F8_18E1C18` plateau handoff
 
 - source: `src/overlays/o101/func_overlay_101_F00063F8_18E1C18.c`
-- score: 203/380 words
+- score: 136/380 words
 - frame: 0x38
 - relocations: 49
 - first mismatch: +0x9C
-- summary: 203 masked words from 213; size, frame and instruction multiset all exact. Naming fell 167 to 104 once the pre-call counter read became a ring temp and the node pointer kept s0; the residual is as1 schedule, led by the counter-bump store.
+- summary: 136 masked words; the byte-length local is u8, which collapsed the naming bucket by more than four to one and left a clean one-position ring shift from +0x2BC.
 
 Measured 2026-09-11, lane `lane/s1-o101`. Every number is
 `tools/align_symbol.py`.
@@ -73,5 +73,54 @@ spelling. Note also, against an assumption this lane made and then disproved: as
 DOES reorder stores whose base registers differ, observed here moving the handle
 store past the chain-type store, so "store order is source order" is not a law to
 build on.
+
+
+Lane `lane/p4-pres`, 2026-09-11, re-measured this cluster and moved it twice.
+Both edits are source shape and neither costs an instruction.
+
+The byte-length local is `u8`, not `s32`. That is the whole of the second and
+larger gain, and no lane had swept the axis. A 360-cell type lattice was
+measured -- the callee's declared return type across six spellings, the local's
+own type across five, the store cast across three and the opacity mask across
+four -- and every cell that reaches the floor has the LOCAL declared `u8`,
+while the return type is indifferent across all six spellings. It is
+semantically exact rather than a coincidence: both uses of the value already
+truncate to eight bits, the node field being `u8` and the opacity expression
+masking with `0xFF`, so the mask becomes redundant and the declaration simply
+tells the compiler what the code already guarantees.
+
+The naming bucket is what moved, and it moved the way an offset-resolved
+register census predicted. Before the edit the substitution sites split into
+ten windows in which the permutation is internally consistent but changes at
+each boundary, and the window sizes repeat -- 14 then 7, 14 then 7 -- once per
+text row, which is a per-iteration ring-consumption difference rather than a
+colour question. After it, naming falls by more than a factor of four and what
+is left is a single clean one-position shift over the integer temp ring.
+
+The other lever the dispatch named, the counter-bump STORE, is exhausted. 659
+constrained permutations of the whole post-call block -- the bump, the three
+node stores and the two root stores, under the two real dependences -- were
+measured across four bump spellings (`x = x + 1`, `+=`, pre-increment and
+post-increment), and every one of them is flat at the pre-type-lattice plateau.
+The earlier shard's reading that "the axis is what lets the bump's load sit
+early while its store sinks, not the statement order" is confirmed, now over
+the whole block rather than the six statements it had swept.
+
+Next lever, with the decision variable named and a measured boundary around it.
+The residual is a ring PHASE: the candidate's integer temp ring runs exactly one
+position behind the shipped code from +0x2BC onward, ours `t2` against their
+`t3`, `t3` against `t4`, `t6` against `t7`, `t7` against `t8`, `t8` against `t9`
+and `t9` back to `t2`, and 83 percent of all substitution pairs are consistent
+with that one permutation. That is the exact shape L127 describes. **It is not
+reachable by an L127 free-list consumer from this source, and that is measured,
+not assumed.** 155 no-op cells were swept: every read of the four counter
+globals and the loop index, wrapped with OR-zero, AND-minus-one, XOR-zero, a
+byte mask and two doubled forms; then every read of a root struct field and of
+the call result, pointer fields included through an integer round trip. All 155
+are exactly flat. So either the phase fault is established before any source
+point a no-op can reach, or the rows are globalcolor colour after all, which
+L114 as corrected for this procedure permits -- this procedure assigns three
+t-bank colours outright. Decide that first from the `p1color` records before
+spending another lattice on no-ops.
 
 <!-- plateau-handoff:func_overlay_101_F00063F8_18E1C18:end -->
