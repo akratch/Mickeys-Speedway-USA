@@ -681,7 +681,6 @@ extern void func_80034E48(void);
 extern void func_80023598(void **, void *, void *, void *, void *, s32);
 extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
 extern f32 sqrtf(f32);
-extern f32 D_80080F7C;
 
 typedef struct {
     u8 pad00[0x1C];
@@ -3791,7 +3790,19 @@ typedef struct {
     Objects08B94Resource **unk68;
 } Objects08B94Object;
 
-#ifdef NON_MATCHING
+/* Matched from 111 words with six edits, none of them declaration order or
+ * statement placement (the function issues calls, so it is p1-only): the
+ * multiplier is defined by re-reading object->unk50 rather than by a copy, so
+ * its arm use counts as an occurrence and its p1 save (6/7) outranks alpha's
+ * (10/12), which is what puts it in t3 and alpha in t4; the flags OR-assign
+ * precedes the useColourState store; the arm-5 pointer has its own local
+ * (reusing cameraData imports its interference); the multiplier word carries
+ * _SHIFTL-style byte masks, which fold away and set the ugen ring phase; each
+ * two-word command is written unk0 then unk4 on one physical line, the shape
+ * of the gDPSetPrimColor/gDPSetEnvColor expansion; and paletteIndex is s32 so
+ * its web ties the a0 webs at save 3.0 and wins on web number. 0.0025f is a
+ * literal because it is this function's own rodata slot in the ROM.
+ */
 void func_80008B94(void *arg0) {
     s32 flags;
     s32 colourState;
@@ -3815,7 +3826,7 @@ void func_80008B94(void *arg0) {
     Objects08B94Palette *palette;
     s32 white;
     Objects08B94Info *info;
-    Objects08B94Multiplier *candidateMultiplier;
+    s8 *cameraData2;
 
     object = (Objects08B94Object *)arg0;
     specialColour = 0;
@@ -3841,10 +3852,9 @@ void func_80008B94(void *arg0) {
         object->unk8 = -object->unk8;
     }
 
-    candidateMultiplier = object->unk50;
-    if (candidateMultiplier != NULL) {
-        multiplier = candidateMultiplier;
-        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
+    if (object->unk50 != NULL) {
+        multiplier = object->unk50;
+        colourState = (s32)((f32)colourState * multiplier->unk0);
         useColourState = 1;
         useMultiplier = 1;
     }
@@ -3860,8 +3870,8 @@ void func_80008B94(void *arg0) {
         }
     }
     if (alpha < 0xFF) {
-        useColourState = 1;
         flags |= 4;
+        useColourState = 1;
     }
 
     resource = object->unk68[object->unk3A];
@@ -3879,7 +3889,7 @@ void func_80008B94(void *arg0) {
     } else if (object->unk44 == 0x20 && (palette = object->unk3C) != NULL &&
                (palette->unkD & 0x80) != 0) {
         Objects08B94Colour *colours;
-        u8 paletteIndex;
+        s32 paletteIndex;
 
         colours = (Objects08B94Colour *)levelGetColourCycling();
         colourA = colours;
@@ -3907,7 +3917,8 @@ void func_80008B94(void *arg0) {
         specialColour = 1;
     } else if (object->unk44 == 0x50) {
         info = object->unk64;
-        TrapDanglingJump((s32)(s8)info->unk14->unk64[1], &computedAlpha,
+        cameraData2 = (s8 *)info->unk14->unk64;
+        TrapDanglingJump((s32)cameraData2[1], &computedAlpha,
                          &extraGreen, &extraBlue);
         white = 0xFF;
         func_80034DF0(white, white, white, (u8)computedAlpha,
@@ -3917,29 +3928,23 @@ void func_80008B94(void *arg0) {
         if (useColourState || alpha < 0xFF) {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk0 = 0xFA000000;
-            command->unk4 = ((colourState & 0xFF) << 24) |
-                            ((colourState & 0xFF) << 16) |
-                            ((colourState & 0xFF) << 8) |
-                            (alpha & 0xFF);
+            command->unk0 = 0xFA000000; command->unk4 = ((colourState & 0xFF) << 24) | ((colourState & 0xFF) << 16) | ((colourState & 0xFF) << 8) | (alpha & 0xFF);
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk4 = (u32)-1;
-            command->unk0 = 0xFA000000;
+            command->unk0 = 0xFA000000; command->unk4 = (u32)-1;
         }
         if (useMultiplier) {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
             command->unk0 = 0xFB000000;
-            command->unk4 = ((u32)multiplier->unk5 << 24) |
-                            ((u32)multiplier->unk6 << 16) |
-                            ((u32)multiplier->unk7 << 8);
+            command->unk4 = (((u32)multiplier->unk5 & 0xFF) << 24) |
+                            (((u32)multiplier->unk6 & 0xFF) << 16) |
+                            (((u32)multiplier->unk7 & 0xFF) << 8);
         } else {
             Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
             D_800C94B4 += 8;
-            command->unk4 = (u32)-0x100;
-            command->unk0 = 0xFB000000;
+            command->unk0 = 0xFB000000; command->unk4 = (u32)-0x100;
         }
     }
 
@@ -3947,7 +3952,7 @@ void func_80008B94(void *arg0) {
     if (object->unk44 == 0x50) {
         object->unk8 = 1.5f -
                        (camGetProjZ(object->unkC, object->unk10, object->unk14) *
-                        D_80080F7C);
+                        0.0025f);
     }
     if (object->unk40->unk1E == 0) {
         func_80023598((void **)&D_800C94B4, &D_800C94B8, &D_800C94BC,
@@ -3963,20 +3968,15 @@ void func_80008B94(void *arg0) {
     if (useColourState) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk4 = (u32)-1;
-        command->unk0 = 0xFA000000;
+        command->unk0 = 0xFA000000; command->unk4 = (u32)-1;
     }
     if (useMultiplier) {
         Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
         D_800C94B4 += 8;
-        command->unk4 = (u32)-0x100;
-        command->unk0 = 0xFB000000;
+        command->unk0 = 0xFB000000; command->unk4 = (u32)-0x100;
     }
     object->unk8 = savedScale;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
-#endif
 /* The sprite renderer reads the transform and frame from this segment layout. */
 void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
                    s32 arg4, Objects09220Source *arg5, s32 arg6) {
@@ -5834,16 +5834,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x38
  * summary: Workbench structure-mismatch: structure-buckets. Next: resolve category-fill unrolling and packet/index carriers with the frame held exact.
  * PLATEAU-HANDOFF:func_80004FE0:end
- */
-
-/* PLATEAU-HANDOFF:func_80008B94:start
- * symbol: func_80008B94
- * score: 111 differing words
- * frame: 0xB8
- * relocations: 45
- * first-mismatch: +0xD0
- * summary: Multiplier null-init dropped and four command-word pairs reordered (126 to 111); the shape multiset is now exact, so all 111 are role or placement.
- * PLATEAU-HANDOFF:func_80008B94:end
  */
 
 /* PLATEAU-HANDOFF:func_80009414:start
