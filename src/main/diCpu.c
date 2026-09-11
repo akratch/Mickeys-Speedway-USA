@@ -883,7 +883,7 @@ void func_80046E00(void) {
  * frame: 0x50
  * relocations: 127
  * first-mismatch: +0x144
- * summary: Exact geometry/frame; 62 register/structure words and two relocation identities remain after 10 forms, 119 flags, and one bounded batch.
+ * summary: Baseline retained; final-report variants regressed and cited JFG revision has no diCpu source
  * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
 
