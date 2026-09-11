@@ -66,7 +66,6 @@ extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
  * update below the floor. The spawn's last random call precedes camera Y/Z
  * loads; preserve that sequencing across the call.
  */
-#ifdef NON_MATCHING
 void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
                                        Mtx **matrixPtr, s32 updateRate) {
     s32 recordIndex;
@@ -109,8 +108,7 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
 
     func_800349A4(&commands, 0, 1, 0);
     record = O65_RECORD(D_0);
-    recordIndex = 0;
-    do {
+    for (recordIndex = 0; recordIndex != 50; recordIndex++) {
         if (O65_RECORD(record)->active != 0) {
             for (updateIndex = 0; updateIndex < updateRate; updateIndex++) {
                 O65_RECORD(record)->x[0] += O65_RECORD(record)->velocityX;
@@ -141,17 +139,14 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
             }
 
             {
-                u32 *packet = (u32 *)commands++;
-
-                packet[0] = ((((((u32)D_2988 + 0x80000000U) & 6U) |
-                               0x90U) & 0xFFU) << 16) | 0x04000000U | 0xBCU;
+                u32 *packet = (u32 *)commands++; packet[0] = ((((((u32)D_2988 + 0x80000000U) & 6U) | 0x90U) & 0xFFU) << 16) | 0x04000000U | 0xBCU;
                 packet[1] = (u32)D_2988 + 0x80000000U;
             }
             {
                 u32 *packet = (u32 *)commands++;
 
-                packet[0] = 0x05F10100U;
                 packet[1] = (u32)D_800000C0;
+                packet[0] = 0x05F10100U;
             }
 
             for (pointIndex = 0; pointIndex < 9; pointIndex++) {
@@ -173,22 +168,8 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
                 D_2988++;
             }
         }
-        recordIndex++;
         record++;
-    } while (recordIndex != 50);
+    }
     *commandPtr = commands;
     *matrixPtr = matrices;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/func_overlay_065_F0000C38_18C4EA0/func_overlay_065_F0000C38_18C4EA0.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_065_F0000C38_18C4EA0:start
- * symbol: func_overlay_065_F0000C38_18C4EA0
- * score: 824/887 words
- * frame: 0x80
- * relocations: 24
- * first-mismatch: +0x30
- * summary: Recovered types/CFG and frame; configured MIPS-I cannot emit target MIPS-II operations. Next: target-local ISA parity review and initializer identity repair.
- * PLATEAU-HANDOFF:func_overlay_065_F0000C38_18C4EA0:end
- */

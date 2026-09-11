@@ -39,11 +39,25 @@ OVERRIDE = re.compile(
 )
 ROW = re.compile(r"^\s*/\*.*?\*/\s+(\S+)")
 
-# Emitted only at -mips2 and above.
+# Emitted only at -mips2 and above. Two families, both fatal to a -mips1
+# claim, and the second was added after it let a real one through.
 BRANCH_LIKELY = {
     "beql", "bnel", "blezl", "bgtzl", "bltzl", "bgezl",
     "bltzall", "bgezall", "bc1tl", "bc1fl",
 }
+
+# Float-to-integer conversion with an explicit rounding mode, and square root.
+# MIPS I has no such instruction: at -mips1 IDO converts by saving the FPU
+# control word, forcing a rounding mode through it, converting, and restoring
+# -- roughly eleven words where -mips2 spends three. So a target holding one of
+# these was not built at -mips1, exactly as a branch-likely target was not.
+FP_MIPS2_ONLY = {
+    "trunc.w.s", "trunc.w.d", "round.w.s", "round.w.d",
+    "ceil.w.s", "ceil.w.d", "floor.w.s", "floor.w.d",
+    "sqrt.s", "sqrt.d",
+}
+
+MIPS2_ONLY = BRANCH_LIKELY | FP_MIPS2_ONLY
 
 
 def overrides() -> list[tuple[str, str, Path]]:
@@ -58,18 +72,23 @@ def overrides() -> list[tuple[str, str, Path]]:
     return found
 
 
-def branch_likely_count(symbol: str) -> int | None:
-    """How many branch-likely instructions the target carries, or None."""
+def mips2_only_count(symbol: str) -> tuple[int, int] | None:
+    """(branch-likely, fp-conversion) counts in the target, or None if absent."""
     matches = list(ASM.rglob(f"{symbol}.s"))
     if not matches:
         return None
-    total = 0
+    branch = fp = 0
     for path in matches:
         for line in path.read_text(errors="replace").splitlines():
             row = ROW.match(line)
-            if row and row.group(1) in BRANCH_LIKELY:
-                total += 1
-    return total
+            if not row:
+                continue
+            mnemonic = row.group(1)
+            if mnemonic in BRANCH_LIKELY:
+                branch += 1
+            elif mnemonic in FP_MIPS2_ONLY:
+                fp += 1
+    return branch, fp
 
 
 def main() -> int:
@@ -83,12 +102,13 @@ def main() -> int:
         if isa != "-mips1":
             continue
         symbol = Path(obj).name
-        count = branch_likely_count(symbol)
-        if count is None:
+        counts = mips2_only_count(symbol)
+        if counts is None:
             continue
+        branch, fp = counts
         checked += 1
-        if count:
-            contradicted.append((obj, count, makefile.name))
+        if branch or fp:
+            contradicted.append((obj, branch, fp, makefile.name))
 
     if not contradicted:
         print(f"ISA overrides OK -- {checked} -mips1 override(s) checked "
@@ -96,9 +116,14 @@ def main() -> int:
         return 0
 
     print("a -mips1 override contradicts its own target:", file=sys.stderr)
-    for obj, count, makefile in contradicted:
+    for obj, branch, fp, makefile in contradicted:
+        carried = []
+        if branch:
+            carried.append(f"{branch} branch-likely")
+        if fp:
+            carried.append(f"{fp} rounding-mode float conversion")
         print(
-            f"  {obj}: target carries {count} branch-likely instruction(s), "
+            f"  {obj}: target carries {' and '.join(carried)} instruction(s), "
             f"which IDO cannot emit below -mips2 ({makefile})",
             file=sys.stderr,
         )

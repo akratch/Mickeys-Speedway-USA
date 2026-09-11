@@ -35,11 +35,18 @@ test-overlay-aliases:
 check-docs: check-overlay-aliases
 check-tooling: test-overlay-aliases
 
-# The overlay 66 framebuffer renderer remains NON_MATCHING, but its complete
-# flag sweep is closest under the MIPS I codegen group (12 bytes short versus
-# 36 under the former -O2 -g3 MIPS II override).
+# The overlay 66 framebuffer renderer remains NON_MATCHING. It carried a
+# `MIPSISET := -mips1 -32` override, adopted because a flag sweep scored that
+# group closest -- 12 bytes short against 36 under an -O2 -g3 MIPS II override.
+# The override is removed: the target holds two rounding-mode float conversions,
+# which IDO cannot emit below -mips2, so -mips1 was never how this was built and
+# `tools/check_isa_overrides.py` now says so. The sweep was reading a positional
+# differing-word score, which rewards keeping instructions in place; on the
+# shape-tolerant split, dropping the override takes byte-exact rows 80 -> 94 and
+# structural differences 84 -> 64 while the positional count rises 181 -> 202.
+# The two disagree and the target's own instruction set is the tiebreak. The
+# -O2 pin below is kept; only the ISA claim was falsified.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/func_overlay_066_F00004E0_18C6948.c.o: OPT_FLAGS := -O2
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/func_overlay_066_F00004E0_18C6948.c.o: MIPSISET := -mips1 -32
 
 # Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Mickey keeps
 # six source boundaries that preserve calls the whole-file DKR build inlines;
@@ -1798,10 +1805,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65ResetSlots.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65ResetSlots.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+# The trail updater is compiled C. Its seven resident callees are renamed to
+# this module's relocation-surface placeholders here, because an overlay linked
+# at 0xF0000000 cannot `jal` a 0x8000xxxx entry point directly; without the
+# renames the link fails with R_MIPS_26 overflow in a fresh worktree, where
+# tools/reloc_surface.py has not yet rewritten the object.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym camSetNo=camSetNo_o065Reloc \
+		--redefine-sym func_80021970=func_80021970_o065Reloc \
+		--redefine-sym func_800221E8=func_800221E8_o065Reloc \
+		--redefine-sym func_8002A8BC=func_8002A8BC_o065Reloc \
+		--redefine-sym func_8002A8C0=func_8002A8C0_o065Reloc \
+		--redefine-sym func_800349A4=func_800349A4_o065Reloc \
+		--redefine-sym mathRnd=mathRnd_o065Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDDC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c.o: \
-	MIPSISET := -mips1 -32
+	MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ByteLength.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101PromoteSlot.c.o: POSTPROCESS = \
