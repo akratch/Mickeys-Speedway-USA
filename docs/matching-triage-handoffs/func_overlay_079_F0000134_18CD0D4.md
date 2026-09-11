@@ -112,4 +112,30 @@ target. Overlay 27 shows one thing that does it -- extending the web's
 lifetime across a call -- at the cost of a spill pair; here the tail's carrier
 already round-trips through 100(sp) at every use cluster, so the same trade
 may not cost anything extra. That is the first thing to measure.
+
+## 2026-09-11 closure re-test (lane `lane/f10-fell`): the +0x368 choice is a save tie and it does not own the tail
+
+Measured with the instrumented uopt, `.text` byte-identical to the tree's
+object, 77 p1 decisions and no p2 for this procedure. The candidate change
+here is none.
+
+The web defined at +0x368 is web 143 (class 2, save 5/2 = 2.5, decision
+color, f16). Its `p1cost` list holds only c28 and c29 at 3.0 and the
+callee-saved colours at 47.25; its forbidden mask is 0xf0, which is f0 f2 f12
+f14. So f2 was never a colour the force sweep above could try on it, and the
+sweep's "4 rows" bound does not cover this decision. f2 is held by webs 267,
+346 and 401, each at save 3.0 and each decided before 143. Forcing web 346
+off f2 (accepted, to f14) lets 143 take f2 unforced and the count goes 198 to
+196: the two rows at +0x368 and +0x374 close and nothing after them moves.
+That falsifies the reading above that the ring runs one position apart from
++0x368 onward and feeds the tail. One net occurrence on web 143 would tie the
+f2 webs at 3.0 and win the tie on web number, which is the same mechanism
+that matched func_80008B94 on this lane.
+
+The tail's carrier reloaded from 100(sp) is web 213 (save 5/2 = 2.5, f12),
+and in the base its list is c26 and c29 with f16 forbidden, because web 143
+takes the 2.5 tie on web number and holds f16 first. With 346 forced off f2
+and 213 forced to f16 the count is 533, with web 70 also on f16, so the tail is
+not one force away from that state; it is a second decision (213 against 70
+and 143) to be measured after the first is closed from source.
 <!-- plateau-handoff:func_overlay_079_F0000134_18CD0D4:end -->
