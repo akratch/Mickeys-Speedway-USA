@@ -125,4 +125,24 @@ This relative is at delta 0 and has no colour constant, so the surplus word the
 A, B and C relatives carry is absent here and the levers that would close it are
 inert by construction. Its residual is 103 naming and 27 schedule order.
 
+Lane `lane/p2-pres`, 2026-09-11, re-measured this function alongside its
+relatives. The source is unchanged; everything here is a negative, and the
+full working is in
+`docs/matching-triage-handoffs/overlay101BuildPresentationB.md`.
+
+- The forced-colour census reproduces: 131 to 123 to 117 to 114 on `p1:w186=c11`, `p1:w31=c2`, `p1:w81=c8`, the same three roles the A, B and C relatives name. Every force was checked for a
+  `p1color` record carrying `forced` before its object was scored.
+- The intra-group line-break axis, which the previous lane did not measure (it
+  measured whole-group fold subsets), is flat. All 81 break positions
+  across the folded groups: nothing raises aligned byte-exact above 82.
+  One break, the first group at its fourth statement, reads 130 masked but 80 byte-exact and 29 structural, the same trade the other three make, and is not adopted.
+- The tail statement order, widened from the previous lane's eight statements
+  to the whole tail under its real dependences: 14,138 constrained orders
+  searched by single-move greedy plus random restarts, never beating
+  131.
+- The displacement-pair sweep also ran here: at the 114 plateau, 11,286 pairs
+  that move a coloured web off its colour AND force another web onto the colour
+  it vacated, 2,358 of them accepted in the records, and not one beat 114. The
+  interfering-web hypothesis is refuted on this relative as it is on B.
+
 <!-- plateau-handoff:overlay101BuildPresentationD:end -->
