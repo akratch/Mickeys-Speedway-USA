@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 350,
-  "resolved": 350,
+  "queue_size": 349,
+  "resolved": 349,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 350,
-  "relocation_masked_coverage": 350,
+  "source_context_coverage": 349,
+  "relocation_masked_coverage": 349,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -67,7 +67,7 @@
       "relocation_masked_first_mismatch_offset": 48,
       "size_delta": 0,
       "category": "register-only",
-      "source_context_sha256": "snom.WZ-U.n914.OagN.7v47.mKKk.G6sd.vju7.EI9y.y7v4.5Zc"
+      "source_context_sha256": "lQAv.gPPm.5pkc.FOBN.l_ai.IMzH.HH24.FbQ0.nS7J.wQrb.8CY"
     },
     {
       "name": "func_8002C69C",
@@ -638,21 +638,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "MNXr.KExU.j_XR.jqLv.ZiPE.wg8M.4P0w.4WGB.uikT.weIz.JBw"
-    },
-    {
-      "name": "overlay43FilterImage",
-      "file": "src/overlays/o043/overlay43FilterImage.c",
-      "overlay": 43,
-      "tu": "overlays/o043",
-      "size_bytes": 172,
-      "objdiff_match_pct": null,
-      "differing_words": 16,
-      "first_mismatch_offset": 4,
-      "relocation_masked_differing_words": 16,
-      "relocation_masked_first_mismatch_offset": 4,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "TEvf.0xEP.S7nX.IX4y.O6MO.S8Jy.cZZL.Z1Xz.z9ZJ.Vyme.1m0"
     },
     {
       "name": "overlay7AcquireEntry",
@@ -3112,7 +3097,7 @@
       "relocation_masked_first_mismatch_offset": 0,
       "size_delta": -8,
       "category": "size-mismatch",
-      "source_context_sha256": "mhRz.lKfd.d117.U0f_.Kc2B.3eHb.3qvA.rIYR.DGh7.FF6j.9UU"
+      "source_context_sha256": "bxrL.vJCM.13jX.sTSl.aLml.4a5r.KvWm.Uw1K.W8Hu.4c_u.o_M"
     },
     {
       "name": "overlay68RebuildSecondaryEntry",
@@ -4747,7 +4732,7 @@
       "relocation_masked_first_mismatch_offset": 48,
       "size_delta": -32,
       "category": "size-mismatch",
-      "source_context_sha256": "iQyR.4UUm.d3Qg.TPlo.QC1_.JG5N.YVYt.dHCq.ZEJd.nPhy.gxw"
+      "source_context_sha256": "t6po.q7TS.0nd5.F0zJ.X_mr.WjvJ.E6aY.YQRg.NFL5.ehyH.t-Y"
     },
     {
       "name": "overlay1LoadBuildRecords",
