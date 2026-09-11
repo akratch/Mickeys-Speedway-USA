@@ -102,10 +102,10 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
 
 /* PLATEAU-HANDOFF:overlay14CreateValue:start
  * symbol: overlay14CreateValue
- * score: 83/96 masked positional words (14 raw, 13 masked differences)
+ * score: 83/96 words
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: Resident selector identity authenticated; all 15 relocations align. A zero-byte if (1) region improves the residual to 13 masked words and exposes a coherent ring phase; the extra pointer home remains.
+ * summary: 13 masked differences; coherent ring phase remains and extra pointer home at +0x24 blocks exactness
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */
