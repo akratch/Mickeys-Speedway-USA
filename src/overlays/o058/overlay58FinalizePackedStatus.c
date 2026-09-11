@@ -284,10 +284,10 @@ void overlay58FinalizePackedStatus(void) {
 
 /* PLATEAU-HANDOFF:overlay58FinalizePackedStatus:start
  * symbol: overlay58FinalizePackedStatus
- * score: 216/304 words
+ * score: 88/304 words
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: Six zero-instruction discarded-expression probes and one inert early-return move take the masked residual from 177 to 88 at unchanged geometry and frame; the remainder is p1 colour and stack-home order.
+ * summary: p1-only; 76% coherent. 29 p1 decisions, no p2; candidate homes 24/60/68 versus target 28/36/48/64; probes flat.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */

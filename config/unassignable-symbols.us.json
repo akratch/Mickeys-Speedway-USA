@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "_comment": "Symbols that must never be assigned to a lane. These are NOT plateaus awaiting a better idea: each has a proof that no legal source reaches the target. They are removed from every route, cluster, band and count tools/triage.py produces, because a ratio-sorted list surfaces them first and a lane then spends itself re-deriving the proof.",
+  "symbols": {
+    "overlay57UpdateModeState": {
+      "reason": "Proven unmatchable at a floor of 2 words.",
+      "evidence": "A trace replay reproduced 244 of 244 multi-candidate selections with zero mispredictions, with the key space covered using #line to reach positions no legal statement order produces. Second in the tree by bytes-per-word, so every ratio-sorted list surfaces it.",
+      "recorded": "2026-09-11",
+      "handoff": "docs/matching-triage.md#overlay57updatemodestate-plateau-handoff"
+    }
+  }
+}

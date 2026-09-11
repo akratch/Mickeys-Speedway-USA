@@ -56,4 +56,54 @@ The next lever is unchanged and now carries a number: the command pointer needs
 short enough for `nocs` 1 at its present 8. Neither is reachable from any form
 measured above.
 
+#### 2026-09-11, lane p6-mid: re-measured, and the live-range route to a1 is closed by uopt's own folding
+
+Baseline reproduces: 2648 bytes, 662 of 662 instructions, delta 0, 29 masked
+words, first mismatch +0xA8. Aligner on a register-erased shape: 640 byte-exact,
+14 register naming, 2 immediate-only, 8 really different, displacement tax 5.
+`register_census` (bank-corrected) reads the fourteen as two clean families,
+seven where the command pointer takes a2 against the target's a1 and seven where
+the case-0 carrier takes a0 against the target's v0, one global mapping, one
+window, no cycle.
+
+**Worth recording because the closure does not say it: the eight "really
+different" words are not a third residual.** Read off both objects, they are the
+same colour. Where the pointer holds a1 the target needs no argument move at the
+two calls that pass it, so it spends a delay-slot filler at one and a separate
+pointer advance at the other; the candidate, holding it in a2, spends two moves
+to materialise the argument and folds the re-materialisation and the advance into
+one add. Three instructions either way, which is why the size delta is 0 --
+and all of them go with the colour.
+
+**The untried axis was the pointer's live range, and it does not survive
+contact.** The closure had swept spellings, defining-statement positions, region
+boundaries, probes and store orders; what it had not varied is how many
+definitions the pointer symbol has and where they fall relative to the two calls
+whose argument setup holds a1. The target re-materialises the pointer from the
+already-live base carrier after the angle call and advances it separately, which
+would break the live range across the arm that sets up those arguments. Six
+forms measured, all against the whole 662-instruction target:
+
+- re-assigning the pointer from the base immediately before the angle call is
+  byte-identical to the base, at 29 -- uopt deletes the assignment as redundant,
+  so no definition is added and the range is not broken;
+- re-assigning it after that call, before the first command word, is 566 at
+  delta -12, and writing the first command word through the base instead is the
+  same object: the redundancy is not merely deleted, it is exploited, and three
+  instructions go with it;
+- re-assigning after the first command word is 623 at delta -4;
+- advancing by subscript rather than by byte arithmetic on the re-assigned
+  pointer is 566 at delta -12;
+- passing the base address expression inline at either or both of the two calls
+  that take the pointer, so that the pointer symbol is not referenced there at
+  all, is byte-identical at 29 in all three combinations;
+- moving the six command words to positive offsets from the base and advancing
+  last is 31 at delta 0 -- naming falls 14 to 11 and structure rises 8 to 12, so
+  it does reach the colour, and it pays more for it than it wins.
+
+So the pointer's definition count is not settable from source here: any second
+definition of the same value is either folded away or folded into the advance.
+The requirement from the previous pass is unchanged -- the pointer web needs
+`totalsave` above 20 at `nocs` 3 or a span short enough for `nocs` 1 -- and the
+live-range route to it is now closed too.
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

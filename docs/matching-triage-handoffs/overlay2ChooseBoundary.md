@@ -2,11 +2,11 @@
 ### `overlay2ChooseBoundary` plateau handoff
 
 - source: `src/overlays/o002/overlay2ChooseBoundary.c`
-- score: 195/292 words
+- score: 97/292 words
 - frame: 0x90
 - relocations: 64
 - first mismatch: +0x5C
-- summary: Declaring to the target frame ladder read off the objects (side1 116, side2 112, bestScore 104, axis 96, endpoint 92) takes 106 masked words to 97 with every stack home exact; the extra sltu at +0x5C and 44 naming rows remain.
+- summary: p1-only; 95% coherent ring. Direct-count rewrite regressed to 260; line self-assignment text-flat at 97.
 - baseline: 45/292 words, 0x98 frame, 62 relocations, 247 masked differences
 - attempts: the complete 119-combination flag lattice did not beat canonical O2/mips2; coherent direct-branch and carrier-width forms regressed
 - bounded permutation: a five-minute, gain-gated batch improved its internal score only by inserting an inert empty guard, so the result was rejected and not applied
@@ -37,5 +37,18 @@ no colour here; it decides homes, and that is what it was never used for.
 What remains is the +0x5C `sltu` (structural, 7 rows) and 44 naming rows,
 whose decision variable is the p1 save ratio ([L100]); the p1 records have
 not been read for this function.
+
+#### 2026-09-11, lane p5-ovl: p1 trace and ring probe
+
+The fresh baseline is 97/292 relocation-masked words at unchanged 0x90 frame
+and 64 relocations: 225 exact, 44 register naming, 17 immediate-only, and 7
+structural. Instrumented text is stock-identical; the trace has 51 p1
+decisions and no p2. Register substitutions are 95% coherent and form one
+closed t-register ring, so the cycle is not an incoherent mapping. The target's
+first structural row uses a direct decrement/branch shape; an explicit
+pre-body decrement changed geometry and regressed to 260/292. A self-assigned
+inner-loop pointer, tested as a zero-byte ring-phase probe, was text-identical
+and remained 97/292. Both probes were reverted; no source improvement was
+proved.
 
 <!-- plateau-handoff:overlay2ChooseBoundary:end -->

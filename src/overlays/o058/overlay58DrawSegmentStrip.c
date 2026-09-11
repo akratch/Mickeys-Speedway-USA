@@ -171,10 +171,10 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay58DrawSegmentStrip:start
  * symbol: overlay58DrawSegmentStrip
- * score: 133/201 words
+ * score: 68/201 words
  * frame: 0x88
  * relocations: 8
  * first-mismatch: +0xF0
- * summary: One zero-instruction probe plus two inert write-order moves take the masked residual from 102 to 68 at unchanged geometry and frame; the point-quad argument-affinity lever is falsified for this call site at 152.
+ * summary: p1-only; 95% coherent. c1-c12 plus c13 unnamed, c14-c22 s0-s8; t6-t9 are ring temps. Force w225=c3 flips w226=c2: 68->37; source probes flat or regressed.
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */

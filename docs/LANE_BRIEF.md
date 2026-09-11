@@ -134,10 +134,17 @@ it end to end. The ones that carry most of the weight:
   colour, and that figure is a **floor** — a force sweep never offers a colour
   another web has forbidden, so free the interferer before concluding a lever is
   out of reach.
-- **L115** — a live range is formed per *symbol*, and interference is a
+- **L115 + L131** — a live range is formed per *IR name*, and interference is a
   block-set intersection. Reusing a local that is already live elsewhere imports
   its interference at zero width and no instruction; adding a fresh one does
   not. Which existing local you pick is the whole decision.
+  **A repeated expression is one name** (L131, 2026-09-11): the same address
+  expression written at three sites is *one* range whose hull spans everything
+  between them, and whose uses are every site's uses, not the ones beside any
+  single occurrence. So deleting the local that holds it does not split it, and
+  neither does giving each site its own local — to split the range the
+  *spellings* must differ. Measured on the o101 quadruplet: removing the pointer
+  local moved nothing; changing the spelling at the store sites moved 8 words.
 - **L112** — an unobservable array length is a free parameter the frame identity
   solves for: `frame = round8(fixed + block + temps)`, `block = base +
   element_size × count`. Put the target's frame in, read the count out. Check
@@ -169,7 +176,11 @@ it end to end. The ones that carry most of the weight:
   last key LIFO; folding two statements onto one line retires a tie while
   swapping them only moves it. **L103** — the float constant pool is keyed on
   the constant's *spelling*, not its value. **L44** — carrier identity is the
-  lever, not its presence.
+  lever, not its presence. **L132** — a macro expansion carries the
+  invocation's line number, so it is exactly one folded source line:
+  rearranging statements *inside* a macro body is byte-inert, and "write it out
+  longhand" is only ever worth what splitting those statements across lines is
+  worth.
 
 ## Instruments
 
@@ -228,6 +239,15 @@ it end to end. The ones that carry most of the weight:
     regenerate and rebuild, never commit that diff.
 12. **Give yourself a private scratch subdirectory.** The session scratchpad is
     shared and two lanes have overwritten each other's files.
+13. **A debug dump's contents are evidence about the dump, not about the
+    decision.** Two halves of one closure fell to this in one session. An
+    `available` mask is written *after* the choice, recording what stays
+    consistent with it — the colours it clears were mostly outbid, not
+    forbidden, and the same build's cost list showed ten of them on offer at
+    4.0 each. An empty `colorcand` bitset likewise does not mean globalcolor
+    was idle; the instrumented records showed it colouring six webs. **Read the
+    cost list and the decision records.** A pass is idle when its *records* are
+    empty.
 
 ## Rules, non-negotiable
 

@@ -38,6 +38,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
+UNASSIGNABLE = ROOT / "config" / "unassignable-symbols.us.json"
 # Whole-program text, the denominator README's headline percentage uses.
 WHOLE_PROGRAM = 944344
 
@@ -46,8 +47,23 @@ BANDS = ((0, 20, "closes often"), (21, 60, "one or two decisions"),
          (401, None, "reduces, rarely closes"))
 
 
+def unassignable() -> dict[str, dict]:
+    """Symbols with a proof that no legal source reaches the target.
+
+    Kept out of every route, cluster and band below. They are not plateaus
+    waiting on a better idea, and a ratio-sorted list surfaces them first
+    precisely because they are large and nearly closed -- which is what makes
+    a lane spend itself re-deriving the proof.
+    """
+    if not UNASSIGNABLE.exists():
+        return {}
+    return json.loads(UNASSIGNABLE.read_text(encoding="utf-8"))["symbols"]
+
+
 def load() -> list[dict]:
-    return json.loads(RANKING.read_text(encoding="utf-8"))["functions"]
+    rows = json.loads(RANKING.read_text(encoding="utf-8"))["functions"]
+    barred = unassignable()
+    return [r for r in rows if r["name"] not in barred]
 
 
 def resolved_bytes() -> int:
@@ -100,6 +116,10 @@ def cheapest_route(rows: list[dict], gap: int) -> dict:
 
 def report(target_pct: float, top: int) -> dict:
     rows = load()
+    all_names = {r["name"] for r in json.loads(
+        RANKING.read_text(encoding="utf-8"))["functions"]}
+    excluded = [{"name": n, "reason": v["reason"]}
+                for n, v in sorted(unassignable().items()) if n in all_names]
     have = resolved_bytes()
     target = int(WHOLE_PROGRAM * target_pct / 100.0)
     gap = max(target - have, 0)
@@ -128,6 +148,7 @@ def report(target_pct: float, top: int) -> dict:
                      "leverage": (every / lead) if lead else 0.0,
                      "top": cl[:top]},
         "bands": band_rows,
+        "excluded": excluded,
     }
 
 
@@ -138,6 +159,10 @@ def render(r: dict) -> str:
         f"GAP      {r['gap_bytes']:,} bytes  "
         f"({100.0 * r['gap_bytes'] / max(r['queue']['bytes'], 1):.0f}% of the "
         f"{r['queue']['bytes']:,} still queued)",
+    ]
+    for ex in r.get("excluded", []):
+        out.append(f"EXCLUDED {ex['name']} -- {ex['reason']} Never assign it.")
+    out += [
         "",
         "cheapest route (by words per byte):",
         f"  {r['route']['functions']} functions, {r['route']['bytes']:,} bytes, "
