@@ -83,4 +83,97 @@ functions plausibly share one mechanism, so a solution here transfers.
   test operand all measured 49 to 94. Adding a dedicated local regresses by
   eleven words because it moves every frame slot, the same frame sensitivity
   overlay 79 shows.
+#### 2026-09-11, lane p6-mid: the fp colour is proved causal, and the requirement is now arithmetic
+
+Baseline reproduces: 1472 bytes, 368 of 368 instructions, delta 0, 48 masked
+words. Aligner on a register-erased shape: 320 byte-exact, 46 register naming,
+0 immediate-only, 2 really different. So 46 of the 48 are one bucket, and this
+pass names the decision behind them instead of describing it.
+
+**The whole residual bar nine words is one colour, and a force proves it.**
+The instrumented `uopt` reproduces the tree's object exactly -- same 48 masked
+words at delta 0 with logging on, which is the identity gate -- and the scale
+carrier is procedure ordinal 1's web 35, class 2, `save` 7.100000, `nocs` 10,
+`totalsave` 71.000000. Forcing it one colour up:
+
+    CDX_FORCE=p1:w35=c28   ->   9 masked, delta 0
+                                359 byte-exact, 7 naming, 0 immediate, 2 different
+
+That is 320 -> 359 byte-exact and 46 -> 7 naming rows from a single allocator
+decision, scored on the forced object directly rather than through
+`score_symbol.py` (which recompiles with the configured command and would have
+reported the unforced 48).
+
+**The fp colour table for this procedure, decoded from its own `p1cost` rows.**
+Twelve colours: c24 through c29 `kind=caller`, c30 through c35 `kind=callee`
+at a flat cost of 20.250000 each -- six caller-saved and six callee-saved
+even-numbered singles, which is the whole o32 float file. c26 is the colour the
+candidate gives the scale carrier, and the register identity is settled by
+force-and-diff rather than assumed: forcing web 35 off c26 takes the number of
+sites naming the fp argument register from nine to exactly one, and that one is
+the outgoing float argument -- the target's own shape.
+
+**The decision ladder, and therefore the requirement.** Only four fp webs are
+offered a colour at all; every other one splits at `bestcost` 20. In descending
+`save`:
+
+- web 120, `save` 30.000000, `nocs` 1, `totalsave` 30.000000, takes c24;
+- web 64, `save` 30.000000, `nocs` 1, `totalsave` 30.000000, takes c25;
+- web 35, the scale carrier, `save` 7.100000, arrives with `forbidden0`
+  0x000000c0 and `available0` 0x0000003c, and takes the first available, c26;
+- web 257, the 1.0f constant, `save` 5.454545, `nocs` 11, `totalsave`
+  60.000000, takes c27.
+
+So the previous closure's "deny f12 without extending the web's lifetime across
+the call" is now a number: **web 35 needs both c26 and c27 forbidden at its
+decision, which means two further fp webs coloured before it -- `save` strictly
+above 7.100000 -- that interfere with it.** Raising web 257 above 7.1 supplies
+only one of the two: 71/10 against 60/11 means web 257 needs `totalsave` 79 or
+above at its present `nocs`, or `nocs` 7 or below at its present total, and
+even then web 35 lands on c27 rather than c28. The arithmetic also kills the
+mirror-image move, lowering web 35: dropping it below 5.454545 puts web 257 on
+c26 and web 35 on c27, which the force table scores at 25, not 9.
+
+**Second force round, all flat.** With `p1:w35=c28` as a prefix, forcing webs
+120, 64, 257, 264, 255, 258, 260 and 261 to every colour the ladder offers
+leaves 9 masked (the three that keep delta 0) or costs 8 to 20 bytes. The nine
+that remain are a different bucket entirely: six naming rows where one integer
+web reads a0 against the target's v0, one two-row schedule swap of an immediate
+against a float load, and one commutative operand order on a compare. Forcing
+each integer web that holds a0 (79, 143, 186, 226, 250, 253) onto c1 is flat at
+9 or worse, so that web has not been identified yet and is the next thing to
+name.
+
+**Newly falsified, each at delta 0 and each measured against the whole
+368-instruction target.** The constant-carrier family does not create an fp web
+at all -- exactly the coalescing result overlay 71 recorded for its flag
+chains. Hoisting 1.0f into a fresh `f32` local defined before the loop, the same
+for 32.0f, both together, and each with the declaration first or last in the
+list: every one is 46 naming rows, identical to the base, and the only thing
+that moves is 9 to 11 immediate-only words as the stack homes shift. Carrying
+1.0f in the already-declared `fraction` is +20 bytes.
+
+Also falsified, and these were the untried structural axis rather than a
+respelling: a `f32 *` pointer carrier for the scale in place of the `f32` local,
+with the three assignments becoming address-of and the five uses becoming
+dereferences (+16 bytes, 366 words); an `s32` index carrier over the four
+adjacent float globals with the uses subscripting from the first of them (+56
+bytes, 378); reading the ease input through that same block base (byte-identical
+to the base); `volatile` on the scale (+20 bytes); `register` on the scale or on
+`fraction` (both byte-identical); `f64` for the scale (+88 bytes); carrying the
+outgoing float argument in `fraction` or in the scale local itself (both
+byte-identical -- uopt propagates the global load straight through); splitting
+the call out of the subtraction (byte-identical); and deleting the pre-loop
+scale assignment (210 words at delta 0).
+
+The known +8-byte control still reproduces and is worth keeping on the page
+because it bounds the prize: assigning the scale before the call in case 0 takes
+naming from 46 to 20 and costs the spill pair.
+
+**Reopen condition.** A source form that creates an fp web with `save` strictly
+above 7.100000 which interferes with the scale carrier, or two of them. Every
+carrier spelling tried so far coalesces into an existing constant web instead of
+becoming a new one, so the form has to be one uopt cannot fold -- and note that
+the two webs already above the scale carrier both have `nocs` 1 with
+`totalsave` 30, which is the shape to reproduce, not a long-lived value.
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->
