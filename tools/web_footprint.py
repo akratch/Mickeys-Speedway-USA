@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Map every coloured web of one function to the words its colour controls.
 
-    tools/web_footprint.py <symbol> --trace <base allocator.log> [--proc N]
+    tools/web_footprint.py <symbol> --out DIR [--trace <allocator.log>]
+                           [--proc N] [--every-colour] [--cross-kind]
                            [--webs 7,44,101] [--limit N] [--window 0x80]
-                           [--out DIR] [--timeout S] [--minutes M]
+                           [--list-procs] [--timeout S] [--minutes M]
 
 WHY THIS EXISTS
 
@@ -276,9 +277,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Map each coloured web to the words its colour controls.")
     parser.add_argument("symbol")
-    parser.add_argument("--trace", type=pathlib.Path, required=True,
+    parser.add_argument("--trace", type=pathlib.Path, default=None,
                         help="an unforced allocator.log captured with "
-                             "CDX_DETAIL_WEB=all for this procedure")
+                             "CDX_DETAIL_WEB=all; omit to capture one from "
+                             "this run's own unforced baseline compile")
+    parser.add_argument("--list-procs", action="store_true",
+                        help="capture a baseline, print its procindex rows "
+                             "and stop; use this to find --proc on a TU that "
+                             "holds more than one function")
     parser.add_argument("--proc", type=int, default=0)
     parser.add_argument("--webs", default="",
                         help="comma-separated subset; default is every "
@@ -299,10 +305,39 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
-    webs = parse_trace(args.trace.read_text(), args.proc)
+    command = fl.compile_command(args.symbol)
+    args.out.mkdir(parents=True, exist_ok=True)
+    deadline = time.time() + args.minutes * 60
+
+    base_cell = fl.run_cell(args.symbol, args.proc, (), command=command,
+                            directory=args.out / "base", deadline=deadline,
+                            timeout=args.timeout)
+    if not base_cell.accepted:
+        raise SystemExit(f"web_footprint: unforced baseline failed: "
+                         f"{base_cell.note}")
+    captured = args.out / "base" / "allocator.log"
+    trace_path = args.trace if args.trace is not None else captured
+    trace_text = trace_path.read_text() if trace_path.is_file() else ""
+
+    if args.list_procs:
+        rows = [l.strip() for l in trace_text.splitlines()
+                if l.startswith("[CDX] procindex")]
+        print(f"baseline scored {base_cell.score}; procedure index rows in "
+              f"{trace_path}:")
+        for row in rows or ["  (none -- the capture carries no procindex row)"]:
+            print(f"  {row}")
+        print("\nA TU holding one function indexes it at proc=0. For a TU with "
+              "several, map the ordinal to a name with "
+              "tools/allocator_trace_receipt.py rather than guessing: the "
+              "ordinal is the Ucode procedure order, not the source order.")
+        return 0
+
+    webs = parse_trace(trace_text, args.proc)
     if not webs:
-        raise SystemExit(f"web_footprint: no proc={args.proc} records in "
-                         f"{args.trace}; check --proc and CDX_DETAIL_WEB=all")
+        raise SystemExit(
+            f"web_footprint: no proc={args.proc} records in {trace_path}; "
+            "re-run with --list-procs to see which ordinals this TU emits, "
+            "and check the capture carried CDX_DETAIL_WEB=all")
     wanted = ([int(w) for w in args.webs.split(",") if w.strip()]
               if args.webs else colourable(webs))
     plan: list[tuple[int, int | None]] = []
@@ -320,21 +355,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.limit:
         plan = plan[:args.limit]
 
-    command = fl.compile_command(args.symbol)
-    args.out.mkdir(parents=True, exist_ok=True)
-    deadline = time.time() + args.minutes * 60
-
-    base_cell = fl.run_cell(args.symbol, args.proc, (), command=command,
-                            directory=args.out / "base", deadline=deadline,
-                            timeout=args.timeout)
-    if not base_cell.accepted:
-        raise SystemExit(f"web_footprint: unforced baseline failed: "
-                         f"{base_cell.note}")
     reader = Reader(args.symbol, args.out / "base" / "candidate.o")
     base_hist = histogram(reader.positions(args.out / "base" / "candidate.o"),
                           args.window)
-    print(f"base {base_cell.score} masked words over {len(base_hist)} windows; "
-          f"probing {len(wanted)} webs", flush=True)
+    print(f"base {base_cell.score} masked words over {len(base_hist)} "
+          f"windows; {len(plan)} probes over {len({w for w, _ in plan})} webs",
+          flush=True)
 
     rows: list[dict] = []
     for n, (web, colour) in enumerate(plan, 1):
