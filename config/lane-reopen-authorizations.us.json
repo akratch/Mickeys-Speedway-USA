@@ -6,13 +6,13 @@
       "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
     },
     "debug_text_width": {
-      "ledger_commit": "b33c72aea7c6557046163ad5678ef6a8789eebca",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "28dfaac3ec41c7e9f7ba84d937e489042c9ffd0a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "b33c72aea7c6557046163ad5678ef6a8789eebca"
     },
     "effectboxControl": {
-      "ledger_commit": "f437f4a9c47c242f173092fcd8e506741e35ff77",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "dff843692f2372f69c92a9715c939a639f820637",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "f437f4a9c47c242f173092fcd8e506741e35ff77"
     },
     "func_80001740": {
@@ -26,8 +26,8 @@
       "source_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d"
     },
     "func_80002134": {
-      "ledger_commit": "b4194742b8224c4d17503959fc2bbe83b40f88c7",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "62de8cbbcf535d8fe745eb105d34ba85f603f90a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "b4194742b8224c4d17503959fc2bbe83b40f88c7"
     },
     "func_80003480": {
@@ -61,8 +61,8 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
     },
     "func_8000590C": {
-      "ledger_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "bc391799944d87e7f029b7a185f23dcc008299ef",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd"
     },
     "func_8000784C": {
@@ -81,8 +81,8 @@
       "source_commit": "9da45a1126b701b376c1abe65c9b0b777e8931fd"
     },
     "func_8000A39C": {
-      "ledger_commit": "71156d0edfa8062b1192074b4e20ebcf6d471692",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "acda10574281db59cc431de98fcb11a22cb298c3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "71156d0edfa8062b1192074b4e20ebcf6d471692"
     },
     "func_8000BDB4": {
@@ -111,8 +111,8 @@
       "source_commit": "10d8b05833906ffaf310114c36cfe417bbc5a6d6"
     },
     "func_8000DFBC": {
-      "ledger_commit": "3d7c640e48eb6a0c0420add8d07e9c6499ff0f73",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "0fdca8f80d4b1e225456819fd633bcf50e10d711",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3d7c640e48eb6a0c0420add8d07e9c6499ff0f73"
     },
     "func_8000E5EC": {
@@ -121,14 +121,14 @@
       "source_commit": "4eaeb4e4fa1ddd695631df532ff479f66ec2bd58"
     },
     "func_8000E920": {
-      "ledger_commit": "b5d21c7e812518dcc0d3c3549215452d141fca10",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "c0b83dd640c9598218b072bb555dc5279517775d",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "b5d21c7e812518dcc0d3c3549215452d141fca10"
     },
     "func_8000F198": {
-      "ledger_commit": "f9854560b5ccf837cdbf47a552a3fea3eb8da08a",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "f9854560b5ccf837cdbf47a552a3fea3eb8da08a"
+      "ledger_commit": "60bc156a0b56adb0eb67380e01363e413b58fcc7",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "60bc156a0b56adb0eb67380e01363e413b58fcc7"
     },
     "func_8000FAE0": {
       "ledger_commit": "7a64c0f378d1d98d4bd8e823077e0d1f9ef6c07d",
@@ -141,39 +141,39 @@
       "source_commit": "df6e719588aabc36c97a71d53c596d7da3d2394b"
     },
     "func_80010654": {
-      "ledger_commit": "6b8f32f16e0feba1f212b209779aa5c81ab716e8",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "6b8f32f16e0feba1f212b209779aa5c81ab716e8"
+      "ledger_commit": "1736a63e233ee56a2ef42d13510e7185707ca064",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "1736a63e233ee56a2ef42d13510e7185707ca064"
     },
     "func_80010900": {
-      "ledger_commit": "17e6b10f3a942d38aefb8f90defb8be28bd487ab",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "59e8c988cc96e208d7ceacdfc134893ebb6efaa7",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "17e6b10f3a942d38aefb8f90defb8be28bd487ab"
     },
     "func_80010B4C": {
-      "ledger_commit": "6b44a39a27e1eefe70b05469cf7864125c27829a",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "ade24e9c6989bcab55c9c637f75d1e21248fd651",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "6b44a39a27e1eefe70b05469cf7864125c27829a"
     },
     "func_800115E4": {
-      "ledger_commit": "4fae65aaadfbfbecc32b63140e6822d0a6593c11",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "4f395d0801dfc7406e0a7e316e8cac4df42ead3f",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "4fae65aaadfbfbecc32b63140e6822d0a6593c11"
     },
     "func_80011980": {
-      "ledger_commit": "2dd48960d8d4083cf3b69b9ff53848f8951d5097",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "2dd48960d8d4083cf3b69b9ff53848f8951d5097"
+      "ledger_commit": "deba6638df0229e6733d628d5dde30eeaf206d1e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "deba6638df0229e6733d628d5dde30eeaf206d1e"
     },
     "func_80011CDC": {
-      "ledger_commit": "975f13829df78786cc1e06ba2bc52963063abc3e",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "975f13829df78786cc1e06ba2bc52963063abc3e"
+      "ledger_commit": "cb64bfd78aec19b7305c004cd0047786244565a0",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "cb64bfd78aec19b7305c004cd0047786244565a0"
     },
     "func_80012234": {
-      "ledger_commit": "1ab00261ae9aeb838c8ed39768e9535000b6b9d6",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "1ab00261ae9aeb838c8ed39768e9535000b6b9d6"
+      "ledger_commit": "7e05d96a161f8764f5933d8aab076704853957b4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "7e05d96a161f8764f5933d8aab076704853957b4"
     },
     "func_80012658": {
       "ledger_commit": "beb5ba38b967b0ac79492442cfa8c8ddb920a1c1",
@@ -181,8 +181,8 @@
       "source_commit": "beb5ba38b967b0ac79492442cfa8c8ddb920a1c1"
     },
     "func_8001291C": {
-      "ledger_commit": "6550b428aaa6dc3649c72db2821c3b66eb1a01e8",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "0989c65be0c4596edd2de4762b96c91b6ce8dd22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "6550b428aaa6dc3649c72db2821c3b66eb1a01e8"
     },
     "func_800133FC": {
@@ -191,28 +191,28 @@
       "source_commit": "0c899d5a718703461d0531cf95d005c43e51fe00"
     },
     "func_8001357C": {
-      "ledger_commit": "48c801c51b096b2f955b862ef2892e39bd39e778",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "5f98aed5f03558d611527d17f4c38c67c1040c43",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "48c801c51b096b2f955b862ef2892e39bd39e778"
     },
     "func_8001398C": {
-      "ledger_commit": "5be279fb74ba06379d78c41b4252c98f961a00e1",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "8c3cbabbd0e7e953586925bc00886bb166054163",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "5be279fb74ba06379d78c41b4252c98f961a00e1"
     },
     "func_800140CC": {
-      "ledger_commit": "b7a9e7ab4b12f4548676aad86bfc58908444922e",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "b7a9e7ab4b12f4548676aad86bfc58908444922e"
+      "ledger_commit": "5cafbf70916743b98c06ea2a57da440401dd2a0f",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "5cafbf70916743b98c06ea2a57da440401dd2a0f"
     },
     "func_80016890": {
-      "ledger_commit": "0aea596a6c649bacd030c7e9167ca2236accca0e",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "e7b0099c87139abe8bf0f8af867c3b3765a7b2cb",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8b4dcb05207206d28a2d803c548c266f4c578c45"
     },
     "func_80017140": {
-      "ledger_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "f5b477118c33c085654da8d55580ab5406b35dd7",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91"
     },
     "func_80017660": {
@@ -221,13 +221,13 @@
       "source_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb"
     },
     "func_80017BCC": {
-      "ledger_commit": "8508607a0426420ec3052901195c5abe8c02605a",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "8508607a0426420ec3052901195c5abe8c02605a"
+      "ledger_commit": "79e75fe5d05460e2027f474ad4dd527f1fc01a8d",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "377c73a069541a2a34485b63f949923bbce9d886"
     },
     "func_800180B4": {
-      "ledger_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "9e786a79568410d30858284165c1336cd72def86",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa"
     },
     "func_80018F08": {
@@ -281,63 +281,63 @@
       "source_commit": "0d16456858452f970d7d40bba889d1c8ac032e13"
     },
     "func_8001DD70": {
-      "ledger_commit": "53044477cdaceea811dd82a33c337ba4b5389fed",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "d19b16f4e8a91062c14f8a9a6cc0b97d6caecec4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "53044477cdaceea811dd82a33c337ba4b5389fed"
     },
     "func_8001E5C4": {
-      "ledger_commit": "7d552f6b24771fb6f8092b889123a021a88ece64",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "3f0974df76ebe6d31458bbf70a7b430940cc8843",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "7d552f6b24771fb6f8092b889123a021a88ece64"
     },
     "func_8001EC44": {
-      "ledger_commit": "4fa02a80b6472f216afd857ba080218aa104a691",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "4fa02a80b6472f216afd857ba080218aa104a691"
+      "ledger_commit": "969886e28a6496d698bd747aadbdd60d022124e4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "969886e28a6496d698bd747aadbdd60d022124e4"
     },
     "func_8001F520": {
-      "ledger_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4"
+      "ledger_commit": "cbcfcadc14e0cda0060b6faea6b44c231ed6ad92",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "cbcfcadc14e0cda0060b6faea6b44c231ed6ad92"
     },
     "func_8001FC50": {
-      "ledger_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c"
+      "ledger_commit": "9477fea633184fa9fbef34cbfec6292d9ffe9851",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "9477fea633184fa9fbef34cbfec6292d9ffe9851"
     },
     "func_8002057C": {
-      "ledger_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8"
+      "ledger_commit": "529e8db4b98c4f03a91fb92213d68af19b254ead",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4c436e8014c7616b4f9a4892ec781ea8234d01b7"
     },
     "func_80020B10": {
-      "ledger_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8"
+      "ledger_commit": "2209cc9f9bcb29e1284c7218a80edf2995317c68",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "2209cc9f9bcb29e1284c7218a80edf2995317c68"
     },
     "func_80020D8C": {
-      "ledger_commit": "9157cc3bd065fcc1c39bc2c9a465f314cf076a9f",
-      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "ledger_commit": "acda10574281db59cc431de98fcb11a22cb298c3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "9157cc3bd065fcc1c39bc2c9a465f314cf076a9f"
     },
     "func_80020E4C": {
-      "ledger_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "acda10574281db59cc431de98fcb11a22cb298c3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d"
     },
     "func_80022FD4": {
-      "ledger_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb"
+      "ledger_commit": "0d99a6d657e6d31204bea01f4b7372edf1ac8d9a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "d3d9dc72660209aa4d4bfdc8cfe21eaf0c8690cf"
     },
     "func_80023598": {
-      "ledger_commit": "a0f052fd675c8fc456237020b7b6f8fb52753066",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "a0f052fd675c8fc456237020b7b6f8fb52753066"
+      "ledger_commit": "473efb87f29361610c29903e16540671387061bf",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "473efb87f29361610c29903e16540671387061bf"
     },
     "func_80024978": {
-      "ledger_commit": "ecfe80604c2a060c30232d07a05a1bcc4f00933d",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ecfe80604c2a060c30232d07a05a1bcc4f00933d"
     },
     "func_80026FB4": {
@@ -351,18 +351,18 @@
       "source_commit": "d8322f2d624c58a165a8589e185b2858363b44ff"
     },
     "func_80028FCC": {
-      "ledger_commit": "ac0e88e46b459bdcbd2bbab6585942d30f464db9",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ac0e88e46b459bdcbd2bbab6585942d30f464db9"
     },
     "func_80029274": {
-      "ledger_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27"
     },
     "func_8002B040": {
-      "ledger_commit": "5907a4a9b16b4dbd443a6bc42e8341fb475ae75d",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "98c9047772916494b41744b84a8f76ec310b32fc",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "5907a4a9b16b4dbd443a6bc42e8341fb475ae75d"
     },
     "func_8002B524": {
@@ -376,9 +376,9 @@
       "source_commit": "541906f449fafbbdad4487edfde49748d0df7a0d"
     },
     "func_8002C69C": {
-      "ledger_commit": "55f1eb63ad76a3b6635718ab46c776c0e98833c5",
-      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
-      "source_commit": "55f1eb63ad76a3b6635718ab46c776c0e98833c5"
+      "ledger_commit": "a78667246870e4db39ef8be4c64ed69f14f69781",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64"
     },
     "func_8002CF6C": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -391,8 +391,8 @@
       "source_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3"
     },
     "func_8002F618": {
-      "ledger_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "395479dde08b52e05059e6372213d61143ee354a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b"
     },
     "func_8002FB34": {
@@ -401,8 +401,8 @@
       "source_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2"
     },
     "func_80030610": {
-      "ledger_commit": "c9b1925cfa4b7be8519169f1b298f6e6901ef484",
-      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
+      "ledger_commit": "ea6300bacb628f08d8926ee4ade1e9ed5d7c1497",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
     },
     "func_800336A8": {
@@ -411,8 +411,8 @@
       "source_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980"
     },
     "func_80034448": {
-      "ledger_commit": "98763f2ea33096a363affb0bf92b58f70fcf7ca8",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "98763f2ea33096a363affb0bf92b58f70fcf7ca8"
     },
     "func_800347A0": {
@@ -431,18 +431,18 @@
       "source_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad"
     },
     "func_800371BC": {
-      "ledger_commit": "094bac856d40e201d133d032e58a05960d54f530",
-      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "ledger_commit": "55d23e78382ea80987c387b4db2c7bdf53eabfa4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "094bac856d40e201d133d032e58a05960d54f530"
     },
     "func_80037414": {
-      "ledger_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8",
-      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "ledger_commit": "df2b6a8589648ee14f27f033383faafd01940a7f",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8"
     },
     "func_800376CC": {
-      "ledger_commit": "c949febf607d461162f1736fb287c18c6adab34f",
-      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "ledger_commit": "a8c4071102a8fc6be0e68534cfdf2bf7c9fa9abd",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "c949febf607d461162f1736fb287c18c6adab34f"
     },
     "func_800378A4": {
@@ -456,13 +456,13 @@
       "source_commit": "61406aec20668803eb19e5654e70b52c32043ce6"
     },
     "func_80037C74": {
-      "ledger_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970",
-      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
-      "source_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970"
+      "ledger_commit": "a1e3c87a815e21b8649e90aa660bf95ec8b97056",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "15923576c9c5cceb2b5cf48a150819e2fb5f3939"
     },
     "func_80038190": {
-      "ledger_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852",
-      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "ledger_commit": "15923576c9c5cceb2b5cf48a150819e2fb5f3939",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852"
     },
     "func_80038878": {
@@ -476,9 +476,9 @@
       "source_commit": "801b66f4676838484e9cc1d43ef398d5e0c5fb9e"
     },
     "func_80039E34": {
-      "ledger_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2"
+      "ledger_commit": "a0f04ffc31f59bdb7afb45e92e0b35190693a98e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "a0f04ffc31f59bdb7afb45e92e0b35190693a98e"
     },
     "func_8003A2C8": {
       "ledger_commit": "a299b965b3215a99fa6cd693f65b1cda7ce02ffc",
@@ -486,9 +486,9 @@
       "source_commit": "a299b965b3215a99fa6cd693f65b1cda7ce02ffc"
     },
     "func_8003A5A0": {
-      "ledger_commit": "126e42f288f44baa719565476bf27c9da674c728",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "126e42f288f44baa719565476bf27c9da674c728"
+      "ledger_commit": "c4bc15cd4c4fbce8df1d961346f8a9347d89dc36",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "c4bc15cd4c4fbce8df1d961346f8a9347d89dc36"
     },
     "func_8003A754": {
       "ledger_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed",
@@ -521,8 +521,8 @@
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2"
     },
     "func_8004054C": {
@@ -556,13 +556,13 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "74c27fb3d77e41689b1a63006621529ec0c95358",
-      "reason": "Advanced today then re-plateaued: func_8005716C went 44 words to 7 on three carriers plus a dead zero store, func_80046BCC 41 to 31 on the ninth callee-saved web. Both are freshly measured, not stale.",
-      "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
+      "ledger_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef"
     },
     "func_80046EC4": {
-      "ledger_commit": "33f86358a6ec2652550778375ef684aa8651c527",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "e2fc4dca7255281451a16d40e37659a197c7baef"
     },
     "func_800470B0": {
@@ -616,8 +616,8 @@
       "source_commit": "0124e56849a0eca16f5c657a6649d9fafb2b7d4f"
     },
     "func_8004A10C": {
-      "ledger_commit": "dff7db3973a8c085507452fa5168ea4275302654",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 132 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "33f86358a6ec2652550778375ef684aa8651c527",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "dff7db3973a8c085507452fa5168ea4275302654"
     },
     "func_8004ACC4": {
@@ -636,9 +636,9 @@
       "source_commit": "cb7d0ac38b50149be503d9418fc1f130f57155b6"
     },
     "func_8004B1DC": {
-      "ledger_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f"
+      "ledger_commit": "d48350704b481bb21029b14a233f9a0349b460d3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "a8947635ec5917a09950fa19f991c530b494a1fd"
     },
     "func_8004BA8C": {
       "ledger_commit": "9fa2314ec43c033254eb19b67d3494a2c67df7c9",
@@ -661,8 +661,8 @@
       "source_commit": "12c776d675898d64b004af926cf110cedc6460ca"
     },
     "func_8004EED0": {
-      "ledger_commit": "accd98037a34763b633f644f8595c2c1ccab917b",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "dff843692f2372f69c92a9715c939a639f820637",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "accd98037a34763b633f644f8595c2c1ccab917b"
     },
     "func_8004FAD0": {
@@ -671,14 +671,14 @@
       "source_commit": "838f8ff7d18ce66f00c1ab7470b30bee06dbf5b5"
     },
     "func_80051364": {
-      "ledger_commit": "e39c665934647ee79903e791dfff5076b97c6d86",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "e39c665934647ee79903e791dfff5076b97c6d86"
     },
     "func_800517E0": {
-      "ledger_commit": "5c4b675d8f209bc557c28f21cffbb02087e61de1",
-      "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
-      "source_commit": "fd58c99c286e594771667281836aadbee6e6cc3a"
+      "ledger_commit": "97b735c889567b4b95511e9bcec7eae840c46662",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "97b735c889567b4b95511e9bcec7eae840c46662"
     },
     "func_80053868": {
       "ledger_commit": "5c4b675d8f209bc557c28f21cffbb02087e61de1",
@@ -686,23 +686,23 @@
       "source_commit": "cef6604c3a97e6e81d4afd692f5eaf50a4943867"
     },
     "func_80054B3C": {
-      "ledger_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61"
+      "ledger_commit": "024fe88424b51e306f96e702f142180489fd0859",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3"
     },
     "func_80055104": {
-      "ledger_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b"
+      "ledger_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3"
     },
     "func_800563B4": {
-      "ledger_commit": "b97d647cadd4e96939e6c7b99d9c853e80cb9da9",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "61cf3e29a9cafb15ce767d3f0abb6fb59008a19e"
+      "ledger_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4b1cb3fb4c85cadf5c6ce8472b9b4c949039d2f3"
     },
     "func_80056DD8": {
-      "ledger_commit": "f29ffe945f62c04131c694e535878765dabb027d",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "3afa6db8429630c4d6dea1fe12e28a2785f32100",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
     },
     "func_8005716C": {
@@ -716,8 +716,8 @@
       "source_commit": "a6c5f03d43d3252a3b6bcc2f108780f99ff17c2f"
     },
     "func_8005776C": {
-      "ledger_commit": "78e16aa4afc99fb7b9d004cd00e25e4b55cdacba",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "076865067de8d3893fdf9ef24011115d82f2d100",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "78e16aa4afc99fb7b9d004cd00e25e4b55cdacba"
     },
     "func_8005807C": {
@@ -731,19 +731,19 @@
       "source_commit": "e13ce151b54d87f334687441a65ce7da5c720c9b"
     },
     "func_80058250": {
-      "ledger_commit": "e541b7e3dbbeec7991c76b3562d30160050c841f",
-      "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "e541b7e3dbbeec7991c76b3562d30160050c841f"
+      "ledger_commit": "4bd0ef0597a0443028441f79230ea6f202d6f2de",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4bd0ef0597a0443028441f79230ea6f202d6f2de"
     },
     "func_8005830C": {
-      "ledger_commit": "8d7572bb186e825ead555edd14c515221aa3d73c",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "0a960767cf036fca266830971f39cd8f96f07e4b",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8d7572bb186e825ead555edd14c515221aa3d73c"
     },
     "func_8005A7A0": {
-      "ledger_commit": "817cb31be1af51d266646405e55e27db696fda78",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "817cb31be1af51d266646405e55e27db696fda78"
+      "ledger_commit": "1c15c34d406e41640e185b709f6dd78b0fc0bfbd",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "810b64542f79bba9c9e9f6fcb5e3e84bcd408eae"
     },
     "func_8005A948": {
       "ledger_commit": "75eec1f945cbff202a77f874beec5983e7f07eab",
@@ -751,18 +751,18 @@
       "source_commit": "75eec1f945cbff202a77f874beec5983e7f07eab"
     },
     "func_8006E7E0": {
-      "ledger_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154"
     },
     "func_overlay_001_F0003750_184FB30": {
-      "ledger_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10"
     },
     "func_overlay_001_F000438C_185076C": {
-      "ledger_commit": "664ad5551fe066443391c35d02455f93eb20279c",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "08f59c202651b6931fe946e09973674b45230559",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "664ad5551fe066443391c35d02455f93eb20279c"
     },
     "func_overlay_002_F0001A94_185888C": {
@@ -786,13 +786,13 @@
       "source_commit": "12f726fe91ba2c2e332a9b422ccb8252d5f47e29"
     },
     "func_overlay_008_F0001294_185EFEC": {
-      "ledger_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "4100d1b96b29e9fd23198a99472b593b138a0e22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0"
     },
     "func_overlay_008_F0002640_1860398": {
-      "ledger_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441"
     },
     "func_overlay_008_F000291C_1860674": {
@@ -801,8 +801,8 @@
       "source_commit": "a1d4f1cf4ba697c250080c1b4c3c3b913bf471d4"
     },
     "func_overlay_008_F00034A0_18611F8": {
-      "ledger_commit": "88873065825212fdad369c9e5c5231dcc7c6125f",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "b8ed3c970bfa227bd95aa94f16774ebb076f7fef",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "88873065825212fdad369c9e5c5231dcc7c6125f"
     },
     "func_overlay_008_F00042A8_1862000": {
@@ -811,13 +811,13 @@
       "source_commit": "5e995cbeeb737527af555da27e8bdba214ece1da"
     },
     "func_overlay_008_F0004CF0_1862A48": {
-      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda"
+      "ledger_commit": "1d6033f7c89c25d49a8ed250317a007305170eb1",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "6c5be9dd821f46e5d4fa0255f9e22b642f014833"
     },
     "func_overlay_009_F0000540_1866BB8": {
-      "ledger_commit": "eac75fcd09cdf2a96e8703ed12240aca6b2259f6",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "ledger_commit": "1c15c34d406e41640e185b709f6dd78b0fc0bfbd",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a"
     },
     "func_overlay_009_F0000CE4_186735C": {
@@ -831,13 +831,13 @@
       "source_commit": "e36d0e43bfc633ac4a43794b7028980a399a69d3"
     },
     "func_overlay_011_F0000150_1868998": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior call/ABI, stack-home, grid, and table-schedule forms remain closed; no body mutation, flags, trace, or permutation.",
-      "source_commit": "4c81938cb4c06f76d86768eef3a67c0ce6576117"
+      "ledger_commit": "adc505d8d56ca3f66650d5845e20ec1048a6b7e8",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "adc505d8d56ca3f66650d5845e20ec1048a6b7e8"
     },
     "func_overlay_011_F00022E8_186AB30": {
-      "ledger_commit": "ffe52cc803195595d6f59587ed72581721585db9",
-      "reason": "Fresh V0 + structured finalize only: exact 1068B/267w, 231 raw/227 masked diffs, first +0x4, frame 0x40, 79 candidate/39 target text relocs. Body closed.",
+      "ledger_commit": "c1cd2f3e3ac6513106b79a2767ee9b78910cc5cf",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ffe52cc803195595d6f59587ed72581721585db9"
     },
     "func_overlay_020_F0001148_1877720": {
@@ -866,18 +866,18 @@
       "source_commit": "972b1a98ece95dd0ebf00a41303aaa6e9f20f3dc"
     },
     "func_overlay_026_F0001158_187B550": {
-      "ledger_commit": "9803ea9f2944b0f8a48748161252f0a90729492a",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "df2b6a8589648ee14f27f033383faafd01940a7f",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "9803ea9f2944b0f8a48748161252f0a90729492a"
     },
     "func_overlay_029_F000042C_187D6DC": {
-      "ledger_commit": "c6e752c6eb9c8071f7eb48cce2d9d72a507f60fc",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "6db3232edcc296cb0b686ff7473e3b8b9421ead3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "dd74c176a8ed7ee1966e038c180aa02cadb4994d"
     },
     "func_overlay_029_F00005C4_187D874": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "ledger_commit": "8d87120df2c1f5c74ef97e1aa91a6b88d281d2f8",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "fd635cfd7b3c4f0a23a946776a1b3c99373b375f"
     },
     "func_overlay_029_F0000EE0_187E190": {
@@ -896,19 +896,19 @@
       "source_commit": "86c0da5c4ebeaee107323d93df3a48aad6d8b22e"
     },
     "func_overlay_035_F00001E0_1881EC0": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior typed-pointer and return-cursor forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
+      "ledger_commit": "f91df63037339181d1c98eeb83b9317fde1fd2c7",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "f91df63037339181d1c98eeb83b9317fde1fd2c7"
     },
     "func_overlay_035_F0000770_1882450": {
-      "ledger_commit": "da33e776ccab2ea1b38f486c390a232988c99295",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "ae12fc4b820ece61fea5578c6e020fd8f6fe38f1"
+      "ledger_commit": "022c8f796d6edd95e284d615b68ed5a9cfe0b440",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
     },
     "func_overlay_035_F0000B40_1882820": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag, width, volatility, expression, and coordinate-spill forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c"
+      "ledger_commit": "0d0c317f5ab3decdbf05f8b1ae444439c350c5ca",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "746455a529fa6c96ae1d085046439b4469341d5e"
     },
     "func_overlay_036_F0000818_1883CD0": {
       "ledger_commit": "01706c56fed011aa9b42c2d36d9a95db11199c44",
@@ -921,14 +921,14 @@
       "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017"
     },
     "func_overlay_041_F0000124_188745C": {
-      "ledger_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea"
+      "ledger_commit": "013aa261826e59e639f6ba02d27e99f5d5c8dde4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "013aa261826e59e639f6ba02d27e99f5d5c8dde4"
     },
     "func_overlay_041_F0001298_18885D0": {
-      "ledger_commit": "d45f06c98a0594a3ba98a774a5548ff95acce38a",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582"
+      "ledger_commit": "364cd76f01d11f976817fececba011d128df86a5",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "364cd76f01d11f976817fececba011d128df86a5"
     },
     "func_overlay_041_F0001650_1888988": {
       "ledger_commit": "3b8d5f41db435616a519d3012547370cbe7cb68c",
@@ -936,18 +936,18 @@
       "source_commit": "79eadb56bf372c8eb59f7c05db01e04d6b8cd7e4"
     },
     "func_overlay_041_F000195C_1888C94": {
-      "ledger_commit": "b7e6f7ea014de45a0b0d442ba662b51f4ab31ef6",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "9327838b7685e4aa0abdece0c6f2258387d90260",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921"
     },
     "func_overlay_043_F0000324_188A2F4": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior clone-initializer, register/stack-count, and record-loop CFG forms remain closed; no body mutation, flags, trace, or permutation.",
+      "ledger_commit": "91b1d4b9b06e54b298d5653e3ad83fe5305fccc0",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "d6bea60c59aaa7212e048fa31b4701150b1ce3d4"
     },
     "func_overlay_043_F0000BE4_188ABB4": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior alpha-width, offset, statement-placement, gfx-update, and transform-lifetime forms remain closed; no body mutation or permutation.",
+      "ledger_commit": "3679065f479c4855e8ec79d543c6a174d8f3299d",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "18fe33ff3f9046dcb0ce072634d94e7f1a20da67"
     },
     "func_overlay_043_F00010A8_188B078": {
@@ -956,83 +956,83 @@
       "source_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26"
     },
     "func_overlay_045_F0001158_188D5B0": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior scissor-width, frame, parameter, angle, operand, and flag forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+      "ledger_commit": "ee1979c9c6ab196b134e8788aa1542f34a5e18c7",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "e36288cf4bc286285c32981048dcca36761ee340"
     },
     "func_overlay_046_F0000120_188E518": {
-      "ledger_commit": "dc489f63773ea7e86b4f2aefc52e218214161537",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "dc489f63773ea7e86b4f2aefc52e218214161537"
+      "ledger_commit": "6ea6dd44c63503435a2b0a48247d10cd730c54a2",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
     },
     "func_overlay_047_F0000000_1890E18": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag-lattice, path-copy, addressing, and BSS-alias forms remain closed; no body mutation, trace, flags, or permutation.",
-      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+      "ledger_commit": "5cf05869e9af8dd404c469b6812f23969f48f224",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "5cf05869e9af8dd404c469b6812f23969f48f224"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": "4bc0660db182f1e7c7a9074a08c313cb54fa4548",
-      "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
-      "source_commit": "dbd497a8ffd9dbd3eb988a4eaec4b350417ede6f"
+      "ledger_commit": "36c456060effd92f2da920ece4b559f18a56c2a9",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "36c456060effd92f2da920ece4b559f18a56c2a9"
     },
     "func_overlay_050_F0000334_1896CA4": {
-      "ledger_commit": "842beea91b50cc0aea9b7cf441dccfa974cd46a1",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1422 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "d6adcab773b3bd4d223036cd0fc082d352d6b184",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "931ef30392183e4680f4502e9da56fb1f7048f9f"
     },
     "func_overlay_052_F000063C_189ACAC": {
-      "ledger_commit": "59e6090c86a7155e170298ee197cce477ca6691d",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "08f59c202651b6931fe946e09973674b45230559",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f"
     },
     "func_overlay_053_F0000240_189DBE8": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, ownership, call/data identities, scaffold, and size-gap forms stay closed; no body mutation, trace, or permutation.",
-      "source_commit": "fadeb85368a5f27ea107c580d1c83febee5c3ba7"
+      "ledger_commit": "8e4943d15be05f31258fe5102e7999f699cfd7b3",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "8c46de3417852aa40119541fd38ecd07b6906e85"
     },
     "func_overlay_054_F00005AC_189F24C": {
-      "ledger_commit": "55a597b36984d1ae398cf4c0c813833261c9d05c",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "89b69dc2e869883e9efed5f83c8454b01ac2160d",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "55a597b36984d1ae398cf4c0c813833261c9d05c"
     },
     "func_overlay_055_F000031C_18A1E34": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior object-count ABI and display/transition lifetime forms remain closed; no body mutation, trace, or permutation.",
+      "ledger_commit": "076a517e142b0a684bb8107edefbee588156f3ea",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea"
     },
     "func_overlay_057_F0000000_18A3BF8": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior packet/lifetime forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c"
+      "ledger_commit": "5976f504dcfd3ac8a2ba994b4b95e0d6803ff6a0",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "8ac52fbd6033f8b15d5d4452cdf2c04e6b7841ba"
     },
     "func_overlay_057_F0001AE8_18A56E0": {
-      "ledger_commit": "9a10121164913272bad96b8f5eb4020b4f230425",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "9a10121164913272bad96b8f5eb4020b4f230425"
+      "ledger_commit": "92c5eb2d14875235824c6b2cd010e2bcd6f6b597",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4df25e8124fe06a3f753836538879328fe726390"
     },
     "func_overlay_057_F0004460_18A8058": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior selection/output lifetime and declaration-order forms remain closed; no body mutation, trace, flags, or permutation.",
-      "source_commit": "30e2e151a5a48a413bd4cd071002d0bcaa76fccb"
+      "ledger_commit": "92c5eb2d14875235824c6b2cd010e2bcd6f6b597",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "e441502f0f9470a2ac3eff706f966bab378f42d7"
     },
     "func_overlay_057_F0004E18_18A8A10": {
-      "ledger_commit": "55fd677d9d5aa10d1c3d7506d6bde5e907fc18e9",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "c2ab74f94f35ad4a83375b466660c34e767ccf7e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f"
     },
     "func_overlay_057_F00060F8_18A9CF0": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
+      "ledger_commit": "229a07eb5a5a44a59826af45f2638211c3532960",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4fbd136939c85a2b8c9115ddd332f8d427526ee0"
     },
     "func_overlay_058_F00005FC_18AF7E4": {
-      "ledger_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
-      "source_commit": "63ce7224ae24c3e9055bb0cdc1758b7e23383d75"
+      "ledger_commit": "1aa50f6d54666a771bfd0c212864142aa9faf2e2",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "60f9e5a112437b975ab6155b9298a005fb051249",
-      "reason": "ADR 0018 stall rule, and at delta 124 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "3fd4d77b32e830ebff1d56833647575e6f44cdae",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35"
     },
     "func_overlay_060_F0000000_18B9DD8": {
@@ -1056,8 +1056,8 @@
       "source_commit": "d3fcf8ea6f4e562d75f6b0a7e7f97dc8b6482478"
     },
     "func_overlay_071_F0000870_18CA390": {
-      "ledger_commit": "ce32c9c98b222fbd37bd593a95fa38e8593503f0",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "70b693809422ac5fce8344f54519c1c0cf92d535"
     },
     "func_overlay_073_F0000D70_18CB830": {
@@ -1066,8 +1066,8 @@
       "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
     },
     "func_overlay_079_F0000134_18CD0D4": {
-      "ledger_commit": "28384499e9148f29abc651e07d83bae9472dd76e",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "5954bd3c3864c0ad53c66b61328d6ace88cb2839",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "28384499e9148f29abc651e07d83bae9472dd76e"
     },
     "func_overlay_092_F0000068_18D5F88": {
@@ -1076,54 +1076,54 @@
       "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8"
     },
     "func_overlay_101_F0002510_18DDD30": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior dimension, lifetime, clip, and flag forms remain closed; no body mutation or permutation.",
-      "source_commit": "eef574733cf1faae7e09ca9ba759b6c1232945b2"
+      "ledger_commit": "373ca98504b055c82ef0e70800b2ea3b97b499f6",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "755203b11434374eb9096ce829e777d83e1d6e21"
     },
     "func_overlay_101_F0003A58_18DF278": {
-      "ledger_commit": "729977b0b6bdf6545706a41d8ad5eac8e3932510",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "e95d41d837b59a64df9895a1128a3695b03389de"
+      "ledger_commit": "0793580bd40deb24c96b826badd0ada5a88dd3df",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "efd04af283223a34458958b098390bb8aead1e0a"
     },
     "func_overlay_101_F0005E08_18E1628": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured exact-geometry baseline and refresh frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142"
+      "ledger_commit": "8d2b8babd01e01e5fe4f55a76014473e9f2b7779",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "1384b855d0ea3af18a05ce040abc15be23edfdc2"
     },
     "func_overlay_101_F00069E8_18E2208": {
-      "ledger_commit": "da87c758d7e55fd7bf27a94b43615546652b748a",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 614 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "0793580bd40deb24c96b826badd0ada5a88dd3df",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "da87c758d7e55fd7bf27a94b43615546652b748a"
     },
     "func_overlay_101_F00078F4_18E3114": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, owner, and bounded-permutation forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+      "ledger_commit": "cef5ca30b3ce417abccabaafeedf28406594af36",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "04a9d548f2ee97f9d9198476e84a11b10041679d"
     },
     "func_overlay_101_F0008128_18E3948": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, node-lifetime, recompute, root, and pointer-owner forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+      "ledger_commit": "cef5ca30b3ce417abccabaafeedf28406594af36",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "8cefb8fabd04033372ce070a9b9cd57fcdbaeed2"
     },
     "func_overlay_101_F000895C_18E417C": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, root, and register forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+      "ledger_commit": "cef5ca30b3ce417abccabaafeedf28406594af36",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "9e8857f700ef370ad3e231704601564f77db33dd"
     },
     "func_overlay_101_F0009190_18E49B0": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, root, and register forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8"
+      "ledger_commit": "cef5ca30b3ce417abccabaafeedf28406594af36",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "a461398a67cf05a378cd63c5fdd938b0dc997009"
     },
     "func_overlay_101_F000AB4C_18E636C": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior opacity-scale, repeated-builder, FP, register, frame, and flag forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
+      "ledger_commit": "0793580bd40deb24c96b826badd0ada5a88dd3df",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "adc7f0cbc3d77d652823da4948edc61c38b562cc"
     },
     "func_overlay_101_F000BA34_18E7254": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
+      "ledger_commit": "6325184f3d93badc43608628f23edaa3a6af49bf",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "6325184f3d93badc43608628f23edaa3a6af49bf"
     },
     "fxSPDPRipple": {
       "ledger_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5",
@@ -1131,24 +1131,24 @@
       "source_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5"
     },
     "fxScreenEffect": {
-      "ledger_commit": "ceaff82fe6f7f7a8a94c08e4a1e8a7047e3dfab2",
-      "reason": "ADR 0018 stall rule, and at delta -28 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "05f00fe35d50ea18c34a993cc453c3c7d27bffa6",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ceaff82fe6f7f7a8a94c08e4a1e8a7047e3dfab2"
     },
     "joyRead": {
-      "ledger_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "eb3b35d4c727847da49800755a8bd8fefbe2883f",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
     },
     "levelFreeAll": {
-      "ledger_commit": "85f89ae45028323ee545621f5a489095435cffc5",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
-      "source_commit": "85f89ae45028323ee545621f5a489095435cffc5"
+      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "c6cd1be59694df2dc2b7532b4401c813a065ae88"
     },
     "levelInit": {
-      "ledger_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16"
+      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "55ebbd2230e49e7af0ce1a6421addb3115ff8a2a"
     },
     "overlay101BuildBorder": {
       "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
@@ -1166,9 +1166,9 @@
       "source_commit": "cd650a80bc656d9b35176e6b01c6e7484c49a922"
     },
     "overlay14CreateValue": {
-      "ledger_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00"
+      "ledger_commit": "ef548a99a9ed4dd4df55867694593c08a78255f1",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "ef548a99a9ed4dd4df55867694593c08a78255f1"
     },
     "overlay14LoadRelocatedValue": {
       "ledger_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc",
@@ -1176,18 +1176,18 @@
       "source_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc"
     },
     "overlay15DrawRain": {
-      "ledger_commit": "2c0c926020c5a480a833fd5a20b01d2008268467",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "3b9a2f43b54227a5d6600854cb21f8a644a8d0e9",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "2c0c926020c5a480a833fd5a20b01d2008268467"
     },
     "overlay15DrawScreenStars": {
-      "ledger_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9"
+      "ledger_commit": "076865067de8d3893fdf9ef24011115d82f2d100",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "6db3232edcc296cb0b686ff7473e3b8b9421ead3"
     },
     "overlay15MoveStars": {
-      "ledger_commit": "dae364fca1e92b62c4b2e76cd5be9cfdb51572f0",
-      "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
+      "ledger_commit": "e95ac5b6b5b59ac50fe89e3e334af8eafd74b90a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "dae364fca1e92b62c4b2e76cd5be9cfdb51572f0"
     },
     "overlay16ApplyGradient": {
@@ -1201,13 +1201,13 @@
       "source_commit": "d8ebc95ab136a3ef327822b4461fd907f6d5d885"
     },
     "overlay17DrawStrip": {
-      "ledger_commit": "47338bab572b3833056be9a0c2c41df6074032ac",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "47338bab572b3833056be9a0c2c41df6074032ac"
+      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "308e1ca3006e030c54a093926063e784fd8c98de"
     },
     "overlay19BuildAdjacency": {
-      "ledger_commit": "af03cbe7dca43327a81a239c13ace5320869cd8a",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "4ea12102727d11fd3978fa1e3ad7d970161d4494",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "af03cbe7dca43327a81a239c13ace5320869cd8a"
     },
     "overlay19ClassifyEdge": {
@@ -1216,13 +1216,13 @@
       "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03"
     },
     "overlay1AdvanceGauge": {
-      "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "7232600fdac770e66ff9fd1b70b81648de11e7ad"
+      "ledger_commit": "21f43fa27d3586e4d0385d8aa972d99385b265b1",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
     },
     "overlay1AdvancePath": {
-      "ledger_commit": "f5db03dd5a697bab199096b92d224042e293dd59",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "a2d8b390cf30b2cc48f51822877cc618061352e4",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "f5db03dd5a697bab199096b92d224042e293dd59"
     },
     "overlay1AllocateRecord": {
@@ -1241,8 +1241,8 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "5bd6bad7f57b7f7c70a0c407c2d40bbfe4c30dc9",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1BuildObjectMappings": {
@@ -1251,8 +1251,8 @@
       "source_commit": "120950dc5a53664763aea335fc8780342e023ad4"
     },
     "overlay1ConsumeNearbyPending": {
-      "ledger_commit": "885865ac088f48d1474c533d0aefb2ece353a977",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "874fcf1766e3baf541ea1381cf5966eaadb792ff"
     },
     "overlay1DispatchMode": {
@@ -1276,13 +1276,13 @@
       "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
     },
     "overlay1FindPreviousUsable": {
-      "ledger_commit": "8d63f19c4f02ea1663a349b4ee5f9e9a80366880",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8d63f19c4f02ea1663a349b4ee5f9e9a80366880"
     },
     "overlay1FindType47ByAngle": {
-      "ledger_commit": "53e7b17c78f73184246c2cc1eec385c052fb4795",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "329cb655dd483accfd8e8aa475c20674d2928af6"
     },
     "overlay1FindType5ByKey": {
@@ -1326,19 +1326,19 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "e7f4005cfdf087d8e7d97c881e827ed89222dcf9",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "0e74948e8f5a222060dd6e9b947e7fec5aa7eca1"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "4dc6cfc1deb25e5809fe85e2a23a778447a9c915",
-      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "4dc6cfc1deb25e5809fe85e2a23a778447a9c915"
     },
     "overlay20RemoveEntry": {
-      "ledger_commit": "e2855599df93e617b690703c9dc233b78e515041",
-      "reason": "Blocked by a stale evidence pin rather than by evidence: both are delta-0 rows at two differing words, and today's spilltemps law and ugen FIFO-queue reading are untried on them.",
-      "source_commit": "cd57bdd2d8a34b6925d6031026de020e7fa1ea52"
+      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay27UpdateCoordinates": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -1351,18 +1351,18 @@
       "source_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3"
     },
     "overlay2ClassifyBoundary": {
-      "ledger_commit": "cc6b6b12fc109367684643640a0f9f41f3547f6d",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "98c9047772916494b41744b84a8f76ec310b32fc",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
-      "ledger_commit": "bdfa55ad131586010a4a37992d5e9d0d4efa19d0",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "ed55b06b7aacd5e0509100637185c9cc0a796b2a"
+      "ledger_commit": "1d6033f7c89c25d49a8ed250317a007305170eb1",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
     },
     "overlay31CreatePool": {
-      "ledger_commit": "8d7b5fe00f19f02fe091480f1032b394054fcb16",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "e23c1054b08d7882e03e9c8638cb0e0451abf890",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "76e4e291acd58c4310eadab39c540d36ebaa6bdd"
     },
     "overlay33BuildDisplayList": {
@@ -1376,14 +1376,14 @@
       "source_commit": "698237671ef5d2879bec93342f97b9af58f27199"
     },
     "overlay33PresentAndSwap": {
-      "ledger_commit": "78918981a33b340f7d55cee244c71b6cb861626c",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "e23c1054b08d7882e03e9c8638cb0e0451abf890",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "78918981a33b340f7d55cee244c71b6cb861626c"
     },
     "overlay34CreateRecord": {
-      "ledger_commit": "14d292bdeb81181328f4bd8db2a5c84d02d60f89",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "643bfdba2db311cf7057efff4a8c25fe29b53890"
+      "ledger_commit": "505dc4703772a3ba2e5b6cd8e2ec2cfa4315962e",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "505dc4703772a3ba2e5b6cd8e2ec2cfa4315962e"
     },
     "overlay34InitStorage": {
       "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
@@ -1391,9 +1391,9 @@
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610"
     },
     "overlay34RemoveRecord": {
-      "ledger_commit": "fec3582fdc9d5af3a6dc51a1363ed053ee867b3d",
-      "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "ec57202214892fdadf042bc75041a4d002728085"
+      "ledger_commit": "2964dfd496bc549532c6b5afe36cb7b769c96b6a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "2964dfd496bc549532c6b5afe36cb7b769c96b6a"
     },
     "overlay3RunCachedModeAction": {
       "ledger_commit": "532ed474393cd09f73610cf3ad6d83849087713e",
@@ -1466,18 +1466,18 @@
       "source_commit": "07bc92e927f72f2a7683986ac75093607efd2dd3"
     },
     "overlay63UpdateSequence": {
-      "ledger_commit": "fc001f593f0ee499dbf8d54b5e65ff5efb8da599",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "6ebdc0ad0f80fbbf486c8bd8eec869e24d3f6641",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "fc001f593f0ee499dbf8d54b5e65ff5efb8da599"
     },
     "overlay65UpdateParticles": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, pointer/index, loop, allocator, and private-representation forms stay closed; no body mutation, trace, or permutation.",
+      "ledger_commit": "f1be901bd3d60f68df1821f544818a8e69d7a38a",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "27d7731a7e0a4635055be8e495d692b88593a25d"
     },
     "overlay68CheckKind": {
-      "ledger_commit": "53852179f479112e6a8c7bea1e2677967db37552",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "076865067de8d3893fdf9ef24011115d82f2d100",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68"
     },
     "overlay68RebuildSecondaryEntry": {
@@ -1511,9 +1511,9 @@
       "source_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee"
     },
     "overlay89InitializeEffect": {
-      "ledger_commit": "9ee976829662b2982548e45905a42e717f5a1e72",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "92ef79ac3de1e127fde547dc0f32634251b352bb"
+      "ledger_commit": "1c15c34d406e41640e185b709f6dd78b0fc0bfbd",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
     },
     "overlay89UpdateStateAndParticles": {
       "ledger_commit": "ee8dd2e390ee4f977e293069eb6b273813665e9b",
@@ -1536,9 +1536,9 @@
       "source_commit": "e3419055f55ac4c337aa5737a341d7b66d606977"
     },
     "overlay98CheckObject": {
-      "ledger_commit": "b8c80714950635c84ea5229078a13e3f3c35b7d1",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "7393797ad718d547f0c7ceb6a8fcb9b49d6228ca"
+      "ledger_commit": "4133a7bb91343e729143a9fb6ee789346782d6b5",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "source_commit": "4133a7bb91343e729143a9fb6ee789346782d6b5"
     },
     "overlay98CollectUniqueY": {
       "ledger_commit": "15ee17dfbe61096560e23085d862ab1c266dbedb",
@@ -1566,8 +1566,8 @@
       "source_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20"
     },
     "render_epc_lock_up_display": {
-      "ledger_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "6c4a2538e1f9ff2f7a2149c3baa75f2acc763beb",
+      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575"
     },
     "rumbleTick": {
