@@ -2072,7 +2072,14 @@ bytes and disassembly never belong here.
   range, not just its arithmetic value. This is disclosed inert source
   shaping, with the index initialized and its complete domain proved; it
   does not justify undefined arithmetic, observable side effects, or assuming
-  the same phase ordering on another compiler. See the
+  the same phase ordering on another compiler. **Object identity does not imply
+  identical allocator weights:** the two-read additive recurrence and one-read
+  multiplicative recurrence can emit identical owned text and relocation maps
+  while retaining different total savings for the index. A changed competing
+  range can expose that hidden difference and select a different colour. When
+  reusing an apparently equivalent source form after a shape change, compare
+  its decision records as well as its object. This is an instrumented diagnostic
+  lever, not permission to adopt nonexact inert source. See the
   [controlled comparisons and semantic audit](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md)
   for the bounded full-TU experiment and its coupled allocation effect.
 ## Definition regions, complete source shapes, and measured allocation phases
