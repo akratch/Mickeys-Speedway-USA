@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Ugen trace isolates four draw sites; tab compound assignment is byte-identical.
+- summary: Complete 12-web colour landscape has no winners; nine conversion/address forms flat. Need a load-to-working-character live-range split.
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 
@@ -189,4 +189,34 @@ The 16-word residual remains four incoherent windows, so this trace does not
 identify one global phase correction. The remaining source search should test
 only semantically faithful forms at the other three stamped sites, rather than
 another allocator or declaration-order lattice.
+#### 2026-09-12, lane p23-lastmile5: complete single-colour landscape
+
+Fresh configured baseline: 106 words, delta zero, 16 masked and 16 raw
+mismatches, first +0x2C. Aligned buckets remain 90 exact, 16 naming, zero
+immediate and zero structural; there are no surplus or missing words. The
+0x40 frame and three relocation sites are retained. Stock versus instrumented
+full-TU fidelity passes text, data, rodata, symbols and relocations.
+
+A retained Ucode/name receipt authenticates procedure 11 of 14.
+Procedure 11 has 12 coloured webs. The exhaustive same-save-kind landscape
+contains 66 compiled legal alternative forces and one singleton web with no
+second colour; every compiled force was accepted. The complete winners list
+is empty. Nine forces were byte-flat in masked score and the others regressed.
+There is no improving packing to pass to the combination lattice: the measured
+single-force floor, including the unforced member, is 16. This does not prove
+an unrestricted multi-force or source-shape lower bound.
+
+Nine stock source probes also retain 16 at delta zero. Three split the
+conversion addition/subtraction through the existing saved-character carrier
+before masking (upper arm, lower arm, both). Three respell the glyph address
+as subtraction-before-scaling, pointer arithmetic, and unsigned literals.
+Three use a byte cast or signed/unsigned masked conversion spellings in both
+fold arms. Each source and object is retained privately under
+`build/p23/func_80046BCC/`; no candidate was adopted. The final three conversion
+type attempts give no improved residual or new identity, satisfying the stall
+rule. The source question remains how to separate the initial character load
+from the later working-character live range without introducing the already
+refuted extra mask destination. Neither this complete colour axis nor the
+three stamped expression sites supplies that split.
+
 <!-- plateau-handoff:func_80046BCC:end -->

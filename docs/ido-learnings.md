@@ -2163,6 +2163,18 @@ bytes and disassembly never belong here.
   diagnostic lever, not an exact-match claim or a universal unsigned-index
   preference. See the
   [typed-index partition and retained tradeoff](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md).
+- **Naming an intermediate changes both allocation and the home census.**
+  A named pointer or floating intermediate can replace an expression temporary
+  and restore the target's register use, while also adding a declared stack
+  home. Measure those effects separately: first confirm the local allocation
+  improvement, then use the frame census to place the new home and account for
+  any existing unused workspace. Definition placement can independently change
+  saved-register ranking even when the value stays live across the same calls.
+  The exact [overlay 98 object check](matching-triage-handoffs/overlay98CheckObject.md)
+  required all three effects together. This is not permission to remove live
+  storage or reorder observable operations; check expression widths, floating
+  association and workspace use, and require stock, relocation and linked ROM
+  proof. A colour-force win alone establishes none of those source properties.
 
 ## Adding a learning
 

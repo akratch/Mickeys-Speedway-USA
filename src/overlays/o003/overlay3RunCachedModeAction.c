@@ -59,10 +59,10 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
 
 /* PLATEAU-HANDOFF:overlay3RunCachedModeAction:start
  * symbol: overlay3RunCachedModeAction
- * score: 79/113 words
+ * score: 34/113 words
  * frame: 0x58
  * relocations: 15
- * first-mismatch: +0x14
- * summary: 113-instruction/frame exact; 34 raw words remain in structural call/branch shape; promotion in=34 out=0.
+ * first-mismatch: +0x84
+ * summary: All nine coloured webs scanned; seven winners, selected lattice floor 25. Shifted angle repairs some shape but boolean transfer remains.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

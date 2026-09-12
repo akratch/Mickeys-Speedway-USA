@@ -1409,7 +1409,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Guard and compound-exit shapes normalize; pointer strength reduction remains blocked.
+ * summary: All 16 coloured webs scanned; two rival winners, diagnostic floor 19. Cursor induction still loses the required preheader word.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

@@ -2,11 +2,11 @@
 ### `overlay2QueryNode` plateau handoff
 
 - source: `src/overlays/o002/overlay2QueryNode.c`
-- score: 214/253 words
+- score: 39/253 words
 - frame: 0x68
 - relocations: 51
-- first mismatch: +0x40
-- summary: Not a colouring residue: 168 single-web globalcolor forces leave it at 39 or worse. The shipped short-circuit blocks emit sltu/bnez/move, the signature of a C short-circuit or and not of an if-return-1; the short-circuit spelling reproduces that triple exactly in the object and costs one duplicated node->side load per block, so it lands eight bytes short. The boolean shape and the duplicated load are wanted together and no spelling yet gives both.
+- first mismatch: +0x58
+- summary: 20-web landscape has no winners. Corrected +0xC4 SYMBOL-call placeholder; parameter reissue restores geometry at 93 but allocation fails.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
@@ -157,4 +157,62 @@ or line-join lattices, and do not re-run the four reload-split devices above. Th
 next lever has to produce the extra argument reissue -- most plausibly a source
 form in which the second call's arguments are not the same values the first call
 was given.
+#### 2026-09-12, lane p23-lastmile5: the missing argument reissue is reachable
+
+The baseline remains 253 words, delta zero, 39 masked and 51 raw differences,
+frame 0x68. First masked mismatch is +0x58; the older +0x40 figure is raw.
+Aligned buckets: 223 exact, 15 naming, two immediate, ten paired structural
+rows, plus three candidate-only words at +0x17C, +0x314 and +0x3A8 against
+three target-only words at +0x194, +0x32C and +0x3C0. The candidate object has
+51 ELF relocation entries; the assembled target has 25. Literal-address
+relocation artifacts require runtime-record and linked proof before any future
+promotion; this pass makes no exact-relocation or match claim.
+
+The complete same-save-kind landscape covers all 20 coloured webs and 135
+accepted alternative forces: 86 preserve geometry and 49 grow. The exhaustive
+delta-zero winners list is empty. There is no improving packing to combine;
+the measured single-force floor including baseline is 39, not a bound over all
+multi-force combinations or source shapes. Stock/instrumented fidelity passes
+text, data, rodata, symbols and relocations.
+
+The inherited global-reload experiments missed the actual parameter. On the
+short-circuit-or shape, a volatile address read of the second call's `x1`
+parameter restores all eight missing bytes: 253 words at delta zero, scoring
+93. Its aligned buckets are 163 exact, 75 naming, two immediate and twelve
+paired structural rows, with only the +0x17C/+0x194 unmatched pair remaining.
+The two short-circuit surplus/missing pairs disappear. This overturns a broad
+claim that the required argument reissue is not source-reachable; it does not
+make this candidate exact, and its substantial allocation regression prevents
+adoption.
+
+Seven stock source probes are preserved under `build/p23/overlay2QueryNode/`.
+The or-control and nonvolatile address read of `x1` both score 119, eight bytes
+short. The volatile `x1` read scores 93 at exact size; making the whole `x1`
+parameter volatile scores 136, four bytes short. A volatile address read of
+`y1` instead scores 95 at exact size; making both reads volatile scores 132,
+eight bytes long; subscript spelling of the `x1` volatile read is byte-flat
+at 93. No body-shape edit was adopted. The last spelling is flat and the available
+parameter-reissue variants are exhausted; retain the lower-residual guarded
+body and the structurally informative diagnostics separately.
+
+The next question is a narrowly scoped parameter-reload identity that retains
+the reissue without changing allocation throughout the function. Another
+volatile file-scope global or the already-closed boolean-carrier lattice does
+not address that question. The overlay-2 SYMBOL-versus-JUMP trap remains a
+mandatory per-call runtime-record check if a future source reaches zero.
+
+Runtime relocation audit with `tools/overlay_tables.py`: the owned range has
+51 records, comprising twenty LOCAL high halves, twenty LOCAL low halves,
+ten JUMP calls and one SYMBOL call. The SYMBOL call is at function +0xC4,
+resolving to overlay 2 +0x1364 (`overlay2IntersectSegments`). All ten other
+owned calls are JUMP records. This is the same-module trap inside this
+function itself: `overlay2IntersectSegments` already has an in-module C
+definition. The guarded caller now names `overlay2IntersectSegmentsReloc`.
+Fresh stock reproof retains all 253 owned words byte-identically, with 39
+masked and 51 raw differences, and the relocation-table delta is solely the
+callee identity at +0xC4. The colour landscape above precedes this metadata
+binding correction; its source spelling and objects are preserved. The raw
+runtime records remain private. A future promotion still requires the full
+linked proof, even if its masked score reaches zero.
+
 <!-- plateau-handoff:overlay2QueryNode:end -->
