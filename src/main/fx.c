@@ -1463,8 +1463,8 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
         if (alpha != 0xFF) {
             cmd = *dlist;
             *dlist = cmd + 1;
-            cmd->w1 = 0;
             cmd->w0 = 0xE7000000;
+            cmd->w1 = 0;
             cmd = *dlist;
             *dlist = cmd + 1;
             cmd->w1 = -1;
