@@ -61,8 +61,8 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
     },
     "func_8000590C": {
-      "ledger_commit": "bc391799944d87e7f029b7a185f23dcc008299ef",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "85d0d62867375e73a952d770118168b3ddc06e7d",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd"
     },
     "func_8000784C": {
@@ -146,9 +146,9 @@
       "source_commit": "1736a63e233ee56a2ef42d13510e7185707ca064"
     },
     "func_80010900": {
-      "ledger_commit": "59e8c988cc96e208d7ceacdfc134893ebb6efaa7",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "17e6b10f3a942d38aefb8f90defb8be28bd487ab"
+      "ledger_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b"
     },
     "func_80010B4C": {
       "ledger_commit": "ade24e9c6989bcab55c9c637f75d1e21248fd651",
@@ -326,8 +326,8 @@
       "source_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d"
     },
     "func_80022FD4": {
-      "ledger_commit": "0d99a6d657e6d31204bea01f4b7372edf1ac8d9a",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "60469999eebf7bcd6898c5b2c2f6ccd33824db7e",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "d3d9dc72660209aa4d4bfdc8cfe21eaf0c8690cf"
     },
     "func_80023598": {
@@ -376,8 +376,8 @@
       "source_commit": "541906f449fafbbdad4487edfde49748d0df7a0d"
     },
     "func_8002C69C": {
-      "ledger_commit": "a78667246870e4db39ef8be4c64ed69f14f69781",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64"
     },
     "func_8002CF6C": {
@@ -521,8 +521,8 @@
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "18c0b78cf6b2ef5bfacad1804869b92d6872c0f4",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2"
     },
     "func_8004054C": {
@@ -531,9 +531,9 @@
       "source_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46"
     },
     "func_80040B88": {
-      "ledger_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 145 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "b52ed2c6e5a14173f164f2cf033471a70cbdd180"
+      "ledger_commit": "92ae2c1edce407c55890f0768db30813ebae443c",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5"
     },
     "func_80041530": {
       "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
@@ -556,8 +556,8 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef"
     },
     "func_80046EC4": {
@@ -741,8 +741,8 @@
       "source_commit": "8d7572bb186e825ead555edd14c515221aa3d73c"
     },
     "func_8005A7A0": {
-      "ledger_commit": "1c15c34d406e41640e185b709f6dd78b0fc0bfbd",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "810b64542f79bba9c9e9f6fcb5e3e84bcd408eae"
     },
     "func_8005A948": {
@@ -791,8 +791,8 @@
       "source_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0"
     },
     "func_overlay_008_F0002640_1860398": {
-      "ledger_commit": "74b246f1977167ea1df065ac585ab5d4a12f04be",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "76caeb9dacc59d9c33fa7377c2d8c294edd4e9fd",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441"
     },
     "func_overlay_008_F000291C_1860674": {
@@ -801,9 +801,9 @@
       "source_commit": "a1d4f1cf4ba697c250080c1b4c3c3b913bf471d4"
     },
     "func_overlay_008_F00034A0_18611F8": {
-      "ledger_commit": "b8ed3c970bfa227bd95aa94f16774ebb076f7fef",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "88873065825212fdad369c9e5c5231dcc7c6125f"
+      "ledger_commit": "6b373a9d4785050dc742a18c98883d8557e420ba",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "6b373a9d4785050dc742a18c98883d8557e420ba"
     },
     "func_overlay_008_F00042A8_1862000": {
       "ledger_commit": "5e995cbeeb737527af555da27e8bdba214ece1da",
@@ -811,13 +811,13 @@
       "source_commit": "5e995cbeeb737527af555da27e8bdba214ece1da"
     },
     "func_overlay_008_F0004CF0_1862A48": {
-      "ledger_commit": "1d6033f7c89c25d49a8ed250317a007305170eb1",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "9d0322152843053155e4a679e7b2c7ffc1a8f8c4",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "6c5be9dd821f46e5d4fa0255f9e22b642f014833"
     },
     "func_overlay_009_F0000540_1866BB8": {
-      "ledger_commit": "1c15c34d406e41640e185b709f6dd78b0fc0bfbd",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a"
     },
     "func_overlay_009_F0000CE4_186735C": {
@@ -926,8 +926,8 @@
       "source_commit": "013aa261826e59e639f6ba02d27e99f5d5c8dde4"
     },
     "func_overlay_041_F0001298_18885D0": {
-      "ledger_commit": "364cd76f01d11f976817fececba011d128df86a5",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "93f7c94c52b40582ab8a893c772c2a22a590354f",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "364cd76f01d11f976817fececba011d128df86a5"
     },
     "func_overlay_041_F0001650_1888988": {
@@ -936,8 +936,8 @@
       "source_commit": "79eadb56bf372c8eb59f7c05db01e04d6b8cd7e4"
     },
     "func_overlay_041_F000195C_1888C94": {
-      "ledger_commit": "9327838b7685e4aa0abdece0c6f2258387d90260",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "546ad0af5229b2bc2c5a862a04aa1ed80ebe0498",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921"
     },
     "func_overlay_043_F0000324_188A2F4": {
@@ -961,8 +961,8 @@
       "source_commit": "e36288cf4bc286285c32981048dcca36761ee340"
     },
     "func_overlay_046_F0000120_188E518": {
-      "ledger_commit": "6ea6dd44c63503435a2b0a48247d10cd730c54a2",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "e09e555d9c42c279d0470281be6e441dead2951a",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
     },
     "func_overlay_047_F0000000_1890E18": {
@@ -1001,8 +1001,8 @@
       "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea"
     },
     "func_overlay_057_F0000000_18A3BF8": {
-      "ledger_commit": "5976f504dcfd3ac8a2ba994b4b95e0d6803ff6a0",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "f400e752390e39c0f967cc78803a7b84ca3d7723",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "8ac52fbd6033f8b15d5d4452cdf2c04e6b7841ba"
     },
     "func_overlay_057_F0001AE8_18A56E0": {
@@ -1016,8 +1016,8 @@
       "source_commit": "e441502f0f9470a2ac3eff706f966bab378f42d7"
     },
     "func_overlay_057_F0004E18_18A8A10": {
-      "ledger_commit": "c2ab74f94f35ad4a83375b466660c34e767ccf7e",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "de2ee45ad291353b082e67bd7ff3c36027bc5439",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f"
     },
     "func_overlay_057_F00060F8_18A9CF0": {
@@ -1031,8 +1031,8 @@
       "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "3fd4d77b32e830ebff1d56833647575e6f44cdae",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "256cf5abf564cbfe0085d2bab849fca47c0e1e48",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35"
     },
     "func_overlay_060_F0000000_18B9DD8": {
@@ -1056,8 +1056,8 @@
       "source_commit": "d3fcf8ea6f4e562d75f6b0a7e7f97dc8b6482478"
     },
     "func_overlay_071_F0000870_18CA390": {
-      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "639d56cf3310f1b52ea2112f4de42d2e49226891",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "70b693809422ac5fce8344f54519c1c0cf92d535"
     },
     "func_overlay_073_F0000D70_18CB830": {
@@ -1066,8 +1066,8 @@
       "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
     },
     "func_overlay_079_F0000134_18CD0D4": {
-      "ledger_commit": "5954bd3c3864c0ad53c66b61328d6ace88cb2839",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "51a70f2c6ee25f06e03ed678225ffb4f1b070f0d",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "28384499e9148f29abc651e07d83bae9472dd76e"
     },
     "func_overlay_092_F0000068_18D5F88": {
@@ -1076,13 +1076,13 @@
       "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8"
     },
     "func_overlay_101_F0002510_18DDD30": {
-      "ledger_commit": "373ca98504b055c82ef0e70800b2ea3b97b499f6",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "755203b11434374eb9096ce829e777d83e1d6e21"
+      "ledger_commit": "fd7641b447aebaf746f0412e0dfe788377991b7b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "373ca98504b055c82ef0e70800b2ea3b97b499f6"
     },
     "func_overlay_101_F0003A58_18DF278": {
-      "ledger_commit": "0793580bd40deb24c96b826badd0ada5a88dd3df",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "20ac4b70f33839b06eba329c9e94b6362367844b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "efd04af283223a34458958b098390bb8aead1e0a"
     },
     "func_overlay_101_F0005E08_18E1628": {
@@ -1116,8 +1116,8 @@
       "source_commit": "a461398a67cf05a378cd63c5fdd938b0dc997009"
     },
     "func_overlay_101_F000AB4C_18E636C": {
-      "ledger_commit": "0793580bd40deb24c96b826badd0ada5a88dd3df",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "adc7f0cbc3d77d652823da4948edc61c38b562cc"
     },
     "func_overlay_101_F000BA34_18E7254": {
@@ -1141,14 +1141,14 @@
       "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
     },
     "levelFreeAll": {
-      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "c6cd1be59694df2dc2b7532b4401c813a065ae88"
     },
     "levelInit": {
-      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "55ebbd2230e49e7af0ce1a6421addb3115ff8a2a"
+      "ledger_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b"
     },
     "overlay101BuildBorder": {
       "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
@@ -1166,8 +1166,8 @@
       "source_commit": "cd650a80bc656d9b35176e6b01c6e7484c49a922"
     },
     "overlay14CreateValue": {
-      "ledger_commit": "ef548a99a9ed4dd4df55867694593c08a78255f1",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "ef548a99a9ed4dd4df55867694593c08a78255f1"
     },
     "overlay14LoadRelocatedValue": {
@@ -1176,13 +1176,13 @@
       "source_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc"
     },
     "overlay15DrawRain": {
-      "ledger_commit": "3b9a2f43b54227a5d6600854cb21f8a644a8d0e9",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "72e4a3998b7e91f4ced8a10646b2dc8602ccebc0",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "2c0c926020c5a480a833fd5a20b01d2008268467"
     },
     "overlay15DrawScreenStars": {
-      "ledger_commit": "076865067de8d3893fdf9ef24011115d82f2d100",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "abc13ad2f52730ba555d2a9c0bdaad2616dbb7c2",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "6db3232edcc296cb0b686ff7473e3b8b9421ead3"
     },
     "overlay15MoveStars": {
@@ -1201,9 +1201,9 @@
       "source_commit": "d8ebc95ab136a3ef327822b4461fd907f6d5d885"
     },
     "overlay17DrawStrip": {
-      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "308e1ca3006e030c54a093926063e784fd8c98de"
+      "ledger_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b"
     },
     "overlay19BuildAdjacency": {
       "ledger_commit": "4ea12102727d11fd3978fa1e3ad7d970161d4494",
@@ -1241,8 +1241,8 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "5e94e3c45a25c399bfbeeb88621339cb3db5b2d7",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1BuildObjectMappings": {
@@ -1276,13 +1276,13 @@
       "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
     },
     "overlay1FindPreviousUsable": {
-      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "8d63f19c4f02ea1663a349b4ee5f9e9a80366880"
     },
     "overlay1FindType47ByAngle": {
-      "ledger_commit": "9dc19397a0d72c1aff1675054f478385181ad474",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "ff275d84a999f982ff72d28f41902177f2d9aefd",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "329cb655dd483accfd8e8aa475c20674d2928af6"
     },
     "overlay1FindType5ByKey": {
@@ -1326,19 +1326,19 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "b7dabcf2bba1377054adc4d2ccbdf3b873d94f9e",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "18c0b78cf6b2ef5bfacad1804869b92d6872c0f4",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "0e74948e8f5a222060dd6e9b947e7fec5aa7eca1"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "4dc6cfc1deb25e5809fe85e2a23a778447a9c915"
+      "ledger_commit": "184328621be70cbd653e746f8284703639811267",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b"
     },
     "overlay20RemoveEntry": {
-      "ledger_commit": "0a1645a7019de7bd0d2c3c90b071271b581b2a22",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
+      "ledger_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "ad036f5dc86c0b7da9d65bc6f1a404c0954a8a6b"
     },
     "overlay27UpdateCoordinates": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -1356,14 +1356,14 @@
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
-      "ledger_commit": "1d6033f7c89c25d49a8ed250317a007305170eb1",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "b1755b64127428829a9db0755ee0fb115d878b7a",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
     },
     "overlay31CreatePool": {
-      "ledger_commit": "e23c1054b08d7882e03e9c8638cb0e0451abf890",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "76e4e291acd58c4310eadab39c540d36ebaa6bdd"
+      "ledger_commit": "5d707717780767af8cc52ebd3a54740f7daf3623",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "056783bdef9ce8e515c94e0e1140967584618276"
     },
     "overlay33BuildDisplayList": {
       "ledger_commit": "acb1f32a0ad6fa406cc118cd6b5927320de65917",
@@ -1381,8 +1381,8 @@
       "source_commit": "78918981a33b340f7d55cee244c71b6cb861626c"
     },
     "overlay34CreateRecord": {
-      "ledger_commit": "505dc4703772a3ba2e5b6cd8e2ec2cfa4315962e",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "0493e5536f8b0128ca84ba7806afb396bde52ff6",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "505dc4703772a3ba2e5b6cd8e2ec2cfa4315962e"
     },
     "overlay34InitStorage": {
@@ -1401,8 +1401,8 @@
       "source_commit": "a723c0fc5526b506555b71da152816b506095e8c"
     },
     "overlay3SelectScoredObject": {
-      "ledger_commit": "b7f71f1e22535316b752eeac75b81835069b9da2",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "88b50c2817b5d9fb74aba816f72bbc7089c9266e",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "b7f71f1e22535316b752eeac75b81835069b9da2"
     },
     "overlay40FadeRecords": {
@@ -1476,8 +1476,8 @@
       "source_commit": "27d7731a7e0a4635055be8e495d692b88593a25d"
     },
     "overlay68CheckKind": {
-      "ledger_commit": "076865067de8d3893fdf9ef24011115d82f2d100",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
+      "ledger_commit": "18c0b78cf6b2ef5bfacad1804869b92d6872c0f4",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68"
     },
     "overlay68RebuildSecondaryEntry": {
@@ -1566,9 +1566,9 @@
       "source_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20"
     },
     "render_epc_lock_up_display": {
-      "ledger_commit": "6c4a2538e1f9ff2f7a2149c3baa75f2acc763beb",
-      "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575"
+      "ledger_commit": "d5439d2e17bbb1678c8ff9545bb151e579b2b56b",
+      "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
+      "source_commit": "6c4a2538e1f9ff2f7a2149c3baa75f2acc763beb"
     },
     "rumbleTick": {
       "ledger_commit": "0145589961ffa611543420efba08f760374782fd",
