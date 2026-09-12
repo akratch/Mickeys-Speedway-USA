@@ -58,6 +58,17 @@ and L158 before believing any lattice's floor. One compile per web; the overlay
 58 procedure colours 139 of its 431 decisions, so a full map is 139 compiles
 and is a lane's job, not a sweep you run inside another sweep.
 
+`tools/draw_census.py <symbol>` wraps the freelist trace below into a per-SOURCE-LINE
+census: draws, frees and emissions for every line of the function, plus the draw
+order as a sequence. `--save a.json`, change one thing, `--save b.json`,
+`--compare a.json b.json` names the lines whose draw or emission count moved.
+**A line whose draws did not move was not moved by your edit**, however much the
+score moved -- and a score moves for causes the edit did not create. This is the
+instrument for the blockers the colour axis leaves behind: "pre-colour web
+creation order", "the emission-order blocker", "ring release order". It reads
+what OUR source makes the compiler do; the target side still comes from
+`residual_map.py`.
+
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
 them: each side's ladder from the frame top down, the slots only one side uses,
 and shared slots with different traffic. Run it on any residual with a frame or

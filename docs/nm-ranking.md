@@ -371,7 +371,7 @@ units remain distinct.
 | 75 | `src/overlays/o036/overlay36ChooseWeightedState.c` | `func_overlay_036_F0000A60_1883F18` | `o036` | `other` | 680 | 71 | 71 | 60 | 60 | 0 | — |
 | 76 | `src/main/particles.c` | `func_80040B88` | `main` | `other` | 1,208 | 72 | 72 | 72 | 72 | 0 | — |
 | 77 | `src/overlays/o083/overlay83DrawStrip.c` | `overlay83DrawStrip` | `o083` | `other` | 308 | 73 | 73 | 4 | 4 | 0 | — |
-| 78 | `src/main/lights.c` | `func_80018F08` | `main` | `other` | 820 | 75 | 75 | 0 | 0 | 0 | — |
+| 78 | `src/main/lights.c` | `func_80018F08` | `main` | `other` | 820 | 74 | 74 | 0 | 0 | 0 | — |
 | 79 | `src/overlays/o040/overlay40BuildFrame.c` | `overlay40BuildFrame` | `o040` | `other` | 324 | 75 | 75 | 4 | 4 | 0 | — |
 | 80 | `src/overlays/o001/overlay_001_tail.c` | `overlay1AdvancePath` | `o001` | `other` | 648 | 81 | 81 | 16 | 16 | 0 | — |
 | 81 | `src/overlays/o007/overlay_007_tail.c` | `overlay7UpdateOwnerMode` | `o007` | `other` | 556 | 81 | 81 | 16 | 16 | 0 | — |
