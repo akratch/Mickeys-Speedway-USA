@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: All 10 coloured webs sampled: 90 accepted forces, no winners; the mask-table-scale ring emission-order question remains.
+ * summary: L160 direct indexed accesses after deleting the flags carrier are byte-identical; the t4/t5 cycle remains the mask-table-scale emission-order blocker.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: All 10 coloured webs sampled: 90 accepted forces, no winners; the mask-table-scale ring emission-order question remains.
+- summary: L160 direct indexed accesses after deleting the flags carrier are byte-identical; the t4/t5 cycle remains the mask-table-scale emission-order blocker.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
