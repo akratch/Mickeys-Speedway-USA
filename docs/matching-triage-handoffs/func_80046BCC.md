@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Register-only at 106/106; the three-variable family is closed at 192 forms, all 83-91, and the 16 are four windows of per-iteration consumption
+- summary: Ugen trace isolates four draw sites; tab compound assignment is byte-identical.
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 
@@ -175,4 +175,18 @@ target that the candidate does not have, not a colour the candidate got wrong.
 DKWB_UGEN_TRACE=1`, stamped per source line (L149). It is the only instrument
 that sees a per-iteration consumption difference, it has never been run on this
 function, and the force sweep above has now eliminated the pass above it.
+
+#### 2026-09-12, lane p15-res: the ugen trace reduces the search to four sites
+
+The configured instrumented compile is text-identical to stock and identifies
+this procedure as ordinal 11. Its GP freelist has exactly four source-line draw
+sites: the upper-case fold, lower-case fold, tab alignment, and glyph-call
+address expression. The tab alignment alone consumes the draw at its source
+line; rewriting it as a compound subtraction assignment is byte-identical, so
+that equivalent spelling neither changes the draw nor any residual window.
+
+The 16-word residual remains four incoherent windows, so this trace does not
+identify one global phase correction. The remaining source search should test
+only semantically faithful forms at the other three stamped sites, rather than
+another allocator or declaration-order lattice.
 <!-- plateau-handoff:func_80046BCC:end -->
