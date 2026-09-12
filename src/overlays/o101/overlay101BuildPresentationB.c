@@ -232,6 +232,6 @@ void overlay101BuildPresentationB(void) {
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
+ * summary: Six pointer carriers delete byte-inertly; the generated node-20 base still splits at save 0.5 versus cost 2. Forced 125 retains delta +4.
  * PLATEAU-HANDOFF:overlay101BuildPresentationB:end
  */
