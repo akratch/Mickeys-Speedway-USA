@@ -2609,11 +2609,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80040B88:start
  * symbol: func_80040B88
- * score: 145 differing words
+ * score: 72 differing words
  * frame: 0x68
  * relocations: 12
- * first-mismatch: +0x30
- * summary: the frame size is right but its contents are not: both vector locals sit four bytes above the target's homes, and the three homes above them already agree, so the missing four bytes belong below the scale local. Flat and eliminated: reintroducing the orientation swap's own temp (any of eleven declaration positions) grows the frame to 0x70, and moving the colour table pointer later -- into the block that uses it, to the end of the list, or below scale -- keeps 0x68 but costs six words. The four relocation-symbol mismatches are an ordering fact: the target materializes the line-entry table's address one instruction earlier than we do.
+ * first-mismatch: +0x48
+ * summary: 145 -> 72 this lane in three measured steps, and the frame is now correct rather than merely the right size. The frame fault was a COUNT, not a placement: the target carries one more four-byte register-resident local between scale and position -- the orientation swap's own temp -- and reintroducing it alone does grow the frame to 0x70 as the previous closure said, but deleting any other declared local pays for it, so swap after scale plus entryIndex inlined lands 0x68 with the target's ladder slot for slot. Two statement-order sweeps, void under L146 because the shape had just changed, then took 111 -> 75 -> 72: the twelve legal orders of the pointCount-guarded block floor at pointCount-bump, point, lifetime, scale, and all 24 orders of the point initialisers floor at intensityTimer, colorTimer, colorIndex, intensity, with every order that does not put intensityTimer first costing four bytes of frame. What is left is ONE ugen draw, read off DKWB_UGEN_SCHED plus DKWB_UGEN_TRACE rather than inferred: this procedure's free list is t6 t7 t8 t9 t1 t2 t3 t4 t5 with t0 REMOVEd before the first draw, and it is FIFO; we spend seven draws before the line-entry-table statement and take t4 then t5 there, where the target takes t5 then t7, exactly one position later in the same recycle order. The extra draw is the target's fourth load of the trigger parameter from its incoming home at 108(sp), issued in the block BEFORE the pointCount branch and dereferenced after; we keep no copy and reload two instructions later inside the branch's own block. That one draw is both the only structural difference left and the whole naming residual, which the phase re-colours as one coherent three-cycle t5 to t7 to t4 to t5 at 98%.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 
