@@ -6,7 +6,7 @@
 - frame: 0x50
 - relocations: 127
 - first mismatch: +0x18
-- summary: The residual is a measured ugen integer ring phase; three argument hoists removed three draws and the rest wants one phantom pop at the top.
+- summary: Exhaustive 137-cell colour landscape has floor 51; source question is one zero-byte leading integer ring draw.
 
 #### 2026-09-12, lane p9-mid: 62 -> 51, with the ring measured rather than inferred
 
@@ -89,4 +89,28 @@ The temp mapping is 68 percent coherent and its cycle is expressly not a
 ring-phase precondition. The next actionable evidence is a JFG revision that
 actually supplies this function's C body, or a source mechanism that delays
 only the level report without adding a live value across the final call.
+
+#### 2026-09-12 colour landscape and lattice
+
+`tools/web_footprint.py render_epc_lock_up_display --proc 9 --every-colour`
+sampled every legal colour offered by the procedure: 137 accepted probes over
+16 webs, with 10 residual windows. No probe beat the unforced 51/344 baseline,
+so the measured single-force colour floor is 51/344 over the complete sampled
+landscape. The closest accepted probe was `p1:w213=c2` at 52; `p1:w112=c2`
+scored 53 and `p1:w42=c3` scored 60. There were no winners to pass to the
+lattice; the three closest accepted near-misses were measured anyway.
+
+`tools/force_lattice.py --proc 9` measured all three singles and all applying
+pairs. The pair `w213=c2 + w42=c3` scored 61, exactly additive; its blast
+radius was `+1` in window 0x180 for `w213=c2` and `+8` at 0x180 plus `+1` at
+0x200 for `w42=c3`, so they contend at 0x180. `w112=c2` had blast radius
+`+2` at 0x100 and was additive with `w42=c3`; the `w213=c2 + w112=c2`
+cell was declined because the second force was not accepted. Every measured
+force worsened or preserved the baseline.
+
+The source question is therefore not a colour choice: find a zero-byte source
+construct that consumes one integer ugen ring slot before the first emitted
+instruction, producing the target's leading t7 phase without naming a live
+value or inserting code. The previously tested OR-with-zero family and other
+natural inert forms remain flat at this site.
 <!-- plateau-handoff:render_epc_lock_up_display:end -->
