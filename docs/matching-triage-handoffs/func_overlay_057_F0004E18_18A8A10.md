@@ -2,11 +2,11 @@
 ### `func_overlay_057_F0004E18_18A8A10` plateau handoff
 
 - source: `src/overlays/o057/func_overlay_057_F0004E18_18A8A10.c`
-- score: 203/1208 words
+- score: 132/1208 words
 - frame: 0x140
-- relocations: 373
-- first mismatch: +0x100
-- summary: Writing the choice loop as a for over source rather than a do-while with the step in the body is 205 -> 203 at delta 0, byte-exact 1038 -> 1040, register naming 102 -> 100, structure unchanged at 68; the loop keyword is the whole of it and six other tail spellings read 205 to 354. The prior packet's named decision variable, which register holds outputIndex, is not reachable from the source: a 1,131-form L115 reuse lattice measures six different locals at exactly 205 for that index, so carrier identity there is inert. Statement order is a move-one fixed point on the new shape at 1,703 compiles; the unguarded climb's 202 is the same two-call swap the prior lane rejected, and it is rejected again. What is left is 68 really-different rows against 100 naming rows, and the census reads per-iteration consumption over seven windows, so structure comes first.
+- relocations: 375
+- first mismatch: +0x34
+- summary: 203 to 132 masked: the choice loop's output cursor carried in i, the target's loop shape, both tail reads named, order re-climbed.
 
 ## 2026-09-12 (lane `p11-big`): the target's bound is the global's end, read off the object
 
@@ -216,5 +216,117 @@ the tail respellings from the previous packet, or the declaration census.
 Validation: `gmake verify` printed 507341c0a40ca3e9a7cee969b396ee53facfb548,
 and `tools/gates.sh --staged` passed all four gates. The candidate remains
 `NON_MATCHING`, so no bytes are credited by the two-word gain.
+
+
+## 2026-09-12 (lane `p12-o57`): the choice loop's output cursor is a carrier decision, 203 -> 132
+
+  - before: 203 masked of 1208 words, size delta 0, byte-exact 1040, register
+    naming 100, immediate only 11, really different 68, displacement tax 24.
+  - after: 132 masked, size delta -4, byte-exact 1105, register naming 53,
+    immediate only 14, really different 43, displacement tax 22. Frame 0x140 on
+    both sides, 32 slots on both sides.
+
+### The closure that fell
+
+The p12-close packet closed "which register holds `outputIndex`" as not
+source-reachable, on a 1,131-form L115 reuse lattice. Read adversarially, that
+lattice varied the countdown fill's counter, the second fill loop's index and
+the `activePlayers` scan cursor -- and held the CHOICE LOOP's own output cursor
+fixed at `outputIndex` for all 1,131 forms. It is the one carrier that moves.
+
+Carrying it in `i` instead is worth 248 -> 230 on the new loop shape, and it is
+what buys a callee-saved colour. The mechanism is L115 read literally: a live
+range is formed per SYMBOL, `i` is referenced across calls elsewhere in this
+function and `outputIndex` is not, so `i`'s web spans a call, is offered only
+the callee-saved colours, and lands in one; `outputIndex`'s web spans none and
+is offered the argument registers first. Seventeen carriers were measured for
+that cursor; `i` and `panelX` are the only two at 248 and the rest are 252 to
+555.
+
+### The instrumented records priced it before any lattice was run
+
+`CDX_PROC=0 CDX_LOG=1 CDX_OUT=<path>` on the instrumented toolchain, identity
+gate PASS against the configured object. The colour table decodes per procedure
+as c1 v0, c2 v1, c3 a0 through c7 t0 and c14 s0 through c22 s8. The choice
+loop's `outputIndex` is web 347, confirmed by forcing it to c22 and watching the
+three argument-register webs beside it slide down one colour each. Forcing web
+347 onto any callee-saved colour scores 246 against 554 unforced, and c16 (s2,
+the register the target uses) comes back `forced=-2` -- declined with a
+forbidden mask, so the exact register is out of reach while everything it buys
+is not.
+
+### Two general facts this function demonstrates
+
+**A colour taken out of the `t` bank rotates the whole function's ring.** The
+target-shaped choice loop needs one more caller-saved colour than the old shape.
+When `outputIndex` takes an argument register, the loop's bound web is pushed
+onto `t0`; `t0` leaves ugen's ring free list and every ring temporary in the
+function shifts one step, from +0x6c onwards -- 315 extra naming rows, 100 ->
+415, from one colour decision 0xF00 bytes later. Forcing web 347 to a
+callee-saved colour restores the ring in one build, which is how the effect was
+attributed rather than guessed.
+
+**A structurally closer candidate can read much worse positionally.** The loop
+shape alone is byte-exact 729 against 1040 and really-different 63 against 68.
+Read on `score_symbol.py` it is a 351-word regression; read on
+`align_symbol.py` it is the target's loop instruction for instruction with one
+colour wrong.
+
+### What composed to 132
+
+  - the loop bounded on `&gO57MiddleChoices[4]` with both cursors stepped at
+    the bottom and `choice->active` read once into `rank`, used for both the
+    test and the store. This is the target's loop instruction for instruction.
+  - the countdown fill's counter moved to `outputIndex`, freeing `i`.
+  - `gO57MiddleChoices[0].tableIndex` named in a local at BOTH tail reads:
+    240 -> 152. One site alone is 230 with a better aligned residual but a
+    118-word displacement tax; both sites is the lower positional number.
+    Eleven carriers tie at 152 and `limit`, `previousGroup`, `row`, `state`,
+    `valueA`, `valueB`, `valueC` and `currentGroup` are worse.
+  - `tools/blockclimb.py` re-climbed on the new shape (L146 voids the p12-close
+    fixed point): 152 -> 132, two moves, 3,411 compiles, both of them adjacent
+    global stores with no call between them.
+
+### Flat this lane, do not re-run
+
+  - **The L97/L136 region boundary is inert here.** All 231 contiguous spans of
+    an `if (1) { }` over the confirm block's 22 statements, on the pre-adoption
+    shape: best 203, worst 246, nothing below the baseline. That is exactly
+    what L136's scope note predicts -- this residual is a callee-saved span,
+    not a symbol-level interference in a join block.
+  - hoisting `outputIndex = 0;` above the `func_80000F94` call. It DOES reach a
+    callee-saved colour, by making the web span that call, but only at 261,
+    because the initialisation is then emitted 0x30 bytes early.
+  - ten spellings of the countdown fill on the new shape: `for (i = 9; i >= 0;
+    i--)` at 248 keeps the best aligned residual, the `while (i-- != 0)` family
+    that produces the target's branch kind is 216 to 222 with 14 fewer
+    byte-exact rows, and `--i >= 0` is 239 at size delta -4.
+  - note 6's tail-read respellings, still byte-identical.
+
+### The s5 span is closed by the records, not just by spelling
+
+The remaining deficit is the callee-saved span that holds `&gO57MiddleChoices`
+across the tail. On the adopted shape the instrumented records show two
+separate `lui s5` ranges, and web 551 is the one the tail reads use. Forcing
+that web to `decision=split`, which is the allocator's own version of "give the
+tail reads their own address constant", is ACCEPTED (`forced=-1`) and scores
+1198 against 132; the two neighbouring callee-saved webs 535 and 550 split at
+485 and 1198. So the split is not a colour the allocator was talked out of --
+it genuinely costs, and the target reaches its three separate address constants
+some other way. Six source respellings of the reads and of the loop's own
+naming of the global are byte-identical or worse.
+
+### What is left
+
+Size delta -4, and it is one site: the target materialises
+`&gO57MiddleChoices` afresh at each of the two tail reads, where this candidate
+holds it in s5 across the whole tail -- one `lui` fewer here, and the whole of
+the deficit. Six respellings of those reads and of the loop's own naming of the
+global were measured and none splits that address web. The two compiler temps
+at sp+0x54 and sp+0x58 against the target's sp+0x5C and sp+0x64 are unchanged.
+
+Validation: `gmake verify` printed
+507341c0a40ca3e9a7cee969b396ee53facfb548 and `tools/gates.sh --staged` passed
+all four gates. The candidate remains `NON_MATCHING`, so no bytes are credited.
 
 <!-- plateau-handoff:func_overlay_057_F0004E18_18A8A10:end -->

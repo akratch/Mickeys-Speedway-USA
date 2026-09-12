@@ -2,11 +2,11 @@
 ### `func_overlay_057_F0000000_18A3BF8` plateau handoff
 
 - source: `src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c`
-- score: 282/597 words
-- frame: 0x90
-- relocations: 244
+- score: 276/597 words
+- frame: 0x80
+- relocations: 246
 - first mismatch: +0x8
-- summary: One shared stack packet for both spawn calls and a rolled 32-entry stride loop take 345 to 282; frame is still 0x18 over the target's 0x78. 2026-09-12, lane p11-mid: the shared packet is a FALSE ECONOMY and the comment above the union in this file states the opposite of what the target's stack census says. tools/frame_census.py reads 24 target homes against our 17, and the target's are two disjoint packet blocks -- a 20-byte one at +0x54 to +0x67 and a 13-byte one at +0x3C to +0x48 -- where we have one 24-byte union at +0x78. Splitting the union back into an O57SpawnPacket and an O57FinalSpawnPacket reproduces BOTH blocks with their internal structure matching slot for slot: our upper block then spans 0x9F to 0x88 against the target's 0x6B to 0x54, the same 0x17, and our lower block maps 0x84 0x83 0x82 0x7E 0x7C 0x7A 0x78 onto the target's 0x48 0x47 0x46 0x42 0x40 0x3E 0x3C at a constant 0x3C, with exactly one target store at +0x44 unaccounted. It also moves the size delta from -20 to -12, two instructions closer to the target's 597. It costs score -- 282 to 335, and the same either declaration order -- because every home below it then shifts, so it is only worth taking together with the frame fix it exposes. That fix is now localised: with the split the frame is 0xA0 against 0x78 and the ENTIRE excess is below the packets. Ours runs 0x78 down to 0x2C, sixty bytes of block-scoped register locals; the target's runs 0x3C down to 0x2C, sixteen. We declare sixteen pointer and index locals across seven inner blocks -- three separate `i`, two separate `spawned` -- and the target's homes leave room for about six. Merging them to function scope is the next edit, and under L115 the reuse is what the target is already doing.
+- summary: 282 to 276: every block-scoped register local merged to function scope and the packet declared sixth; the frame excess is now a local count.
 
 Measured this lane:
 
@@ -20,4 +20,74 @@ Read the two ladders side by side with tools/frame_census.py before touching
 anything here: the 0x18 frame excess and the 98 structural words are one
 question, and the packet count is the half of it that the old comment gets
 backwards.
+
+## 2026-09-12 (lane `p12-o57`): the frame excess is a local COUNT, and both packet blocks are now reachable
+
+  - before: 282 masked of 597 words, size delta -20, frame 0x90 against the
+    target's 0x78, 17 stack homes against 24, byte-exact 410, register naming
+    75, immediate only 23, really different 98.
+  - after: 276 masked, size delta -20, frame 0x80, 17 homes against 24,
+    byte-exact 421, register naming 75, immediate only 17, really different 94.
+
+### Adopted, two edits
+
+**Every block-scoped `register` local merged to function scope.** The seven
+inner blocks declared fourteen locals between them, including three separate
+`i` and two separate `spawned`. Each reserves its own home, so the scoping was
+buying nothing and costing four slots. Twelve function-scope locals is frame
+0x90 to 0x80 at 282 to 281, and it makes the ladder BELOW the packets exact:
+six slots on each side at +0x2C +0x28 +0x24 +0x20 +0x1C +0x10.
+
+**The packet declared sixth rather than first.** A move-one climb over all
+thirteen declaration positions, 145 compiles, reaches 276 in one move and is
+then a fixed point. What the move buys is the target's own packet offsets: the
+union lands on +0x54 through +0x64 and the target's upper packet block is +0x54
+through +0x64, slot for slot, where before it sat 0x24 too high.
+
+### The union split is reachable and flat, which is a different statement from the last packet's
+
+The last packet said the split "reproduces BOTH blocks" and costs 282 to 335
+"because every home below it then shifts". Re-measured on the merged shape,
+both halves need correcting.
+
+The split reproduces the LOWER block exactly, and only when `final` is declared
+**last** of the thirteen: its block then lands on +0x3C +0x3E +0x40 +0x42 +0x46
++0x47 +0x48, the target's offsets with only the target's +0x44 store
+unaccounted. Declared anywhere else it does not.
+
+But the cost is NOT a shift that an order sweep can recover. All eight
+positions of `final` score exactly 335, and a separate move-one climb over all
+fourteen positions of both packets, 170 compiles, is a fixed point at 335. The
+split is flat across placement.
+
+### The lever is the local count (L134), and it is measured
+
+With the split the frame is 0x90 against 0x78 -- exactly six slots too many --
+and this candidate declares twelve non-packet locals where the target's two
+gaps, +0x4C through +0x53 and +0x6C through +0x77, leave room for five or six.
+
+Merging `value` into `id` and `stride` into `i`, without the split, takes the
+frame to 0x78 EXACTLY on both sides and costs 15 words (276 to 291 at the best
+union position, 281 to 296 at the first). That is the measurement that proves
+the count is the free parameter rather than any placement, and that ten locals
+is two too few while the union is one object rather than two.
+
+### Next edit, named
+
+Find six reuses among `current`, `descriptor`, `resourceIndex`,
+`descriptorEnd`, `i`, `value`, `stride`, `spawned`, `path`, `result`, `entry`
+and `id` that cost less than the split buys, then take the split with `final`
+declared last. The pointer set is where the room is: `path`, `result` and
+`spawned` are used in three disjoint blocks and `resourceIndex` and `entry` in
+two more, so five of the six reuses are legal under L115 and need only a type
+that serves both sites.
+
+Do not re-run: the thirteen-position and fourteen-position declaration climbs,
+the eight positions of `final`, the 66-cell two-packet placement sweep, or the
+block-scope shape.
+
+Validation: `gmake verify` printed
+507341c0a40ca3e9a7cee969b396ee53facfb548 and `tools/gates.sh --staged` passed
+all four gates. The candidate remains `NON_MATCHING`, so no bytes are credited.
+
 <!-- plateau-handoff:func_overlay_057_F0000000_18A3BF8:end -->

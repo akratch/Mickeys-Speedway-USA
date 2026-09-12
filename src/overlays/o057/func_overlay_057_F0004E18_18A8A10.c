@@ -289,17 +289,56 @@ extern void func_overlay_084_F0001398_18D1878(void);
  *      more word and is a REORDERING OF TWO CALLS, so it is rejected; the
  *      sweep tool now refuses to move any statement containing a call.
  *
- * What is left, measured: two compiler temps (sp+0x54 and sp+0x58 against the
- * target's sp+0x5C and sp+0x64, inside a temp region that is the same size on
- * both sides), and one address materialisation.  The candidate takes
- * &activePlayers twice and &sourceState once plus &sourceState[4] once; the
- * target takes &activePlayers once and &sourceState twice and never names the
- * end of sourceState, because its bound is the global's end and lives in a3.
- * The decision variable is which register holds `outputIndex`: the target's s2
- * against the candidate's a0.  Free a callee-saved register -- the candidate
- * parks `&gO57MiddleChoices` in s6 and copies it to v0, where the target
- * materialises it straight into v0 -- and the cached-load form that currently
- * costs 516 becomes affordable, which is what closes the loop's shape. */
+ *  8.  THE CHOICE LOOP'S OUTPUT CURSOR IS A CARRIER DECISION AFTER ALL,
+ *      2026-09-12 (lane p12-o57).  203 -> 132 masked at the same 0x140 frame,
+ *      byte-exact 1040 -> 1105 of 1208, naming 100 -> 53, immediate 11 -> 14,
+ *      really different 68 -> 43, displacement tax 24 -> 22.
+ *
+ *      Note 7's packet closed "which register holds outputIndex" as inert on
+ *      the strength of a 1,131-form L115 reuse lattice.  That lattice varied
+ *      the countdown fill's counter, the second fill loop's index and the
+ *      activePlayers scan cursor and held the CHOICE LOOP's cursor fixed at
+ *      `outputIndex` throughout, so it never tested the one carrier that
+ *      moves.  Carrying the choice loop's output cursor in `i` instead is
+ *      worth 248 -> 230 on its own and is what puts the value in a
+ *      callee-saved register: under L115 a live range is formed per symbol,
+ *      `i` is referenced across calls elsewhere in this function and
+ *      `outputIndex` is not, so `i`'s web is offered only the callee-saved
+ *      colours while `outputIndex` is offered the argument registers first.
+ *      The instrumented records name the web: forcing it onto any callee-saved
+ *      colour scores 246 against 554 unforced, and s2 itself is declined with
+ *      a forbidden mask, so the source form reaches what the force reaches
+ *      without reproducing the exact register.
+ *
+ *      The rest of the gain is three composed edits on the shape that opens.
+ *      (a) The loop bounded on `&gO57MiddleChoices[4]` with BOTH cursors
+ *      stepped at the bottom and `choice->active` read ONCE into `rank`, which
+ *      is the target's loop instruction for instruction; alone it is 554,
+ *      because it takes one more caller-saved colour than the old shape and
+ *      pushes a web onto t0, which removes t0 from ugen's ring free list and
+ *      rotates every ring temporary in the whole function -- 315 extra naming
+ *      rows from one colour.  (b) Naming `gO57MiddleChoices[0].tableIndex` in
+ *      a local at BOTH tail reads, 240 -> 152, measured identical for eleven
+ *      carriers and worse for `limit`, `previousGroup`, `row`, `state`,
+ *      `valueA`, `valueB`, `valueC` and `currentGroup`.  (c) A re-climbed
+ *      statement order, 152 -> 132 in two moves; L146 voids note 7's fixed
+ *      point the moment the shape changes.
+ *
+ *      Flat or rejected this lane, on the pre-adoption shape unless said
+ *      otherwise: all 231 spans of an `if (1)` region boundary over the
+ *      confirm block's 22 statements, best 203 and worst 246, so L97 and L136
+ *      are inert here exactly as L136's scope note predicts for a callee-saved
+ *      span; hoisting `outputIndex = 0` above the func_80000F94 call, which
+ *      does reach a callee-saved colour but only at 261; sixteen other
+ *      carriers for the choice loop's cursor; ten spellings of the countdown
+ *      fill; and note 6's tail-read respellings, still byte-identical.
+ *
+ *      What is left, measured: size delta -4.  The target materialises
+ *      `&gO57MiddleChoices` afresh at each tail read where this candidate
+ *      keeps it in s5 across the whole tail, which is one instruction fewer
+ *      here and the whole of the deficit; the two compiler temps at sp+0x54
+ *      and sp+0x58 against the target's sp+0x5C and sp+0x64 are unchanged
+ *      from note 7. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -627,28 +666,20 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
             func_80000F94(0xC, 0);
             if (gO57MiddlePlayerCount >= 2 || gO57MiddleState194 == 1) {
                 active = &activePlayers[9];
-                for (i = 9; i >= 0; i--) {
+                for (outputIndex = 9; outputIndex >= 0; outputIndex--) {
                     *active-- = 1;
                 }
                 choice = gO57MiddleChoices;
-                outputIndex = 0;
-                /* A `for` over `source`, not a `do`/`while` with the step in
-                 * the body: 205 -> 203 masked at delta 0, byte-exact 1038 ->
-                 * 1040, naming 102 -> 100. Still bounded on sourceState rather
-                 * than on &gO57MiddleChoices[4]; both pointers step together so
-                 * the trip count is the same, and bounding on
-                 * &gO57MiddleChoices[4] measures 249 in this shape. Advancing
-                 * `source` inside the condition is 205 with `<` and 354 with
-                 * `!=`; `source != &sourceState[4]` is 245. */
-                for (source = sourceState; source < &sourceState[4]; source++) {
-                    *source = choice->active;
-                    if (choice->active != 0) {
-                        gO57MiddleOutput[outputIndex].controller =
+                i = 0;
+                for (source = sourceState; choice < &gO57MiddleChoices[4]; choice++, source++) {
+                    rank = choice->active;
+                    *source = rank;
+                    if (rank != 0) {
+                        gO57MiddleOutput[i].controller =
                             gO57MiddleCharacterIds[choice->tableIndex];
                         activePlayers[gO57MiddleCharacterIds[choice->tableIndex]] = 0;
-                        outputIndex++;
+                        i++;
                     }
-                    choice++;
                 }
                 i = 0;
                 for (outputIndex = gO57MiddlePlayerCount; outputIndex < 6; outputIndex++) {
@@ -682,21 +713,23 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     gO57MiddleData319C = 0;
                     gO57MiddleData3198 = (u8)state;
                 }
-                gO57MiddleData31AC = (u8)((state < 2) ^ 1);
                 gO57MiddleData31A4 = 2;
-                gO57MiddleData31A8 = 0;
+                gO57MiddleData31AC = (u8)((state < 2) ^ 1);
                 gO57MiddleData31B8 = gO57MiddleData31B4;
+                gO57MiddleData31A8 = 0;
                 if (gO57MiddleData31E4 > 0) {
-                    gO57MiddleData31EC = gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex];
+                    characterId = gO57MiddleChoices[0].tableIndex;
+                    gO57MiddleData31E8 = gO57MiddleCourseIds[gO57MiddleSelection];
+                    gO57MiddleData31EC = gO57MiddleCharacterIds[characterId];
                     gO57MiddleData31F0 = 5;
                     gO57MiddleData31F4 = 0;
-                    gO57MiddleData31E8 = gO57MiddleCourseIds[gO57MiddleSelection];
                     func_80028374(0x12, 0, 0, 0xF, 1, 0);
                     func_80028528(1);
                 } else {
+                    characterId = gO57MiddleChoices[0].tableIndex;
                     func_80028374(
                         gO57MiddleCourseIds[gO57MiddleSelection],
-                        gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex],
+                        gO57MiddleCharacterIds[characterId],
                         0, 5, 1, 0);
                 }
                 gO57MiddleTransition = 1;
@@ -720,10 +753,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 203/1208 words
+ * score: 132/1208 words
  * frame: 0x140
- * relocations: 373
- * first-mismatch: +0x100
- * summary: Writing the choice loop as a for over source rather than a do-while with the step in the body is 205 -> 203 at delta 0, byte-exact 1038 -> 1040, register naming 102 -> 100, structure unchanged at 68; the loop keyword is the whole of it and six other tail spellings read 205 to 354. The prior packet's named decision variable, which register holds outputIndex, is not reachable from the source: a 1,131-form L115 reuse lattice measures six different locals at exactly 205 for that index, so carrier identity there is inert. Statement order is a move-one fixed point on the new shape at 1,703 compiles; the unguarded climb's 202 is the same two-call swap the prior lane rejected, and it is rejected again. What is left is 68 really-different rows against 100 naming rows, and the census reads per-iteration consumption over seven windows, so structure comes first.
+ * relocations: 375
+ * first-mismatch: +0x34
+ * summary: 203 to 132 masked: the choice loop's output cursor carried in i, the target's loop shape, both tail reads named, order re-climbed.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
