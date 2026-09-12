@@ -390,6 +390,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_blockclimb.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_residual_map.py
 
 # Ownership-only inventory; does not count padding/scaffolds as matched C.
 .PHONY: check-raw-asm
