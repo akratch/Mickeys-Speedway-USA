@@ -153,5 +153,76 @@ class ShippedRegistryTests(unittest.TestCase):
                 self.assertTrue(entry.get("reason", "").strip(), name)
                 self.assertGreater(len(entry.get("evidence", "")), 80, name)
 
+
+class AssignabilityFilterTests(unittest.TestCase):
+    """Only `base-only` targets may be dispatched, and the ranking does not
+    say which those are.
+
+    Measured once: 338 queued functions, 68 assignable. A wave went out at
+    nine targets of which three were assignable; the lane correctly refused
+    the rest and the slot was wasted. The gap to the goal was larger than the
+    entire assignable pool, so the plan was impossible for a reason no number
+    in the ranking showed.
+    """
+
+    def _rows(self):
+        return [fn("open", 1000, 10, 1), fn("stale", 5000, 5, 2)]
+
+    def _patched(self, states):
+        return (
+            unittest.mock.patch.object(triage, "load", self._rows),
+            unittest.mock.patch.object(triage, "assignability",
+                                       return_value=states),
+            unittest.mock.patch.object(triage, "resolved_bytes", lambda: 0),
+            unittest.mock.patch.object(triage, "unassignable", dict),
+        )
+
+    def _report(self, states):
+        import contextlib
+        with contextlib.ExitStack() as stack:
+            for p in self._patched(states):
+                stack.enter_context(p)
+            r = triage.report(60.0, 5)
+            return r, triage.render(r)
+
+    def test_a_non_assignable_target_leaves_the_route(self) -> None:
+        """It would sort first: 5000 bytes at 5 words is the best ratio here."""
+        r, _ = self._report({"open": "base-only",
+                             "stale": "already-integrated/exhausted"})
+        self.assertNotIn("stale", r["route"]["names"])
+        self.assertIn("open", r["route"]["names"])
+
+    def test_the_blocked_bytes_are_reported_by_state(self) -> None:
+        """A silently shorter queue reads as progress. The tool must say how
+        much was withheld and under which state, because the remedies differ:
+        a stale pin gets repinned, an active lane gets waited on."""
+        _, rendered = self._report({"open": "base-only",
+                                    "stale": "already-integrated/exhausted"})
+        self.assertIn("NOT ASSIGNABLE", rendered)
+        self.assertIn("5,000", rendered)
+        self.assertIn("already-integrated/exhausted", rendered)
+        self.assertIn("authorize_reopen", rendered)
+
+    def test_an_unavailable_classifier_says_so_rather_than_lying(self) -> None:
+        """Degraded triage is fine; reporting unfiltered figures as though
+        they were assignable is not."""
+        r, rendered = self._report({})
+        self.assertIsNone(r["blocked"])
+        self.assertIn("lane_status unavailable", rendered)
+        self.assertIn("stale", r["route"]["names"])
+
+    def test_an_unknown_symbol_is_treated_as_assignable(self) -> None:
+        """A symbol missing from the classifier's answer must not be dropped
+        silently; the fail-closed direction belongs in lane_status, not here."""
+        r, _ = self._report({"open": "base-only"})
+        self.assertIn("stale", r["route"]["names"])
+
+    def test_assignability_returns_empty_when_lane_status_raises(self) -> None:
+        import lane_status
+        with unittest.mock.patch.object(
+                lane_status.AssignmentContext, "build",
+                side_effect=RuntimeError("no base")):
+            self.assertEqual(triage.assignability(["a"]), {})
+
 if __name__ == "__main__":
     unittest.main()
