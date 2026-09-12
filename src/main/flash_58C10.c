@@ -58,13 +58,13 @@ void func_800580F0(s32 arg0) {
     u8 status;
 
     if (D_8007F7A4 != 0) {
-        osGbpakGetStatus(&D_800D7830, &status);
+        osGbpakGetStatus((OSPfs *)(u32)&D_800D7830, &status);
         if (func_8006AC60(&D_800D7830, 1) == 0) {
-            osGbpakCheckConnector(&D_800D7830, &status);
+            osGbpakCheckConnector((OSPfs *)(u32)&D_800D7830, &status);
             func_8006B020(&D_800D7830, (u16)arg0,
                           *(u16 *)(&D_800D789A[arg0 * 4]),
                           D_800D78A0[arg0], D_800D78A8[arg0]);
-            func_8006AC60(&D_800D7830, 0);
+            func_8006AC60((OSPfs *)(u32)&D_800D7830, 0);
             if (osGbpakGetStatus(&D_800D7830, &status) != 0) {
                     func_80058010();
                 }
@@ -97,10 +97,10 @@ OSGbpakId *func_80058240(void) {
 
 /* PLATEAU-HANDOFF:func_800580F0:start
  * symbol: func_800580F0
- * score: 42/51 words
+ * score: 32/51 words
  * frame: 0x30
  * relocations: 17
- * first-mismatch: +0xC
- * summary: IDO hoists D_800D7830 into s0 while the target reloads it at calls, leaving allocation and relocation differences.
+ * first-mismatch: +0x10
+ * summary: Alternating pointer-to-u32 address spellings improves to 32 but remains one instruction short; accepted p1 web-22 split reaches 12 forced differences.
  * PLATEAU-HANDOFF:func_800580F0:end
  */
