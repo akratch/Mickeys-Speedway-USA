@@ -319,8 +319,22 @@ it end to end. The ones that carry most of the weight:
 
 - `uopt -Wo,-zdbug:2` — writes `./uoptlist` with the colouring decision records.
   **Never commit it.**
+- **`DKWB_UGEN_SCHED=1 DKWB_UGEN_TRACE=1` — the freelist trace, and the most
+  productive instrument of the campaign.** Each `ALLOC_GP_RESULT` /
+  `ALLOC_FP_RESULT` row is stamped with its source line, so the draw index at
+  any statement is a **direct readout**: "the target spends one more draw here"
+  becomes arithmetic rather than inference. It was decisive on three of five
+  targets in one lane and it is the only way to see an L149 folded draw. It also
+  gives the free list itself — one integer list read `t6 t7 t8 t9 t1 t2 t3 t4
+  t5` FIFO after `t0` was removed, and the **fp scratch ring is five registers,
+  `f4 f6 f8 f10 f18`**, the complementary `f0 f2 f12 f14 f16` being globalcolor's
+  colours 24–28. A "cycle" a census reports is not necessarily the free list's
+  order; the trace settles it.
 - The instrumented toolchain at `~/Desktop/dev/ido-instrumented` (`CDX_LOG`,
-  `CDX_PROC`, `CDX_DETAIL_WEB`, `CDX_FORCE`). **Confirm its `.text` is
+  `CDX_PROC`, `CDX_DETAIL_WEB`, `CDX_FORCE`). **Two usage facts that cost a lane
+  time each:** `CDX_LOG=1` alone does nothing — the log path is **`CDX_OUT`**;
+  and **`CDX_PROC` must be an ordinal**, which you get by first running with a
+  non-numeric value to print the `procindex` table. **Confirm its `.text` is
   byte-identical to the tree's object before trusting any reading** — and
   **derive the compile command from the build rather than retyping it**. Take
   `nm_ranking.configured_compile_commands` and replace only the compiler binary.
