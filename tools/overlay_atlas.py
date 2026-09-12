@@ -1439,6 +1439,9 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xB20, 0xB68, "overlay27CanUse"),
         (0xB68, 0xBC0, "overlay27Activate"),
     ],
+    26: [
+        (0x1158, 0x1370, "func_overlay_026_F0001158_187B550"),
+    ],
     28: [
         (0x000, 0x070, "overlay28ResetBuffer"),
         (0x070, 0x1B8, "overlay28UpdateVertices"),

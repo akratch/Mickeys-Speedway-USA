@@ -2274,3 +2274,26 @@ case, the one-solution case, then the default reproduces the return layout.
 Other tested switch orders and nested-return forms leave the default value in
 a separate block. No compiler flags changed. The unused historical loop-control
 helper and the obsolete guarded handoff were removed.
+
+
+### Overlay 26 draw-groups closure (2026-09-12)
+
+`func_overlay_026_F0001158_187B550` is ROM-exact over overlay 26 text
+`+0x1158..+0x1370`: 536 executable bytes, 134 words, the `0x58` frame and
+all four relocation counts, types, offsets and identities. `gmake verify`
+prints the expected US ROM hash. The aligned buckets
+(exact/register/immediate/structural) move from 77/36/2/19 to 134/0/0/0;
+the original clean candidate was one instruction short.
+
+The inherited claim that the negation needs a second consumer falls: a typed
+node-pointer table indexed by `4 - groupIndex` produces the required address
+arithmetic directly, without the retired inert read. A natural four-group
+countdown restores the setup ordering. Manually grouped command stores reach
+eight differences; the configured SDK macros in the existing `n_audio/mbi.h`
+then reproduce both the command-pointer allocation and store order. Replacing
+only one command with its macro leaves a separate pointer colour; reconstructing
+the complete command sequence is exact. The custom triangle-pointer command
+remains explicit. Literal signedness, pointer-versus-integer null-argument
+typing and a move-one statement climb did not close the manual-command shape.
+Accepted direct colour forces correctly priced the constant-register residual,
+but forced objects were diagnostic only. Stock output supplies the match.
