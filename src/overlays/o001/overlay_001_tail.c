@@ -2002,13 +2002,8 @@ void overlay1ReadSelection(Overlay1Object *object, s32 index, f32 *outX,
 extern f32 overlay1SqrtReloc(f32 value);
 extern s32 overlay1AngleReloc(f32 y, f32 x);
 
-/* Fresh phase-5 plateau: configured C remains 137/139 words, frame 0xA8,
- * with 92 raw/masked differences and first relocation mismatch +0x50. The
- * target's root loop retains a two-instruction generic-count preheader. Nine
- * natural loop/count forms were identical or worse; the only exact-size form
- * added a saved-register web. -O2 -g3 reaches 139 words/86 differences but
- * perturbs the shared-TU prologue, so it is diagnostic rather than a flag fix. */
-#ifdef NON_MATCHING
+/* The root count is defined before the discriminant region. Keep the signed
+ * radical separate from the quotient, and the switch cases in this order. */
 s16 overlay1SolveAngleCandidates(
     f32 x0, f32 y0, f32 x1, f32 y1,
     f32 y2, f32 x2, f32 radius, f32 slope, s32 chooseHigh) {
@@ -2026,6 +2021,7 @@ s16 overlay1SolveAngleCandidates(
     s32 sign;
 
     solutionCount = 0;
+    sign = 2;
     dx = x0 - y1;
     dy = x1 - x2;
     distance = overlay1SqrtReloc((dx * dx) + (dy * dy));
@@ -2038,14 +2034,13 @@ s16 overlay1SolveAngleCandidates(
         discriminantRoot = overlay1SqrtReloc(discriminant);
         denominator = (((dy * dy) / (distance * distance)) + 1.0f) * 2.0f;
 
-        sign = solutionCount + 2;
         while (sign--) {
             if (sign != 0) {
-                root = discriminantRoot;
+                dx = discriminantRoot;
             } else {
-                root = -discriminantRoot;
+                dx = -discriminantRoot;
             }
-            root = (root + sum) / denominator;
+            root = (dx + sum) / denominator;
             if (root >= 0.0f) {
                 angleX = overlay1SqrtReloc(root);
                 if (distance < 0.0f) {
@@ -2059,28 +2054,19 @@ s16 overlay1SolveAngleCandidates(
         }
     }
 
-    if (solutionCount != 1) {
-        if (solutionCount == 2) {
+    switch (solutionCount) {
+        case 2:
             if (solutions[0] < solutions[1]) {
                 return chooseHigh ? solutions[1] : solutions[0];
             }
             return chooseHigh ? solutions[0] : solutions[1];
-        }
-        return 0x2000;
+        case 1:
+            return solutions[0];
+        default:
+            return 0x2000;
     }
-    return solutions[0];
 }
 
-s32 overlay1LoopControlCarrier(s32 value) {
-    if (value == 0) {
-        return 2;
-    }
-    return value;
-}
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00064F8_18528D8.s")
-#endif
 
 /* ---- overlay1UpdateModeSound ---- */
 
@@ -3515,15 +3501,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
  */
 
-/* PLATEAU-HANDOFF:overlay1SolveAngleCandidates:start
- * symbol: overlay1SolveAngleCandidates
- * score: 47/139 words
- * frame: 0xA8
- * relocations: 4
- * first-mismatch: +0x50
- * summary: Two relocation offsets/types align; identities unresolved. -O2 -g3 gives 139 words/86 diffs but changes the TU prologue. Need a natural root-count preheader.
- * PLATEAU-HANDOFF:overlay1SolveAngleCandidates:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:start
  * symbol: func_overlay_001_F0003750_184FB30

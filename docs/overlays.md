@@ -2250,3 +2250,27 @@ holds that result as `s32`, and the sequence is an array of button masks,
 not an array of pointers. Those authoritative types restore the return-value
 copy and its use across the control flow. The callee has an overlay-specific
 relocation placeholder; no shared prototype or toolchain flags changed.
+
+
+### Overlay 1 angle-candidate solver closure (2026-09-12)
+
+`overlay1SolveAngleCandidates` is ROM-exact over its 556-byte executable range,
+overlay 1 text `+0x64F8..+0x6724`. Its configured stock full-TU object and
+linked bytes match all 139 words, the `0xA8` frame, and all four relocation
+counts, types, offsets and identities. The three square-root calls and the
+angle call resolve through the existing overlay-specific placeholders.
+`gmake verify` prints the expected US ROM hash. The aligned buckets
+(exact/register/immediate/structural) improve from 119/4/6/13 to 139/0/0/0;
+the original candidate was two instructions short.
+
+The inherited root-preheader closure falls. Defining the two-root count before
+the discriminant region and its calls preserves the required entry guard.
+Casting the initial value, changing its signedness, and moving only the
+invariant denominator do not reach it; a narrow induction variable adds
+unwanted narrowing instructions. Reusing the now-dead initial delta for the
+signed radical separates that value from the quotient's floating argument
+carrier without adding a local home. Finally, a switch with the two-solution
+case, the one-solution case, then the default reproduces the return layout.
+Other tested switch orders and nested-return forms leave the default value in
+a separate block. No compiler flags changed. The unused historical loop-control
+helper and the obsolete guarded handoff were removed.

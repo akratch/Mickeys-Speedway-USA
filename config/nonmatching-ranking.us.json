@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 312,
-  "resolved": 312,
+  "queue_size": 311,
+  "resolved": 311,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 312,
-  "relocation_masked_coverage": 312,
+  "source_context_coverage": 311,
+  "relocation_masked_coverage": 311,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -2603,21 +2603,6 @@
       "size_delta": 68,
       "category": "size-mismatch",
       "source_context_sha256": "4nMn.H2k7.fnEd.-x15.PNZZ.1ipq.Jatt.L1Jq.4-nr.CdKd.D2c"
-    },
-    {
-      "name": "overlay1SolveAngleCandidates",
-      "file": "src/overlays/o001/overlay_001_tail.c",
-      "overlay": 1,
-      "tu": "overlays/o001",
-      "size_bytes": 556,
-      "objdiff_match_pct": null,
-      "differing_words": 92,
-      "first_mismatch_offset": 168,
-      "relocation_masked_differing_words": 92,
-      "relocation_masked_first_mismatch_offset": 168,
-      "size_delta": -8,
-      "category": "size-mismatch",
-      "source_context_sha256": "CeZ_.f3xq.hbDT.FBYl.Q1_i.r4mN.uSBZ.O97c.y8vp.jkaT.8ME"
     },
     {
       "name": "func_80004590",
