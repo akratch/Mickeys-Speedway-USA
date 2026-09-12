@@ -40,6 +40,8 @@ size mismatch that last pair is the whole question.
 
   **Read the coherence line, not just the cycle.** A cycle in an incoherent mapping is not a ring phase: a transfer was applied on cycle presence alone and refused. The lead that transferred reads 88% of substitutions following their source's dominant target; the sibling that refused reads 51%, with one source register splitting three ways. Check the size delta too -- the lead was +4 with identical frames, the sibling -76 with frames 0x10 apart.
 
+`tools/residual_map.py <symbol>` splits the same residual by **address**: differing rows per window, naming/immediate/structural, the candidate-only and target-only offsets that bracket every +1 run, and a register substitution census **per window** with its cycles. Use it whenever a whole-function census reads as incoherent, because a rotated tail and an un-rotated head average each other away: on the overlay 58 whale the function-wide reading was "flat per-web colour, twenty-odd windows", and split at the single candidate-only word it was 150 of 212 slots in one closed nine-cycle after that word and no cycle at all before it. One extra instruction had rotated the free list for 1,196 bytes. `--lo`/`--hi` restrict every section, which is how you price a region.
+
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
 them: each side's ladder from the frame top down, the slots only one side uses,
 and shared slots with different traffic. Run it on any residual with a frame or
