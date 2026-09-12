@@ -553,20 +553,20 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 3:
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xA0, 0x1E, D_8007C0B8->text[0x29], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         savedX = D_o058_5E98;
 
         savedPosition = D_o058_5E9C;
-        i = 0;
-        rowY = rowBase;
+        portraitX = 0;
+        /* Keep the row home in the nonempty block, beside its first use. */
         if ((s32) D_8007BEF8 > 0) {
-            do {
+            rowY = rowBase; do {
                 D_o058_5E98 = -D_o058_5E98;
                 D_o058_5E9C = -D_o058_5E9C;
 
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[portraitX]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E98 + D_o058_5E9C + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -574,22 +574,22 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x28, rowY, D_o058_5C98[D_o058_5F10[i]], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EE0[i])) {
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x28, rowY, D_o058_5C98[D_o058_5F10[portraitX]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EE0[portraitX])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x71, rowY, D_8007C0B8->text[D_o058_5EE0[i]->character + 0x1A], 0);
-                sprintf(&text[0], D_o058_5D60, D_o058_5EE0[i]->rank);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x71, rowY, D_8007C0B8->text[D_o058_5EE0[portraitX]->character + 0x1A], 0);
+                sprintf(&text[0], D_o058_5D60, D_o058_5EE0[portraitX]->rank);
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xD2, rowY, &text[0], 0);
-                if (D_o058_5EE0[i]->rank == 1) {
+                if (D_o058_5EE0[portraitX]->rank == 1) {
                     func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D64, 0);
                 } else {
                     func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D68, 0);
                 }
-                i += 1;
+                portraitX += 1; i += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -666,7 +666,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 D_o058_5E9C = -D_o058_5E9C;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[(u32)i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
                 nodes[0].y = rowY + 0x12;
@@ -679,7 +679,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
                 if ((s32) D_8007BEF8 > 0) {
                     do {
-                        sprintf(&text[0], D_o058_5D6C, D_o058_5EE0[i]->counters[opponent]);
+                        sprintf(&text[0], D_o058_5D6C, D_o058_5EE0[(u32)i]->counters[opponent]);
                         func_8004B0F8(&D_800D3140, columnX, rowY + 0x16, &text[0], 4);
                         opponent += 1;
                         columnX += columnStep;
@@ -786,14 +786,14 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
-        i = 0;
+        portraitX = 0; i = 0;
         rowY = rowBase;
         if ((s32) D_8007BEF8 > 0) {
             do {
                 D_o058_5E9C = -D_o058_5E9C;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[portraitX]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
                 nodes[0].y = rowY + 0x12;
@@ -806,13 +806,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
                 if (columnStep > 0) {
                     do {
-                        sprintf(&text[0], D_o058_5D70, D_o058_5EE0[i]->flags[opponent]);
+                        sprintf(&text[0], D_o058_5D70, D_o058_5EE0[portraitX]->flags[opponent]);
                         func_8004B0F8(&D_800D3140, columnX + 8, rowY + 0x16, &text[0], 4);
                         opponent += 1;
                         columnX += columnCount;
                     } while (opponent != columnStep);
                 }
-                i += 1;
+                portraitX += 1; i += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 217/3614 words
+ * score: 187/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 217 retained; partial cursor sharing reaches s4 naturally and a named value restores transition width, but row-load and transition temp draws still diverge.
+ * summary: 187: case-3 pair closed by shared entry induction and guarded row initialization; cached row and transition address preserved. Case 12 remains.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
