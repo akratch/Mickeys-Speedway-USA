@@ -594,9 +594,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             } while (i < (s32) D_8007BEF8);
         }
         D_o058_5E98 = savedX;
-        D_o058_5E98 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if (D_o058_5EB0 == 0) {
@@ -689,10 +689,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+        D_o058_5EA0 = savedOffset;
+
+        D_o058_5EA0 -= arg0 * 0xF;
         if (D_o058_5EA0 < 0) {
             D_o058_5EA0 = 0;
             if (D_o058_5EB0 == 0) {
@@ -816,10 +816,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+        D_o058_5EA0 = savedOffset;
+
+        D_o058_5EA0 -= arg0 * 0xF;
         if (D_o058_5EA0 < 0) {
             D_o058_5EA0 = 0;
             if (D_o058_5EB0 == 0) {
@@ -1481,10 +1481,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 594/3614 words, size delta 0
+ * score: 566/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: uopt rewrites a provably counted loop's `< CONST` exit test into `!=` against a constant hoisted into a register, and at case 9's grid inner loop it does so unconditionally -- measured at bounds 0x9, 0xA, 0xB and 0x40 and with every other 0xA in the procedure removed -- which is why no spelling of the bound ever reached the target's `slti $at,<index>,10`. The rewrite needs a known initial value, so writing the row reset as `opponent = i * 0` retires it at no instruction cost: 688 -> 634. The old `(opponent - 1)` spelling had been buying the same compare with an `addiu` that spent one temp-ring draw and rotated the free list for the remaining 1,196 bytes. That shape change reopened statement order (634 -> 623) and the carrier axis (623 -> 594), both recorded exhausted. Aligned at 594: byte-exact 3311, register naming 198, immediate 32, really different 86. What is left is a +1 run from +0x3088 to +0x3348 with both ends named, and a flat per-web colour residual before +0x3000.
+ * summary: Independent transition stores cross blank-line sweep boundaries: 594 to 566. Paired grid spill and case-10 definition remain open.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
