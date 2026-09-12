@@ -349,16 +349,16 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     rowBase = D_o058_5C68[D_8007BEF8 - 1];
     switch (D_o058_5E94) {
     case 1:
-        rowY = rowBase;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        i = 0; fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         x = D_o058_5E98 + D_o058_5EA8;
-        i = 0;
+        portraitX = 0; rowY = rowBase;
         if ((s32) D_8007BEF8 > 0) {
             do {
                 x = -x;
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[portraitX]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = x + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -366,23 +366,23 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[D_o058_5EF8[i]], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[i])) {
+                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[D_o058_5EF8[portraitX]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[portraitX])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[i]->character + 0x1A], 0);
+                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[portraitX]->character + 0x1A], 0);
                 if (state->mode == 5) {
                     if (i == 0) {
-                        overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                     } else {
-                        overlay56SplitTime(D_o058_5EC8[0]->value - D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[0]->value - D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                     }
                 } else if (i == 0) {
-                    overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                 } else {
-                    overlay56SplitTime(D_o058_5EC8[i]->value - D_o058_5EC8[0]->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[portraitX]->value - D_o058_5EC8[0]->value, &minutes, &seconds, &centiseconds);
                 }
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 textY = rowY + D_o058_5EAC;
@@ -403,7 +403,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8004B0F8(&D_800D3140, x + 0xFD, textY, D_o058_5D44, 0);
                 sprintf(&text[0], D_o058_5D48, centiseconds);
                 func_8004B0F8(&D_800D3140, x + 0x104, textY, &text[0], 0);
-                i += 1;
+                portraitX += 1; i += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -1484,10 +1484,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 277/3614 words
+ * score: 272/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 393 to 277: independent case-2 and case-8 inductions, fourth grid probe and loop-tail order; remaining windows priced and partitioned.
+ * summary: 277 to 272: separate case-1 array induction, later row store and same-line visible index; entry allocation repriced on the new shape.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
