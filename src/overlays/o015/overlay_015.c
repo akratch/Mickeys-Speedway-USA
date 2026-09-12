@@ -170,15 +170,6 @@ typedef struct Overlay15StarPointerView {
     Overlay15Star *stars;
 } Overlay15StarPointerView;
 
-/* PLATEAU-HANDOFF:overlay15MoveStars:start
- * symbol: overlay15MoveStars
- * score: 30 differing words
- * frame: 0x40
- * relocations: 25
- * first-mismatch: +0x30
- * summary: 30 masked at 58 words against the exact 54-word owner, frame 0x40 on both sides with an identical 13-slot ladder, four naming sites and no closed cycle. The size delta is entirely absolute-address overhead, now quantified: the ROM spends five overhead words on the nine bound loads and this candidate spends nine, and that difference of four words is the whole delta. The cost model explains why the 2026-08-29 declaration sweep read flat: a symbol referenced once costs one overhead word because the low half folds into the displacement, while a symbol referenced twice or more makes uopt build a base register costing two, so four pair aggregates plus one scalar is also nine, flat by construction rather than by accident. The reachable span is eighteen words for nine singles down to eleven for one aggregate over all nine, with the ROM at fourteen; the single aggregate measures 42 masked at delta -12. The ROM's overhead count is reachable and reaching it does not help: all nineteen contiguous partitions satisfying two-per-group-plus-one-per-single equal five were measured, every one closes the delta to exactly zero, none improves masked, and the best is 34 with byte-exact falling 37 to 30 and really-different rising 15 to 23. Decision variable reached, and it is not the one the DrawRain note names: as1 never shares a high half, and the ROM's shared base stays live across roughly fourteen scheduled instructions, so this is a uopt address-constant decision. The variable is uopt's choice between an assembler-temporary shared high half costing one word and an allocatable base register costing two, and every spelling reachable from declarations, groupings and argument order picks the base register; register pressure is the obvious untested hypothesis. Transfer from overlay15DrawRain refuted: its values lived in a padded struct, and these nine are already separate extern scalars.
- * PLATEAU-HANDOFF:overlay15MoveStars:end
- */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {
@@ -465,7 +456,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x18
- * summary: Ten source-authentic command, fade-lifetime, and packed-expression forms found no gain; entry scheduling and local-data identity proof remain.
+ * summary: Nine structural rows and no colour probes; isolate entry scheduling or local-data identity.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
@@ -507,4 +498,14 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * first-mismatch: +0x30
  * summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
  * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15MoveStars:start
+ * symbol: overlay15MoveStars
+ * score: 30 differing words
+ * frame: 0x40
+ * relocations: 25
+ * first-mismatch: +0x30
+ * summary: 30 masked at 58 words against the exact 54-word owner, frame 0x40 on both sides with an identical 13-slot ladder, four naming sites and no closed cycle. The size delta is entirely absolute-address overhead, now quantified: the ROM spends five overhead words on the nine bound loads and this candidate spends nine, and that difference of four words is the whole delta. The cost model explains why the 2026-08-29 declaration sweep read flat: a symbol referenced once costs one overhead word because the low half folds into the displacement, while a symbol referenced twice or more makes uopt build a base register costing two, so four pair aggregates plus one scalar is also nine, flat by construction rather than by accident. The reachable span is eighteen words for nine singles down to eleven for one aggregate over all nine, with the ROM at fourteen; the single aggregate measures 42 masked at delta -12. The ROM's overhead count is reachable and reaching it does not help: all nineteen contiguous partitions satisfying two-per-group-plus-one-per-single equal five were measured, every one closes the delta to exactly zero, none improves masked, and the best is 34 with byte-exact falling 37 to 30 and really-different rising 15 to 23. Decision variable reached, and it is not the one the DrawRain note names: as1 never shares a high half, and the ROM's shared base stays live across roughly fourteen scheduled instructions, so this is a uopt address-constant decision. The variable is uopt's choice between an assembler-temporary shared high half costing one word and an allocatable base register costing two, and every spelling reachable from declarations, groupings and argument order picks the base register; register pressure is the obvious untested hypothesis. Transfer from overlay15DrawRain refuted: its values lived in a padded struct, and these nine are already separate extern scalars.
+ * PLATEAU-HANDOFF:overlay15MoveStars:end
  */
