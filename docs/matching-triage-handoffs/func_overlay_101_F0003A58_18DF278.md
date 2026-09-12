@@ -2,11 +2,11 @@
 ### `func_overlay_101_F0003A58_18DF278` plateau handoff
 
 - source: `src/overlays/o101/func_overlay_101_F0003A58_18DF278.c`
-- score: 2 masked words of 1461
+- score: 1461/1461 words
 - frame: 0x50
 - relocations: 199
-- first mismatch: +0x1194
-- summary: L145 carrier deletion plus the L146 header order took 1421 to 2 at size delta 0; what is left is one adjacent transposition in as1's post-schedule pass at group 9's text junction, with every pairwise ADD_TEXT swap, every text-store position and every two-macro line split already measured.
+- first mismatch: none
+- summary: ROM-exact with stock IDO -Wab,-r4300_mul; 5844 owned bytes and all 199 relocation identities proved.
 
 #### What moved, 2026-09-12, lane p11-o101
 
@@ -224,5 +224,56 @@ the stream is the only question left open.
 
 Validation: `gmake verify` printed 507341c0a40ca3e9a7cee969b396ee53facfb548.
 The candidate is unchanged and remains `NON_MATCHING`, so no bytes are credited.
+
+#### 2026-09-12, lane p23-lastmile: the scheduler flag closes the residual
+
+The configured baseline reproduced the recorded 2 masked differences at zero
+size delta. The exhaustive same-kind landscape planned 307 cells across all
+42 coloured webs: 305 forces compiled, two webs had no alternative colour,
+257 forces were accepted at delta zero, 43 changed size, and five failed the
+strict acceptance receipt. No accepted force beat the baseline; the best
+single force was w438 to c6 at five masked words. The improving-force lattice
+is therefore empty, rather than evidence for an unmeasured combination floor.
+
+The stock and instrumented function text agreed. A separate listing replay
+through stock as0 and as1 also reproduced the complete text and all 199
+relocations, after removing the assembly-driver-only pic0 and noglobal flags.
+Ninety alias/noalias controls covered all pairs of the six relevant address
+registers at the first text node, the conversion join, and the next text node.
+Seventy-two were inert and eighteen regressed; none beat two. These controls
+are ignored diagnostic artifacts, not edits to compiled matching output.
+
+The decisive control was the configured stock compiler with only
+-Wab,-r4300_mul added: zero masked differences, unchanged 5844-byte size and
+199 relocations. The prior scheduler proof held this flag fixed, so its
+claim that the instruction stream pins the only available schedule was too
+broad. A g3 control regressed; an O1 wrapper invocation was rejected before
+compiling and supplies no evidence. No C-body permutation was needed.
+
+Impact scope is one single-function TU. The canonical rule adds the flag
+there and rebinds its two resident callees through overlay 101's existing
+relocation surface. No shared flag group changes. The guarded result was
+recorded with finalize_plateau before promotion; the source reconstruction
+is preserved and only its guard and stale source commentary are removed.
+
+Private reproduction material is under build/p23/o101/: the complete colour
+landscape, accepted-force records, stock and instrumented objects, faithful
+listing replay, alias controls, and the flag-control objects. These paths
+are ignored. Promotion and full-ROM verification results follow below.
+
+Promotion proof passed: 1461 words, frame 0x50, 199/199 relocation identities,
+using static metadata plus the runtime table and linked ROM. The owned range
+is overlay 101 text +0x3A58 through +0x512C, all executable bytes, with only
+compiler trailing alignment trimmed. Stock as1 replay with the scheduler flag
+also equals the flagged C object in text and relocations, isolating the change
+to that phase. No forced object or replay object enters the canonical build.
+
+The atlas was regenerated before extraction; aliases were regenerated before
+the first build and again afterward. The first build exposed expected stale
+resident alias bindings; the second pass restored them and the build passed.
+`tools/gates.sh verify` printed the expected and built SHA-1
+507341c0a40ca3e9a7cee969b396ee53facfb548. This is new exact C credit for
+5844 bytes. The remaining 17 raw pre-link differences were relocation
+artifacts, resolved by the linked proof. README and the queue were regenerated.
 
 <!-- plateau-handoff:func_overlay_101_F0003A58_18DF278:end -->
