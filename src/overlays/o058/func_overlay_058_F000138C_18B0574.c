@@ -887,9 +887,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         } else {
             func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
-        /* Cursor, not `D_o058_5E68[i]`; and the def of `i` therefore stays
-         * at the top of the case, where the target puts it.  See case 13. */
-        cursor = (void **) D_o058_5E68;
+        /* Independent array induction preserves the early visible index.
+         * The named array also keeps its load distinct from outgoing args. */
+        rowBase = 0;
         textY = 0x50;
         do {
             if (i == D_o058_5F28) {
@@ -897,10 +897,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, (char *) *cursor, 4);
+            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, D_o058_5E68[rowBase], 4);
             i += 1;
             textY += 0x1E;
-            cursor++;
+            rowBase++;
             x = -x;
         } while (i < 4);
         D_o058_5EA0 -= arg0 * 0xF;
@@ -1234,8 +1234,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     } else {
                         D_800D31C4[D_8007C1B4] = 0x20;
                         D_8007C1B4 -= 1;
-                        columnX = 0;
-                        do {
+                        columnX = 0; do { /* Keep the preheader scheduling tie. */
+
                             /* The outer row uses columnX and the inner
                              * character index uses i, as in the grid below.
                              * Both counters are reinitialized before each
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 227/3614 words
+ * score: 217/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: All 31 accepted force subsets are additive, diagnostic floor 185; guarded source stays 227 and regional identity pairings give no adoption.
+ * summary: Two scheduling pairs removed at unchanged width; independent named-array induction and same-line erase initializer; two delayed-index pairs remain.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
