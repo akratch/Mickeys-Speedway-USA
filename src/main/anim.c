@@ -4007,29 +4007,38 @@ no_intersection:
         }
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
  */
-/* Type pass: the shared collision-state overlay is neutral. Plateau: workbench mixed structural/register, 105/105 instructions and 51 words, first divergence +0x24.
- * Levers tried: prior radius/delay-slot, squared-radius lifetime, statement-order/tie, sort-cursor, flag, and context probes.
- * Remaining: IDO's radius/call schedule and register web stay displaced; the target/candidate sqrtf relocation identities also differ. */
+/*
+ * Matched 2026-09-12 from 14 masked words by three edits, each measured:
+ *   - the entity-kind byte is read through its own pointer, which gives the
+ *     two range tests one coloured web instead of a ring temp and puts the
+ *     whole integer ring back in phase (14 -> 6);
+ *   - the sort is an index-based bubble sort, so strength reduction rebuilds
+ *     the array cursor inside the outer loop instead of hoisting it and
+ *     copying (the retained cursor form never restarted the pass, which is a
+ *     different sort at the same instruction count);
+ *   - `playerCount` sits one slot further down the declaration list, which is
+ *     the whole stack-home ladder, and the inner `do` shares a physical line
+ *     with the offset reset (L59).
+ */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                   HitCopyState **nearby) {
     f32 distances[8];
+    s8 *targetKind;
     HitCopyState **players;
     HitCopyState *player;
     HitCopyState **nearbyEntry;
-    f32 *distance;
-    f32 *lastDistance;
     f32 deltaY;
     f32 distanceSquared;
     f32 currentDistance;
-    s32 playerCount;
     s32 found;
+    s32 playerCount;
     s32 remaining;
     s32 nearbyOffset;
+    s32 index;
 
     found = 0;
     radius *= radius;
@@ -4037,8 +4046,8 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
     if (playerCount > 0) {
         do {
             player = *players++;
-            if ((*(s8 *) player->target >= 0) &&
-                (*(s8 *) player->target < 6)) {
+            targetKind = (s8 *) player->target;
+            if ((*targetKind >= 0) && (*targetKind < 6)) {
                 f32 deltaX;
                 f32 deltaZ;
 
@@ -4060,33 +4069,31 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
 
         remaining = found - 1;
         if (remaining > 0) {
-            distance = distances;
             do {
-                lastDistance = &distance[remaining];
-                nearbyOffset = 0;
-                do {
+                index = 0;
+                /* L59: the inner `do` shares a physical line with the offset
+                 * reset so as1's line tie-break emits the strength-reduced
+                 * limit before the reset, as the ROM does. */
+                nearbyOffset = 0; do {
                     nearbyEntry = (HitCopyState **)
                         ((u8 *) nearby + nearbyOffset);
-                    if (distance[1] < distance[0]) {
-                        currentDistance = distance[0];
+                    if (distances[index + 1] < distances[index]) {
+                        currentDistance = distances[index];
                         player = nearbyEntry[0];
-                        distance[0] = distance[1];
+                        distances[index] = distances[index + 1];
                         nearbyEntry[0] = nearbyEntry[1];
-                        distance[1] = currentDistance;
+                        distances[index + 1] = currentDistance;
                         nearbyEntry[1] = player;
                     }
-                    distance++;
+                    index++;
                     nearbyOffset += sizeof(*nearby);
-                } while (distance < lastDistance);
+                } while (index < remaining);
                 remaining--;
             } while (remaining != 0);
         }
     }
     return found;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005776C.s")
-#endif
 /*
  * PROVENANCE: adapted from JFG's src/fmvInit.c. Mickey's ROM establishes the
  * resource ID, globals, structure layout, and final compiler output here.
@@ -4138,16 +4145,6 @@ void fmvInit(void) {
  * first-mismatch: +0x24
  * summary: Frame now matches at 0x70 and the first six words are exact; candidate is 228 of 229 words and the impulse block's divide order is the next lever.
  * PLATEAU-HANDOFF:func_80056DD8:end
- */
-
-/* PLATEAU-HANDOFF:func_8005776C:start
- * symbol: func_8005776C
- * score: 47 differing words
- * frame: 0xC0
- * relocations: 2
- * first-mismatch: +0x24
- * summary: Donor audit improved the residual to 47 words; next lever is authenticated outer sort cursor scheduling evidence.
- * PLATEAU-HANDOFF:func_8005776C:end
  */
 
 /* PLATEAU-HANDOFF:func_80055104:start

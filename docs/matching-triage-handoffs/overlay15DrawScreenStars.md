@@ -96,4 +96,69 @@ So the residual is now two facts rather than one, and the next lane should work
 the hoist order, not the block ownership. The retained body is unchanged
 because 13 beats 20; the pointer-view form is a diagnostic, not an improvement.
 
+#### 2026-09-12, lane `p10-near`: the command association falls to L59, 13 -> 9, and the rest is one fact
+
+The 2026-09-11 closure read the residual as two facts (block ownership of the
+fade load, plus "two independent packed display-list OR schedules"). The second
+of those is not a separate residual and it is not association: it is as1's
+physical-line tie, and it closes.
+
+**Adopted: the two commands are one physical source line.** Emitting
+`command->w0`, `command->w1`, the increment, the second command's two stores
+and its increment as a single line makes all six line numbers equal, so as1
+falls through to ready-list position, which is the shipped order. Measured at
+delta 0: the whole group on one line is 9; each command folded separately is
+11; only the second command folded is 11; only the first is 13; the retained
+six-line form is 13. Ten layouts in all, and statement order within a command
+is inert. This is the same lever that took `func_overlay_071_F0000870` from 33
+to 11 and the closure's "command association" sweep did not contain it -- it
+varied store order, not line grouping.
+
+**What is left is exactly one fact, and it is now arithmetic.** Nine words, all
+in the entry block, zero register naming, zero immediate-only. The retained
+form's three hoisted float invariants already take the target's registers --
+8.0f, 300.0f and the fade scale land on c26/c27/c28, which is `$f12`, `$f14`,
+`$f16`, the same as the ROM -- so the 2026-09-11 note that "every form measured
+here emits them in the opposite order" is true only of the pointer-view
+diagnostic, not of the retained body. The entire residual is that the fade
+LOAD sits in the entry block, above the synthesised zero-trip guard, where the
+ROM has it in the preheader below it; the four other differing words are as1
+reordering the five instructions that share that block with it, and they
+disappear the moment the load leaves.
+
+Measured, all delta 0 unless noted:
+
+- the pointer-view form (a `const f32 *` set before the loop, dereferenced at
+  the loop top) makes the entry block and the guard **byte-exact except one
+  swap**, confirming the four words are consequences. It costs the preheader:
+  16 words.
+- read from this procedure's own p1 records, the cost is a save ratio and
+  nothing else. In the retained body the fade web is `save 2.75, nocs 4,
+  totalsave 11` -- one reference at loop depth 0 plus one at depth 1 -- and it
+  is coloured after both constants. In the pointer-view body its definition
+  moves inside the loop, so `totalsave` is 20 at `nocs` 3 and its save is 6.67,
+  which ties 8.0f and beats 300.0f's 3.33; ties break on ascending web number
+  and the fade web is numbered lowest, so it takes c26 and the two constants
+  shift up one each. That is the whole 16.
+- the requirement is therefore: with the fade read hoisted, both constants need
+  `save` strictly above 6.67. **Demonstrated by construction**: triplicating
+  both comparisons puts 8.0f at 10.0, 300.0f at 7.5 and the fade at 5.0, and
+  the three registers then come out in the ROM's order -- at +64 bytes, so it
+  is a proof of the mechanism, not a candidate. One extra comparison each is
+  +16 bytes and still wrong.
+- an explicit guarded `do`/`while` in six forms, with the fade read inside the
+  guard, inside the loop, or left before it: every one loses instructions
+  (delta -4 to -16) because it replaces the synthesised guard, and scores 76 to
+  97.
+- 85 further cells on the entry block -- all 64 line-fold subsets of its seven
+  statements and all 21 single transpositions -- are **flat at 9**. Statement
+  order and line grouping do not reach a block-membership decision.
+
+**Reopen condition, stated as arithmetic:** a source form that makes the fade
+read a loop invariant (so its load is hoisted into the preheader) while leaving
+its web's `save` below 3.33 -- i.e. `totalsave/nocs` with `nocs` at least 7 for
+the two-reference form -- or one that raises both depth-one constants above
+6.67 without emitting an instruction. The float bank has no L109 probe (L148),
+so the second half needs a real extra reference that uopt deletes.
+
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->
