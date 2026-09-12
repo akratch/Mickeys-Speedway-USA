@@ -68,6 +68,6 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x38
- * summary: source question is the caller-saved helper-return copy before the cached guard
+ * summary: caller-saved helper-return copy before cached guard remains unresolved
  * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
  */
