@@ -42,6 +42,22 @@ size mismatch that last pair is the whole question.
 
 `tools/residual_map.py <symbol>` splits the same residual by **address**: differing rows per window, naming/immediate/structural, the candidate-only and target-only offsets that bracket every +1 run, and a register substitution census **per window** with its cycles. Use it whenever a whole-function census reads as incoherent, because a rotated tail and an un-rotated head average each other away: on the overlay 58 whale the function-wide reading was "flat per-web colour, twenty-odd windows", and split at the single candidate-only word it was 150 of 212 slots in one closed nine-cycle after that word and no cycle at all before it. One extra instruction had rotated the free list for 1,196 bytes. `--lo`/`--hi` restrict every section, which is how you price a region.
 
+`tools/residual_map.py` also takes `--object <path>` to map a *retained* object
+instead of recompiling the tree, and `--against <path>` to print the **aligned**
+per-window delta between two objects. That delta is the reading to trust when
+comparing two candidates: `force_lattice`'s blast radius is positional, which
+is right for locating a force (both objects face the same target, so an
+insertion's shadow cancels) and wrong for ranking a window (L155).
+
+`tools/web_footprint.py <symbol> --trace <base allocator.log> --out DIR` probes
+**every** coloured web of a procedure once -- forcing it to the cheapest legal
+colour of its own kind -- and inverts the result into a `window -> webs`
+nomination table. That table is what turns "this window has eleven naming rows"
+into a list of forces to try. Read L157 before choosing a probe colour by hand
+and L158 before believing any lattice's floor. One compile per web; the overlay
+58 procedure colours 139 of its 431 decisions, so a full map is 139 compiles
+and is a lane's job, not a sweep you run inside another sweep.
+
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
 them: each side's ladder from the frame top down, the slots only one side uses,
 and shared slots with different traffic. Run it on any residual with a frame or
@@ -276,6 +292,52 @@ it end to end. The ones that carry most of the weight:
   with a forbidden mask* because the two address webs genuinely interfere. Five
   functions were promoted on this, priced at delta 0: index locals everywhere
   179, mixed 165, **no locals at all 98**.
+- **L155 (2026-09-12)** — **a positional score counts the shadow of an
+  insertion, and no colour can move it.** One extra or missing word makes every
+  following word mismatch *by position* while aligning perfectly, so a
+  positional count charges the whole span to whatever window it falls in. On
+  the overlay 58 function 81 of 227 positional words sat in two windows
+  bracketed by one-word insertions; their aligned residual is 22 rows. A force
+  lattice that reads its floor off the positional score therefore reports a
+  floor that is partly unreachable *by any colour at all*: 185 there, of which
+  81 was insertion shadow that five forces could not and did not touch. **Rank
+  a window by `tools/residual_map.py`'s aligned rows, never by the positional
+  count**, and read the candidate-only/target-only offsets it lists first --
+  they are the source-shape questions, and they are usually a different lane's
+  work from the colour questions.
+- **L156 (2026-09-12)** — **disjoint blast radii predict additivity, so n
+  measurements replace 2ⁿ.** A force's blast radius is the signed per-window
+  change in residual between its object and the unforced one
+  (`tools/force_lattice.py`). Where two forces' radii share no window, their
+  pair is additive. Measured on all ten pairs of the overlay 58 lattice: at a
+  window of `0x80` every pair reads disjoint and every pair measured an
+  interaction of exactly zero, and at word granularity no two of the five
+  forces move the same word. **The width is the whole reading**: at `0x200`
+  the two forces nearest the entry shared a window and read as contending
+  though their scores did not, so a collision at a coarse width is a question
+  for a narrower one, not a verdict. Use this to stop paying for the
+  higher-order cells, and to predict a pair before compiling it.
+- **L157 (2026-09-12)** — **the colours a web can be forced to are its own
+  `p1cost` table, not its `available0/1` mask.** The mask is the state at the
+  moment that web was decided and a force overrides the decision, so it
+  under-reports: on overlay 58 it called three of the five colours a lane
+  *successfully forced* illegal, while all 139 coloured webs list their own
+  final colour in their cost table. The `kind=` field on the same rows
+  separates caller-save from callee-save; probing a web across that boundary
+  rewrites the prologue, moves the function's size and shifts the insertion
+  shadow, which throws the cell away. **Screen a nominated force against the
+  web's cost table, and prefer its own kind.**
+- **L158 (2026-09-12)** — **nominating five webs out of 139 is not a floor, it
+  is a sample.** The overlay 58 procedure takes 431 p1 decisions and records
+  139 `p1color` rows; a lane hand-picked five from the cost table, swept all 31
+  subsets and reported "diagnostic floor 185". The five moved 10 of 22 windows
+  and left the two largest naming blocks (+0x800 with 11 aligned naming rows,
+  +0x1200 with 12) untouched, and one of them — the count/stride force — *added*
+  three naming rows at +0x1200 while saving ten overall, which score-level
+  additivity hides completely. `tools/web_footprint.py` probes every coloured
+  web once and inverts the result into a window→webs nomination table, which is
+  the step that was missing. **Before believing a lattice's floor, ask what
+  fraction of the coloured webs it sampled and which windows it never moved.**
 - **L154 (2026-09-12)** — **a web's number follows its TYPE first and its first
   USE second, and the source decides which type a value gets.** Measured on one
   leaf with the decision records: its address constants are type-1 webs numbered

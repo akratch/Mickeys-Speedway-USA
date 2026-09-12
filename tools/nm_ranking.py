@@ -1790,6 +1790,39 @@ def tu_category(rel_c_file: str) -> str:
     return "?"
 
 
+def masked_mismatch_positions(
+    base_words: list[int],
+    target_words: list[int],
+    base_reloc: dict[int, tuple[str, str]],
+    target_reloc: dict[int, tuple[str, str]],
+) -> list[int]:
+    """Word indices that still differ once linker-owned fields are masked.
+
+    The masking rule lives here alone. `mismatch_evidence` reduces this to a
+    count, and `tools/force_lattice.py` bins the same positions into windows to
+    locate an intervention's blast radius; a second copy of the rule would let
+    the two disagree about what a residual word even is.
+    """
+    n = min(len(base_words), len(target_words))
+    positions: list[int] = []
+    for index in range(n):
+        base_word = base_words[index]
+        target_word = target_words[index]
+        if base_word == target_word:
+            continue
+        offset = index * 4
+        value_mask = 0
+        for relocation in (base_reloc.get(offset), target_reloc.get(offset)):
+            if relocation is not None:
+                value_mask |= RELOC_VALUE_MASKS.get(
+                    relocation[0], UNKNOWN_RELOC_VALUE_MASK
+                )
+        compare_mask = (~value_mask) & 0xFFFFFFFF
+        if (base_word & compare_mask) != (target_word & compare_mask):
+            positions.append(index)
+    return positions
+
+
 def mismatch_evidence(
     base_words: list[int],
     target_words: list[int],
@@ -1803,24 +1836,10 @@ def mismatch_evidence(
     both views because no relocation can explain a missing instruction.
     """
     n = min(len(base_words), len(target_words))
-    raw_positions: list[int] = []
-    masked_positions: list[int] = []
-    for index in range(n):
-        base_word = base_words[index]
-        target_word = target_words[index]
-        if base_word == target_word:
-            continue
-        raw_positions.append(index)
-        offset = index * 4
-        value_mask = 0
-        for relocation in (base_reloc.get(offset), target_reloc.get(offset)):
-            if relocation is not None:
-                value_mask |= RELOC_VALUE_MASKS.get(
-                    relocation[0], UNKNOWN_RELOC_VALUE_MASK
-                )
-        compare_mask = (~value_mask) & 0xFFFFFFFF
-        if (base_word & compare_mask) != (target_word & compare_mask):
-            masked_positions.append(index)
+    raw_positions = [i for i in range(n) if base_words[i] != target_words[i]]
+    masked_positions = masked_mismatch_positions(
+        base_words, target_words, base_reloc, target_reloc
+    )
 
     extra = abs(len(base_words) - len(target_words))
 

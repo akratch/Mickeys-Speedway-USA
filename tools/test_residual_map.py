@@ -169,5 +169,82 @@ class Rendering(unittest.TestCase):
         self.assertIn("excludes 0 candidate-only and 1 target-only", text)
 
 
+class AlignedDeltaTests(unittest.TestCase):
+    """`compare` is the reading that positional blast radius gets wrong.
+
+    On overlay 58 two windows carried 81 POSITIONAL differing words and 22
+    aligned rows, because each is bracketed by a one-word insertion and every
+    word after it mismatches by position while aligning perfectly. A view that
+    moves only when content moves is the one that can rank a window.
+    """
+
+    def map(self, rows, insertions=(), deletions=(), object="obj"):
+        return {"symbol": "f", "file": "a.c", "object": object,
+                "rows": list(rows), "pairs": [],
+                "insertions": list(insertions), "deletions": list(deletions)}
+
+    def test_a_window_whose_content_did_not_move_says_unmoved(self):
+        rows = [(0x00, "naming"), (0x04, "naming")]
+        text = rm.compare(self.map(rows), self.map(rows), 0x80, 0, 1 << 30)
+        self.assertIn("unmoved", text)
+        self.assertIn("+0", text)
+
+    def test_naming_rows_removed_read_as_a_negative_delta(self):
+        before = self.map([(0x00, "naming"), (0x04, "naming"), (0x08, "naming")])
+        after = self.map([(0x00, "naming")])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("3->1", text)
+        self.assertIn("-2", text)
+
+    def test_the_buckets_are_reported_separately(self):
+        before = self.map([(0x00, "naming"), (0x04, "structural")])
+        after = self.map([(0x00, "immediate")])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("1->0", text)   # naming
+        self.assertIn("0->1", text)   # immediate
+        self.assertIn("1->0", text)   # structural
+
+    def test_windows_are_split_at_the_requested_width(self):
+        before = self.map([(0x00, "naming"), (0x80, "naming")])
+        after = self.map([(0x00, "naming")])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("+0x00000", text)
+        self.assertIn("+0x00080", text)
+
+    def test_the_range_filter_excludes_windows_outside_it(self):
+        before = self.map([(0x00, "naming"), (0x200, "naming")])
+        after = self.map([(0x00, "naming")])
+        text = rm.compare(before, after, 0x80, 0x100, 1 << 30)
+        self.assertNotIn("+0x00000", text)
+        self.assertIn("+0x00200", text)
+
+    def test_the_total_is_the_sum_of_the_window_deltas(self):
+        before = self.map([(0x00, "naming"), (0x80, "naming"), (0x100, "naming")])
+        after = self.map([(0x00, "naming")])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("total", text)
+        self.assertIn("-2", text.splitlines()[-1])
+
+    def test_an_unchanged_insertion_is_reported_as_still_present(self):
+        before = self.map([], insertions=[0xDDC])
+        after = self.map([], insertions=[0xDDC])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("candidate-only words unchanged at +0xDDC", text)
+
+    def test_an_insertion_that_moved_is_reported_as_gone_and_new(self):
+        before = self.map([], insertions=[0xDDC])
+        after = self.map([], insertions=[0xE00])
+        text = rm.compare(before, after, 0x80, 0, 1 << 30)
+        self.assertIn("gone [3548]", text)
+        self.assertIn("new [3584]", text)
+
+    def test_both_object_labels_appear_so_a_delta_is_attributable(self):
+        text = rm.compare(self.map([], object="lattice/base/candidate.o"),
+                          self.map([], object="lattice/cell-031/candidate.o"),
+                          0x80, 0, 1 << 30)
+        self.assertIn("lattice/base/candidate.o", text)
+        self.assertIn("lattice/cell-031/candidate.o", text)
+
+
 if __name__ == "__main__":
     unittest.main()

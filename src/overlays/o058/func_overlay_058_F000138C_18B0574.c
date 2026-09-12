@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 236 to 227 by removing the case-10 discarded probe; regional index and count/stride identities remain coupled.
+ * summary: All 31 accepted force subsets are additive, diagnostic floor 185; guarded source stays 227 and regional identity pairings give no adoption.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
