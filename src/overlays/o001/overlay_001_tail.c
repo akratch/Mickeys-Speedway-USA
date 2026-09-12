@@ -2002,13 +2002,8 @@ void overlay1ReadSelection(Overlay1Object *object, s32 index, f32 *outX,
 extern f32 overlay1SqrtReloc(f32 value);
 extern s32 overlay1AngleReloc(f32 y, f32 x);
 
-/* Fresh phase-5 plateau: configured C remains 137/139 words, frame 0xA8,
- * with 92 raw/masked differences and first relocation mismatch +0x50. The
- * target's root loop retains a two-instruction generic-count preheader. Nine
- * natural loop/count forms were identical or worse; the only exact-size form
- * added a saved-register web. -O2 -g3 reaches 139 words/86 differences but
- * perturbs the shared-TU prologue, so it is diagnostic rather than a flag fix. */
-#ifdef NON_MATCHING
+/* The root count is defined before the discriminant region. Keep the signed
+ * radical separate from the quotient, and the switch cases in this order. */
 s16 overlay1SolveAngleCandidates(
     f32 x0, f32 y0, f32 x1, f32 y1,
     f32 y2, f32 x2, f32 radius, f32 slope, s32 chooseHigh) {
@@ -2026,6 +2021,7 @@ s16 overlay1SolveAngleCandidates(
     s32 sign;
 
     solutionCount = 0;
+    sign = 2;
     dx = x0 - y1;
     dy = x1 - x2;
     distance = overlay1SqrtReloc((dx * dx) + (dy * dy));
@@ -2038,14 +2034,13 @@ s16 overlay1SolveAngleCandidates(
         discriminantRoot = overlay1SqrtReloc(discriminant);
         denominator = (((dy * dy) / (distance * distance)) + 1.0f) * 2.0f;
 
-        sign = solutionCount + 2;
         while (sign--) {
             if (sign != 0) {
-                root = discriminantRoot;
+                dx = discriminantRoot;
             } else {
-                root = -discriminantRoot;
+                dx = -discriminantRoot;
             }
-            root = (root + sum) / denominator;
+            root = (dx + sum) / denominator;
             if (root >= 0.0f) {
                 angleX = overlay1SqrtReloc(root);
                 if (distance < 0.0f) {
@@ -2059,28 +2054,19 @@ s16 overlay1SolveAngleCandidates(
         }
     }
 
-    if (solutionCount != 1) {
-        if (solutionCount == 2) {
+    switch (solutionCount) {
+        case 2:
             if (solutions[0] < solutions[1]) {
                 return chooseHigh ? solutions[1] : solutions[0];
             }
             return chooseHigh ? solutions[0] : solutions[1];
-        }
-        return 0x2000;
+        case 1:
+            return solutions[0];
+        default:
+            return 0x2000;
     }
-    return solutions[0];
 }
 
-s32 overlay1LoopControlCarrier(s32 value) {
-    if (value == 0) {
-        return 2;
-    }
-    return value;
-}
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00064F8_18528D8.s")
-#endif
 
 /* ---- overlay1UpdateModeSound ---- */
 
@@ -3332,27 +3318,20 @@ extern s32 gOverlay1PoolExhausted;
 
 /* DKR v77/v80, JFG, and the five-reference skeleton scan found no credible
  * donor for this bounded path advance. */
-/* Plateau (2026-08-31): the retained clean full-TU candidate is 163 versus
- * 162 target words, with an exact 0x58 frame, 121 positional differences,
- * and first mismatch +0x10. All 119 flags are nonexact; seven O2/MIPS-II
- * rows tie. Removing the widened endpoint carrier is the only strict natural
- * gain and leaves one extra result.x reload. The old 84-word diagnostic used
- * a conflicting wide call prototype and never compiled as a full TU; an
- * explicit call cast lowers indirectly and is inadmissible. Earlier guarded
- * candidates currently shift this symbol +0xFC, so preflight refuses static
- * relocation ownership. A later size-near pass re-proved the one-instruction
- * surplus: narrow and wide carriers add two instructions, a ternary adds
- * three, and operand, line, goto, and reused-local forms are flat. The callee
- * target explicitly sign-extends its two s16 arguments, ruling out a shared
- * wide prototype. Resume only with evidence for an original no-prototype/TU
- * boundary, or allocator evidence for retaining result.x in the argument
- * lane. */
+/* NON_MATCHING: array views remove the inherited redundant endpoint load
+ * without changing the callee ABI. Size, frame and instruction sequence now
+ * agree; register draws and comparison carriers remain nonexact. */
 #ifdef NON_MATCHING
 s32 overlay1AdvancePath(Overlay1PathState *state) {
     s16 currentX;
     s16 currentY;
     Overlay1PathEntry *entry;
-    Overlay1TraceResult result;
+    union {
+        Overlay1TraceResult fields;
+        s16 coordinates[8];
+        u16 values[8];
+        s32 words[4];
+    } result;
     Overlay1PathState *child;
     u8 count;
 
@@ -3368,40 +3347,40 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
 
     if (!overlay2TracePath((f32)currentX, (f32)currentY,
                            (f32)overlay1AnchorX, (f32)overlay1AnchorY,
-                           (void *)gOverlay1SubmitArg5, &result,
+                           (void *)gOverlay1SubmitArg5, &result.fields,
                            state->primary[count], state->secondary[count]) ||
-        ((result.x == overlay1AnchorX) && (result.y == overlay1AnchorY))) {
+        ((result.coordinates[0] == overlay1AnchorX) && (result.coordinates[1] == overlay1AnchorY))) {
         overlay1AppendPathPoint(state, overlay1AnchorX, overlay1AnchorY, 0xFF, 0);
         return 1;
     }
 
-    entry = overlay1GetEntry(result.secondary);
-    if ((currentX != result.x) || (currentY != result.y)) {
-        overlay1AppendPathPoint(state, result.x, result.y,
-                                *((u8 *)&result + 5), result.secondary);
-        if (result.changed != 0) {
+    entry = overlay1GetEntry(result.values[5]);
+    if ((currentX != result.coordinates[0]) || (currentY != result.coordinates[1])) {
+        overlay1AppendPathPoint(state, result.coordinates[0], result.coordinates[1],
+                                *((u8 *)&result + 5), result.values[5]);
+        if (result.words[3] != 0) {
             state->flags = (state->flags & ~3) |
                            ((*(u16 *)&state->count | 2) & 3);
         }
     }
 
-    if ((result.base != result.first) && (gOverlay1PoolExhausted == 0)) {
+    if ((result.values[3] != result.values[2]) && (gOverlay1PoolExhausted == 0)) {
         child = overlay1CloneRecord((u32 *)state);
         if (child != NULL) {
-            overlay1AppendPathPoint(child, entry->points[result.first].x,
-                                    entry->points[result.first].y,
-                                    *((u8 *)&result + 7), result.secondary);
+            overlay1AppendPathPoint(child, entry->points[result.values[3]].x,
+                                    entry->points[result.values[3]].y,
+                                    *((u8 *)&result + 7), result.values[5]);
             child->flags = (child->flags & ~3) |
                            ((*(u16 *)&child->count | 2) & 3);
         }
     }
 
-    if ((result.base != result.second) && (gOverlay1PoolExhausted == 0)) {
+    if ((result.values[4] != result.values[2]) && (gOverlay1PoolExhausted == 0)) {
         child = overlay1CloneRecord((u32 *)state);
         if (child != NULL) {
-            overlay1AppendPathPoint(child, entry->points[result.second].x,
-                                    entry->points[result.second].y,
-                                    *((u8 *)&result + 9), result.secondary);
+            overlay1AppendPathPoint(child, entry->points[result.values[4]].x,
+                                    entry->points[result.values[4]].y,
+                                    *((u8 *)&result + 9), result.values[5]);
             child->flags = (child->flags & ~3) |
                            ((*(u16 *)&child->count | 2) & 3);
         }
@@ -3487,11 +3466,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1AdvancePath:start
  * symbol: overlay1AdvancePath
- * score: 121/162 words
+ * score: 81 differing words
  * frame: 0x58
  * relocations: 22
  * first-mismatch: +0x10
- * summary: Size-near pass confirms one extra result.x reload; ten carrier/CFG/line forms are nonexact and the callee proves the s16 ABI. Evidence gate re-run 2026-09-09: the instruction census is exactly `lh +1` with every other opcode count equal, confirming the single extra signed halfword load and nothing else, and the full flag lattice is flat -- no -O1/-O2/-O3 row at any ISA with any of r4300_mul, loopunroll or g3 reaches 162 words, and the configured row is the best of them at 59/162 aligned. No source attempt made: the recorded resumption bar is unmet.
+ * summary: Exact size and aligned opcode shape; 81 masked naming differences; initial three-draw deficit proved diagnostically.
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
 
@@ -3515,15 +3494,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
  */
 
-/* PLATEAU-HANDOFF:overlay1SolveAngleCandidates:start
- * symbol: overlay1SolveAngleCandidates
- * score: 47/139 words
- * frame: 0xA8
- * relocations: 4
- * first-mismatch: +0x50
- * summary: Two relocation offsets/types align; identities unresolved. -O2 -g3 gives 139 words/86 diffs but changes the TU prologue. Need a natural root-count preheader.
- * PLATEAU-HANDOFF:overlay1SolveAngleCandidates:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:start
  * symbol: func_overlay_001_F0003750_184FB30

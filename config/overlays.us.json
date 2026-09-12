@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 207168,
-  "nonmatching_overlay_c_bytes": 261452,
+  "matched_overlay_c_bytes": 212684,
+  "nonmatching_overlay_c_bytes": 255936,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1205,6 +1205,14 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
+     "offset": "0x1A54",
+     "end_offset": "0x1CA4",
+     "size": "0x250",
+     "label": "overlay1BuildObjectMappings",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
      "offset": "0x1CA4",
      "end_offset": "0x1D58",
      "size": "0xB4",
@@ -1381,6 +1389,14 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
+     "offset": "0x64F8",
+     "end_offset": "0x6724",
+     "size": "0x22C",
+     "label": "overlay1SolveAngleCandidates",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
      "offset": "0x6724",
      "end_offset": "0x6788",
      "size": "0x64",
@@ -1548,7 +1564,7 @@
      "type": "c",
      "source": "overlays/o002/overlay2ClassifyBoundary",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x400",
@@ -4637,7 +4653,7 @@
      "type": "c",
      "source": "overlays/o016/overlay_016",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x424",
@@ -4707,33 +4723,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 40
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x0",
-     "end_offset": "0x8C",
-     "size": "0x8C",
-     "label": "overlay16BuildGradient",
-     "source": "overlays/o016/overlay_016",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x8C",
-     "end_offset": "0x1A8",
-     "size": "0x11C",
-     "label": "overlay16InitializeBuffer",
-     "source": "overlays/o016/overlay_016",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x1A8",
-     "end_offset": "0x1E0",
-     "size": "0x38",
-     "label": "overlay16ReleaseBuffer",
-     "source": "overlays/o016/overlay_016",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 17,
@@ -6308,7 +6298,7 @@
      "type": "c",
      "source": "overlays/o026/overlay26DrawGroups",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     }
    ],
    "bss_size": "0x0",
@@ -6872,7 +6862,7 @@
      "type": "c",
      "source": "overlays/o029/overlay29DrawGroups",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x16CC",
@@ -7167,7 +7157,7 @@
      "type": "c",
      "source": "overlays/o031/overlay31InitializeParticleAssets",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x4F8",
@@ -7808,7 +7798,7 @@
      "type": "c",
      "source": "overlays/o035/overlay35BuildGridMasks",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xB40",
@@ -13268,7 +13258,7 @@
      "type": "c",
      "source": "overlays/o063/overlay63UpdateSequence",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x928",
@@ -14002,7 +13992,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68RebuildSecondaryEntry",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1438",

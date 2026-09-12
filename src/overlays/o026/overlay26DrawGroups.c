@@ -1,9 +1,5 @@
 #include "PR/ultratypes.h"
-
-typedef struct Gfx {
-    u32 w0;
-    u32 w1;
-} Gfx;
+#include "n_audio/mbi.h"
 
 typedef struct Overlay26Group {
     u8 pad00[0x2A];
@@ -37,7 +33,7 @@ typedef struct Overlay26Context {
     void *drawData;
     u8 pad54[0x10];
     Overlay26RenderState *render;
-    u8 *nodeTable;
+    Overlay26Node **nodeTable;
 } Overlay26Context;
 
 extern void o26PrepareNode(Overlay26Context *, Overlay26Node *, void *, s32);
@@ -45,12 +41,9 @@ extern void o26DrawReloc(Gfx **, s32, Overlay26Group *, f32, f32);
 extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
-/* Workbench diagnostic: the former exact 134-word/0x58-frame body used an
- * invented empty read of the negative node offset to restore one instruction.
- * Its 65 positional words and 9-opcode residual are therefore not a
- * source-faithful plateau. The guard is removed; clean V0 is uncompiled and
- * assembly remains canonical. */
-#ifdef NON_MATCHING
+/* PROVENANCE: command expansions use the existing SDK macros in
+ * n_audio/mbi.h. Node layout, indexing, call order and command words are
+ * reconstructed from Mickey's own overlay. */
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
     Overlay26RenderState *render;
@@ -59,34 +52,15 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
     Overlay26ResourceChoice *choice;
     Gfx *gfx;
     u32 resourceSegment;
-    u32 segmentBase;
-    u32 triangleCommand;
-    u32 fillCommand;
-    s32 alphaMask;
-    s32 negativeNodeOffset;
-    u8 *nodeEntry;
     s32 groupIndex;
-    s32 nodeOffset;
 
     render = context->render;
-    alphaMask = -0x100;
-    fillCommand = 0xFB000000;
     if (render->enabled != 0) {
-        gfx = *dl;
-        *dl = gfx + 1;
-        gfx->w1 = 0;
-        gfx->w0 = 0xE7000000;
+        gDPPipeSync((*dl)++);
+        groupIndex = 4;
+        gDPSetEnvColor((*dl)++, 0xFF, 0xFF, 0xFF, 0);
 
-        gfx = *dl;
-        groupIndex = 3;
-        nodeOffset = 0xC;
-        *dl = gfx + 1;
-        segmentBase = 0x80000000;
-        triangleCommand = 0xBF000000;
-        gfx->w1 = alphaMask;
-        gfx->w0 = fillCommand;
-
-        do {
+        while (groupIndex--) {
             if (groupIndex == 3) {
                 group = &render->group3;
             } else if (groupIndex == 2) {
@@ -99,9 +73,7 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                 }
             }
 
-            negativeNodeOffset = -nodeOffset;
-            nodeEntry = context->nodeTable + negativeNodeOffset;
-            node = *(Overlay26Node **)(nodeEntry + 0x10);
+            node = context->nodeTable[4 - groupIndex];
             choice = (Overlay26ResourceChoice *)node->resource;
             if (group->selector == 0xFF) {
                 resourceSegment = choice->first;
@@ -110,49 +82,20 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
             }
 
             o26PrepareNode(context, node, context->drawData, 0);
-            gfx = *dl;
-            *dl = gfx + 1;
-            gfx->w0 = 0xFA000000;
-            gfx->w1 = (group->selector & 0xFF) | alphaMask;
+            gDPSetPrimColor((*dl)++, 0, 0, 0xFF, 0xFF, 0xFF, group->selector);
             o26DrawReloc(dl, drawContext, group, 1.0f, 0.0f);
 
-            gfx = *dl;
-            *dl = gfx + 1;
-            gfx->w0 = triangleCommand;
-            gfx->w1 = node->segment + segmentBase;
-
-            gfx = *dl;
-            *dl = gfx + 1;
-            gfx->w1 = resourceSegment + segmentBase;
-            gfx->w0 = 0x06000000;
-
-            gfx = *dl;
-            *dl = gfx + 1;
-            gfx->w1 = 0;
-            gfx->w0 = triangleCommand;
+            gfx = (*dl)++;
+            gfx->words.w0 = 0xBF000000;
+            gfx->words.w1 = node->segment + 0x80000000;
+            gSPDisplayList((*dl)++, resourceSegment + 0x80000000);
+            gSP1Triangle((*dl)++, 0, 0, 0, 0);
             o26FlushReloc(dl);
 
             node->consumed = 0;
-            nodeOffset -= 4;
-        } while (groupIndex--);
+        }
 
         o26FinishReloc(dl);
-        gfx = *dl;
-        *dl = gfx + 1;
-        gfx->w1 = 0xFFFFFFFF;
-        gfx->w0 = 0xFA000000;
+        gDPSetPrimColor((*dl)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26DrawGroups/func_overlay_026_F0001158_187B550.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_026_F0001158_187B550:start
- * symbol: func_overlay_026_F0001158_187B550
- * score: 88 differing words
- * frame: 0x58
- * relocations: 4
- * first-mismatch: +0x4C
- * summary: Clean V0 is one word short. Prior exact-size form used a prohibited inert read; flags, constant, pointer, sibling CFG and permutation routes are exhausted.
- * PLATEAU-HANDOFF:func_overlay_026_F0001158_187B550:end
- */

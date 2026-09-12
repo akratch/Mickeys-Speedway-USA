@@ -2141,3 +2141,207 @@ and the retained table receives no new code credit. ORT 1471 and five resident
 calls plus Overlay 25 table-1 record 15 authenticate all six inbounds. The
 owned range has no padding; it, the complete overlay, and the full ROM are
 byte-identical.
+
+### Overlay 16 gradient application closure
+
+Tier A: `overlay16ApplyGradient` owns overlay 16 text `+0x1E0..+0x424`
+(580 executable bytes), excluding the following twelve-byte padding. The
+configured stock compiler emits 145 exact words with the target's `0x20`
+frame and all six LOCAL relocation offsets, types, identities, and addends.
+Storing then reading back the phase, separating the active cursor increment
+from its condition, and defining input channels before gradient channels
+restore the temporary and local register allocation. The linked owner and
+full US ROM are exact. This completes the existing overlay-16 C translation
+unit; it does not add credit for its previously matched functions or padding.
+
+### Overlay 2 boundary classification closure
+
+Tier A: `overlay2ClassifyBoundary` owns overlay 2 text `+0x2C4..+0x400`
+(316 executable bytes). Its 79 configured words and six relocation offsets,
+types, identities and addends are exact; the linked owner and full US ROM
+match. Direct comparison stores and one shared return remove the boolean
+carriers and restore the target branch layout. The existing overlay-specific
+boundary globals preserve the LOCAL addends without generic-name collisions.
+
+The inherited source-shape closure did not survive this combined change.
+Direct comparison stores alone reduced 61 masked differences to 47; sharing
+the return closed the residual and removed the surplus word. The aligned
+buckets (exact, register naming, immediate, structural) changed from
+32/28/4/18 to 79/0/0/0. A pointer-color force was explicitly declined, which
+did not prove the source shape unavailable.
+
+### Overlay 68 secondary-entry rebuild closure
+
+Tier A: `overlay68RebuildSecondaryEntry` owns overlay 68 text
+`+0x1250..+0x1438` (488 executable bytes). All 122 configured words, the
+`0x40` frame, six used stack homes, and 19 relocation offsets/types are
+exact. Seven identities resolve statically; the remaining twelve are proved
+by the unchanged runtime table and exact linked ROM. The whole US ROM passes
+`gmake verify`. ORT 1163 and its resident caller identify the owned function.
+
+Replacing both manually rotated loops with counted `while` loops restores
+the missing map-address materialization, probe-base copy, and call-argument
+placement. Useful selected-entry and payload pointer intermediates restore
+the frame; advancing the selected-entry pointer in two statements restores
+the final operand draw order. The aligned buckets (exact, register naming,
+immediate, structural) change from 65/28/9/21 to 122/0/0/0. Lexical scoping
+alone remains ineffective, but the inherited structural plateau falls. No
+unused padding local, alternate compiler flag, or instruction edit is used.
+
+### Overlay 1 object-mapping closure
+
+Tier A: `overlay1BuildObjectMappings` owns overlay 1 text
+`+0x1A54..+0x1CA4` (592 executable bytes) inside the existing head TU.
+All 148 configured words, the `0x70` frame and thirteen used stack homes
+match. Sixteen relocation offsets, types and identities are proved with
+static evidence, the unchanged runtime table and exact linked ROM. The whole
+US ROM passes `gmake verify`; ORT 1167 and its resident caller establish the
+inbound identity. The TU's configured `r4300_mul` flag is retained.
+
+A counted clearing loop restores the partially unrolled initialization.
+Indexed outer and inner loops let the compiler create the pointer induction
+variables; reusing the data pointer and naming the inner data pointer restore
+the allocation. Declaring the lookup as ten-byte rows supplies address scaling
+instead of an integer multiply whose constant consumed a saved register. The
+aligned buckets (exact, register naming, immediate, structural) change from
+85/37/5/23 to 148/0/0/0. The old source-shape closure therefore falls.
+
+The count is read at the target's later point, after state initialization.
+The source uses overlay-specific data placeholders, and both runtime calls
+into overlay 1 use `Reloc` placeholders so their stored zero addends cannot
+be replaced by a callee's synthetic linked address. No neighboring function
+or padding receives credit.
+
+### Overlay 31 particle-asset initialization closure
+
+Tier A: `func_overlay_031_F00002E8_187F808` owns overlay 31 text
+`+0x2E8..+0x4F8` (528 executable bytes). The configured compiler emits
+132 exact words with the `0x30` frame and all 24 relocation offsets, types,
+identities and addends. The linked owner and full US ROM pass verification;
+ORT 1672 and overlay 18's caller identify the function.
+
+The runtime records prove that the supposed count scalar and state array
+name the same storage. Replacing the invented separate scalar/readback with
+one five-element array-clearing loop restores the partially unrolled
+initialization and removes the surplus instruction. Earlier literal, cast,
+and region variants did not repair the mistaken storage model. The aligned
+buckets (exact, register naming, immediate, structural) change from
+115/2/2/15 to 132/0/0/0. The inherited initialization closure therefore falls.
+
+The existing provenance disclosure is retained. The palette-builder call
+uses an overlay-specific `Reloc` placeholder for its zero stored addend;
+the existing removable carrier section remains metadata only. No padding
+or previously matched palette code receives credit.
+
+
+### Overlay 63 sequence updater closure (2026-09-12)
+
+`overlay63UpdateSequence` is ROM-exact over its 428-byte executable range,
+overlay 63 text `+0x77C..+0x928`; its 39 relocation records have exact counts,
+types, offsets and identities. The configured stock compiler produces all 107
+words and the `0x20` frame, and `gmake verify` prints the expected US ROM hash.
+The aligned buckets (exact/register/immediate/structural) moved from
+83/7/8/9 to 107/0/0/0, with the missing instruction restored.
+
+The inherited copy-spelling closure survives for its original types. Its
+broader allocator closure does not: the runtime call identity resolves to
+Mickey's `joyGetPressed`, whose canonical definition returns `u16`. The local
+holds that result as `s32`, and the sequence is an array of button masks,
+not an array of pointers. Those authoritative types restore the return-value
+copy and its use across the control flow. The callee has an overlay-specific
+relocation placeholder; no shared prototype or toolchain flags changed.
+
+
+### Overlay 1 angle-candidate solver closure (2026-09-12)
+
+`overlay1SolveAngleCandidates` is ROM-exact over its 556-byte executable range,
+overlay 1 text `+0x64F8..+0x6724`. Its configured stock full-TU object and
+linked bytes match all 139 words, the `0xA8` frame, and all four relocation
+counts, types, offsets and identities. The three square-root calls and the
+angle call resolve through the existing overlay-specific placeholders.
+`gmake verify` prints the expected US ROM hash. The aligned buckets
+(exact/register/immediate/structural) improve from 119/4/6/13 to 139/0/0/0;
+the original candidate was two instructions short.
+
+The inherited root-preheader closure falls. Defining the two-root count before
+the discriminant region and its calls preserves the required entry guard.
+Casting the initial value, changing its signedness, and moving only the
+invariant denominator do not reach it; a narrow induction variable adds
+unwanted narrowing instructions. Reusing the now-dead initial delta for the
+signed radical separates that value from the quotient's floating argument
+carrier without adding a local home. Finally, a switch with the two-solution
+case, the one-solution case, then the default reproduces the return layout.
+Other tested switch orders and nested-return forms leave the default value in
+a separate block. No compiler flags changed. The unused historical loop-control
+helper and the obsolete guarded handoff were removed.
+
+
+### Overlay 26 draw-groups closure (2026-09-12)
+
+`func_overlay_026_F0001158_187B550` is ROM-exact over overlay 26 text
+`+0x1158..+0x1370`: 536 executable bytes, 134 words, the `0x58` frame and
+all four relocation counts, types, offsets and identities. `gmake verify`
+prints the expected US ROM hash. The aligned buckets
+(exact/register/immediate/structural) move from 77/36/2/19 to 134/0/0/0;
+the original clean candidate was one instruction short.
+
+The inherited claim that the negation needs a second consumer falls: a typed
+node-pointer table indexed by `4 - groupIndex` produces the required address
+arithmetic directly, without the retired inert read. A natural four-group
+countdown restores the setup ordering. Manually grouped command stores reach
+eight differences; the configured SDK macros in the existing `n_audio/mbi.h`
+then reproduce both the command-pointer allocation and store order. Replacing
+only one command with its macro leaves a separate pointer colour; reconstructing
+the complete command sequence is exact. The custom triangle-pointer command
+remains explicit. Literal signedness, pointer-versus-integer null-argument
+typing and a move-one statement climb did not close the manual-command shape.
+Accepted direct colour forces correctly priced the constant-register residual,
+but forced objects were diagnostic only. Stock output supplies the match.
+
+
+### Overlay 29 draw-groups closure (2026-09-12)
+
+`overlay29DrawGroups` is ROM-exact over overlay 29 text `+0x14C8..+0x16CC`:
+516 executable bytes, 129 words, the `0x58` frame, and all three relocation
+counts, types, offsets and identities. `gmake verify` prints the expected US
+ROM hash. The aligned buckets (exact/register/immediate/structural) move from
+86/28/3/13 to 129/0/0/0.
+
+A typed node-pointer table indexed by `4 - groupIndex`, a natural countdown,
+and the complete command sequence expressed through the existing SDK macros
+reproduce the stock output. Flattening the group-one branch also restores its
+control flow. The inherited manual-store allocator closure applies only to
+that source shape: direct final-colour forcing prices the mask residual, but
+forcing before the natural split changes the allocation being investigated.
+Narrow mask types and declaration changes did not solve the manual-command
+shape. The existing SDK macros restore the command-pointer webs and emission
+order together. No forced compiler output or padding receives matching credit.
+
+
+### Overlay 35 grid-mask builder closure (2026-09-12)
+
+`func_overlay_035_F0000770_1882450` is ROM-exact over overlay 35 text
+`+0x770..+0xB40`: 976 executable bytes, all 244 words, the `0x80` frame,
+and an empty relocation table. `gmake verify` prints the expected US ROM hash.
+The aligned buckets (exact/register/immediate/structural) move from
+199/27/10/11 to 244/0/0/0.
+
+The inherited frame warning survives: unconstrained declaration permutations
+can improve a scalar score while growing the frame. Reconstructing useful
+locals, their order, and indexed vertex access first reproduces every home.
+Natural counted loops for the three axes then restore their narrowing and
+branch schedules, invalidating the older order-sweep closure for the previous
+loop shape. The remaining vertex-pointer/mask colour exchange was priced by
+an accepted direct force. A natural counted vertex scan raises the mask's
+block-reference denominator, ties its save ratio with the vertex base, and
+lets the earlier vertex web win the required colour. Initializing the scan
+index before loading the vertex base closes the last scheduling difference.
+Only untouched stock compiler output supplies the match; compiler padding and
+forced diagnostic objects receive no credit.
+
+A same-input fidelity check of the final call-free TU passes text, data,
+read-only data, relocations and symbols. Its correctly identified procedure
+still records 29 first-phase and nine second-phase allocation decisions.
+The inherited shortcut from no calls to second-phase-only allocation therefore
+does not survive this control. Statement order remains a separate emission
+and scheduling lever.
