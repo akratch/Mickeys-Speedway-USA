@@ -911,53 +911,29 @@ void diPrintfSetXY(u16 x, u16 y) {
     D_8007CE94++;
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
-#ifdef NON_MATCHING
-/* 2026-09-11, lane p6-small: seven words to four, size delta 0, frame 0x138
- * exact. Three edits, each measured load-bearing at the final base:
+/* Matched 2026-09-12, lane p9-tight. Four edits, each measured load-bearing:
  *
- * 1. The `if (1)` region. The two-web form -- raw byte in `charIndex`,
- *    copied into `pad` at the loop top, the copy kept alive because the three
- *    index assignments redefine `charIndex` after it -- was already known and
- *    was rejected at 20 words because it is an exact v0/v1 transposition of
- *    the target. Opening ONE L97 region anywhere in the function turns that
- *    transposition the right way up: 20 -> 5, category register-only, and the
- *    target's plain `beq` with the copy in its delay slot replaces the `beql`
- *    that pulled the latch load up. Measured at all five nesting sites and in
- *    both `if (1)` and `do { } while (0)` spellings: every single-site
- *    placement gives 5 and no placement gives less, so the fact is the
- *    region's existence, not where it sits. The one-web body is flat at 7
- *    under the same 128-point lattice.
+ * 1. The `if (1)` region [L97]. The two-web form -- raw byte in `charIndex`,
+ *    copied into `pad` at the loop top -- is an exact v0/v1 transposition of
+ *    the target at 20 words. Opening one region anywhere in the function
+ *    turns it the right way up (20 -> 5); the fact is the region's existence,
+ *    not its placement.
  * 2. `newlineMark` plus the reversed newline test. cfe canonicalises
  *    `constant != variable` back to variable-first, so no spelling of a
- *    literal test moves the operand order (eight measured, all flat). With
- *    the constant in a variable the source order survives and the target's
- *    `beq mark, current` is emitted. s32 does it; u8 and char do not.
- * 3. `s[256]` pays for `newlineMark`. The extra scalar takes a frame home in
- *    every declaration position (56 measured, all 15-16 words on the frame
- *    alone), and the buffer length is unobservable, so L112 solves it: 256
- *    through 253 all restore the 0x138 frame and 257 through 260 do not.
- *    256 is the natural choice of those.
- *
- * The residual is four words and one fact: the four range tests
- * (`slti at,x,33/128/64/96`) read the raw byte where the target reads the
- * copy. Cause, named: uopt copy-propagates `pad` back to `charIndex` at every
- * use up to but NOT including the statement that redefines `charIndex` -- the
- * subtractions -- which is why exactly the compares move and the subtractions
- * do not. Both sides' ugen listings show this before allocation, so it is a
- * propagation decision and not a colour.
- *
- * Decision variable for the next lane: a definition of `pad` that ugen lowers
- * to a bare `move` and uopt does not treat as a propagatable copy. Falsified
- * as such at this base, all measured: fifteen no-op copy expressions
- * (`| 0`, `^ 0`, `& -1`, `* 1`, `<< 0`, `>> 0`, `-(-x)`, `~(~x)`, casts) --
- * the ones cfe does not fold cost an instruction and the ones it folds are
- * propagated; five copy placements (loop top, inside the newline test, inside
- * the else, loop bottom, preheader) -- only the loop top keeps delta 0; all
- * 49 type pairings of the two scalars; all 120 declaration orders of the five
- * scalars; the range tests reading the raw symbol instead of the copy (uopt
- * makes the two spellings identical); the subtractions reading the raw symbol
- * (the copy then dies and the score returns to 20); splitting the `&&`; and
- * sixteen comparison spellings of each of the four range tests. */
+ *    literal test moves the operand order. With the constant in an `s32`
+ *    variable the source order survives and the target's `beq mark, current`
+ *    is emitted.
+ * 3. `s[256]` pays for `newlineMark`. The extra scalar takes a frame home, and
+ *    the buffer length is unobservable, so [L112] solves it: 253-256 all
+ *    restore the 0x138 frame and 257-260 do not.
+ * 4. The redundant `charIndex = pad;` inside the newline arm. It is the whole
+ *    of the last four words and it compiles to nothing. uopt copy-propagates
+ *    `pad` back to `charIndex` at every use up to but NOT including the
+ *    statement that redefines `charIndex`, which is why the four range tests
+ *    read the raw byte where the target reads the copy. Redefining
+ *    `charIndex` before them breaks the propagation; the self-copy is then
+ *    eliminated, so the instruction count is unchanged. Do not delete it.
+ */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
@@ -981,6 +957,7 @@ s32 debug_text_width(const char *format, ...) {
             do {
                 pad = charIndex;
                 if (newlineMark != charIndex) {
+                    charIndex = pad;
                     if (charIndex == ' ') {
                         stringLength += 6;
                     } else if (pad >= 0x21 && pad < 0x80) {
@@ -1008,10 +985,6 @@ s32 debug_text_width(const char *format, ...) {
     va_end(args);
     return stringLength;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_width.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_parse. */
 /* Workbench: relocation-symbol-mismatch; words-identical, four reloc sites, first +0x44.
  * Levers tried: paired-struct and bounded address-alias spellings; codegen regressed or retained separate D_800D4A62.
@@ -1199,74 +1172,3 @@ void debug_text_newline(void) {
     D_800D4A5C = D_800D4A6C;
     D_800D4A5E += 11;
 }
-
-/* PLATEAU-HANDOFF:debug_text_width:start
- * symbol: debug_text_width
- * score: 4 differing words
- * frame: 0x138
- * relocations: 5
- * first-mismatch: +0x68
- * summary: Seven words to four on an L97 region plus a named newline constant paid for by L112 buffer length; the residual is four range tests reading the raw byte where the target reads the copy, and the cause is uopt copy propagation stopping only at the statement that redefines the source.
- * PLATEAU-HANDOFF:debug_text_width:end
- */
-/*
- * 2026-09-10, lane nm-mixed: the target's split is now located precisely. It
- * keeps the raw byte in one web for the newline and space tests and copies it
- * into a SECOND web used from the 0x21 range test onward; the branch-likely
- * newline lowering is a consequence, not a separate fault. The obstacle is
- * that a classification copy cannot be bought: any eighth declaration shifts
- * the 260-byte buffer four bytes down the frame, which costs two words on its
- * own, and uopt coalesces the copy back into the raw web anyway, so every
- * placement measured nine. Reusing charIndex as the copy avoids the buffer
- * shift and stays flat at seven. Falsified: copy at the top of the loop, in
- * the else arm, as an assignment inside the range test, u8 and char element
- * types, and every declaration order.
- */
-/*
- * 2026-09-10, lane o7-mid: the two-web form the note above could not buy is
- * now buildable, and it is NOT a match -- it is an exact v0/v1 transposition
- * of the target, so the residual has moved from "we cannot make the copy
- * survive" to "we cannot choose which of the two webs gets v0".
- *
- * All seven words are one fact. The target holds the raw byte in v1 (the
- * +0x38 and +0xEC loads, the +0x44 null test, the +0x5C newline test, the
- * +0x64 space test), copies it to v0 at the loop top, and uses v0 from the
- * +0x68 range test onward; the copy lands in the newline branch's delay slot,
- * which is why the target's branch is a plain `beq` and ours a `beql` that
- * pulls the latch load up instead. Fix the two webs and all seven close.
- *
- * The copy survives when its SOURCE is redefined later inside the loop and
- * dies when it is not. Writing `charIndex` as the raw byte and copying it
- * into `pad` at the loop top keeps the copy (charIndex is redefined by the
- * three masked index assignments); writing `pad` as the raw byte and copying
- * into `charIndex` is copy-propagated away and stays flat at seven. The
- * surviving form scores **20, category register-only, size delta 0**: every
- * instruction is the target's and v0 and v1 are swapped throughout (the raw
- * byte, the copy, the index, and the +0xD4 address temp all transpose), plus
- * the +0x5C branch operand order.
- *
- * So the decision variable is a single p2 colour choice between two webs that
- * are otherwise identical on both sides: the char+index web takes v0 and the
- * copy web takes v1, and the target has it the other way. Flat at 20 across:
- * all 24 declaration orders of the four scalars; all four positions of the
- * 260-byte buffer in the declaration list; both role assignments (char+index
- * in charIndex with the copy in pad, and the mirror) -- names are inert here,
- * L26; reversed newline and space comparison operand orders; an extra
- * preheader copy meant to found the copy web first (folded away); and the
- * guard test moved onto the copy variable. Web founding is live-ucode
- * first-occurrence order, and the raw byte's load in the preheader always
- * precedes the copy in the loop, so no source form reaches a lower web number
- * for the copy.
- *
- * Also re-measured and flat at seven on the one-web base, so the next lane
- * need not repeat them: 36 points crossing six spellings of the two
- * definition sites (including `pad = *ch++` and reading through `ch` from
- * s[0]) with three loop shapes (do/while, while, goto); u8 `pad`; u8 and s16
- * `fontTexture`; and `u8 charIndex` with the truncation written at the store
- * (L85's renumbering spelling -- it does not move the colour here).
- *
- * Next lever: a CDX force sweep on the 20-word two-web form. If v0 is on the
- * copy web's candidate list the residual is one force away from a verdict;
- * if it is absent (L101's silent shape) the answer is a web-number lever for
- * caller-saved integer webs, which no law on the page currently supplies.
- */

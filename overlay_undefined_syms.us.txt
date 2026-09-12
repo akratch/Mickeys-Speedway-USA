@@ -303,12 +303,11 @@ overlay5InitPlayerReloc = 0xf0000000;
 overlay5SequenceInitReloc = 0xf0000000;
 
 /* overlay 7: overlay_007.c.o */
-D_288 = 0x00000288;
-D_28C = 0x0000028c;
 gOverlay7ActiveHead = 0x00000284;
 gOverlay7ActiveTail = 0x0000028c;
 gOverlay7Current = 0x00000280;
 gOverlay7FreeHead = 0x00000288;
+gOverlay7PriorityThresholdReloc = 0x00000000;
 gOverlay7Selected = 0x00000290;
 overlay7Acquire = 0xf0000000;
 
@@ -342,6 +341,7 @@ D_10 = 0x00000010;
 D_2110 = 0x00002110;
 D_2210 = 0x00002210;
 D_2230 = 0x00002230;
+D_28C = 0x0000028c;
 D_310 = 0x00000310;
 D_350 = 0x00000350;
 D_4E0 = 0x000004e0;
@@ -941,6 +941,10 @@ overlay29InterpolateReloc = 0xf0000000;
 
 /* overlay 29: overlay29InitializeObject.c.o */
 D_EE0 = 0x00000ee0;
+func_80010900_o029Reloc = 0xf0000000;
+func_overlay_029_F00010C4_187E374Reloc = 0xf0000000;
+mathOneFloatRPY_o029Reloc = 0xf0000000;
+trackMakePolylist_o029Reloc = 0xf0000000;
 
 /* overlay 29: overlay29ProjectPoint.c.o */
 gOverlay29MinimumYReloc = 0x00000000;
@@ -1050,9 +1054,11 @@ gOverlay34Records = 0x00000000;
 /* overlay 34: overlay34SetValue10.c.o */
 gOverlay34Value10 = 0x00000010;
 
-/* overlay 34: overlay34ResetStorage.c.o */
+/* overlay 34: overlay34RemoveRecord.c.o */
 gOverlay34ActiveCount = 0x0000000c;
 overlay34FreeReloc = 0xf0000000;
+
+/* overlay 34: overlay34ResetStorage.c.o */
 overlay34RemoveRecordReloc = 0xf0000000;
 
 /* overlay 35: overlay35Initialize.c.o */
@@ -1215,10 +1221,9 @@ overlay41EmitStepReloc = 0xf0000000;
 overlay41StepRecordsReloc = 0x00000000;
 
 /* overlay 41: overlay41UpdateColorRecords.c.o */
-D_80000038 = 0x80000038;
-D_80000039 = 0x00000039;
-D_8000003A = 0x0000003a;
-D_8000003B = 0x0000003b;
+gOverlay41ColorRecords = 0x00000000;
+overlay41SetAlpha = 0xf0000000;
+overlay41SetColor = 0xf0000000;
 
 /* overlay 41: overlay41UpdateCurveObject.c.o */
 func_8000FAE0_o041Reloc = 0xf0000000;
@@ -1624,6 +1629,7 @@ overlay53QueryModeReloc = 0xf0000000;
 
 /* overlay 53: func_overlay_053_F0000240_189DBE8.c.o */
 D_118 = 0x00000118;
+D_288 = 0x00000288;
 
 /* overlay 53: overlay53ReleaseResources.c.o */
 gOverlay53Handle0 = 0x00000288;
@@ -3457,9 +3463,9 @@ func_overlay_006_F0000010_185BE78 = overlay6Noop;
 
 /* overlay 7: overlay_007.c.o */
 func_overlay_007_F0000000_185BE88 = overlay7ReleaseEntry;
+func_overlay_007_F00000A8_185BF30 = overlay7AcquireEntry;
 func_overlay_007_F0000228_185C0B0 = overlay7CreateEntry;
 func_overlay_007_F0000298_185C120 = overlay7AppendEntry;
-func_overlay_007_F00000A8_185BF30 = overlay7AcquireEntry;
 
 /* overlay 7: overlay_007_tail.c.o */
 func_overlay_007_F0000894_185C71C = overlay7DispatchModes;
