@@ -1103,25 +1103,27 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        /* Adjacent index def; see the note in case 7/11.  Carried by
-         * `opponent`, not `i`, for the same reason as case 2's decrement
-         * loop: it takes this loop's occurrences out of `i`'s web.  Of the
-         * eighteen carriers measured here `opponent` is the best by a clear
-         * margin (733 masked against 761 for the next), and `i` is dead after
-         * this loop in case 8, so the rename is free of meaning. */
-        opponent = 0;
+        /* Adjacent index def; see the note in case 7/11.  This loop was
+         * carried by `opponent` from 2026-09-10 to 2026-09-12, when
+         * `opponent` beat every other carrier by a clear margin.  At the
+         * shape note 8 leaves behind, `i` wins instead: 599 -> 594 masked,
+         * byte-exact 3294 -> 3311, naming 215 -> 198.  L146 -- a carrier
+         * optimum belongs to the shape, and this is the third time this
+         * site has changed hands.  `i` is written at the top of case 8 and
+         * read nowhere between there and here, so the identity is free. */
+        i = 0;
         do {
             x = -x;
-            textY = D_o058_5EAC + opponent * 0x1B + 0x5B;
-            if (opponent == D_o058_5E8C) {
+            textY = D_o058_5EAC + i * 0x1B + 0x5B;
+            if (i == D_o058_5E8C) {
                 fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            sprintf(&text[0], D_8007C0B8->text[0x30], opponent + 1);
+            sprintf(&text[0], D_8007C0B8->text[0x30], i + 1);
             func_8004B0F8(&D_800D3140, x + 0x82, textY, &text[0], 1);
-            overlay56SplitTime(state->entries[0].lapTimes[opponent], &minutes, &seconds, &centiseconds);
-            if (opponent != D_o058_5E8C) {
+            overlay56SplitTime(state->entries[0].lapTimes[i], &minutes, &seconds, &centiseconds);
+            if (i != D_o058_5E8C) {
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
             }
             sprintf(&text[0], D_o058_5D74, minutes);
@@ -1132,8 +1134,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             func_8004B0F8(&D_800D3140, x + 0xD5, textY, D_o058_5D84, 0);
             sprintf(&text[0], D_o058_5D88, centiseconds);
             func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
-            opponent += 1;
-        } while (opponent != 3);
+            i += 1;
+        } while (i != 3);
         x = -x;
         textY = textY + 0x2C;
         if (D_o058_5E90 != -1) {
@@ -1233,14 +1235,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                         D_8007C1B4 -= 1;
                         i = 0;
                         do {
-                            opponent = 0;
+                            /* The erase scan's column index is carried by
+                             * `columnX`, dead here and first written 70 lines
+                             * below: 620 -> 599 masked, byte-exact
+                             * 3276 -> 3294, naming 233 -> 215. */
+                            columnX = 0;
                             do {
-                                if ((u8) D_o058_5C5C[i][opponent] == D_800D31C4[D_8007C1B4]) {
+                                if ((u8) D_o058_5C5C[i][columnX] == D_800D31C4[D_8007C1B4]) {
                                     D_o058_5E78 = i;
-                                    D_o058_5E7C = opponent;
+                                    D_o058_5E7C = columnX;
                                 }
-                                opponent += 1;
-                            } while (opponent != 0xA);
+                                columnX += 1;
+                            } while (columnX != 0xA);
                             i += 1;
                         } while (i != 3);
                         amSndPlay(0xDU, NULL);
@@ -1419,21 +1425,23 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             nodes[0].packedOffset = 0;
             nodes[1].texture = 0;
             func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
-            opponent = 0;
+            /* Carried by `columnCount`, which belongs to case 5 and is dead
+             * in case 10: 623 -> 620 masked, byte-exact 3271 -> 3276. */
+            columnCount = 0;
             do {
                 if (highlighted == 0) {
-                    if (opponent == 0) {
+                    if (columnCount == 0) {
                         fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
-                    if (opponent == 3) {
+                    if (columnCount == 3) {
                         fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                     }
                 }
-                character[0] = text[opponent];
+                character[0] = text[columnCount];
                 character[1] = 0;
-                func_8004B0F8(&D_800D3140, D_o058_5CB0[opponent] + x, textY, &character[0], 0);
-                opponent += 1;
-            } while (opponent != 11);
+                func_8004B0F8(&D_800D3140, D_o058_5CB0[columnCount] + x, textY, &character[0], 0);
+                columnCount += 1;
+            } while (columnCount != 11);
             if (i == 2) {
                 textY += 0x1B;
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
