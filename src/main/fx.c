@@ -2382,13 +2382,53 @@ void func_8004AF68(void) {
 
 
 
+/* Axis log for the fxScreenEffect residual, recorded 2026-09-11. Kept outside
+ * the structured marker below because that marker admits only its six fields,
+ * one physical line each.
+ *
+ * The instrument that mattered was the instruction multiset, not the positional
+ * count: at 123 words the candidate differed from the target by exactly five
+ * register copies, one shift and one display-list writeback, and every other
+ * mnemonic count already agreed. Three of those five are now closed.
+ *
+ * What paid, each measured alone:
+ *   - the cursor initialiser moved inside the guarded block, +1 word;
+ *   - the limit given a guard-local carrier, +1 word;
+ *   - the display-list pointer advanced once in place and then re-read, +1 word,
+ *     which also broke the 123 plateau to 122. The draft's two adjacent
+ *     writebacks were folding into one dead store.
+ *
+ * What did not, all flat unless noted:
+ *   - 32 forms naming each of five hoisted loop invariants as a preheader local
+ *     against inlining it: byte-identical in all 32.
+ *   - 243 forms of the same five at three spellings each (inline, one-step
+ *     named, two-step compound assignment): masked 123 and size delta -24 in
+ *     every cell.
+ *   - 8 forms moving the two scaled values and the cursor initialiser between
+ *     the pre-guard block and the guarded block: only the cursor pays.
+ *   - 32 forms adding a guard-local carrier for the limit, the two scaled
+ *     values, the stride and the base: only the limit pays.
+ *   - 5 store and advance topologies for the second in-loop command: the
+ *     advance-then-re-read form pays and is adopted; two others lose a word.
+ *   - 6 region barriers and 4 arithmetic spellings against the unfolded
+ *     (arg4 << 5) << 16 the target holds: none blocks the fold.
+ *   - 4 stride spellings (pointer increment, array index, cast-and-add, named):
+ *     byte-identical except the named form, which regresses.
+ *   - parameter reassignment, rescaling arg4, arg5 and arg7 in place: regresses
+ *     to 143 and drops one stack-argument load the target has.
+ *
+ * After these edits the register census resolves into a single closed four-cycle
+ * over the integer temp ring where it previously showed two incoherent ones,
+ * which is the L127 ring-phase fact rather than a set of colour questions.
+ */
+
 /* PLATEAU-HANDOFF:func_80046EC4:start
  * symbol: func_80046EC4
- * score: 60 differing words
+ * score: 60/111 words
  * frame: 0x48
  * relocations: 6
- * first-mismatch: 0x68
- * summary: the one extra instruction is located: the target reuses the materialised cone+0x38 value as the base for the two sub-address adds, IDO reassociates every source spelling tried into cone+size then +0x38. Frame and stack homes are exact.
+ * first-mismatch: +0x68
+ * summary: Guarded order climb found only semantically invalid gains; address-base reuse remains the blocker after the spelling closure.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
@@ -2444,45 +2484,6 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_800479D4:end
  */
 
-/* Axis log for the fxScreenEffect residual, recorded 2026-09-11. Kept outside
- * the structured marker below because that marker admits only its six fields,
- * one physical line each.
- *
- * The instrument that mattered was the instruction multiset, not the positional
- * count: at 123 words the candidate differed from the target by exactly five
- * register copies, one shift and one display-list writeback, and every other
- * mnemonic count already agreed. Three of those five are now closed.
- *
- * What paid, each measured alone:
- *   - the cursor initialiser moved inside the guarded block, +1 word;
- *   - the limit given a guard-local carrier, +1 word;
- *   - the display-list pointer advanced once in place and then re-read, +1 word,
- *     which also broke the 123 plateau to 122. The draft's two adjacent
- *     writebacks were folding into one dead store.
- *
- * What did not, all flat unless noted:
- *   - 32 forms naming each of five hoisted loop invariants as a preheader local
- *     against inlining it: byte-identical in all 32.
- *   - 243 forms of the same five at three spellings each (inline, one-step
- *     named, two-step compound assignment): masked 123 and size delta -24 in
- *     every cell.
- *   - 8 forms moving the two scaled values and the cursor initialiser between
- *     the pre-guard block and the guarded block: only the cursor pays.
- *   - 32 forms adding a guard-local carrier for the limit, the two scaled
- *     values, the stride and the base: only the limit pays.
- *   - 5 store and advance topologies for the second in-loop command: the
- *     advance-then-re-read form pays and is adopted; two others lose a word.
- *   - 6 region barriers and 4 arithmetic spellings against the unfolded
- *     (arg4 << 5) << 16 the target holds: none blocks the fold.
- *   - 4 stride spellings (pointer increment, array index, cast-and-add, named):
- *     byte-identical except the named form, which regresses.
- *   - parameter reassignment, rescaling arg4, arg5 and arg7 in place: regresses
- *     to 143 and drops one stack-argument load the target has.
- *
- * After these edits the register census resolves into a single closed four-cycle
- * over the integer temp ring where it previously showed two incoherent ones,
- * which is the L127 ring-phase fact rather than a set of colour questions.
- */
 /* PLATEAU-HANDOFF:fxScreenEffect:start
  * symbol: fxScreenEffect
  * score: 121 differing words
