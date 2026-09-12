@@ -289,4 +289,55 @@ of L126's bound for this site: a copy carrier is byte-free only where it is
 also record-free. The interval the recorded arithmetic identifies is still
 non-empty in principle and still unreached.
 
+
+#### 2026-09-12, lane p10-tight: the whole colour ladder read from the records, and L147 does not open it
+
+Re-measured unchanged: 476 bytes, 119 of 119 words, size delta 0, positional
+masked 3, first naming-only difference +0x110.
+
+The instrumented compiler was gated first: its object's text for this symbol is
+byte-identical to the configured build's, compared byte for byte rather than by
+score.
+
+**The ladder, complete, from this procedure's own records.** Twenty phase-one
+decisions, no phase-two records, and the selection order is strictly descending
+save, which is L100 agreeing with itself on a p1-only procedure. In decision
+order, with save, the divisor the records call nocs, and totalsave:
+
+- the command value web, 33.0, divisor 2, total 66, takes the first colour
+- four webs tied at 30.0, divisor 1, total 30 each, take the second through
+  fifth colours in ascending web number
+- the counter web, 20.6, divisor 5, total 103, takes the sixth colour
+
+That reproduces the recorded arithmetic exactly, including the 20.6 that the
+second pass called impossible, and it confirms the third pass's fit of save as
+totalsave over the divisor.
+
+**L147 does not reach this residual, and the records say why.** The lineage
+capture puts all four tied webs in ONE basic block, each with divisor 1. Reading
+the divisor as a count of basic blocks rather than of definitions therefore
+changes nothing here: it is already at its floor, and the only direction a block
+count can move is up, which divides the save further and lands it below the
+counter web. The third pass's reachable-point arithmetic stands under either
+reading.
+
+**What the records add to the cell.** With every reference at loop depth one
+weighing ten and one reference at depth zero weighing one, a divisor of 1 admits
+only totals of 30 for three references, 21 for two plus one at depth zero, and
+12 for one plus two. Exactly one of those, 21, lands strictly inside the open
+interval, so the requirement is now a single sentence: ONE of the strip cursor's
+three references must sit at loop depth zero and survive. The third pass already
+measured that a dead initialisation outside the loop is eliminated before the
+count, and the two packet stores and the cursor's own definition cannot leave
+the loop without changing what is emitted. The alternative, five references over
+a divisor of two at 25.0, is the recorded positive control and costs two
+instructions.
+
+**The prediction the third pass left untested is refuted.** An invisible web
+that forbids the contested colour to the strip cursor would have to be live in
+the block the strip cursor occupies, and the address web occupies that same
+single block, so interference by block-set intersection reaches both and forbids
+the colour to both. The reasoning the third pass gave is correct and can be
+retired as a lever.
+
 <!-- plateau-handoff:overlay17DrawStrip:end -->

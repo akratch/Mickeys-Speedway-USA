@@ -257,4 +257,48 @@ always exactly one holder of the wanted colour numbered below the limit, so
 moving one only promotes the next. The numbering axis is open and priced at
 three words; nothing in this lane's levers reaches it.
 
+
+#### 2026-09-12, lane p10-tight: the force closure re-established with CDX_PROC set
+
+`CDX_FORCE` is silently ignored unless `CDX_PROC` is set, and a dropped force is
+indistinguishable from a legitimate decline, so the 2026-09-09 and 2026-09-10
+force results were re-run here with the procedure selected and the accepted flag
+read rather than the object compared. The instrumented compiler was gated first:
+its text for this symbol is byte-identical to the configured build's.
+
+**The closure survives, and the tool was demonstrably driving.** Forcing the
+compaction limit onto the first colour records the never-applied value and
+leaves every colour in the procedure unchanged, and the same run's decision
+record carries that colour in the limit's forbidden mask, so this is a genuine
+decline. In the same harness, forcing the decremented count onto the sixth
+colour IS accepted and records it, which is the positive control the earlier
+entries lacked: the mechanism works, the procedure selection is right, and the
+decline is real.
+
+**The promotion chain is confirmed and now enumerated.** With the decremented
+count forced away, the bound carrier takes the first colour and the limit lands
+one colour better at six words. With both the entry web and the decremented
+count forced away, the index takes the first colour and the limit lands in the
+same place at 33 words. So "there is always exactly one holder of the wanted
+colour in front of the limit, and moving one only promotes the next" is now
+measured over three configurations rather than one.
+
+**The full p2 ladder, for whoever picks this up.** Twelve decisions in strictly
+ascending web number, taking the lowest colour no already-coloured interferer
+holds, with the entry web and the decremented count both on the first colour,
+the index on the second, the search cursor and the compaction cursor on the
+fourth, the bound carrier on the third, and the limit on the fifth. The limit's
+forbidden mask names the first four colours.
+
+**The requirement, stated exactly and three-sided.** The target wants the limit
+on the first colour and the compaction cursor on the fourth. That needs, all at
+once: the decremented count gone so it cannot hold the first colour; the limit
+numbered BELOW both the bound carrier and the compaction cursor, because both of
+those live in the compaction loop's two blocks and therefore interfere with the
+limit, so nothing outside those blocks can forbid them a colour without also
+forbidding it to the limit; and exactly one interferer numbered below the cursor
+holding the third colour. The recorded array-base hoist buys the second of those
+three and costs three words in the two index shifts, which is why that candidate
+sits at five. Nothing measured here buys the first and third together.
+
 <!-- plateau-handoff:overlay20RemoveEntry:end -->

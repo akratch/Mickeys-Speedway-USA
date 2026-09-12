@@ -2255,7 +2255,25 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * relocation-naming artifact -- the target side carries the generic overlay
  * entry symbol at every R_MIPS_26 site while the candidate carries the real
  * callee -- and those words are masked, which is why the raw and the masked
- * counts both read 2. Do not spend a cycle on it. */
+ * counts both read 2. Do not spend a cycle on it.
+ *
+ * 2026-09-12, lane p10-tight. The 2026-09-11 reading that the free list is
+ * ascending here and the residual lives inside the second switch arm is wrong;
+ * see the handoff shard. ugen draws a ring register immediately before each
+ * instruction it emits, so the listing order IS the draw order, and the angle
+ * block hands the switch its fourth and third ring members transposed. A
+ * two-word corner exists in which BOTH switch arms are byte-exact and the
+ * residual is the sum's destination instead: declare the angle thirty-two-bit,
+ * spell the right summand as an explicit sixteen-bit mask of it so its widening
+ * costs one ring draw rather than two, and write the second arm with no carrier
+ * at all. The block then owes one more zero-footprint ring draw, strictly
+ * between the sum and the truncation, and it cannot be paid: as1 deletes a
+ * no-op by renaming ITS PRODUCER'S destination, so a phantom placed on the sum
+ * renames the sum off the pool colour, and a phantom appended to the left
+ * operand's chain is folded into it and moves the survivor one slot on. That is
+ * the same mechanism the note above calls back-coalescing, measured from the
+ * other side. Only a zero-footprint draw on some other live narrow value would
+ * pay, and nothing narrow is live there. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
@@ -3444,7 +3462,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x34
- * summary: 2026-09-11, lane p6-tight re-read the ugen listing on the current base and the queue is already ascending, so the residual is an allocation-ORDER fact inside the second switch arm and not the angle block. The two arms are structurally identical yet take temps in opposite orders: the first allocates its test before its store, the second its store before its test. The recorded sixteen-bit carrier fixes the order by spending a temp -- the truncation takes the first number, the inner AND the second, as1 folds them keeping the first, and the store slides to the third -- where the target spends two. So the requirement is that the test be allocated first at a cost of ONE node. Newly flat: all eight carrier widths (unsigned sixteen and eight give 2, signed give 31 at plus eight bytes, every thirty-two-bit spelling is byte-identical to having no carrier at 4), thirteen block shapes including four early-exit forms that are all 4, a carrier on the store instead of the test, and L109's three identity-op phantoms on the angle sum, which uopt folds before the web builder and which therefore cannot move any ring draw in this function
+ * summary: 2026-09-12, lane p10-tight REFUTES the p6-tight premise below. Read off the compiler listing, ugen draws a ring register immediately before each instruction it emits, so the draw order is the listing order, and the queue reaching the switch carries the fourth and third ring members transposed exactly as the win-b entry said. The residual is the angle block, not the arm. New two-word corner, switch byte-exact in both arms: declare the angle thirty-two-bit, spell the right summand as an explicit sixteen-bit mask so its widening costs one draw, and write the second arm with no carrier -- the residual moves to +0xdc and +0xe0, the sum's destination and the first truncation's source. The fifth ring draw the block still owes cannot be paid: the assembler deletes a no-op by renaming its producer's destination, so any phantom on the sum renames the sum off its pool colour, and a phantom appended to the left operand is folded into it. The one payment left is a zero-footprint draw on another live narrow value between the sum and the comparison, and no such value is live there. Prior p6-tight reading, now superseded: the queue is ascending and the residual is an allocation order inside the arm
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 

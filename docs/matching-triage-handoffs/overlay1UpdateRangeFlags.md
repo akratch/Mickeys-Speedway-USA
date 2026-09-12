@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x34
-- summary: 2026-09-11, lane p6-tight re-read the ugen listing on the current base and the queue is already ascending, so the residual is an allocation-ORDER fact inside the second switch arm and not the angle block. The two arms are structurally identical yet take temps in opposite orders: the first allocates its test before its store, the second its store before its test. The recorded sixteen-bit carrier fixes the order by spending a temp -- the truncation takes the first number, the inner AND the second, as1 folds them keeping the first, and the store slides to the third -- where the target spends two. So the requirement is that the test be allocated first at a cost of ONE node. Newly flat: all eight carrier widths (unsigned sixteen and eight give 2, signed give 31 at plus eight bytes, every thirty-two-bit spelling is byte-identical to having no carrier at 4), thirteen block shapes including four early-exit forms that are all 4, a carrier on the store instead of the test, and L109's three identity-op phantoms on the angle sum, which uopt folds before the web builder and which therefore cannot move any ring draw in this function
+- summary: 2026-09-12, lane p10-tight REFUTES the p6-tight premise below. Read off the compiler listing, ugen draws a ring register immediately before each instruction it emits, so the draw order is the listing order, and the queue reaching the switch carries the fourth and third ring members transposed exactly as the win-b entry said. The residual is the angle block, not the arm. New two-word corner, switch byte-exact in both arms: declare the angle thirty-two-bit, spell the right summand as an explicit sixteen-bit mask so its widening costs one draw, and write the second arm with no carrier -- the residual moves to +0xdc and +0xe0, the sum's destination and the first truncation's source. The fifth ring draw the block still owes cannot be paid: the assembler deletes a no-op by renaming its producer's destination, so any phantom on the sum renames the sum off its pool colour, and a phantom appended to the left operand is folded into it. The one payment left is a zero-footprint draw on another live narrow value between the sum and the comparison, and no such value is live there. Prior p6-tight reading, now superseded: the queue is ascending and the residual is an allocation order inside the arm
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
@@ -347,5 +347,74 @@ Next lever, unchanged in kind but now stated against the right mechanism: a
 construct that makes the second arm allocate its test temp before its store
 temp while emitting one node, not two. Do not re-search carrier types or block
 shapes.
+
+
+#### 2026-09-12, lane p10-tight: the p6-tight allocation-order reading is refuted, and a new two-word corner
+
+Re-measured first: 480 bytes, 120 of 120 words, size delta 0, positional masked
+2, aligner buckets 118 byte-exact, 2 register naming, 0 immediate only, 0 really
+different, first naming-only difference +0x190.
+
+**The p6-tight entry above is wrong on its load-bearing detail, and the
+correction reopens the function.** It says the free list reaching the switch is
+ascending on this base and that the residual is an allocation-ORDER fact inside
+the second arm. Read off the compiler's own listing rather than off the emitted
+registers, ugen draws a ring register immediately before each instruction it
+emits, so the draw order IS the listing order, and the free list reaching the
+switch carries the fourth and third ring members transposed exactly as the
+win-b entry first described. The second arm with the recorded carrier makes
+three draws (the inner mask, its truncation, the store) and the assembler folds
+the first two, which is why the test lands correctly and the store lands one
+slot late. The no-carrier arm makes two draws and lands both wrong. Neither
+reading of the arm is the residual: the transposition is upstream.
+
+**The requirement, restated against the angle block.** The angle sum makes five
+ring draws, its left operand owning three and the right operand's widening two.
+Releases go to the queue tail as each value dies, so the left operand's survivor
+is released at the sum while the right operand's first temporary is released one
+emission step earlier, and the pair reaches the switch out of order. The target
+needs the five releases in draw order.
+
+**A new two-word corner, reached and receipted.** Declaring the angle as a
+thirty-two-bit local, spelling the right summand as an explicit sixteen-bit mask
+of it so the widening costs one draw instead of two, and writing the second
+switch arm with NO carrier at all makes the ENTIRE switch byte-exact, both arms,
+and moves the residual to +0xdc and +0xe0: the sum's destination and the source
+of the first truncation instruction. The target puts the sum in the angle's own
+pool colour; this candidate puts it in a ring temporary. Every cell is zero size
+delta. Reached three ways, all scoring 2 with the switch exact: the masked right
+summand carried in the same statement, the same split across two statements, and
+the truncation moved into the comparison.
+
+**Why the fifth draw cannot be paid.** With the right summand costing one draw
+the block makes four, and the outer truncation then lands two ring slots early,
+which is the recorded 18-word regression. A fifth draw is therefore needed
+strictly between the sum and the truncation. The assembler deletes a no-op
+instruction by RENAMING ITS PRODUCER'S DESTINATION to the no-op's own
+destination -- measured on three different phantom families -- so any
+zero-footprint operation placed on the sum renames the sum off the pool colour
+and re-opens those same two words. A phantom appended to the left operand's
+chain is folded into it and moves the survivor one slot on, for the same reason.
+The only payment left is a zero-footprint ring draw on some OTHER live value
+between the sum and the comparison, and every value live at that point is a
+pointer or a thirty-two-bit count whose bits are all needed, so the one
+documented zero-footprint family (a redundant mask on a value already known to
+be narrow) has nothing to attach to.
+
+Newly measured and flat at two or worse this pass, all zero size delta unless
+noted: 29 second-arm respellings including the carrier reused as the store
+operand in four widths (twelve bytes short), the store carrier reused as the
+test, inline truncations in two widths, three flag widths crossed with three
+carrier shapes, an assignment inside the condition, a dead first definition, and
+both carriers together; ten arm block shapes including three early-exit forms,
+a goto, a do-while wrapper and a comma condition; 26 angle-block node-count
+variants crossing the angle's declared width with hoisted and cast left
+operands; 34 phantom-draw placements across the sum, the left operand, the right
+operand, a split assignment and the comparison.
+
+Next lever: not another spelling of the arm, and not the carrier. Either a live
+narrow value that can carry a zero-footprint draw between the sum and the
+comparison, or a source form in which the sum's own destination survives a
+no-op placed after it.
 
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->

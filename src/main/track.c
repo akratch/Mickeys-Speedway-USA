@@ -3216,6 +3216,19 @@ extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
  * &scratch member-address webs, we number it above -- plus that same fp web, which the target
  * colours f20 and we colour f0. Declaration order does NOT move either: reordering the block
  * changes the stack homes and leaves the pool lane byte-identical. */
+/* 2026-09-12, lane p10-tight: read off both objects, the target writes the sum
+ * straight into the callee-saved float register the length variable already
+ * owns and copies the square root's result back into it, so the sum and the
+ * result are ONE web with two definitions. The requirement is therefore that
+ * the length variable's FIRST definition survive uopt, not that a separate
+ * temporary be given a longer range. L144 is refuted here and priced: taking
+ * the variable's address at the guard, at the call argument or at both costs
+ * twelve bytes and 93 words, because it moves the variable to a memory home --
+ * the reload is the wrong half of volatile for this residual. Six further
+ * rewrites of the sum (split accumulation, compound assignment, a dead zero
+ * initialisation, a self-assignment, the root taken into the spare float, and
+ * the guard read through the spare float) are all byte-identical: uopt forwards
+ * any expression whose operands are unmodified between definition and use. */
 s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                   void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
     s32 var_s4;

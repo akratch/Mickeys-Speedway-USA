@@ -779,6 +779,21 @@ u8 *levelGetName(s32 arg0) {
  * a pool colour and turn the shift into an add, which is an opcode difference,
  * and a `volatile` index is 43 at delta 8. levelInit's six-word twin was
  * re-measured the same hour and behaves identically. */
+/*
+ * 2026-09-12, lane p10-tight re-derived this from the compiler's own listing
+ * rather than from the emitted registers, which the assembler reorders on both
+ * sides. Three facts close it mechanically. The ring free list for this
+ * procedure is one ascending cycle and every release in the loop head and the
+ * guard chain happens in draw order, so the four members reaching the arm are
+ * consecutive and in order -- the transposition cannot come from the list. In
+ * the arm the compiler emits mask, scale, table, sum; the target's registers
+ * require mask, table, scale, sum. A postorder walk of one two-operand address
+ * expression admits only index-first or base-first, and twenty-three further
+ * spellings read off the listing this pass all land in one of those two. The
+ * deletion half of L145 was exercised too: deleting the entry carrier and
+ * writing the table read as the expression itself at all four test sites is the
+ * recorded 56-word regression at three extra instructions.
+ */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
