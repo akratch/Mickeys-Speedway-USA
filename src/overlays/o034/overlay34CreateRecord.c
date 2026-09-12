@@ -163,6 +163,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
  * frame: 0x30
  * relocations: 12
  * first-mismatch: +0x88
- * summary: Indexed scan removes loop residual; four height/resource naming rows and two store-order rows remain.
+ * summary: Context probes move only source-line attribution; store-pair swap regresses to 15 naming rows; baseline six-word residual retained.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

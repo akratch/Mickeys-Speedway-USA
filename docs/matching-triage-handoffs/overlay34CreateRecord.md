@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88
-- summary: Indexed scan removes loop residual; four height/resource naming rows and two store-order rows remain.
+- summary: Context probes move only source-line attribution; store-pair swap regresses to 15 naming rows; baseline six-word residual retained.
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
@@ -177,5 +177,56 @@ no new target identity and do not explain the remaining priority, so the pass
 stops under ADR 0018. All candidate sources, objects and aligned per-window
 comparisons are retained privately under build/p24/overlay34CreateRecord;
 the final landscape is under build/p24/record-final-landscape.
+
+#### 2026-09-13, lane d1: emission and store-order differential
+
+The fresh configured baseline reproduces 500 bytes, 125 words, frame 0x30,
+six masked and eight raw differences, first masked +0x88. Aligned buckets
+are 119 exact, four naming, zero immediate and two structural, with no gaps.
+The two residual windows contain the four resource/height naming rows and
+the two store-order rows respectively. There are 12 candidate ELF relocation
+records versus six in the extracted target; no exact relocation claim is made.
+The existing exhaustive colour landscape was read, with no repeated sweep.
+
+The baseline census has 28 draws and 213 emission records. Each dimension
+line contributes one draw. The two contested stores draw no register and
+contribute two emission records apiece. Three single-change probes were kept
+as ignored evidence, then the guarded baseline was restored:
+
+- Swap the adjacent byte12 and short16 stores on this indexed source shape.
+  The per-line draw/emission counts and draw-register sequence remain equal.
+  The store-op identities exchange lines, which those aggregate counts do not
+  capture. The structural pair disappears, but the aligned result regresses
+  to 15 naming rows across five windows. The earlier literal-priority penalty
+  therefore persists on the current shape; this is not a retained improvement.
+- Move the height definition into a comma expression in the first byte store.
+  It still evaluates after width and before any candidate store. Its one draw
+  moves from the dimension line to the first-store line; the whole sequence
+  stays unchanged. The total emission-record count drops by one, but all 500
+  owned bytes are identical to baseline. Moving the source attribution did
+  not change the effective resource/height ordering.
+- Consume the resource assignment directly in its null test. The call and
+  store retain their semantics. Ten emission records leave the assignment
+  line, while the condition line grows from six to fifteen; the missing record
+  is a source-location directive. The dimension draws and all 500 owned bytes
+  remain identical to baseline. This context change does not move the blocker.
+
+Every probe passes full-TU stock/instrumented text, data, rodata, symbol and
+relocation fidelity. The three record probes neither improve the best aligned
+residual nor establish a new target identity or untested mechanism. The first
+reproduces an already-known order tradeoff, and the last two only move source
+attribution. This is the ADR 0018 stall; no further spelling lattice was run.
+
+The precise remaining question is unchanged: obtain the height/resource
+ordering while emitting short16 before byte12 and preserving literal-2
+priority. Per-line census counts alone do not expose exchanged store kinds or
+operation ownership within one line; inspect the retained trace and aligned
+object delta before reading an unchanged-count footer as unchanged code.
+
+Sources, objects, scores, profiles, raw traces and aligned per-window deltas
+are retained privately under build/d1/overlay34CreateRecord. Commands include
+draw_census.py --save/--compare, residual_map.py --object/--against,
+align_symbol.py, frame_census.py, the workbench fidelity gate and
+finalize_plateau.py. No executable-byte credit or canonical C promotion.
 
 <!-- plateau-handoff:overlay34CreateRecord:end -->

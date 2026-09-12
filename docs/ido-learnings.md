@@ -2234,6 +2234,22 @@ bytes and disassembly never belong here.
   disclosure, cleanup-queue coverage and unmodified-compiler promotion proof.
   See the [cost-table and source receipt](matching-triage-handoffs/overlay89InitializeEffect.md).
 
+- **Move a definition into its consumer before assuming its carrier must be
+  deleted.** A selector argument computed in a preceding statement and the
+  same assignment embedded in its call argument can retain the named value
+  while changing the order of temporary subtrees. In an exact closure, moving
+  the assignment preserved the draw-register sequence and fixed the call
+  window; replacing it with a plain argument instead added a draw and changed
+  the ring. A comma expression that only moved a dimension's source attribution
+  was byte-inert on a separate constructor, so grouping alone is not the lever.
+  Require no intervening observable operations, no unsequenced accesses to the
+  assigned local, and unchanged argument types and values. Census totals also
+  include source-location directives: fewer emission records need not mean
+  fewer machine instructions, and equal per-line counts can hide exchanged
+  operations. Use retained aligned object deltas and stock/relocation/ROM proof.
+  See the [call-site assignment closure](matching-triage-handoffs/overlay19BuildAdjacency.md)
+  and the [constructor context controls](matching-triage-handoffs/overlay34CreateRecord.md).
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
