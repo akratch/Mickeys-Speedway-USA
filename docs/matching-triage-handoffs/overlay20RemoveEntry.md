@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: p2:w42=c1 is genuinely declined; L154 and typed-constant probes are flat, leaving the three-sided web-order constraint
+- summary: web 42 is genuinely declined at c1; fresh L154 probes leave web-creation order as the remaining source decision
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
@@ -300,5 +300,28 @@ forbidding it to the limit; and exactly one interferer numbered below the cursor
 holding the third colour. The recorded array-base hoist buys the second of those
 three and costs three words in the two index shifts, which is why that candidate
 sits at five. Nothing measured here buys the first and third together.
+
+#### 2026-09-12, lane p21-two: fresh L154 probes and force receipt
+
+Fresh alignment at the assigned base reproduces 212 bytes, 53 of 53 words,
+zero size delta, with buckets 51 byte-exact, 2 register naming, 0 immediate
+only and 0 really different. The two sites remain one coherent `a2` to `v0`
+mapping at `+0x6C`; the candidate is frameless with ten relocations.
+
+Four source probes were run against the configured full-TU command. A global
+pre-decrement regresses to 52 of 53 words with a four-byte size excess and
+register/structure churn. Computing `owner - 1` into `new_var` before the
+global store preserves size but regresses to 34 exact words and 19 masked
+differences. The unsigned-literal and addition-negative-one decrement
+spellings preserve the baseline at 2 masked words. No candidate was adopted.
+
+The instrumented compiler was identity-gated by comparing its `.text` section
+byte-for-byte with stock. With procedure ordinal 0 selected, forcing web 42
+to the target's first colour is recorded as declined (`forced=-2`) and the
+forced object scores 2 directly. Forcing web 8 to the sixth colour is accepted
+and the direct object score is 6. This confirms the force path and leaves the
+three-sided web-creation-order requirement as the precise remaining decision;
+no further source spelling was found that changes it without paying size or
+altering the loop's other colours.
 
 <!-- plateau-handoff:overlay20RemoveEntry:end -->
