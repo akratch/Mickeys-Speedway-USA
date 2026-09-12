@@ -5719,11 +5719,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 3 differing words
+ * score: 144/147 words
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: 2026-09-11, lane p6-tight. On the fixed float census the residual reads as three sites, all float, one mapping, one window, no cycle; with the banked float colour table, which excludes the low caller-saved float registers from the priced candidates, the register this candidate uses is not a priced colour at all, so the sum never enters a colour decision and a float-carrier lattice aimed at those registers is refuted as a class. The source side agrees: merging the sum into the length variable, so one symbol is assigned the sum and then reassigned the square root, is BYTE-IDENTICAL to the two-variable form, which proves copy propagation removes the symbol's first definition and the sum survives as an expression temporary whose two uses, the zero comparison and the call argument, both sit before the call. The requirement is therefore that the value become a symbol web live ACROSS the square-root call; declaration order of the float trio, the assignment direction and dropping the unread intermediate are flat at three words or worse. 20 to 3.
+ * summary: all three sites are one compiler-created FP temporary; source rewrites and L144 address forms cannot keep the length definition live across sqrtf
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
