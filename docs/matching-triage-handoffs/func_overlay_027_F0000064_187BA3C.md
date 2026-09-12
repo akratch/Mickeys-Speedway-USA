@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 22
 - first mismatch: +0x94
-- summary: Real call is float/integer; two-float arity is not adoptable. New carrier and address-load controls do not improve 48. Causal f16 force remains diagnostic.
+- summary: 195 single forces yield eight FP winners; 71 winner combinations floor at nine diagnostically. Source stays 48; real-ABI no-spill obstacle remains.
 #### Region partition (measured at 62, re-measured at 48)
 
 At 62 the 368-word residual partitioned into four independent decisions, not
@@ -451,5 +451,76 @@ remain in private external scratch. The 22 relocation records are not a
 promotion proof: the inherited audit does not establish all offset/type and
 identity pairs. C remains guarded; the unchanged assembly fallback is what
 passes full-ROM verification. No matching credit or body edit is adopted.
+
+#### 2026-09-12, lane p23-lastmile: complete single-colour landscape and winner lattice
+
+Baseline reproduces 49 raw and 48 masked differences over 368 words at zero
+size delta: 320 exact, 46 naming, and two structural rows, first +0x94.
+The stock and instrumented full-TU text agree. The Ucode-entry receipt maps
+this function to procedure 1, with 51 decisions in a six-procedure TU.
+
+The exhaustive same-kind landscape covers every one of its 23 coloured webs:
+195 forces compiled, 140 accepted at zero size delta, 52 changed size, and
+three failed strict acceptance receipts. Eight forces beat the baseline:
+
+- p1:w35=c28 gives 9; p1:w35=c27 gives 25.
+- p1:w64=c28 gives 19; p1:w64=c27 gives 28.
+- p1:w120=c28 gives 19; p1:w120=c26 and p1:w120=c27 each give 28.
+- p1:w257=c28 gives 25.
+
+These are the persistent scale, case-0 scale-target value, case-1 fraction,
+and 1.0f constant respectively. Every winner is floating-point; no integer
+force wins. All eight radii overlap. The 64/120 c28 radii are subsets of the
+scale-force radius, so they are competing routes through the same bank, not
+independent savings.
+
+The stock/instrumented-fidelity-gated force_lattice run tested all subsets of
+the four best single forces. Expanding to every distinct-web combination of
+all eight winning choices gives 71 nonempty points: 31 accepted at zero size
+delta, 40 refused, none accepted with a changed size. The minimum among these
+accepted points is nine, from w35=c28 alone; next is twelve with w120=c26
+added. The refused points remain unscored. This is a measured floor for this
+nominated choice set, not for arbitrary forces or changed source. In the
+best-choice lattice, w64=c28 plus w120=c28 scores 22, an antagonistic pair;
+several other pairs cannot apply both requested colours at all.
+
+Aligned comparison of w35=c28 against the unforced object removes 39 naming
+rows across seven windows and introduces none. Its retained residual is seven
+naming and two structural rows. Thus its positional gain hides no local
+regression or insertion shadow. The existing source requirement is confirmed:
+the scale carrier must reach c28 while preserving the real float/integer call
+ABI, no float spill, and the current executable size. Recolouring either
+short-lived fraction instead reaches a worse floor; it does not create an
+independent source task. The R4300 scheduler flag that closed overlay 101 is
+byte-inert here and is not adopted.
+
+Three final carrier controls all regress, with stock/instrumented text
+identity checked for each. Carrying the default arm's narrowed intensity in
+the existing tail union gives 214 masked and adds 28 bytes; the scale remains
+at total 71 over ten components and c26. Carrying the scale through a float
+member of that union gives 333 and adds 28 bytes, losing the coloured carrier
+in favour of memory traffic. Reusing fraction for the scale after the
+interpolation gives 59 at zero size delta: total 81 over ten components,
+still c26, with the same forbidden colours. Original float declarations
+were retained as diagnostic frame controls; no such edit is adopted.
+
+Stall evidence: the last useful result was the complete force landscape and
+its measured combination floor. The three carrier attempts add no better
+residual, target identity, or new route past the already-recorded argument
+forbid/no-spill obstacle. They reproduce the existing carrier, memory, or
+save-ratio failure classes. Restore the original 48-word candidate and stop;
+a next source attempt must identify an already-required pre-call operation
+that supplies the missing live reference under the actual ABI, rather than
+repeat identity probes, fictional call arity, or union carrier spellings.
+
+Private evidence is preserved under build/p23/o027/: baseline and Ucode,
+procedure receipt, complete colour landscape, copied force_lattice receipts,
+all 71 option-lattice results, aligned best-force comparison, and each source
+control's source, object, score, first mismatch, and allocator records.
+Commands include residual_map, allocator_trace_receipt, web_footprint,
+force_lattice and its run_cell helper, configured compiler controls,
+finalize_plateau, and tools/gates.sh. C remains guarded; the 22 relocation
+records are counted but do not establish a new complete identity proof.
+No executable matching credit is claimed for this function.
 
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->

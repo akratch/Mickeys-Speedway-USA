@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 110
 - first mismatch: +0x328
-- summary: the six words are levelFreeAll's unreachable order term plus its phantom draw; p1 records confirm no phase-two web-number lever
+- summary: All 371 single-colour forces accepted; none beats six. Mask-type controls are inert; separate ring-mask evaluation remains the source question.
 
 #### 2026-09-10, lane c4-resident: 113 to 22, and the ring term closed
 
@@ -384,5 +384,45 @@ exactly two emission orders, neither of which is the target's. See that shard.
 Nothing on this function was searched separately this pass, because every cell
 costs a full translation unit here and a sixth of a second there, and the two
 arms are byte-for-byte the same shape.
+
+#### 2026-09-12, lane p23-lastmile: exhaustive single-colour landscape
+
+The current full-TU baseline reproduces six raw and masked naming differences,
+516 words, zero size delta, first +0x328, and frame 0x80. Both frame ladders
+have the same sixteen referenced slots. The untouched stock and instrumented
+full-TU text agree; allocator_trace_receipt maps levelInit to ordinal 8 by
+its Ucode entry name, with 58 decisions across a 21-procedure TU.
+
+The exhaustive same-kind landscape covers all 46 coloured webs: 371 legal
+single forces, all accepted, 288 at zero size delta and 83 with changed size.
+No force beats six. The best force is p1:w225=c6 at eight; several following
+forces score nine. Thus the improving-force nomination list is empty and
+there is no improving-force lattice to combine. This does not prove a floor
+for arbitrary antagonistic combinations, changed source, or other flag modes.
+
+Three source controls follow the landscape. L151 signed-inner/unsigned-outer
+and unsigned-inner/signed-outer spellings of the repeated index mask are both
+byte-identical to the six-word baseline. A low-fourteen-bit extraction through
+an unsigned shift and u16 narrowing preserves the input value but regresses
+to 298 differences and adds eight bytes. The reconstruction is restored.
+The first two give no new information beyond the existing typed-mask closure;
+the third does not supply the required zero-cost, separate mask evaluation.
+
+The offered mechanism was globalcolor forcing, and its full single-force
+surface is now measured without a winner. The committed temporary-ring
+obstruction therefore remains the next source question: evaluate the mask
+separately before the base-first address while retaining a ring temporary and
+the existing draw count. The prior carrier/probe/spelling closures already
+rule out the available routine forms. Stop on that evidence rather than
+repeat those sweeps; this is not a universal source-unreachability claim.
+
+Private evidence is retained under build/p23/level/: baseline source and
+object, Ucode and ordinal receipt, instrumented full TU, all force objects and
+acceptance logs, frame census, and all three source controls with scores and
+first mismatches. The candidate remains guarded and no executable bytes are
+credited. The 110 relocation records are a count, not a new linked identity
+proof. Commands: residual_map, frame_census, allocator_trace_receipt,
+web_footprint --every-colour, configured full-TU controls, finalize_plateau,
+and tools/gates.sh. No source body change is adopted.
 
 <!-- plateau-handoff:levelInit:end -->
