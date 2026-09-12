@@ -276,7 +276,7 @@ it end to end. The ones that carry most of the weight:
   with a forbidden mask* because the two address webs genuinely interfere. Five
   functions were promoted on this, priced at delta 0: index locals everywhere
   179, mixed 165, **no locals at all 98**.
-- **L153 (2026-09-12)** — **a web's number follows its TYPE first and its first
+- **L154 (2026-09-12)** — **a web's number follows its TYPE first and its first
   USE second, and the source decides which type a value gets.** Measured on one
   leaf with the decision records: its address constants are type-1 webs numbered
   above every type-3 symbol web, and within type 1 they are numbered in order of
