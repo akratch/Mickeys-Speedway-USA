@@ -40,4 +40,16 @@
   earlier, or split the initial walker from the later `available` base. The
   earlier one-pointer folding probe is already disproved, and the trace gives
   no new source-attributed spelling, so the retained C body is unchanged.
+
+#### 2026-09-12 lane p19-laws re-test
+
+The configured baseline remains 35 masked words out of 53, exact size and
+frame 0x20, with eight relocations. Replacing the first initialization walk
+with an indexed loop scored 55 and grew the frame to 0x28. A separate pointer
+carrier reached the target extent but retained a 0x28 frame and scored 37;
+changing only the carrier type normalized back to the 35-word baseline.
+
+These tests support the handoff's earlier-web-formation diagnosis but do not
+provide a frame-preserving source form. The accepted `p2:w0=c2` force remains
+diagnostic only at 13 words; the guarded baseline is retained.
 <!-- plateau-handoff:overlay60ReassignChoiceSlots:end -->

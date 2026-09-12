@@ -48,4 +48,19 @@ The bar for the next lane is therefore precise: find the single structural
 difference that puts the reloaded count in a pool colour and the import's
 value in the ring. Eighteen of the twenty-five words follow from it, and the
 remaining seven are that difference itself.
+
+#### 2026-09-12 lane p19-laws re-test
+
+The configured baseline remains 25 masked words out of 42, with exact size,
+frame 0x40, and three relocations. A legal statement-order climb covered 33
+compiles and reached a fixed point at 25. Address-form reloads for `D_0`, an
+unsigned spelling of the multiplier literal, and deletion of the loop-value
+carrier did not improve the candidate; the carrier deletion introduced two
+structural rows and scored 26.
+
+The instrumented procedure is ordinal 5. `CDX_FORCE=p1:w40=c5` was accepted
+with `forced=5` and scored 13 masked words directly against the target object;
+the same web forced to c2 scored 23. This prices the allocator decision but
+does not identify an admissible source spelling. The candidate remains
+guarded and no diagnostic force is promoted.
 <!-- plateau-handoff:overlay1AdvanceGauge:end -->
