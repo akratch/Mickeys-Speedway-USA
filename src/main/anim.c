@@ -1533,8 +1533,8 @@ void func_800517E0(void) {
                     packed = *((u16 *) ((u8 *) cursor + 4));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
-                    frame = *((u16 *) ((u8 *) cursor + 6));
-                    value = (f32) frame / 16384.0f;
+                    duration = *((u16 *) ((u8 *) cursor + 6));
+                    value = (f32) duration / 16384.0f;
                     duration = *((u16 *) ((u8 *) cursor + 8));
                     value2 = (f32) duration / 16384.0f;
                     path = paths[pathIndex];
@@ -4233,10 +4233,10 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_800517E0:start
  * symbol: func_800517E0
- * score: 1786 differing words
+ * score: 1782 differing words
  * frame: 0x160
  * relocations: 245
  * first-mismatch: +0x0
- * summary: 0x6C layout pad improves structure; shared-divisor/path-table allocation remains unproved after four tests.
+ * summary: 288 aligned exact words; 83 words short. Ordinary halfword carrier retained; addressed-home and divisor-force experiments stay diagnostic.
  * PLATEAU-HANDOFF:func_800517E0:end
  */
