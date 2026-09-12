@@ -151,10 +151,10 @@ extern void TrapDanglingJump();
  * 0x30, 0x3C and 0x48 and are not locals at all. */
 void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6) {
-    s32 sp28;
     s32 var_a1;
     s32 var_a2;
     s32 var_t0;
+    s32 sp28;
 
     var_t0 = (s32) (arg1 * 60.0f);
     var_a2 = (s32) (arg2 * 60.0f);
@@ -187,9 +187,9 @@ void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
     D_8007BE90 = arg0;
     D_8007BE94 = var_t0;
     D_8007BE98 = var_a2;
-    D_8007BE9C = (u8) arg3;
     D_8007BEA0 = (u8) arg4;
     D_8007BEA4 = (u8) arg5;
+    D_8007BE9C = (u8) arg3;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037414.s")
