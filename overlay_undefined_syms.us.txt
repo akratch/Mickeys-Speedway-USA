@@ -3162,6 +3162,14 @@ D_CB4 = 0x00000cb4;
 /* overlay 101: func_overlay_101_F00069E8_18E2208.c.o */
 D_1D2C = 0x00001d2c;
 D_CC8 = 0x00000cc8;
+func_800355A0_o101Reloc = 0xf0000000;
+func_80036DD0_o101Reloc = 0xf0000000;
+gOverlay101OrderEntries = 0x00000000;
+gOverlay101Resource20Count = 0x000001c8;
+gOverlay101Resource32Count = 0x000001cc;
+gOverlay101Resources20 = 0x00000200;
+gOverlay101Resources32 = 0x00000340;
+overlay101ResetReloc = 0xf0000000;
 
 /* overlay 101: func_overlay_101_F00078F4_18E3114.c.o */
 D_2608 = 0x00002608;
@@ -3237,11 +3245,6 @@ overlay101StopThirdReloc = 0xf0000000;
 /* overlay 101: overlay101Cleanup.c.o */
 gOverlay101Handle1F4 = 0x000001f4;
 gOverlay101Handle33C = 0x0000033c;
-gOverlay101OrderEntries = 0x00000000;
-gOverlay101Resource20Count = 0x000001c8;
-gOverlay101Resource32Count = 0x000001cc;
-gOverlay101Resources20 = 0x00000200;
-gOverlay101Resources32 = 0x00000340;
 overlay101ReleaseReloc = 0xf0000000;
 
 /* overlay 102: overlay_102.c.o */
