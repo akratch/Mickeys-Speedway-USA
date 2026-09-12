@@ -2211,3 +2211,24 @@ The source uses overlay-specific data placeholders, and both runtime calls
 into overlay 1 use `Reloc` placeholders so their stored zero addends cannot
 be replaced by a callee's synthetic linked address. No neighboring function
 or padding receives credit.
+
+### Overlay 31 particle-asset initialization closure
+
+Tier A: `func_overlay_031_F00002E8_187F808` owns overlay 31 text
+`+0x2E8..+0x4F8` (528 executable bytes). The configured compiler emits
+132 exact words with the `0x30` frame and all 24 relocation offsets, types,
+identities and addends. The linked owner and full US ROM pass verification;
+ORT 1672 and overlay 18's caller identify the function.
+
+The runtime records prove that the supposed count scalar and state array
+name the same storage. Replacing the invented separate scalar/readback with
+one five-element array-clearing loop restores the partially unrolled
+initialization and removes the surplus instruction. Earlier literal, cast,
+and region variants did not repair the mistaken storage model. The aligned
+buckets (exact, register naming, immediate, structural) change from
+115/2/2/15 to 132/0/0/0. The inherited initialization closure therefore falls.
+
+The existing provenance disclosure is retained. The palette-builder call
+uses an overlay-specific `Reloc` placeholder for its zero stored addend;
+the existing removable carrier section remains metadata only. No padding
+or previously matched palette code receives credit.

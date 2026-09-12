@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 314,
-  "resolved": 314,
+  "queue_size": 313,
+  "resolved": 313,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 314,
-  "relocation_masked_coverage": 314,
+  "source_context_coverage": 313,
+  "relocation_masked_coverage": 313,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -2798,21 +2798,6 @@
       "size_delta": -4,
       "category": "size-mismatch",
       "source_context_sha256": "yB6W.OTor.2Gk7.ojVn.y9LJ.7Cxq.p7Ms.K5w4.gLma.tqIw.558"
-    },
-    {
-      "name": "func_overlay_031_F00002E8_187F808",
-      "file": "src/overlays/o031/overlay31InitializeParticleAssets.c",
-      "overlay": 31,
-      "tu": "overlays/o031",
-      "size_bytes": 528,
-      "objdiff_match_pct": null,
-      "differing_words": 123,
-      "first_mismatch_offset": 16,
-      "relocation_masked_differing_words": 123,
-      "relocation_masked_first_mismatch_offset": 16,
-      "size_delta": 4,
-      "category": "size-mismatch",
-      "source_context_sha256": "c6qc.hlt8.vvvo.PIt0.lIR-.MJnL.DBVM.x3qV.GJlV.dAZp.Dd0"
     },
     {
       "name": "ProcessRelocationEntry",
