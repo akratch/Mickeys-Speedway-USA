@@ -303,6 +303,19 @@ colour wrong.
     byte-exact rows, and `--i >= 0` is 239 at size delta -4.
   - note 6's tail-read respellings, still byte-identical.
 
+### The s5 span is closed by the records, not just by spelling
+
+The remaining deficit is the callee-saved span that holds `&gO57MiddleChoices`
+across the tail. On the adopted shape the instrumented records show two
+separate `lui s5` ranges, and web 551 is the one the tail reads use. Forcing
+that web to `decision=split`, which is the allocator's own version of "give the
+tail reads their own address constant", is ACCEPTED (`forced=-1`) and scores
+1198 against 132; the two neighbouring callee-saved webs 535 and 550 split at
+485 and 1198. So the split is not a colour the allocator was talked out of --
+it genuinely costs, and the target reaches its three separate address constants
+some other way. Six source respellings of the reads and of the loop's own
+naming of the global are byte-identical or worse.
+
 ### What is left
 
 Size delta -4, and it is one site: the target materialises
