@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 217 retained; case-3 cursor is already generated; its target colour costs a transition address; source repair attempts plateaued.
+ * summary: 217 retained; partial cursor sharing reaches s4 naturally and a named value restores transition width, but row-load and transition temp draws still diverge.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
