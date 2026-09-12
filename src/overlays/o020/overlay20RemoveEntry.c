@@ -91,6 +91,20 @@ extern u32 gOverlay20ActiveBits;
  * 11 words and swaps only that loop's own counter/copy pair, leaving the
  * compaction limit at a2 -- which falsifies the reading that the marker loop's
  * dead `move v0,v1` is the invisible v0 web that blocks web 42. */
+/*
+ * 2026-09-12, lane p10-tight re-established the force results with CDX_PROC
+ * set, because CDX_FORCE is silently ignored without it and a dropped force
+ * looks exactly like a legitimate decline. The closure survives and now has a
+ * positive control: forcing the compaction limit onto the first colour records
+ * the never-applied value and changes nothing, while in the same harness
+ * forcing the decremented count onto the sixth colour IS accepted and moves the
+ * whole ladder, so the tool was demonstrably driving. The promotion chain is
+ * measured over three configurations rather than one. The requirement is
+ * three-sided: the decremented count gone, the limit numbered below both the
+ * bound carrier and the compaction cursor, and exactly one interferer holding
+ * the third colour in front of the cursor. The recorded array-base hoist buys
+ * only the second and costs three words in the two index shifts.
+ */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;

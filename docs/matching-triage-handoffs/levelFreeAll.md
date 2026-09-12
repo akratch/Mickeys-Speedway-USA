@@ -396,4 +396,49 @@ without becoming a pool colour. Every construct measured across four lanes
 either is folded back into the address or turns the mask into a coloured
 symbol.
 
+
+#### 2026-09-12, lane p10-tight: the two-class closure re-derived from the compiler listing, not from scores
+
+Re-measured unchanged: 468 bytes, 117 of 117 words, size delta 0, positional
+masked 3, first naming-only difference +0x13C.
+
+Every previous pass inferred the emission order from the emitted registers,
+which is indirect because the assembler schedules the block and moves the table
+pointer's load to the front on BOTH sides. Read off the compiler's own listing
+instead, the picture is simpler and the closure is mechanical.
+
+- The ring free list for this procedure is one ascending cycle, and every
+  release in the loop head and the guard chain happens in draw order, so the
+  four members reaching the arm are consecutive and in order. The transposition
+  therefore cannot come from the free list, which confirms the p1-perm entry
+  from the other side.
+- In the arm the compiler emits the mask, the scale, the table pointer and the
+  sum, in that order. The target's registers require the mask, the table
+  pointer, the scale and the sum.
+- A postorder walk of one two-operand address expression can only produce
+  mask-scale-table (index first) or table-mask-scale (base first). Twenty-three
+  further spellings were read off the listing this pass rather than off the
+  score -- self-combined masks, doubled masks, a conditional index, a comma in
+  the base operand, a multiply for the doubling, byte-pointer bases, casts of
+  the base, a hoisted index in two widths, a hoisted pre-scaled offset, negation
+  pairs and a subtraction -- and every one lands in one of those two classes.
+  The two that do not, the doubling written as a self-sum and a re-read of the
+  table entry, produce the target's ORDER and are the recorded regressions.
+
+So the requirement is unchanged and is now stated as a property of the listing
+rather than of the count: the mask must be a separately emitted evaluation in
+front of a base-first address while remaining a ring temporary. The self-sum
+form shows what happens when it is separately emitted -- two uses make it a uopt
+symbol, a symbol takes a pool colour, and the doubling becomes an addition.
+
+#### 2026-09-12, lane p10-tight, addendum: L145 does not reach this site
+
+The deletion half of L145 was exercised, which the earlier passes did not
+separate from the addition half. Deleting the entry carrier and writing the
+table read as the expression itself at all four test sites is the recorded
+56-word regression and costs three instructions, so the one-IR-name mechanism
+cannot be applied to the value that feeds this arm. The mask itself has one use
+and cannot be given a second without becoming a symbol, which is the same wall
+from the other direction.
+
 <!-- plateau-handoff:levelFreeAll:end -->

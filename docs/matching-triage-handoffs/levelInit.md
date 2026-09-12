@@ -367,4 +367,22 @@ guard, and L109's three identity-op phantoms, which uopt folds before the web
 builder and which therefore cannot buy or spend a ring draw in either
 function.
 
+
+#### 2026-09-12, lane p10-tight: unchanged, and the twin's closure is now mechanical
+
+Re-measured unchanged: 2064 bytes, 516 of 516 words, size delta 0, positional
+masked 6, first naming-only difference +0x328.
+
+The six words are the twin's three plus the phantom draw this arm spends, as
+recorded. The twin was re-worked this pass from the compiler's own listing
+rather than from scores, and the closure there is now mechanical rather than an
+exhaustion claim: the ring free list is one ascending cycle whose releases all
+happen in draw order, so the arm's four members are consecutive and in order on
+both sides, and a postorder walk of one two-operand address expression admits
+exactly two emission orders, neither of which is the target's. See that shard.
+
+Nothing on this function was searched separately this pass, because every cell
+costs a full translation unit here and a sixth of a second there, and the two
+arms are byte-for-byte the same shape.
+
 <!-- plateau-handoff:levelInit:end -->
