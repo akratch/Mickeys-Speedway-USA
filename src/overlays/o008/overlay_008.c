@@ -1559,7 +1559,7 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING: 897 vs 898 instructions, 482 masked/506 raw words different,
+/* NON_MATCHING: 897 vs 898 instructions, 466 masked/490 raw words different,
  * frame -0x80 exact, 107 of the shipped 109 relocations with 59 offset/type
  * pairs agreeing and 50 identities resolved, first mismatch +0x1C.  Eighteen
  * of the twenty-one call-delimited regions are exact; the three that are not
@@ -1588,11 +1588,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     s32 selectedMode;
     f32 trigB;
     f32 delta;
+    f32 **sample;
     O8P34A0Query query;
     f32 blend;
     f32 selectedValue;
     f32 result;
-    f32 **sample;
     f32 trigA;
     f32 factor;
     f32 strength;
@@ -2445,11 +2445,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
  * symbol: func_overlay_008_F00034A0_18611F8
- * score: 482/506 words
+ * score: 466/490 words
  * frame: 0x80
  * relocations: 107
  * first-mismatch: +0x1C
- * summary: 18 of 21 call regions and the 0x80 frame are exact; the rest needs an escaping-object pair no aggregate or scalar form yields, plus a conservative buffer reload
+ * summary: declaration order moves the sample pointer phase from 482 to 466 positional differences; pointer home, ugen ring, and buffer reload remain
  * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */
 
