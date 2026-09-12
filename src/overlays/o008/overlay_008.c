@@ -2459,6 +2459,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * frame: 0xC8
  * relocations: 137
  * first-mismatch: +0x0
- * summary: Exact-size structural reconstruction; 24 excess frame bytes and 18 opcode edits remain. Next: scoped allocation/alias analysis, not flags or permutation.
+ * summary: Current force reproof reaches 585 at delta 0; source lever is L100 rank of float webs 149 and 406 below web 51.
  * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */

@@ -786,9 +786,9 @@
       "source_commit": "12f726fe91ba2c2e332a9b422ccb8252d5f47e29"
     },
     "func_overlay_008_F0001294_185EFEC": {
-      "ledger_commit": "4100d1b96b29e9fd23198a99472b593b138a0e22",
+      "ledger_commit": "d2c2f4090c0a3c4ba0871edd2dec47310ef1863a",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "31aadb29d582d6bffc6e76b7300d30365e74d9d0"
+      "source_commit": "d2c2f4090c0a3c4ba0871edd2dec47310ef1863a"
     },
     "func_overlay_008_F0002640_1860398": {
       "ledger_commit": "76caeb9dacc59d9c33fa7377c2d8c294edd4e9fd",
