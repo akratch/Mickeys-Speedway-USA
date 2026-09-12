@@ -676,14 +676,14 @@
       "source_commit": "e39c665934647ee79903e791dfff5076b97c6d86"
     },
     "func_800517E0": {
-      "ledger_commit": "97b735c889567b4b95511e9bcec7eae840c46662",
+      "ledger_commit": "171a68c474d894eaa7541a0a86d07a61df09a408",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "97b735c889567b4b95511e9bcec7eae840c46662"
+      "source_commit": "556d46adad11f97e64191f3a01753aa8c1b25aa8"
     },
     "func_80053868": {
-      "ledger_commit": "5c4b675d8f209bc557c28f21cffbb02087e61de1",
+      "ledger_commit": "171a68c474d894eaa7541a0a86d07a61df09a408",
       "reason": "Reopened 2026-09-11 on new instruments: L108 (a calling procedure is p1-only, so L106 has no axis), L110, L112, and align_symbol.py's cause split. Two lanes measured missing-run maps on these and were stopped before any source attempt.",
-      "source_commit": "cef6604c3a97e6e81d4afd692f5eaf50a4943867"
+      "source_commit": "d727307ce9d582b3b893809aef234799ad179989"
     },
     "func_80054B3C": {
       "ledger_commit": "024fe88424b51e306f96e702f142180489fd0859",
@@ -1066,9 +1066,9 @@
       "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
     },
     "func_overlay_079_F0000134_18CD0D4": {
-      "ledger_commit": "51a70f2c6ee25f06e03ed678225ffb4f1b070f0d",
+      "ledger_commit": "39c5f50580a3bc07b84911f3ee6b08a266eab929",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "28384499e9148f29abc651e07d83bae9472dd76e"
+      "source_commit": "39c5f50580a3bc07b84911f3ee6b08a266eab929"
     },
     "func_overlay_092_F0000068_18D5F88": {
       "ledger_commit": "9d5f2205be121eef7507305c71980130a043a7bb",
