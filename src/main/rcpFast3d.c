@@ -19,7 +19,6 @@ typedef struct RcpCommand {
     u32 w1;
 } RcpCommand;
 
-#ifdef NON_MATCHING
 typedef struct RcpTextureInfo {
     u8 pad00[6];
     u16 width;
@@ -38,7 +37,6 @@ typedef struct RcpTextureNode {
     s16 x;
     s16 y;
 } RcpTextureNode;
-#endif
 
 #ifdef NON_MATCHING
 typedef struct RcpGradientColour {
@@ -137,7 +135,6 @@ extern u64 D_80085240[];
 extern u64 rspbootTextEnd[];
 #pragma weak rspbootTextEnd = D_80077AD0
 
-#ifdef NON_MATCHING
 extern u8 D_8007A4F8[];
 extern u8 D_8007A540[];
 extern u8 D_8007A588[];
@@ -145,7 +142,6 @@ extern u8 D_8007A5C0[];
 extern u8 D_8007A600[];
 extern s32 func_800348D4(void *texture, s32 frame, ...);
 extern void func_80034910(void *, ...);
-#endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void osWritebackDCacheAll(void);
@@ -473,19 +469,25 @@ void rcpInit(OSSched *scheduler) {
     osCreateMesgQueue(&D_800D2CD0, D_800D2CE8, 8);
     osCreateMesgQueue(&D_800D2D08, D_800D2D20, 8);
 }
-#ifdef NON_MATCHING
 /* PROVENANCE -- the indexed texture loop is adapted from Diddy Kong Racing's
  * public src/rcp_dkr.c:texrect_draw. Mickey's command stream, extra texture
  * fields, and helper calls remain the controlling evidence. */
-/* Workbench verdict (2026-09-11): 91 differing words, first mismatch +0x34; frame
- * 0x40 on both sides, candidate 329 words against 327. Indexing arg1[i] rather than
- * carrying a node cursor removed a whole-function {t6,t7,t8,t9} ring-phase rotation
- * worth 188 words, and did NOT grow the frame as the earlier note predicted. */
+/* Four edits closed this, each measured alone: the raw command word's tile
+ * field is spelled unsigned so it is the same constant as the load block's
+ * _SHIFTL(G_TX_LOADTILE, 24, 3) and both share one materialisation; the tile
+ * size arguments shift rather than multiply, so the -1 is not reassociated
+ * past the scale; the texture rectangle is written out longhand because its
+ * third command's cursor IS lastCmd, which the macro form cannot express; and
+ * the second command of the plain-texture branch takes its cursor before the
+ * texel count is computed, which is what orders those two webs. */
 void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                    s32 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
     RcpTextureInfo *tex;
     RcpTextureInfo *alternate;
     RcpCommand *dlist;
+    RcpCommand *blockCmd;
+    RcpCommand *rectCmd;
+    RcpCommand *halfCmd;
     RcpCommand *lastCmd;
     /* no node cursor: see the note above func_8002F618 */
     s32 i;
@@ -549,8 +551,8 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                                0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
                                G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
                     gDPSetTileSize((Gfx *)dlist++, G_TX_RENDERTILE, 0, 0,
-                                   (tex->width - 1) * 4,
-                                   (tex->height - 1) * 4);
+                                   (tex->width - 1) << 2,
+                                   (tex->height - 1) << 2);
                     gDPSetTextureImage(
                         (Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_16b, 1,
                         ((((s32)arg1[i].packedOffset >> 16) *
@@ -570,23 +572,19 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                                1, 0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
                                G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
                     gDPSetTileSize((Gfx *)dlist++, 1, 0, 0,
-                                   (alternate->width - 1) * 4,
-                                   (alternate->height - 1) * 4);
+                                   (alternate->width - 1) << 2,
+                                   (alternate->height - 1) << 2);
                 } else {
                     dlist->w0 = *tex->data;
                     dlist->w1 = (u32)(func_800348D4(
                         tex, arg1[i].packedOffset) + 0x80000000U);
                     dlist++;
-                    loadCount = tex->count - 1;
-                    dlist->w0 = (((loadCount & 0xFF) << 16) | 0x07000000 |
-                                 ((loadCount * 8) & 0xFFFF));
-                    dlist->w1 = (u32)tex->data + 0x80000008U;
-                    dlist++;
+                    blockCmd = dlist++; loadCount = tex->count - 1; blockCmd->w0 = (((loadCount & 0xFF) << 16) | 0x07000000U | ((loadCount * 8) & 0xFFFF)); blockCmd->w1 = (u32)tex->data + 0x80000008U;
                 }
 
-                gSPTextureRectangle((Gfx *)dlist++, ulx, uly, lrx, lry,
-                                    G_TX_RENDERTILE, s, t, 1024, 1024);
-                lastCmd = dlist - 1;
+                rectCmd = dlist++; rectCmd->w0 = (_SHIFTL(G_TEXRECT, 24, 8) | _SHIFTL(lrx, 12, 12) | _SHIFTL(lry, 0, 12)); rectCmd->w1 = (_SHIFTL(G_TX_RENDERTILE, 24, 3) | _SHIFTL(ulx, 12, 12) | _SHIFTL(uly, 0, 12));
+                halfCmd = dlist++; halfCmd->w0 = _SHIFTL(G_RDPHALF_1, 24, 8); halfCmd->w1 = (_SHIFTL(s, 16, 16) | _SHIFTL(t, 0, 16));
+                lastCmd = dlist++; lastCmd->w0 = _SHIFTL(G_RDPHALF_2, 24, 8); lastCmd->w1 = (_SHIFTL(1024, 16, 16) | _SHIFTL(1024, 0, 16));
             }
             i++;
             tex = arg1[i].texture;
@@ -598,9 +596,6 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
         func_80034910(lastCmd);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE -- the scaled rectangle loop is adapted from Diddy Kong Racing's
  * public src/rcp_dkr.c:texrect_draw_scaled. Mickey's target field offsets,
@@ -771,14 +766,4 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
  * first-mismatch: +0x40
  * summary: Five-word deficit and command/texture live-range allocation remain; seven of nine relocation identities align.
  * PLATEAU-HANDOFF:func_8002FB34:end
- */
-
-/* PLATEAU-HANDOFF:func_8002F618:start
- * symbol: func_8002F618
- * score: 91/327 words
- * frame: 0x40
- * relocations: 6
- * first-mismatch: +0x34
- * summary: Indexing arg1[i] instead of carrying a node cursor removed a whole-function t6-t9 ring-phase rotation: 279 to 91 words at the target frame.
- * PLATEAU-HANDOFF:func_8002F618:end
  */
