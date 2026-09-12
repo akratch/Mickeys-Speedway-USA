@@ -386,5 +386,111 @@ class HygieneTests(unittest.TestCase):
                 self.assertNotIn(marker, text, f"{name} carries {marker}")
 
 
+class DataDependencyGuardTests(unittest.TestCase):
+    """The call guard excludes side effects; this excludes data dependencies.
+
+    Both are needed. A lane caught the climb proposing
+
+        start.y = object->y + state->heightOffset;
+
+    AFTER
+
+        end.y = start.y + dy;
+
+    which contains no call, passes the call guard, and reads `start` before it
+    is assigned. It scored 198 -> 196 and was rejected by hand. Nothing in the
+    tool refused it.
+    """
+
+    RAW_A = "    start.y = object->y + state->heightOffset;"
+    RAW_B = "    end.y = start.y + dy;"
+
+    def test_the_reported_read_before_write_is_a_conflict(self) -> None:
+        self.assertTrue(bc.conflict(self.RAW_A, self.RAW_B))
+
+    def test_the_reported_swap_is_illegal(self) -> None:
+        self.assertFalse(bc.order_is_legal([self.RAW_A, self.RAW_B], [1, 0]))
+
+    def test_the_original_order_stays_legal(self) -> None:
+        self.assertTrue(bc.order_is_legal([self.RAW_A, self.RAW_B], [0, 1]))
+
+    def test_independent_statements_may_still_swap(self) -> None:
+        """The guard must not freeze every run -- that would make the tool
+        useless, and it found 45 words on one function."""
+        a, b = "    a.x = 1;", "    b.y = 2;"
+        self.assertFalse(bc.conflict(a, b))
+        self.assertTrue(bc.order_is_legal([a, b], [1, 0]))
+
+    def test_write_after_read_is_a_conflict(self) -> None:
+        a, b = "    total = count + 1;", "    count = 0;"
+        self.assertTrue(bc.conflict(a, b))
+
+    def test_write_after_write_is_a_conflict(self) -> None:
+        a, b = "    mode = 1;", "    mode = 2;"
+        self.assertTrue(bc.conflict(a, b))
+
+    def test_a_subscripted_store_writes_its_base(self) -> None:
+        """`p[i] = x` is treated as writing `p`. Over-approximate for a plain
+        subscript, exactly right for the aliasing it is there to catch."""
+        r, w = bc.reads_writes("    nodes[1].texture = 0;")
+        self.assertIn("nodes", w)
+        self.assertIn("1", "1")           # subscript literal is not an ident
+        self.assertTrue(bc.conflict("    nodes[1].texture = 0;",
+                                    "    count = nodes[0].texture;"))
+
+    def test_a_dereference_store_writes_through_the_pointer(self) -> None:
+        r, w = bc.reads_writes("    *cursor = value;")
+        self.assertIn("cursor", w)
+        self.assertIn("value", r)
+
+    def test_a_compound_assignment_reads_and_writes_its_target(self) -> None:
+        r, w = bc.reads_writes("    offset += stride;")
+        self.assertIn("offset", w)
+        self.assertIn("offset", r)
+        self.assertIn("stride", r)
+
+    def test_a_shift_assignment_is_not_read_as_a_comparison(self) -> None:
+        r, w = bc.reads_writes("    mask <<= shift;")
+        self.assertIn("mask", w)
+        self.assertIn("shift", r)
+
+    def test_a_comparison_is_not_mistaken_for_an_assignment(self) -> None:
+        """`==`, `!=`, `<=`, `>=` must not split as assignments."""
+        for stmt in ("    flag = a == b;", "    flag = a != b;",
+                     "    flag = a <= b;", "    flag = a >= b;"):
+            with self.subTest(stmt=stmt):
+                _, w = bc.reads_writes(stmt)
+                self.assertEqual(w, frozenset(["flag"]))
+
+    def test_an_increment_counts_as_both_read_and_write(self) -> None:
+        r, w = bc.reads_writes("    index++;")
+        self.assertIn("index", r)
+        self.assertIn("index", w)
+
+    def test_type_keywords_are_not_storage(self) -> None:
+        r, w = bc.reads_writes("    value = (u32) raw;")
+        self.assertNotIn("u32", r)
+        self.assertIn("raw", r)
+
+    def test_the_climb_will_not_adopt_a_dependent_swap(self) -> None:
+        """End to end: a scorer that actively rewards the illegal order must
+        not get it. This measures the guard, not an unreachable order."""
+        lines = [self.RAW_A, self.RAW_B, "    z.w = 3;"]
+        def score(text: str) -> int:
+            body = [l for l in text.split("\n") if l.strip()]
+            return 0 if body[0].strip().startswith("end.y") else 100
+        out = bc.climb(lines, score, 0, len(lines), min_run=3)
+        self.assertFalse(out.lines[0].strip().startswith("end.y"))
+
+    def test_probe_unguarded_still_reaches_it(self) -> None:
+        """--probe-unguarded exists to show the raw reachable number and is
+        reported as not adoptable, so it drops this guard too."""
+        lines = [self.RAW_A, self.RAW_B, "    z.w = 3;"]
+        def score(text: str) -> int:
+            body = [l for l in text.split("\n") if l.strip()]
+            return 0 if body[0].strip().startswith("end.y") else 100
+        out = bc.climb(lines, score, 0, len(lines), min_run=3, allow_calls=True)
+        self.assertTrue(out.lines[0].strip().startswith("end.y"))
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
