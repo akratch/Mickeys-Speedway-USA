@@ -1510,6 +1510,9 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
     ],
+    68: [
+        (0x1250, 0x1438, "overlay68RebuildSecondaryEntry"),
+    ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),
     ],

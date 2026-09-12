@@ -2169,3 +2169,21 @@ the return closed the residual and removed the surplus word. The aligned
 buckets (exact, register naming, immediate, structural) changed from
 32/28/4/18 to 79/0/0/0. A pointer-color force was explicitly declined, which
 did not prove the source shape unavailable.
+
+### Overlay 68 secondary-entry rebuild closure
+
+Tier A: `overlay68RebuildSecondaryEntry` owns overlay 68 text
+`+0x1250..+0x1438` (488 executable bytes). All 122 configured words, the
+`0x40` frame, six used stack homes, and 19 relocation offsets/types are
+exact. Seven identities resolve statically; the remaining twelve are proved
+by the unchanged runtime table and exact linked ROM. The whole US ROM passes
+`gmake verify`. ORT 1163 and its resident caller identify the owned function.
+
+Replacing both manually rotated loops with counted `while` loops restores
+the missing map-address materialization, probe-base copy, and call-argument
+placement. Useful selected-entry and payload pointer intermediates restore
+the frame; advancing the selected-entry pointer in two statements restores
+the final operand draw order. The aligned buckets (exact, register naming,
+immediate, structural) change from 65/28/9/21 to 122/0/0/0. Lexical scoping
+alone remains ineffective, but the inherited structural plateau falls. No
+unused padding local, alternate compiler flag, or instruction edit is used.

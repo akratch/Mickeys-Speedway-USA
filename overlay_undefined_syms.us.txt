@@ -2586,6 +2586,12 @@ overlay68FinishEntryPromoteReloc = 0xf0000000;
 /* overlay 68: overlay68InitializeObject.c.o */
 overlay68ConfigureReloc = 0xf0000000;
 
+/* overlay 68: overlay68RebuildSecondaryEntry.c.o */
+gOverlay68KindMap = 0x00000014;
+overlay68GetBlurEffectReloc = 0xf0000000;
+overlay68GetResidentEntriesReloc = 0xf0000000;
+overlay68RomLoadSectionReloc = 0xf0000000;
+
 /* overlay 70: func_overlay_070_F00000D8_18C92A0.c.o */
 gOverlay70HeightTableReloc = 0x00000000;
 gOverlay70PairTableReloc = 0x00000000;
