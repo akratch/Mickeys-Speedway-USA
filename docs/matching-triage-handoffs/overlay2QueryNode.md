@@ -6,7 +6,7 @@
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x58
-- summary: 20-web landscape has no winners. Corrected +0xC4 SYMBOL-call placeholder; parameter reissue restores geometry at 93 but allocation fails.
+- summary: Leaf-cursor/count deletion loses geometry; scoped parameter reissue remains. Corrected SYMBOL-call placeholder retained.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
@@ -214,5 +214,39 @@ callee identity at +0xC4. The colour landscape above precedes this metadata
 binding correction; its source spelling and objects are preserved. The raw
 runtime records remain private. A future promotion still requires the full
 linked proof, even if its masked score reaches zero.
+
+#### 2026-09-12, lane p24-recipe: leaf-cursor and returned-count deletion
+
+The fresh stock baseline remains 253 words, delta zero, frame 0x68,
+39 masked and 51 raw differences, first masked mismatch +0x58. Aligned
+buckets are 223 exact, fifteen naming, two immediate and ten paired structural
+rows, plus the three surplus/missing pairs already recorded above. The existing
+20-web colour landscape was reused; its lack of a single-force winner is not
+an unrestricted lower bound.
+
+Three deletion probes fail to improve this shape. Replacing the walking line
+pointer with a global-array index gives 257 masked at delta plus 24. That
+global-read form is diagnostic only until the helper's global effects are
+authenticated; the original captures the base before its calls. Using a
+captured array-end pointer and indexing it by the negative remaining count
+preserves the original captured base but still gives 251 at delta plus 24.
+Deleting the returned count alias and deriving the zero-trip/return values
+from remaining gives 234 masked at delta minus eight. These forms alter frame
+or induction geometry throughout the leaf branch; none produces the wanted
+zero-cost loop-exit value or changes the short-circuit argument-reissue
+identity. Stop after these three non-improving probes under ADR 0018.
+
+The original guard and the corrected overlay2IntersectSegmentsReloc name are
+retained. Its owned +0xC4 site remains the SYMBOL relocation documented in the
+preceding runtime audit; the other ten owned calls remain JUMP sites. No
+placeholder is reverted, and no zero-masked or linked-match claim is made.
+The candidate still has 51 ELF records versus the assembled target's 25;
+runtime-record identity and linked bytes remain mandatory before promotion.
+
+The named source question remains a scoped parameter reload that preserves
+both the target short-circuit return and the second call's argument reissue.
+The cursor recipe does not supply it: it changes the leaf loop instead. Sources,
+objects, scores and aligned per-window deltas are preserved privately under
+build/p24/overlay2QueryNode. No new matching bytes are credited.
 
 <!-- plateau-handoff:overlay2QueryNode:end -->

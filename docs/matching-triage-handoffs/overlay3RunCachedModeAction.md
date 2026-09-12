@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 15
 - first mismatch: +0x84
-- summary: All nine coloured webs scanned; seven winners, selected lattice floor 25. Shifted angle repairs some shape but boolean transfer remains.
+- summary: Inlining call-result carriers loses a frame quantum; intermediate-boolean deletion still misses the switch transfer.
 #### 2026-09-12, lane p23-lastmile5: complete colour landscape and boolean shapes
 
 Fresh baseline: 113 words, delta zero, 34 raw and masked differences, frame
@@ -44,5 +44,37 @@ copies normalize away; a complete logical chain changes the frame and code
 geometry. Stop after those carrier copies stall and the final expression-shape
 check excludes the direct chain. Retain the guarded 34-word candidate, with
 both source shapes and their distinct aligned residuals preserved privately.
+
+#### 2026-09-12, lane p24-recipe: carrier deletion does not supply the boolean transfer
+
+The configured baseline reproduces 34 raw/masked differences at 113 words,
+delta zero, frame 0x58 and fifteen relocations. Aligned buckets are 91 exact,
+eleven naming, zero immediate and ten paired structural rows, plus the
++0x98 candidate-only and +0xE0 target-only pair. First mismatch remains +0x84.
+The prior complete nine-web landscape and selected lattice floor 25 were
+reused on this unchanged baseline.
+
+Deleting the encoded-result declaration and inlining its call scores 43 at
+delta zero. Deleting the random-result declaration and inlining its call also
+scores 43. Both lose a frame quantum; their unchanged naming buckets show that
+removing these names does not change the desired colour. Retaining the unused
+encoded declaration as a frame diagnostic reproduces 34 and the original
+aligned map. That diagnostic is not adopted. The inline-call variants would
+also require argument/read-order review before any promotion.
+
+Deleting the two intermediate bound booleans, initializing valid to zero and
+assigning the path-check result only inside the range, scores 52 at delta zero.
+It removes the four structural rows in the mode-action windows but adds naming
+rows throughout and retains the missing boolean-transfer word. Computing one
+combined bounds boolean first and then checking the path costs eight bytes
+and scores 80. The generated call-result and bounds shapes establish no exact
+transfer identity, and the last three forms do not improve the baseline. Stop
+under ADR 0018 with the original guarded body.
+
+The named source question remains how a generated comparison or call-result
+boolean reaches the mode-switch carrier without losing a frame quantum or
+adding the target's missing transfer as an extra instruction. Sources, objects,
+scores and aligned per-window comparisons are preserved privately under
+build/p24/overlay3RunCachedModeAction. No new bytes are counted as matched.
 
 <!-- plateau-handoff:overlay3RunCachedModeAction:end -->

@@ -452,11 +452,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 92/105 words
+ * score: 9/105 words
  * frame: 0x58
  * relocations: 10
- * first-mismatch: +0x18
- * summary: Nine structural rows and no colour probes; isolate entry scheduling or local-data identity.
+ * first-mismatch: +0x38
+ * summary: Authenticated proc 4: 110 legal alternatives, no winner; deleted fade/star carriers grow or reorder the preheader.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 

@@ -1514,7 +1514,7 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xA0
- * summary: All 12 coloured webs scanned; rival single forces score 25 and 27, pair 28. Base-address lifetime and success-store schedule remain.
+ * summary: Generated bit nearly clears naming but loses eight bytes; carrier and success-store follow-ups retain the baseline.
  * PLATEAU-HANDOFF:packInit:end
  */
 

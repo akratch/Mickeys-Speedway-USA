@@ -2,11 +2,11 @@
 ### `overlay34CreateRecord` plateau handoff
 
 - source: `src/overlays/o034/overlay34CreateRecord.c`
-- score: 8/125 words
+- score: 6/125 words
 - frame: 0x30
 - relocations: 12
-- first mismatch: +0x54
-- summary: colour floor 4; height nocs merge and record-copy shape remain open
+- first mismatch: +0x88
+- summary: Indexed scan removes loop residual; four height/resource naming rows and two store-order rows remain.
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
@@ -138,5 +138,44 @@ probes over 13 coloured webs. The only winner was w45=c3 at 4 masked words;
 w51=c2 was not a legal accepted colour. The two-force lattice therefore floors
 at 4 with w45=c3. The source question remains the height web's missing nocs
 merge and the two-word record-copy shape; no source edit was adopted.
+
+#### 2026-09-12, lane p24-recipe: indexed scan removes two naming rows
+
+The stock baseline reproduced 8 masked and 10 raw differences at 125 words,
+size delta zero and frame 0x30. The retained indexed scan computes the record
+from the array and index, keeps a current-record alias, and advances the index
+only on the continuing path. The index is unobservable after loop exit. This
+removes the old explicit cursor advance and the old index or-with-zero probe.
+
+Aligned buckets improve from 117 exact, 6 naming, 0 immediate, 2 structural
+to 119 exact, 4 naming, 0 immediate, 2 structural. The window at +0x40 loses
+both naming rows; every other window is unchanged. The result is 6 masked,
+8 raw, 500 bytes, delta zero, frame 0x30, first masked mismatch +0x88, with
+12 candidate relocations. It remains NON_MATCHING; no new matched credit.
+
+The recipe works on the loop, but deleting both pointer declarations loses
+one frame quantum: the single-current form is 16 masked with frame 0x28.
+Retaining the source's record-to-current alias recovers that frame without
+an unused declaration. Inlining height at its stores instead creates repeated
+loads across potentially aliasing record stores and costs 24 bytes. A named
+resource pointer removes a load and costs four bytes of target geometry.
+
+The retained shape's fresh exhaustive landscape samples 106 alternatives
+over 13 coloured webs. Its sole winner is p1:w44=c3, scoring 2 masked at
+delta zero. The source-derived resource copy web has save 3, nocs 1, and
+wins v1 before the height web, whose save is 2, nocs 2. Forcing the copy to
+a0 fixes four naming rows but leaves the two store-order rows. This force is
+only diagnostic, never part of the candidate or build.
+
+The named source question is how to obtain the height/resource ordering while
+emitting short16 before byte12, without losing the literal-2 priority which
+the earlier pass established. Three final source forms did not improve the
+retained six-word residual: grouping the two stores on one physical line is
+flat, carrying unscaled height gives 49 masked at delta zero, and defining
+height before width gives 92 masked at delta minus four. These forms establish
+no new target identity and do not explain the remaining priority, so the pass
+stops under ADR 0018. All candidate sources, objects and aligned per-window
+comparisons are retained privately under build/p24/overlay34CreateRecord;
+the final landscape is under build/p24/record-final-landscape.
 
 <!-- plateau-handoff:overlay34CreateRecord:end -->

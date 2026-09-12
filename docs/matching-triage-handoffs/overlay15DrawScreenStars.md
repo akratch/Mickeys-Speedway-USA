@@ -2,11 +2,16 @@
 ### `overlay15DrawScreenStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 92/105 words
+- score: 9/105 words
 - frame: 0x58
 - relocations: 10
-- first mismatch: +0x18
-- summary: Nine structural rows and no colour probes; isolate entry scheduling or local-data identity.
+- first mismatch: +0x38
+- summary: Authenticated proc 4: 110 legal alternatives, no winner; deleted fade/star carriers grow or reorder the preheader.
+
+#### Historical baseline at assignment 3ccc02a1
+
+The later dated entries supersede the measurements in this historical block.
+
 - assignment base: `3ccc02a1`
 - owned range: overlay 15 `+0x500..+0x6A4`, 420 bytes / 105 words
 - retained evidence: configured full-TU C is 92/105 positional words exact, with 13 relocation-masked differences, 14 raw differences, and the exact target `0x58` frame
@@ -172,4 +177,35 @@ winners list, confirming that allocation cannot explain this residual.
 The named source question remains entry scheduling and local-data identity:
 find a source-authentic form that alters the structural setup while preserving
 the exact 105-word geometry and overlay relocation surface.
+#### 2026-09-12, lane p24-recipe: corrected procedure mapping and carrier probes
+
+Fresh stock baseline: 105 words, delta zero, 9 raw and masked differences,
+frame 0x58, ten relocations, first mismatch +0x38. Aligned buckets are 96 exact,
+0 naming, 0 immediate, 9 structural, split as two rows below +0x40 and seven
+in the next window. The retained source is unchanged.
+
+The previous zero-probe landscape is not a valid landscape for this function.
+The captured Ucode/name receipt maps it to procedure 4 of 12. Stock and traced
+objects pass text, data, rodata, symbols and relocations fidelity. Its records
+contain 13 integer decisions and six float decisions, with 17 coloured webs.
+The corrected exhaustive same-kind landscape compiles 110 alternatives and
+has no winner below nine at delta zero. This supports a single-colour negative;
+it does not prove that allocation cannot affect a different source shape.
+
+Four source probes preserve semantics but fail to improve the baseline.
+Deleting the fade carrier through a const pointer view at its use costs four
+bytes and scores 73. Naming both depth constants while hoisting the fade from
+a pointer read scores 27 at delta zero. Deleting the walking star pointer and
+indexing the global costs 16 bytes and scores 99; caching the array base first
+costs eight bytes and scores 97. Their aligned per-window deltas are retained
+with every source and object under build/p24/overlay15DrawScreenStars.
+
+The recipe fails here because the deleted cursor requires additional index
+control, and a fade read at its use remains conditional; neither produces the
+same preheader with the target's float priority. The final three forms yield
+no better residual or target identity. Stop under ADR 0018. The named source
+question remains a fade load in the synthesized preheader with the target's
+constant/fade priority and unchanged frame; the corrected landscape lives
+under build/p24/stars-landscape, with the Ucode receipt under build/p24/capture.
+
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->

@@ -2,11 +2,11 @@
 ### `overlay19BuildAdjacency` plateau handoff
 
 - source: `src/overlays/o019/overlay19BuildAdjacency.c`
-- score: 36/123 words
+- score: 6/123 words
 - frame: 0x80
 - relocations: 1
-- first mismatch: +0x7C
-- summary: Named fifth argument and redundant-narrowing removal improve 41 to 36. No colour winners remain; ring draws and one moved-load gap need a new source identity.
+- first mismatch: +0x10C
+- summary: Two deletions and tail order improve 36 to 6; final 17-web landscape has no winners. Two selector temporary pairs remain.
 
 ### Exhaustive landscape and retained improvement (2026-09-12, p23-lastmile5)
 
@@ -62,5 +62,72 @@ frame census and fidelity receipts. Commands: `residual_map.py`,
 probes, `frame_census.py`, `finalize_plateau.py`, and
 `tools/gates.sh verify cleanroom check-docs`. The fallback remains canonical;
 no executable bytes receive new matching credit.
+
+### 2026-09-12, lane p24-recipe: two deletions and tail order, 36 to 6
+
+The stock baseline reproduces 36 raw/masked differences at 123 words, delta
+zero, frame 0x80 and one relocation. Its aligned buckets are 96 exact,
+25 naming, one immediate, zero paired structural rows, with one candidate-only
+word at +0xD4 and one target-only word at +0x90.
+
+Three source changes are retained. The invalid-record pointer alias is removed
+and the stores index output->records directly. The redundant 0x7FFF mask on
+frame.suppressed is removed: the preceding 0x1080 mask already clears every
+bit it would remove. Finally, the outer span index is advanced before its byte
+offset, with both updates on one physical source line. These frame fields are
+independent and neither update calls out or changes their later values.
+
+The recipe's interaction is decisive. Deleting the pointer alone gives 53
+pure naming differences with the original frame, geometry and relocation;
+it removes the moved-load gap. Removing the redundant mask on that shape
+gives 13 pure naming differences. Swapping the tail updates gives eight:
+six naming and two store-order rows. Joining those two updates on one line
+removes the store-order pair, reaching six. The original first two windows
+and the tail are now exact; only the +0x100 window contains differences.
+
+Fresh retained-object proof: 117 exact, six naming, zero immediate and zero
+structural rows, no gaps, 492 bytes, delta zero, frame 0x80 on both sides,
+one candidate and one target ELF relocation, and first mismatch +0x10C.
+The six rows exchange two temporary-register pairs in the sole call's
+argument preparation. This remains NON_MATCHING, not a promotion or new
+executable-byte credit. The assembly fallback supplies canonical ROM bytes.
+
+Each changed landscape was authenticated against stock. The 53-word shape
+has 17 coloured webs, 102 accepted alternatives and one singleton with no
+second colour; five single winners score
+49, 49, 51, 52 and 52. No combined-force claim is made for that superseded
+shape. The 13-word shape and final six-word shape each have 17 coloured webs
+and 102 accepted alternatives plus one singleton, with no improving single force. The final
+Ucode receipt maps procedure zero and passes text, data, rodata, symbols and
+relocations fidelity. These are single-force negatives, not unrestricted
+source or multi-force lower bounds.
+
+Additional source evidence is retained, rather than silently discarded.
+Deleting the span pointer gives 42 with a larger 0xA8 frame; deleting the
+next-edge local costs four bytes and gives 88. On the deleted-record shape,
+restoring signed narrowing is flat at 53 and generating the fifth argument
+scores 56. On the improved shape, generating that argument instead of naming
+it regresses to 61 and restores the load gap. Naming the current argument
+instead also regresses; it changes earlier allocation instead of only swapping
+the two requested temporary pairs.
+
+The closing source probes establish no better residual or target identity.
+Grouping call setup is flat at six. Byte-view selector access, with either
+signed or unsigned displacement, costs eight bytes and scores 87. Naming the
+current selector through the existing call-result local scores 86 at delta
+zero. Reusing the dead next-edge index for that value costs four bytes and
+scores 91. The final three measured selector forms neither improve the best
+six-word candidate nor explain the required temporary assignment, meeting
+ADR 0018. Prepared but uncompiled alternatives are not evidence.
+
+The named source question is the evaluation identity/order of the current and
+next selector address/load pairs: obtain the target temporary pair for each
+argument while retaining the named fifth-argument web and the now-exact
+loop-head and tail shapes. Another isolated globalcolor force does not do it.
+Sources, objects, scores, mismatch locations and aligned per-window comparisons
+are private under build/p24/overlay19BuildAdjacency. The final authenticated
+landscape and receipt are under build/p24/adjacency-six-trace; the earlier
+53- and 13-word receipts remain alongside them. No forced compiler output is
+used by the canonical build.
 
 <!-- plateau-handoff:overlay19BuildAdjacency:end -->

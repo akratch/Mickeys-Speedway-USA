@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Complete 12-web colour landscape has no winners; nine conversion/address forms flat. Need a load-to-working-character live-range split.
+- summary: Deleting the load carrier adds a read; deleting text aliases changes only entry allocation. Working-character range still unsplit.
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 
@@ -218,5 +218,30 @@ rule. The source question remains how to separate the initial character load
 from the later working-character live range without introducing the already
 refuted extra mask destination. Neither this complete colour axis nor the
 three stamped expression sites supplies that split.
+
+#### 2026-09-12, lane p24-recipe: removing load and cursor carriers
+
+The stock baseline reproduces 16 raw/masked differences in 106 words, delta
+zero: 90 exact, 16 naming, zero immediate and zero structural rows. The frame
+is 0x40, with three relocations and first mismatch +0x2C. The existing fully
+authenticated 12-web, 66-alternative colour landscape was reused unchanged.
+
+Three source forms test the deletion recipe without another three-variable
+copy lattice. Reading the byte directly at the loop head and loop condition
+removes the declared load carrier but adds a load at +0x48: 91 masked, delta
+plus four. It removes three late naming rows but adds nine aligned residual
+rows overall. Indexing text instead of carrying a walking pointer is 20 at
+delta zero, with the original conversion windows unchanged. Advancing the
+text parameter directly after deleting its pointer alias is 18 at delta zero,
+adding two entry naming rows and leaving every other window unchanged.
+
+All three fail to improve the retained sixteen-word residual or establish the
+wanted target split. Stop under ADR 0018; retain the original guarded source.
+The recipe's limitation here is explicit: deleting the load name duplicates
+the memory read, while deleting the pointer name changes only entry allocation.
+Neither separates the loaded byte from the later working character at zero
+instruction cost. Source, object, score and aligned comparisons remain private
+under build/p24/func_80046BCC. A scratch-path canary reproduced the configured
+baseline before those retained-object comparisons were used.
 
 <!-- plateau-handoff:func_80046BCC:end -->

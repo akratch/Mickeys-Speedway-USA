@@ -893,7 +893,7 @@ void func_80046E00(void) {
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Complete 12-web colour landscape has no winners; nine conversion/address forms flat. Need a load-to-working-character live-range split.
+ * summary: Deleting the load carrier adds a read; deleting text aliases changes only entry allocation. Working-character range still unsplit.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
