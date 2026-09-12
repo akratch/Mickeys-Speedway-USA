@@ -69,6 +69,25 @@
  *      argument.  They are rejected; 688 is the safe move-one optimum, and
  *      re-climbing from it finds only those same three moves again.
  *
+ *  8.  THE COUNTED-LOOP EXIT REWRITE, 2026-09-12 (lane p12-whale).  688 ->
+ *      634 at size delta 0, byte-exact 3144 -> 3260, naming 371 -> 247,
+ *      immediate 24 -> 31, really different 88 -> 89, frame 0x138 both sides.
+ *      uopt rewrites a provably counted loop's `< CONST` exit test into `!=`
+ *      against a constant hoisted into a register, and it does so
+ *      UNCONDITIONALLY at this loop's depth -- measured at bounds 0x9, 0xA,
+ *      0xB and 0x40, and still with every other `0xA` in the procedure
+ *      removed.  So no spelling of `opponent < 0xA` reaches the target's
+ *      `slti $at,<index>,10`: `< 0xA`, `<= 9`, `< 10`, `!(>= 0xA)`,
+ *      `0xA > opponent`, `< 0x000A`, `< 5 + 5`, `< 0xAL`, `< (s32) 0xAU` and
+ *      `< 0xA && 1` all compile to ONE object, and so do the erase loop's
+ *      `!= 0xA`, `< 0xA` and `<= 9`.  What the rewrite needs is a known
+ *      initial value, so an OPAQUE ZERO retires it at no instruction cost.
+ *      The old `(opponent - 1) < (0xA - 1)` bought the same `slti` by
+ *      comparing a derived value, but its `addiu` spent one temp-ring draw
+ *      and rotated the whole free list for the remaining 1,196 bytes: a
+ *      closed nine-cycle t1->t5->t2->t6->t7->t8->t3->t4->t9->t1 carrying 150
+ *      of the 212 differing register slots after +0x3148, and none before it.
+ *
  * The `if (i != 0);` statements below are discarded-expression probes
  * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
  * found by a two-pass climb over 11,304 variants and are a local optimum;
@@ -1269,7 +1288,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         textY = 0x78;
         i = 0;
         do {
-            opponent = 0;
+            /* `i * 0` is zero for every value of `i`, and it is spelled that
+             * way to keep uopt from proving this row's inner loop counted.
+             * With a literal `opponent = 0` uopt knows the index starts at 0,
+             * steps by 1 and hits the bound exactly, so it rewrites the exit
+             * test below from `<` into `!=` against a hoisted constant
+             * register -- and that register is the SAME web as the `0xA` the
+             * erase loop and `D_o058_5EB0 = 0xA` above already share, so the
+             * web then spans this loop, interferes with `columnX` and evicts
+             * `&D_o058_5E7C` from a callee-saved colour.  Opaque initial
+             * value, no rewrite, `slti $at,<index>,10` as the target has it.
+             * See note 8 in the header. */
+            opponent = i * 0;
             x = -x;
             columnX = 0x34 + x;
             do {
@@ -1296,12 +1326,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8004B0F8(&D_800D3140, columnX, textY, &text[0], 4);
                 opponent += 1;
                 columnX += 0x18;
-                /* Spelled so the bound is not the literal 10: with `opponent < 0xA`
-                 * uopt shares the constant with the erase loop's `!= 0xA` above,
-                 * keeps 10 in a saved register through this loop and rewrites the
-                 * exit test as bne, which shifts every colour after it. The target
-                 * tests `slti $at, opponent, 0xA` with no shared register. */
-            } while ((opponent - 1) < (0xA - 1));
+            } while (opponent < 0xA);
             i += 1;
             textY += 0x1B;
         } while (i < 3);
