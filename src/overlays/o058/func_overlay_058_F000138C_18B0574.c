@@ -1379,7 +1379,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x39, D_8007C0B8->text[0x34], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         saves = func_800291C4();
-        if (i != 0);
+
         slot = &saves[levelGetBlurEffect(D_800D3050)];
 
         if (D_o058_5CD8 != 0) {
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 236/3614 words
+ * score: 227/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 277 to 236; seven gap pairs and five discarded probes removed. Remaining windows priced; count/stride/index regional sharing is the next lever.
+ * summary: 236 to 227 by removing the case-10 discarded probe; regional index and count/stride identities remain coupled.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
