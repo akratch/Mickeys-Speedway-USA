@@ -2589,11 +2589,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003F154:start
  * symbol: func_8003F154
- * score: 13 differing words
+ * score: 284/297 words
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: 13 words, three clusters, one class: the target puts the magnitude test's zero on fp pool colour c25 ($f2) and leaves the x-y sum on the ring; the candidate does the reverse. 2026-09-11 (lane f9-audit): the earlier record was misattributed -- lineage tables put web 203 in the four mathRnd blocks (the 0.000015258789f constant), and the comparison's zero is web 212, a single-member p1 candidate with save 0.000000, never coloured because it has nothing to save, not because c25 is forbidden. Census 254 p1 / zero p2 (L106 dead). 130 further forms this pass (constant respellings +4..+12 bytes; a second zero near the test folded or +20/+24; fill and tail carriers; L105 block moves of the speed capture; declaration trades; regions; two cross products) all leave the compare one reachable 0.0f; floor 13. Closure stands on the corrected variable: a second occurrence of the comparison constant at zero width, in a web clear of scale's c25 piece, built on the inlined x-first sum (19). Full arithmetic in the shard.
+ * summary: All 21 coloured webs sampled: no winner; twelve redundant comparison forms leave the source at 13 or the inlined sum at 19.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
