@@ -281,6 +281,6 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
  * frame: 0x178
  * relocations: 18
  * first-mismatch: +0xB4
- * summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36. The residue is NOT colouring: 240 single-web globalcolor forces leave it at 36 or worse. 2026-09-11, lane p2-close, measured and it inverts the older reading: the shipped frame's declared block ENDS at +0x64 and is 276 bytes where this candidate's ends at +0x58 and is 288, so the target declares three FEWER homed scalars, not a seventh more, and its compiler-temp pool is eleven cells against this candidate's eight. The eight immediate-only words are exactly the three spill displacements that follow from that, and the t1 census of 4 against 12 is the same fact seen from ugen: globalcolor here holds t0 through t5, leaving a four-register expression ring, while the shipped code spends t1 as an expression temp, so it carries one p1 web fewer. Decision variable: the declared-symbol count. Reopen with a source form that drops one declared scalar without adding a reload; naive inlining costs 48 to 436 bytes because the work struct's address escapes.
+ * summary: Frame/home deficit survives. L144 address loads reach 37; new-shape order climbs stall at 37 and 87. Retain 36; no source body change.
  * PLATEAU-HANDOFF:overlay101DrawPanel:end
  */

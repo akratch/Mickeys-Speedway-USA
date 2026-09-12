@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 22
 - first mismatch: +0x94
-- summary: Stack-home and two value-web regions closed (62 to 48); the 40-word remainder is one fp web the candidate colours f12 and the target f16.
+- summary: Real call is float/integer; two-float arity is not adoptable. New carrier and address-load controls do not improve 48. Causal f16 force remains diagnostic.
 #### Region partition (measured at 62, re-measured at 48)
 
 At 62 the 368-word residual partitioned into four independent decisions, not
@@ -406,5 +406,50 @@ the requirement as two further float webs above save 7.1, which the previous
 section of this shard had already corrected to the two-condition form. The
 two-web reading is refuted independently by the float histogram: any such web
 would sit on f12, and the target names f12 once.
+
+
+#### 2026-09-12, lane p19-reopen: real call ABI limits the arity lever
+
+Assignment was base-only. Baseline and retained C are 368 words, delta zero,
+frame 0x60, first +0x94, 49 raw and 48 masked differences. Buckets are
+320 exact / 46 naming / 0 immediate / 2 really different before and after.
+Frame and address-window censuses reproduce the previous fp-colour diagnosis.
+The configured instrument passes full-TU text identity; ordinal 1 emits p1.
+The inherited accepted w35-to-c28 force is already causal evidence and was
+not re-swept or mistaken for a source match.
+
+The dispatch's two-float shortcut does not describe this call's actual ABI.
+`include/overlays/overlay_027.h` declares `func_8002A878(f32, s32)`, and the
+existing p7-fp proof explicitly measures the cost and fiction of changing the
+second parameter. L142 applies to the argument colours actually loaded; it
+does not authorize adding a second float argument. Both the pre-call emitted
+reference and the remaining f14 competition must be satisfied by real source.
+
+Four new controls test the remaining source territory. Reusing scaleFactor
+for the call result before restoring the scale gives 58 masked at delta zero,
+buckets 316/43/0/11; the persistent carrier remains total 71 over 10 and c26.
+Assigning scaleFactor to 1.0 before using it in the subtraction gives 57
+masked, buckets 311/55/0/2. This creates a separate fraction web (57, total
+20 over one component, c26), while the persistent scale takes c27 and the
+constant c28. Thus a blanket claim that every reuse necessarily coalesces is
+too broad, but this real new web occupies f12, contradicting the target's
+outgoing-argument-only f12 use. It is not the wanted solution.
+
+L144 address-form call-input reuse gives 333 masked and adds 24 bytes;
+address-form scale reads give 333 and add 20 bytes. The latter removes the
+coloured scale carrier at the cost of stack traffic absent from the target.
+The four controls provide no better retained residual. The measured call ABI,
+no-spill requirement and emitted-reference obstacle survive; there is no
+basis for another identity-op or fabricated-arity sweep. A next source
+hypothesis must consume a pre-call reference in an already required operation
+and preserve the actual argument setup, then show c28 in accepted records.
+
+Commands: alignment, residual map, register/frame censuses, configured
+stock/instrumented compilation and direct object comparison,
+`tools/finalize_plateau.py`, `tools/gates.sh`. Attempts, objects and records
+remain in private external scratch. The 22 relocation records are not a
+promotion proof: the inherited audit does not establish all offset/type and
+identity pairs. C remains guarded; the unchanged assembly fallback is what
+passes full-ROM verification. No matching credit or body edit is adopted.
 
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->

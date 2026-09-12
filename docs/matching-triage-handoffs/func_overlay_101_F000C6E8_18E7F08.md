@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 91
 - first mismatch: +0x4C
-- summary: Two uopt region boundaries took 124 masked words to 119 at exact size and 0x18 frame. 2026-09-11, lane p2-close, 119 -> 106 with immediate-only words 2 -> 0 and structural 31 -> 26: four L59 group folds, chosen by measuring all 1,024 subsets of the ten foldable assignment groups, plus a no-op `& 0xFF` on the queue copy, which folds away at zero byte cost but still makes ugen allocate one more expression temporary and so moves the caller-saved free list one place. The shard's older claim that the target holds `selector` in a1 and this candidate a2 is stale: both hold it in a1 now, and the visible difference is the queue-byte base, t7 there against a2 here. The residue is 75 register-naming words, and it is p1 colouring in the root-initialisation region.
+- summary: Accepted three-local displacement prices 19 masked words (106 to 87), diagnostic only. Source and new-shape order controls retain 106; interference remains.
 - assignment base: `23dd98ede1da869df2df0948c80efeeb403caa6e`
 - owned range: overlay 101 `+0xC6E8..+0xCBDC`, 1,268 bytes / 317 words, with no target-size delta
 - baseline: 131 raw and 125 relocation-aware positional differences; normalized distance 117; first raw mismatch `+0x8` and first relocation-masked mismatch `+0x34`
@@ -30,5 +30,60 @@ that orders the selector's web against web 101 ([L100]); a symbol-boundary
 edit or an L109 probe on the selector is the lever, and neither has been
 measured. The web numbers are from this lane's own compilation and must be
 re-derived before forcing.
+
+
+#### 2026-09-12, lane p19-reopen: three interfering locals priced at 19 words
+
+Assignment was base-only. Retained before/after buckets are 220 exact /
+75 naming / 0 immediate / 26 really different. Positional score is 113 raw,
+106 masked at 317 words, delta zero, frame 0x18, first +0x4C, displacement
+tax five. The address
+map and register census require eleven incoherent windows; this is not one
+whole-function ring cycle. No candidate body change is adopted.
+
+The configured full-TU instrument passes byte identity. Ordinal 0 is p1
+only. Detailed web records identify nodeIndex as web 60 (total 17 over two
+components, c7/t0), previousType as web 80 (6 over two, c8/t1), and previous
+as web 84 (6 over two, c9/t2). These three are decided before the address
+and constant webs that need the target's t0-t2. Web 138 is an address constant
+at total 5 over two components, and web 136 is the 255 literal at 3 over two.
+The queue-base high-address web 126 is separate; selector already agrees in
+a1. The older selector/save-ratio closure is not the current decision.
+
+Forcing w60 to c10, w80 to c11 and w84 to c12 records accepted forced values
+10, 11 and 12. Scored directly, that object gives 94 raw / 87 masked at delta
+zero, buckets 242/53/0/26. This prices 19 positional masked words and 22
+aligned naming rows without claiming source equivalence or matching credit.
+L142 alone cannot free these three coloured occupants; the issue is their
+interference and ordering, not an unoffered argument colour.
+
+Removing only the node pointer locals is text-identical at 106: L131 keeps
+the repeated indexed expression as one name. Removing the index carrier as
+well gives 166 masked and adds 12 bytes; combining that with direct previous
+links gives 162 and adds 12. Direct previous-link stores alone give 109 at
+delta zero, buckets 212/91/4/11. A fresh dependency-guarded order climb on
+that shape evaluates 224 forms in two passes and reaches 108, still worse
+than the retained baseline. The prior shape's order closure was not assumed
+to cover it, and no speculative store reordering was adopted.
+
+An index-based queue loop gives 295 and adds four bytes. Regions around the
+previous-link or root-link groups give 155-166 and add four or eight bytes.
+A region after the first node-index definition is text-identical; applying
+it to all such definitions gives 111 at delta zero. Separating the node20
+index into the existing orderIndex local gives 107 at delta zero. The final
+index/region and new-shape order controls do not improve the retained result
+or expose another causal decision. This is a bounded plateau, not a proof
+that no source spelling can match.
+
+The next concrete source question is how to move the three named locals out
+of the address/constant webs' interference without widening the instruction
+stream; accepted forced objects supply a target for that question. All
+source/object/record and climb receipts remain in private external scratch.
+Commands: alignment, residual map, register/frame censuses, configured
+stock/instrumented compilation, direct forced-object scoring, guarded
+blockclimb, `tools/finalize_plateau.py`, `tools/gates.sh`. The 91 runtime
+relocations still lack a complete identity proof; no promotion was attempted.
+The unchanged assembly fallback passes full-ROM verification. Only the source
+handoff comment and this shard are refreshed.
 
 <!-- plateau-handoff:func_overlay_101_F000C6E8_18E7F08:end -->

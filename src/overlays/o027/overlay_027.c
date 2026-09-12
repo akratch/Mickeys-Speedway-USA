@@ -459,7 +459,7 @@ s32 overlay27Activate(O27Object *object) {
  * frame: 0x60
  * relocations: 22
  * first-mismatch: +0x94
- * summary: Stack-home and two value-web regions closed (62 to 48); the 40-word remainder is one fp web the candidate colours f12 and the target f16.
+ * summary: Real call is float/integer; two-float arity is not adoptable. New carrier and address-load controls do not improve 48. Causal f16 force remains diagnostic.
  * PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:end
  */
 

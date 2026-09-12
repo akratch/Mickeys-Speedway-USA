@@ -2,11 +2,11 @@
 ### `func_8000FAE0` plateau handoff
 
 - source: `src/main/track.c`
-- score: 20 differing words
+- score: 16 differing words
 - frame: 0x10
 - relocations: 2
 - first mismatch: +0x1C
-- summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body.
+- summary: Lower-bound order closes four words; accepted p2 forces price the count/coordinate swap. Best C: 46 exact, 16 naming. Final boolean-carrier probes stall.
 
 - Reopen audit (2026-09-08): the local Jet Force Gemini checkout is exactly
   `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, with an unchanged tracked
@@ -53,4 +53,47 @@
   workbench `guide forced-color-oracle` and `guide register-role-audit`,
   `python3 tools/m2c_sweep.py --symbol func_8000FAE0 --fresh`, and
   `tools/finalize_plateau.py` with the measured fields above.
+
+#### 2026-09-12, lane p19-reopen: p2 decisions priced, four naming words closed
+
+The authenticated reopen admits allocator work; the older donor-only stopping
+condition does not cover it. Baseline buckets were 42 exact, 20 naming, zero
+immediate and zero structural, with zero displacement tax. Defining the x and
+z lower bounds before their upper bounds gives 46 exact, 16 naming, zero
+immediate and zero structural. Both objects contain 62 words, frame 0x10 and
+the same two relocation identities. First mismatch remains +0x1C. The reads
+are independent, nonvolatile accesses in the same basic blocks.
+
+The instrumented compiler was derived from the configured full-TU command,
+including the multiply flag. Its baseline text is identical with logging on.
+The procindex table and TU order identify ordinal 29, whose decisions are p2
+only. Thus L142 call arity and L139 save ratios do not reach this leaf.
+On the baseline, web 6 holds the segment count in a0; its accepted force to
+c7 (t0) alone regresses to 32 because it changes the later colour assignments.
+An accepted combined force of webs 6, 10, 13, 17, 28, 32, 46, 48, 52, 65, 67
+and 71 onto the observed target colours gives two naming differences at delta
+zero. Every requested colour is recorded as accepted in the p2color row.
+This prices 18 original differences as p2 colouring; it is diagnostic output,
+not a candidate or a match. The remaining pair is the loop-condition carrier.
+
+After the source adoption the census is coherent: count a0 versus t0 at three
+sites, coordinate t0 versus a0 at twelve, and condition temporary t9 versus at
+at two; one instruction participates in both substitutions. The source lever
+needs to change count/coordinate web order while retaining the existing
+preheader, frame and loop-condition shape. No ratio adjustment can do that.
+
+Measured negatives: widening the halfword locals and a register qualifier
+are text-inert. Inlining the count changes naming without fixing it; inlining
+all bound carriers adds five words. Index induction adds one word, while its
+natural condition form keeps size but changes structure. Reusing coordinate
+carriers is flat; reusing the initial count carrier regresses or adds words.
+Moving the bound read to the loop tail adds sixteen words. Early boolean
+carriers add a word. The final three boolean-carrier variants are identical
+regressions and supply no further information, meeting ADR 0018's stall rule.
+
+The best guarded source is retained. Source, object, direct-score reports,
+compile commands and force-acceptance logs are preserved in lane-private
+external scratch. Commands include align_symbol, residual_map, register_census,
+frame_census and configured full-TU stock/instrumented comparisons.
+
 <!-- plateau-handoff:func_8000FAE0:end -->

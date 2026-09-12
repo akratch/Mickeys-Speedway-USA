@@ -2197,8 +2197,10 @@ void func_80006448(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #endif
-/* Workbench verdict: allocation-mismatch; 63 differing words (142/205). */
-/* First mismatch: +0x38; size, frame, CFG and all seven relocations are exact. */
+/* Configured C: 17 differences (188/205 exact), first +0x11C.
+ * The region before the flag store raises the sprite web above the list cursor
+ * without emitting instructions; the retained body remains NON_MATCHING. */
+/* Earlier 63-word plateau: size, frame, CFG and all seven relocations exact. */
 /* Three independent residuals, none of them structural:
  *   1. a two-web exchange, s1<->s2, between `sprite` and the compiler's
  *      induction pointer for `list->entries[index]` (21 + 10 sites);
@@ -2253,8 +2255,9 @@ s32 func_80006534(Objects06534Object *object) {
             sprite->unk0 = func_800355A0(record->unk0, 1);
             sprite->unk4 = record->unk2;
             flags = record->unk8;
-            reference = ((u32)record->unk8 >> 22) & 0x3F;
             frameOffset = ((u32)record->unk8 >> 16) & 0x3F;
+            reference = ((u32)record->unk8 >> 22) & 0x3F;
+            if (1) { }
             sprite->unkC = flags;
             sprite->unk8 = ((f32)record->unk4 / 500.0f) * object->unk8;
             sprite->unk5 = record->unk3;
@@ -5811,11 +5814,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006534:start
  * symbol: func_80006534
- * score: 63 differing words
+ * score: 17 differing words
  * frame: 0x38
  * relocations: 7
- * first-mismatch: +0x38
- * summary: 63 words in three priced regions: an s1/s2 save-ratio exchange worth 27, a phantom p1 web holding v1 worth 8, and 28 words of temp-ring phase.
+ * first-mismatch: +0x11C
+ * summary: Region plus independent field-capture order: 188 exact, 15 naming, two schedule rows. Saved-register closure falls; phantom web and local ring remain.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

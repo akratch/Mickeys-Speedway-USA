@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: 111/111 words, every register and branch target exact; the last two words are one as1 delay-slot decision at +0x3C.
+ * summary: 109 exact, two assembler branch/delay differences. Existing suppressor proof survives the new allocator laws; inspect the unexplained branch decline.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
