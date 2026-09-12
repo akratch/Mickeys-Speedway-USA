@@ -761,7 +761,7 @@
       "source_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10"
     },
     "func_overlay_001_F000438C_185076C": {
-      "ledger_commit": "08f59c202651b6931fe946e09973674b45230559",
+      "ledger_commit": "84534ffed5848809b8d50f11129bc4c5cd300120",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "664ad5551fe066443391c35d02455f93eb20279c"
     },
@@ -1006,9 +1006,9 @@
       "source_commit": "8ac52fbd6033f8b15d5d4452cdf2c04e6b7841ba"
     },
     "func_overlay_057_F0001AE8_18A56E0": {
-      "ledger_commit": "92c5eb2d14875235824c6b2cd010e2bcd6f6b597",
+      "ledger_commit": "d0afa16d07c9bf96c9a0526eeeaf48a5bfbc2aab",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "4df25e8124fe06a3f753836538879328fe726390"
+      "source_commit": "d0afa16d07c9bf96c9a0526eeeaf48a5bfbc2aab"
     },
     "func_overlay_057_F0004460_18A8058": {
       "ledger_commit": "92c5eb2d14875235824c6b2cd010e2bcd6f6b597",
