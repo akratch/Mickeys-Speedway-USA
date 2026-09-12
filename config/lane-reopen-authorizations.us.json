@@ -1281,7 +1281,7 @@
       "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03"
     },
     "overlay1AdvanceGauge": {
-      "ledger_commit": "21f43fa27d3586e4d0385d8aa972d99385b265b1",
+      "ledger_commit": "4a1fe94120324cd0d9d4cac1993f9806668311ee",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
     },
@@ -1521,7 +1521,7 @@
       "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c"
     },
     "overlay60ReassignChoiceSlots": {
-      "ledger_commit": "32f6d40207c710bd918815334434910d1f63c86f",
+      "ledger_commit": "4a1fe94120324cd0d9d4cac1993f9806668311ee",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4"
     },
