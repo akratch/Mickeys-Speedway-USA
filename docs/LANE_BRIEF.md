@@ -276,6 +276,33 @@ it end to end. The ones that carry most of the weight:
   with a forbidden mask* because the two address webs genuinely interfere. Five
   functions were promoted on this, priced at delta 0: index locals everywhere
   179, mixed 165, **no locals at all 98**.
+- **L153 (2026-09-12)** — **a web's number follows its TYPE first and its first
+  USE second, and the source decides which type a value gets.** Measured on one
+  leaf with the decision records: its address constants are type-1 webs numbered
+  above every type-3 symbol web, and within type 1 they are numbered in order of
+  first occurrence in the INSTRUCTION STREAM, not by constant-table slot. A loop
+  bound written as a local initialised from an address constant is therefore
+  propagated away, re-created at its use in the loop tail, numbered last,
+  coloured last and hoisted last — three symptoms, one cause, and no
+  declaration, statement or grouping order touches any of them. The same bound
+  produced by linear-function-test replacement, from a source that declares only
+  an INDEX and lets uopt strength-reduce the subscript, is numbered with the
+  induction temporaries and takes the target's colour. 288 order and grouping
+  cells floored at 9 on the pointer-pair shape; the index shape was 0 first try
+  at delta 0. **Before sweeping any spelling axis on a walking pointer and its
+  bound, ask which of the two the source declares.** The general form: where a
+  residual is the colour ORDER of two values, check whether the target's source
+  declares them at all, because a value the compiler creates and a value the
+  source declares are numbered from different tables.
+- **L151 confirmed on two more functions (2026-09-12)** — a literal's type is
+  part of its IR identity, and it is the *literal's* type, not the variable's.
+  Giving two otherwise identical `- 1`s different types splits a common
+  subexpression that no carrier, order, scope or region edit splits; 96 cells
+  over signed/unsigned/16-bit declared types of the same variables were
+  byte-identical, so the declared type of a 32-bit local reaches nothing. Use it
+  when the residual is "uopt commoned two expressions the target keeps apart",
+  and price what the split costs before adopting: on both witnesses it bought
+  the target's shape and lost one instruction elsewhere.
 - **L146** — **a statement-order optimum belongs to the shape, not the
   function.** After any edit that changes the carrier shape, every recorded
   order sweep on that function is void and must be re-climbed. A 630-order

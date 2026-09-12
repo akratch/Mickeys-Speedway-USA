@@ -44,74 +44,50 @@ typedef struct Menu3B1A0KeyGroup {
 } Menu3B1A0KeyGroup;
 
 extern s32 *D_8007C0B8;
-extern u8 D_8007C0E8;
-extern u8 D_8007C118;
-extern s16 D_8007C11C[];
-extern s16 D_8007C11E[];
-extern s16 D_8007C120[];
-extern s16 D_8007C122[];
+extern Menu3B1A0KeyGroup D_8007C0E8[];
+extern Menu3B1A0KeyGroup D_8007C11C[];
 extern u8 D_80082714[];
 
-/* Workbench verdict: structure-mismatch, 9 differing words; target/candidate
- * 56 words. First mismatch +0x0; the residual is one register pair, the
- * cursor and the end pointer, which the target colours a1/v0 and this
- * candidate v0/a1, plus the %lo materialization order that follows from it.
+/* Matched 2026-09-12 (lane p12-tight).  The target walks the tables by INDEX,
+ * not with an explicit cursor/end pointer pair, and that one difference is the
+ * whole of the nine-word residual the note below described.
  *
- * Two levers closed 19 -> 9. The fourth key read was a named local in the m2c
- * draft, which gave it a uopt pool colour and reversed the compare's operands
- * (L67/L87); spelling it as the dereference again puts it back on the ugen
- * temp ring. And the loop exit is `end == cursor`, not `cursor == end`.
+ * With `i` as the only induction variable uopt strength-reduces `D_8007C0E8[i]`
+ * into the walking pointer, strength-reduces `i * 8` into the byte offset the
+ * value reads use, and then linear-function-test replacement rewrites the
+ * `i < 6` exit test as a comparison of the walking pointer against
+ * `&D_8007C0E8[6]`.  Both the pointer and its bound are therefore compiler
+ * temporaries, created in that order, and globalcolor -- which is phase two
+ * here, this being a leaf -- colours them in ascending web number: the bound
+ * takes v0 and the walker a1, which is the target's assignment.
  *
- * The `while (1)` with an interior exit is load-bearing, not a draft artifact:
- * this TU compiles with the default unroller (see the Makefile note on
- * menu_3B1A0.c), and every bottom- or top-tested form -- `do`/`while`, `for`,
- * `while (end != cursor)` -- is unrolled to 154 words against the target's 56.
- * Only the interior-exit form is opaque to the unroller.
+ * Spelled with a `u8 *end = &D_8007C118;` local instead, the bound is a
+ * propagated address constant whose web is created at its first use in the
+ * LOOP TAIL.  Address-constant webs are numbered above every symbol web, so it
+ * is coloured last and takes a1 while the cursor takes v0, and it is hoisted
+ * last into the preheader, which also puts the two `%lo` materializations in
+ * the wrong order.  All six declaration orders, all six initialization orders,
+ * all four physical-line groupings and both comparison operand orders were
+ * measured against that shape and every one is 9 or worse -- the web numbering
+ * is not reachable from any of those axes, only from removing the pointer
+ * pair.  Forcing the two colours confirmed the price: 9 -> 4, and the last
+ * four words were the `%lo` order and the compare's operands.
  *
- * Ruled out at this residual, each measured over a full lattice rather than
- * sampled: declaration order (all 6), initialization order (all 6), physical
- * line grouping of the initializers (all 4 compositions x all 6 orders),
- * `register` on the cursor, s16* versus u8* for the end pointer, declaration
- * initializers, an (s32) compare, deriving the end as cursor + 0x30, and
- * swapping the cursor/offset increment order. All 192 + 7 flat at 9 or worse.
+ * The `for` loop is not unrolled despite this TU using the default unroller:
+ * the four interior `return`s make the body multi-exit.
  *
  * No donor counterpart: JFG's src/menu.c has no function of this shape. */
-#ifdef NON_MATCHING
 void *func_8003A5A0(s32 arg0) {
-    u8 *cursor;
-    u8 *end;
-    s32 offset;
+    s32 i;
 
-    cursor = &D_8007C0E8;
-    end = &D_8007C118;
-    offset = 0;
-    while (1) {
-        if (arg0 == *(s16 *) (cursor + 0)) {
-            return (void *) D_8007C0B8[
-                *(s16 *) ((u8 *) D_8007C11C + offset)];
-        }
-        if (arg0 == *(s16 *) (cursor + 2)) {
-            return (void *) D_8007C0B8[
-                *(s16 *) ((u8 *) D_8007C11E + offset)];
-        }
-        if (arg0 == *(s16 *) (cursor + 4)) {
-            return (void *) D_8007C0B8[
-                *(s16 *) ((u8 *) D_8007C120 + offset)];
-        }
-        if (arg0 == *(s16 *) (cursor + 6)) {
-            return (void *) D_8007C0B8[
-                *(s16 *) ((u8 *) D_8007C122 + offset)];
-        }
-        cursor += 8;
-        offset += 8;
-        if (end == cursor) {
-            return D_80082714;
-        }
+    for (i = 0; i < 6; i++) {
+        if (arg0 == D_8007C0E8[i].key[0]) { return (void *) D_8007C0B8[D_8007C11C[i].key[0]]; }
+        if (arg0 == D_8007C0E8[i].key[1]) { return (void *) D_8007C0B8[D_8007C11C[i].key[1]]; }
+        if (arg0 == D_8007C0E8[i].key[2]) { return (void *) D_8007C0B8[D_8007C11C[i].key[2]]; }
+        if (arg0 == D_8007C0E8[i].key[3]) { return (void *) D_8007C0B8[D_8007C11C[i].key[3]]; }
     }
+    return D_80082714;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A5A0.s")
-#endif
 
 void func_8003A680(s32 arg0) {
     if (D_8007BF44 < 8) {
@@ -244,12 +220,3 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
     return total;
 }
 
-/* PLATEAU-HANDOFF:func_8003A5A0:start
- * symbol: func_8003A5A0
- * score: 9/56 words
- * frame: frameless
- * relocations: 22
- * first-mismatch: +0x0
- * summary: Accepted p2 force w0=a1,w73=v0 cuts direct residual to 3 aligned rows; declaration and empty-comparison forms cannot reproduce it.
- * PLATEAU-HANDOFF:func_8003A5A0:end
- */
