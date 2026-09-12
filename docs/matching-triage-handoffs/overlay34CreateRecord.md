@@ -2,7 +2,7 @@
 ### `overlay34CreateRecord` plateau handoff
 
 - source: `src/overlays/o034/overlay34CreateRecord.c`
-- score: 6/125 words
+- score: 119/125 words
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88

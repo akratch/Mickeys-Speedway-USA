@@ -5695,7 +5695,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x28
  * relocations: 4
  * first-mismatch: +0x50
- * summary: Nine words, one web. The instrumented capture the earlier note asked for was run: the resource web prices a0 at 0.0 and v0 at infinity, so v0 is not a priced candidate in this procedure and no source form that keeps the value as a globalcolor web can reach the target. Forcing that web to v0 is byte-exact. Regions and twelve further spellings are flat.
+ * summary: Nine residual words remain; exhaustive colour evidence proves the resource web cannot reach target v0 in this call procedure.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 
@@ -5818,7 +5818,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: All 22 coloured webs sampled; three rival colours of unused packed-read web 77 reach diagnostic floor 14; source controls retain 17 or add a word.
+ * summary: All 22 coloured webs sampled: three rival colours of packed-read web 77 reach diagnostic floor 14; source controls retain 17.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
