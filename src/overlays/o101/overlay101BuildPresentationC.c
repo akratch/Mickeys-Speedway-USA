@@ -235,6 +235,6 @@ void overlay101BuildPresentationC(void) {
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
+ * summary: L160 pointer and colour-carrier deletion is byte-inert. All 132 coloured-web forces retain excess size; the mapped lattice floor is 125 at +4.
  * PLATEAU-HANDOFF:overlay101BuildPresentationC:end
  */
