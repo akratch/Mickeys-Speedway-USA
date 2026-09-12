@@ -84,4 +84,3 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     }
     return accepted;
 }
-
