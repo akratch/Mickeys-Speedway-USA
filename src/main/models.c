@@ -1389,7 +1389,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0xD0
  * relocations: 21
  * first-mismatch: +0x3C
- * summary: Frame closed at 0xD0 by the slots[] length (L112): 249 to 229 words. The 2026-08-31 closure never measured the frame.
+ * summary: Largest +0x200 window: 47 naming, 11 immediate, 44 structural; frame exact, local-home order unresolved.
  * PLATEAU-HANDOFF:func_8002057C:end
  */
 
