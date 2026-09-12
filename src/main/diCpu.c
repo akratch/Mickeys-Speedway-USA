@@ -893,7 +893,7 @@ void func_80046E00(void) {
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Register-only at 106/106; the three-variable family is closed at 192 forms, all 83-91, and the 16 are four windows of per-iteration consumption
+ * summary: Ugen trace isolates four draw sites; tab compound assignment is byte-identical.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
