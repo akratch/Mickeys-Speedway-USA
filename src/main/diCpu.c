@@ -899,11 +899,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:render_epc_lock_up_display:start
  * symbol: render_epc_lock_up_display
- * score: 51/344 words
+ * score: 51 differing words
  * frame: 0x50
  * relocations: 127
  * first-mismatch: +0x18
- * summary: Exhaustive 137-cell colour landscape has floor 51; source question is one zero-byte leading integer ring draw.
+ * summary: Dead tick updates are byte-inert and compensated preincrement adds an instruction; the zero-byte leading ring draw remains open.
  * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
 
