@@ -2043,6 +2043,22 @@ bytes and disassembly never belong here.
   `(u8 *)` bases makes the pre-scale sum the coloured web, as the target has
   it. A ten-probe standalone TU reproduces the mechanism.
 
+- **A counted-loop proof depends on the recurrence as well as the initial
+  value; an opaque stride can avoid an opaque initializer's memory temporary.**
+  When IDO rewrites a signed loop bound into a not-equal test against a hoisted
+  constant, first check which part of the counted-loop proof to interrupt.
+  In the controlled overlay-58 experiment, a literal zero start with
+  `index += (index * 0) + 1` retains the signed comparison, then folds the
+  product in ugen without a spill. Three equivalent recurrence spellings
+  produce the same object; putting the outer index in the zero product brings
+  the temporary back. The lever therefore depends on the expression's live
+  range, not just its arithmetic value. This is disclosed inert source
+  shaping, with the index initialized and its complete domain proved; it
+  does not justify undefined arithmetic, observable side effects, or assuming
+  the same phase ordering on another compiler. See the
+  [controlled comparisons and semantic audit](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md)
+  for the bounded full-TU experiment and its coupled allocation effect.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
