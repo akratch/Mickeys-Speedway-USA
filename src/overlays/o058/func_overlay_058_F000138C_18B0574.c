@@ -1481,10 +1481,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 688/3614 words, size delta 0
+ * score: 594/3614 words, size delta 0
  * frame: 0x138
- * relocations: 1266
+ * relocations: 1253
  * first-mismatch: +0x50
- * summary: Statement order is NOT the wrong axis here, contrary to the note the phase census left behind: a move-one hill climb over all 67 runs of three or more consecutive single-line statements, re-run to a fixed point, takes 733 -> 688 masked at size delta 0, byte-exact 3120 -> 3144, register naming 379 -> 371, really different 103 -> 88, with both frame ladders unchanged. The phase census retires L106 and nothing else. 672 is reachable but only through three semantically wrong moves, which are rejected. What is left is still two web PARTITION problems, the prologue and case 10's &character[0] temp (web 978), plus 119 words in case 9's grid-loop exit test.
+ * summary: uopt rewrites a provably counted loop's `< CONST` exit test into `!=` against a constant hoisted into a register, and at case 9's grid inner loop it does so unconditionally -- measured at bounds 0x9, 0xA, 0xB and 0x40 and with every other 0xA in the procedure removed -- which is why no spelling of the bound ever reached the target's `slti $at,<index>,10`. The rewrite needs a known initial value, so writing the row reset as `opponent = i * 0` retires it at no instruction cost: 688 -> 634. The old `(opponent - 1)` spelling had been buying the same compare with an `addiu` that spent one temp-ring draw and rotated the free list for the remaining 1,196 bytes. That shape change reopened statement order (634 -> 623) and the carrier axis (623 -> 594), both recorded exhausted. Aligned at 594: byte-exact 3311, register naming 198, immediate 32, really different 86. What is left is a +1 run from +0x3088 to +0x3348 with both ends named, and a flat per-web colour residual before +0x3000.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
