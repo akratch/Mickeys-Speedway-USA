@@ -110,178 +110,60 @@ extern void o101TailBA34FinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Exact typed owner for overlay 101 +0xBA34..+0xC144. */
-/* Workbench p4: structure-mismatch; 452/452 instructions, 393 positional words, first +0x0; frame 0x60 vs target 0x40.
- * Levers: prior counter unification plus this run's scale-lifetime probe; the typed owner remains frame-heavy.
- * Remains: packet-local relocation aliases and the target's tighter frame/register schedule. */
-#ifdef NON_MATCHING
+/* 393 -> 0, lane p10-o101 2026-09-12, on three edits and in that order. The
+ * residual read as a prologue problem -- first mismatch at +0 with a frame
+ * 0x10 too large -- and it was two carriers and one constant.
+ * L145, but PARTIALLY, and the boundary is the point. Delete the locals that
+ *   held an element address or an element index and spell those stores through
+ *   the array subscript of the counter global itself, so that the subscript
+ *   written on both sides of a call is ONE IR name (L131) and the pre-call read
+ *   lands in a ring temporary a local can never be (L130). That works for the
+ *   sprite nodes and the text rows, whose counter has ONE name. It does NOT
+ *   work for the three root headers: this reconstruction models the shipped
+ *   relocation identity by giving the order counter two names, Call0 and Call1,
+ *   so the pre-call and post-call subscripts are different expressions, L131
+ *   cannot fuse them, and going direct there costs instructions -- whole-body
+ *   direct measures 444 at delta +8 against 393. Mixed, it is 333 at delta 0.
+ *   THE TEST IS WHETHER BOTH SIDES OF THE CALL CAN BE SPELLED THE SAME.
+ * L144 -- `register volatile f32 scale` was the second carrier and the larger
+ *   one. volatile pins a home and re-loads it at every use: the frame census
+ *   showed our +0x40 slot taking five loads where the target takes one, plus a
+ *   whole extra slot. The shipped code has no carrier at all -- the multiplier
+ *   is the `(f32)(s32)1` literal written in place, exactly as in the rest of
+ *   this overlay's builders. 304 -> 263 at delta 0, and the first divergence
+ *   moves from +0 to +0x144, which is the frame going exact.
+ * L146 -- then re-climb, because every order measured before those two edits is
+ *   void. The climb moves one statement: kind ahead of width2E in the first
+ *   root header. 4 -> 0. Two further rounds are flat. */
 void func_overlay_101_F000BA34_18E7254(s32 variant) {
-    s32 orderIndex;
-    s32 nodeIndex;
     void *handle;
     s32 length;
-    O101TailBA34Node32 *node32;
-    O101TailBA34Node24 *node24;
-    register volatile f32 scale;
+    s32 orderIndex;
 
-    orderIndex = gO101TailBA34OrderCountCall0;
-    gO101TailBA34Root.height30 = 0xF0;
-    gO101TailBA34Root.width2E = 0x140;
-    gO101TailBA34Root.kind = 4;
-    gO101TailBA34Root.asset34 = &gO101TailBA34AssetDB8;
-    gO101TailBA34Root.color32 = 0xFF;
-    gO101TailBA34Root.color33 = 0xFF;
-    gO101TailBA34Root.value26 = 0;
-    gO101TailBA34Root.value28 = 0;
-    gO101TailBA34Root.value2A = 0;
-    gO101TailBA34Root.value2C = 0;
-    gO101TailBA34Root.chainType = 0;
-    gO101TailBA34Root.chain = NULL;
-    gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.chainType;
-    gO101TailBA34OrderCountCall0 = orderIndex + 1;
+    orderIndex = gO101TailBA34OrderCountCall0; gO101TailBA34Root.width2E = 0x140; gO101TailBA34Root.height30 = 0xF0; gO101TailBA34Root.kind = 4; gO101TailBA34Root.asset34 = &gO101TailBA34AssetDB8; gO101TailBA34Root.color32 = 0xFF; gO101TailBA34Root.color33 = 0xFF; gO101TailBA34Root.value26 = 0; gO101TailBA34Root.value28 = 0; gO101TailBA34Root.value2A = 0; gO101TailBA34Root.value2C = 0; gO101TailBA34Root.chainType = 0; gO101TailBA34Root.chain = NULL; gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.chainType; gO101TailBA34OrderCountCall0 = orderIndex + 1;
 
-    nodeIndex = gO101TailBA34Node32Count;
-    node32 = &gO101TailBA34Nodes32[nodeIndex];
-    node32->x = 0x4E;
-    node32->y = 0x14E;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = o101TailBA34RootCreatorReloc(
-        0x92, NULL, &gO101TailBA34OrderCountCall0);
+    gO101TailBA34Nodes32[gO101TailBA34Node32Count].x = 0x4E; gO101TailBA34Nodes32[gO101TailBA34Node32Count].y = 0x14E; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value10 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color12 = 0xFF; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color13 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value18 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].scale = 1.0f; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value14 = 0.0f; handle = o101TailBA34RootCreatorReloc(0x92, NULL, &gO101TailBA34OrderCountCall0); gO101TailBA34Nodes32[gO101TailBA34Node32Count].previousType = gO101TailBA34Root.chainType; gO101TailBA34Nodes32[gO101TailBA34Node32Count].previous = gO101TailBA34Root.chain; gO101TailBA34Nodes32[gO101TailBA34Node32Count].handle = handle; gO101TailBA34Root.chainType = 2; gO101TailBA34Root.chain = &gO101TailBA34Nodes32[gO101TailBA34Node32Count]; gO101TailBA34Node32Count = gO101TailBA34Node32Count + 1;
 
-    nodeIndex = gO101TailBA34Node32Count;
-    node32 = &gO101TailBA34Nodes32[nodeIndex];
-    node32->previousType = gO101TailBA34Root.chainType;
-    node32->previous = gO101TailBA34Root.chain;
-    node32->handle = handle;
-    gO101TailBA34Root.chainType = 2;
-    gO101TailBA34Root.chain = node32;
-    gO101TailBA34Node32Count = nodeIndex + 1;
-
-    orderIndex = gO101TailBA34OrderCountCall1;
-    gO101TailBA34Root.x42 = 0x20;
-    gO101TailBA34Root.width44 = 0x18;
-    gO101TailBA34Root.y46 = 0x8C;
-    gO101TailBA34Root.height48 = 0x18;
-    gO101TailBA34Root.value4A = 0x5B;
-    gO101TailBA34Root.value4C = 0x63;
-    gO101TailBA34Root.mode40 = 0;
-    gO101TailBA34Root.color4E = 0xFF;
-    gO101TailBA34Root.color4F = 0xFF;
-    gO101TailBA34Root.childType = 0;
-    gO101TailBA34Root.child = NULL;
-    gO101TailBA34Root.data50 = gO101TailBA34Inputs.data198;
-    gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.childType;
-    gO101TailBA34OrderCountCall1 = orderIndex + 1;
+    orderIndex = gO101TailBA34OrderCountCall1; gO101TailBA34Root.x42 = 0x20; gO101TailBA34Root.width44 = 0x18; gO101TailBA34Root.y46 = 0x8C; gO101TailBA34Root.height48 = 0x18; gO101TailBA34Root.value4A = 0x5B; gO101TailBA34Root.value4C = 0x63; gO101TailBA34Root.mode40 = 0; gO101TailBA34Root.color4E = 0xFF; gO101TailBA34Root.color4F = 0xFF; gO101TailBA34Root.childType = 0; gO101TailBA34Root.child = NULL; gO101TailBA34Root.data50 = gO101TailBA34Inputs.data198; gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.childType; gO101TailBA34OrderCountCall1 = orderIndex + 1;
 
     if (variant == 0) {
-        nodeIndex = gO101TailBA34Node32Count;
-        node32 = &gO101TailBA34Nodes32[nodeIndex];
-        node32->x = 6;
-        node32->y = 12;
-        node32->scale = 1.0f;
-        node32->value10 = 0;
-        node32->color12 = 0xFF;
-        node32->color13 = 0;
-        node32->value14 = 0.0f;
-        node32->value18 = 0;
-        handle = o101TailBA34ZeroCreatorReloc(
-            0xA0, NULL, &gO101TailBA34OrderCountCall1);
-        nodeIndex = gO101TailBA34Node32Count;
-        node32 = &gO101TailBA34Nodes32[nodeIndex];
-        node32->previousType = gO101TailBA34Root.childType;
-        node32->previous = gO101TailBA34Root.child;
-        node32->handle = handle;
-        gO101TailBA34Root.childType = 2;
-        gO101TailBA34Root.child = node32;
-        gO101TailBA34Node32Count = nodeIndex + 1;
+        gO101TailBA34Nodes32[gO101TailBA34Node32Count].x = 6; gO101TailBA34Nodes32[gO101TailBA34Node32Count].y = 12; gO101TailBA34Nodes32[gO101TailBA34Node32Count].scale = 1.0f; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value10 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color12 = 0xFF; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color13 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value14 = 0.0f; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value18 = 0; handle = o101TailBA34ZeroCreatorReloc(0xA0, NULL, &gO101TailBA34OrderCountCall1); gO101TailBA34Nodes32[gO101TailBA34Node32Count].previousType = gO101TailBA34Root.childType; gO101TailBA34Nodes32[gO101TailBA34Node32Count].previous = gO101TailBA34Root.child; gO101TailBA34Nodes32[gO101TailBA34Node32Count].handle = handle; gO101TailBA34Root.childType = 2; gO101TailBA34Root.child = &gO101TailBA34Nodes32[gO101TailBA34Node32Count]; gO101TailBA34Node32Count = gO101TailBA34Node32Count + 1;
     } else {
-        nodeIndex = gO101TailBA34Node32Count;
-        node32 = &gO101TailBA34Nodes32[nodeIndex];
-        node32->x = 6;
-        node32->y = 12;
-        node32->scale = 1.0f;
-        node32->value10 = 0;
-        node32->color12 = 0xFF;
-        node32->color13 = 0;
-        node32->value14 = 0.0f;
-        node32->value18 = 0;
-        handle = o101TailBA34NonzeroCreatorReloc(
-            0x9F, NULL, &gO101TailBA34OrderCountCall1);
-        nodeIndex = gO101TailBA34Node32Count;
-        node32 = &gO101TailBA34Nodes32[nodeIndex];
-        node32->previousType = gO101TailBA34Root.childType;
-        node32->previous = gO101TailBA34Root.child;
-        node32->handle = handle;
-        gO101TailBA34Root.childType = 2;
-        gO101TailBA34Root.child = node32;
-        gO101TailBA34Node32Count = nodeIndex + 1;
+        gO101TailBA34Nodes32[gO101TailBA34Node32Count].x = 6; gO101TailBA34Nodes32[gO101TailBA34Node32Count].y = 12; gO101TailBA34Nodes32[gO101TailBA34Node32Count].scale = 1.0f; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value10 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color12 = 0xFF; gO101TailBA34Nodes32[gO101TailBA34Node32Count].color13 = 0; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value14 = 0.0f; gO101TailBA34Nodes32[gO101TailBA34Node32Count].value18 = 0; handle = o101TailBA34NonzeroCreatorReloc(0x9F, NULL, &gO101TailBA34OrderCountCall1); gO101TailBA34Nodes32[gO101TailBA34Node32Count].previousType = gO101TailBA34Root.childType; gO101TailBA34Nodes32[gO101TailBA34Node32Count].previous = gO101TailBA34Root.child; gO101TailBA34Nodes32[gO101TailBA34Node32Count].handle = handle; gO101TailBA34Root.childType = 2; gO101TailBA34Root.child = &gO101TailBA34Nodes32[gO101TailBA34Node32Count]; gO101TailBA34Node32Count = gO101TailBA34Node32Count + 1;
     }
 
-    orderIndex = gO101TailBA34OrderCountCall1;
-    gO101TailBA34Root.x5E = 0x20;
-    gO101TailBA34Root.width60 = 0x40;
-    gO101TailBA34Root.y62 = 0x5A;
-    gO101TailBA34Root.height64 = 0x7E;
-    gO101TailBA34Root.value66 = 0xCC;
-    gO101TailBA34Root.value68 = 0x4A;
-    gO101TailBA34Root.mode5C = 0;
-    gO101TailBA34Root.color6A = 0xFF;
-    gO101TailBA34Root.color6B = 0xFF;
-    gO101TailBA34Root.tertiaryType = 0;
-    gO101TailBA34Root.tertiary = NULL;
-    gO101TailBA34Root.data6C = gO101TailBA34Inputs.data084;
-    gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.tertiaryType;
-    gO101TailBA34OrderCountCall1 = orderIndex + 1;
+    orderIndex = gO101TailBA34OrderCountCall1; gO101TailBA34Root.x5E = 0x20; gO101TailBA34Root.width60 = 0x40; gO101TailBA34Root.y62 = 0x5A; gO101TailBA34Root.height64 = 0x7E; gO101TailBA34Root.value66 = 0xCC; gO101TailBA34Root.value68 = 0x4A; gO101TailBA34Root.mode5C = 0; gO101TailBA34Root.color6A = 0xFF; gO101TailBA34Root.color6B = 0xFF; gO101TailBA34Root.tertiaryType = 0; gO101TailBA34Root.tertiary = NULL; gO101TailBA34Root.data6C = gO101TailBA34Inputs.data084; gO101TailBA34OrderSlots[orderIndex] = &gO101TailBA34Root.tertiaryType; gO101TailBA34OrderCountCall1 = orderIndex + 1;
 
-    scale = 1.0f;
+    gO101TailBA34Nodes24[gO101TailBA34Node24Count].x = 0x66; gO101TailBA34Nodes24[gO101TailBA34Node24Count].y = 0x10; length = overlay101ByteLength(gO101TailBA34Inputs.text19C); gO101TailBA34Nodes24[gO101TailBA34Node24Count].length = (u8)length; gO101TailBA34Nodes24[gO101TailBA34Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailBA34Nodes24[gO101TailBA34Node24Count].mode = 2; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color0 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color1 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color2 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color3 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].kind = 4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].text = gO101TailBA34Inputs.text19C; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previousType = gO101TailBA34Root.tertiaryType; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previous = gO101TailBA34Root.tertiary; gO101TailBA34Root.tertiaryType = 3; gO101TailBA34Root.tertiary = &gO101TailBA34Nodes24[gO101TailBA34Node24Count]; gO101TailBA34Node24Count = gO101TailBA34Node24Count + 1;
 
-#define BUILD_BA34_TEXT(field, ypos)                                        \
-    nodeIndex = gO101TailBA34Node24Count;                                   \
-    node24 = &gO101TailBA34Nodes24[nodeIndex];                              \
-    node24->x = 0x66;                                                       \
-    node24->y = (ypos);                                                     \
-    length = overlay101ByteLength(gO101TailBA34Inputs.field);               \
-    nodeIndex = gO101TailBA34Node24Count;                                   \
-    node24 = &gO101TailBA34Nodes24[nodeIndex];                              \
-    node24->length = (u8)length;                                            \
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * scale);         \
-    node24->mode = 2;                                                       \
-    node24->color0 = 0;                                                     \
-    node24->color1 = 0;                                                     \
-    node24->color2 = 0;                                                     \
-    node24->color3 = 0;                                                     \
-    node24->kind = 4;                                                       \
-    node24->text = gO101TailBA34Inputs.field;                               \
-    node24->previousType = gO101TailBA34Root.tertiaryType;                  \
-    node24->previous = gO101TailBA34Root.tertiary;                          \
-    gO101TailBA34Root.tertiaryType = 3;                                     \
-    gO101TailBA34Root.tertiary = node24;                                    \
-    gO101TailBA34Node24Count = nodeIndex + 1
+    gO101TailBA34Nodes24[gO101TailBA34Node24Count].x = 0x66; gO101TailBA34Nodes24[gO101TailBA34Node24Count].y = 0x1E; length = overlay101ByteLength(gO101TailBA34Inputs.text1A0); gO101TailBA34Nodes24[gO101TailBA34Node24Count].length = (u8)length; gO101TailBA34Nodes24[gO101TailBA34Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailBA34Nodes24[gO101TailBA34Node24Count].mode = 2; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color0 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color1 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color2 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color3 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].kind = 4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].text = gO101TailBA34Inputs.text1A0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previousType = gO101TailBA34Root.tertiaryType; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previous = gO101TailBA34Root.tertiary; gO101TailBA34Root.tertiaryType = 3; gO101TailBA34Root.tertiary = &gO101TailBA34Nodes24[gO101TailBA34Node24Count]; gO101TailBA34Node24Count = gO101TailBA34Node24Count + 1;
 
-    BUILD_BA34_TEXT(text19C, 0x10);
-    BUILD_BA34_TEXT(text1A0, 0x1E);
-    BUILD_BA34_TEXT(text1A4, 0x28);
-    BUILD_BA34_TEXT(text1A8, 0x32);
-    BUILD_BA34_TEXT(text1AC, 0x3C);
+    gO101TailBA34Nodes24[gO101TailBA34Node24Count].x = 0x66; gO101TailBA34Nodes24[gO101TailBA34Node24Count].y = 0x28; length = overlay101ByteLength(gO101TailBA34Inputs.text1A4); gO101TailBA34Nodes24[gO101TailBA34Node24Count].length = (u8)length; gO101TailBA34Nodes24[gO101TailBA34Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailBA34Nodes24[gO101TailBA34Node24Count].mode = 2; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color0 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color1 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color2 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color3 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].kind = 4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].text = gO101TailBA34Inputs.text1A4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previousType = gO101TailBA34Root.tertiaryType; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previous = gO101TailBA34Root.tertiary; gO101TailBA34Root.tertiaryType = 3; gO101TailBA34Root.tertiary = &gO101TailBA34Nodes24[gO101TailBA34Node24Count]; gO101TailBA34Node24Count = gO101TailBA34Node24Count + 1;
 
-#undef BUILD_BA34_TEXT
+    gO101TailBA34Nodes24[gO101TailBA34Node24Count].x = 0x66; gO101TailBA34Nodes24[gO101TailBA34Node24Count].y = 0x32; length = overlay101ByteLength(gO101TailBA34Inputs.text1A8); gO101TailBA34Nodes24[gO101TailBA34Node24Count].length = (u8)length; gO101TailBA34Nodes24[gO101TailBA34Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailBA34Nodes24[gO101TailBA34Node24Count].mode = 2; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color0 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color1 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color2 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color3 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].kind = 4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].text = gO101TailBA34Inputs.text1A8; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previousType = gO101TailBA34Root.tertiaryType; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previous = gO101TailBA34Root.tertiary; gO101TailBA34Root.tertiaryType = 3; gO101TailBA34Root.tertiary = &gO101TailBA34Nodes24[gO101TailBA34Node24Count]; gO101TailBA34Node24Count = gO101TailBA34Node24Count + 1;
+
+    gO101TailBA34Nodes24[gO101TailBA34Node24Count].x = 0x66; gO101TailBA34Nodes24[gO101TailBA34Node24Count].y = 0x3C; length = overlay101ByteLength(gO101TailBA34Inputs.text1AC); gO101TailBA34Nodes24[gO101TailBA34Node24Count].length = (u8)length; gO101TailBA34Nodes24[gO101TailBA34Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailBA34Nodes24[gO101TailBA34Node24Count].mode = 2; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color0 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color1 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color2 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].color3 = 0; gO101TailBA34Nodes24[gO101TailBA34Node24Count].kind = 4; gO101TailBA34Nodes24[gO101TailBA34Node24Count].text = gO101TailBA34Inputs.text1AC; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previousType = gO101TailBA34Root.tertiaryType; gO101TailBA34Nodes24[gO101TailBA34Node24Count].previous = gO101TailBA34Root.tertiary; gO101TailBA34Root.tertiaryType = 3; gO101TailBA34Root.tertiary = &gO101TailBA34Nodes24[gO101TailBA34Node24Count]; gO101TailBA34Node24Count = gO101TailBA34Node24Count + 1;
 
     o101TailBA34FinalizerReloc(&gO101TailBA34FinalObject4630);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailBA34/func_overlay_101_F000BA34_18E7254.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_101_F000BA34_18E7254:start
- * symbol: func_overlay_101_F000BA34_18E7254
- * score: 59/452 words
- * frame: 0x60
- * relocations: 45
- * first-mismatch: +0x0
- * summary: 393 masked, 394 raw differences; target frame is 0x40. Only 17 relocation sites and 4 identities align; 36 candidate identities remain unresolved.
- * PLATEAU-HANDOFF:func_overlay_101_F000BA34_18E7254:end
- */

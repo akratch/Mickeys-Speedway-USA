@@ -150,49 +150,45 @@ extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
  *   and the two root stores under their two real dependences -- across four bump
  *   spellings, all flat. The block order was re-measured at the post-u8 plateau
  *   and the adopted form is still the floor, so it is not a stale result.
- * Remaining, 130 masked: 279 byte-exact, 36 naming, 2 immediate, 79 schedule,
- *   size and frame ladder both exact. The naming rows are one PHASE: the ring
- *   runs exactly one position behind from +0x2BC onward, ours t2 against their
- *   t3, t3-t4, t6-t7, t7-t8, t8-t9 and t9 back to t2, with 83 percent of all
- *   substitution pairs consistent with that single permutation. That is L127's
- *   shape, and L127 does NOT reach it here: 155 no-op cells were measured --
- *   every read of the four counter globals and the loop index wrapped with
- *   OR-zero, AND-minus-one, XOR-zero, a byte mask and two doubled forms, then
- *   every read of a root struct field and of the call result, pointers included
- *   through an integer round trip -- and all 155 are exactly flat. So either the
- *   phase is set before any point a source no-op reaches, or these rows are
- *   globalcolor colour, which L114 as corrected for this procedure permits since
- *   it assigns three t-bank colours outright. Decide that from the `p1color`
- *   records before spending another no-op lattice. */
-/* 130 -> 99, lane p9-o101 2026-09-12. DELETE EVERY LOCAL THAT HELD AN ELEMENT
- * ADDRESS OR AN ELEMENT INDEX and spell each store through the array subscript
- * of the counter global itself. A uopt live range is formed per IR name (L131),
- * so `&D_340[D_1CC]` written on both sides of a call is one range spanning the
- * call; a local is a symbol and a symbol is never a ring temporary (L130), so a
- * pointer or index local loses the caller-saved colour the shipped code gives
- * the address AND loses the free ring draw (L129) the direct counter read
- * supplies. The counter bump has to move to the end of its group, because
- * without the pointer local the stores read the counter rather than a captured
- * address; that is a semantic requirement, not a schedule choice.
- * Worth 130 -> 113 here before any re-ordering. The same edit closed the four
- * 2,100-byte builders in this overlay outright.
+ * The no-op paragraph that used to close this comment is answered below, and it
+ *   was right that L127 does not reach the residual -- the lever wanted is the
+ *   opposite one. */
+/* 130 -> 99 -> 0. Lane p9-o101 took this family to 99 by deleting every local
+ * that held an element address or an element index and spelling each store
+ * through the array subscript of the counter global itself (L131: the subscript
+ * written on both sides of a call is ONE IR name, so it is one range and both
+ * occurrences take the caller-saved colour the shipped code uses, while the
+ * counter read becomes its own range on the callee-saved register and the
+ * pre-call read lands in a ring temporary -- L130, a local is a symbol and a
+ * symbol is never a ring temporary). The counter bump moves to the end of its
+ * group as part of that edit, because the stores then read the counter instead
+ * of a captured address. Every statement order was re-climbed afterwards, since
+ * a statement-order optimum belongs to the shape and not to the function (L146).
  *
- * Then re-climb every statement order, because a statement-order optimum is
- * never portable across a shape change: the five one-line groups and the text
- * macro, under the read-before-write dependences with the call held as a
- * barrier, 113 -> 99. Two further rounds of the same climb are flat, and the
- * orders transfer unchanged to both siblings, which also read 99.
+ * The last 99 were the four text rows, and they were ONE COUNT. ugen drew
+ * sixteen integer ring temporaries per row where the shipped code draws fifteen,
+ * so the phase ran one position ahead and fell one further behind per row --
+ * row 1 ours t6 against t5, then t4, t3, t2. The instrumented ugen's
+ * DKWB-FREELIST records name every draw with its source line, and the extra one
+ * was the second of two masks: with the length local declared `u8`, reading it
+ * already emits a mask of the call result, so `(u32)(length & 0xFF)` masks
+ * twice and ugen draws a ring temporary for each, after which as1's peephole
+ * folds the pair into the single `andi` the object shows. The draw is spent but
+ * the instruction is gone, which is why no register census could see the cause,
+ * and why 155 L127 no-op cells measured on this family were all flat -- a no-op
+ * CONSUMES a ring temporary and this residual needed one FEWER. Deleting the
+ * redundant mask is semantically exact, since a `u8` is already inside 0xFF,
+ * and it spends fifteen draws per row: every register in the text rows lands,
+ * the first mismatch moves four words later, and what is left is schedule alone.
  *
- * What is left is 99 words in the four text rows alone -- everything up to the
- * first text call is byte-exact -- and it is a ring PHASE, now running one
- * position AHEAD of the shipped code rather than behind it: ours t6 where the
- * ROM has t5, from +0x2F4. The direction is the point. L127's no-op consumes a
- * ring temp and can only push the phase one way, so it cannot reach this; what
- * is needed is one FEWER draw, which is L126's coloured copy. Measured flat or
- * worse here: the length local as s32/u32/s8 (all grow the frame), a post-call
- * index local (385), dropping the u8 store cast (flat), the opacity mask (123),
- * and L127 no-ops on the kind and x stores (357, 343). */
-#ifdef NON_MATCHING
+ * That schedule was one statement move. `.kind = 4` belongs between `.color3`
+ * and `.text`, which is where the four 2,100-byte builders in this overlay
+ * already had it; on the two-mask shape the same move read 103, so it is L146
+ * twice over. Walking the kind store across the macro on the one-mask shape
+ * reads 20, 5, 4, 3, 2, 0, 28, 27, 123 from just after `.opacity` back to its
+ * old place -- a single clean optimum at 0. Size delta 0, frame 0x38, and the
+ * identical two edits close all three 1,520-byte siblings.
+ * Lane p10-o101, 2026-09-12. */
 void func_overlay_101_F0005E08_18E1628(void) {
     s32 index;
     u8 length;
@@ -216,16 +212,16 @@ void func_overlay_101_F0005E08_18E1628(void) {
     D_540[D_1D0].y = (rowY); \
     length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.field); \
     D_540[D_1D0].length = (u8)length; \
-    D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); \
+    D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)length * (f32)(s32)1); \
     D_540[D_1D0].mode = 2; \
     D_540[D_1D0].color0 = 0; \
     D_540[D_1D0].color1 = 0; \
     D_540[D_1D0].color2 = 0; \
     D_540[D_1D0].color3 = 0; \
+    D_540[D_1D0].kind = 4; \
     D_540[D_1D0].text = D_INPUT.field; \
     D_540[D_1D0].previousType = D_0.secondChildType; \
     D_540[D_1D0].previous = D_0.secondChild; \
-    D_540[D_1D0].kind = 4; \
     D_0.secondChildType = 3; \
     D_0.secondChild = &D_540[D_1D0]; \
     D_1D0 = D_1D0 + 1
@@ -239,16 +235,4 @@ void func_overlay_101_F0005E08_18E1628(void) {
 
     func_overlay_101_F0000000_18DB820(&D_1514);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0005E08_18E1628/func_overlay_101_F0005E08_18E1628.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_101_F0005E08_18E1628:start
- * symbol: func_overlay_101_F0005E08_18E1628
- * score: 99/380 words
- * frame: 0x38
- * relocations: 49
- * first-mismatch: +0x2F4
- * summary: 99 masked words from 130; every element address and index local deleted in favour of the counter global's own subscript, then every statement order re-climbed. The residual is four text rows one ring position AHEAD of the shipped code, which inverts the L127 lever.
- * PLATEAU-HANDOFF:func_overlay_101_F0005E08_18E1628:end
- */

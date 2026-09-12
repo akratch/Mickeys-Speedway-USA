@@ -2,11 +2,11 @@
 ### `func_overlay_101_F000AB4C_18E636C` plateau handoff
 
 - source: `src/overlays/o101/overlay101TailAB4C.c`
-- score: 636/638 words
+- score: 579/638 words
 - frame: 0x48
 - relocations: 108
-- first mismatch: +0x4
-- summary: V0 is 665/638 words (+27), frame 0x48 exact, and overruns its 2552-byte owner by 108 bytes; relocation identity proof is unavailable.
+- first mismatch: +0x10
+- summary: 579 masked from 636 and the size overrun +108 to -8, on the o101 builder carrier shape; the surplus is now exactly one instruction per text row at a 0xB0 stride, which is a ring-draw count to be read from the instrumented ugen, not a colour.
 
 #### 2026-09-11, coordinator: four-bucket split, no source attempt
 

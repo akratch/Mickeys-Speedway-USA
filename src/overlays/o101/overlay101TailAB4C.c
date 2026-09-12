@@ -94,340 +94,70 @@ extern void *o101TailAB4CCreator3Reloc();
 extern void o101TailAB4CFinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
-/* Workbench p5: structure-mismatch; 665/638 candidate/target instructions, 636 differing words from +0x4, frame -0x48 matches target.
- * Lever: literal opacity-scale form regressed to 653 instructions and a -0x40 frame; persistent-scale baseline retained.
- * Remains: repeated-builder structure and FP/register web. */
+/* Workbench p5 read this as `structure-mismatch` at 636 differing words from
+ * +0x4, with the candidate 665 instructions against 638 and overrunning its
+ * 2,552-byte owner by 108 bytes. Lane p10-o101, 2026-09-12, retired most of
+ * that as a carrier problem, using the shape that closed six other builders in
+ * this overlay on the same day.
+ * L145 -- `nodeIndex`, `orderIndex`, `node32`, `node24`, and the three pool
+ *   carriers `node24CountPtr`, `node24Pool` and `node24Stride` are all gone;
+ *   every store is spelled through the array subscript of the counter global
+ *   itself, so the subscript written on both sides of each call is ONE IR name
+ *   (L131) and the pre-call counter read lands in a ring temporary, which a
+ *   local can never be (L130). The bump moves to the end of its group.
+ *   This overlay's counters have ONE name each here, so the lever applies
+ *   whole-body, unlike the BA34 tail where the order counter has two.
+ * L144/L103 -- the `opacityScale` local is gone too; the multiplier is the
+ *   `(f32)(s32)1` literal in place, as in every matched sibling.
+ * Measured: 636 -> 579 masked, and the size overrun +108 -> -8. The aligner
+ * now reads 225 byte-exact, 333 register naming, 5 immediate and 90 really
+ * different, against 51 percent naming; displacement tax 151.
+ * NEXT LEVER, named and bounded. The surplus is exactly ONE INSTRUCTION PER
+ * TEXT ROW, at +0x42C, +0x4DC, +0x58C, +0x63C, +0x6EC, +0x79C, +0x84C and
+ * +0x8FC -- a 0xB0 stride, one per row -- and the shipped code carries one
+ * word per row that the candidate does not, around the root child store. The
+ * two are the same fact and they are a per-row count, not a colour: on the
+ * o101 1,520-byte trio an identical per-row count turned out to be one extra
+ * ugen ring draw, readable directly from the instrumented ugen's
+ * DKWB-FREELIST records (DKWB_UGEN_SCHED=1), each draw stamped with its source
+ * line. Count the draws per row on both shapes before sweeping anything: the
+ * register census cannot see a draw whose instruction as1 later folds away.
+ * Statement orders here have NOT been climbed on this shape, and every order
+ * measured on the carrier shape is void (L146). */
 #ifdef NON_MATCHING
 void func_overlay_101_F000AB4C_18E636C(void) {
-    s32 orderIndex;
-    s32 nodeIndex;
     void *handle;
     s32 length;
-    f32 opacityScale;
-    s32 *node24CountPtr;
-    u8 *node24Pool;
-    s32 node24Stride;
-    O101TailAB4CNode32 *node32;
-    O101TailAB4CNode24 *node24;
 
-    orderIndex = gO101TailAB4COrderCount;
-    gO101TailAB4CRoot.height30 = 0xF0;
-    gO101TailAB4CRoot.width2E = 0x140;
-    gO101TailAB4CRoot.kind = 4;
-    gO101TailAB4CRoot.asset34 = &gO101TailAB4CAssetD90;
-    gO101TailAB4CRoot.color32 = 0xFF;
-    gO101TailAB4CRoot.color33 = 0xFF;
-    gO101TailAB4CRoot.value26 = 0;
-    gO101TailAB4CRoot.value28 = 0;
-    gO101TailAB4CRoot.value2A = 0;
-    gO101TailAB4CRoot.value2C = 0;
-    gO101TailAB4CRoot.chainType = 0;
-    gO101TailAB4CRoot.chain = NULL;
-    gO101TailAB4COrderSlots[orderIndex] = &gO101TailAB4CRoot.chainType;
-    gO101TailAB4COrderCount = orderIndex + 1;
+    gO101TailAB4CRoot.height30 = 0xF0; gO101TailAB4CRoot.width2E = 0x140; gO101TailAB4CRoot.kind = 4; gO101TailAB4CRoot.asset34 = &gO101TailAB4CAssetD90; gO101TailAB4CRoot.color32 = 0xFF; gO101TailAB4CRoot.color33 = 0xFF; gO101TailAB4CRoot.value26 = 0; gO101TailAB4CRoot.value28 = 0; gO101TailAB4CRoot.value2A = 0; gO101TailAB4CRoot.value2C = 0; gO101TailAB4CRoot.chainType = 0; gO101TailAB4CRoot.chain = NULL; gO101TailAB4COrderSlots[gO101TailAB4COrderCount] = &gO101TailAB4CRoot.chainType; gO101TailAB4COrderCount = gO101TailAB4COrderCount + 1;
 
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->x = 0xF0;
-    node32->y = 0x154;
-    node32->value10 = 0;
-    node32->color12 = 0xFF;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 1.0f;
-    node32->value14 = 0.0f;
-    handle = o101TailAB4CCreator1Reloc(0x91, NULL, orderIndex);
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->previousType = gO101TailAB4CRoot.chainType;
-    node32->previous = gO101TailAB4CRoot.chain;
-    node32->handle = handle;
-    gO101TailAB4CRoot.chainType = 2;
-    gO101TailAB4CRoot.chain = node32;
-    gO101TailAB4CNode32Count = nodeIndex + 1;
+    gO101TailAB4CNodes32[gO101TailAB4CNode32Count].x = 0xF0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].y = 0x154; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value10 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color12 = 0xFF; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color13 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value18 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].scale = 1.0f; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value14 = 0.0f; handle = o101TailAB4CCreator1Reloc(0x91, NULL, gO101TailAB4COrderCount); gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previousType = gO101TailAB4CRoot.chainType; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previous = gO101TailAB4CRoot.chain; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].handle = handle; gO101TailAB4CRoot.chainType = 2; gO101TailAB4CRoot.chain = &gO101TailAB4CNodes32[gO101TailAB4CNode32Count]; gO101TailAB4CNode32Count = gO101TailAB4CNode32Count + 1;
 
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->x = 0x8C;
-    node32->y = 0x88;
-    node32->value10 = 0;
-    node32->color12 = 0;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 0.0f;
-    node32->value14 = 0.0f;
-    handle = o101TailAB4CCreator2Reloc(
-        0xA8, NULL, gO101TailAB4CNodes32);
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->previousType = gO101TailAB4CRoot.chainType;
-    node32->previous = gO101TailAB4CRoot.chain;
-    node32->handle = handle;
-    gO101TailAB4CRoot.chainType = 2;
-    gO101TailAB4CRoot.chain = node32;
-    gO101TailAB4CNode32Count = nodeIndex + 1;
+    gO101TailAB4CNodes32[gO101TailAB4CNode32Count].x = 0x8C; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].y = 0x88; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value10 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color12 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color13 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value18 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].scale = 0.0f; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value14 = 0.0f; handle = o101TailAB4CCreator2Reloc(0xA8, NULL, gO101TailAB4CNodes32); gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previousType = gO101TailAB4CRoot.chainType; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previous = gO101TailAB4CRoot.chain; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].handle = handle; gO101TailAB4CRoot.chainType = 2; gO101TailAB4CRoot.chain = &gO101TailAB4CNodes32[gO101TailAB4CNode32Count]; gO101TailAB4CNode32Count = gO101TailAB4CNode32Count + 1;
 
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->x = 0xB4;
-    node32->y = 0x88;
-    node32->value10 = 0;
-    node32->color12 = 0;
-    node32->color13 = 0;
-    node32->value18 = 0;
-    node32->scale = 0.0f;
-    node32->value14 = 0.0f;
-    handle = o101TailAB4CCreator3Reloc(
-        0xA8, NULL, gO101TailAB4CNodes32);
-    nodeIndex = gO101TailAB4CNode32Count;
-    node32 = &gO101TailAB4CNodes32[nodeIndex];
-    node32->previousType = gO101TailAB4CRoot.chainType;
-    node32->previous = gO101TailAB4CRoot.chain;
-    node32->handle = handle;
-    gO101TailAB4CRoot.chainType = 2;
-    gO101TailAB4CRoot.chain = node32;
-    gO101TailAB4CNode32Count = nodeIndex + 1;
+    gO101TailAB4CNodes32[gO101TailAB4CNode32Count].x = 0xB4; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].y = 0x88; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value10 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color12 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].color13 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value18 = 0; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].scale = 0.0f; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].value14 = 0.0f; handle = o101TailAB4CCreator3Reloc(0xA8, NULL, gO101TailAB4CNodes32); gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previousType = gO101TailAB4CRoot.chainType; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].previous = gO101TailAB4CRoot.chain; gO101TailAB4CNodes32[gO101TailAB4CNode32Count].handle = handle; gO101TailAB4CRoot.chainType = 2; gO101TailAB4CRoot.chain = &gO101TailAB4CNodes32[gO101TailAB4CNode32Count]; gO101TailAB4CNode32Count = gO101TailAB4CNode32Count + 1;
 
-    orderIndex = gO101TailAB4COrderCount;
-    gO101TailAB4CRoot.x42 = 0x20;
-    gO101TailAB4CRoot.width44 = 0x18;
-    gO101TailAB4CRoot.y46 = 0x28;
-    gO101TailAB4CRoot.height48 = 0x18;
-    gO101TailAB4CRoot.value4A = 0xF0;
-    gO101TailAB4CRoot.value4C = 0xAA;
-    gO101TailAB4CRoot.mode40 = 0;
-    gO101TailAB4CRoot.color4E = 0xFF;
-    gO101TailAB4CRoot.color4F = 0xFF;
-    gO101TailAB4CRoot.childType = 0;
-    gO101TailAB4CRoot.child = NULL;
-    gO101TailAB4CRoot.data50 = gO101TailAB4CInputs.data158;
-    gO101TailAB4COrderSlots[orderIndex] = &gO101TailAB4CRoot.childType;
-    gO101TailAB4COrderCount = orderIndex + 1;
+    gO101TailAB4CRoot.x42 = 0x20; gO101TailAB4CRoot.width44 = 0x18; gO101TailAB4CRoot.y46 = 0x28; gO101TailAB4CRoot.height48 = 0x18; gO101TailAB4CRoot.value4A = 0xF0; gO101TailAB4CRoot.value4C = 0xAA; gO101TailAB4CRoot.mode40 = 0; gO101TailAB4CRoot.color4E = 0xFF; gO101TailAB4CRoot.color4F = 0xFF; gO101TailAB4CRoot.childType = 0; gO101TailAB4CRoot.child = NULL; gO101TailAB4CRoot.data50 = gO101TailAB4CInputs.data158; gO101TailAB4COrderSlots[gO101TailAB4COrderCount] = &gO101TailAB4CRoot.childType; gO101TailAB4COrderCount = gO101TailAB4COrderCount + 1;
 
-    opacityScale = 1.0f;
-    node24CountPtr = &gO101TailAB4CNode24Count;
-    node24Pool = (u8 *)gO101TailAB4CNodes24;
-    node24Stride = 0x18;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x10; length = overlay101ByteLength(gO101TailAB4CInputs.text15C); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0x80; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text15C; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x10;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text15C);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0x80;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text15C;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x1E; length = overlay101ByteLength(gO101TailAB4CInputs.text160); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text160; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x1E;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text160);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text160;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x28; length = overlay101ByteLength(gO101TailAB4CInputs.text164); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text164; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x28;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text164);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text164;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x36; length = overlay101ByteLength(gO101TailAB4CInputs.text168); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text168; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x36;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text168);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text168;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x40; length = overlay101ByteLength(gO101TailAB4CInputs.text16C); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text16C; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x40;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text16C);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text16C;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x4A; length = overlay101ByteLength(gO101TailAB4CInputs.text170); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text170; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x4A;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text170);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text170;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x54; length = overlay101ByteLength(gO101TailAB4CInputs.text174); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text174; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x54;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text174);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text174;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x84; length = overlay101ByteLength(gO101TailAB4CInputs.text178); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text178; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x84;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text178);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text178;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x8E; length = overlay101ByteLength(gO101TailAB4CInputs.text17C); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text17C; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x8E;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text17C);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text17C;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
-
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->x = 0x78;
-    node24->y = 0x98;
-    length = overlay101ByteLength(gO101TailAB4CInputs.text180);
-    nodeIndex = *node24CountPtr;
-    node24 = (O101TailAB4CNode24 *)(node24Pool + nodeIndex * node24Stride);
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * opacityScale);
-    node24->mode = 2;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->color2 = 0;
-    node24->color3 = 0;
-    node24->kind = 4;
-    node24->text = gO101TailAB4CInputs.text180;
-    node24->previousType = gO101TailAB4CRoot.childType;
-    node24->previous = gO101TailAB4CRoot.child;
-    gO101TailAB4CRoot.childType = 3;
-    gO101TailAB4CRoot.child = node24;
-    *node24CountPtr = nodeIndex + 1;
+    (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).x = 0x78; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).y = 0x98; length = overlay101ByteLength(gO101TailAB4CInputs.text180); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).length = (u8)length; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).mode = 2; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color0 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color1 = 0xFF; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color2 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).color3 = 0; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).kind = 4; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).text = gO101TailAB4CInputs.text180; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previousType = gO101TailAB4CRoot.childType; (*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)).previous = gO101TailAB4CRoot.child; gO101TailAB4CRoot.childType = 3; gO101TailAB4CRoot.child = &(*(O101TailAB4CNode24 *)((u8 *)gO101TailAB4CNodes24 + gO101TailAB4CNode24Count * 0x18)); gO101TailAB4CNode24Count = gO101TailAB4CNode24Count + 1;
 
     o101TailAB4CFinalizerReloc(&gO101TailAB4CFinalObject3F14);
 }
@@ -437,10 +167,10 @@ void func_overlay_101_F000AB4C_18E636C(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000AB4C_18E636C:start
  * symbol: func_overlay_101_F000AB4C_18E636C
- * score: 636/638 words
+ * score: 579/638 words
  * frame: 0x48
  * relocations: 108
- * first-mismatch: +0x4
- * summary: V0 is 665/638 words (+27), frame 0x48 exact, and overruns its 2552-byte owner by 108 bytes; relocation identity proof is unavailable.
+ * first-mismatch: +0x10
+ * summary: 579 masked from 636 and the size overrun +108 to -8, on the o101 builder carrier shape; the surplus is now exactly one instruction per text row at a 0xB0 stride, which is a ring-draw count to be read from the instrumented ugen, not a colour.
  * PLATEAU-HANDOFF:func_overlay_101_F000AB4C_18E636C:end
  */
