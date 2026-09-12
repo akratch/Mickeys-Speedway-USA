@@ -7,19 +7,13 @@ extern s32 overlay3ContainsValueReloc(Overlay3Object *anchor, Overlay3Object *ob
 extern s32 overlay3RandomRangeReloc(s32 low, s32 high);
 extern f32 overlay3SqrtReloc(f32 value);
 /*
- * Plateau (2026-08-25): reordering the real temporaries reproduces the
- * target's 118-word size, 0x80-byte frame, result slot at sp+0x70, and best
- * index slot at sp+0x5C. The best candidate has 22 differing words beginning
- * at +0x44; its timer, cached index, object-list base, and count use a
- * different four-register allocation through the early cached-result path.
- * Code from the loop body at +0xA0 onward is otherwise exact. An r4 pass
- * reconfirmed -Wab,-r4300_mul across the full flag lattice and found no usable
- * skeleton donor. Ten directed variants covered register qualifiers, pointer
- * aliases and casts, the helper return type, and moving the index initializer
- * into the guarded loop. They either reproduced this result or regressed to
- * 117 words / a larger frame. The remaining hypothesis is an original typed
- * alias relationship that split the list base from the helper result while
- * coalescing count directly with the loop index. Stopped at the attempt cap.
+ * Plateau, remeasured 2026-09-12: 21 relocation-masked words at the exact
+ * 118-word extent and 0x80 frame, all of them in the entry and cached-path
+ * block; every instruction from +0xA0 on is byte-exact. The residual is one
+ * allocator shape, stated and priced in the handoff below: the ROM copies the
+ * helper's return register into $a1 before the guard so $v0 is free for both
+ * reloads of `count`, and neither a colour force nor a split force on this
+ * candidate's single `objects` web reproduces that.
  */
 #ifdef NON_MATCHING
 Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Search *search, s32 elapsed) {
@@ -70,10 +64,10 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
 
 /* PLATEAU-HANDOFF:overlay3SelectScoredObject:start
  * symbol: overlay3SelectScoredObject
- * score: 97/118 words
+ * score: 21/118 words
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x38
- * summary: Timer field reshape improves 22 to 21 differences with exact size frame and relocation metadata; early cached-path allocation remains unresolved.
+ * summary: The 21 words are one block, the entry and cached path; everything from +0xA0 on is byte-exact. The ROM copies the helper's return register into $a1 before the guard, so the cached path keeps using the raw $v0 result while the loop path reads $a1, which frees $v0 for both reloads of count and lets the index come straight off it with addiu s3,v0,-1; this candidate leaves objects in $v0 for both paths, puts count in $a0 and pays an extra move s3,v1. Records, instrumented object cmp-identical to the configured one: objects is web 114, save 20, nocs 1, totalsave 20, bestcost 0, forbidden mask empty, so it takes c1 v0 unopposed; the two count reloads are webs 17 and 36 at save 1.5 and 1.0 and take c3 a0. Two forces, both recorded accepted, prove the ROM's shape is neither a colour nor a split of that one web: forcing w114 to c4 gives 78 at delta -4 because it removes the move s3,v1 without adding the copy, and forcing the split path gives 79 at delta +4. The ROM has BOTH the copy and count in v0, so uopt kept the call result as its own range and gave the loop use a caller-saved copy. A source-level second pointer local is not the way in: assigned after the call, at the top of the else, or used for the cached path instead, all cost 8 bytes of frame at 0x88 and score 30, and so does replacing the unused u16 timer with it. A two-step cursor and a pointer-plus-index cursor are byte-identical at 21. Decision variable: what makes uopt copy a helper return register into a caller-saved argument register while leaving an earlier-block use on the raw result. Confound to avoid: a 240-point declaration sweep read 27 to 28 everywhere, but it also re-packed the declarations one per line while the retained body packs several, so it measures L59 packing as well as order and is not a clean negative.
  * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
  */

@@ -12,57 +12,39 @@ typedef struct Overlay34Record {
 
 extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34ActiveCount;
-extern void overlay34FreeReloc(Overlay34Resource *resource, s32 shadow);
+extern void overlay34FreeReloc(Overlay34Resource *resource);
 
-/* Size-closed diagnostic plateau: the shadow helper argument and inert cursor
- * composition produce 44/44 words, frame 0x18, and 12 residual words (the
- * configured V0 was 42/44). The remaining gap is register-carrier allocation;
- * retain NON_MATCHING and the assembly fallback until relocation identities
- * and the a0/a1 count web are exact. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-12, lane p9-tight. Twelve words to zero. The plateau's
+ * `shadow` local was an artefact: the four `move $a1,$v1` the old handoff was
+ * trying to buy are the post-decrement temp of `while (remaining--)`, emitted
+ * once in each loop's guarded entry and once at each rotated loop top, and
+ * they are one web. A source-level `shadow` cannot join that web because the
+ * two ranges overlap -- `shadow` is live to the call while the temp is live to
+ * the bottom test -- so every spelling of the copy gave the temp its own
+ * register. Deleting `shadow` and writing both loops as `while (remaining--)`
+ * puts the temp in $a1 and reproduces all four copies for free; the condition
+ * must be bare, since `remaining-- != 0` materialises a boolean and emits
+ * `sltu` where the target has `move`. overlay34FreeReloc therefore takes one
+ * argument: $a1 at the call is this dead temp, not a second parameter. */
 void overlay34RemoveRecord(Overlay34Record *record) {
     Overlay34Record **slot;
     s32 remaining;
-    s32 shadow;
 
     slot = gOverlay34Pointers;
     remaining = gOverlay34ActiveCount;
-    shadow = remaining;
-    if (remaining != 0) {
-        remaining--;
-        do {
-            if (*slot == record) {
-                if (remaining != 0) {
-                    remaining--;
-                    do {
-                        *slot = slot[1];
-                        shadow = remaining;
-                        slot++;
-                    } while (remaining--);
-                }
-                if (record->resource != NULL) {
-                    overlay34FreeReloc(record->resource, shadow);
-                }
-                record->active = 0;
-                gOverlay34ActiveCount--;
-                return;
+    while (remaining--) {
+        if (*slot == record) {
+            while (remaining--) {
+                *slot = slot[1];
+                slot++;
             }
-            slot++;
-            slot++;
-            slot--;
-        } while (remaining--);
+            if (record->resource != NULL) {
+                overlay34FreeReloc(record->resource);
+            }
+            record->active = 0;
+            gOverlay34ActiveCount--;
+            return;
+        }
+        slot++;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34RemoveRecord/func_overlay_034_F00002C8_1881470.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay34RemoveRecord:start
- * symbol: overlay34RemoveRecord
- * score: 12/44 words
- * frame: 0x18
- * relocations: 9
- * first-mismatch: +0x14
- * summary: Making shadow the decrement carrier regressed to 43 words; retained p1 carrier allocation and relocation identity block closure.
- * PLATEAU-HANDOFF:overlay34RemoveRecord:end
- */
