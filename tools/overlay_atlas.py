@@ -1530,6 +1530,9 @@ MIXED_TU_EXACT_C_RANGES = {
     68: [
         (0x1250, 0x1438, "overlay68RebuildSecondaryEntry"),
     ],
+    89: [
+        (0x270, 0x5A4, "overlay89InitializeEffect"),
+    ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),
     ],
