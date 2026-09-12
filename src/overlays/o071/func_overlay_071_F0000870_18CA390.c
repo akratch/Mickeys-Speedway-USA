@@ -84,6 +84,21 @@ extern void func_800241BC(Overlay71Command **commands);
  * is forbidden a0 through a3 intrinsically.  That is four webs to create, not
  * one.  See the handoff shard for the forms falsified this pass.
  *
+ * 2026-09-12, lane p10-near: 11 -> 9, and the missing web is now built rather
+ * than argued about. Giving the FIRST command site its own pointer local and
+ * opening an L97 region across its advance makes that local's web span two
+ * basic blocks, so `nocs` is 2 and its save is 2.0 (L147); it is numbered
+ * below the `flags` carrier, so it is coloured first, and because it still
+ * shares a block with `command` it is forbidden v0 and takes a0. `flags` then
+ * takes a1 and the FIRST pair of flag loads takes a2, which is the shipped
+ * register -- confirmed against the decision records, at size delta 0. What
+ * this costs is that the site's pointer is now a0 where the ROM has v0, four
+ * words; the five that remain are the second pair of flag loads, still on a0.
+ * So the ROM has a non-call-spanning a0 web in that block that emits NOTHING,
+ * like the `u16 flags` carrier whose zero-extend is peepholed away, and the
+ * open question is what that second invisible web is. Every route that makes
+ * it a pointer pays four words for the pointer's own colour.
+ *
  * 2026-09-10, lane w8-tu: the instrumented allocator names the requirement.
  * The two flag-load webs are both p1 decisions at save 2.0; the first has
  * three colours plus a callee-saved one forbidden and takes the fourth, the
@@ -103,15 +118,16 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
                                        Overlay71DrawObject *object) {
     Overlay71DrawState *state;
     Overlay71Command *command;
+    Overlay71Command *head;
     u16 flags;
     func_80032BF0(gOverlay71InitialResourceReloc, 2, 2);
     state = object->state;
     if (state->active != 0) {
         func_8002409C(commands, context, object, 1.0f, 0.0f);
 
-        command = *commands;
-        *commands = command + 1;
-        command->w0 = 0xE7000000; command->w1 = 0;
+        head = *commands;
+        if (1) { *commands = head + 1; }
+        head->w0 = 0xE7000000; head->w1 = 0;
         command = *commands;
         *commands = command + 1;
         command->w0 = 0xFB000000; command->w1 = 0xFFFFFFFF;
