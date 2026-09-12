@@ -2904,10 +2904,6 @@ s32 func_800103D4(void *object) {
     f32 fadeRange;
     f32 fadeScale;
     f32 fadeRemaining;
-    f32 planeX;
-    f32 planeY;
-    f32 planeZ;
-    f32 planeDistance;
     s16 kind;
     s16 distanceLimit;
     s32 visible;
@@ -3025,6 +3021,11 @@ s32 func_800103D4(void *object) {
         radius = *(f32 *) ((u8 *) object + 0x34);
         plane = D_800C9578;
         do {
+            f32 planeX;
+            f32 planeY;
+            f32 planeZ;
+            f32 planeDistance;
+
             planeX = plane->x;
             planeY = plane->y;
             planeZ = plane->z;
@@ -5790,11 +5791,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 158 differing words
- * frame: 0x60
+ * score: 158/160 words
+ * frame: 0x50
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Correct Mickey object-kind dispatch retained at 158 differences; frame and relocation deficits remain. Next: saved-FP lifetime evidence.
+ * summary: Scoped plane FP lifetimes lower the candidate frame from 0x60 to 0x50; accepted web 163 force to c32 scores 95 but source route remains unproved.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 
