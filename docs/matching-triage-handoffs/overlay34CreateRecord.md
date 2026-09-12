@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x54
-- summary: Three ranking edits took 24 to 8; what is left is one more nocs-merge, on the height web, plus the two words the copy device costs.
+- summary: colour floor 4; height nocs merge and record-copy shape remain open
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
