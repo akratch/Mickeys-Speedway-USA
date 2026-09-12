@@ -2,11 +2,11 @@
 ### `overlay17DrawStrip` plateau handoff
 
 - source: `src/overlays/o017/overlay17DrawStrip.c`
-- score: 116/119 words
+- score: 119/119 words
 - frame: 0x38
 - relocations: 1
-- first mismatch: +0x110
-- summary: p1:w99=c5 is accepted and exact, but source ladder arithmetic has no zero-size route to that color
+- first mismatch: none
+- summary: ROM-exact: unsigned OR-zero cursor reassignment reaches save 25; 119 words, one exact relocation, 476 executable bytes.
 
 #### 2026-09-10 lane `c2-reopen`: frame is not per-declaration here
 
@@ -339,5 +339,51 @@ the block the strip cursor occupies, and the address web occupies that same
 single block, so interference by block-set intersection reaches both and forbids
 the colour to both. The reasoning the third pass gave is correct and can be
 retired as a lever.
+
+#### 2026-09-12, lane p23-lastmile2: source and ROM exact
+
+Baseline: 476 bytes, size delta zero, aligned buckets 116 byte-exact, 3 naming,
+0 immediate, 0 structural, first +0x110, no unmatched offsets. Named Ucode
+maps procedure 0 of 1, and stock/instrumented full-TU text is byte-identical.
+The exhaustive same-kind landscape samples all 20 coloured webs with 131
+accepted forces. The COMPLETE improving winners list is one entry:
+`p1:w99=c5`, score 0 at size delta zero, radius confined to the +0x100 window
+with three differences removed. The singleton lattice floor is 0; no packing
+or combination is needed because this one handle answers the entire residual.
+
+Twenty-four literal-type cells retain 3 or grow by eight bytes. Nine sequential
+cursor forms confirm that a real pointer increment reaches the desired colours
+but adds an instruction: the best such form has no aligned naming residual,
+one surplus instruction and changed branch displacements. Sixteen algebraic
+reassignments then distinguish the missing mechanism. Eight OR-zero/XOR-zero
+forms produce all 119 words exactly with stock IDO. Add-zero and subtract-zero
+copies stay at 11; AND-with-all-ones forms grow by 12 or 16 bytes.
+
+Adopted: unsigned OR-zero reassignment of the initialized strip-packet cursor
+between its two stores. The fresh unforced trace gives that cursor total 50,
+divisor 2, save 25, and colour 5. Its former record was total 30, divisor 1,
+save 30, colour 4. Thus the prior zero-size closure is disproved: an algebraic
+read-modify-write can retain two references that a plain self-copy lacks, and
+IDO can remove the operation after allocation. The emitted source object has
+119 exact words, frame 0x38, and zero naming/immediate/structural rows.
+
+Semantic review, independently of the matching score: the cursor is initialized
+from the same single post-increment expression as before. This target ABI uses
+32-bit pointers and unsigned 32-bit u32. Conversion to u32, OR with zero, and
+conversion back preserve every pointer bit. Only the local cursor is read and
+assigned; no memory read, store, call, branch or increment is added or reordered.
+Both packet stores retain their original destinations and values. This is an
+inert allocation spelling, not evidence of an original debug macro. The source
+discloses it and docs/cleanup-queue.md records naturalization.
+
+Promotion follows the complete atlas-write, digest refresh, extract,
+overlay-syms, build, SECOND overlay-syms and rebuild sequence. The function
+completes its TU, so there is no mixed-TU range to retain. promotion-proof
+passes: 119 words, frame 0x38, 1/1 exact static relocation identities, and the
+owned linked ROM range exact. gmake verify prints the expected SHA-1
+507341c0a40ca3e9a7cee969b396ee53facfb548. Newly matched executable credit is
+476 bytes, with no padding credit. finalize_plateau.py recorded the exact
+candidate before the guard was removed. Ignored evidence is retained under
+build/p23/overlay17DrawStrip.
 
 <!-- plateau-handoff:overlay17DrawStrip:end -->

@@ -710,6 +710,9 @@ overlay16ReleaseReloc = 0xf0000000;
 /* overlay 17: overlay17ReleaseChain.c.o */
 overlay17ReleaseReloc = 0xf0000000;
 
+/* overlay 17: overlay17DrawStrip.c.o */
+overlay17PrepareStripReloc = 0xf0000000;
+
 /* overlay 18: overlay18Load.c.o */
 gOverlay18DisplayCursor = 0x00000000;
 gOverlay18DisplayFlag = 0x00000000;

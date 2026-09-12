@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 308,
-  "resolved": 308,
+  "queue_size": 307,
+  "resolved": 307,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 308,
-  "relocation_masked_coverage": 308,
+  "source_context_coverage": 307,
+  "relocation_masked_coverage": 307,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -68,21 +68,6 @@
       "size_delta": 0,
       "category": "register-only",
       "source_context_sha256": "oyqj.9yVu.tif9.EmDu.SQlF.wg5h.0YUD.tY03.BFGJ.AAnw.ePM"
-    },
-    {
-      "name": "overlay17DrawStrip",
-      "file": "src/overlays/o017/overlay17DrawStrip.c",
-      "overlay": 17,
-      "tu": "overlays/o017",
-      "size_bytes": 476,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 272,
-      "relocation_masked_differing_words": 3,
-      "relocation_masked_first_mismatch_offset": 272,
-      "size_delta": 0,
-      "category": "register-only",
-      "source_context_sha256": "4W34.luVN.TCZ6.uSV0.qcPo.14mG.dfSc.c139.AF8_.Bhqp.ikI"
     },
     {
       "name": "levelInit",

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 212684,
-  "nonmatching_overlay_c_bytes": 255936,
+  "matched_overlay_c_bytes": 213160,
+  "nonmatching_overlay_c_bytes": 255460,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -4801,7 +4801,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17DrawStrip",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     }
    ],
    "bss_size": "0x0",
