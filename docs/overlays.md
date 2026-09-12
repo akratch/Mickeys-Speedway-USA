@@ -2232,3 +2232,21 @@ The existing provenance disclosure is retained. The palette-builder call
 uses an overlay-specific `Reloc` placeholder for its zero stored addend;
 the existing removable carrier section remains metadata only. No padding
 or previously matched palette code receives credit.
+
+
+### Overlay 63 sequence updater closure (2026-09-12)
+
+`overlay63UpdateSequence` is ROM-exact over its 428-byte executable range,
+overlay 63 text `+0x77C..+0x928`; its 39 relocation records have exact counts,
+types, offsets and identities. The configured stock compiler produces all 107
+words and the `0x20` frame, and `gmake verify` prints the expected US ROM hash.
+The aligned buckets (exact/register/immediate/structural) moved from
+83/7/8/9 to 107/0/0/0, with the missing instruction restored.
+
+The inherited copy-spelling closure survives for its original types. Its
+broader allocator closure does not: the runtime call identity resolves to
+Mickey's `joyGetPressed`, whose canonical definition returns `u16`. The local
+holds that result as `s32`, and the sequence is an array of button masks,
+not an array of pointers. Those authoritative types restore the return-value
+copy and its use across the control flow. The callee has an overlay-specific
+relocation placeholder; no shared prototype or toolchain flags changed.

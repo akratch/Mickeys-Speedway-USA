@@ -2522,7 +2522,19 @@ gOverlay63Resource = 0x00000000;
 overlay63ReleaseReloc = 0xf0000000;
 
 /* overlay 63: overlay63UpdateSequence.c.o */
-D_124 = 0x00000124;
+gO63ActiveState = 0x00000134;
+gO63GraphicReloc = 0x00000000;
+gO63PendingStart = 0x0000000c;
+gO63PendingState = 0x0000012c;
+gO63Sequence = 0x00000124;
+gO63SequenceIndex = 0x00000128;
+gO63SequenceStart = 0x00000100;
+gO63Timer = 0x00000130;
+gO63ToggleReloc = 0x00000000;
+gO63TransitionEnabled = 0x000000d0;
+joyGetPressed_o063Reloc = 0xf0000000;
+o63DrawReloc = 0xf0000000;
+o63TransitionReloc = 0xf0000000;
 
 /* overlay 65: overlay65Initialize.c.o */
 gOverlay65Buffers = 0x00002980;
