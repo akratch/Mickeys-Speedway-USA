@@ -61,6 +61,37 @@ def parse_plan(args: list[str]) -> dict[str, list[str]]:
     return plan
 
 
+def assignability(symbols: list[str]) -> dict[str, str]:
+    """Each symbol's lane_status assignment state.
+
+    ONLY `base-only` may be dispatched; every other state is fail-closed so
+    stale evidence cannot become duplicate matching work. The state is invisible
+    in the ranking, and it MOVES: merging a lane that edited a handoff shifts
+    that symbol's handoff commit and invalidates its reopen pin, so a target
+    assignable before a merge is often shut immediately after one.
+
+    That window cost three dispatched lanes on a single function. Each spun up,
+    found the gate closed, reported "blocked by the assignment gate" and did no
+    work -- roughly three hours of a strong model, spent on nothing, because the
+    plan was made before the merge and executed after it.
+
+    Returns {} if lane_status cannot be consulted; a degraded check still
+    catches duplicates and unqueued symbols, and is better than refusing to run.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    try:
+        import lane_status as ls
+    except ImportError:
+        return {}
+    try:
+        base = "campaign/unchain"
+        ctx = ls.AssignmentContext.build(base, symbols, jobs=4)
+        return {s: ctx.classify(base, s).state for s in symbols}
+    except Exception:
+        return {}
+
+
 def check(plan: dict[str, list[str]]) -> tuple[list[str], list[str]]:
     rows, closures = queued_rows(), closure_facts()
     problems, notes = [], []
@@ -83,6 +114,19 @@ def check(plan: dict[str, list[str]]) -> tuple[list[str], list[str]]:
             problems.append(
                 f"{symbol} is not in the NON_MATCHING queue: already matched, or misspelled. "
                 f"A lane pointed at it re-derives a landed match.")
+
+    states = assignability(sorted(owner))
+    if not states:
+        notes.append("\nNOTE lane_status unavailable -- assignability unchecked; "
+                     "a lane may still arrive at a closed gate")
+    for symbol in sorted(owner):
+        state = states.get(symbol)
+        if state is not None and state != "base-only":
+            problems.append(
+                f"{symbol} is {state}, not base-only. A lane dispatched at it will "
+                f"arrive at a closed assignment gate and do no work. If the state is "
+                f"reopen-authorization-stale, run tools/authorize_reopen.py "
+                f"--refresh-stale first; merging a lane invalidates its own pin.")
 
     for lane, symbols in sorted(plan.items()):
         notes.append(f"\n=== {lane} ===")
@@ -132,7 +176,7 @@ def main(argv: list[str]) -> int:
             print(f"  {problem}", file=sys.stderr)
         return 1
     print(f"\nplan sound: {sum(len(v) for v in plan.values())} symbol(s) "
-          f"across {len(plan)} lane(s), no overlap, all queued")
+          f"across {len(plan)} lane(s), no overlap, all queued, all assignable")
     return 0
 
 

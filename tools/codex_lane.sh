@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 # Launch one non-interactive Codex CLI worker in its own lane worktree.
 #
-#   tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--target SYMBOL] [--no-extract]
+#   tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--target SYMBOL]
+#                       [--targets SYM,SYM,...] [--no-extract]
+#
+# --targets runs tools/dispatch_check.py as a PREFLIGHT and refuses to launch
+# unless every named symbol is assignable. Only lane_status's `base-only` may
+# be dispatched, the state is invisible in the ranking, and it MOVES: merging
+# a lane that edited a handoff invalidates that symbol's reopen pin, so a
+# target assignable when a plan was made is often shut when the plan runs.
+# Three dispatched lanes were lost to that window on one function -- each spun
+# up, found the gate closed and did no work. A minute of preflight is cheaper
+# than an hour of a strong model discovering it.
 #
 # Creates the lane with tools/new_lane.sh, then runs `codex exec` detached
 # inside it with the prompt file on stdin. Progress goes to
@@ -14,6 +24,7 @@ set -euo pipefail
 name=${1:?lane name}; prompt=${2:?prompt file}; shift 2
 minutes=${CODEX_MINUTES:-180}
 target=$name
+targets=
 resume=0
 lane_args=()
 while [ "$#" -gt 0 ]; do
@@ -26,6 +37,10 @@ while [ "$#" -gt 0 ]; do
       [ "$#" -ge 2 ] || { echo "--target needs a value" >&2; exit 2; }
       target=$2; shift 2 ;;
     --target=*) target=${1#*=}; shift ;;
+    --targets)
+      [ "$#" -ge 2 ] || { echo "--targets needs a value" >&2; exit 2; }
+      targets=$2; shift 2 ;;
+    --targets=*) targets=${1#*=}; shift ;;
     --resume) resume=1; shift ;;
     *) lane_args+=("$1"); shift ;;
   esac
@@ -39,6 +54,15 @@ prompt_dir=$(cd "$(dirname "$prompt")" && pwd)
 prompt="$prompt_dir/$(basename "$prompt")"
 timeout_bin=$(command -v timeout || command -v gtimeout || true)
 [ -n "$timeout_bin" ] || { echo "GNU timeout/gtimeout is required" >&2; exit 2; }
+
+if [ -n "$targets" ]; then
+  echo "== preflight: are these targets assignable?"
+  if ! "${PYTHON:-.venv/bin/python}" tools/dispatch_check.py "$name=$targets"; then
+    echo "codex_lane.sh: refusing to launch $name -- see the refusal above." >&2
+    echo "  A lane dispatched at a closed gate does no work and cannot be recovered." >&2
+    exit 1
+  fi
+fi
 
 if [ "$resume" = 1 ] && [ -d "../mickey-lane-$name" ]; then
   # --resume: relaunch a worker in an existing lane (after a crash or a
