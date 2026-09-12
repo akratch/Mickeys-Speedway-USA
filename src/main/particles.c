@@ -1828,10 +1828,29 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame;
- * 145 words differ from +0x30. Reusing scale after its last original-value use
- * removes the spurious normalization-temp home. The entry trigger carrier and
- * integer/FP allocation webs remain. */
+/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame.
+ *
+ * 2026-09-12, lane p11-mid: 145 -> 111 on the frame, and the two ladders are now
+ * slot-for-slot identical at 0x68.  tools/frame_census.py read the fault as a
+ * uniform four-byte shift from the fifth home down: the target carries ONE MORE
+ * four-byte local between `scale` and `position`, register-resident (it has no
+ * traffic on either side), which is the orientation swap's own temp that an
+ * earlier lane deleted to keep the frame at 0x68.  Reintroducing it alone does
+ * grow the frame to 0x70 as that lane measured -- there is no slack -- but the
+ * frame is a COUNT of declared memory-class locals, so deleting any other one
+ * pays for it: swap temp after `scale` plus `entryIndex` inlined lands 0x68 with
+ * the target's ladder.  Measured on the same base: swap alone 167, entryIndex
+ * alone 145, pointCount alone 145, swap + entryIndex 111, swap + pointCount 111,
+ * swap + both 111 (so the two are interchangeable and neither is homed), swap
+ * before `scale` 117, after `position` 124, after `offset` 142, last 145.
+ * Buckets went byte-exact 163 -> 197, naming 82 -> 94, immediate-only 37 -> 5,
+ * structural 23 -> 8, displacement tax 3 -> 4.
+ *
+ * What is left is one integer ring phase -- tools/register_census.py reads a
+ * coherent seven-cycle t7->t9->t1->t2->t3->t4->t5->t7 covering 96% of the 94
+ * naming sites in three windows -- plus a float four-cycle f4->f10->f4 at 90%,
+ * and two one-instruction schedule shifts (ours at +0x2C and +0x134, theirs at
+ * +0x74 and +0x140). */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1841,17 +1860,16 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
     ParticleLinePoint *point;
     u32 *colorTable;
     f32 scale;
+    f32 swap;
     ParticleVec3f position;
     ParticleVec3f offset;
     s32 orientation;
     s32 pointCount;
-    u8 entryIndex;
 
     descriptor = D_8007C8AC[trigger->type];
     if ((u32)descriptor->flags >> 28 == 5) {
-        entryIndex = trigger->result;
-        if (entryIndex != 0xFF) {
-            entry = &D_8007C894[entryIndex];
+        if (trigger->result != 0xFF) {
+            entry = &D_8007C894[trigger->result];
             pointCount = entry->pointCount;
             if (pointCount != 9) {
                 point = entry->points[pointCount];
@@ -1933,14 +1951,14 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     offset.z *= scale;
                     switch (orientation) {
                         case 0:
-                            scale = offset.x;
+                            swap = offset.x;
                             offset.x = -offset.z;
-                            offset.z = scale;
+                            offset.z = swap;
                             break;
                         case 1:
-                            scale = offset.y;
+                            swap = offset.y;
                             offset.y = -offset.z;
-                            offset.z = scale;
+                            offset.z = swap;
                             break;
                     }
                 }
