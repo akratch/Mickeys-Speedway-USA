@@ -424,7 +424,7 @@ void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x48
- * summary: Naming the state64 read in a local took 60 to 57; the rest is the a2/a3 web cycle and two spill homes the compiler always parks at the frame top
+ * summary: Exhaustive landscape reaches 38 only by forcing web 60 to a2; source cursor removal regressed structurally and declaration/counter forms were byte-flat.
  * PLATEAU-HANDOFF:effectboxControl:end
  */
 

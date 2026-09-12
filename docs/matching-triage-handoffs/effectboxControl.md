@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 5
 - first mismatch: +0x48
-- summary: Naming the state64 read in a local took 60 to 57; the rest is the a2/a3 web cycle and two spill homes the compiler always parks at the frame top
+- summary: Exhaustive landscape reaches 38 only by forcing web 60 to a2; source cursor removal regressed structurally and declaration/counter forms were byte-flat.
 #### 2026-09-12 (lane `lane/p7-res2`): 60 to 57 on one named local; the two stack homes are not a declaration question
 
 **Naming the hit's state pointer in a local inside the conditional body pays
