@@ -515,9 +515,9 @@ void lightUpdateLights(s32 updateRate) {
 void func_80018F08(UnkLight *light, s32 updateRate) {
     LightUpdateState *state;
     LightUpdateOwner *owner;
-    s16 rotation[3];
     f32 *direction;
     s32 value;
+    s16 rotation[3];
     s16 index;
     s32 offset;
     LightUpdateSegment *segment;
@@ -1123,11 +1123,11 @@ s32 lightKillGlowingLight(void) {
 
 /* PLATEAU-HANDOFF:func_80018F08:start
  * symbol: func_80018F08
- * score: 130/205 words
+ * score: 74/205 words
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: Exact 205-word extent and seven relocation identities; 0x10 non-save-frame and temporary-allocation cascade remains.
+ * summary: value-before-rotation aligns all three s16 homes and improves 75 to 74; named direction carrier still owns the remaining 0x10 frame excess.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 
