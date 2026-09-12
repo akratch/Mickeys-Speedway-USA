@@ -1415,11 +1415,11 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_80020D8C:start
  * symbol: func_80020D8C
- * score: 31/48 words
+ * score: 17/48 words
  * frame: 0x8
  * relocations: 0
  * first-mismatch: +0x38
- * summary: 17 register-only words from +0x38, frame and stack slot exact. Two windows at 60% coherence with no closed cycle, so this is per-iteration ugen consumption rather than one ring phase. The loop-branch axis is refuted: seven spellings of the counter test all regress, two of them by unrolling. 16 L97 region placements never improve.
+ * summary: P2 force ceiling reaches 16 only; the unresolved term is a hidden ugen draw in the multiply group.
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
 
