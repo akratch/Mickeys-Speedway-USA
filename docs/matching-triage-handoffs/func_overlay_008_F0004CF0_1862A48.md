@@ -166,4 +166,43 @@ globalcolor receipt, and it is not another spelling of the rotation block: the
 carrier, operand-order, volatile-placement, line-join, statement-group,
 carrier-identity and scope lattices recorded above, plus the force sweep and the
 ring probes here, have all been measured.
+
+#### 2026-09-12, lane p9-mid: the float-probe family does not draw a ring temp at all
+
+Baseline reproduces: 1,080 bytes, 270 of 270 words, delta 0, masked 39, raw 44,
+frame 0x90. The frame census now prints two identical eighteen-slot ladders with
+no slot either side uses alone, so the home question really is closed. Nothing
+was adopted, so the buckets are unchanged: 231 byte-exact, 39 register naming,
+0 immediate-only, 0 really different.
+
+**The lever that moved this function's TU-mate does not transfer, and the
+reason is measurable.** `func_overlay_008_F0002640_1860398` moved 62 to 37 today
+on declaration order plus two statement moves, and
+`func_overlay_041_F0001298_18885D0` moved 34 to 14 on a single redundant 16-bit
+mask supplying one ugen ring draw. Neither reaches here. The declaration-order
+lever cannot: the ladders are already identical. The ring-draw lever cannot
+either, and the new fact is **why**: of 24 float probes measured here -- six
+forms (multiply by one, add zero, self-assignment, a discarded comparison, a
+double negation, and a scale of the point's y) at four points spanning the
+point setup, the surface-height assignment, the guarded block's head and the
+first trigonometric call -- **eighteen leave the object byte-identical**,
+meaning they do not draw a float ring temp at all; they are deleted before ugen
+sees them. The other six change the size. So the integer trick has no float
+analogue in this neighbourhood: an or-with-zero on an integer survives to ugen
+as a temp request, and none of the float no-ops does.
+
+**Also measured and flat here:** all five orders of the three point-accumulate
+statements (the two that respell the accumulate as an explicit add cost 4
+bytes; zyx is 45, xzy 63, yxz 73), both orders of the point initialisers,
+hoisting the surface-height assignment past the loop, flipping either bounds
+comparison or both, flipping the surface-height comparison, splitting the CSE
+of the negated angle across the two trigonometric calls, moving targetB into
+the guarded block or after the factor declaration (both 65), and swapping the
+two dead float declarations.
+
+**The question is unchanged and now sharper.** The residual is a ugen float
+free-list phase, and no source form yet found draws a float ring temp at zero
+byte cost. The next instrument is a DKWB-FREELIST float trace read against a
+reconstruction -- specifically to find which construct *does* pop the float ring
+without emitting an instruction, since the obvious family provably does not.
 <!-- plateau-handoff:func_overlay_008_F0004CF0_1862A48:end -->
