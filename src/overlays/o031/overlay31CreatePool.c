@@ -86,6 +86,6 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x28
- * summary: Accepted force pair reaches zero at delta 0; source mechanism is record a0 interference.
+ * summary: allocation-mismatch: typed bound repairs record/index colours but loses bound/multiply geometry; indexed carriers retain v0 interference.
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */
