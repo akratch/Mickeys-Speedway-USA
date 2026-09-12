@@ -2205,13 +2205,13 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
     }
     temp_v0_2 = *dList;
     *dList = temp_v0_2 + 1;
-    temp_v0_2->w0 = 0x06000000;
     temp_v0_2->w1 = (u32)D_8007D380;
     temp_v0_3 = *dList;
+    temp_v0_2->w0 = 0x06000000;
     *dList = temp_v0_3 + 1;
     temp_v0_3->w0 = 0xFA000000;
-    var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
     temp_v0_3->w1 = arg8;
+    var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
     temp_t7 = arg5 * 4;
     temp_t9 = arg7 * 4;
     temp_t6 = arg4 * 4;
@@ -2222,8 +2222,8 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
         do {
             temp_t2 = var_a2;
             var_a2 += 0x10;
-            (*dList)->w0 = (u32)*var_s5;
             (*dList)->w1 = (u32)var_t1;
+            (*dList)->w0 = (u32)*var_s5;
             var_t1 = (FxGfx *)((s32)var_t1 + (arg2 * 8));
             *dList = *dList + 1;
             temp_t7_2 = *dList;
@@ -2235,8 +2235,8 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
             }
             temp_v0_4 = *dList;
             *dList = temp_v0_4 + 1;
-            temp_v0_4->w0 = (((temp_t8 & 0xFFF) << 12) | 0xE4000000) | (var_a2 & 0xFFF);
             temp_v0_4->w1 = ((temp_t6 & 0xFFF) << 12) | (temp_t2 & 0xFFF);
+            temp_v0_4->w0 = (((temp_t8 & 0xFFF) << 12) | 0xE4000000) | (var_a2 & 0xFFF);
             temp_v0_5 = *dList;
             *dList = temp_v0_5 + 1;
             temp_v0_5->w1 = ((arg4 << 5) << 16);
