@@ -20,21 +20,16 @@ extern void func_overlay_017_F0000000_18739B8(Overlay17Chain *chain,
                                                f32 *x0, f32 *y0, f32 *z0,
                                                f32 *x1, f32 *y1, f32 *z1);
 
-/* Workbench: structure-mismatch, 51 raw differences / 96 of 147 words match,
- * first +0x18. Instruction count, frame, and the sole relocation are exact.
- * The 2026-09-04 lever pass found the candidate pool lane one web longer than
- * retail. Removing the short-lived newBuffer declaration and repeating the
- * source-authentic `(u8)(oldBuffer ^ 1)` expression compiled byte-identically
- * to this retained body, so that web is commoned before the missing decision.
- * Pre-call buffer-copy scheduling remains divergent; the fallback is canonical. */
+/* NON_MATCHING: exact size and frame; the remaining deficit is in the
+ * pre-call copy setup. See the symbol-owned handoff for measured closures. */
 #ifdef NON_MATCHING
 void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
-    u8 *writeCursor;
+    s32 count;
     s32 savedAlpha;
     f32 x0, y0, z0, x1, y1, z1;
     u16 *sourceCursor;
     u16 *destinationCursor;
-    s32 count;
+    Overlay17StripPoint *writeCursor;
     u8 oldBuffer;
     u8 newBuffer;
 
@@ -48,8 +43,8 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
                            (((count - 1) << 1) * 10));
     newBuffer = oldBuffer ^ 1;
     chain->selectedBuffer = newBuffer;
-    writeCursor = (u8 *)chain->buffers[newBuffer];
-    destinationCursor = (u16 *)(writeCursor +
+    writeCursor = chain->buffers[newBuffer];
+    destinationCursor = (u16 *)((u8 *)writeCursor +
                                 ((count << 1) * 10));
     count--;
     count = (count << 2) + count;
@@ -61,7 +56,7 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
             sourceCursor--;
             *destinationCursor = value;
         } while (count--);
-        writeCursor = (u8 *)chain->buffers[chain->selectedBuffer];
+        writeCursor = chain->buffers[chain->selectedBuffer];
     }
     if (useAlpha != 0) {
         savedAlpha = chain->alpha;
@@ -71,30 +66,30 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
     func_overlay_017_F0000000_18739B8(chain, &x0, &y0, &z0,
                                       &x1, &y1, &z1);
 
-    writeCursor += 20;
-    *(s16 *)(writeCursor - 20) = (s16)(s32)x0;
-    *(s16 *)(writeCursor - 18) = (s16)(s32)y0;
-    *(s16 *)(writeCursor - 16) = (s16)(s32)z0;
-    writeCursor[-14] = chain->red;
-    writeCursor[-13] = chain->green;
-    writeCursor[-12] = chain->blue;
-    writeCursor[-11] = (u8)savedAlpha;
-    *(s16 *)(writeCursor - 10) = (s16)(s32)x1;
-    *(s16 *)(writeCursor - 8) = (s16)(s32)y1;
-    *(s16 *)(writeCursor - 6) = (s16)(s32)z1;
-    writeCursor[-4] = chain->red;
-    writeCursor[-3] = chain->green;
-    writeCursor[-2] = chain->blue;
-    writeCursor[-1] = (u8)savedAlpha;
+    writeCursor->x0 = (s16)(s32)x0;
+    writeCursor->y0 = (s16)(s32)y0;
+    writeCursor->z0 = (s16)(s32)z0;
+    writeCursor->r0 = chain->red;
+    writeCursor->g0 = chain->green;
+    writeCursor->b0 = chain->blue;
+    writeCursor->a0 = (u8)savedAlpha;
+    writeCursor->x1 = (s16)(s32)x1;
+    writeCursor->y1 = (s16)(s32)y1;
+    writeCursor->z1 = (s16)(s32)z1;
+    writeCursor->r1 = chain->red;
+    writeCursor->g1 = chain->green;
+    writeCursor->b1 = chain->blue;
+    writeCursor->a1 = (u8)savedAlpha;
+    writeCursor++;
 
     count = chain->count - 1;
     while (count--) {
-        if (writeCursor[9] != 0) {
+        if (writeCursor->a0 != 0) {
             savedAlpha = (chain->alpha * count) / (chain->count - 1);
-            writeCursor[9] = (u8)savedAlpha;
-            writeCursor[19] = (u8)savedAlpha;
+            writeCursor->a0 = (u8)savedAlpha;
+            writeCursor->a1 = (u8)savedAlpha;
         }
-        writeCursor += 20;
+        writeCursor++;
     }
 }
 #else
@@ -103,10 +98,10 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
 
 /* PLATEAU-HANDOFF:overlay17AdvanceChain:start
  * symbol: overlay17AdvanceChain
- * score: 96/147 words
+ * score: 49 differing words
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: Removing the named newBuffer web is byte-flat; exact 147-word/frame/relocation geometry still leaves 51 pre-call copy-schedule differences.
+ * summary: 49-word pre-call setup residual; exact size/home set; count reassociation and buffer-carrier alternatives stalled.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */
