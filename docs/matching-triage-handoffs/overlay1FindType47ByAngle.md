@@ -6,7 +6,7 @@
 - frame: 0x78
 - relocations: 6
 - first mismatch: +0x8
-- summary: Eighteen masked words to ten, and the residual is two named allocator decisions with a price on each. The TU carries -Wab,-r4300_mul as of this lane, adopting the diagnostic the earlier notes recorded: it removes the entire structural half, the really-different bucket goes 5 to 0 and the displacement tax 7 to 0, and the surplus at +0x88 against the missing at +0xA8 is gone. The other two guarded functions in this TU are bit-for-bit unmoved at 3 and 12 and gmake verify passes, which is the safety property the Makefile block states. The structural half was never a source question: cc -S shows ugen already emitting the target's order, mul.s into f12 then mov.s into f14 then the call, and what differed was as1's delay-slot choice, so no statement or physical-line arrangement could reach it. Forcing both remaining colours on the flag build scores 0 masked at delta 0. First the start carrier, web 14, save 1.0, nocs 2, totalsave 2, forbidden c1 c15 c16 c18 all merely taken: it is the last integer decision and takes the lowest free colour c2 v1 where the ROM takes c3 a0, and since c2 is forbidden to nothing here and the ROM never uses v1, what is needed is a web that TAKES c2 first. Second the float pair: scale web 28 has totalsave 11 against angle web 44 at 10, one unit, the weight of scale's out-of-loop definition, so scale is decided first and takes the lower colour while the ROM has angle lower. Flat at 10 on the flag build: all six declaration orders of the three f32 locals and all six of the three s32 locals, nine call line arrangements, a product temporary reusing difference, an indexed cursor, a scale-first cursor line, empty trailing compares keeping angle and start live, and two discarded difference-equals-angle seeds. The seeds are folded by cfe and the records prove it rather than inferring it: angle's totalsave stays 10 and scale's 11 in every seeded form, so L109 supplies no float spelling here.
+- summary: Post-flag footprint has no legal coloured-web probes; retain the two prior source-priority questions.
 - assignment base: `05cbca2025f87f1b4b670eaa73c6cd181ffd0dc7`
 - owned range: Overlay 1 `+0x1AC..+0x2D4`, ROM `0x184C58C..0x184C6B4`, exactly 296 bytes / 74 instructions with no target padding
 - configured V0: The restored full-TU `-O2 -mips2 -32` body has the exact `0x78` frame and extent, 56/74 positional words, 18 relocation-masked differences, 19 raw differences, ten opcode mismatches, four alignment gaps, and first mismatch `+0x8`.
@@ -123,4 +123,17 @@ records prove it rather than inferring it: `angle`'s totalsave stays 10 and
 no float spelling here, and the one unit of weight has to come from a real
 reference.
 
+#### 2026-09-12, lane `p23-lastmile4`: current post-flag footprint
+
+The configured flag-build base remains 296 bytes, 74 words, delta 0, frame
+0x78, six relocations, and 10 masked words. Alignment has eight naming rows
+and two structural rows in the opening region. The fresh exhaustive footprint
+finds no legal coloured-web probes for this post-flag procedure, so its winners
+list is empty.
+
+This does not overturn the accepted prior force pricing; it records that the
+ordinary footprint axis is unavailable on the current configured procedure.
+The named source question remains a zero-width way to preoccupy the integer
+colour below start and reverse the scale/angle priority without reintroducing
+the retired structural schedule.
 <!-- plateau-handoff:overlay1FindType47ByAngle:end -->
