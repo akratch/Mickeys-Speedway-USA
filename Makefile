@@ -389,6 +389,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_comment_hunks.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_blockclimb.py
 
 # Ownership-only inventory; does not count padding/scaffolds as matched C.
 .PHONY: check-raw-asm
@@ -722,7 +723,6 @@ $(BUILD_DIR)/$(SRC_DIR)/main/block_506D0.c.o: CFLAGS += -Wab,-r4300_mul
 # target's offset and only two register decisions are left. The other two
 # guarded functions in the TU are bit-for-bit unmoved at 3 and 12, and
 # `gmake verify` passes, which is the safety property above.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: CFLAGS += -Wab,-r4300_mul
 
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the

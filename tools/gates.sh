@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the pre-commit gates and report each one's TRUE exit status.
 #
-#   tools/gates.sh                # verify, cleanroom, check-docs
+#   tools/gates.sh                # verify, cleanroom, check-docs, check-tooling
 #   tools/gates.sh --promotion    # the above plus the three promotion gates
 #   tools/gates.sh verify check-docs
 #   tools/gates.sh --staged       # cleanroom scans the index, not the worktree
@@ -16,13 +16,21 @@
 # red gate. Piping a gate's output anywhere is the hazard; this script keeps
 # the status and the output separate so they cannot be confused.
 #
+# WHY check-tooling IS IN THE DEFAULT SET. It is not in CLAUDE.md's
+# "before every commit" list, so it was in neither of this script's sets, and a
+# per-TU CFLAGS line added to the root Makefile turned it red for several
+# commits while every gate that WAS run stayed green. A lane found it, not the
+# coordinator. A gate runner whose set is narrower than the tree's checks
+# reproduces the exact failure it was written to prevent, so the set is now the
+# tool tests too. It needs no build.
+#
 # Logs go to build/gates/<gate>.log. Exits nonzero if any gate failed, and
 # prints the failing gates again at the end so the verdict is the last thing
 # on screen.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-DEFAULT_GATES=(verify cleanroom check-docs)
+DEFAULT_GATES=(verify cleanroom check-docs check-tooling)
 PROMOTION_GATES=(check-scoreboard check-overlay-syms check-nonmatching-builds)
 
 gates=()
