@@ -6,7 +6,7 @@
 - frame: 0xA8
 - relocations: 38
 - first mismatch: +0xA8
-- summary: 29 fell to 9 on three edits whose cause was read off the instrumented allocator first. Dropping the second argument from the ext_o0_2d98 calls clears bit 27 of the command pointer web's forbidden mask and globalcolor gives it a1 at an unchanged save; the else-arm call alone is enough, the case-2 call alone is not. Splitting the pointer advance into two in-place steps stops uopt folding the rematerialisation into the add, which is the target's move a1,s5 plus addiu a1,a1,12 and returns delta to 0. Ordering the five payload stores by memory address, with the -2 spA0 store last, is worth six more. The 9 left are 7 words of temp_a0's own web on a0 against the target's v0 and one two-word as1 schedule slot at +0xA8.
+- summary: L160 carrier removal does not close the 7 naming and 2 scheduling rows; the changed-source landscape has no improving equal-size force.
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 
@@ -263,5 +263,59 @@ for which the only split is a twelfth declaration, and that is a 0xB0 frame. The
 +0xA8 slot is not a source-order tie either: all 120 permutations of the five
 head-block statements including the pointer's definition score exactly 9, as do
 twelve physical-line foldings of adjacent pairs.
+
+#### 2026-09-12, lane w1-1: L160 carrier removal does not supply the missing colour
+
+The assignment gate returned base-only. The configured stock baseline and the
+instrumented unforced function text were byte-identical. Baseline and retained
+result: 662 candidate and target words, delta 0, 9 raw and masked differences;
+aligned 653 exact, 7 naming, 0 immediate and 2 structural. No insertions or
+deletions. Both frames are 0xA8 and all 21 used stack offsets agree. The
+relocation count is 38; this is diagnostic candidate evidence, not a linked
+promotion or new matching credit.
+
+The old shard provides a sweep receipt but no saved footprints path, and this
+lane received no baseline footprints artifact. The old baseline was not swept
+again. After deleting the case-3 pointer carrier, the source changed while its
+object retained the same nine-word residual. That changed source was measured
+with web_footprint --every-colour: 35 coloured webs represented, 232 actual
+forces plus one no-second-colour row. There were 171 accepted equal-size cells,
+none below 9; 167 moved windows and 4 were flat. The report was re-rendered with
+--report for L159. There is no improving winner to pack, so the measured
+single-force floor remains 9. This is not a proof about arbitrary interacting
+forces or other source forms.
+
+Eight source attempts preserved separately with configured objects and aligned
+per-window deltas:
+
+- Generate the case-0 pointer from an integer-typed field load: 39 masked,
+  delta 0. Removing this use from the declared carrier regresses other windows.
+- Generate the case-3 pointer at its test and access: 9, delta 0. The declared
+  integer web changes from save 20.5 over four blocks to save 14 over three,
+  but the four naming rows in that region remain. The source really changes
+  the allocator records; identical output does not mean the edit was lost.
+- Combine both generated pointer forms: 41, delta 0.
+- Remove all sound-handle and state uses from the integer declaration, leaving
+  an angle-only carrier: 41, delta 0, the same object as the preceding form.
+- Remove the angle declaration and reuse the command cursor only after its
+  command-writing lifetime: 44, delta 0. The frame does not buy an improvement.
+- Add a carrier used only for the case-0 pointer: 44, delta 0.
+- Give that carrier pointer type and use it for both link accesses: 44,
+  delta 0. Type separation still does not produce the wanted output.
+- Generate the update-scale constant and reuse an already-dead output float
+  in the sound tail, freeing a declaration for a separate link pointer: 166,
+  delta +28, including seven surplus instructions in the tail. Rejected.
+
+L160's limitation here is explicit: removing the declared integer carrier's
+pointer or sound roles does not independently reproduce the desired short v0
+web. The case-0 forms disturb already-agreeing head allocation; the case-3
+removal changes ownership without changing its emitted naming rows. The two
+head scheduling rows also survive every tested form. No edit is adopted.
+The retained source is the incoming nine-word candidate. The final three
+carrier/typing/home variants made no improvement and exposed no further
+source lever; this packet stops on that stall instead of repeating the old
+colour, order or spelling sweeps. The next source question is how to obtain a
+short generated link-load web without changing the shared head expression
+allocation. No zero-scoring force-to-source route was established.
 
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

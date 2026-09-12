@@ -542,6 +542,6 @@ loop_52:
  * frame: 0xA8
  * relocations: 38
  * first-mismatch: +0xA8
- * summary: 29 fell to 9 on three edits whose cause was read off the instrumented allocator first. Dropping the second argument from the ext_o0_2d98 calls clears bit 27 of the command pointer web's forbidden mask and globalcolor gives it a1 at an unchanged save; the else-arm call alone is enough, the case-2 call alone is not. Splitting the pointer advance into two in-place steps stops uopt folding the rematerialisation into the add, which is the target's move a1,s5 plus addiu a1,a1,12 and returns delta to 0. Ordering the five payload stores by memory address, with the -2 spA0 store last, is worth six more. The 9 left are 7 words of temp_a0's own web on a0 against the target's v0 and one two-word as1 schedule slot at +0xA8.
+ * summary: L160 carrier removal does not close the 7 naming and 2 scheduling rows; the changed-source landscape has no improving equal-size force.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */
