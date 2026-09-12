@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 334,
-  "resolved": 334,
+  "queue_size": 333,
+  "resolved": 333,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 334,
-  "relocation_masked_coverage": 334,
+  "source_context_coverage": 333,
+  "relocation_masked_coverage": 333,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -623,21 +623,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "e_zc.5Ldq.9lvW.38fS.HL2Y.Hyiu.-3U9.9FSL.ErT-.wWjn.OB8"
-    },
-    {
-      "name": "overlay7AcquireEntry",
-      "file": "src/overlays/o007/overlay_007.c",
-      "overlay": 7,
-      "tu": "overlays/o007",
-      "size_bytes": 384,
-      "objdiff_match_pct": null,
-      "differing_words": 17,
-      "first_mismatch_offset": 8,
-      "relocation_masked_differing_words": 16,
-      "relocation_masked_first_mismatch_offset": 260,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "cWl1._0Kh.QVBK.T1pV.gP3w.JXHp.JZha._Q6-.Ounm.f881.fLw"
     },
     {
       "name": "overlay1FindType47ByAngle",

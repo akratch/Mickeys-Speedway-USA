@@ -303,12 +303,11 @@ overlay5InitPlayerReloc = 0xf0000000;
 overlay5SequenceInitReloc = 0xf0000000;
 
 /* overlay 7: overlay_007.c.o */
-D_288 = 0x00000288;
-D_28C = 0x0000028c;
 gOverlay7ActiveHead = 0x00000284;
 gOverlay7ActiveTail = 0x0000028c;
 gOverlay7Current = 0x00000280;
 gOverlay7FreeHead = 0x00000288;
+gOverlay7PriorityThresholdReloc = 0x00000000;
 gOverlay7Selected = 0x00000290;
 overlay7Acquire = 0xf0000000;
 
@@ -342,6 +341,7 @@ D_10 = 0x00000010;
 D_2110 = 0x00002110;
 D_2210 = 0x00002210;
 D_2230 = 0x00002230;
+D_28C = 0x0000028c;
 D_310 = 0x00000310;
 D_350 = 0x00000350;
 D_4E0 = 0x000004e0;
@@ -1629,6 +1629,7 @@ overlay53QueryModeReloc = 0xf0000000;
 
 /* overlay 53: func_overlay_053_F0000240_189DBE8.c.o */
 D_118 = 0x00000118;
+D_288 = 0x00000288;
 
 /* overlay 53: overlay53ReleaseResources.c.o */
 gOverlay53Handle0 = 0x00000288;
@@ -3457,9 +3458,9 @@ func_overlay_006_F0000010_185BE78 = overlay6Noop;
 
 /* overlay 7: overlay_007.c.o */
 func_overlay_007_F0000000_185BE88 = overlay7ReleaseEntry;
+func_overlay_007_F00000A8_185BF30 = overlay7AcquireEntry;
 func_overlay_007_F0000228_185C0B0 = overlay7CreateEntry;
 func_overlay_007_F0000298_185C120 = overlay7AppendEntry;
-func_overlay_007_F00000A8_185BF30 = overlay7AcquireEntry;
 
 /* overlay 7: overlay_007_tail.c.o */
 func_overlay_007_F0000894_185C71C = overlay7DispatchModes;

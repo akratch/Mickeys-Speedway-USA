@@ -35,13 +35,22 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
     }
 }
 
-/* Plateau: 80/96 linked words are exact; 16 tail words remain, first +0x104.
- * Tail caching fixes a0/a1 but disrupts the null CFG; aliases regress size.
- * The full flag lattice and 40-minute permuter (best 5135) found no exact.
- * A 2026-09-04 explicit null-return reshape kept the exact size/frame but
- * regressed to 74/96 words and expanded the structural residual to 13 opcode
- * differences; the authorized tail-CFG reshape is exhausted. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-12, lane p9-tight. Sixteen words to zero, two edits in the
+ * tail, both named below at the point of use.
+ *
+ * 1. The `result = entry;` self-copy in the else arm. It is the whole of the
+ *    ten register words: uopt propagates `result` into every use of `entry`
+ *    after the copy, so the ActiveHead store, the `entry->next = 0` store and
+ *    the final ActiveTail store all read $v0 where the ROM reads $s0.
+ * 2. `return entry;` inside the guard with a bare `return 0;` after it,
+ *    instead of `else { entry = 0; } return entry;`. That is what puts the
+ *    `move $v0, $zero` in the branch-likely's delay slot and leaves the dead
+ *    copy the ROM carries at the join; the shared-exit form sets $s0 there
+ *    instead and needs two more instructions to get back to $v0.
+ *
+ * Neither edit works alone: the reshape on its own is 22 words (recorded by the
+ * 2026-09-04 probe as 74/96) and the self-copy on its own is 6.
+ */
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *entry;
     Overlay7Entry *result;
@@ -84,17 +93,21 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
             gOverlay7ActiveTail = result;
         } else {
             gOverlay7ActiveHead = entry;
+            /* Load-bearing, and it compiles to nothing. uopt copy-propagates
+             * `result` into every use of `entry` after `entry = result`, which
+             * is why the three tail stores read $v0 here and $s0 in the ROM.
+             * Redefining `result` on ONE arm makes the two disagree at the
+             * merge, so the propagation stops there and the stores below keep
+             * `entry`; the assignment itself is a self-copy at this point and
+             * uopt deletes it. */
+            result = entry;
         }
         entry->next = 0;
         gOverlay7ActiveTail = entry;
-    } else {
-        entry = 0;
+        return entry;
     }
-    return entry;
+    return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007/func_overlay_007_F00000A8_185BF30.s")
-#endif
 
 /* DKR v77/v80 and JFG exact-object scans are negative for this allocator. */
 void overlay7CreateEntry(void *owner, u16 value, u8 type) {
@@ -136,12 +149,3 @@ void overlay7AppendEntry(void *owner, u16 value, u8 type) {
     }
 }
 
-/* PLATEAU-HANDOFF:overlay7AcquireEntry:start
- * symbol: overlay7AcquireEntry
- * score: 80/96 words
- * frame: 0x30
- * relocations: 13
- * first-mismatch: +0x104
- * summary: explicit null-return reshape regressed to 74/96; tail-CFG structural trial is exhausted
- * PLATEAU-HANDOFF:overlay7AcquireEntry:end
- */
