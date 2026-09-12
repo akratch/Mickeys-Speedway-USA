@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
+- summary: Six pointer carriers delete byte-inertly; the generated node-20 base still splits at save 0.5 versus cost 2. Forced 125 retains delta +4.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -283,5 +283,83 @@ separate question and the census above says they are per-web colour, so they
 will not fall to one edit; and the previous lane's forced-colour ceiling of 127
 was measured on a source shape that no longer exists, so it should be
 re-derived, not inherited, once the +4 is closed.
+
+#### 2026-09-12, lane w1-1: carrier deletion is byte-inert across the cluster
+
+B was the lead. The assignment gate returned base-only for each of A, B, C
+and D before source experiments. All four configured stock baselines were
+retained, and each stock/instrumented fidelity gate passed.
+
+The retained B baseline is 209 candidate words against 208 target words,
+delta +4, 144 raw and 143 masked differences, first masked mismatch +0x10.
+The aligned buckets remain 79 exact, 104 naming, 1 immediate and 32 structural.
+The structural total includes 17 paired rows, eight candidate-only words and
+seven target-only words. The candidate-only offsets are +0x24, +0x110,
++0x118, +0x120, +0x154, +0x170, +0x174 and +0x31C; the target-only offsets
+are +0x54, +0x12C, +0x130, +0x138, +0x148, +0x188 and +0x18C. A and C
+reproduce every bucket and offset. D has the same seven paired displacement
+sites but lacks the surplus +0x31C materialisation of the dim colour. Its
+final call has no colour argument. This confirms the instruction question
+before considering any colouring score.
+
+The candidate has 52 object relocations. The assembled comparison target has
+34, and their literal object symbol identities are not equal. These are
+comparison-object counts, not an authenticated overlay relocation proof.
+No linked promotion or matching credit is claimed.
+
+No saved baseline footprint file accompanied the prior shard. Fresh
+web_footprint --every-colour measurements cover 22 coloured webs and 132
+accepted same-save-class forces on B. Of these, 107 retain delta +4 and 25
+increase it; none reaches delta 0. The best single is 135 at +4 on
+p1:w31=c2. --report was run on the saved JSON, but its zero-delta filter
+excludes every cell here, so it cannot supply a disjoint packing for this
+nonzero-size baseline. That absence is not evidence that the forces are inert.
+
+The already-recorded node-20 array-base web is split, rather than coloured,
+and therefore lies outside that coloured-web census. Its current record is
+web 186, save 0.5, nocs 2, totalsave 1, bestcost 2, decision split. A bounded
+four-force lattice combined p1:w186=c11, p1:w31=c2, p1:w78=c8 and the new
+single winner p1:w115=c7. All 15 nonempty subsets were accepted. The tested
+floor is 125 masked at +4 on the first three forces; adding the fourth gives
+128. This is a diagnostic subset floor, not an exact source result or proof
+about every interacting allocator decision. A and C reproduce the mapped
+three-force lattice independently, including the 125 floor.
+
+Source experiments on B, each retained with its configured object and aligned
+per-window comparison:
+
+- Unsigned final-call colour parameter alone: 143, delta +4, byte-inert.
+- Delete the node20A pointer declaration and use indexed accesses: 143, +4,
+  byte-inert.
+- Delete opacityScale and generate its 1.0f literal: 150, delta -8. This
+  changes the tail instruction inventory instead of fixing the surplus.
+- Delete node24B and use indexed accesses throughout the tail: 143, +4,
+  byte-inert.
+- Delete all six node pointer declarations and the dimColor declaration,
+  substituting indexed accesses and the literal at their uses: 143, +4,
+  byte-inert. Applied without tuning at the corresponding declaration and
+  node-construction groups in A, C and D; each retains its baseline object.
+- Delete previousType and previous, writing each node's previous fields at
+  the original chain-head reads, before the root is overwritten: 152, +4.
+  This is a valid early-store form, not the previously rejected self-linking
+  reconstruction. It is regressive and is not adopted.
+- Make the colour literal, local and final-call parameter unsigned together:
+  143, +4, byte-inert. The type identity hypothesis does not close +0x31C.
+
+The allocator trace makes the L160 limit precise. After all pointer carriers
+are deleted, the node-20 base becomes web 165 rather than web 186, with the
+same type-1 identity table, save 0.5, nocs 2, totalsave 1, bestcost 2 and split
+decision. Removing these straight-line copies does not expose a hidden base
+web or improve its benefit. The compiler already generates the same effective
+address computation. No zero-scoring force-to-source route was found.
+
+The retained source is unchanged apart from this handoff summary. The final
+carrier-deletion transfer, valid early-store form and joint unsigned form all
+fail to improve the residual or establish a shippable route. Stop this packet
+rather than repeating the prior order/type lattices. The next named source
+question is how the node-20 base can legitimately earn more benefit without
+extra instructions; separately, the trio still needs one shared dim-colour
+materialisation across the stores and final call. A colour score alone does
+not answer that extra-instruction question.
 
 <!-- plateau-handoff:overlay101BuildPresentationB:end -->

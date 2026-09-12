@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: 143 masked words from 145 at a size delta of +4, frame 0x20 and its ladder exact. The byte-length local is u8; the 106 naming rows are measured NOT to be a ring cycle.
+- summary: L160 pointer and colour-carrier deletion is byte-inert. All 132 coloured-web forces retain excess size; the mapped lattice floor is 125 at +4.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -243,5 +243,47 @@ separate question and the census above says they are per-web colour, so they
 will not fall to one edit; and the previous lane's forced-colour ceiling of 127
 was measured on a source shape that no longer exists, so it should be
 re-derived, not inherited, once the +4 is closed.
+
+#### 2026-09-12, lane w1-1: measured transfer from presentation B
+
+The exact assignment gate returned base-only. Baseline and retained result:
+209 candidate words against 208 target words, delta +4; 144 raw and 143
+masked differences, first +0x10. Aligned buckets are 79 exact, 104 naming,
+1 immediate and 32 structural, including eight candidate-only and seven
+target-only words. Every insertion/deletion offset agrees with B, including
+the trio's surplus +0x31C colour materialisation. The candidate has 52 object
+relocations and the assembled comparison target 34; those literal symbol
+surfaces are not identical. No authenticated overlay relocation or linked
+promotion proof is claimed.
+
+This function's own web_footprint --every-colour run covered 22 coloured webs
+and 132 accepted same-save-class forces: 107 remain at +4, 25 grow, none
+reaches delta 0. Its best single is 135 at +4. --report was run on the saved
+JSON; its zero-delta filter excludes this whole nonzero-size landscape, so
+there is no packing verdict to interpret as a zero-size closure.
+
+The mapped B three-force lattice was measured independently here, without
+per-function tuning: p1:w186=c11, p1:w31=c2, p1:w78=c8. The stock/instrumented
+fidelity gate passed and all seven nonempty subsets were accepted. Singles
+are 134, 135 and 139; the combined diagnostic floor is 125, still at +4.
+The split array-base web is additional to the coloured-web census, which
+must not be described as covering every allocator decision.
+
+The L160 transfer uses the corresponding source ranges: B's six pointer
+declarations at lines 179 through 184 map to this file's lines 177 through 182;
+its node-construction and tail groups map to lines 186 through 222. The same
+mechanical deletion removes all six pointer carriers and dimColor, using
+indexed accesses and the literal at their uses. This function's retained
+comparison object is byte-identical after the transfer: every aligned window,
+insertion and deletion remains unchanged. No separate source tuning was done.
+
+The lead's current trace identifies the limit: deleting the cursor copies
+renumbers the implicit node-20 base but leaves save 0.5, nocs 2, totalsave 1,
+cost 2 and the split decision unchanged. See B's shard for the measured
+opacity, chain-intermediate and colour-type negatives. The named source
+questions remain the base web's insufficient benefit and the separate dim
+colour materialisation. L160 supplied no improved source or zero-scoring
+force-to-source route. The guarded incoming body is retained; the unsuccessful
+transfer is banked rather than repeating the lead's closed axes.
 
 <!-- plateau-handoff:overlay101BuildPresentationA:end -->
