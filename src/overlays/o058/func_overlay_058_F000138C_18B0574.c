@@ -594,9 +594,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             } while (i < (s32) D_8007BEF8);
         }
         D_o058_5E98 = savedX;
-        D_o058_5E98 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if (D_o058_5EB0 == 0) {
@@ -689,10 +689,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+        D_o058_5EA0 = savedOffset;
+
+        D_o058_5EA0 -= arg0 * 0xF;
         if (D_o058_5EA0 < 0) {
             D_o058_5EA0 = 0;
             if (D_o058_5EB0 == 0) {
@@ -750,8 +750,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             columnCount = D_8007BEF8 + 1;
         }
 
-        columnStep = D_o058_5C8C[columnCount - 1];
         portraitX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
+        columnStep = D_o058_5C8C[columnCount - 1];
         if (columnCount > 0) {
             /* Cursor, not `D_800D31C8[0x51 + i]`: an explicit cursor is what
              * lets the index def move to the top of the case.  IDO folds a
@@ -816,10 +816,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= arg0 * 0xF;
-
         D_o058_5E9C = savedPosition;
+        D_o058_5EA0 = savedOffset;
+
+        D_o058_5EA0 -= arg0 * 0xF;
         if (D_o058_5EA0 < 0) {
             D_o058_5EA0 = 0;
             if (D_o058_5EB0 == 0) {
@@ -1303,18 +1303,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         textY = 0x78;
         i = 0;
         do {
-            /* `i * 0` is zero for every value of `i`, and it is spelled that
-             * way to keep uopt from proving this row's inner loop counted.
-             * With a literal `opponent = 0` uopt knows the index starts at 0,
-             * steps by 1 and hits the bound exactly, so it rewrites the exit
-             * test below from `<` into `!=` against a hoisted constant
-             * register -- and that register is the SAME web as the `0xA` the
-             * erase loop and `D_o058_5EB0 = 0xA` above already share, so the
-             * web then spans this loop, interferes with `columnX` and evicts
-             * `&D_o058_5E7C` from a callee-saved colour.  Opaque initial
-             * value, no rewrite, `slti $at,<index>,10` as the target has it.
-             * See note 8 in the header. */
-            opponent = i * 0;
+            /* Keep the increment opaque to the counted-loop proof.  The
+             * discarded product below is defined and zero on every pass;
+             * the index still starts at zero and advances by exactly one.
+             * uopt therefore retains the signed comparison without making
+             * its bound a saved-register web, while ugen folds the product.
+             * Unlike the former opaque initial value, this does not need a
+             * temporary stack slot or an extra executable instruction.
+             * The record and character index choices in case 10 complete
+             * the paired shape correction; either end alone misprices the
+             * intervening displacement.  See the current handoff for the
+             * controlled comparisons and the remaining local residual. */
+            opponent = 0;
             x = -x;
             columnX = 0x34 + x;
             do {
@@ -1339,7 +1339,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
                 func_8004B0F8(&D_800D3140, columnX, textY, &text[0], 4);
-                opponent += 1;
+                opponent += (opponent * 0) + 1;
                 columnX += 0x18;
             } while (opponent < 0xA);
             i += 1;
@@ -1373,8 +1373,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 10:
         x = D_o058_5E98 + D_o058_5EA8;
-        i = 0;
         fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        i = 0;
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1394,19 +1394,19 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
         }
         textY = 0x5B;
-        /* Adjacent index def; see the note in case 7/11. */
-        i = 0;
+        /* Separate record induction. */
+        opponent = 0;
         do {
             x = -x;
-            overlay56SplitTime(slot->records[i].value, &minutes, &seconds, &centiseconds);
-            if (slot->records[i].value == 0) {
+            overlay56SplitTime(slot->records[opponent].value, &minutes, &seconds, &centiseconds);
+            if (slot->records[opponent].value == 0) {
                 portraitIndex = 0x4A;
                 sprintf(&text[0], D_o058_5DB8);
             } else {
-                letter0 = func_8003A700(slot->records[i].name[0]) & 0xFF;
-                letter1 = func_8003A700(slot->records[i].name[1]) & 0xFF;
-                sprintf(&text[0], D_o058_5DC4, letter0, letter1, func_8003A700(slot->records[i].name[2]), minutes, seconds, centiseconds);
-                portraitIndex = slot->records[i].character + 0x51;
+                letter0 = func_8003A700(slot->records[opponent].name[0]) & 0xFF;
+                letter1 = func_8003A700(slot->records[opponent].name[1]) & 0xFF;
+                sprintf(&text[0], D_o058_5DC4, letter0, letter1, func_8003A700(slot->records[opponent].name[2]), minutes, seconds, centiseconds);
+                portraitIndex = slot->records[opponent].character + 0x51;
             }
             highlighted = (i == D_o058_5E90) ||
                        ((i == 3) && (D_o058_5E8C != -1));
@@ -1425,28 +1425,29 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             nodes[0].packedOffset = 0;
             nodes[1].texture = 0;
             func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
-            /* Carried by `columnCount`, which belongs to case 5 and is dead
-             * in case 10: 623 -> 620 masked, byte-exact 3271 -> 3276. */
-            columnCount = 0;
+            /* `rowY` is dead on entry to case 10; this independent index
+             * avoids the former carrier's interference with character. */
+            rowY = 0;
             do {
                 if (highlighted == 0) {
-                    if (columnCount == 0) {
+                    if (rowY == 0) {
                         fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
-                    if (columnCount == 3) {
+                    if (rowY == 3) {
                         fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                     }
                 }
-                character[0] = text[columnCount];
+                character[0] = text[rowY];
                 character[1] = 0;
-                func_8004B0F8(&D_800D3140, D_o058_5CB0[columnCount] + x, textY, &character[0], 0);
-                columnCount += 1;
-            } while (columnCount != 11);
+                func_8004B0F8(&D_800D3140, D_o058_5CB0[rowY] + x, textY, &character[0], 0);
+                rowY += 1;
+            } while (rowY != 11);
             if (i == 2) {
                 textY += 0x1B;
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
                 func_8004B0F8(&D_800D3140, x + 0xA0, textY, D_8007C0B8->text[0x35], 4);
             }
+            opponent += 1;
             i += 1;
             textY += 0x1B;
         } while (i != 4);
@@ -1481,10 +1482,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 594/3614 words, size delta 0
+ * score: 393/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: uopt rewrites a provably counted loop's `< CONST` exit test into `!=` against a constant hoisted into a register, and at case 9's grid inner loop it does so unconditionally -- measured at bounds 0x9, 0xA, 0xB and 0x40 and with every other 0xA in the procedure removed -- which is why no spelling of the bound ever reached the target's `slti $at,<index>,10`. The rewrite needs a known initial value, so writing the row reset as `opponent = i * 0` retires it at no instruction cost: 688 -> 634. The old `(opponent - 1)` spelling had been buying the same compare with an `addiu` that spent one temp-ring draw and rotated the free list for the remaining 1,196 bytes. That shape change reopened statement order (634 -> 623) and the carrier axis (623 -> 594), both recorded exhausted. Aligned at 594: byte-exact 3311, register naming 198, immediate 32, really different 86. What is left is a +1 run from +0x3088 to +0x3348 with both ends named, and a flat per-web colour residual before +0x3000.
+ * summary: 594 to 393: opaque stride and independent case-10 indices remove long displacement; remaining windows split into colour, definition placement and scheduling.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

@@ -151,10 +151,10 @@ extern void TrapDanglingJump();
  * 0x30, 0x3C and 0x48 and are not locals at all. */
 void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6) {
-    s32 sp28;
     s32 var_a1;
     s32 var_a2;
     s32 var_t0;
+    s32 sp28;
 
     var_t0 = (s32) (arg1 * 60.0f);
     var_a2 = (s32) (arg2 * 60.0f);
@@ -187,9 +187,9 @@ void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
     D_8007BE90 = arg0;
     D_8007BE94 = var_t0;
     D_8007BE98 = var_a2;
-    D_8007BE9C = (u8) arg3;
     D_8007BEA0 = (u8) arg4;
     D_8007BEA4 = (u8) arg5;
+    D_8007BE9C = (u8) arg3;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037414.s")
@@ -669,21 +669,21 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_80037414:start
  * symbol: func_80037414
- * score: 59 differing words
+ * score: 57/146 words
  * frame: 0x38
  * relocations: 42
  * first-mismatch: +0x10
- * summary: Three declared locals were decompiler spill names; removing them takes the frame from 0x40 to 0x38 against 0x30. The +4 is a callee-saved carrier.
+ * summary: Declaration and independent global-store scheduling remove two residual words; the 0x30 target frame and callee-saved carrier remain.
  * PLATEAU-HANDOFF:func_80037414:end
  */
 
 /* PLATEAU-HANDOFF:func_800376CC:start
  * symbol: func_800376CC
- * score: 61 differing words
+ * score: 61/119 words
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: The +1 word is one colour: the target keeps the loop flag in a1 while the candidate spills it to s0, paying sw/lw plus a move a1,s0 where the target has a nop. The target has ra as an extra allocatable register (it is dead before the jump) and every later colour shifts by it. Reading the three globals back instead of naming temp_t7/temp_t9/var_v0 took aligned words from 30 to 62 of 118. Statement order, declaration order, register classes, inlining the mode bit and the jump argument list are flat; JFG PR 37 has no donor for it.
+ * summary: Move-one climb is a fixed point; the remaining frame and ra-versus-s0 carrier mismatch needs a lifetime or ABI lever.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
