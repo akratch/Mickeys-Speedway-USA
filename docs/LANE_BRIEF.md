@@ -349,6 +349,23 @@ it end to end. The ones that carry most of the weight:
   web once and inverts the result into a window→webs nomination table, which is
   the step that was missing. **Before believing a lattice's floor, ask what
   fraction of the coloured webs it sampled and which windows it never moved.**
+- **L159 (2026-09-12)** — **the best set of forces is a PACKING over blast
+  radii, not the top of the winners list, and a better single force can be a
+  worse member of a set.** Measured on the complete 1,875-probe landscape of
+  the overlay 58 procedure: `w225=c20` scores 217 alone and `w225=c14` scores
+  220, yet the five-force set holding c14 measures **185** and the one holding
+  c20 measures **192**. `w225=c20` shares its radius *byte for byte* with
+  `w379=c20`, so taking it duplicates a slot already covered and abandons the
+  separate region at `+0x780` that only c14 reaches. Greedy by single score
+  gets this wrong every time. Two constraints make the packing correct: radii
+  must not overlap, and **at most one colour per web** -- without the second
+  the packing cheerfully proposes `w225=c14` and `w225=c20` together and
+  predicts a score no compile can produce. `tools/web_footprint.py --report`
+  computes it; on this function it returns exactly the five forces a lane found
+  by hand, and the 185 it predicts is the measured value. **A set of forces
+  whose radii are identical is one question with several handles** -- three
+  webs share the `+0x1700` radius here -- so nominating two of them pays for
+  both and gets neither.
 - **L154 (2026-09-12)** — **a web's number follows its TYPE first and its first
   USE second, and the source decides which type a value gets.** Measured on one
   leaf with the decision records: its address constants are type-1 webs numbered

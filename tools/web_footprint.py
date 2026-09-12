@@ -62,6 +62,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import itertools
 import json
 import pathlib
 import re
@@ -200,6 +201,18 @@ def histogram(positions: list[int], width: int) -> dict[int, int]:
     return counts
 
 
+def windows_of(row: dict) -> dict[int, int]:
+    """A row's footprint with integer window keys.
+
+    JSON has no integer keys, so a footprint written to `footprints.json` and
+    read back has string ones. Every consumer here formats windows as hex and
+    compares them as numbers, so a reloaded report used to raise `Unknown
+    format code 'x' for object of type 'str'` -- and the reload is the whole
+    point of writing the file.
+    """
+    return {int(k): v for k, v in (row.get("footprint") or {}).items()}
+
+
 def footprint(base: dict[int, int], cell: dict[int, int]) -> dict[int, int]:
     keys = set(base) | set(cell)
     moved = {k: cell.get(k, 0) - base.get(k, 0) for k in keys}
@@ -219,6 +232,63 @@ def winners(rows: list[dict], base_score: int) -> list[dict]:
                   key=lambda r: (r["score"], r["web"]))
 
 
+def pack(rows: list[dict], base_score: int) -> tuple[list[dict], int]:
+    """The best set of forces whose radii do not overlap, and its predicted score.
+
+    Forces with disjoint radii are additive (L156), so the best COMBINATION is
+    a maximum-weight packing over radii -- not the top of the winners list.
+    Greedy by single score gets it wrong, measurably: on overlay 58
+    `w225=c20` scores 217 alone and `w225=c14` scores 220, yet the five-force
+    set containing c14 measures 185 while the one containing c20 measures 192.
+    `w225=c20` shares its radius exactly with `w379=c20` -- rival webs for one
+    slot -- so taking it abandons the separate region that c14 reaches.
+
+    Two constraints, both load-bearing:
+
+      * radii must not overlap, or the members contend and additivity fails;
+      * at most ONE colour per web, because a web has one colour. Without this
+        the packing happily proposes `w225=c14` and `w225=c20` together and
+        predicts a score no compile can produce.
+
+    Exact by enumeration. The winner list is small -- eleven on the largest
+    function in the tree -- because most forces do not beat the base at all.
+    """
+    winners_ = winners(rows, base_score)
+    for r in winners_:
+        r["_gain"] = base_score - r["score"]
+        r["_radius"] = frozenset(windows_of(r))
+    best: list[dict] = []
+    best_gain = 0
+    for size in range(1, len(winners_) + 1):
+        for combo in itertools.combinations(winners_, size):
+            if len({r["web"] for r in combo}) != len(combo):
+                continue
+            covered: set[int] = set()
+            for r in combo:
+                if covered & r["_radius"]:
+                    break
+                covered |= r["_radius"]
+            else:
+                gain = sum(r["_gain"] for r in combo)
+                if gain > best_gain:
+                    best_gain, best = gain, list(combo)
+    return best, base_score - best_gain
+
+
+def rivals(rows: list[dict], base_score: int) -> list[list[dict]]:
+    """Groups of winning forces that share one radius: one question, many handles.
+
+    Three webs on overlay 58 carry byte-identical radii around `+0x1700`. They
+    are not three findings; they are one, reachable three ways, and a lattice
+    that nominates two of them pays for both and gets neither.
+    """
+    groups: dict[frozenset, list[dict]] = {}
+    for r in winners(rows, base_score):
+        groups.setdefault(frozenset(windows_of(r)), []).append(r)
+    return [sorted(g, key=lambda r: r["score"])
+            for g in groups.values() if len(g) > 1]
+
+
 def render(rows: list[dict], width: int, base_score: int | None = None) -> str:
     out = [f"web footprints (windows of {width:#x} bytes, signed words)", ""]
     if base_score is not None:
@@ -229,15 +299,32 @@ def render(rows: list[dict], width: int, base_score: int | None = None) -> str:
             out.append(f"    p1:w{r['web']}=c{r['probe']:<4} {r['reg'] or '?':<4} "
                        f"{r['score']:>5}  ({base_score - r['score']:+d})")
         out.append("")
-    mapped = [r for r in rows if r.get("footprint")]
-    silent = [r for r in rows if r.get("status") == "ok" and not r.get("footprint")]
+        for group in rivals(rows, base_score):
+            out.append("  RIVALS -- one question, "
+                       f"{len(group)} handles, identical radius: "
+                       + " ".join(f"w{r['web']}=c{r['probe']}({r['score']})"
+                                  for r in group))
+        chosen, predicted = pack(rows, base_score)
+        if chosen:
+            out.append("")
+            out.append(f"  best disjoint set, one colour per web -> predicted "
+                       f"{predicted}:")
+            for r in sorted(chosen, key=lambda r: r["score"]):
+                out.append(f"    --force p1:w{r['web']}=c{r['probe']}"
+                           f"   ({base_score - r['score']:+d})")
+            out.append("  Measure it; the prediction assumes additivity, which "
+                       "disjoint radii imply but do not guarantee.")
+        out.append("")
+    mapped = [r for r in rows if windows_of(r)]
+    silent = [r for r in rows if r.get("status") == "ok" and not windows_of(r)]
     skipped = [r for r in rows if r.get("status") not in ("ok",)]
     out.append(f"  {len(rows)} webs probed: {len(mapped)} located, "
                f"{len(silent)} moved nothing, {len(skipped)} not probed")
     out.append("")
     out.append("  web   reg  ->probe   score  windows moved")
-    for r in sorted(mapped, key=lambda r: (min(r["footprint"]), r["web"])):
-        spans = " ".join(f"{k:#07x}{v:+d}" for k, v in r["footprint"].items())
+    for r in sorted(mapped, key=lambda r: (min(windows_of(r)), r["web"])):
+        spans = " ".join(f"{k:#07x}{v:+d}"
+                         for k, v in sorted(windows_of(r).items()))
         out.append(f"  {r['web']:<5} {r['reg'] or '?':<4} ->c{r['probe']:<6} "
                    f"{r['score']:>5}  {spans}")
     if silent:
@@ -258,7 +345,7 @@ def render(rows: list[dict], width: int, base_score: int | None = None) -> str:
     index: dict[int, list[tuple[int, int]]] = collections.defaultdict(list)
     labelled = len({r["web"] for r in mapped}) != len(mapped)
     for r in mapped:
-        for window, moved in r["footprint"].items():
+        for window, moved in windows_of(r).items():
             index[window].append(
                 (abs(moved), f"{r['web']}=c{r['probe']}" if labelled
                  else str(r["web"])))
@@ -303,7 +390,16 @@ def main(argv: list[str] | None = None) -> int:
                         help="with --every-colour, also probe colours of the "
                              "other save kind (these usually change size)")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--report", type=pathlib.Path, default=None,
+                        help="re-render a saved footprints.json and stop; no "
+                             "compile, and the packing is recomputed")
     args = parser.parse_args(argv)
+
+    if args.report is not None:
+        saved = json.loads(args.report.read_text())
+        print(render(saved["rows"], saved.get("window", args.window),
+                     saved.get("base_score")))
+        return 0
 
     command = fl.compile_command(args.symbol)
     args.out.mkdir(parents=True, exist_ok=True)

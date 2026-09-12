@@ -207,6 +207,88 @@ class WinnerTests(unittest.TestCase):
         self.assertIn("(+10)", text)
 
 
+class PackingTests(unittest.TestCase):
+    """The best COMBINATION is a packing over radii, not the top of the list.
+
+    Measured on overlay 58: `w225=c20` beats `w225=c14` as a single force (217
+    against 220), yet the five-force set holding c14 measures 185 and the one
+    holding c20 measures 192, because c20 shares its radius exactly with
+    `w379=c20` and taking it abandons the region c14 reaches. The packing over
+    the complete 1,875-probe landscape returns that measured optimum.
+    """
+
+    def row(self, web, probe, score, windows, status="ok"):
+        return {"web": web, "reg": "s0", "probe": probe, "score": score,
+                "footprint": {w: -1 for w in windows}, "status": status}
+
+    def test_disjoint_forces_are_all_taken(self):
+        rows = [self.row(1, 10, 220, [0x00]), self.row(2, 11, 218, [0x80])]
+        chosen, predicted = wf.pack(rows, 227)
+        self.assertEqual(sorted(r["web"] for r in chosen), [1, 2])
+        self.assertEqual(predicted, 227 - 7 - 9)
+
+    def test_overlapping_forces_take_only_the_stronger(self):
+        rows = [self.row(1, 10, 220, [0x00, 0x80]), self.row(2, 11, 210, [0x80])]
+        chosen, predicted = wf.pack(rows, 227)
+        self.assertEqual([r["web"] for r in chosen], [2])
+        self.assertEqual(predicted, 210)
+
+    def test_one_web_cannot_be_packed_at_two_colours(self):
+        # A web has one colour; without this the packing predicts a score no
+        # compile can produce.
+        rows = [self.row(5, 14, 220, [0x00]), self.row(5, 20, 217, [0x80])]
+        chosen, predicted = wf.pack(rows, 227)
+        self.assertEqual(len(chosen), 1)
+        self.assertEqual(predicted, 217)
+
+    def test_a_weaker_force_wins_when_it_frees_a_region(self):
+        # The overlay 58 shape exactly: w225 at c20 scores better alone but
+        # duplicates w379's radius; at c14 it reaches a region nothing else does.
+        rows = [self.row(225, 20, 217, [0x1700]),
+                self.row(225, 14, 220, [0x0780]),
+                self.row(379, 20, 217, [0x1700])]
+        chosen, predicted = wf.pack(rows, 227)
+        self.assertEqual(sorted((r["web"], r["probe"]) for r in chosen),
+                         [(225, 14), (379, 20)])
+        self.assertEqual(predicted, 227 - 7 - 10)
+
+    def test_a_force_that_does_not_beat_the_base_is_never_packed(self):
+        rows = [self.row(1, 10, 300, [0x00]), self.row(2, 11, 220, [0x80])]
+        chosen, _ = wf.pack(rows, 227)
+        self.assertEqual([r["web"] for r in chosen], [2])
+
+    def test_nothing_to_pack_predicts_the_base(self):
+        self.assertEqual(wf.pack([self.row(1, 10, 300, [0])], 227), ([], 227))
+
+
+class RivalTests(unittest.TestCase):
+    def row(self, web, probe, score, windows):
+        return {"web": web, "reg": "s0", "probe": probe, "score": score,
+                "footprint": {w: -1 for w in windows}, "status": "ok"}
+
+    def test_forces_with_an_identical_radius_are_one_question(self):
+        rows = [self.row(225, 20, 217, [0x1700]), self.row(379, 20, 217, [0x1700]),
+                self.row(75, 16, 212, [0x0380])]
+        groups = wf.rivals(rows, 227)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(sorted(r["web"] for r in groups[0]), [225, 379])
+
+    def test_an_overlapping_but_unequal_radius_is_not_a_rival_group(self):
+        rows = [self.row(1, 10, 220, [0x00, 0x80]), self.row(2, 11, 218, [0x80])]
+        self.assertEqual(wf.rivals(rows, 227), [])
+
+    def test_a_rival_group_is_ordered_best_first(self):
+        rows = [self.row(1, 10, 224, [0x00]), self.row(2, 11, 212, [0x00])]
+        self.assertEqual([r["web"] for r in wf.rivals(rows, 227)[0]], [2, 1])
+
+    def test_the_render_names_the_packing_as_force_flags(self):
+        rows = [self.row(75, 16, 212, [0x0380]), self.row(27, 17, 224, [0x0080])]
+        text = wf.render(rows, 0x80, 227)
+        self.assertIn("--force p1:w75=c16", text)
+        self.assertIn("--force p1:w27=c17", text)
+        self.assertIn("predicted 209", text)
+
+
 class RenderTests(unittest.TestCase):
     def row(self, web, footprint, status="ok", **kw):
         base = {"web": web, "reg": "s0", "probe": 16, "score": 100,
