@@ -32,24 +32,67 @@ typedef struct Overlay101TextureElement {
 } Overlay101TextureElement;
 
 extern u32 D_230[];
-void func_overlay_101_F0000000_18DB820();
 
-/* PLATEAU (2026-08-26): workbench structure-mismatch; best 276/293 words, first +0x0.
- * Flag lattice and a combined clip-condition rewrite regressed; prior dimension/lifetime and stack levers remain closed.
- * Candidate remains 13 instructions short with a 0xD0 frame versus 0xE8. */
+/* Tier B: this function's four runtime R_MIPS_26 records are all SYMBOL
+ * operations. Two name overlay 101 +0x1F80 (overlay101SetScissor), one names
+ * overlay 101 +0x2118 (overlay101GetBounds) and one names the resident
+ * func_80034920 at +0x344D0 past the resident base. The extracted assembly
+ * shows all four as a jump to overlay offset 0 because a SYMBOL record ships
+ * the 0xF0000000 addend rather than offset >> 2, so they must be routed
+ * through the generated surface. The two overlay callees are ROM-exact, so
+ * their prototypes are the matched ones. */
+void overlay101GetBoundsReloc(Overlay101ClipNode *node, s32 *leftOut,
+                              s32 *topOut, s32 *rightOut, s32 *bottomOut);
+void overlay101SetScissorReloc(Overlay101Gfx **displayList, s32 left, s32 top,
+                               s32 right, s32 bottom);
+void func_80034920(Overlay101Gfx **displayList);
+
+/*
+ * NON_MATCHING reconstruction, rebuilt 2026-09-12 by lane p11-o101.
+ *
+ * The retained body named one symbol for all four calls and gave it four
+ * different argument lists, because the extracted assembly shows all four as
+ * a jump to overlay offset 0. That reading is wrong: every one of the four is
+ * a SYMBOL relocation record, so the shipped word carries the 0xF0000000
+ * addend rather than offset >> 2 and the real callee lives in the module's
+ * runtime table. Decoded there, they are overlay101GetBounds (overlay 101
+ * +0x2118), overlay101SetScissor twice (overlay 101 +0x1F80) and the resident
+ * func_80034920 (+0x344D0 past the resident base, which other overlays already
+ * call with a display-list pointer). Both overlay callees are ROM-exact, so
+ * their prototypes are the matched ones, and the third call takes ONE argument
+ * where the retained body passed four -- the two extra stack homes it needed
+ * for that are gone.
+ *
+ * The command idiom is this overlay's own, taken from ROM-exact
+ * overlay101SetScissor: a bare block per display-list word pair, with a fresh
+ * pointer snapshot of the cursor. The target's `move aN,v0` before every
+ * `addiu v0,v0,8` is that shape; writing the stores through the cursor itself
+ * folds the increments and emits negative displacements the target never has.
+ *
+ * Against the retained body this moves the structural residual from 142 words
+ * to 125 and the size delta from -52 to +8. The remaining +8 is exactly one
+ * extra callee-saved register's save and restore: this candidate holds ten
+ * where the target holds nine, so uopt has a spare register and hoists five
+ * loop-invariant opcode constants the target rematerialises each iteration.
+ * The positional masked count is 291 against the retained body's 276; that
+ * number is worse on a shape that is measurably closer, and the handoff says
+ * which axes have been measured.
+ */
 #ifdef NON_MATCHING
 void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
-                                      Overlay101ClipNode *node,
-                                      Overlay101TextureElement *element) {
+                                       Overlay101ClipNode *node,
+                                       Overlay101TextureElement *element) {
     s32 left;
     s32 top;
     s32 right;
     s32 bottom;
     s32 x;
     s32 y;
+    s32 edgeX;
+    s32 edgeY;
     s32 shift;
     s32 rows;
-    volatile s32 stride;
+    s32 stride;
     s32 sourceX;
     s32 sourceY;
     s32 drawX;
@@ -62,49 +105,36 @@ void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
     s32 loadCount;
     s32 loadLimit;
     s32 chunkRows;
-    u8 intensity;
     u8 *source;
     Overlay101Texture *texture;
     Overlay101Gfx *gfx;
-    Overlay101Gfx *lastCommand;
 
     if ((node->type == 2) || (node->type == 4)) {
         texture = element->texture;
         if (texture != 0) {
-            func_overlay_101_F0000000_18DB820(node, &left, &top, &right,
-                                              &bottom);
+            overlay101GetBoundsReloc(node, &left, &top, &right, &bottom);
             y = node->y + element->y;
             x = node->x + element->x;
-            if (right < x) {
-                goto done;
-            }
-            if (bottom < y) {
-                goto done;
-            }
-            if ((x + texture->width) < left) {
-                goto done;
-            }
-            if ((y + texture->height) < top) {
-                goto done;
-            }
-            {
-                func_overlay_101_F0000000_18DB820(displayList, left, top,
-                                                  right, bottom);
+            edgeX = x + texture->width;
+            edgeY = y + texture->height;
+            if ((right >= x) && (bottom >= y) && (edgeX >= left) &&
+                (edgeY >= top)) {
+                overlay101SetScissorReloc(displayList, left, top, right,
+                                          bottom);
 
                 loadLimit = 0x800 / texture->width;
                 if (loadLimit >= 8) {
                     shift = 3;
+                } else if (loadLimit >= 4) {
+                    shift = 2;
                 } else {
                     shift = 1;
-                    if (loadLimit >= 4) {
-                        shift = 2;
-                    }
                 }
                 rows = 1 << shift;
+                stride = texture->width * rows;
                 gfx = *displayList;
                 sourceX = 0;
                 mask = rows - 1;
-                stride = texture->width * rows;
                 drawX = x;
                 if (x < left) {
                     drawX = left;
@@ -126,92 +156,122 @@ void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
                     drawHeight = bottom - drawY;
                 }
 
+                source = (u8 *)texture + (stride * (sourceY >> shift) * 2) +
+                         0x10;
+                rowOffset = (sourceY & mask) << 5;
                 drawY *= 4;
                 drawX *= 4;
-                gfx->w0 = 0x06000000;
-                gfx->w1 = (u32)D_230;
-                gfx++;
-                rowOffset = (sourceY & mask) << 5;
-                lastCommand = gfx;
-                lastCommand->w0 = 0xFA000000;
-                intensity = node->intensity;
-                source = (u8 *)texture +
-                         (stride * (sourceY >> shift) * 2) + 0x10;
-                lastCommand->w1 = (intensity << 24) | (intensity << 16) |
-                                  (intensity << 8) | node->alpha;
-                gfx++;
+                sourceX <<= 5;
+                {
+                    Overlay101Gfx *command;
+                    command = gfx++;
+                    command->w0 = 0x06000000;
+                    command->w1 = (u32)D_230;
+                }
+                {
+                    Overlay101Gfx *command;
+                    command = gfx++;
+                    command->w0 = 0xFA000000;
+                    command->w1 = (node->intensity << 24) |
+                                  (node->intensity << 16) |
+                                  (node->intensity << 8) | node->alpha;
+                }
 
                 if (drawHeight > 0) {
-                    s32 rectRight =
-                        (((drawX + drawWidth * 4) & 0xFFF) << 12) |
-                        0xE4000000;
-                    s32 rectLeft = (drawX & 0xFFF) << 12;
-                    s32 tileBottom = (mask * 4) & 0xFFF;
-
                     stride *= 2;
-                    sourceX <<= 5;
                     do {
-                        gfx->w0 = 0xFD100000;
-                        gfx->w1 = (u32)source;
-                        gfx++;
-                        gfx->w0 = 0xF5100000;
-                        gfx->w1 = 0x07080200;
-                        gfx++;
-                        gfx->w0 = 0xE6000000;
-                        gfx->w1 = 0;
-                        gfx++;
-                        gfx->w0 = 0xF3000000;
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xFD100000;
+                            command->w1 = (u32)source;
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xF5100000;
+                            command->w1 = 0x07080200;
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xE6000000;
+                            command->w1 = 0;
+                        }
                         loadCount = (texture->width * rows) - 1;
                         if (loadCount >= 0x7FF) {
                             loadCount = 0x7FF;
                         }
-                        gfx->w1 = ((loadCount & 0xFFF) << 12) | 0x07000000;
-                        gfx++;
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xF3000000;
+                            command->w1 = ((loadCount & 0xFFF) << 12) |
+                                          0x07000000;
+                        }
                         source += stride;
-                        gfx->w0 = 0xE7000000;
-                        gfx->w1 = 0;
-                        gfx++;
-                        gfx->w0 =
-                            (((((texture->width * 2) + 7) >> 3) & 0x1FF)
-                             << 9) |
-                            0xF5100000;
-                        gfx->w1 = 0x00080200;
-                        gfx++;
-                        gfx->w0 = 0xF2000000;
-                        gfx->w1 =
-                            ((((texture->width - 1) * 4) & 0xFFF) << 12) |
-                            tileBottom;
-                        gfx++;
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xE7000000;
+                            command->w1 = 0;
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 =
+                                (((((texture->width * 2) + 7) >> 3) & 0x1FF)
+                                 << 9) |
+                                0xF5100000;
+                            command->w1 = 0x00080200;
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xF2000000;
+                            command->w1 =
+                                ((((texture->width - 1) * 4) & 0xFFF) << 12) |
+                                ((mask * 4) & 0xFFF);
+                        }
                         chunkRows = rows - (rowOffset >> 5);
                         if (drawHeight < chunkRows) {
                             chunkRows = drawHeight;
                         }
                         nextY = drawY + chunkRows * 4;
-                        gfx->w0 = rectRight | (nextY & 0xFFF);
-                        gfx->w1 = rectLeft | (drawY & 0xFFF);
-                        gfx++;
-                        gfx->w0 = 0xB3000000;
-                        gfx->w1 = (sourceX << 16) | (rowOffset & 0xFFFF);
-                        gfx++;
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xE4000000 |
+                                          (((drawX + drawWidth * 4) & 0xFFF)
+                                           << 12) |
+                                          (nextY & 0xFFF);
+                            command->w1 = ((drawX & 0xFFF) << 12) |
+                                          (drawY & 0xFFF);
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xB3000000;
+                            command->w1 = (sourceX << 16) |
+                                          (rowOffset & 0xFFFF);
+                        }
+                        {
+                            Overlay101Gfx *command;
+                            command = gfx++;
+                            command->w0 = 0xB2000000;
+                            command->w1 = 0x04000400;
+                        }
                         drawHeight -= chunkRows;
-                        lastCommand = gfx;
-                        lastCommand->w0 = 0xB2000000;
-                        lastCommand->w1 = 0x04000400;
-                        gfx++;
                         rowOffset = 0;
                         drawY = nextY;
                     } while (drawHeight > 0);
                 }
                 *displayList = gfx;
-                func_overlay_101_F0000000_18DB820(
-                    displayList, lastCommand, nextY, chunkRows);
-                func_overlay_101_F0000000_18DB820(displayList, 0, 0, 1000,
-                                                  1000);
+                func_80034920(displayList);
+                overlay101SetScissorReloc(displayList, 0, 0, 1000, 1000);
             }
         }
     }
-done:
-    ;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0002510_18DDD30/func_overlay_101_F0002510_18DDD30.s")
@@ -219,10 +279,10 @@ done:
 
 /* PLATEAU-HANDOFF:func_overlay_101_F0002510_18DDD30:start
  * symbol: func_overlay_101_F0002510_18DDD30
- * score: 276 differing words
- * frame: 0xD0
+ * score: 291 masked words of 293
+ * frame: 0xF8
  * relocations: 6
  * first-mismatch: +0x0
- * summary: V0: 280/293 words, frame 0xD0 versus 0xE8, 276 raw diffs. Relocs 6 each; 1 site and 0 identities align. Prior dimension, lifetime, and clip forms closed.
+ * summary: Rebuilt on the four decoded SYMBOL callees and this overlay's own display-list command idiom; structural residual 142 to 125 and size delta -52 to +8, where the +8 is one extra callee-saved register, while the positional count went 276 to 291 because the frame is 0xF8 against 0xE8.
  * PLATEAU-HANDOFF:func_overlay_101_F0002510_18DDD30:end
  */
