@@ -70,6 +70,11 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "19aedbd35669f5a2181cc95f4ecac631d8fd268a"
     },
+    "func_80006448": {
+      "ledger_commit": "acda10574281db59cc431de98fcb11a22cb298c3",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "a38fb3e0789a4cfb0eb0ab5a8a7483d684538bf1"
+    },
     "func_80006534": {
       "ledger_commit": "d2d2f7277f59ee0f9dd03cb67183e4a7952555b3",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
@@ -395,6 +400,26 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27"
     },
+    "func_8002AA50": {
+      "ledger_commit": "c9e79071d475b512debc38f7e02bcc8682733f66",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "c9e79071d475b512debc38f7e02bcc8682733f66"
+    },
+    "func_8002AB78": {
+      "ledger_commit": "3453bd5c488d590c05050d15ec2f7a5db0658c51",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "3453bd5c488d590c05050d15ec2f7a5db0658c51"
+    },
+    "func_8002AC84": {
+      "ledger_commit": "36127faa26a7d96f6a3ecc53b59e4728f05e0fbb",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "36127faa26a7d96f6a3ecc53b59e4728f05e0fbb"
+    },
+    "func_8002AE10": {
+      "ledger_commit": "6091b1a01df312435a7fd6ecae778481fb795ce4",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "6091b1a01df312435a7fd6ecae778481fb795ce4"
+    },
     "func_8002B040": {
       "ledger_commit": "98c9047772916494b41744b84a8f76ec310b32fc",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -460,10 +485,25 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "6f9e72e6fb41e2b3e351dfbc3546b6dae585a8fd"
     },
+    "func_800349A4": {
+      "ledger_commit": "7a4566dfe745e43b43b06e88349631dbaf69d03d",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "d59c971eab56071e3efe5265353886202df1d5c7"
+    },
+    "func_80034E54": {
+      "ledger_commit": "8744e6484324325c1b899182492ff1962767c33d",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "8744e6484324325c1b899182492ff1962767c33d"
+    },
     "func_800355A0": {
       "ledger_commit": "65925a5c237a851580679278dea7746082cbecf6",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "65925a5c237a851580679278dea7746082cbecf6"
+    },
+    "func_80035F48": {
+      "ledger_commit": "a863dd80ec6202a424fd71431d686bc728be4fbf",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "a863dd80ec6202a424fd71431d686bc728be4fbf"
     },
     "func_80036AB0": {
       "ledger_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad",
@@ -805,6 +845,21 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154"
     },
+    "func_overlay_001_F0001D78_184E158": {
+      "ledger_commit": "4730f79d5488a6a563a1e17af4ed1a3c1816a9b4",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "4730f79d5488a6a563a1e17af4ed1a3c1816a9b4"
+    },
+    "func_overlay_001_F0002B4C_184EF2C": {
+      "ledger_commit": "09d684a74d55e986f6d9b90209c946260027ba12",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "09d684a74d55e986f6d9b90209c946260027ba12"
+    },
+    "func_overlay_001_F0003258_184F638": {
+      "ledger_commit": "c5a39a71356daf84e3b6cd77fbb0156ea65bfb11",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "c5a39a71356daf84e3b6cd77fbb0156ea65bfb11"
+    },
     "func_overlay_001_F0003750_184FB30": {
       "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -820,10 +875,20 @@
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "18c4dd7bf89eccd3e54916a036ef395acea858c5"
     },
+    "func_overlay_002_F0001364_185815C": {
+      "ledger_commit": "e32e4b1e797bb27b5d568b37f53d6afe51bdec03",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "e32e4b1e797bb27b5d568b37f53d6afe51bdec03"
+    },
     "func_overlay_002_F0001A94_185888C": {
       "ledger_commit": "daecb33e7741645c83f713cface0a558e85bbe31",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "daecb33e7741645c83f713cface0a558e85bbe31"
+    },
+    "func_overlay_002_F0001DF8_1858BF0": {
+      "ledger_commit": "5037e79c097c932e6c03f1e9dba1aabef4f162fb",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "5037e79c097c932e6c03f1e9dba1aabef4f162fb"
     },
     "func_overlay_007_F0000324_185C1AC": {
       "ledger_commit": "66bc21be2721715dd4a00a88922b54e33dde29fc",
@@ -875,6 +940,11 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "a35c4cb721efdcc49b48ba1dda0cb04b8cfa2aa2"
     },
+    "func_overlay_009_F0000000_1866678": {
+      "ledger_commit": "e20735a9f9ce33f35d3c7a3b025a660e9ab3e80a",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "e20735a9f9ce33f35d3c7a3b025a660e9ab3e80a"
+    },
     "func_overlay_009_F0000540_1866BB8": {
       "ledger_commit": "c151dc2bd97566dcc5c6075560a0f8b74a7f57b7",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
@@ -895,10 +965,30 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "adc505d8d56ca3f66650d5845e20ec1048a6b7e8"
     },
+    "func_overlay_011_F0001E4C_186A694": {
+      "ledger_commit": "46d646760e5a77b877aa59e07ddad586f01704da",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "46d646760e5a77b877aa59e07ddad586f01704da"
+    },
     "func_overlay_011_F00022E8_186AB30": {
       "ledger_commit": "c1cd2f3e3ac6513106b79a2767ee9b78910cc5cf",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ffe52cc803195595d6f59587ed72581721585db9"
+    },
+    "func_overlay_012_F00003A8_186D628": {
+      "ledger_commit": "62d61e4bb46cf733154e1f8d5907cd205f071d78",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "62d61e4bb46cf733154e1f8d5907cd205f071d78"
+    },
+    "func_overlay_012_F0000910_186DB90": {
+      "ledger_commit": "7ab4dd5231d6d43fd82ed5943962ea5dcfe8aabb",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "7ab4dd5231d6d43fd82ed5943962ea5dcfe8aabb"
+    },
+    "func_overlay_014_F0001540_1870E18": {
+      "ledger_commit": "0f10f5be6e632ed67c77ba96e81813aab603b6df",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "0f10f5be6e632ed67c77ba96e81813aab603b6df"
     },
     "func_overlay_020_F000038C_1876964": {
       "ledger_commit": "b0707769d25676576150e02d365a01a1090b17c0",
@@ -915,10 +1005,20 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15"
     },
+    "func_overlay_022_F00002B0_18783B8": {
+      "ledger_commit": "ab6fd14822ae069ee0878ae4f4a8837f12ad2456",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "ab6fd14822ae069ee0878ae4f4a8837f12ad2456"
+    },
     "func_overlay_022_F0000D30_1878E38": {
       "ledger_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656"
+    },
+    "func_overlay_026_F00001A0_187A598": {
+      "ledger_commit": "30646111e6ecaaf7a3a2796f44709a5fb03e05b0",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "30646111e6ecaaf7a3a2796f44709a5fb03e05b0"
     },
     "func_overlay_026_F0000B18_187AF10": {
       "ledger_commit": "61c1106606d62f2d863423e45ef5786bca2a646b",
@@ -940,6 +1040,11 @@
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
       "source_commit": "ec93b7f8d5154dc32b64a9fda3694f40cc6130b4"
     },
+    "func_overlay_027_F0000624_187BFFC": {
+      "ledger_commit": "7146fffbe60c20abd00ebfa0a2500bd403505a6d",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "437c265c597d0c66f7ab3f666733741da58bd3ac"
+    },
     "func_overlay_029_F000042C_187D6DC": {
       "ledger_commit": "6db3232edcc296cb0b686ff7473e3b8b9421ead3",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -959,6 +1064,11 @@
       "ledger_commit": "0acc1679065b420bbb279a779264b63b9c04072b",
       "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
       "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
+    },
+    "func_overlay_031_F0000000_187F520": {
+      "ledger_commit": "45044dc2d4c7e52ae695dbac22d570050606a363",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "45044dc2d4c7e52ae695dbac22d570050606a363"
     },
     "func_overlay_031_F00002E8_187F808": {
       "ledger_commit": "86c0da5c4ebeaee107323d93df3a48aad6d8b22e",
@@ -985,10 +1095,20 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393"
     },
+    "func_overlay_036_F0000A60_1883F18": {
+      "ledger_commit": "743e8def99e49b26ad7e7019a09814333a9161b6",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "743e8def99e49b26ad7e7019a09814333a9161b6"
+    },
     "func_overlay_038_F0000000_1885D10": {
       "ledger_commit": "1103fd9dae101a49c0909ee2fa4ceab568cb6ee0",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017"
+    },
+    "func_overlay_038_F0000154_1885E64": {
+      "ledger_commit": "2886af0d298c36a9ee5b6b440d9d9852f1407afb",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "2886af0d298c36a9ee5b6b440d9d9852f1407afb"
     },
     "func_overlay_041_F0000124_188745C": {
       "ledger_commit": "013aa261826e59e639f6ba02d27e99f5d5c8dde4",
@@ -999,6 +1119,11 @@
       "ledger_commit": "903d967e6617e469b2c1d482e735b4592ec6c978",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "3b0f2040f6751b99c242dcb0e078e99b0b382206"
+    },
+    "func_overlay_041_F0001464_188879C": {
+      "ledger_commit": "390d37a8df119655b154c8b61ca97a55543dc1d0",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "390d37a8df119655b154c8b61ca97a55543dc1d0"
     },
     "func_overlay_041_F0001650_1888988": {
       "ledger_commit": "3b8d5f41db435616a519d3012547370cbe7cb68c",
@@ -1040,6 +1165,16 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "a2ac228388dd2aad0baab078461c8a768998f597"
     },
+    "func_overlay_046_F0000874_188EC6C": {
+      "ledger_commit": "85fc6ee1cbcc4d7398e70f78697b4c2de3206abf",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "2c760695078c909de710f7d06dc48db1bf24789b"
+    },
+    "func_overlay_046_F0001228_188F620": {
+      "ledger_commit": "bbfc59f2017a100cb07aa899975d2abd644b152a",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "bbfc59f2017a100cb07aa899975d2abd644b152a"
+    },
     "func_overlay_047_F0000000_1890E18": {
       "ledger_commit": "5cf05869e9af8dd404c469b6812f23969f48f224",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -1050,10 +1185,20 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8829b55c0709e84bf5881439eadb32ba1758be5e"
     },
+    "func_overlay_050_F0000000_1896970": {
+      "ledger_commit": "6bf1a0c3e0b4b22f5d4cbd0bc94221a33bc20cc0",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "6e4885f0ca873ac9579e3b42419d40536b25884e"
+    },
     "func_overlay_050_F0000334_1896CA4": {
       "ledger_commit": "c434329718cdd8e0614f19db4a68b5d9114d0b00",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "c434329718cdd8e0614f19db4a68b5d9114d0b00"
+    },
+    "func_overlay_052_F0000000_189A670": {
+      "ledger_commit": "0e0b5c291c1e5fa2fd193401a36132edbe5410be",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "44a0e7eaa3aa2f0884969e322032d5c10b775054"
     },
     "func_overlay_052_F000063C_189ACAC": {
       "ledger_commit": "0a458572b74f4742f0b651d4eecf7ed16ae94a1e",
@@ -1065,6 +1210,11 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "8c46de3417852aa40119541fd38ecd07b6906e85"
     },
+    "func_overlay_054_F0000000_189ECA0": {
+      "ledger_commit": "6b7f68146f6503a8ed99c36f3a13b03b36814387",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "6b7f68146f6503a8ed99c36f3a13b03b36814387"
+    },
     "func_overlay_054_F00005AC_189F24C": {
       "ledger_commit": "4b6d45043859646a3b58e93ea44b766dc00b2a83",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -1075,10 +1225,20 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea"
     },
+    "func_overlay_056_F00001A0_18A2F18": {
+      "ledger_commit": "1aa50f6d54666a771bfd0c212864142aa9faf2e2",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "3e97d289a17e8ed17219474474e67477a2e4490f"
+    },
     "func_overlay_057_F0000000_18A3BF8": {
       "ledger_commit": "f400e752390e39c0f967cc78803a7b84ca3d7723",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "8ac52fbd6033f8b15d5d4452cdf2c04e6b7841ba"
+    },
+    "func_overlay_057_F0001020_18A4C18": {
+      "ledger_commit": "593888ed3ef9876a736dbd7ab766496d6a20c5e4",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "593888ed3ef9876a736dbd7ab766496d6a20c5e4"
     },
     "func_overlay_057_F0001AE8_18A56E0": {
       "ledger_commit": "d0afa16d07c9bf96c9a0526eeeaf48a5bfbc2aab",
@@ -1125,10 +1285,30 @@
       "reason": "Four words remain: all 2789 instructions are identical to the target and the census delta is 0. One spilled compiler temp is homed at 88(sp) against the target's 96(sp); the slot-priority mechanism is diagnosed in the shard.",
       "source_commit": "0534f43aa472bdab7482d80d0c86a305fada2335"
     },
+    "func_overlay_060_F0002F54_18BCD2C": {
+      "ledger_commit": "8f9ebca74e459f524fd0d70f009eaf681a419ee5",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "8f9ebca74e459f524fd0d70f009eaf681a419ee5"
+    },
+    "func_overlay_061_F0000B84_18BFF4C": {
+      "ledger_commit": "900b48893e83a53be6d2932d2f1d6a47d94fdffd",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "900b48893e83a53be6d2932d2f1d6a47d94fdffd"
+    },
+    "func_overlay_064_F0000000_18C3B28": {
+      "ledger_commit": "6425ca917c05b5589e9cdefbb31d0628568bc69e",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "133737d81be79e8f7d6ece9484040ccdca85e62d"
+    },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": "554ca5b60eec5c9eeafc8fefcccaa639bd4db9bd",
       "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "e9bfc8dba9d7bdccca23ba32a145c7d39d17ca83"
+    },
+    "func_overlay_066_F0000040_18C64A8": {
+      "ledger_commit": "077e4e3cd77f99a4a2fa8c032b33b7e993c38e40",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "077e4e3cd77f99a4a2fa8c032b33b7e993c38e40"
     },
     "func_overlay_066_F00004E0_18C6948": {
       "ledger_commit": "d3fcf8ea6f4e562d75f6b0a7e7f97dc8b6482478",
@@ -1140,6 +1320,11 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "c8e356642eee9c0647890d8f4623516ab3194a02"
     },
+    "func_overlay_073_F0000190_18CAC50": {
+      "ledger_commit": "6d9e8c8cd742c2492028f23c3fe036bb29b76c27",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "6d9e8c8cd742c2492028f23c3fe036bb29b76c27"
+    },
     "func_overlay_073_F0000D70_18CB830": {
       "ledger_commit": "12941fed0461b1ec5c79c252b990ed5494467a76",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
@@ -1150,10 +1335,40 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "0354e1a2beb561b8a61be3277f437169faa3c456"
     },
+    "func_overlay_079_F0000FA0_18CDF40": {
+      "ledger_commit": "33cecba3c8a10060df5649ad785028df65738a64",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "33cecba3c8a10060df5649ad785028df65738a64"
+    },
+    "func_overlay_084_F0000314_18D07F4": {
+      "ledger_commit": "930c2122a519bbb3fa6554d341e3271509717efc",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "930c2122a519bbb3fa6554d341e3271509717efc"
+    },
+    "func_overlay_087_F0000128_18D3090": {
+      "ledger_commit": "68839f829c6fec28b1d4b19cd68cf607769df864",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "68839f829c6fec28b1d4b19cd68cf607769df864"
+    },
+    "func_overlay_090_F00000FC_18D4BF4": {
+      "ledger_commit": "9320c23516e0c9a3e5934d93332d8d8c413e3103",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "46725c0ed62dd4e0e0ec0aa82a8db131409f74fd"
+    },
     "func_overlay_092_F0000068_18D5F88": {
       "ledger_commit": "9d5f2205be121eef7507305c71980130a043a7bb",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8"
+    },
+    "func_overlay_092_F0000308_18D6228": {
+      "ledger_commit": "f2c8d6f9553282c6bc14721d1d3c1223fc835d0f",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "c4c2c5547f1314c7c6c703b36d9c57a26fc49c91"
+    },
+    "func_overlay_099_F0000DDC_18DA38C": {
+      "ledger_commit": "303a0613fd5d42b32e22acf0a49d7811d50c8a8d",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "303a0613fd5d42b32e22acf0a49d7811d50c8a8d"
     },
     "func_overlay_101_F0002510_18DDD30": {
       "ledger_commit": "fd7641b447aebaf746f0412e0dfe788377991b7b",
@@ -1230,10 +1445,20 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "b32025753c70f0bd3f5989187c035c25e8274cd0"
     },
+    "levelGetCounts": {
+      "ledger_commit": "ec52595d068bd560579dfe9cd252bb69ac96c7f8",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "f00aa2b6108ee4464492cc3cbb4508f694b57d67"
+    },
     "levelInit": {
       "ledger_commit": "727b04fbe8c20cde11dc3f57b3b62f10c7990340",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "727b04fbe8c20cde11dc3f57b3b62f10c7990340"
+    },
+    "overlay100DrawMotion": {
+      "ledger_commit": "fb8e95096e41ee2a7200e6e3cd1077bff58d944b",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "fb8e95096e41ee2a7200e6e3cd1077bff58d944b"
     },
     "overlay101BuildBorder": {
       "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
@@ -1250,10 +1475,35 @@
       "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 664-byte/166-word candidate, 62 masked differences, first +0x7C. Old source hypotheses, flags, permutation, and C-body mutation remain closed.",
       "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26"
     },
+    "overlay101TailA6BC": {
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "89a3e47de77c85f10c4579aa6e1e93ff7ec59217"
+    },
+    "overlay10Initialize": {
+      "ledger_commit": "22ff4dda5d91ac1e58e0fddde26422e70f79bdf3",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "22ff4dda5d91ac1e58e0fddde26422e70f79bdf3"
+    },
     "overlay11UpdateMenu": {
       "ledger_commit": "af09b2d6ba31b31583ebaac7c8d6e7a7dd6f1e2b",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "cd650a80bc656d9b35176e6b01c6e7484c49a922"
+    },
+    "overlay13DrawActive": {
+      "ledger_commit": "2201d63875c6fad362505a6710cebe0f816d9237",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "2201d63875c6fad362505a6710cebe0f816d9237"
+    },
+    "overlay13DrawRecord": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "c586089df86a94384eccb45d88e4cbdc7dcbff26"
+    },
+    "overlay13UpdateRecord": {
+      "ledger_commit": "d77e9e26220200543f63f59750bb49102a4c4e03",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "d77e9e26220200543f63f59750bb49102a4c4e03"
     },
     "overlay14CreateValue": {
       "ledger_commit": "b5c6562009fd4ae4995177f0b546ca4dd74f7a42",
@@ -1265,6 +1515,11 @@
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "c2f4d7d7b8dfe9762e336bdb30ee31ac844edabc"
     },
+    "overlay14PrepareInputState": {
+      "ledger_commit": "6ffe6dd9d2d49786a7be054835d3821cd2214f72",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "2bc4685855596af95bb84b26daa1e0fee2436209"
+    },
     "overlay15DrawRain": {
       "ledger_commit": "72e4a3998b7e91f4ced8a10646b2dc8602ccebc0",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
@@ -1275,10 +1530,25 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "a8c0ba0e8b04ac5f7ab4d25519009346bbfbeef6"
     },
+    "overlay15InitStars": {
+      "ledger_commit": "77a6f324aaa424fb7451efd597adab48213e6bba",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "77a6f324aaa424fb7451efd597adab48213e6bba"
+    },
+    "overlay15InitStarsAndPalette": {
+      "ledger_commit": "5055cfa2681232ab1a6e74a0bdc113655a81c2e8",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "5055cfa2681232ab1a6e74a0bdc113655a81c2e8"
+    },
     "overlay15MoveStars": {
       "ledger_commit": "e95ac5b6b5b59ac50fe89e3e334af8eafd74b90a",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "dae364fca1e92b62c4b2e76cd5be9cfdb51572f0"
+    },
+    "overlay15UpdateMovingStars": {
+      "ledger_commit": "b48a69a718c12ad9a092378e042dc128e48208b3",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "b48a69a718c12ad9a092378e042dc128e48208b3"
     },
     "overlay16ApplyGradient": {
       "ledger_commit": "cdaec4be6246662091307e6647ccfbf43b12039d",
@@ -1290,6 +1560,16 @@
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "4106abf3403fc9a545e263cbff68d5de37d3a858"
     },
+    "overlay17CalculateEndpoints": {
+      "ledger_commit": "bae7a665c6332e12471d3d0c44d98f3b5f134ac2",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "bae7a665c6332e12471d3d0c44d98f3b5f134ac2"
+    },
+    "overlay17CreateChain": {
+      "ledger_commit": "43e0fd94d7fc2e44a7dbf293c5d566292c5169df",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "43e0fd94d7fc2e44a7dbf293c5d566292c5169df"
+    },
     "overlay17DrawStrip": {
       "ledger_commit": "e4abe37e7e1ab6f9afade5656e102c4c6cecc19f",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
@@ -1299,6 +1579,16 @@
       "ledger_commit": "9a477cd3ca8794d35d9cd76a34f0a4eb080bc653",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "9a477cd3ca8794d35d9cd76a34f0a4eb080bc653"
+    },
+    "overlay19BuildPlanes": {
+      "ledger_commit": "5ea79b6e4ae7fbb40b9d0042eb2e5d0ef0a5ca32",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "5ea79b6e4ae7fbb40b9d0042eb2e5d0ef0a5ca32"
+    },
+    "overlay19BuildSpatialMasks": {
+      "ledger_commit": "f50a36b93c3923811aaa1846dcbddb21b7cc5269",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "0e3edf9e8347ce6114dc1a863771dad06546de36"
     },
     "overlay19ClassifyEdge": {
       "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
@@ -1395,6 +1685,11 @@
       "reason": "Blocked by a stale evidence pin rather than by evidence: both are delta-0 rows at two differing words, and today's spilltemps law and ugen FIFO-queue reading are untried on them.",
       "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
+    "overlay1LoadBuildRecords": {
+      "ledger_commit": "23c1275f54f6f4eb92a239a806481cc73c1f69eb",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "23c1275f54f6f4eb92a239a806481cc73c1f69eb"
+    },
     "overlay1MeasureCurves": {
       "ledger_commit": "71f3960b5aa2afb191a659f4f47393b980ef9dc5",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
@@ -1430,6 +1725,11 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "29ccc2a8321b19e0df2eff4a13848e787a34dcf8"
     },
+    "overlay25UpdateEffect": {
+      "ledger_commit": "25ed877e2ceb660ad1e76664569e101452565665",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "25ed877e2ceb660ad1e76664569e101452565665"
+    },
     "overlay27UpdateCoordinates": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
@@ -1439,6 +1739,11 @@
       "ledger_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3"
+    },
+    "overlay2ChooseBoundary": {
+      "ledger_commit": "beec22543fdcf10f0b17133bd316167fb48b7ec3",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "beec22543fdcf10f0b17133bd316167fb48b7ec3"
     },
     "overlay2ClassifyBoundary": {
       "ledger_commit": "98c9047772916494b41744b84a8f76ec310b32fc",
@@ -1485,6 +1790,21 @@
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "2964dfd496bc549532c6b5afe36cb7b769c96b6a"
     },
+    "overlay34SortAndDraw": {
+      "ledger_commit": "13a2c18556c7fdb8a94d556d99a11ca51ab934b0",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "13a2c18556c7fdb8a94d556d99a11ca51ab934b0"
+    },
+    "overlay36UpdateInteractiveEntity": {
+      "ledger_commit": "796357935f5af94cc36660a3865d6b5f4be1d8ae",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "796357935f5af94cc36660a3865d6b5f4be1d8ae"
+    },
+    "overlay37RenderEffect": {
+      "ledger_commit": "5ef33dd090e496c017241f75f1167bef831a8a2f",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "5ef33dd090e496c017241f75f1167bef831a8a2f"
+    },
     "overlay3RunCachedModeAction": {
       "ledger_commit": "47d0bce7bc5209dd4578d35ea1caf0817a9551e7",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
@@ -1495,6 +1815,11 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "03474a3945af8adf2d5d942c6ea83a9e9f011dcb"
     },
+    "overlay40BuildFrame": {
+      "ledger_commit": "c177a5a72e139cfc17c79e8b2ba50107f86a3b21",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "c177a5a72e139cfc17c79e8b2ba50107f86a3b21"
+    },
     "overlay40FadeRecords": {
       "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
       "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
@@ -1504,6 +1829,11 @@
       "ledger_commit": "598cf64d96f6227c5882033610c056ebccdc629b",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "598cf64d96f6227c5882033610c056ebccdc629b"
+    },
+    "overlay44UpdateFrameCache": {
+      "ledger_commit": "8554caa23a08071ace512f223b67be459208bbb6",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "8554caa23a08071ace512f223b67be459208bbb6"
     },
     "overlay48InitializeState": {
       "ledger_commit": "9e8fbd654a20f9711199839bddcc679f9ba09141",
@@ -1530,6 +1860,31 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d"
     },
+    "overlay57UpdateSelection": {
+      "ledger_commit": "8ffcc11dd3def671a8691987b9991b8be23d5b00",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "a67fa6ae8347ec95c173bbe8e85ccb495f2729c7"
+    },
+    "overlay58DrawLargePointQuad": {
+      "ledger_commit": "d73cbc850d42d7fd40adc266aae446f06f1f94ac",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "d73cbc850d42d7fd40adc266aae446f06f1f94ac"
+    },
+    "overlay58DrawPointQuad": {
+      "ledger_commit": "a031b6dc2119e1ddca83686b669e22fb02c40c72",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "a031b6dc2119e1ddca83686b669e22fb02c40c72"
+    },
+    "overlay58DrawSegmentStrip": {
+      "ledger_commit": "673021a01278eff8cfb7f32dfaf9a83e872ddbe8",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "673021a01278eff8cfb7f32dfaf9a83e872ddbe8"
+    },
+    "overlay58FinalizePackedStatus": {
+      "ledger_commit": "caf45d358ce5892593aa4462f58fff222de539fe",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "caf45d358ce5892593aa4462f58fff222de539fe"
+    },
     "overlay59Advance": {
       "ledger_commit": "09e698ef6b40b1b5a454b6ac2ad5bd36e813eee3",
       "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
@@ -1555,6 +1910,11 @@
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "07bc92e927f72f2a7683986ac75093607efd2dd3"
     },
+    "overlay63UpdateEffects": {
+      "ledger_commit": "4c41268db82820bf137ceb4f749638ac8cb1d70a",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "4c41268db82820bf137ceb4f749638ac8cb1d70a"
+    },
     "overlay63UpdateSequence": {
       "ledger_commit": "6ebdc0ad0f80fbbf486c8bd8eec869e24d3f6641",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -1570,10 +1930,20 @@
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "3274410fbfb61ba5c2f1466e729096cefe6d62e3"
     },
+    "overlay68DrawSortedEntries": {
+      "ledger_commit": "7489e24e0a5494200ad7d478e38e1f4062b24200",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "7489e24e0a5494200ad7d478e38e1f4062b24200"
+    },
     "overlay68RebuildSecondaryEntry": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
       "source_commit": "b1a8f39f5b1fc714777b997b9ab76e3692e6ee8f"
+    },
+    "overlay68UpdateAnimation": {
+      "ledger_commit": "ce1059bdbbbd4ea7105aa123299ea67baf685364",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "ce1059bdbbbd4ea7105aa123299ea67baf685364"
     },
     "overlay74Update": {
       "ledger_commit": "e2eb59251353c04c5914fad172c6d6806e9c8122",
@@ -1599,6 +1969,16 @@
       "ledger_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee"
+    },
+    "overlay83BuildBatch": {
+      "ledger_commit": "ab2e28755e75281263cff6b4846893469a252f61",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "ab2e28755e75281263cff6b4846893469a252f61"
+    },
+    "overlay83DrawStrip": {
+      "ledger_commit": "f4355da50d5e3929fee866f69eac5a887c4cd351",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "f4355da50d5e3929fee866f69eac5a887c4cd351"
     },
     "overlay89InitializeEffect": {
       "ledger_commit": "fb9a096f575791e53907007f0bdb5aeaf6348437",
@@ -1639,6 +2019,11 @@
       "ledger_commit": "4100d1b96b29e9fd23198a99472b593b138a0e22",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "9ad11577bd38cf096723e6b8587e39cd3e9a51e3"
+    },
+    "overlay99ApplySegment": {
+      "ledger_commit": "1377145754e1a57d1f940a56e0552f463af749d3",
+      "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
+      "source_commit": "1377145754e1a57d1f940a56e0552f463af749d3"
     },
     "overlay99BuildHeightGrid": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
