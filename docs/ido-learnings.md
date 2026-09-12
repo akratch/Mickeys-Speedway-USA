@@ -143,6 +143,23 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- **Price a forced loop constant together with the other rematerialized webs.**
+  When a target restores a constant at many handler exits but the candidate
+  materializes it only a few times, an accepted colour force can recover those
+  restorations while making a shared address remain allocated. Its address
+  materializations then disappear, and the whole function can become shorter
+  even though the constant's own inventory grows. Count both inventories and
+  their relocation surfaces in the forced object before translating a decision
+  into a missing-word price. Re-price on the current source shape; a successful
+  constant force in a neighbouring function does not establish independence.
+  The useful lever is the coupled live-range/split decision, not inserting
+  literal restorations into the C. Limits: the force is diagnostic, the desired
+  colour may still be forbidden, and no object from a forced compiler is
+  promotable. Evidence: the controlled baseline and revised-shape forces in
+  [the animation command handoff](matching-triage-handoffs/func_800517E0.md)
+  and the contrasting positive net constant price in
+  [the collision-update handoff](matching-triage-handoffs/func_80053868.md).
+
 - A declared local reserves a frame home whether or not it is register
   coloured, and the declared block is laid out at the TOP of the local region
   in declaration order, first-declared highest, with the compiler's own
