@@ -213,8 +213,8 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         var_f0 = -arg8;
         angleStep = 0x10000 / (s32) cone->segmentCount;
     }
-    points[0].x = 0.0f;
     points[0].y = 0.0f;
+    points[0].x = 0.0f;
     points[0].z = var_f0;
     point = points + 1;
     i = 0;
