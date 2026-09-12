@@ -2435,11 +2435,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_800470B0:start
  * symbol: func_800470B0
- * score: 90 differing words
+ * score: 89/149 words
  * frame: 0x168
  * relocations: 3
- * first-mismatch: 0x44
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new fixed-bound loop carrier topology evidence.
+ * first-mismatch: +0x44
+ * summary: Independent point-store scheduling swap removes one residual word; coloured global-register cycles remain the allocator blocker.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
