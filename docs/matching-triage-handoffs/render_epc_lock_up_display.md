@@ -2,11 +2,11 @@
 ### `render_epc_lock_up_display` plateau handoff
 
 - source: `src/main/diCpu.c`
-- score: 51/344 words
+- score: 51 differing words
 - frame: 0x50
 - relocations: 127
 - first mismatch: +0x18
-- summary: Exhaustive 137-cell colour landscape has floor 51; source question is one zero-byte leading integer ring draw.
+- summary: Dead tick updates are byte-inert and compensated preincrement adds an instruction; the zero-byte leading ring draw remains open.
 
 #### 2026-09-12, lane p9-mid: 62 -> 51, with the ring measured rather than inferred
 
@@ -113,4 +113,37 @@ construct that consumes one integer ugen ring slot before the first emitted
 instruction, producing the target's leading t7 phase without naming a live
 value or inserting code. The previously tested OR-with-zero family and other
 natural inert forms remain flat at this site.
+#### 2026-09-12, lane p24-second-mid: dead tick updates do not buy the leading draw
+
+The base-only assignment gate passes. The configured baseline is 344 words,
+zero size delta, frame 0x50, 51 raw and masked differences, first +0x18.
+Its aligned buckets are 293 exact, 49 naming and two structural rows, with
+no one-sided words. Both assembled streams have 127 relocation sites;
+this pass does not replace the prior complete-identity audit. The previous
+exhaustive colour landscape was read and not repeated.
+
+The source hypothesis is a discarded tick-counter update after its value has
+been selected as the first printf's stack argument. The counter is u32 and is
+overwritten immediately after the call, so both a postincrement and a
+postdecrement preserve the value passed and every later observable value,
+including at unsigned wraparound. Both controls are full-TU text-identical
+to the baseline and have zero aligned delta in every window: no leading draw
+survives. A compensated preincrement, starting from the unsigned tick minus
+one, also preserves the passed value but adds four executable bytes and
+regresses to 336 masked. The aligner exposes the extra word and broad local
+regressions rather than treating the positional insertion shadow as progress.
+
+No source form is adopted. The two dead updates are eliminated too early,
+and the compensated update retains an instruction instead of buying a free
+draw. Stop on these three non-improving controls and the inherited probe
+closure. A next attempt still needs a demonstrated zero-instruction leading
+ring allocation; an update of this disposable local does not provide one.
+
+The external-source baseline was compared against the configured whole TU
+before using the private compile path, and its text is identical. Sources,
+objects, scores, first mismatches and aligned maps are retained under
+build/p24/render_epc_lock_up_display/. Commands: lane_status, configured
+compilation, residual_map --object/--against, full-TU comparison,
+finalize_plateau and tools/gates.sh. The original guarded body is retained.
+
 <!-- plateau-handoff:render_epc_lock_up_display:end -->

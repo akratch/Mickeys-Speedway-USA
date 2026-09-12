@@ -6,7 +6,7 @@
 - frame: 0x38
 - relocations: 4
 - first mismatch: +0x28
-- summary: Accepted force pair reaches zero at delta 0; source mechanism is record a0 interference.
+- summary: allocation-mismatch: typed bound repairs record/index colours but loses bound/multiply geometry; indexed carriers retain v0 interference.
 
 #### 2026-09-11, lane `f9-small`: unused homed locals are inert on this frame
 
@@ -100,4 +100,86 @@ minus eight and minus three, and the pair is exactly additive. The named source
 question remains what makes the record web’s a0 unavailable while preserving
 the target frame and call geometry; the diagnostic force itself is not a
 shippable source change.
+
+#### 2026-09-12, lane `p24-forcedzero`: source translation plateau
+
+The retained guarded body is unchanged: 200 bytes, 50/50 words, frame 0x38,
+12 raw and 11 relocation-masked differences, first masked mismatch +0x28.
+Alignment is 39 exact, 11 naming, zero immediate, zero structural, with no
+candidate-only or target-only words. No new matching credit is claimed.
+A fresh Ucode-name receipt maps this TU to procedure 0 and passes text, data,
+rodata, relocation and symbol fidelity. No colour sweep or force was repeated.
+
+The final configured preflight calls this `allocation-mismatch`. Candidate
+and target have four relocations with all offsets and types aligned; three
+static identities resolve, while the allocation call at +0x1C remains
+unresolved by the static resolver. That identity diagnostic precedes the
+first instruction mismatch and must not be reported as an instruction error.
+The canonical assembly fallback remains active.
+
+**What moved, and what did not.**
+
+- Deleting the state carrier lets IDO generate the identical inner pointer;
+  it does not move the record web off c3. Changing the record carrier to an
+  integer address, or the allocation-size literal to signed, also leaves
+  the aligned residual unchanged.
+- The indexed-source recipe that matched the angle scan does not transfer
+  directly. Deriving record inside the outer loop can reproduce the target
+  extent, but state then starts with `forbidden0=0x40000000`: v0 is already
+  unavailable. State moves to c2 and the inner counter to c3, so getting the
+  record and outer counter onto their wanted colours spends the inner-loop
+  agreement. Explicit state carriers and a separate array-base alias do not
+  remove that interference; other index forms also add instructions.
+- Splitting the inner bound as `15U` is a real type-identity effect. The
+  loop-bound web can now take c3, followed by record at c4 and the outer
+  counter at c5; state and the inner counter keep c1 and c2. Thus all eleven
+  original record/index naming rows are repaired by ordinary source. But
+  the bound itself should remain in t0, and the now-independent final
+  multiplier is strength-reduced rather than sharing the loop constant's
+  materialization. The result is eight bytes short and 22 masked differences,
+  with 33 aligned exact, eight naming, one immediate and six structural rows,
+  plus two missing target words. The returned allocation also moves to the
+  newly free t0. Merely giving the final multiplier an unsigned literal
+  does not produce this change; it is byte-flat at eleven on the baseline.
+
+**Attempt receipts.** Fifteen source candidates were measured. Global attempt
+numbers include the thirteen angle-scan candidates. Every candidate retains
+source, object, compiler log, scalar score, first mismatch, allocator trace
+and `residual_map.py --object A --against B --window 0x40` output in ignored
+lane evidence. The compact rows below give masked positional differences,
+size delta, aligned exact/naming/immediate/structural counts, extra
+candidate/target words, and first masked mismatch; aligned windows, not the
+positional count alone, decided adoption.
+
+- Attempt 1, unsigned multiplier literal: 11 masked, delta +0; aligned 39/11/0/0; extra 0/0; first +0x28.
+- Attempt 2, delete state carrier and use a natural inner index: 11 masked, delta +0; aligned 39/11/0/0; extra 0/0; first +0x28.
+- Attempt 3, delete both walking-pointer carriers: 46 masked, delta +20; aligned 30/15/0/5; extra 5/0; first +0x24.
+- Attempt 5, reuse the count parameter as the outer counter: 49 masked, delta +4; aligned 24/14/2/9; extra 2/1; first +0x0.
+- Attempt 10, signed allocation-size literal: 11 masked, delta +0; aligned 39/11/0/0; extra 0/0; first +0x28.
+- Attempt 12, natural nested for loops without pointer carriers: 42 masked, delta +8; aligned 31/12/3/4; extra 2/0; first +0x28.
+- Attempt 13, derive record from the outer index inside a natural for loop: 12 masked, delta +0; aligned 38/10/0/2; extra 0/0; first +0x28.
+- Attempt 14, integer rather than pointer record carrier: 11 masked, delta +0; aligned 39/11/0/0; extra 0/0; first +0x28.
+- Attempt 15, read count through its address at allocation: 42 masked, delta +8; aligned 19/12/2/15; extra 4/2; first +0x0.
+- Attempt 23, retain a separate array-base alias and index it: 46 masked, delta +20; aligned 30/15/0/5; extra 5/0; first +0x24.
+- Attempt 24, indexed array-base alias with explicit state carrier: 41 masked, delta +8; aligned 31/10/4/5; extra 2/0; first +0x28.
+- Attempt 25, unsigned inner-bound literal: 22 masked, delta -8; aligned 33/8/1/6; extra 0/2; first +0x24.
+- Attempt 26, unsigned integer spelling of indexed record address: 40 masked, delta -8; aligned 16/17/2/12; extra 1/3; first +0x28.
+- Attempt 27, unsigned natural inner for loop: 22 masked, delta -8; aligned 33/8/1/6; extra 0/2; first +0x24.
+- Attempt 28, signed integer spelling of indexed record address: 40 masked, delta -8; aligned 16/17/2/12; extra 1/3; first +0x28.
+
+**Stop condition.** Attempt 25 was the last new causal result: it demonstrated
+the bound/multiplier type coupling and its eight-byte cost. Attempts 26, 27
+and 28 produced no better admissible residual and no new allocator mechanism:
+the two integer-address forms retain the known v0 interference and are
+identical to each other; the natural unsigned inner loop reproduces attempt
+25's result. This is the ADR 0018 three-attempt stall, not a wall-clock expiry
+or a claim that the function is unmatchable.
+
+**Next action.** Reopen only with a source mechanism that leaves the existing
+state/inner-counter assignments and shared bound/multiplier geometry intact
+while reserving c3 from record, or with evidence that separates that literal
+coupling at zero instruction cost. Do not repeat the index/carrier forms or
+literal spellings listed here. The successful angle-scan recipe is committed
+separately; its extra array-base web wins a low-priority tie, whereas this
+record web has save 40.5 and is decided much earlier.
 <!-- plateau-handoff:overlay31CreatePool:end -->

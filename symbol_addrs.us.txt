@@ -2886,3 +2886,6 @@ func_8000B3CC = 0x8000b3cc; // type:func size:0x7b8 ROM 0xbfcc tier-A assembly f
 // addresses directly; func_8004ACC4's matched C indexes all three arrays
 // from one loop variable and needs the base.
 D_800D60D0 = 0x800D60D0; // type:u8 size:0x4 tier-B fx texture-slot availability flags
+
+// Overlay 1 identity is scoped by section ownership and ROM location.
+overlay1FindType47ByAngle = 0xF00001AC; // type:func size:0x128 rom:0x184C58C segment:overlay_001 tier-A matched C, 74 linked words and six runtime relocation identities

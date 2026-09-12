@@ -102,6 +102,6 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: Twelve-web exhaustive scan has five rival winners on one web; diagnostic floor47. Six literal-identity probes fail; pre-call count/copy-buffer setup remains.
+ * summary: Exhaustive colour landscape: only web 52 reaches 47 under force; indexed-copy forms regressed structurally, so the source cursor remains guarded.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */

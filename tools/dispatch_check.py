@@ -115,6 +115,30 @@ def check(plan: dict[str, list[str]]) -> tuple[list[str], list[str]]:
                 f"{symbol} is not in the NON_MATCHING queue: already matched, or misspelled. "
                 f"A lane pointed at it re-derives a landed match.")
 
+    # Two lanes editing one translation unit is the conflict that actually
+    # costs an integration, and the symbol check above does not see it: three
+    # overlay 8 functions with distinct names live in one overlay_008.c, so a
+    # plan that splits them across lanes passes every check here and then
+    # conflicts on every merge. The ranking carries each symbol's source file,
+    # so this is free to check and nothing else checks it.
+    files: dict[str, dict[str, list[str]]] = collections.defaultdict(
+        lambda: collections.defaultdict(list))
+    for lane, symbols in plan.items():
+        for symbol in symbols:
+            row = rows.get(symbol) or {}
+            path = row.get("file") or row.get("rel_c_file")
+            if path:
+                files[path][lane].append(symbol)
+    for path, lanes in sorted(files.items()):
+        if len(lanes) > 1:
+            spread = "; ".join(f"{lane} has {', '.join(sorted(syms))}"
+                               for lane, syms in sorted(lanes.items()))
+            problems.append(
+                f"{path} is edited by {len(lanes)} lanes ({spread}). One owner "
+                f"per translation unit: a per-TU flag or a shared static is one "
+                f"edit that moves every function in it, and two lanes editing "
+                f"one file conflict on every merge.")
+
     states = assignability(sorted(owner))
     if not states:
         notes.append("\nNOTE lane_status unavailable -- assignability unchecked; "

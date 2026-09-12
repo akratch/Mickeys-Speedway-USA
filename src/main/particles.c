@@ -2599,11 +2599,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003D25C:start
  * symbol: func_8003D25C
- * score: 68 differing words
+ * score: 68/168 words
  * frame: 0xB8
  * relocations: 2
  * first-mismatch: +0x50
- * summary: pure allocation with exact size, frame and relocations. The temp ring is rotated by one from the very first temporary in the function, with no call in scope before the divergence, so this is not the carry-across-a-call mechanism that closed func_8003D4FC. The intensity carrier is the live surface: routing particle->alpha through one extra integer carrier buys five words when the carrier is the loop counter (which is not a legal spelling) and one word when it is a dead local, while spelling the three products against the fields directly costs ten. A 30-minute permuter run went 455 to 390 and stalled, and every one of its improvements was that same carrier insertion.
+ * summary: Authenticated 202-force landscape: web 79 reaches 62, while neighbouring gains are rival footprints and their combinations decline; no force is exact.
  * PLATEAU-HANDOFF:func_8003D25C:end
  */
 

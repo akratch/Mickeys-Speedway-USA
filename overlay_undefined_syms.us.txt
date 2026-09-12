@@ -21,6 +21,8 @@ gOverlay1CycleLength = 0x00001d8c;
 gOverlay1End = 0x00001d5c;
 gOverlay1Entries = 0x00001ba0;
 gOverlay1EntryCount = 0x00001d8c;
+gOverlay1PhaseScaleLiteral = 0x000000ac;
+gOverlay1ScanLimit = 0x000000a8;
 gOverlay1SegmentSize = 0x00001d8c;
 gOverlay1Start = 0x00001d58;
 overlay1CompareDirectionReloc = 0xf0000000;
@@ -2891,6 +2893,11 @@ overlay89TrigBReloc = 0xf0000000;
 /* overlay 89: overlay89Evaluate.c.o */
 overlay89QueryReloc = 0xf0000000;
 
+/* overlay 89: overlay89InitializeEffect.c.o */
+gOverlay89InitScale = 0x00000000;
+overlay89CreatePrimaryReloc = 0xf0000000;
+overlay89MaintainReloc = 0xf0000000;
+
 /* overlay 90: overlay_090.c.o */
 gOverlay90Value1C = 0x00000000;
 gOverlay90Value20 = 0x00000004;
@@ -3361,11 +3368,11 @@ func_overlay_001_F00000A0_184C480 = overlay1PreviousIndex;
 func_overlay_001_F00000C0_184C4A0 = overlay1NextIndex;
 func_overlay_001_F00000E4_184C4C4 = overlay1WrapOffset;
 func_overlay_001_F0000154_184C534 = overlay1SignedOffset;
+func_overlay_001_F00001AC_184C58C = overlay1FindType47ByAngle;
 func_overlay_001_F00002D4_184C6B4 = overlay1GetLinkedActive;
 func_overlay_001_F0000330_184C710 = overlay1GetRecord;
 func_overlay_001_F0000378_184C758 = overlay1FindType5ByKey;
 func_overlay_001_F0000758_184CB38 = overlay1TestDirection;
-func_overlay_001_F00001AC_184C58C = overlay1FindType47ByAngle;
 func_overlay_001_F0000414_184C7F4 = overlay1FindPreviousUsable;
 func_overlay_001_F00004B4_184C894 = overlay1ActivateObject;
 func_overlay_001_F0000614_184C9F4 = overlay1FindClosestSample;

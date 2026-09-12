@@ -366,6 +366,24 @@ it end to end. The ones that carry most of the weight:
   whose radii are identical is one question with several handles** -- three
   webs share the `+0x1700` radius here -- so nominating two of them pays for
   both and gets neither.
+- **L160 (2026-09-12)** — **a declared carrier can HIDE the web the target
+  needs; delete the declaration and let IDO generate the value.** When the
+  decision records say a web took the lowest free colour and the ROM took a
+  different one, the usual cause is that our source DECLARES a cursor or an
+  intermediate that the target's source does not. Writing the access as an
+  indexed subscript instead of a walking pointer makes strength reduction
+  create the cursor, and the array-base web then survives to take the colour
+  the target wants. A named intermediate also changes which of two tied webs
+  comes first in the priority order, which is what decides the tie: on one
+  function the old declared scale had total save 11 and beat the input angle's
+  10, and removing it left the angle first among the tied FP webs so both took
+  their wanted colours with no force at all. This is L145 generalised off ring
+  temps -- **try it first on any "this web took the lowest free colour"
+  residual.** It matched `overlay1FindType47ByAngle` and
+  `overlay89InitializeEffect` in one edit each, both of which had first been
+  reduced to a proved zero-scoring force by the exhaustive landscape. The route
+  is: exhaust the colour axis, get a force that scores 0 at delta 0, then ask
+  which declaration is standing in the way of the compiler choosing it alone.
 - **L154 (2026-09-12)** — **a web's number follows its TYPE first and its first
   USE second, and the source decides which type a value gets.** Measured on one
   leaf with the decision records: its address constants are type-1 webs numbered

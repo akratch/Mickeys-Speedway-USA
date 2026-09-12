@@ -332,10 +332,10 @@ compare_name:
 
 /* PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:start
  * symbol: func_overlay_046_F0000120_188E518
- * score: 54/317 words
- * frame: -0x30
+ * score: 54 differing words
+ * frame: 0x30
  * relocations: 118
- * first-mismatch: +0x4
- * summary: Exhaustive 180-cell landscape has floor 54; web 51 a2 is absent by interference and needs a zero-size source web partition.
+ * first-mismatch: +0x78
+ * summary: Index-generated pointer forms retain the frame but add instructions; zero-size web partition remains open. First mismatch is relocation-masked.
  * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
  */

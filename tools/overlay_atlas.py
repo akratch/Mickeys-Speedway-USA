@@ -1121,6 +1121,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x00C0, 0x00E4, "overlay1NextIndex"),
         (0x00E4, 0x0154, "overlay1WrapOffset"),
         (0x0154, 0x01AC, "overlay1SignedOffset"),
+        (
+            0x01AC,
+            0x02D4,
+            "overlay1FindType47ByAngle",
+            "canonical mixed-TU C, six runtime relocation identities, and linked ROM bytes exact",
+        ),
         (0x02D4, 0x0330, "overlay1GetLinkedActive"),
         (0x0330, 0x0378, "overlay1GetRecord"),
         (
@@ -1529,6 +1535,9 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     68: [
         (0x1250, 0x1438, "overlay68RebuildSecondaryEntry"),
+    ],
+    89: [
+        (0x270, 0x5A4, "overlay89InitializeEffect"),
     ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),

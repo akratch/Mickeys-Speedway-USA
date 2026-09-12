@@ -1555,19 +1555,16 @@ Natural source otherwise reproduced the exact instruction count, FP/integer
 inventories, constants, structure accesses, and fourteen runtime relocation
 roles.
 
-Overlay 89's initializer at `+0x270..+0x5A4` — 820 bytes / 205 words, and
-removed the module's final executable assembly gap. NON_MATCHING: retired
-2026-08-24 per ADR 0002 (was made to match via a fail-loud schedule and
-decoded-field ledger selecting retail's equivalent state-pointer
-spill/register web); source kept as decomp-permuter input. Natural source
-otherwise supplied the exact `0x58` frame, sole saved register, CFG, three
-calls, local scale relocation pair, descriptor construction, state
-initialization, and nested color propagation loop. Its raw body SHA256 is
-`91a336e39261e09b3690e088760c6bdb0bf39854393b7d119442b9db64239a70`;
-the direct linked slice SHA256 is
-`22640530500357251ecb92d3d6e719294dfe59b969c8539fa7d5919d6465a024`.
-Only the explicit twelve-byte tail padding remains assembly-owned, credited
-as closure fifteen.
+Overlay 89's initializer, `overlay89InitializeEffect`, is Tier A exact C at
+`+0x270..+0x5A4`: 820 executable bytes, 205 words, frame `0x58`, and all five
+runtime relocation offsets, types and identities. The scale's struct-member
+access preserves conversion-before-load evaluation without a float carrier.
+The maintain call uses the retained state pointer; an independently reviewed
+inert region keeps that pointer caller-saved and is listed in
+`docs/cleanup-queue.md`. Untouched configured IDO, the linked owned range,
+and the full ROM pass the normal promotion proofs. No instruction rewriting
+is used. The twelve-byte module tail remains assembly-owned padding and earns
+no executable credit.
 
 Overlay 48's state initializer at `+0x060..+0x144` owns 228 bytes / 57 words
 with frame `0x18`; `+0x144` starts the next function, so it owns no padding.

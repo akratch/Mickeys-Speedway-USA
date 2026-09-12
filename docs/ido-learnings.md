@@ -29,6 +29,42 @@ bytes and disassembly never belong here.
 
 ## Proven reusable behavior
 
+### From a proved colour force to ordinary source
+
+- **Symptom:** an accepted force removes a register-only residual, but the
+  unforced web keeps choosing the lowest free colour. **Mechanism:** source
+  reconstruction can erase an earlier interfering web by spelling a walking
+  pointer explicitly, or merge an array base into a later data-pointer
+  carrier. A value need not retain a separate emitted register use to affect
+  global colouring: with strength reduction and call-result forwarding, a web
+  can affect allocation without a separate use in the final instruction stream. **Lever:** inspect which values the
+  source declares, then let indexed access generate the walking pointer while
+  keeping the array base distinct from the loaded data pointer. Confirm the
+  additional web and its interference in a fresh, fidelity-gated trace; do not
+  infer them from a register census alone.
+- **Symptom:** a cached floating-point scale beats an incoming parameter by
+  exactly the weight of its out-of-loop definition. **Mechanism:** a named
+  global load and a compiler-created literal have different identities and
+  save totals. Treating a source literal as a mutable global plus a local
+  carrier can introduce the entire priority deficit. **Lever:** authenticate
+  the relocation's runtime section base and its addend, read the actual
+  constant, and test the correctly typed literal directly at its use. Removing
+  the carrier can remove that definition weight; when priorities tie, the
+  parameter can precede the later-numbered constant web. A small stored addend
+  alone is not a data address, and a plausible numeric value is not proof that
+  a mutable global may be replaced by a literal.
+- **Validation and limits:** isolate the changed decisions with retained source
+  and trace evidence, then compare aligned residual windows, frames and
+  instruction geometry.
+  Generating an induction pointer can add a temporary home; removing the
+  cached scale can recover it and change the schedule again. Declaration-order
+  experiments on the old shape do not close the new shape. Any emitted
+  literal pool must be proved against retained data, with only declared
+  metadata rebinding and ordinary linking; the compiler's instruction bytes
+  must remain untouched. Neither lever is a universal instruction to delete
+  locals or replace globals. Evidence: the ROM-exact recipe in
+  [the angle-scan handoff](matching-triage-handoffs/overlay1FindType47ByAngle.md).
+
 ### Flags and compiler phases
 
 - The driver does not run `uopt` below `-O2`, but Mickey's
@@ -2175,6 +2211,28 @@ bytes and disassembly never belong here.
   storage or reorder observable operations; check expression widths, floating
   association and workspace use, and require stock, relocation and linked ROM
   proof. A colour-force win alone establishes none of those source properties.
+
+- **An indexed scale load can outrank a conversion even when a float cast is
+  inert.** If an inline multiply has the correct operations but evaluates its
+  memory operand too early, compare the indexed access with a scalar struct
+  member at the same proven byte offset and load type. This changes operand
+  weight without introducing a float carrier; a same-type cast need not do so.
+  Verify the data layout, unsigned conversion domain, aligned residual, and
+  linked relocation identities. It is an access-shape lever, not permission to
+  relabel unrelated storage or a universal preference for structs. See the
+  [member-scale source closure](matching-triage-handoffs/overlay89InitializeEffect.md).
+- **A region can cross a caller-versus-callee cost threshold without changing
+  the call set.** When the desired caller register is offered but narrowly
+  loses to the first saved register, inspect both prices before changing save
+  ratios. In a controlled exact source closure, an inert control-flow region
+  raised the first-saved-register toll while leaving caller cost and weighted
+  reference count unchanged; the desired bank then won naturally. The changed
+  component count was not itself the pricing mechanism. An ordinary nested-if
+  spelling was inert, so not every brace or equivalent conditional supplies a
+  region. The lever also cannot raise a toll already at its saturation limit.
+  Any retained inert form still requires independent semantic review,
+  disclosure, cleanup-queue coverage and unmodified-compiler promotion proof.
+  See the [cost-table and source receipt](matching-triage-handoffs/overlay89InitializeEffect.md).
 
 ## Adding a learning
 

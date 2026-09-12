@@ -2,11 +2,100 @@
 ### `overlay1FindType47ByAngle` plateau handoff
 
 - source: `src/overlays/o001/overlay_001.c`
-- score: 10 differing words
+- score: 0/74 words
 - frame: 0x78
 - relocations: 6
-- first mismatch: +0x8
-- summary: Post-flag footprint has no legal coloured-web probes; retain the two prior source-priority questions.
+- first mismatch: none
+- summary: Resolved ROM-exact by indexed traversal and the authenticated 0.1f literal; no allocator force in the build.
+
+#### 2026-09-12, lane `p24-forcedzero`: proved forces converted to source
+
+**Resolved, Tier A:** 296 owned executable bytes, 74/74 words, frame 0x78,
+six relocation records with exact offsets, types and effective runtime
+identities. The configured stock compiler needs no force. The promotion proof
+reports `static-plus-runtime-table-and-linked-rom`; full `gmake verify` prints
+SHA-1 `507341c0a40ca3e9a7cee969b396ee53facfb548`.
+
+The fresh baseline reproduced ten masked differences: 64 aligned exact rows,
+eight naming rows and two structural rows, with no gaps. A Ucode-name receipt
+mapped this full TU to procedure 8 and passed text, data, rodata, symbol and
+relocation fidelity. The earlier empty-footprint report therefore does not
+establish an unavailable allocator: this procedure has seven integer and four
+FP colour decisions. No further colour sweep was run.
+
+**Recipe from the forced colours to source:**
+
+1. Start's wanted colour needs an earlier owner of the lower free colour.
+   Delete the explicit walking cursor and read `objects[index]`; keep the
+   loaded object-data pointer in its own declared `data` carrier. IDO supplies
+   the cursor through strength reduction. The surviving array-base web has
+   save 1, two occurrences and total save 2, and takes c2 before the start
+   load. The start load now has save 1 with one occurrence and total save 1;
+   its mask includes that taken colour and it chooses c3 without a force.
+   The array base needs no separately emitted register use after strength
+   reduction. This isolated form fixes all four start naming rows, but has a
+   0x80 frame and scores 18 masked: four naming, ten immediate and four
+   structural aligned rows.
+2. Ask whether the supposed scale global is actually a source literal.
+   Authenticate the runtime LOCAL base before reading it: the record names
+   overlay-local base 0x8230, and addend 0xAC identifies initialized data at
+   overlay offset 0x82DC. Its value is exactly the float produced by `0.1f`.
+   Reading data-rodata start plus 0xAC would inspect the wrong location.
+3. Remove the `scale` local and its global read; multiply by `0.1f` directly.
+   The old declared scale had total save 11 and beat the input angle's 10.
+   The literal has total save 10, three occurrences and save 10/3, tying the
+   angle. In the captured winning source the angle web 38 precedes literal
+   web 65, so angle gets c31 and the literal c32. Both use their wanted FP
+   registers. Removing this carrier also restores frame 0x78 and the target
+   schedule. The pair of source changes gives 74 aligned exact rows, no
+   naming/immediate/structural rows, no gaps and zero size delta.
+4. Preserve the compiler's literal materialization and authenticate its
+   relocation to the retained overlay constant. The build adds an absolute
+   constant symbol, rebinds only the existing HI16/LO16 relocation records,
+   and externalizes the digest-checked redundant rodata section with anchor
+   zero. All 296 raw compiler instruction bytes compare identical before and
+   after this metadata processing. The ordinary linker supplies the addends.
+
+The atlas was updated before extract, followed by the first alias generation,
+build, SECOND alias generation, rebuild and ROM verification. Both
+`check-overlay-syms` and `promotion-proof` pass. The range contains no target
+padding and credits exactly 296 new executable bytes.
+
+**Controls and rejected source forms.** Each material candidate was preserved
+with its object, score, first mismatch, allocator trace and aligned per-window
+comparison against the retained baseline. Global attempt numbers cover both
+assigned functions; thirteen source candidates concerned this function:
+
+- Delete the shared objects carrier: 24 masked at delta zero; extra integer
+  and temporary-register changes, with start still c2.
+- Delete the index carrier and increment address-taken start: 74 masked,
+  delta minus eight; it loses the required register-held induction geometry.
+- Reuse angle as best difference after saving its input: 62 masked, delta
+  plus four. The FP pair moves correctly, but an additional copy survives.
+- Move that save before the helper: 13 positional masked at delta zero,
+  only four aligned naming rows plus one displaced prologue copy. It solves
+  FP allocation but changes where the incoming value is copied.
+- Save a separate angle alias without reusing the parameter: 19 masked at
+  delta zero; frame and FP residuals remain.
+- A discarded entry addition of zero to angle: byte-flat at ten; cfe removes
+  the proposed extra reference, so it does not raise the angle's save.
+- Store the two helper outputs in a two-element bounds array: 11 masked at
+  delta zero; start remains c2 and an address operand order changes.
+- Compiler-generated cursor: 18 masked, as described in step 1.
+- On that new shape, move the index declaration first, represent data as an
+  integer address, give data an inner scope, or mark the eligible locals
+  `register`: all four stay at 18 with the 0x80 frame. They do not remove the
+  compiler temporary's frame cost.
+- Compiler-generated cursor plus literal scale: zero masked at delta zero;
+  canonical relocation, owned linked range and whole-ROM proofs all pass.
+
+The transferable finding is not an extra no-op or a new colour sweep. It is
+that a declared cursor can hide the base web the target needs, and a named
+read of a compiler literal can add exactly the definition weight that reverses
+an FP tie. The final source contains no inert shaping diagnostic.
+
+#### Historical pre-promotion measurements
+
 - assignment base: `05cbca2025f87f1b4b670eaa73c6cd181ffd0dc7`
 - owned range: Overlay 1 `+0x1AC..+0x2D4`, ROM `0x184C58C..0x184C6B4`, exactly 296 bytes / 74 instructions with no target padding
 - configured V0: The restored full-TU `-O2 -mips2 -32` body has the exact `0x78` frame and extent, 56/74 positional words, 18 relocation-masked differences, 19 raw differences, ten opcode mismatches, four alignment gaps, and first mismatch `+0x8`.

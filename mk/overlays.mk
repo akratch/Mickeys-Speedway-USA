@@ -173,7 +173,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F00004B4_184C894=overlay1ActivateObject \
 		--redefine-sym func_overlay_001_F0000614_184C9F4=overlay1FindClosestSample $@ && \
 	$(OBJCOPY) --redefine-sym func_8000572C=func_overlay_001_F0000000_184C3E0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7B0
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7B0 && \
+	$(OBJCOPY) --add-symbol gOverlay1PhaseScaleLiteral=0xAC,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x20C:.rodata:gOverlay1PhaseScaleLiteral \
+		0x214:.rodata:gOverlay1PhaseScaleLiteral && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:8a8d560f346578a2fea1b4b4f87e139d9d8baee3b9187bee3932a0ed72f7eb59
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: CFLAGS += -Wab,-r4300_mul
