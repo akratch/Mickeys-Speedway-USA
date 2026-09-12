@@ -1085,11 +1085,34 @@ void func_80022E80(CameraScaledTransform *transform) {
  * 0xB8 -> 0xB0 exact, the ladders identical slot for slot, immediate-only
  * 60 -> 1, byte-exact 172 -> 219 of 369, really different 62 -> 45.
  *
- * Measured and REJECTED: spelling the wrapped frame `sprite->frame & 0xFFFF`
- * to reproduce the target's lh-plus-andi instead of the candidate's lhu is
- * +4 bytes and 263 words.  The remaining 109 words are register naming, a
- * whole-function rotation of the caller-saved bank (the candidate reloads
- * `sprite` into a2 where the target uses a3), and five scheduling swaps.
+ * 2026-09-12, lane p11-mid.  The previous line here recorded `sprite->frame &
+ * 0xFFFF` as REJECTED at +4 bytes and 263 words.  That rejection is about the
+ * spelling in isolation and it should be reopened, because the +1 it costs has
+ * a -1 waiting for it in the same function: we emit `move a0,v0` at +0x1CC,
+ * copying the divisor the target never copies, and the target emits lh plus
+ * andi 0xFFFF at +0x24C and +0x254 where we emit one lhu.  Paired with whatever
+ * removes the divisor copy the spelling is size-neutral; alone it is not.
+ *
+ * The naming residual is one ugen draw, read off DKWB_UGEN_SCHED plus
+ * DKWB_UGEN_TRACE.  This procedure's GP free list is t6 t7 t8 t9 t2 t3 t4 t5 --
+ * v0, v1, t0 and t1 are REMOVEd before the first draw -- and it is FIFO.
+ * Everything from +0x0 to +0x98 is byte-identical, and the first naming
+ * difference at +0x9C is the `sprite` reload `lw 196(sp)`, which takes t2 for us
+ * and t3 for the target: exactly one free-list position later.  The target
+ * therefore spends one more GP draw in the transformed-coordinate block, and
+ * since its emitted code up to +0x98 agrees word for word, that draw is folded
+ * away in its own output -- the [L149] case, which no register census can see.
+ *
+ * Swept and flat against it: the five statements from `divisor = sprite->divisor`
+ * through the volatile `angleProduct` store admit 30 orders once `divisor`
+ * precedes `frameStep` and `quadrant` precedes `angle &= 0x3FFF`; ten tie at 157
+ * and twenty are 167.  Moving `horizontal = sqrtf(...)` to six earlier positions
+ * gives 263 to 277 at size deltas +4 to +36 -- the target does schedule that
+ * multiply pair before the quadrant branch where we schedule it after, but every
+ * source position that moves it also spills localX and localZ.  Head spellings:
+ * interleaving each scale with its own subtraction 330 at -4, compound `*=` 157,
+ * reversing the three local subtractions 287 at -4, swapping the multiply
+ * operands 330 at +8, deleting the `register` spriteEarly carrier 215 at 0.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
@@ -2011,7 +2034,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xB0
  * relocations: 55
  * first-mismatch: +0x9C
- * summary: The eight-byte frame excess and the twenty-byte transformed-coordinate home shift were one declaration-order fault, and tools/frame_census.py showed the candidate's whole ladder was the target's ladder plus eight. Moving angle, pitch and frameStep above transformedX, sine between rotatedX and rotatedZ, and making transform the last homed object -- which needs wrappedFrame and color gone, both carried by pitch, dead from the angleProduct store onward, under L115 -- makes the two ladders identical slot for slot at frame 0xB0 and takes 203 to 157 with immediate-only 60 -> 1 and byte-exact 172 -> 219. Rejected with a measurement: sprite->frame & 0xFFFF for the target's lh-plus-andi is +4 bytes and 263 words. What is left is 109 register-naming words -- a whole-function rotation of the caller-saved bank -- and five scheduling swaps.
+ * summary: The eight-byte frame excess and the twenty-byte transformed-coordinate home shift were one declaration-order fault; the ladders are now identical slot for slot at 0xB0 and the score is 157 with byte-exact 219, naming 109, immediate-only 1, structural 45. 2026-09-12, lane p11-mid, read off DKWB_UGEN_SCHED plus DKWB_UGEN_TRACE: this procedure's GP free list is t6 t7 t8 t9 t2 t3 t4 t5 -- v0, v1, t0 and t1 are REMOVEd before the first draw -- and it is FIFO. Everything from +0x0 to +0x98 is byte-identical, and the FIRST naming difference at +0x9C is the sprite reload lw 196(sp), which takes t2 for us and t3 for the target: exactly one free-list position later. So the target spends one more GP draw than we do somewhere in the transformed-coordinate block, and because the emitted code up to +0x98 agrees word for word that draw is folded away in its own output -- the L149 case, invisible to any register census. Counting draws, not registers, is therefore the axis here, and no colour lattice can reach it. A second, separable finding REOPENS the rejected frame spelling. We emit move a0,v0 at +0x1CC, copying the divisor the target never copies, and the target emits lh plus andi 0xffff at +0x24C and +0x254 where we emit one lhu. Those are +1 and -1 on the same function, which is why sprite->frame & 0xFFFF measured +4 bytes and 263 words ALONE: it must be paired with whatever removes the divisor copy, and the previous rejection is evidence about the pair, not about the spelling.
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 
