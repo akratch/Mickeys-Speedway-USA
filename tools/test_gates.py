@@ -73,10 +73,15 @@ class GateStatusTests(unittest.TestCase):
         self.assertIn("verify", verdict)
         self.assertNotIn("check-docs", verdict)
 
-    def test_the_default_set_is_the_three_precommit_gates(self) -> None:
+    def test_the_default_set_covers_every_no_build_check(self) -> None:
+        """check-tooling belongs here even though CLAUDE.md's 'before every
+        commit' list omits it. It was in neither set, so a per-TU CFLAGS line
+        in the root Makefile turned it red for several commits while every gate
+        that WAS run stayed green -- the precise failure this script exists to
+        prevent, reproduced by the script's own set being too narrow."""
         out = run('echo "$1" >> /dev/stderr; exit 0', [])
         self.assertEqual(out.returncode, 0)
-        for gate in ("verify", "cleanroom", "check-docs"):
+        for gate in ("verify", "cleanroom", "check-docs", "check-tooling"):
             self.assertIn(gate, out.stdout)
 
     def test_promotion_adds_the_three_promotion_gates(self) -> None:

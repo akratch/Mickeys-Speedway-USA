@@ -787,7 +787,15 @@ void unrelatedFunction(void) {
         result, report = self.status()
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["assignment"]["state"], "stale-ledger")
-        self.assertIn("malformed or foreign", report["assignment"]["reason"])
+        # Assert the PROPERTY, not the wording. This test previously pinned the
+        # exact phrase "malformed or foreign"; the message was later improved to
+        # name the specific marker that is missing, and the assertion went red
+        # while the fail-closed behaviour it exists to protect was intact. What
+        # must hold is that the refusal names the symbol and says what is wrong
+        # with the shard, so a reader can act on it.
+        reason = report["assignment"]["reason"]
+        self.assertIn("overlay43FilterImage", reason)
+        self.assertRegex(reason, r"malformed|foreign|missing|marker|unparsed")
 
     def test_malformed_target_block_in_legacy_ledger_fails_closed(self) -> None:
         (self.repo / "docs/matching-triage.md").write_text(

@@ -175,6 +175,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_8000572C=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7B0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x424
