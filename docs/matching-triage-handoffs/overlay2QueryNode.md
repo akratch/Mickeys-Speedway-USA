@@ -105,4 +105,56 @@ be a form in which the boolean is already the value of the expression being
 returned without a separate copy, not another carrier and not another branch
 polarity. Do not re-run the carrier, polarity, or-operand, node-selection,
 leaf-head or line-join lattices; they are recorded above and here.
+
+#### 2026-09-12, lane p9-mid: the eight-byte shortfall is one named instruction
+
+Baseline reproduces: 1,012 bytes, 253 of 253 words, delta 0, masked 39, raw 51,
+frame 0x68. Aligner: 223 byte-exact, 15 register naming, 2 immediate-only, 16
+really different, displacement tax 6, with the same three surplus/missing pairs
+at +0x17C, +0x314, +0x3A8 against +0x194, +0x32C, +0x3C0. The frame census prints
+two identical twenty-one-slot ladders, so the frame is not in play. Nothing was
+adopted, so the buckets are unchanged.
+
+**The previous closure said the short-circuit-or spelling "folds the two reloads"
+and lands eight bytes short. That is right, and the instruction it folds is now
+named.** At each mirror block the shipped code emits three words -- normalise the
+call result to a boolean, branch on the boolean to the epilogue, copy the boolean
+into the return register in the delay slot -- and then issues **both** of the
+second call's stack-passed float arguments afterwards. The two-if form emits four
+words there -- branch on the result, a hoisted load of the second call's third
+argument in the delay slot, a jump to the epilogue, a literal one in its delay
+slot -- and therefore does not need to reissue that argument later. The counts
+balance exactly: the two-if form spends one extra word at the block and saves one
+later, which is why it is the right size, and the or-spelling spends one fewer at
+the block and still saves the later one, which is why it is four bytes short per
+block. **The requirement is the shipped triple together with a separate reissue
+of the second call's third argument, and that reissue is the whole of the eight
+bytes.**
+
+**Why the obvious range-splitting devices cannot supply it.** That argument is
+not read from the global at all: it is loaded from a stack slot the frame already
+holds, so L131's spelling-split family has nothing to act on. Measured here, each
+applied to both mirror blocks: the plain or-spelling, the address form
+`*(f32 *)&D_58` on the second call, on the first call, the volatile address form,
+**`volatile` on the file-scope declarations of both globals** -- all four are
+byte-identical to the plain or-spelling at 119 masked and minus eight bytes, so
+volatile does not reach a stack reload of an already-copied global. Routing the
+first call's arguments through the two dead float locals costs 24 bytes; routing
+the second call's node selection through a dead pointer local is still eight
+short; an L109 probe inside the second operand and assigning the first result to
+the one-element array both run eight bytes over.
+
+**The or-block's own five words are scheduling, not spelling.** At the
+`D_60 != 0` arm the shipped code issues the next node pointer load before storing
+the first call's result and reloads the saved result into an argument register
+where this candidate uses a pool temp. Joining the two statements onto one
+physical line (L59), both operand orders of the bitwise or, an L109 probe between
+them, and a compound-assignment two-statement form are all byte-identical at 39
+or worse; hoisting the node selection into a dead local costs 36.
+
+Do not re-run the carrier, branch-polarity, or-operand, node-selection, leaf-head
+or line-join lattices, and do not re-run the four reload-split devices above. The
+next lever has to produce the extra argument reissue -- most plausibly a source
+form in which the second call's arguments are not the same values the first call
+was given.
 <!-- plateau-handoff:overlay2QueryNode:end -->
