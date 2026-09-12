@@ -3486,11 +3486,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:start
  * symbol: func_overlay_001_F000438C_185076C
- * score: 1196 differing words
+ * score: 1196/1542 words
  * frame: 0x138
  * relocations: 184
  * first-mismatch: +0x24
- * summary: Structural reconstruction stalls after five no-information attempts; next needs evidence for FP/local homes and independent global bindings.
+ * summary: Size and frame are exact; web955 c7 reaches 1143 diagnostically only. Remaining blocker is FP/local-home shape plus unauthenticated global bindings.
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
  */
 
