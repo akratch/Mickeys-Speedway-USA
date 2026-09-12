@@ -26,6 +26,37 @@ fi
 restore() { git checkout -q "$start" 2>/dev/null || true; }
 trap restore EXIT
 
+# Renew reopen pins that THIS integration batch just invalidated.
+#
+# A reopen authorization arms only while its pinned source and handoff commits
+# match what lane_status derives right now. Every lane that edits a handoff and
+# gets merged moves that symbol's handoff commit and kills its own pin, so the
+# authorizations decay as a direct consequence of landing -- silently, because
+# a stale pin reads as `already-integrated/exhausted` and the target simply
+# leaves the queue.
+#
+# That cost two dispatched lanes outright on one function before this was
+# automated: each arrived at a closed gate and returned having done nothing,
+# the second within an hour of a hand-repin. It belongs here because "after
+# every land" is exactly when it is needed and exactly when it was forgotten.
+#
+# --refresh-stale only renews pins that already carry a recorded reason, so it
+# restores previously-granted authorizations and never grants a new one; that
+# still needs an explicit reason and a human judgement.
+echo "== renew reopen pins invalidated by this batch"
+"${PYTHON:-.venv/bin/python}" tools/authorize_reopen.py --refresh-stale
+if [ -n "$(git status --porcelain --untracked-files=no -- config/lane-reopen-authorizations.us.json)" ]; then
+    git add config/lane-reopen-authorizations.us.json
+    git commit -q -m "Renew reopen pins invalidated by this integration batch
+
+Merging a lane that edited a handoff moves that symbol's handoff commit
+and invalidates its own reopen pin. Renewed with each existing reason
+preserved; no new authorization is granted here."
+    echo "   renewed and committed"
+else
+    echo "   no stale pins"
+fi
+
 echo "== push campaign/unchain"
 git push origin campaign/unchain
 
