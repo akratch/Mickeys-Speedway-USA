@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: Two scheduling pairs removed at unchanged width; independent named-array induction and same-line erase initializer; two delayed-index pairs remain.
+ * summary: Two gap pairs removed; 217 retained for stronger aligned agreement; typed-index 207 alternative removes a third pair but adds naming differences.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
