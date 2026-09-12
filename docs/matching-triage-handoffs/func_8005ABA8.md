@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: 111/111 words, every register and branch target exact; the last two words are one as1 delay-slot decision at +0x3C.
+- summary: 109 exact, two assembler branch/delay differences. Existing suppressor proof survives the new allocator laws; inspect the unexplained branch decline.
 
 #### Owned evidence and result, 2026-09-09
 
@@ -296,5 +296,29 @@ no C source produces a zero-node block; and the per-file and per-function
 branch-likely flags are refuted by this translation unit's own census. The
 remaining lead is the in-function counter-example those passes name, and it
 needs the assembler's branch optimiser read rather than another lattice.
+
+
+#### 2026-09-12, lane p19-reopen: two-word assembler closure survives
+
+The assignment gate returned base-only. Fresh alignment reproduces 111 owned
+words, delta zero, buckets 109 exact / 0 naming / 0 immediate / 2 really
+different, zero displacement tax, frameless, no relocations, first +0x3C.
+There is no register-substitution component for L142, L139 or L131 to move.
+L144 does not supply the assembler block-boundary suppressor established by
+the preceding controlled experiments. No new source spelling was attempted.
+
+This is a scope decision under ADR 0018, not a claim that two words are
+unmatchable. The inherited assembler-input existence argument survives the
+new allocator/reload laws, and its accepted diagnostic output was not counted
+as untouched compiler output. The remaining concrete lead is still the
+unexplained in-function branch at +0x180: inspect the assembler optimizer's
+second decline condition before proposing another C form. Do not repeat the
+recorded directive, source-order or flag sweeps.
+
+Validation commands for this pass: `tools/align_symbol.py`,
+`tools/register_census.py`, `tools/score_symbol.py`,
+`tools/finalize_plateau.py`, and `tools/gates.sh`. The guarded C and assembly
+fallback remain; the full-ROM verification covers that fallback and earns
+zero new matching bytes. Source and handoff are the only files refreshed.
 
 <!-- plateau-handoff:func_8005ABA8:end -->
