@@ -6,7 +6,7 @@
 - frame: -0x90
 - relocations: 15
 - first mismatch: +0x1C4
-- summary: Every stack home is now exact, the normal aggregate included; the residual is one extra FP pool web at the normal-vector products, and carrier, operand-order, volatile-placement, line-join and statement-group lattices are all flat.
+- summary: source question is the ugen float free-list phase at the +0x1F4 window
 2026-09-09 lane `lane/tu2-o008` maintenance evidence (base `304d363e`, score unchanged at 43
 relocation-masked words / 48 raw, 270 of 270 instructions, exact `0x90` frame):
 
