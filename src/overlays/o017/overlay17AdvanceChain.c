@@ -98,10 +98,10 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
 
 /* PLATEAU-HANDOFF:overlay17AdvanceChain:start
  * symbol: overlay17AdvanceChain
- * score: 49 differing words
+ * score: 49/147 words
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: 49-word pre-call setup residual; exact size/home set; count reassociation and buffer-carrier alternatives stalled.
+ * summary: Twelve-web exhaustive scan has five rival winners on one web; diagnostic floor47. Six literal-identity probes fail; pre-call count/copy-buffer setup remains.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */
