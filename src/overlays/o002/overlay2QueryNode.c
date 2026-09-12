@@ -103,6 +103,23 @@ extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
  * of the tail (L97's join-point use, which is exactly the "stop uopt folding
  * two reads into one" lever) do not restore the load.
  *
+ * Lane p9-mid (2026-09-12).  The eight-byte shortfall of the `||` spelling is
+ * one named instruction.  At each mirror block the shipped code emits three
+ * words -- normalise the call result to a boolean, branch on the boolean to the
+ * epilogue, copy the boolean into the return register in the delay slot -- and
+ * then issues BOTH of the second call's stack-passed float arguments
+ * afterwards.  The two-`if` form emits four words there, one of which is a
+ * hoisted load of the second call's third argument in the branch delay slot,
+ * and so does not reissue that argument later.  The counts balance exactly, so
+ * the requirement is the shipped triple TOGETHER WITH a separate reissue of
+ * that argument, and that reissue is the whole of the eight bytes.  It is not
+ * reachable by splitting a range: the argument is loaded from a stack slot the
+ * frame already holds, not from the global, so the address form on either call,
+ * the volatile address form, and `volatile` on the file-scope declarations of
+ * both globals are all byte-identical to the plain `||` at eight bytes short.
+ * Routing the first call's arguments through the dead float locals costs 24
+ * bytes; a dead pointer local for the node selection is still eight short.
+ *
  * Third, `node = node->side1/side0` before the tail call puts the selected
  * child in `node`'s own s1 where the target uses a scratch a0. The ternary
  * argument form is byte-identical to the assignment; both two-return forms,
