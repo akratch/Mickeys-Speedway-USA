@@ -1510,11 +1510,11 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:packInit:start
  * symbol: packInit
- * score: 81/115 words
+ * score: 34/115 words
  * frame: 0x60
  * relocations: 20
- * first-mismatch: 0xA0
- * summary: donor reproof regressed; next lever is base low half materialization
+ * first-mismatch: +0xA0
+ * summary: All 12 coloured webs scanned; rival single forces score 25 and 27, pair 28. Base-address lifetime and success-store schedule remain.
  * PLATEAU-HANDOFF:packInit:end
  */
 
