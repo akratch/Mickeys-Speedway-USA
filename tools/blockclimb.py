@@ -145,6 +145,99 @@ def find_runs(lines: list[str], lo: int, hi: int, min_run: int = 3,
     return out
 
 
+IDENT_RE = re.compile(r"[A-Za-z_]\w*")
+# Assignment operators, longest first so "<<=" is not read as "<".
+ASSIGN_OPS = ("<<=", ">>=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "=")
+# Words that appear in an expression but name no storage.
+NON_STORAGE = frozenset((
+    "sizeof", "u8", "s8", "u16", "s16", "u32", "s32", "f32", "f64", "u64",
+    "s64", "void", "char", "short", "int", "long", "float", "double",
+    "unsigned", "signed", "const", "volatile", "struct", "union", "enum",
+))
+
+
+def _split_assignment(stmt: str) -> tuple[str, str, bool]:
+    """(lhs, rhs, is_compound). lhs is "" when the statement assigns nothing."""
+    depth = 0
+    for i, ch in enumerate(stmt):
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        elif depth == 0 and ch == "=":
+            # Skip ==, !=, <=, >=; catch compound ops by looking back one char.
+            if stmt[i + 1:i + 2] == "=":
+                continue
+            prev = stmt[i - 1:i]
+            if prev in ("=", "!", "<", ">"):
+                continue
+            compound = prev in ("+", "-", "*", "/", "%", "&", "|", "^", "<", ">")
+            lhs_end = i - 1 if compound else i
+            # a <<= b and a >>= b put two characters before the '='.
+            if prev in ("<", ">") and stmt[i - 2:i - 1] == prev:
+                lhs_end = i - 2
+            return stmt[:lhs_end], stmt[i + 1:], compound
+    return "", stmt, False
+
+
+def reads_writes(stmt: str) -> tuple[frozenset, frozenset]:
+    """Identifiers a statement reads and the storage it writes.
+
+    Deliberately coarse and conservative. Only the BASE identifier of an lvalue
+    is treated as written, so `p[i] = x` and `*p = x` and `p->f = x` all count
+    as writing `p` -- which over-approximates for a subscript and is exactly
+    right for the aliasing cases that matter here. Everything else mentioned is
+    read, including the subscript of an assigned element.
+    """
+    s = stmt.strip().rstrip(";").strip()
+    lhs, rhs, compound = _split_assignment(s)
+    names = lambda t: frozenset(
+        m.group(0) for m in IDENT_RE.finditer(t)) - NON_STORAGE
+    if not lhs:
+        # No assignment: x++, --n, a bare expression. Treat every name as both
+        # read and written, since ++ and -- write and we cannot tell which.
+        every = names(s)
+        return every, every
+    lhs_names = names(lhs)
+    base = next((m.group(0) for m in IDENT_RE.finditer(lhs)
+                 if m.group(0) not in NON_STORAGE), None)
+    written = frozenset([base]) if base else frozenset()
+    # Subscripts and dereferences on the left are reads; so is the target of a
+    # compound assignment.
+    read = (lhs_names - written) | names(rhs)
+    if compound:
+        read = read | written
+    return read, written
+
+
+def conflict(a: str, b: str) -> bool:
+    """True if `a` and `b` cannot be reordered relative to each other.
+
+    Read-after-write, write-after-read and write-after-write all count. This is
+    what `is_movable`'s call guard does NOT cover: a lane found the climb
+    proposing `start.y = ...` AFTER `end.y = start.y + dy;`, which contains no
+    call and reads `start` before it is assigned. The call guard excludes side
+    effects; this excludes data dependencies, and both are needed.
+    """
+    ar, aw = reads_writes(a)
+    br, bw = reads_writes(b)
+    return bool((aw & br) or (bw & ar) or (aw & bw))
+
+
+def order_is_legal(stmts: list[str], order: list[int]) -> bool:
+    """True if `order` preserves every dependency among `stmts`.
+
+    A pair may be swapped only when nothing flows between them. Checked
+    pairwise on the pairs the permutation actually inverts.
+    """
+    pos = {orig: new for new, orig in enumerate(order)}
+    for i in range(len(stmts)):
+        for j in range(i + 1, len(stmts)):
+            if pos[i] > pos[j] and conflict(stmts[i], stmts[j]):
+                return False
+    return True
+
+
 def moves(n: int):
     """Every one-statement move over `n` statements, as reordered index lists."""
     base = list(range(n))
@@ -215,7 +308,17 @@ def climb(lines: list[str], score, lo: int, hi: int, min_run: int = 3,
         for (start, stop) in find_runs(result.lines, lo, hi, min_run,
                                        allow_calls):
             n = stop - start
+            stmts = result.lines[start:stop]
             for i, j, order in moves(n):
+                # The call guard excludes side effects; this excludes data
+                # dependencies. Both are needed -- a lane caught the climb
+                # proposing `start.y = ...` AFTER `end.y = start.y + dy;`,
+                # which contains no call and reads `start` before it is
+                # assigned. `allow_calls` (--probe-unguarded) drops this too,
+                # because that mode exists to show the raw reachable number and
+                # is already reported as not adoptable.
+                if not allow_calls and not order_is_legal(stmts, order):
+                    continue
                 candidate = (result.lines[:start]
                              + [result.lines[start + k] for k in order]
                              + result.lines[stop:])
