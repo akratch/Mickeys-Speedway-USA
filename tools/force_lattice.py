@@ -72,6 +72,11 @@ class Cell:
     score: int | None
     accepted: bool
     note: str = ""
+    # Differing words per 0x200 window, keyed by window base. This is what
+    # makes an interaction explicable rather than merely observed: two forces
+    # whose blast radii are disjoint should compose, and two that move the same
+    # window are contending for something in it.
+    windows: dict[int, int] = dataclasses.field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -231,7 +236,49 @@ def run_cell(symbol: str, proc: int, forces: tuple[str, ...],
     scored, error = nr.process_item(item, obj)
     if scored is None:
         return Cell(forces, None, False, f"scoring failed: {error}")
-    return Cell(forces, scored.relocation_masked_differing_words, True)
+    return Cell(forces, scored.relocation_masked_differing_words, True,
+                windows=window_residual(item, obj))
+
+
+def window_residual(item, obj: pathlib.Path, width: int = 0x200) -> dict[int, int]:
+    """Differing words per address window, from the streams already on disk.
+
+    Read here rather than through residual_map.measure(), which recompiles the
+    TU with the CONFIGURED command and would therefore report the unforced
+    build -- the same trap that had a lane reading one score for twelve
+    consecutive forces.
+    """
+    import nm_ranking as nr
+
+    streams, error = nr.word_streams(item, obj)
+    if streams is None:
+        return {}
+    counts: dict[int, int] = {}
+    pairs = zip(streams.base_words, streams.target_words)
+    for index, (base_word, target_word) in enumerate(pairs):
+        if base_word != target_word:
+            counts[(index * 4) // width * width] = \
+                counts.get((index * 4) // width * width, 0) + 1
+    return counts
+
+
+def blast_radius(base: Cell, cell: Cell) -> dict[int, int]:
+    """Which windows a force MOVED, and by how much, against the base.
+
+    Negative means the window improved. A force whose radius is one window is
+    a local decision; one that moves eight windows is a global reallocation,
+    and two of those will contend however good each looks alone.
+    """
+    if not base.windows or not cell.windows:
+        return {}
+    keys = set(base.windows) | set(cell.windows)
+    moved = {k: cell.windows.get(k, 0) - base.windows.get(k, 0) for k in keys}
+    return {k: v for k, v in moved.items() if v}
+
+
+def collides(base: Cell, a: Cell, b: Cell) -> set[int]:
+    """Windows that BOTH forces move -- where contention would show up."""
+    return set(blast_radius(base, a)) & set(blast_radius(base, b))
 
 
 def render(base: Cell, cells: list[Cell], forces: list[str]) -> str:
@@ -260,8 +307,20 @@ def render(base: Cell, cells: list[Cell], forces: list[str]) -> str:
             if not (pair and ca and cb and ca.score and cb.score):
                 continue
             verdict = interaction(pair.score, ca.score, cb.score, base.score)
+            shared = collides(base, ca, cb)
+            where = ("disjoint" if not shared
+                     else "collide@" + ",".join(f"+0x{w:X}" for w in sorted(shared)))
             out.append(f"  {a.split(':')[1]:<12} + {b.split(':')[1]:<12} "
-                       f"{pair.score:>5}  {verdict}")
+                       f"{pair.score:>5}  {verdict:<13} {where}")
+    radii = [(f, blast_radius(base, c)) for f, c in singles.items() if c.windows]
+    if radii:
+        out += ["", "blast radius per force (windows moved, - is better):"]
+        for force, radius in radii:
+            shown = ", ".join(f"+0x{w:X}:{d:+d}" for w, d in sorted(radius.items()))
+            out.append(f"  {force.split(':')[1]:<12} {len(radius):>2} window(s)  {shown}")
+        out.append("  A force moving one window is a local decision; one moving "
+                   "many is a global reallocation,")
+        out.append("  and two of those contend however good each looks alone.")
     return "\n".join(out)
 
 

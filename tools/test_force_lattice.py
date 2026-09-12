@@ -167,6 +167,58 @@ class InstrumentedSwapTests(unittest.TestCase):
         out = fl._instrumented(command)
         self.assertEqual(out[3:], ["-Wab,-r4300_mul", "-O2", "-o", "a.o"])
 
+class BlastRadiusTests(unittest.TestCase):
+    """Why an interaction happens, not merely that it did.
+
+    The whale's handoff records that intervention prices "are global effects".
+    That is the observation; the radius is the measurement. Two forces whose
+    radii are disjoint should compose. Two that move the same window are
+    contending for something in it, and will disappoint however good each
+    looks alone.
+    """
+
+    BASE = None
+
+    def setUp(self):
+        self.BASE = fl.Cell((), 227, True,
+                            windows={0x0: 23, 0x200: 13, 0x600: 9})
+
+    def test_a_local_force_moves_one_window(self):
+        cell = fl.Cell(("a",), 224, True, windows={0x0: 20, 0x200: 13, 0x600: 9})
+        self.assertEqual(fl.blast_radius(self.BASE, cell), {0x0: -3})
+
+    def test_improvement_reads_negative_and_regression_positive(self):
+        better = fl.Cell(("a",), 224, True, windows={0x0: 20, 0x200: 13, 0x600: 9})
+        worse = fl.Cell(("b",), 230, True, windows={0x0: 26, 0x200: 13, 0x600: 9})
+        self.assertEqual(fl.blast_radius(self.BASE, better)[0x0], -3)
+        self.assertEqual(fl.blast_radius(self.BASE, worse)[0x0], +3)
+
+    def test_a_window_that_did_not_move_is_omitted(self):
+        """Reporting unmoved windows would bury the signal in 30 zero rows."""
+        cell = fl.Cell(("a",), 224, True, windows={0x0: 20, 0x200: 13, 0x600: 9})
+        self.assertNotIn(0x200, fl.blast_radius(self.BASE, cell))
+
+    def test_a_window_appearing_only_after_the_force_still_counts(self):
+        """A force can make a previously exact window differ; that is exactly
+        the global effect worth seeing."""
+        cell = fl.Cell(("a",), 229, True,
+                       windows={0x0: 23, 0x200: 13, 0x600: 9, 0xC00: 2})
+        self.assertEqual(fl.blast_radius(self.BASE, cell)[0xC00], +2)
+
+    def test_disjoint_radii_do_not_collide(self):
+        a = fl.Cell(("a",), 224, True, windows={0x0: 20, 0x200: 13, 0x600: 9})
+        b = fl.Cell(("b",), 212, True, windows={0x0: 23, 0x200: 4, 0x600: 9})
+        self.assertEqual(fl.collides(self.BASE, a, b), set())
+
+    def test_a_shared_window_is_reported_as_a_collision(self):
+        a = fl.Cell(("a",), 224, True, windows={0x0: 20, 0x200: 13, 0x600: 9})
+        b = fl.Cell(("b",), 220, True, windows={0x0: 19, 0x200: 13, 0x600: 9})
+        self.assertEqual(fl.collides(self.BASE, a, b), {0x0})
+
+    def test_a_missing_window_census_yields_no_radius(self):
+        """An unmeasured cell must not read as 'moved nothing'."""
+        self.assertEqual(fl.blast_radius(self.BASE, fl.Cell(("a",), 224, True)), {})
+
 
 if __name__ == "__main__":
     unittest.main()
