@@ -1345,6 +1345,11 @@
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "930c2122a519bbb3fa6554d341e3271509717efc"
     },
+    "func_overlay_086_F0000474_18D22AC": {
+      "ledger_commit": "de1d8f49306b3e9eb280d377a8426540e6aae627",
+      "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
+      "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
+    },
     "func_overlay_087_F0000128_18D3090": {
       "ledger_commit": "68839f829c6fec28b1d4b19cd68cf607769df864",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
@@ -1464,6 +1469,26 @@
       "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc"
+    },
+    "overlay101BuildPresentationA": {
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
+      "source_commit": "6f88347d6136d26d34f0415b5c9ae5ecfc202bb2"
+    },
+    "overlay101BuildPresentationB": {
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
+      "source_commit": "7d8c99ab50c484bfe93d2c81402d6d46b8ff7d28"
+    },
+    "overlay101BuildPresentationC": {
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
+      "source_commit": "65141aa82b7ac81f8d30455701717fee4e873484"
+    },
+    "overlay101BuildPresentationD": {
+      "ledger_commit": "0cd1a38d7c52eaebd8dc815d7abedbc23129e03c",
+      "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
+      "source_commit": "9697619cab28b33e177b3fcb42d556af46c7326e"
     },
     "overlay101DrawPanel": {
       "ledger_commit": "d52807e76a3012ff6f99a9554270e1fa85cbd305",
