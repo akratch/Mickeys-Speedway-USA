@@ -5,8 +5,8 @@
 - score: 118/120 words
 - frame: 0x70
 - relocations: 4
-- first mismatch: +0x34
-- summary: 2026-09-12, lane p10-tight REFUTES the p6-tight premise below. Read off the compiler listing, ugen draws a ring register immediately before each instruction it emits, so the draw order is the listing order, and the queue reaching the switch carries the fourth and third ring members transposed exactly as the win-b entry said. The residual is the angle block, not the arm. New two-word corner, switch byte-exact in both arms: declare the angle thirty-two-bit, spell the right summand as an explicit sixteen-bit mask so its widening costs one draw, and write the second arm with no carrier -- the residual moves to +0xdc and +0xe0, the sum's destination and the first truncation's source. The fifth ring draw the block still owes cannot be paid: the assembler deletes a no-op by renaming its producer's destination, so any phantom on the sum renames the sum off its pool colour, and a phantom appended to the left operand is folded into it. The one payment left is a zero-footprint draw on another live narrow value between the sum and the comparison, and no such value is live there. Prior p6-tight reading, now superseded: the queue is ascending and the residual is an allocation order inside the arm
+- first mismatch: +0x190
+- summary: source baseline remains 2 masked words; p1 records and ugen trace make the ring transposition a structural free-order conflict
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 

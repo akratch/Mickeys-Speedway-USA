@@ -1405,21 +1405,21 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_80020E4C:start
  * symbol: func_80020E4C
- * score: 25 differing words
+ * score: 25/113 words
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: 25 words, frame and all ten stack slots exact; the structural half is one surplus word at +0xC0 against one missing at +0xAC, in the inner exception loop where the target runs a strength-reduced pointer cursor. Seven cursor and index spellings all compile to one object four bytes short at 77 words, so the cursor is not reachable by respelling the loop. The naming half is 85% coherent with two closed cycles, an L127 shape, but it sits behind the structural word.
+ * summary: Guard and compound-exit shapes normalize; pointer strength reduction remains blocked.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
 /* PLATEAU-HANDOFF:func_80020D8C:start
  * symbol: func_80020D8C
- * score: 31/48 words
+ * score: 17/48 words
  * frame: 0x8
  * relocations: 0
  * first-mismatch: +0x38
- * summary: 17 register-only words from +0x38, frame and stack slot exact. Two windows at 60% coherence with no closed cycle, so this is per-iteration ugen consumption rather than one ring phase. The loop-branch axis is refuted: seven spellings of the counter test all regress, two of them by unrolling. 16 L97 region placements never improve.
+ * summary: P2 force ceiling reaches 16 only; the unresolved term is a hidden ugen draw in the multiply group.
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
 
