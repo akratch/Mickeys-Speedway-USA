@@ -7,6 +7,11 @@
 - relocations: 10
 - first mismatch: +0x38
 - summary: Authenticated proc 4: 110 legal alternatives, no winner; deleted fade/star carriers grow or reorder the preheader.
+
+#### Historical baseline at assignment 3ccc02a1
+
+The later dated entries supersede the measurements in this historical block.
+
 - assignment base: `3ccc02a1`
 - owned range: overlay 15 `+0x500..+0x6A4`, 420 bytes / 105 words
 - retained evidence: configured full-TU C is 92/105 positional words exact, with 13 relocation-masked differences, 14 raw differences, and the exact target `0x58` frame
