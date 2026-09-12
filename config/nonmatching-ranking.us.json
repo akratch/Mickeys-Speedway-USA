@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 310,
-  "resolved": 310,
+  "queue_size": 309,
+  "resolved": 309,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 310,
-  "relocation_masked_coverage": 310,
+  "source_context_coverage": 309,
+  "relocation_masked_coverage": 309,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -998,21 +998,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "HERZ.7S0M.MFCB.NZS2.e5pM.ey2_.PaZl.ZpBq.f6xP.TeQ6.ayY"
-    },
-    {
-      "name": "overlay29DrawGroups",
-      "file": "src/overlays/o029/overlay29DrawGroups.c",
-      "overlay": 29,
-      "tu": "overlays/o029",
-      "size_bytes": 516,
-      "objdiff_match_pct": null,
-      "differing_words": 47,
-      "first_mismatch_offset": 76,
-      "relocation_masked_differing_words": 47,
-      "relocation_masked_first_mismatch_offset": 76,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "joBD.ju2n.Nagz.snGB.YHv8.n8On.JNVe.BNGW.sgno.-D8o.jOE"
     },
     {
       "name": "joyRead",

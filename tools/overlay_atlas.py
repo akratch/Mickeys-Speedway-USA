@@ -1451,6 +1451,9 @@ MIXED_TU_EXACT_C_RANGES = {
     49: [
         (0x354, 0x374, "refractOutput"),
     ],
+    29: [
+        (0x14C8, 0x16CC, "overlay29DrawGroups"),
+    ],
     31: [
         (0x02E8, 0x04F8, "func_overlay_031_F00002E8_187F808"),
     ],

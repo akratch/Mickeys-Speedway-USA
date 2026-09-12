@@ -2297,3 +2297,22 @@ remains explicit. Literal signedness, pointer-versus-integer null-argument
 typing and a move-one statement climb did not close the manual-command shape.
 Accepted direct colour forces correctly priced the constant-register residual,
 but forced objects were diagnostic only. Stock output supplies the match.
+
+
+### Overlay 29 draw-groups closure (2026-09-12)
+
+`overlay29DrawGroups` is ROM-exact over overlay 29 text `+0x14C8..+0x16CC`:
+516 executable bytes, 129 words, the `0x58` frame, and all three relocation
+counts, types, offsets and identities. `gmake verify` prints the expected US
+ROM hash. The aligned buckets (exact/register/immediate/structural) move from
+86/28/3/13 to 129/0/0/0.
+
+A typed node-pointer table indexed by `4 - groupIndex`, a natural countdown,
+and the complete command sequence expressed through the existing SDK macros
+reproduce the stock output. Flattening the group-one branch also restores its
+control flow. The inherited manual-store allocator closure applies only to
+that source shape: direct final-colour forcing prices the mask residual, but
+forcing before the natural split changes the allocation being investigated.
+Narrow mask types and declaration changes did not solve the manual-command
+shape. The existing SDK macros restore the command-pointer webs and emission
+order together. No forced compiler output or padding receives matching credit.
