@@ -328,10 +328,10 @@ units remain distinct.
 | 32 | `src/main/models_5B300.c` | `func_8005A7A0` | `main` | `other` | 424 | 10 | 10 | 0 | 0 | 0 | — |
 | 33 | `src/overlays/o068/overlay68CheckKind.c` | `overlay68CheckKind` | `o068` | `other` | 320 | 10 | 10 | 80 | 80 | 0 | — |
 | 34 | `src/overlays/o071/func_overlay_071_F0000870_18CA390.c` | `func_overlay_071_F0000870_18CA390` | `o071` | `other` | 728 | 11 | 11 | 148 | 148 | 0 | — |
-| 35 | `src/overlays/o001/overlay_001.c` | `overlay1FindPreviousUsable` | `o001` | `other` | 160 | 14 | 12 | 4 | 20 | 0 | — |
-| 36 | `src/overlays/o015/overlay_015.c` | `overlay15DrawScreenStars` | `o015` | `other` | 420 | 13 | 13 | 56 | 56 | 0 | — |
-| 37 | `src/overlays/o014/overlay14CreateValue.c` | `overlay14CreateValue` | `o014` | `other` | 384 | 14 | 13 | 84 | 144 | 0 | — |
-| 38 | `src/overlays/o031/overlay31CreatePool.c` | `overlay31CreatePool` | `o031` | `other` | 200 | 14 | 13 | 0 | 0 | 0 | — |
+| 35 | `src/overlays/o031/overlay31CreatePool.c` | `overlay31CreatePool` | `o031` | `other` | 200 | 12 | 11 | 40 | 40 | 0 | — |
+| 36 | `src/overlays/o001/overlay_001.c` | `overlay1FindPreviousUsable` | `o001` | `other` | 160 | 14 | 12 | 4 | 20 | 0 | — |
+| 37 | `src/overlays/o015/overlay_015.c` | `overlay15DrawScreenStars` | `o015` | `other` | 420 | 13 | 13 | 56 | 56 | 0 | — |
+| 38 | `src/overlays/o014/overlay14CreateValue.c` | `overlay14CreateValue` | `o014` | `other` | 384 | 14 | 13 | 84 | 144 | 0 | — |
 | 39 | `src/overlays/o015/overlay_015.c` | `overlay15DrawRain` | `o015` | `other` | 216 | 18 | 13 | 8 | 116 | 0 | — |
 | 40 | `src/main/anim.c` | `func_8005776C` | `main` | `other` | 420 | 14 | 14 | 112 | 112 | 0 | — |
 | 41 | `src/overlays/o001/overlay_001_tail.c` | `overlay1UpdateAimedTransient` | `o001` | `other` | 996 | 24 | 14 | 12 | 12 | 0 | — |
