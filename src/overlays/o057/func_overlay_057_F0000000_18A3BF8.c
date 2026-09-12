@@ -206,14 +206,69 @@ extern void func_8003A754(void);
 extern void func_8005AD64(O57Spawned *spawned, s32 mode, s32 index,
                           s32 valueBits);
 
-/* Workbench plateau: structure-mismatch; 594/597 instructions, 0xA0 vs 0x78
- * frame, 345 aligned words, first +0x8. Packet lifetime/scope was frame-neutral;
- * removing the target-unmatched final-packet flag store is the best variant. */
+/* Workbench plateau: structure-mismatch, first divergence +0x8.
+ *
+ * 2026-09-12 (lane p12-o57): 282 -> 276 masked of 597 words, byte-exact
+ * 410 -> 421, register naming 75, immediate 23 -> 17, really different
+ * 98 -> 94, frame 0x90 -> 0x80 against the target's 0x78.  Two edits:
+ *
+ *  1. EVERY BLOCK-SCOPED `register` LOCAL IS MERGED TO FUNCTION SCOPE.  The
+ *     seven inner blocks declared fourteen locals between them -- three
+ *     separate `i` and two separate `spawned` -- and each reserves its own
+ *     home (L99), so the block scoping was buying nothing and costing four
+ *     slots.  Twelve function-scope locals is 0x90 -> 0x80 at an unchanged
+ *     score, and it makes the ladder BELOW the packets exact: six slots on
+ *     each side, +0x2C +0x28 +0x24 +0x20 +0x1C +0x10.
+ *
+ *  2. THE PACKET IS DECLARED SIXTH, not first.  A move-one climb over all
+ *     thirteen declaration positions, 145 compiles, reaches 276 in one move
+ *     and is then a fixed point.  What that move buys is the target's own
+ *     packet offsets: the union lands at +0x54 .. +0x64 and the target's
+ *     upper packet block is +0x54 .. +0x64, slot for slot, where before it
+ *     sat 0x24 too high.
+ *
+ * WHAT IS LEFT, and it is now a COUNT rather than a placement.  The target
+ * has 24 stack homes to this candidate's 17.  The seven it has and this does
+ * not are its second packet block, +0x3C +0x3E +0x40 +0x42 +0x44 +0x46 +0x47
+ * +0x48 -- the O57FinalSpawnPacket, which shares the union here.
+ *
+ * Splitting the union reproduces that block EXACTLY when `final` is declared
+ * LAST of the thirteen: its block then lands on +0x3C +0x3E +0x40 +0x42 +0x46
+ * +0x47 +0x48, the target's offsets with only the target's +0x44 store
+ * unaccounted.  It is not adoptable yet because the frame goes 0x80 -> 0x90
+ * and the score 276 -> 335.  The split is FLAT across placement: all eight
+ * positions of `final` score 335, and a separate move-one climb over all
+ * fourteen positions of both packets, 170 compiles, is a fixed point at 335.
+ * So the split's cost is not a declaration-order artefact and no order sweep
+ * will recover it.
+ *
+ * The free parameter is the LOCAL COUNT (L134).  With the split the frame is
+ * 0x90 against 0x78: exactly six slots too many, and this candidate declares
+ * twelve non-packet locals where the target's two gaps -- +0x4C .. +0x53 and
+ * +0x6C .. +0x77 -- leave room for five or six.  Merging `value` into `id`
+ * and `stride` into `i` alone, without the split, takes the frame to 0x78
+ * EXACTLY (candidate 0x78, target 0x78) and costs 15 words, which is the
+ * measurement that proves the count is the lever and that ten is two too few
+ * once the union is one object rather than two.  The next edit is to find six
+ * reuses among `current`, `descriptor`, `resourceIndex`, `descriptorEnd`,
+ * `i`, `value`, `stride`, `spawned`, `path`, `result`, `entry` and `id` that
+ * do not cost more than the split buys. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0000000_18A3BF8(void) {
     u8 choiceMask;
-    O57SpawnUnion packet;
     register void *current;
+    register Overlay45ResourceDescriptor **descriptor;
+    register s16 *resourceIndex;
+    register Overlay45ResourceDescriptor **descriptorEnd;
+    register s32 i;
+    O57SpawnUnion packet;
+    register s32 value;
+    s32 stride;
+    register O57Spawned *spawned;
+    register O57AnimPath *path;
+    register O57ModeResult *result;
+    register s32 *entry;
+    register s32 id;
 
     current = gO57ResidentCurrentReloc;
     gO57Current100Reloc = current;
@@ -225,10 +280,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
     {
-    register Overlay45ResourceDescriptor **descriptor;
-    register s16 *resourceIndex;
-    register Overlay45ResourceDescriptor **descriptorEnd;
-    register s32 i;
 
     gO57Descriptor00Reloc = overlay45CreateDescriptor(
         gO57ResourceTableReloc->entries[0x40], 0xA0, -0x28, 4);
@@ -312,8 +363,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     }
 
     {
-    register s32 value;
-    s32 stride;
 
     gO57Value1FCReloc = gO57SeedDataReloc.value0C;
     value = gO57SeedDataReloc.value10;
@@ -344,8 +393,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
     animseqStartPath(0x3C);
     {
-    register O57Spawned *spawned;
-    register O57AnimPath *path;
 
     path = func_800508B4(0x3C);
     if (path->object != 0) {
@@ -375,9 +422,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     gO57Active144Reloc = 0;
     joyResetMap();
     {
-    register O57ModeResult *result;
-    register s32 *entry;
-    register s32 id;
 
     switch (o57QueryModeReloc()) {
     case 4:
@@ -453,7 +497,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     }
 
     {
-    register s32 i;
 
     i = 0;
     do {
@@ -487,8 +530,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
     gO57Value124Reloc = 0;
 
     {
-    register O57Spawned *spawned;
-    register s32 i;
 
     i = 0;
     do {
@@ -513,10 +554,10 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0000000_18A3BF8:start
  * symbol: func_overlay_057_F0000000_18A3BF8
- * score: 282/597 words
- * frame: 0x90
- * relocations: 244
+ * score: 276/597 words
+ * frame: 0x80
+ * relocations: 246
  * first-mismatch: +0x8
- * summary: One shared stack packet for both spawn calls and a rolled 32-entry stride loop take 345 to 282; frame is still 0x18 over the target's 0x78. 2026-09-12, lane p11-mid: the shared packet is a FALSE ECONOMY and the comment above the union in this file states the opposite of what the target's stack census says. tools/frame_census.py reads 24 target homes against our 17, and the target's are two disjoint packet blocks -- a 20-byte one at +0x54 to +0x67 and a 13-byte one at +0x3C to +0x48 -- where we have one 24-byte union at +0x78. Splitting the union back into an O57SpawnPacket and an O57FinalSpawnPacket reproduces BOTH blocks with their internal structure matching slot for slot: our upper block then spans 0x9F to 0x88 against the target's 0x6B to 0x54, the same 0x17, and our lower block maps 0x84 0x83 0x82 0x7E 0x7C 0x7A 0x78 onto the target's 0x48 0x47 0x46 0x42 0x40 0x3E 0x3C at a constant 0x3C, with exactly one target store at +0x44 unaccounted. It also moves the size delta from -20 to -12, two instructions closer to the target's 597. It costs score -- 282 to 335, and the same either declaration order -- because every home below it then shifts, so it is only worth taking together with the frame fix it exposes. That fix is now localised: with the split the frame is 0xA0 against 0x78 and the ENTIRE excess is below the packets. Ours runs 0x78 down to 0x2C, sixty bytes of block-scoped register locals; the target's runs 0x3C down to 0x2C, sixteen. We declare sixteen pointer and index locals across seven inner blocks -- three separate `i`, two separate `spawned` -- and the target's homes leave room for about six. Merging them to function scope is the next edit, and under L115 the reuse is what the target is already doing.
+ * summary: 282 to 276: every block-scoped register local merged to function scope and the packet declared sixth; the frame excess is now a local count.
  * PLATEAU-HANDOFF:func_overlay_057_F0000000_18A3BF8:end
  */
