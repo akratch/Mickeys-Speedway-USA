@@ -6,7 +6,43 @@
 - frame: 0x118
 - relocations: 283
 - first mismatch: +0x130
-- summary: Residual partitioned: 379 displaced, 899 aligned-differing, 60 unplaced. 818 of the 899 are register naming; one global bijection closes 309. Next: the single web-order slip behind the frame-home and temp-ring offsets.
+- summary: Exhaustive colour packing reaches 1184; scoped tail carrier experiment regressed to 1349.
+
+## 2026-09-12 exhaustive colour landscape
+
+`residual_map.py` re-derived 672 aligned exact words and 999 aligned residual
+rows (739 naming, 71 immediate, 189 structural), plus 16 candidate-only and
+16 target-only words. The offsets are candidate-only
+`+0x15C,+0x160,+0x170,+0x1B0,+0x1EC,+0x508,+0x5B8,+0xCEC,+0xCFC,+0xE0C,+0xE58,+0x107C,+0x1594,+0x1628,+0x162C,+0x1660` and target-only
+`+0x184,+0x1C8,+0x1DC,+0x260,+0x2B0,+0x2B4,+0x2B8,+0x524,+0x5AC,+0xD08,+0xE20,+0xFC4,+0x15C8,+0x1600,+0x1610,+0x1618`. Their spans account for 306
+position-only words; rank windows by the 999 aligned rows, not the 1337
+positional score.
+
+All 1,460 legal single forces were measured. The exhaustive 127 winners are:
+`w105=c10/c11/c2/c7/c9`, `w122=c10/c7/c8`, `w140=c10/c11`,
+`w147=c10/c11`, `w14=c11`, `w150=c10/c11`, `w162=c15`, `w165=c10/c11/c14`,
+`w17=c11`, `w181=c10/c11/c14`, `w196=c10/c11/c2/c7/c8/c9`, `w204=c10/c11`,
+`w26=c11`, `w284=c11`, `w295=c10/c11/c3`, `w301=c10/c11`,
+`w317=c10/c11/c7/c9`, `w323=c10/c11/c18/c7/c9`, `w333=c10/c11/c18/c7/c9`,
+`w351=c10/c11`, `w352=c10/c11`, `w433=c10/c11`, `w436=c10/c11`,
+`w445=c10/c11`, `w453=c10/c11`, `w462=c10/c11/c6`, `w485=c11`,
+`w524=c11`, `w540=c11`, `w54=c10/c11`, `w565=c11`, `w56=c10/c11`,
+`w586=c10/c11/c15/c16/c17/c18/c19/c20/c21/c7/c9`, `w590=c10/c11`,
+`w601=c10/c11`, `w620=c10/c11/c15/c16/c17/c18/c19/c20/c21/c7/c9`,
+`w635=c11`, `w664=c10/c11/c4`, `w680=c10/c11`, `w705=c10/c11`,
+`w724=c10/c11`, `w741=c11`, `w779=c11`, `w780=c11`, `w786=c10/c11`,
+`w789=c10/c11/c8`, `w797=c19/c20/c21`, `w863=c19/c20/c21`, and
+`w899=c10/c11`; scores range from 1195 to 1336 and are retained in ignored
+footprint evidence. The report renderer's all-subset packing is infeasible at
+127 winners; collapsing exact-radius rivals to 63 candidates and exact
+branch-and-bound selected `w122=c7,w586=c7,w295=c3,w789=c8,w162=c15`,
+predicting 1182. `force_lattice.py` measured 1184, a 153-word colour floor;
+1,184 positional words (at least 846 aligned rows) remain outside it.
+
+One bounded source experiment moved the tail-only `buttons` carrier into each
+case arm to perturb the dominant reachable allocation. It preserved size but
+regressed to 1,349 masked words and 1,014 aligned rows, so the retained source
+was restored unchanged.
 
 The September 8 decompiler-assisted packet retains attempt 39 as ordinary,
 guarded C. This is a compiled structural plateau, not an object or ROM match.
