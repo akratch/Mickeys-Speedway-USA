@@ -164,6 +164,34 @@ extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
  *   globalcolor colour, which L114 as corrected for this procedure permits since
  *   it assigns three t-bank colours outright. Decide that from the `p1color`
  *   records before spending another no-op lattice. */
+/* 130 -> 99, lane p9-o101 2026-09-12. DELETE EVERY LOCAL THAT HELD AN ELEMENT
+ * ADDRESS OR AN ELEMENT INDEX and spell each store through the array subscript
+ * of the counter global itself. A uopt live range is formed per IR name (L131),
+ * so `&D_340[D_1CC]` written on both sides of a call is one range spanning the
+ * call; a local is a symbol and a symbol is never a ring temporary (L130), so a
+ * pointer or index local loses the caller-saved colour the shipped code gives
+ * the address AND loses the free ring draw (L129) the direct counter read
+ * supplies. The counter bump has to move to the end of its group, because
+ * without the pointer local the stores read the counter rather than a captured
+ * address; that is a semantic requirement, not a schedule choice.
+ * Worth 130 -> 113 here before any re-ordering. The same edit closed the four
+ * 2,100-byte builders in this overlay outright.
+ *
+ * Then re-climb every statement order, because a statement-order optimum is
+ * never portable across a shape change: the five one-line groups and the text
+ * macro, under the read-before-write dependences with the call held as a
+ * barrier, 113 -> 99. Two further rounds of the same climb are flat, and the
+ * orders transfer unchanged to both siblings, which also read 99.
+ *
+ * What is left is 99 words in the four text rows alone -- everything up to the
+ * first text call is byte-exact -- and it is a ring PHASE, now running one
+ * position AHEAD of the shipped code rather than behind it: ours t6 where the
+ * ROM has t5, from +0x2F4. The direction is the point. L127's no-op consumes a
+ * ring temp and can only push the phase one way, so it cannot reach this; what
+ * is needed is one FEWER draw, which is L126's coloured copy. Measured flat or
+ * worse here: the length local as s32/u32/s8 (all grow the frame), a post-call
+ * index local (385), dropping the u8 store cast (flat), the opacity mask (123),
+ * and L127 no-ops on the kind and x stores (357, 343). */
 #ifdef NON_MATCHING
 void func_overlay_101_F000512C_18E094C(void) {
     s32 index;
@@ -173,39 +201,34 @@ void func_overlay_101_F000512C_18E094C(void) {
     Node24 *node24;
     Node32 *node32;
 
-    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_C78; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; index = D_1C4; D_1C0[index] = &D_1C; D_1C4 = index + 1;
+    D_0.kind = 4; D_0.width2E = 0x140; D_0.height30 = 0xF0; D_0.asset34 = &D_C78; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.value2C = 0; D_0.chainType = 0; D_0.chain = 0; D_1C0[D_1C4] = &D_1C; D_1C4 = D_1C4 + 1;
 
-    node32 = &D_340[D_1CC]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); node32 = &D_340[D_1CC]; D_1CC = D_1CC + 1; node32->previous = D_0.chain; node32->handle = handle; node32->previousType = D_0.chainType; D_0.chainType = 2; D_0.chain = node32;
+    D_340[D_1CC].x = 0xF2; D_340[D_1CC].y = 0x14E; D_340[D_1CC].value10 = 0; D_340[D_1CC].color12 = 0xFF; D_340[D_1CC].color13 = 0; D_340[D_1CC].value18 = 0; D_340[D_1CC].scale = 1.0f; D_340[D_1CC].value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, 0); D_340[D_1CC].handle = handle; D_340[D_1CC].previousType = D_0.chainType; D_340[D_1CC].previous = D_0.chain; D_0.chainType = 2; D_0.chain = &D_340[D_1CC]; D_1CC = D_1CC + 1;
 
-    index = D_1C4; D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x5A; D_0.height48 = 0x20; D_0.value4A = 0x4C; D_0.value4C = 0x54; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data68; D_1C0[index] = &D_38; D_1C4 = index + 1;
+    D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x5A; D_0.height48 = 0x20; D_0.value4A = 0x4C; D_0.value4C = 0x54; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data68; D_1C0[D_1C4] = &D_38; D_1C4 = D_1C4 + 1;
 
-    node20 = &D_200[D_1C8]; node20->x = 6; node20->y = 0xE; node20->scale = 1.0f; handle = func_overlay_101_F0000000_18DB820(7); node20 = &D_200[D_1C8]; D_1C8 = D_1C8 + 1; node20->previous = D_0.child; node20->handle = handle; node20->previousType = D_0.childType; D_0.childType = 1; D_0.child = node20;
+    D_200[D_1C8].x = 6; D_200[D_1C8].y = 0xE; D_200[D_1C8].scale = 1.0f; handle = func_overlay_101_F0000000_18DB820(7); D_200[D_1C8].handle = handle; D_200[D_1C8].previousType = D_0.childType; D_200[D_1C8].previous = D_0.child; D_0.childType = 1; D_0.child = &D_200[D_1C8]; D_1C8 = D_1C8 + 1;
 
-    index = D_1C4; D_0.x5E = 0x20; D_0.width60 = 0x40; D_0.y62 = 0x20; D_0.height64 = 0x78; D_0.value66 = 0xC0; D_0.value68 = 0x46; D_0.mode5C = 0; D_0.color6A = 0xFF; D_0.color6B = 0xFF; D_0.secondChildType = 0; D_0.secondChild = 0; D_0.data6C = D_INPUT.data6C; D_1C0[index] = &D_54; D_1C4 = index + 1;
+    D_0.x5E = 0x20; D_0.width60 = 0x40; D_0.y62 = 0x20; D_0.height64 = 0x78; D_0.value66 = 0xC0; D_0.value68 = 0x46; D_0.mode5C = 0; D_0.color6A = 0xFF; D_0.color6B = 0xFF; D_0.secondChildType = 0; D_0.secondChild = 0; D_0.data6C = D_INPUT.data6C; D_1C0[D_1C4] = &D_54; D_1C4 = D_1C4 + 1;
 
 #define ADD_TEXT_ROW(field, rowY)                                            \
-    index = D_1D0;                                                          \
-    node24 = &D_540[index];                                                  \
-    node24->x = 0x60;                                                        \
-    node24->y = (rowY);                                                      \
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.field);               \
-    index = D_1D0;                                                          \
-    node24 = &D_540[index];                                                  \
-    node24->length = (u8)length;                                             \
-    node24->opacity =                                                       \
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);                 \
-    node24->mode = 2;                                                        \
-    node24->color0 = 0;                                                      \
-    node24->color1 = 0;                                                      \
-    node24->color2 = 0;                                                      \
-    node24->color3 = 0;                                                      \
-    node24->kind = 4;                                                        \
-    node24->text = D_INPUT.field;                                            \
-    node24->previousType = D_0.secondChildType;                              \
-    node24->previous = D_0.secondChild;                                      \
-    D_0.secondChildType = 3;                                                 \
-    D_0.secondChild = node24;                                                \
-    D_1D0 = index + 1
+    D_540[D_1D0].x = 0x60; \
+    D_540[D_1D0].y = (rowY); \
+    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.field); \
+    D_540[D_1D0].length = (u8)length; \
+    D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); \
+    D_540[D_1D0].mode = 2; \
+    D_540[D_1D0].color0 = 0; \
+    D_540[D_1D0].color1 = 0; \
+    D_540[D_1D0].color2 = 0; \
+    D_540[D_1D0].color3 = 0; \
+    D_540[D_1D0].text = D_INPUT.field; \
+    D_540[D_1D0].previousType = D_0.secondChildType; \
+    D_540[D_1D0].previous = D_0.secondChild; \
+    D_540[D_1D0].kind = 4; \
+    D_0.secondChildType = 3; \
+    D_0.secondChild = &D_540[D_1D0]; \
+    D_1D0 = D_1D0 + 1
 
     ADD_TEXT_ROW(text70, 0x10);
     ADD_TEXT_ROW(text74, 0x1E);
@@ -222,10 +245,10 @@ void func_overlay_101_F000512C_18E094C(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000512C_18E094C:start
  * symbol: func_overlay_101_F000512C_18E094C
- * score: 130/380 words
+ * score: 99/380 words
  * frame: 0x38
  * relocations: 49
- * first-mismatch: +0x9C
- * summary: 130 masked words; the byte-length local is u8, which collapsed the naming bucket by more than four to one and left a clean one-position ring shift from +0x2BC.
+ * first-mismatch: +0x2F4
+ * summary: 99 masked words from 130; every element address and index local deleted in favour of the counter global's own subscript, then every statement order re-climbed. The residual is four text rows one ring position AHEAD of the shipped code, which inverts the L127 lever.
  * PLATEAU-HANDOFF:func_overlay_101_F000512C_18E094C:end
  */
