@@ -669,11 +669,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_80037414:start
  * symbol: func_80037414
- * score: 59 differing words
+ * score: 57/146 words
  * frame: 0x38
  * relocations: 42
  * first-mismatch: +0x10
- * summary: Three declared locals were decompiler spill names; removing them takes the frame from 0x40 to 0x38 against 0x30. The +4 is a callee-saved carrier.
+ * summary: Declaration and independent global-store scheduling remove two residual words; the 0x30 target frame and callee-saved carrier remain.
  * PLATEAU-HANDOFF:func_80037414:end
  */
 
