@@ -213,8 +213,8 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         var_f0 = -arg8;
         angleStep = 0x10000 / (s32) cone->segmentCount;
     }
-    points[0].x = 0.0f;
     points[0].y = 0.0f;
+    points[0].x = 0.0f;
     points[0].z = var_f0;
     point = points + 1;
     i = 0;
@@ -1463,8 +1463,8 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
         if (alpha != 0xFF) {
             cmd = *dlist;
             *dlist = cmd + 1;
-            cmd->w1 = 0;
             cmd->w0 = 0xE7000000;
+            cmd->w1 = 0;
             cmd = *dlist;
             *dlist = cmd + 1;
             cmd->w1 = -1;
@@ -2205,13 +2205,13 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
     }
     temp_v0_2 = *dList;
     *dList = temp_v0_2 + 1;
-    temp_v0_2->w0 = 0x06000000;
     temp_v0_2->w1 = (u32)D_8007D380;
     temp_v0_3 = *dList;
+    temp_v0_2->w0 = 0x06000000;
     *dList = temp_v0_3 + 1;
     temp_v0_3->w0 = 0xFA000000;
-    var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
     temp_v0_3->w1 = arg8;
+    var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
     temp_t7 = arg5 * 4;
     temp_t9 = arg7 * 4;
     temp_t6 = arg4 * 4;
@@ -2222,8 +2222,8 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
         do {
             temp_t2 = var_a2;
             var_a2 += 0x10;
-            (*dList)->w0 = (u32)*var_s5;
             (*dList)->w1 = (u32)var_t1;
+            (*dList)->w0 = (u32)*var_s5;
             var_t1 = (FxGfx *)((s32)var_t1 + (arg2 * 8));
             *dList = *dList + 1;
             temp_t7_2 = *dList;
@@ -2235,8 +2235,8 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
             }
             temp_v0_4 = *dList;
             *dList = temp_v0_4 + 1;
-            temp_v0_4->w0 = (((temp_t8 & 0xFFF) << 12) | 0xE4000000) | (var_a2 & 0xFFF);
             temp_v0_4->w1 = ((temp_t6 & 0xFFF) << 12) | (temp_t2 & 0xFFF);
+            temp_v0_4->w0 = (((temp_t8 & 0xFFF) << 12) | 0xE4000000) | (var_a2 & 0xFFF);
             temp_v0_5 = *dList;
             *dList = temp_v0_5 + 1;
             temp_v0_5->w1 = ((arg4 << 5) << 16);
@@ -2382,24 +2382,64 @@ void func_8004AF68(void) {
 
 
 
+/* Axis log for the fxScreenEffect residual, recorded 2026-09-11. Kept outside
+ * the structured marker below because that marker admits only its six fields,
+ * one physical line each.
+ *
+ * The instrument that mattered was the instruction multiset, not the positional
+ * count: at 123 words the candidate differed from the target by exactly five
+ * register copies, one shift and one display-list writeback, and every other
+ * mnemonic count already agreed. Three of those five are now closed.
+ *
+ * What paid, each measured alone:
+ *   - the cursor initialiser moved inside the guarded block, +1 word;
+ *   - the limit given a guard-local carrier, +1 word;
+ *   - the display-list pointer advanced once in place and then re-read, +1 word,
+ *     which also broke the 123 plateau to 122. The draft's two adjacent
+ *     writebacks were folding into one dead store.
+ *
+ * What did not, all flat unless noted:
+ *   - 32 forms naming each of five hoisted loop invariants as a preheader local
+ *     against inlining it: byte-identical in all 32.
+ *   - 243 forms of the same five at three spellings each (inline, one-step
+ *     named, two-step compound assignment): masked 123 and size delta -24 in
+ *     every cell.
+ *   - 8 forms moving the two scaled values and the cursor initialiser between
+ *     the pre-guard block and the guarded block: only the cursor pays.
+ *   - 32 forms adding a guard-local carrier for the limit, the two scaled
+ *     values, the stride and the base: only the limit pays.
+ *   - 5 store and advance topologies for the second in-loop command: the
+ *     advance-then-re-read form pays and is adopted; two others lose a word.
+ *   - 6 region barriers and 4 arithmetic spellings against the unfolded
+ *     (arg4 << 5) << 16 the target holds: none blocks the fold.
+ *   - 4 stride spellings (pointer increment, array index, cast-and-add, named):
+ *     byte-identical except the named form, which regresses.
+ *   - parameter reassignment, rescaling arg4, arg5 and arg7 in place: regresses
+ *     to 143 and drops one stack-argument load the target has.
+ *
+ * After these edits the register census resolves into a single closed four-cycle
+ * over the integer temp ring where it previously showed two incoherent ones,
+ * which is the L127 ring-phase fact rather than a set of colour questions.
+ */
+
 /* PLATEAU-HANDOFF:func_80046EC4:start
  * symbol: func_80046EC4
- * score: 60 differing words
+ * score: 60/111 words
  * frame: 0x48
  * relocations: 6
- * first-mismatch: 0x68
- * summary: the one extra instruction is located: the target reuses the materialised cone+0x38 value as the base for the two sub-address adds, IDO reassociates every source spelling tried into cone+size then +0x38. Frame and stack homes are exact.
+ * first-mismatch: +0x68
+ * summary: Guarded order climb found only semantically invalid gains; address-base reuse remains the blocker after the spelling closure.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
 
 /* PLATEAU-HANDOFF:func_800470B0:start
  * symbol: func_800470B0
- * score: 90 differing words
+ * score: 89/149 words
  * frame: 0x168
  * relocations: 3
- * first-mismatch: 0x44
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new fixed-bound loop carrier topology evidence.
+ * first-mismatch: +0x44
+ * summary: Independent point-store scheduling swap removes one residual word; coloured global-register cycles remain the allocator blocker.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
@@ -2444,52 +2484,13 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_800479D4:end
  */
 
-/* Axis log for the fxScreenEffect residual, recorded 2026-09-11. Kept outside
- * the structured marker below because that marker admits only its six fields,
- * one physical line each.
- *
- * The instrument that mattered was the instruction multiset, not the positional
- * count: at 123 words the candidate differed from the target by exactly five
- * register copies, one shift and one display-list writeback, and every other
- * mnemonic count already agreed. Three of those five are now closed.
- *
- * What paid, each measured alone:
- *   - the cursor initialiser moved inside the guarded block, +1 word;
- *   - the limit given a guard-local carrier, +1 word;
- *   - the display-list pointer advanced once in place and then re-read, +1 word,
- *     which also broke the 123 plateau to 122. The draft's two adjacent
- *     writebacks were folding into one dead store.
- *
- * What did not, all flat unless noted:
- *   - 32 forms naming each of five hoisted loop invariants as a preheader local
- *     against inlining it: byte-identical in all 32.
- *   - 243 forms of the same five at three spellings each (inline, one-step
- *     named, two-step compound assignment): masked 123 and size delta -24 in
- *     every cell.
- *   - 8 forms moving the two scaled values and the cursor initialiser between
- *     the pre-guard block and the guarded block: only the cursor pays.
- *   - 32 forms adding a guard-local carrier for the limit, the two scaled
- *     values, the stride and the base: only the limit pays.
- *   - 5 store and advance topologies for the second in-loop command: the
- *     advance-then-re-read form pays and is adopted; two others lose a word.
- *   - 6 region barriers and 4 arithmetic spellings against the unfolded
- *     (arg4 << 5) << 16 the target holds: none blocks the fold.
- *   - 4 stride spellings (pointer increment, array index, cast-and-add, named):
- *     byte-identical except the named form, which regresses.
- *   - parameter reassignment, rescaling arg4, arg5 and arg7 in place: regresses
- *     to 143 and drops one stack-argument load the target has.
- *
- * After these edits the register census resolves into a single closed four-cycle
- * over the integer temp ring where it previously showed two incoherent ones,
- * which is the L127 ring-phase fact rather than a set of colour questions.
- */
 /* PLATEAU-HANDOFF:fxScreenEffect:start
  * symbol: fxScreenEffect
- * score: 121 differing words
+ * score: 116/143 words
  * frame: 0x30
  * relocations: 10
- * first-mismatch: 0x8
- * summary: 123 to 121 masked on two web-span edits and one store-topology edit, size delta -28 to -16, 143 of 147 words, frame 0x30 on both sides with an identical 14-slot ladder. The decisive instrument was the instruction multiset, not the aligner: at baseline the candidate differed from the target by exactly five register copies, one shift and one store and nothing else; it now reads three copies and one shift. What paid, each measured alone: moving the cursor initialiser inside the guarded block, one word; giving the limit a guard-local carrier, one word; and re-reading the display-list pointer between the two adjacent writebacks so the second is not folded into a dead store, one word. Decision variable reached: the remaining three copies are ugen colour assignments, not authorable symbols -- every value the target copies is already a named symbol here and coalesces, and the target's copies survive because the destination colour differs from the producer temp, which is downstream of allocation. The next lever is an allocator trace on the four preheader webs read against L100 save ratios; this is a p1-only procedure, so declaration order and statement order are not axes. Refuted: the prior note asking for stack-argument preload topology evidence mis-states the gap, because both sides load all five stack arguments and the frames and slot ladders were already identical. Also refuted, the caveat this lane was dispatched with: the geometry did not have to close first, it was already closed. After the edits the register census resolves into one clean four-cycle over t9, t6, t7 and t8 across 34 sites where it previously showed two incoherent cycles, so closing the size deficit surfaced an L127 ring-phase fact underneath. Axes covered are listed in the shard.
+ * first-mismatch: +0x8
+ * summary: Four independent graphics-field and local-store reorderings remove five residual words; t6-t9 ring allocation remains.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
@@ -2505,11 +2506,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:wakeDraw:start
  * symbol: wakeDraw
- * score: 122 differing words
+ * score: 121/176 words
  * frame: 0x50
  * relocations: 1
- * first-mismatch: 0x0
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new outer-index spill and xStep lifetime evidence.
+ * first-mismatch: +0x0
+ * summary: Independent E7 command field scheduling removes one residual word; frame and outer-index lifetime remain unresolved.
  * PLATEAU-HANDOFF:wakeDraw:end
  */
 
