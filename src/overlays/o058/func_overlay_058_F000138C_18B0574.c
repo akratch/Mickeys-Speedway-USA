@@ -482,14 +482,14 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         savedX = D_o058_5E98;
         if (i != 0);
         savedOffset = D_o058_5EA0;
-        i = 0;
+        portraitX = 0; /* Independent array induction; visible i stays early. */
         rowY = rowBase;
         if ((s32) D_8007BEF8 > 0) {
             do {
                 D_o058_5E98 = -D_o058_5E98;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[portraitX]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E98 + D_o058_5EA0 + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -497,21 +497,21 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x28, rowY, D_o058_5C98[D_o058_5EF8[i]], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[i])) {
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x28, rowY, D_o058_5C98[D_o058_5EF8[portraitX]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[portraitX])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[i]->character + 0x1A], 0);
-                textY = D_o058_5EC8[i]->rank - D_o058_5E50[i];
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[portraitX]->character + 0x1A], 0);
+                textY = D_o058_5EC8[portraitX]->rank - D_o058_5E50[portraitX];
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 sprintf(&text[0], D_o058_5D50, textY);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xBE, rowY, &text[0], 0);
-                sprintf(&text[0], D_o058_5D54, D_o058_5E50[i]);
+                sprintf(&text[0], D_o058_5D54, D_o058_5E50[portraitX]);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xEB, rowY, &text[0], 0);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0x113, rowY, D_o058_5D5C, 0);
-                i += 1;
+                portraitX += 1; i += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -1103,18 +1103,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        /* Adjacent index def; see the note in case 7/11.  This loop was
-         * carried by `opponent` from 2026-09-10 to 2026-09-12, when
-         * `opponent` beat every other carrier by a clear margin.  At the
-         * shape note 8 leaves behind, `i` wins instead: 599 -> 594 masked,
-         * byte-exact 3294 -> 3311, naming 215 -> 198.  L146 -- a carrier
-         * optimum belongs to the shape, and this is the third time this
-         * site has changed hands.  `i` is written at the top of case 8 and
-         * read nowhere between there and here, so the identity is free. */
-        i = 0;
+        /* The visible row index was initialized before the font calls.
+         * This separate induction starts beside the loop so uopt can fold
+         * both the lap-array address and the row-coordinate stride.
+         * Both indices visit zero through two once; `opponent` is otherwise
+         * dead here.  Splitting only one induction leaves the other blocked.
+         * This split increases `i`'s occurrence-block count; the fourth
+         * grid probe below restores its saved-register priority.
+         * The visible increment goes first to match the loop-tail schedule. */
+        opponent = 0;
         do {
             x = -x;
-            textY = D_o058_5EAC + i * 0x1B + 0x5B;
+            textY = D_o058_5EAC + opponent * 0x1B + 0x5B;
             if (i == D_o058_5E8C) {
                 fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
@@ -1122,7 +1122,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
             sprintf(&text[0], D_8007C0B8->text[0x30], i + 1);
             func_8004B0F8(&D_800D3140, x + 0x82, textY, &text[0], 1);
-            overlay56SplitTime(state->entries[0].lapTimes[i], &minutes, &seconds, &centiseconds);
+            overlay56SplitTime(state->entries[0].lapTimes[opponent], &minutes, &seconds, &centiseconds);
             if (i != D_o058_5E8C) {
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
             }
@@ -1135,6 +1135,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             sprintf(&text[0], D_o058_5D88, centiseconds);
             func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
             i += 1;
+            opponent += 1;
         } while (i != 3);
         x = -x;
         textY = textY + 0x2C;
@@ -1318,17 +1319,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             x = -x;
             columnX = 0x34 + x;
             do {
-                /* Three discarded-expression probes on the index, at loop
-                 * depth 2 -- zero instructions, and the only lever measured
-                 * that moves this procedure's saved-register colouring.  Every
-                 * one of its 428 allocator decisions is phase one, so the only
-                 * axis is L100's ratio `save = totalsave / nocs`: a depth-2
-                 * probe adds 100 to the index web's totalsave and nothing to
-                 * its nocs, which lifts it past the text buffer's address temp
-                 * and transposes the pair.  Two probes suffice for the tree as
-                 * it stood; case 8's carrier above needs three, which is why
-                 * three are written.  Six restructure the web and cost words.
-                 * A probe at the top of a case (depth 0) is NOT free here. */
+                /* Four discarded-expression probes at loop depth two.
+                 * They emit no instructions and raise the index web's
+                 * save ratio.  The split case-8 induction raises nocs
+                 * from 66 to 70 at unchanged totalsave 1075, losing its
+                 * priority to the text-buffer address.  The fourth probe
+                 * raises totalsave to 1175 and restores the target order.
+                 * After the case-2 split the index reads 1175/74 and the
+                 * buffer 849/55; four and five probes give one object.
+                 * Six restructure the web and regress.  These numbers
+                 * describe this source shape, not a universal probe count.
+                 * The inert shaping is disclosed in the current handoff. */
+                if (i);
                 if (i);
                 if (i);
                 if (i);
@@ -1482,10 +1484,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 393/3614 words
+ * score: 277/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 594 to 393: opaque stride and independent case-10 indices remove long displacement; remaining windows split into colour, definition placement and scheduling.
+ * summary: 393 to 277: independent case-2 and case-8 inductions, fourth grid probe and loop-tail order; remaining windows priced and partitioned.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
