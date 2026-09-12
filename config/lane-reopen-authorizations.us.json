@@ -100,6 +100,11 @@
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "67ca2189a44b5dceca42d7ed19cbddfd15fef57c"
     },
+    "func_80009414": {
+      "ledger_commit": "59d344d38fe34eda70d66ccc8ce5b51ebbc88e1c",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "59d344d38fe34eda70d66ccc8ce5b51ebbc88e1c"
+    },
     "func_80009AA8": {
       "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
       "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
@@ -790,6 +795,11 @@
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
       "source_commit": "bfc53f44626b68875f1d845577717a59f172d8d8"
     },
+    "func_8005AF14": {
+      "ledger_commit": "5808ba0183a4a84efca3e3461cfb54313aacdfa0",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "bfc53f44626b68875f1d845577717a59f172d8d8"
+    },
     "func_8006E7E0": {
       "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -889,6 +899,11 @@
       "ledger_commit": "c1cd2f3e3ac6513106b79a2767ee9b78910cc5cf",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ffe52cc803195595d6f59587ed72581721585db9"
+    },
+    "func_overlay_020_F000038C_1876964": {
+      "ledger_commit": "b0707769d25676576150e02d365a01a1090b17c0",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "ae445667ab4dc9fcad1809b1539944e4a13377f1"
     },
     "func_overlay_020_F0001148_1877720": {
       "ledger_commit": "3461024edafbc1901f4c6f777bcc844c47702471",
@@ -1010,6 +1025,11 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26"
     },
+    "func_overlay_044_F0000580_188BDE0": {
+      "ledger_commit": "1183b89f43bb6de3b4b0df9f1b1ea2c688d6a427",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "ffcf11260b7971f032594e6d95d2a593446985ac"
+    },
     "func_overlay_045_F0001158_188D5B0": {
       "ledger_commit": "ee1979c9c6ab196b134e8788aa1542f34a5e18c7",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
@@ -1079,6 +1099,11 @@
       "ledger_commit": "229a07eb5a5a44a59826af45f2638211c3532960",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "4fbd136939c85a2b8c9115ddd332f8d427526ee0"
+    },
+    "func_overlay_058_F0000000_18AF1E8": {
+      "ledger_commit": "2200ab92e80059c4107a27a135c1dbae76bcaf05",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "e5a9bc76443714e261a8e52facc1e2b0bd2321d8"
     },
     "func_overlay_058_F00005FC_18AF7E4": {
       "ledger_commit": "1aa50f6d54666a771bfd0c212864142aa9faf2e2",
@@ -1609,6 +1634,11 @@
       "ledger_commit": "15ee17dfbe61096560e23085d862ab1c266dbedb",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "169fa6b7f187f9b06ad478054165e34287850c9b"
+    },
+    "overlay98RenderReflections": {
+      "ledger_commit": "4100d1b96b29e9fd23198a99472b593b138a0e22",
+      "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
+      "source_commit": "9ad11577bd38cf096723e6b8587e39cd3e9a51e3"
     },
     "overlay99BuildHeightGrid": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
