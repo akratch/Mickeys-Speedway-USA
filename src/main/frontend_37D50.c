@@ -679,11 +679,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_800376CC:start
  * symbol: func_800376CC
- * score: 61 differing words
+ * score: 61/119 words
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: The +1 word is one colour: the target keeps the loop flag in a1 while the candidate spills it to s0, paying sw/lw plus a move a1,s0 where the target has a nop. The target has ra as an extra allocatable register (it is dead before the jump) and every later colour shifts by it. Reading the three globals back instead of naming temp_t7/temp_t9/var_v0 took aligned words from 30 to 62 of 118. Statement order, declaration order, register classes, inlining the mode bit and the jump argument list are flat; JFG PR 37 has no donor for it.
+ * summary: Move-one climb is a fixed point; the remaining frame and ra-versus-s0 carrier mismatch needs a lifetime or ABI lever.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
