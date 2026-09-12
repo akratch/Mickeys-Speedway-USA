@@ -436,14 +436,14 @@
       "source_commit": "094bac856d40e201d133d032e58a05960d54f530"
     },
     "func_80037414": {
-      "ledger_commit": "df2b6a8589648ee14f27f033383faafd01940a7f",
+      "ledger_commit": "c28230116e74ff270c66e3a3593e08c7ae8f31ba",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8"
+      "source_commit": "c28230116e74ff270c66e3a3593e08c7ae8f31ba"
     },
     "func_800376CC": {
-      "ledger_commit": "a8c4071102a8fc6be0e68534cfdf2bf7c9fa9abd",
+      "ledger_commit": "a35c91e864b8e93a962cc1b79b6012a19b66e904",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "c949febf607d461162f1736fb287c18c6adab34f"
+      "source_commit": "a35c91e864b8e93a962cc1b79b6012a19b66e904"
     },
     "func_800378A4": {
       "ledger_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2",
@@ -561,14 +561,14 @@
       "source_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef"
     },
     "func_80046EC4": {
-      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "ledger_commit": "3251b2c7a26f904ac582fef616eb8c40fbe0e9a4",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "e2fc4dca7255281451a16d40e37659a197c7baef"
+      "source_commit": "3251b2c7a26f904ac582fef616eb8c40fbe0e9a4"
     },
     "func_800470B0": {
-      "ledger_commit": "46978ecbd4a2db58bca9c684091662df137f7dcb",
+      "ledger_commit": "9ab081a188392845141e87a4f9c6262de2cc6a13",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 90 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "46978ecbd4a2db58bca9c684091662df137f7dcb"
+      "source_commit": "9ab081a188392845141e87a4f9c6262de2cc6a13"
     },
     "func_80047304": {
       "ledger_commit": "4d8130631551a8cc9d3eb2f0b6710048d769afdc",
@@ -726,9 +726,9 @@
       "source_commit": "2fe469bbad868cba383a15c672868048d19f72ae"
     },
     "func_800580F0": {
-      "ledger_commit": "e13ce151b54d87f334687441a65ce7da5c720c9b",
+      "ledger_commit": "b5d7683a7c5b467109ce5be5995f574401f8543e",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "e13ce151b54d87f334687441a65ce7da5c720c9b"
+      "source_commit": "b5d7683a7c5b467109ce5be5995f574401f8543e"
     },
     "func_80058250": {
       "ledger_commit": "4bd0ef0597a0443028441f79230ea6f202d6f2de",
@@ -1031,9 +1031,9 @@
       "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "256cf5abf564cbfe0085d2bab849fca47c0e1e48",
+      "ledger_commit": "226e0445cb646cb95d87226102ba10399447e8b8",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35"
+      "source_commit": "c4ade705839e72712164edc033000cf62273b136"
     },
     "func_overlay_060_F0000000_18B9DD8": {
       "ledger_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6",
@@ -1131,9 +1131,9 @@
       "source_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5"
     },
     "fxScreenEffect": {
-      "ledger_commit": "05f00fe35d50ea18c34a993cc453c3c7d27bffa6",
+      "ledger_commit": "f4e56c1e90f3b9d010509c6944c0552cb920407f",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "ceaff82fe6f7f7a8a94c08e4a1e8a7047e3dfab2"
+      "source_commit": "f4e56c1e90f3b9d010509c6944c0552cb920407f"
     },
     "joyRead": {
       "ledger_commit": "eb3b35d4c727847da49800755a8bd8fefbe2883f",
@@ -1601,9 +1601,9 @@
       "source_commit": "a48bdabf507785088849b78bcc499bfca96d7633"
     },
     "wakeDraw": {
-      "ledger_commit": "2ecb7eb521a6bb31e198f079fe43eeb4e164abf7",
+      "ledger_commit": "2d923387fa81afb05ef9fdd245dc8c67522adc73",
       "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
-      "source_commit": "2ecb7eb521a6bb31e198f079fe43eeb4e164abf7"
+      "source_commit": "2d923387fa81afb05ef9fdd245dc8c67522adc73"
     },
     "wakeUpdate": {
       "ledger_commit": "93d8d52434ceac33410e0de9ed1e87fc10b5ec1f",
