@@ -58,4 +58,45 @@ still colouring to the zero register. The target's instruction proves the value
 reached the allocator as zero, so the requirement is a propagation barrier that
 survives into ugen, not a runtime-unknown value.
 
+#### 2026-09-12, lane `p10-near`: an exhaustive force sweep retires the colour axis
+
+Baseline reproduces: 320 bytes, delta 0, 10 masked, first mismatch +0x50, frame
+0x48. The instrumented toolchain's `.text` is byte-identical to the tree's for
+this TU.
+
+**The residual is not a colouring decision, and that is now an existence proof
+rather than an inference** (L140). This procedure emits thirteen p1 decisions;
+forcing every one of them onto every colour from c1 to c15 gives **146 accepted
+forces** -- acceptance read from the `forced` field of each `p1color` record,
+never from whether the object changed -- and the floor across all 146 is 10,
+reached only by the incumbent colour of each web. So no move of any existing
+web's colour touches these ten words, and the two previous lanes' reading of
+the cluster as an address-folding fact rather than an allocation fact is
+confirmed from the records.
+
+**The L127 probe family does not reach it either.** The nine-word cluster is a
+temp-ring phase difference downstream of the target's `sll`-of-zero, and L127
+says a peephole-deleted no-op still draws a ring temp, so a probe placed between
+the division and the loop should advance the ring one position and close five of
+the nine. Twelve probes -- or-with-zero, and-with-minus-one and xor-with-zero on
+the threshold numerator, the quotient, the value constant, the loop index, the
+cursor index at its definition and at its use, the guard test and the guard's
+arm -- are **all byte-identical**. L135 explains it: uopt folds identity
+operations before the web builder, so on an integer that uopt already knows is a
+constant, or that it can fold at the tree level, the probe never reaches ugen
+and never draws.
+
+Read off the objects, the ten words are exactly: the `bne` operand order at
++0x50; the cursor's two-instruction form at +0xC0 and +0xD4, where the ROM
+emits a shift of the zero register and an add into the delay slot of an ordinary
+branch while the candidate emits a register copy and a branch-likely whose delay
+slot duplicates the following load; and five ring-phase words at +0x100..+0x120
+that follow from it, ours running one position ahead of the ROM's.
+
+**Reopen condition, unchanged in kind and narrowed in means:** the propagation
+barrier must survive into ugen, and it cannot be built from an identity
+operation (L135) or reached by a colour force (this pass). What is left is a
+source form in which the element index is a variable at address-lowering time
+and the zero register at allocation time.
+
 <!-- plateau-handoff:overlay68CheckKind:end -->
