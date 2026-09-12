@@ -111,10 +111,17 @@ Every procedure that issues a call emits **p1 allocator records only**; every
 leaf emits **p2 only**. 59 procedures classified, zero counterexamples.
 
 - **Your function contains a call** ⇒ p1 only ⇒ the axis is the `save` ratio
-  (L100) **only for colours the web is actually offered**. **Definition
-  position, declaration order and statement order decide nothing.** L106 does
-  not apply. A closure that swept them measured an axis the function does not
-  have.
+  (L100) **only for colours the web is actually offered**. What this retires is
+  **L106 specifically** — ugen's p2 web-number ordering — and nothing else.
+  A closure that swept L106's axis on a p1-only function measured something the
+  function does not have.
+  **It does NOT retire statement order.** This brief previously said
+  "definition position, declaration order and statement order decide nothing",
+  and that is false as written: statement order reaches **as1's scheduling** and
+  **ugen's emission order**, neither of which the call test touches. On one lane
+  statement order was decisive on **all seven** functions it closed, and a shard
+  carrying the old phrasing had told the next lane not to look. Read the
+  retirement narrowly.
   **Check the offer list before the ratio (L142).** A web live across a call is
   denied `v0`/`v1` *and exactly those argument registers the spanned calls
   load*. The denial is recorded in the web's **`forbidden` mask**; it also shows
