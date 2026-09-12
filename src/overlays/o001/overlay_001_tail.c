@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: source baseline remains 2 masked words; p1 records and ugen trace make the ring transposition a structural free-order conflict
+ * summary: All 22 coloured webs sampled: 155 single forces, no winners; source literal-type lattice remains 2; ring release-order question remains.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
