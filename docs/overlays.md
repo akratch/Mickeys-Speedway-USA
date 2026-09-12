@@ -2338,3 +2338,10 @@ lets the earlier vertex web win the required colour. Initializing the scan
 index before loading the vertex base closes the last scheduling difference.
 Only untouched stock compiler output supplies the match; compiler padding and
 forced diagnostic objects receive no credit.
+
+A same-input fidelity check of the final call-free TU passes text, data,
+read-only data, relocations and symbols. Its correctly identified procedure
+still records 29 first-phase and nine second-phase allocation decisions.
+The inherited shortcut from no calls to second-phase-only allocation therefore
+does not survive this control. Statement order remains a separate emission
+and scheduling lever.

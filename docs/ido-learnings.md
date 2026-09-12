@@ -2043,6 +2043,46 @@ bytes and disassembly never belong here.
   `(u8 *)` bases makes the pre-scale sum the coloured web, as the target has
   it. A ten-probe standalone TU reproduces the mechanism.
 
+## Definition regions, complete source shapes, and measured allocation phases
+
+- **A missing loop-entry guard can be a definition-region effect.** Defining
+  the initial count before the surrounding calculations and calls can retain
+  the generic guard that a later definition lets the optimizer remove. Inspect
+  where the count is defined before introducing an opaque initializer or
+  sweeping the comparison spelling. This does not authorize extra observable
+  reads or changes to the iteration domain. The exact
+  [angle-candidate solver closure](overlays.md#overlay-1-angle-candidate-solver-closure-2026-09-12)
+  supplies stock-object and ROM evidence.
+- **A natural counted scan can change a competing web's save ratio.** Replacing
+  a manually spelled loop with its ordinary counted form can change the basic
+  blocks used in the allocation denominator while retaining the actual loop
+  bounds. A tied ratio then lets web order choose the winner. Price the colour
+  exchange with an accepted direct force, compare the recorded denominator,
+  and re-prove every stack home. Dynamic iteration counts are not that
+  denominator, and a frame-growing candidate is not an improvement merely
+  because its positional score falls. The exact
+  [grid-mask closure](overlays.md#overlay-35-grid-mask-builder-closure-2026-09-12)
+  demonstrates the mechanism and its frame constraint.
+- **Reconstruct a complete SDK command sequence before pricing its pointer
+  colours.** A single native macro among manually expanded commands can leave
+  a separate command-pointer web; using the existing macros for the complete
+  sequence can restore both allocation and emission order. Keep custom commands
+  explicit and retain provenance for the actual header. This extends the
+  source-line grouping observation above; it does not imply that any isolated
+  macro replacement improves a match. See the exact
+  [overlay 26](overlays.md#overlay-26-draw-groups-closure-2026-09-12) and
+  [overlay 29](overlays.md#overlay-29-draw-groups-closure-2026-09-12) closures.
+- **Trace allocation phases instead of inferring them from call presence.**
+  Call-free code can still execute both the save-ranked and remaining-web
+  allocation phases. The exact grid-mask TU has both phases in its correctly
+  identified procedure; the instrumented object passes section, relocation and
+  symbol fidelity against the same configured stock input. Thus absence of
+  calls alone does not establish ascending-web allocation for the entire
+  function. Resolve the procedure ordinal and inspect its decision records
+  before applying a phase-specific law. Statement order can still change
+  emission and scheduling. Trace output and compiler diagnostics
+  remain private; stock output and the normal promotion proofs supply credit.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
