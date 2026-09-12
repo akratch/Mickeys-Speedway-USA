@@ -119,6 +119,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0x108
- * summary: Redundant s16 mask fixes the ring draw; the remaining divisor-copy coalescing decision is unresolved.
+ * summary: source question is the divisor-copy decision that refuses coalescing
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */
