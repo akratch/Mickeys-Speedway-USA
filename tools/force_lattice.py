@@ -126,25 +126,43 @@ def interaction(pair_score: int, a_score: int, b_score: int, base: int) -> str:
     return "additive"
 
 
-def compile_command(symbol: str) -> list[str]:
-    """The configured command for the symbol's TU, with the compiler swapped.
-
-    Derived from the build rather than retyped: a hand-written line that drops
-    a per-file flag makes BOTH sides of an identity gate wrong in the same way,
-    so they agree with each other and disagree with the tree (one such slip
-    read 33 against the configured 31).
-    """
-    import nm_ranking as nr
+def _queue_item(symbol: str):
+    """The queue entry for `symbol`, or a SystemExit naming why there is none."""
     import permute_batch as pb
 
-    items = [i for i in pb.queue_items() if i.func == symbol]
-    if not items:
-        raise SystemExit(f"{symbol} is not in the NON_MATCHING queue")
-    commands = nr.configured_compile_commands(items)
-    command = commands.get(symbol)
-    if not command:
-        raise SystemExit(f"no configured compile command for {symbol}")
-    return list(command)
+    queue = {item.func: item for item in pb.discover_queue()}
+    item = queue.get(symbol)
+    if item is None:
+        raise SystemExit(
+            f"{symbol} is not in the NON_MATCHING queue: already matched, or "
+            f"misspelled."
+        )
+    return item
+
+
+def _instrumented(command: list[str]) -> list[str]:
+    """`command` with the IDO driver swapped for the instrumented build.
+
+    The compiler is located by matching the path rather than assuming argv[0]:
+    this project's configured command runs the compile through asm-processor,
+    so the driver is NOT the first word. Swapping argv[0] would replace the
+    wrapper and silently compile with the stock compiler -- which reads as
+    every force being declined.
+    """
+    out, swapped = [], False
+    for arg in command:
+        if not swapped and arg.endswith("ido/cc"):
+            out.append(str(INSTRUMENTED / "cc"))
+            swapped = True
+        else:
+            out.append(arg)
+    if not swapped:
+        raise SystemExit(
+            "could not find the IDO driver in the configured command; "
+            "refusing to guess, because guessing compiles with the stock "
+            "compiler and every force then reads as declined."
+        )
+    return out
 
 
 def run_cell(symbol: str, proc: int, forces: tuple[str, ...],
@@ -152,44 +170,68 @@ def run_cell(symbol: str, proc: int, forces: tuple[str, ...],
     """Compile under `forces`, verify they applied, and score the object."""
     if dry_run:
         return Cell(forces, None, True, "dry run")
-    env = dict(os.environ)
-    if forces:
-        env["CDX_FORCE"] = ",".join(forces)
-    env["CDX_PROC"] = str(proc)
-    env["CDX_OUT"] = str(ROOT / "build" / "force_lattice.log")
+
+    import nm_ranking as nr
+
     try:
-        command = compile_command(symbol)
+        item = _queue_item(symbol)
+        commands = nr.configured_compile_commands([item])
+        command = commands.get(item.rel_c_file)
+        if not command:
+            return Cell(forces, None, False,
+                        f"no configured compile command for {item.rel_c_file}")
+        command = _instrumented(list(command))
     except SystemExit as exc:
         return Cell(forces, None, False, str(exc))
-    command = [str(INSTRUMENTED / "cc") if i == 0 else a
-               for i, a in enumerate(command)]
-    result = subprocess.run(command, env=env, capture_output=True, text=True,
-                            cwd=ROOT)
-    if result.returncode != 0:
-        return Cell(forces, None, False, f"compile failed: {result.stderr[:120]}")
-    log = pathlib.Path(env["CDX_OUT"])
-    text = log.read_text(errors="replace") if log.exists() else ""
-    if "forced=-2" in text:
+
+    work = ROOT / "build" / "force_lattice"
+    work.mkdir(parents=True, exist_ok=True)
+    obj = work / "forced.o"
+    obj.unlink(missing_ok=True)
+    log = work / "cdx.log"
+    log.unlink(missing_ok=True)
+
+    # Redirect only the object, exactly as compile_configured_tu does. The
+    # source path is kept: its quoted includes, __FILE__ and __LINE__ are
+    # compiler inputs. We do not call compile_configured_tu itself because it
+    # warns that a forced object is about to be discarded -- true for the
+    # measuring tools, and precisely backwards here, where the forced object is
+    # the thing being measured.
+    actual = list(command)
+    try:
+        actual[actual.index("-o") + 1] = str(obj)
+    except (ValueError, IndexError):
+        return Cell(forces, None, False, "configured command has no -o to redirect")
+
+    env = dict(os.environ)
+    env["CDX_PROC"] = str(proc)
+    env["CDX_OUT"] = str(log)
+    if forces:
+        env["CDX_FORCE"] = ",".join(forces)
+    else:
+        env.pop("CDX_FORCE", None)
+
+    result = subprocess.run(actual, env=env, cwd=ROOT, capture_output=True,
+                            text=True, timeout=300)
+    if result.returncode != 0 or not obj.is_file():
         return Cell(forces, None, False,
-                    "a force was NOT applied (forced=-2); the object is "
-                    "byte-identical to the unforced build and proves nothing")
-    return Cell(forces, _score(symbol), True)
+                    f"compile failed: {(result.stderr or result.stdout)[:160]}")
 
+    text = log.read_text(errors="replace") if log.exists() else ""
+    if forces and "forced=-2" in text:
+        return Cell(forces, None, False,
+                    "a force did NOT apply (forced=-2). The object is identical "
+                    "to the unforced build, so scoring it would record the base "
+                    "as though the force had been tried and declined.")
+    if forces and not text:
+        return Cell(forces, None, False,
+                    "no records were written to CDX_OUT; acceptance cannot be "
+                    "verified, and an unverified force proves nothing")
 
-def _score(symbol: str) -> int | None:
-    """Masked differing words for the object currently on disk."""
-    import nm_ranking as nr
-    import permute_batch as pb
-
-    items = [i for i in pb.queue_items() if i.func == symbol]
-    if not items:
-        return None
-    item = items[0]
-    base_o = ROOT / "build" / pb.object_for(item) if hasattr(pb, "object_for") else None
-    if base_o is None or not base_o.exists():
-        return None
-    result, _ = nr.process_item(item, base_o)
-    return None if result is None else result.relocation_masked_differing_words
+    scored, error = nr.process_item(item, obj)
+    if scored is None:
+        return Cell(forces, None, False, f"scoring failed: {error}")
+    return Cell(forces, scored.relocation_masked_differing_words, True)
 
 
 def render(base: Cell, cells: list[Cell], forces: list[str]) -> str:

@@ -130,6 +130,43 @@ class RenderTests(unittest.TestCase):
         self.assertIn("+15", text)          # single
         self.assertIn("+15 against the base", text)   # best
 
+class InstrumentedSwapTests(unittest.TestCase):
+    """The compiler is NOT argv[0], and assuming it is poisons every cell.
+
+    This project's configured command runs the compile through asm-processor,
+    so argv[0] is the wrapper. Swapping argv[0] replaces the wrapper and
+    silently compiles with the STOCK compiler -- every force then reads as
+    declined, which is indistinguishable from a real negative result.
+    """
+
+    def test_the_driver_is_found_where_it_actually_sits(self):
+        command = ["python3", "asm_processor.py", "tools/ido/cc", "-c", "x.c"]
+        out = fl._instrumented(command)
+        self.assertTrue(out[2].endswith("ido-instrumented/cc"))
+        self.assertEqual(out[0], "python3")          # wrapper untouched
+        self.assertEqual(out[1], "asm_processor.py")
+
+    def test_only_the_first_driver_is_swapped(self):
+        """The command names the driver twice (asm-processor passes it the
+        compiler as well); swapping both would corrupt the wrapper's argument."""
+        command = ["tools/ido/cc", "--", "tools/ido/cc", "-c"]
+        out = fl._instrumented(command)
+        self.assertTrue(out[0].endswith("ido-instrumented/cc"))
+        self.assertEqual(out[2], "tools/ido/cc")
+
+    def test_a_command_with_no_driver_refuses_rather_than_guessing(self):
+        """Guessing compiles with the stock compiler and reports declines."""
+        with self.assertRaises(SystemExit) as caught:
+            fl._instrumented(["gcc", "-c", "x.c"])
+        self.assertIn("refusing to guess", str(caught.exception))
+
+    def test_every_other_argument_is_preserved_exactly(self):
+        """A dropped per-file flag makes the forced and configured builds
+        differ for a reason that has nothing to do with the force."""
+        command = ["py", "ap.py", "tools/ido/cc", "-Wab,-r4300_mul", "-O2", "-o", "a.o"]
+        out = fl._instrumented(command)
+        self.assertEqual(out[3:], ["-Wab,-r4300_mul", "-O2", "-o", "a.o"])
+
 
 if __name__ == "__main__":
     unittest.main()
