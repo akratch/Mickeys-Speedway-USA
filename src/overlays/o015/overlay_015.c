@@ -452,21 +452,21 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 9/105 words
+ * score: 96/105 words
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Authenticated proc 4: 110 legal alternatives, no winner; deleted fade/star carriers grow or reorder the preheader.
+ * summary: Nine structural entry rows remain. The complete 110-probe colour landscape has no winner, and cursor deletion changes geometry.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 13/54 words
+ * score: 41/54 words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: The residual is exactly one instruction, and the previous note's decision variable is refuted. Three separate extern f32 scalars reproduce the target byte-for-byte apart from one extra lui at: six words where the ROM spends five, everything else in the block agreeing including the ori at zero 0x8000 placement, the pre-call lwc1 and lw argument scheduling, and all four swc1 orderings. as1 does NOT share a high half. Measured directly: two references to the SAME extern in two basic blocks emit two lui at with identical R_MIPS_HI16 relocations and as1 leaves both, so the ROM's shared high half is not an assembler merge and no C spelling can ask for one. What the ROM spends is a third lowering neither reachable path produces, a hi-only base kept in at with the lo folded into TWO displacements (128 and 132) and a second lui for the third (136). The two paths IDO does take here were confirmed on isolated probes: a symbol referenced once becomes an as1 absolute macro at two words per load, a symbol referenced twice or more makes uopt build a full base register at lui plus addiu plus one word per load. The base-register decision is not splittable from source: an if(1) region, a do-while(0) region and a volatile cast all leave it, and only a real branch splits it, which then yields two separate macros rather than one shared high half. Eighteen further spellings measured flat beyond the previous note's twelve, including all four absolute-literal forms, which prove the ROM's addresses are relocatable symbols rather than assemble-time constants because *(f32 *)0x80 collapses to lwc1 128(zero) with no lui at all at delta -8. Next lane: the variable is uopt's address-constant lowering, shared with overlay15MoveStars in this same TU, and register pressure remains the one untested hypothesis for making uopt decline the base register.
+ * summary: One shifted absolute-address lowering remains: the target shares a hi-only base across two loads, a form unavailable to this source.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
@@ -502,10 +502,10 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15MoveStars:start
  * symbol: overlay15MoveStars
- * score: 30 differing words
+ * score: 30/54 words
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: 30 masked at 58 words against the exact 54-word owner, frame 0x40 on both sides with an identical 13-slot ladder, four naming sites and no closed cycle. The size delta is entirely absolute-address overhead, now quantified: the ROM spends five overhead words on the nine bound loads and this candidate spends nine, and that difference of four words is the whole delta. The cost model explains why the 2026-08-29 declaration sweep read flat: a symbol referenced once costs one overhead word because the low half folds into the displacement, while a symbol referenced twice or more makes uopt build a base register costing two, so four pair aggregates plus one scalar is also nine, flat by construction rather than by accident. The reachable span is eighteen words for nine singles down to eleven for one aggregate over all nine, with the ROM at fourteen; the single aggregate measures 42 masked at delta -12. The ROM's overhead count is reachable and reaching it does not help: all nineteen contiguous partitions satisfying two-per-group-plus-one-per-single equal five were measured, every one closes the delta to exactly zero, none improves masked, and the best is 34 with byte-exact falling 37 to 30 and really-different rising 15 to 23. Decision variable reached, and it is not the one the DrawRain note names: as1 never shares a high half, and the ROM's shared base stays live across roughly fourteen scheduled instructions, so this is a uopt address-constant decision. The variable is uopt's choice between an assembler-temporary shared high half costing one word and an allocatable base register costing two, and every spelling reachable from declarations, groupings and argument order picks the base register; register pressure is the obvious untested hypothesis. Transfer from overlay15DrawRain refuted: its values lived in a padded struct, and these nine are already separate extern scalars.
+ * summary: The +16-byte address-lowering mismatch is fully localized; all size-closing BSS partitions regress aligned residuals.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

@@ -197,6 +197,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: Exhaustive singles yield only p1:w57=c5 at 4 words; 98 source lifetime cells retain best 9, with no invisible interferer found.
+ * summary: Exhaustive 82-cell colour landscape has one 4-word force but no source form creates the required invisible interferer; baseline remains 9.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */

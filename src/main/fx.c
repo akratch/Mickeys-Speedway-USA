@@ -2486,11 +2486,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:fxScreenEffect:start
  * symbol: fxScreenEffect
- * score: 116/143 words
+ * score: 27/143 words
  * frame: 0x30
  * relocations: 10
  * first-mismatch: +0x8
- * summary: Four independent graphics-field and local-store reorderings remove five residual words; t6-t9 ring allocation remains.
+ * summary: The -16-byte residual is 52 naming plus 39 structural aligned rows; the candidate-only/target-only offsets rule out a colour-only route.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
