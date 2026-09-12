@@ -87,4 +87,142 @@ Closed by measurement, all on the full configured TU:
 Next lever, named: the pass that reorders as1's scheduled stream after
 `-Wa,-R` prints it. Nothing in the source axes above reaches it, so the next
 attempt should instrument that pass rather than sweep another spelling.
+
+## 2026-09-12 (lane `p12-close`): the two words are priced, and no source form reaches them
+
+Still 2, and nothing was adopted. Baseline re-measured on arrival: 2 masked of
+1461 words, size delta 0, byte-exact 1459, register naming 0, immediate only 0,
+really different 2, displacement tax 0, first structural +0x1194.
+
+The previous packet's reading was right about where the residual is and wrong
+about which pass owns it. It said the emitted order is not the order `-Wa,-R`
+records and named "the pass after the list scheduler" as the lever. There is
+such a pass, it is a block-filling pass, and it is measured below -- but the
+relative order of the two words in question is decided by the list scheduler
+after all, on a priority that is not a tie and that no source form can move.
+
+### What the two words are, read off the objects
+
+The two differing words are an adjacent transposition, confirmed mechanically:
+the candidate's word at +0x1194 equals the target's at +0x1198 and the
+candidate's at +0x1198 equals the target's at +0x1194. Nothing else in the
+function differs -- the other seventeen raw differences are all
+relocation-masked words, which is why the masked count is exactly 2.
+
+The candidate emits, at +0x1194, the index multiply for group 9's second text
+node, and at +0x1198 the load of the first node's text pointer. The target has
+them the other way round.
+
+### The block, and why both are ready at once
+
+`cc -Wa,-R`, identity-gated against the configured object (its .text is byte-identical to the configured object).
+
+The junction sits in the block entered at the branch target of group 9's first
+text node's unsigned-to-float correction. That block holds 29 instructions and
+begins at +0x1190. Its first three picks are the float multiply at +0x1190, the
+index multiply at +0x1194 and the text load at +0x1198.
+
+Three numbers out of the node dump decide it:
+
+  - the float multiply carries `aftercycles` 17,
+  - the index multiply carries `aftercycles` 13 and, at block entry, `before` 0
+    and `time` 0,
+  - the text load carries `aftercycles` 6, `before` 0 and `time` 0.
+
+Both are ready at the same cycle, so the pick is priority alone, and 13 beats 6.
+
+### The pick rule, validated over the whole function
+
+as1 picks, among the nodes whose `time` is at or below the current issue cycle,
+the one with the largest `aftercycles`; the block terminator is scheduled last
+whatever its priority. Checked against every pick in this function that had a
+real choice: **5,334 picks, zero violations.** 3,094 of those were ties on
+`aftercycles`, and the tie is not settled by ugen emission order alone -- the
+lowest `INST` wins 1,581 of them and the highest wins 605 -- so a tie-break
+lever does exist on this compiler. This site is not a tie.
+
+### Why the index multiply is ready at entry, and why that cannot be changed
+
+It is ready because the count increment that feeds it is not in this block. as1
+runs a block-filling pass after the list scheduler that moves ready instructions
+out of this block into its predecessor and re-schedules both, alternately, until
+the predecessor's integer-multiply stall is covered. The trace shows this block
+scheduled six times, 34 nodes down to 29, with the predecessor growing 11 own
+instructions to 16 over the same five steps. The five it absorbed are the four
+constant loads group 9's mixed colour bytes and its mode and kind constants
+need, and the count increment. The 29-node schedule is byte-for-byte the emitted
+block.
+
+That is the whole of the previous packet's "lifted into the preceding block",
+and it is correct. What does not follow is that the lever is there:
+
+  - **The predecessor block is byte-identical to the target's.** It runs
+    +0x1140 to +0x117C and not one of its words is in this function's raw
+    difference list. The increment sits at +0x1168 on both sides. So the target
+    absorbs the same five instructions into the same slots, and its version of
+    this block therefore also has the multiply at `before` 0.
+  - **The other state of that variable is observable and is also wrong.** At the
+    six text-to-text junctions where the predecessor has no room, the increment
+    stays in the block and both sides then emit float multiply, increment, index
+    multiply, text load -- group 1's junction at +0x244 is the instance, and
+    candidate and target agree there. So if the increment were not hoisted at
+    group 9 the word at +0x1194 would be the increment, and the target's is the
+    text load.
+
+Both reachable states of the only variable are measured, and neither produces
+the target's order.
+
+### Both priorities are pinned by the emitted stream itself
+
+`aftercycles` of the index multiply is 10 plus the 3 its `mflo` carries, where
+10 is the integer multiply latency and the 3 is the `mflo`'s distance to the
+block terminator through the following node's base address `addu`. `aftercycles`
+of the text load is 3 plus the 3 its store carries, where 3 is the load latency
+and the store's 3 is the same distance through the same `addu`, which is
+anti-dependent on all twelve uses of the old base register.
+
+Both successor chains are the target's own instructions -- 1,459 of 1,461 words
+agree -- so neither height is a quantity the source chooses. 13 over 6 is not
+reachable from any spelling that keeps this emitted stream.
+
+### What was swept, and what it cost
+
+All on the configured full TU, all flat at 2 unless stated.
+
+  - Group 9's two text nodes written longhand as two physical lines, one line
+    per node with all seventeen statements concatenated, is byte-inert at 2.
+    That is the permutable form, and it changes no line number.
+  - A complete move-one over each node's seventeen statements, 544 forms: **2 is
+    a move-one fixed point.** 25 of the 544 are inert and every other form is
+    worse. This sweep does move statements across the length call, so it covers
+    block membership as well as within-block order.
+  - A greedy two-move climb from each of those 25 inert forms, 12,800 further
+    forms, all at 2 or worse.
+  - Every uopt region boundary over group 9: `if (1) { ... }` and
+    `do { ... } while (0)` around each of the 153 sub-spans of each node's
+    statement list, 612 forms. Each is either inert at 2 or 1,385 and worse.
+  - Four increment spellings (`D_1D0++`, `++D_1D0`, `D_1D0 += 1`,
+    `D_1D0 = 1 + D_1D0`) applied to either node or both: all inert at 2.
+  - Three `child` pointer spellings: `&(D_540[D_1D0])` and the `(void *)` cast
+    are inert at 2; `D_540 + D_1D0` is 308 and 356.
+  - Two `.text` spellings: inert at 2.
+  - All 23 non-identity permutations of group 9's four statements -- the group
+    header, the two text nodes and the sprite node: best 7, so the shipped order
+    is a strict optimum there too.
+
+### Next lever
+
+There is no source lever here, and the next lane should not spend a sweep
+looking for one. What would be needed is a change to the emitted stream at group
+9 -- which is the target's own stream -- or a second, currently unmeasured input
+to as1's dependence graph, since the graph is otherwise a function of the
+instruction sequence and the pick rule over it is now validated at 5,334 picks.
+The one such input this trace does not exhaust is ugen's `.alias`/`.noalias`
+memory-disambiguation directives, which are not bytes and do reach the `before`
+counts; whether any source form changes them at this junction without changing
+the stream is the only question left open.
+
+Validation: `gmake verify` printed 507341c0a40ca3e9a7cee969b396ee53facfb548.
+The candidate is unchanged and remains `NON_MATCHING`, so no bytes are credited.
+
 <!-- plateau-handoff:func_overlay_101_F0003A58_18DF278:end -->
