@@ -86,61 +86,53 @@ extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *text);
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
-/* Workbench plateau (2026-08-26): 361/361 instructions, exact 0x5A4 size and
- * frame, first divergence +0x10, 246 masked. Lane s1-trio's L59 fold took that
- * to 209 (2026-09-11); lane p2-pres to 178 masked / 183 aligned-exact, 64 -> 47
- * structural, on three source-shape levers, none costing an instruction.
- * (1) In every text row the node-24 text store moves to just after the opacity
- * store, ahead of mode/color0..3/kind, and root.childType = 3 moves past
- * root.child and the counter bump: 24 words, and 17,481 constrained tail
- * orders were searched here and 19,630 on the sibling without beating it.
- * (2) A second physical line inside text rows 1..4 but NOT row 5, before the
- * color1 store: L59 again, 4 words; all 256 whole-group fold subsets and every
- * intra-group break position were measured. (3) height48 is stored before
- * value4A in the second root header: 4 words, from 18,996 head-group orders.
- * Promotion stays blocked on the gO101TailC144OrderCount relocation identity. */
-#ifdef NON_MATCHING
+/* 246 -> 209 -> 178 -> 0. The last step, lane p10-o101 2026-09-12, is L145 and
+ * it also voids the three levers this comment used to record.
+ * L145 -- DELETE EVERY LOCAL THAT HELD AN ELEMENT ADDRESS OR AN ELEMENT INDEX,
+ *   `node32`, `node24`, `nodeIndex`, `orderIndex` and the `orderCount` pointer
+ *   alike, and spell every store through the array subscript of the counter
+ *   global itself. A uopt live range is formed per IR name (L131), so the
+ *   subscript written on both sides of the call is ONE range spanning it and
+ *   both occurrences take the caller-saved colour the shipped code uses; the
+ *   counter read becomes its own range on the callee-saved register the index
+ *   local used to hold; and the pre-call read lands in a ring temporary, which
+ *   a local can never be, because a local is a symbol (L130). The counter bump
+ *   moves to the end of its group as a consequence, since the stores now read
+ *   the counter rather than a captured address. 178 -> 36 at size delta 0.
+ * L146 -- every order recorded before that edit is void, and all three of the
+ *   ones this comment used to carry were. The text row wanted its text store
+ *   just after the opacity store, ahead of mode, from 17,481 constrained tail
+ *   orders; on this shape it wants `mode` first and `text` second, which is
+ *   the single swap that takes 36 -> 0. The second root header wanted height48
+ *   before value4A from 18,996 head orders; on this shape the declared field
+ *   order is the floor and the climb moves nothing. The extra physical line
+ *   inside rows 1..4 is likewise gone: every group is one line again.
+ * A four-group dependence-respecting climb -- the text row, both root headers
+ * and the sprite node, with the call held as a barrier -- reaches 0 and a
+ * second round is flat.
+ * The promotion blocker this comment used to name, the gO101TailC144OrderCount
+ * relocation identity, is resolved by the ROM: 361 of 361 words byte-exact and
+ * gmake verify unchanged. */
 void func_overlay_101_F000C144_18E7964(void) {
-    O101TailC144Node32 *node32;
-    O101TailC144Node24 *node24;
     void *handle;
-    s32 *orderCount;
     s32 length;
-    s32 nodeIndex;
-    s32 orderIndex;
 
-    orderCount = &gO101TailC144OrderCount; orderIndex = *orderCount; gO101TailC144Root.width2E = 0x140; gO101TailC144Root.height30 = 0xF0; gO101TailC144Root.asset34 = &gO101TailC144AssetDCC; gO101TailC144Root.kind = 4; gO101TailC144Root.color32 = 0xFF; gO101TailC144Root.color33 = 0xFF; gO101TailC144Root.value26 = 0; gO101TailC144Root.value28 = 0; gO101TailC144Root.value2A = 0; gO101TailC144Root.value2C = 0; gO101TailC144Root.chainType = 0; gO101TailC144Root.chain = NULL; gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.chainType; *orderCount = orderIndex + 1;
+    gO101TailC144Root.width2E = 0x140; gO101TailC144Root.height30 = 0xF0; gO101TailC144Root.asset34 = &gO101TailC144AssetDCC; gO101TailC144Root.kind = 4; gO101TailC144Root.color32 = 0xFF; gO101TailC144Root.color33 = 0xFF; gO101TailC144Root.value26 = 0; gO101TailC144Root.value28 = 0; gO101TailC144Root.value2A = 0; gO101TailC144Root.value2C = 0; gO101TailC144Root.chainType = 0; gO101TailC144Root.chain = NULL; gO101TailC144OrderSlots[gO101TailC144OrderCount] = &gO101TailC144Root.chainType; gO101TailC144OrderCount = gO101TailC144OrderCount + 1;
 
-    node32 = &gO101TailC144Nodes32[gO101TailC144Node32Count]; node32->x = 0xF2; node32->y = 0x14E; node32->value10 = 0; node32->color12 = 0xFF; node32->color13 = 0; node32->value18 = 0; node32->scale = 1.0f; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, NULL); nodeIndex = gO101TailC144Node32Count; node32 = &gO101TailC144Nodes32[nodeIndex]; node32->previousType = gO101TailC144Root.chainType; node32->previous = gO101TailC144Root.chain; gO101TailC144Root.chainType = 2; gO101TailC144Root.chain = node32; node32->handle = handle; gO101TailC144Node32Count = nodeIndex + 1;
+    gO101TailC144Nodes32[gO101TailC144Node32Count].x = 0xF2; gO101TailC144Nodes32[gO101TailC144Node32Count].y = 0x14E; gO101TailC144Nodes32[gO101TailC144Node32Count].value10 = 0; gO101TailC144Nodes32[gO101TailC144Node32Count].color12 = 0xFF; gO101TailC144Nodes32[gO101TailC144Node32Count].color13 = 0; gO101TailC144Nodes32[gO101TailC144Node32Count].value18 = 0; gO101TailC144Nodes32[gO101TailC144Node32Count].scale = 1.0f; gO101TailC144Nodes32[gO101TailC144Node32Count].value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x93, NULL); gO101TailC144Nodes32[gO101TailC144Node32Count].previousType = gO101TailC144Root.chainType; gO101TailC144Nodes32[gO101TailC144Node32Count].previous = gO101TailC144Root.chain; gO101TailC144Root.chainType = 2; gO101TailC144Root.chain = &gO101TailC144Nodes32[gO101TailC144Node32Count]; gO101TailC144Nodes32[gO101TailC144Node32Count].handle = handle; gO101TailC144Node32Count = gO101TailC144Node32Count + 1;
 
-    orderCount = &gO101TailC144OrderCount; orderIndex = *orderCount; gO101TailC144Root.height48 = 0x51; gO101TailC144Root.value4A = 0xCC; gO101TailC144Root.value4C = 0x4E; gO101TailC144Root.width44 = 0x18; gO101TailC144Root.x42 = 0x20; gO101TailC144Root.y46 = 0x20; gO101TailC144Root.color4E = 0xFF; gO101TailC144Root.color4F = 0xFF; gO101TailC144Root.mode40 = 0; gO101TailC144Root.childType = 0; gO101TailC144Root.child = NULL; gO101TailC144Root.data50 = gO101TailC144Inputs.data084; gO101TailC144OrderSlots[orderIndex] = &gO101TailC144Root.childType; *orderCount = orderIndex + 1;
+    gO101TailC144Root.height48 = 0x51; gO101TailC144Root.value4A = 0xCC; gO101TailC144Root.value4C = 0x4E; gO101TailC144Root.width44 = 0x18; gO101TailC144Root.x42 = 0x20; gO101TailC144Root.y46 = 0x20; gO101TailC144Root.color4E = 0xFF; gO101TailC144Root.color4F = 0xFF; gO101TailC144Root.mode40 = 0; gO101TailC144Root.childType = 0; gO101TailC144Root.child = NULL; gO101TailC144Root.data50 = gO101TailC144Inputs.data084; gO101TailC144OrderSlots[gO101TailC144OrderCount] = &gO101TailC144Root.childType; gO101TailC144OrderCount = gO101TailC144OrderCount + 1;
 
-    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x10; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B0); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->text = gO101TailC144Inputs.text1B0; node24->mode = 2;
-    node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1; gO101TailC144Root.childType = 3;
+    gO101TailC144Nodes24[gO101TailC144Node24Count].x = 0x66; gO101TailC144Nodes24[gO101TailC144Node24Count].y = 0x10; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B0); gO101TailC144Nodes24[gO101TailC144Node24Count].length = (u8)length; gO101TailC144Nodes24[gO101TailC144Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailC144Nodes24[gO101TailC144Node24Count].mode = 2; gO101TailC144Nodes24[gO101TailC144Node24Count].text = gO101TailC144Inputs.text1B0; gO101TailC144Nodes24[gO101TailC144Node24Count].color0 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color1 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color2 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color3 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].kind = 4; gO101TailC144Nodes24[gO101TailC144Node24Count].previousType = gO101TailC144Root.childType; gO101TailC144Nodes24[gO101TailC144Node24Count].previous = gO101TailC144Root.child; gO101TailC144Root.child = &gO101TailC144Nodes24[gO101TailC144Node24Count]; gO101TailC144Root.childType = 3; gO101TailC144Node24Count = gO101TailC144Node24Count + 1;
 
-    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x1E; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B4); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->text = gO101TailC144Inputs.text1B4; node24->mode = 2;
-    node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1; gO101TailC144Root.childType = 3;
+    gO101TailC144Nodes24[gO101TailC144Node24Count].x = 0x66; gO101TailC144Nodes24[gO101TailC144Node24Count].y = 0x1E; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B4); gO101TailC144Nodes24[gO101TailC144Node24Count].length = (u8)length; gO101TailC144Nodes24[gO101TailC144Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailC144Nodes24[gO101TailC144Node24Count].mode = 2; gO101TailC144Nodes24[gO101TailC144Node24Count].text = gO101TailC144Inputs.text1B4; gO101TailC144Nodes24[gO101TailC144Node24Count].color0 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color1 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color2 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color3 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].kind = 4; gO101TailC144Nodes24[gO101TailC144Node24Count].previousType = gO101TailC144Root.childType; gO101TailC144Nodes24[gO101TailC144Node24Count].previous = gO101TailC144Root.child; gO101TailC144Root.child = &gO101TailC144Nodes24[gO101TailC144Node24Count]; gO101TailC144Root.childType = 3; gO101TailC144Node24Count = gO101TailC144Node24Count + 1;
 
-    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x28; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B8); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->text = gO101TailC144Inputs.text1B8; node24->mode = 2;
-    node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1; gO101TailC144Root.childType = 3;
+    gO101TailC144Nodes24[gO101TailC144Node24Count].x = 0x66; gO101TailC144Nodes24[gO101TailC144Node24Count].y = 0x28; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1B8); gO101TailC144Nodes24[gO101TailC144Node24Count].length = (u8)length; gO101TailC144Nodes24[gO101TailC144Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailC144Nodes24[gO101TailC144Node24Count].mode = 2; gO101TailC144Nodes24[gO101TailC144Node24Count].text = gO101TailC144Inputs.text1B8; gO101TailC144Nodes24[gO101TailC144Node24Count].color0 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color1 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color2 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color3 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].kind = 4; gO101TailC144Nodes24[gO101TailC144Node24Count].previousType = gO101TailC144Root.childType; gO101TailC144Nodes24[gO101TailC144Node24Count].previous = gO101TailC144Root.child; gO101TailC144Root.child = &gO101TailC144Nodes24[gO101TailC144Node24Count]; gO101TailC144Root.childType = 3; gO101TailC144Node24Count = gO101TailC144Node24Count + 1;
 
-    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x36; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1BC); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->text = gO101TailC144Inputs.text1BC; node24->mode = 2;
-    node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1; gO101TailC144Root.childType = 3;
+    gO101TailC144Nodes24[gO101TailC144Node24Count].x = 0x66; gO101TailC144Nodes24[gO101TailC144Node24Count].y = 0x36; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1BC); gO101TailC144Nodes24[gO101TailC144Node24Count].length = (u8)length; gO101TailC144Nodes24[gO101TailC144Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailC144Nodes24[gO101TailC144Node24Count].mode = 2; gO101TailC144Nodes24[gO101TailC144Node24Count].text = gO101TailC144Inputs.text1BC; gO101TailC144Nodes24[gO101TailC144Node24Count].color0 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color1 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color2 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color3 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].kind = 4; gO101TailC144Nodes24[gO101TailC144Node24Count].previousType = gO101TailC144Root.childType; gO101TailC144Nodes24[gO101TailC144Node24Count].previous = gO101TailC144Root.child; gO101TailC144Root.child = &gO101TailC144Nodes24[gO101TailC144Node24Count]; gO101TailC144Root.childType = 3; gO101TailC144Node24Count = gO101TailC144Node24Count + 1;
 
-    nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->x = 0x66; node24->y = 0x40; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1C0); nodeIndex = gO101TailC144Node24Count; node24 = &gO101TailC144Nodes24[nodeIndex]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); node24->text = gO101TailC144Inputs.text1C0; node24->mode = 2; node24->color0 = 0; node24->color1 = 0; node24->color2 = 0; node24->color3 = 0; node24->kind = 4; node24->previousType = gO101TailC144Root.childType; node24->previous = gO101TailC144Root.child; gO101TailC144Root.child = node24; gO101TailC144Node24Count = nodeIndex + 1; gO101TailC144Root.childType = 3;
+    gO101TailC144Nodes24[gO101TailC144Node24Count].x = 0x66; gO101TailC144Nodes24[gO101TailC144Node24Count].y = 0x40; length = func_overlay_101_F000CEA8_18E86C8(gO101TailC144Inputs.text1C0); gO101TailC144Nodes24[gO101TailC144Node24Count].length = (u8)length; gO101TailC144Nodes24[gO101TailC144Node24Count].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1); gO101TailC144Nodes24[gO101TailC144Node24Count].mode = 2; gO101TailC144Nodes24[gO101TailC144Node24Count].text = gO101TailC144Inputs.text1C0; gO101TailC144Nodes24[gO101TailC144Node24Count].color0 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color1 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color2 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].color3 = 0; gO101TailC144Nodes24[gO101TailC144Node24Count].kind = 4; gO101TailC144Nodes24[gO101TailC144Node24Count].previousType = gO101TailC144Root.childType; gO101TailC144Nodes24[gO101TailC144Node24Count].previous = gO101TailC144Root.child; gO101TailC144Root.child = &gO101TailC144Nodes24[gO101TailC144Node24Count]; gO101TailC144Root.childType = 3; gO101TailC144Node24Count = gO101TailC144Node24Count + 1;
 
     func_overlay_101_F0000000_18DB820(&gO101TailC144FinalObject4A90);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailC144/func_overlay_101_F000C144_18E7964.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:start
- * symbol: func_overlay_101_F000C144_18E7964
- * score: 183/361 words
- * frame: 0x38
- * relocations: 39
- * first-mismatch: +0x10
- * summary: 178 masked words, 183 aligned-exact, 47 structural; three source-shape levers paid 31. Identity gate still closed.
- * PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:end
- */

@@ -93,113 +93,46 @@ extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C TU;
  * this consumer uses that owner for the root and node pools. */
-/* 189 -> 158 masked on 2026-09-11 by importing the quadruplet's levers plus a
- * statement-order climb. Size, frame and the nine-slot frame ladder are exact.
- *
- * L115/L101 -- READ THE COUNTER GLOBAL DIRECTLY IN THE POINTER EXPRESSION. This
- *   TU never had the lever the four sibling builders carry. Spelling the node
- *   group's PRE-call read `node32 = &D_340[D_1CC]` instead of `index = D_1CC;
- *   node32 = &D_340[index]` is worth 189 to 184 on its own: with the index
- *   local, uopt forward-substitutes and the address becomes its own web that
- *   takes a colour; reading the global inside the expression leaves it in the
- *   temp ring where the ROM has it. The POST-call read must keep the index
- *   local -- making it direct as well reads 185, and making the post-call read
- *   direct alone reads 201.
- * The same lever on the text rows is per row, not global. Rows 3 and 4 pay
- *   (184 to 174 together); row 1 costs 119 and row 2 costs 2, so applying it to
- *   all four reads 294. Each row was measured separately and then in all
- *   sixteen combinations.
- * Statement order over seven blocks -- the two root headers, the chain group
- *   and the four text rows -- is worth 174 to 158 by pairwise-swap hill
- *   climbing with four random restarts. The climb also joins the two-line
- *   `opacity` statement onto one physical line in the unfolded rows, which is
- *   an L59 fold and part of the win.
- * Measured regressive: splitting the one shared `index` local into separate
- *   node and text counters reads 285 with a -16 size delta, which agrees with
- *   the siblings' finding that merging or splitting the counter locals is not
- *   free.
- * Remaining, 158 masked: 177 byte-exact, 80 register naming, 1 immediate only,
- *   71 really different. Unlike the four siblings the instruction multiset was
- *   never exact here -- it is 8 words out at 189 and 10 at 158 -- so a size or
- *   multiset claim about this function has to be re-derived, not inherited from
- *   them. The dependence-graph closure argued in the siblings' note (as1 orders
- *   every memory reference after a preceding store with a different base
- *   register, so the ROM's both-loads-first node block is infeasible without a
- *   carried old-link value, and every carrier spelling is coloured) applies
- *   here too and was not re-measured on this TU. */
-#ifdef NON_MATCHING
+/* 158 -> 0, lane p10-o101 2026-09-12, on the lever that closed the rest of
+ * this overlay's builder family, and the residual was never four separate
+ * problems -- it was one carrier.
+ * L145 -- DELETE EVERY LOCAL THAT HELD AN ELEMENT ADDRESS OR AN ELEMENT INDEX.
+ *   `index`, `node32` and `node24` are gone and every store is spelled through
+ *   the array subscript of the counter global itself. A uopt live range is
+ *   formed per IR name (L131), so the subscript written on both sides of the
+ *   call is ONE range spanning it, and both occurrences take the caller-saved
+ *   colour the shipped code uses; the counter read becomes its own range on the
+ *   callee-saved register the index local used to hold; and the pre-call read
+ *   lands in a ring temporary, which a local can never be (L130). The bump
+ *   moves to the end of its group, since the stores now read the counter
+ *   rather than a captured address. 158 -> 2 at size delta 0.
+ * L146 -- every field order this file carried was an optimum of the carrier
+ *   shape and none of them survives it. All four text rows take the declared
+ *   field order now, one physical line each, including the two that had been
+ *   expanded one statement per line and the one that carried a scrambled
+ *   colour order; the two root headers likewise. The only order that is not
+ *   the declared one is in the sprite node, where color13 precedes value18,
+ *   and that single swap is the last 2 words. A dependence-respecting climb
+ *   over all four groups with the call held as a barrier reaches 0 and a
+ *   second round is flat. */
 void func_overlay_101_F000B544_18E6D64(void) {
-    s32 index;
     s32 length;
     void *handle;
-    Node32 *node32;
-    Node24 *node24;
 
-    D_0.kind = 4; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.width2E = 0x140; D_0.value2C = 0; D_0.chainType = 0; D_0.height30 = 0xF0; D_0.asset34 = &D_DA4; D_0.chain = 0; index = D_1C4; D_1C0[index] = &D_1C; D_1C4 = index + 1;
+    D_0.kind = 4; D_0.value26 = 0; D_0.value28 = 0; D_0.value2A = 0; D_0.color32 = 0xFF; D_0.color33 = 0xFF; D_0.width2E = 0x140; D_0.value2C = 0; D_0.chainType = 0; D_0.height30 = 0xF0; D_0.asset34 = &D_DA4; D_0.chain = 0; D_1C0[D_1C4] = &D_1C; D_1C4 = D_1C4 + 1;
 
-    node32 = &D_340[D_1CC]; node32->x = 0x108; node32->scale = 1.0f; node32->value10 = 0; node32->color12 = 0xFF; node32->value18 = 0; node32->color13 = 0; node32->y = 0x154; node32->value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x91, 0); index = D_1CC; node32 = &D_340[index]; node32->previousType = D_0.chainType; node32->previous = D_0.chain; node32->handle = handle; D_0.chainType = 2; D_0.chain = node32; D_1CC = index + 1;
+    D_340[D_1CC].x = 0x108; D_340[D_1CC].scale = 1.0f; D_340[D_1CC].value10 = 0; D_340[D_1CC].color12 = 0xFF; D_340[D_1CC].color13 = 0; D_340[D_1CC].value18 = 0; D_340[D_1CC].y = 0x154; D_340[D_1CC].value14 = 0.0f; handle = func_overlay_101_F0000000_18DB820(0x91, 0); D_340[D_1CC].previousType = D_0.chainType; D_340[D_1CC].previous = D_0.chain; D_340[D_1CC].handle = handle; D_0.chainType = 2; D_0.chain = &D_340[D_1CC]; D_1CC = D_1CC + 1;
 
-    index = D_1C4; D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x1C; D_0.height48 = 0x50; D_0.value4A = 0xD8; D_0.value4C = 0x42; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data184; D_1C0[index] = &D_38; D_1C4 = index + 1;
+    D_0.x42 = 0x20; D_0.width44 = 0x18; D_0.y46 = 0x1C; D_0.height48 = 0x50; D_0.value4A = 0xD8; D_0.value4C = 0x42; D_0.mode40 = 0; D_0.color4E = 0xFF; D_0.color4F = 0xFF; D_0.childType = 0; D_0.child = 0; D_0.data50 = D_INPUT.data184; D_1C0[D_1C4] = &D_38; D_1C4 = D_1C4 + 1;
 
-    index = D_1D0; node24 = &D_540[index]; node24->y = 0x10; node24->x = 0x6C; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text188); index = D_1D0; node24 = &D_540[index]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); node24->text = D_INPUT.text188; node24->mode = 2; node24->color0 = 0xFF; node24->color2 = 0; node24->color3 = 0xFF; node24->color1 = 0x80; node24->kind = 4; node24->previousType = D_0.childType; node24->previous = D_0.child; D_1D0 = index + 1; D_0.child = node24; D_0.childType = 3;
+    D_540[D_1D0].x = 0x6C; D_540[D_1D0].y = 0x10; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text188); D_540[D_1D0].length = (u8)length; D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); D_540[D_1D0].mode = 2; D_540[D_1D0].color0 = 0xFF; D_540[D_1D0].color1 = 0x80; D_540[D_1D0].color2 = 0; D_540[D_1D0].color3 = 0xFF; D_540[D_1D0].kind = 4; D_540[D_1D0].text = D_INPUT.text188; D_540[D_1D0].previousType = D_0.childType; D_540[D_1D0].previous = D_0.child; D_0.childType = 3; D_0.child = &D_540[D_1D0]; D_1D0 = D_1D0 + 1;
 
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->y = 0x1E;
-    node24->x = 0x6C;
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text18C);
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
-    node24->color2 = 0;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->previous = D_0.child;
-    node24->color3 = 0xFF;
-    node24->previousType = D_0.childType;
-    node24->text = D_INPUT.text18C;
-    node24->kind = 4;
-    node24->mode = 2;
-    D_0.childType = 3;
-    D_0.child = node24;
-    D_1D0 = index + 1;
+    D_540[D_1D0].x = 0x6C; D_540[D_1D0].y = 0x1E; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text18C); D_540[D_1D0].length = (u8)length; D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); D_540[D_1D0].mode = 2; D_540[D_1D0].color0 = 0xFF; D_540[D_1D0].color1 = 0xFF; D_540[D_1D0].color2 = 0; D_540[D_1D0].color3 = 0xFF; D_540[D_1D0].kind = 4; D_540[D_1D0].text = D_INPUT.text18C; D_540[D_1D0].previousType = D_0.childType; D_540[D_1D0].previous = D_0.child; D_0.childType = 3; D_0.child = &D_540[D_1D0]; D_1D0 = D_1D0 + 1;
 
-    node24 = &D_540[D_1D0];
-    node24->y = 0x28;
-    node24->x = 0x6C;
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text190);
-    index = D_1D0;
-    node24 = &D_540[index];
-    node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
-    node24->color2 = 0;
-    node24->color0 = 0xFF;
-    node24->color1 = 0xFF;
-    node24->previousType = D_0.childType;
-    node24->color3 = 0xFF;
-    node24->previous = D_0.child;
-    node24->text = D_INPUT.text190;
-    node24->kind = 4;
-    node24->mode = 2;
-    D_0.childType = 3;
-    D_0.child = node24;
-    D_1D0 = index + 1;
+    D_540[D_1D0].x = 0x6C; D_540[D_1D0].y = 0x28; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text190); D_540[D_1D0].length = (u8)length; D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); D_540[D_1D0].mode = 2; D_540[D_1D0].color0 = 0xFF; D_540[D_1D0].color1 = 0xFF; D_540[D_1D0].color2 = 0; D_540[D_1D0].color3 = 0xFF; D_540[D_1D0].kind = 4; D_540[D_1D0].text = D_INPUT.text190; D_540[D_1D0].previousType = D_0.childType; D_540[D_1D0].previous = D_0.child; D_0.childType = 3; D_0.child = &D_540[D_1D0]; D_1D0 = D_1D0 + 1;
 
-    node24 = &D_540[D_1D0]; node24->x = 0x6C; node24->y = 0x32; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text194); index = D_1D0; node24 = &D_540[index]; node24->length = (u8)length; node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); node24->mode = 2; node24->color0 = 0xFF; node24->color1 = 0xFF; node24->color2 = 0; node24->color3 = 0xFF; node24->previousType = D_0.childType; node24->text = D_INPUT.text194; node24->kind = 4; node24->previous = D_0.child; D_0.childType = 3; D_0.child = node24; D_1D0 = index + 1;
+    D_540[D_1D0].x = 0x6C; D_540[D_1D0].y = 0x32; length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.text194); D_540[D_1D0].length = (u8)length; D_540[D_1D0].opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0); D_540[D_1D0].mode = 2; D_540[D_1D0].color0 = 0xFF; D_540[D_1D0].color1 = 0xFF; D_540[D_1D0].color2 = 0; D_540[D_1D0].color3 = 0xFF; D_540[D_1D0].kind = 4; D_540[D_1D0].text = D_INPUT.text194; D_540[D_1D0].previousType = D_0.childType; D_540[D_1D0].previous = D_0.child; D_0.childType = 3; D_0.child = &D_540[D_1D0]; D_1D0 = D_1D0 + 1;
 
     func_overlay_101_F0000000_18DB820(&D_4358);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailB544/func_overlay_101_F000B544_18E6D64.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:start
- * symbol: func_overlay_101_F000B544_18E6D64
- * score: 158/316 words
- * frame: 0x38
- * relocations: 38
- * first-mismatch: +0x9C
- * summary: 158 masked from 189 at exact size and frame; the pre-call direct counter read, per-row text folds and a seven-block statement-order climb. Multiset was never exact here.
- * PLATEAU-HANDOFF:func_overlay_101_F000B544_18E6D64:end
- */
