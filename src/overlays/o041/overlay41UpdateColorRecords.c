@@ -18,24 +18,31 @@ extern Overlay41ColorRecord gOverlay41ColorRecords[12];
 extern void overlay41SetColor(s32 handle, s32 red, s32 green, s32 blue);
 extern void overlay41SetAlpha(s32 handle, s32 alpha);
 
-/* Workbench: allocation-mismatch, exact 98/-48 shape, 15-word floor from +0x40.
- * The target runtime surface and candidate both have four aligned records.
- * Five absolute-address rows in the isolated target object are symbolic
- * assembly artifacts: spelling them as C symbols grows the candidate to 99
- * or 114 instructions. The retained literal path has zero opcode differences;
- * the real residual is the 15-word color/snapshot register web. */
-#ifdef NON_MATCHING
-/* Ownership trial (2026-08-28): removed the TU's private 0x20-byte .data island;
- * linked promotion is text-differs with 98 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
+/* Matched 2026-09-12, lane p9-tight. Fifteen words to zero, and the four
+ * `initial*` locals were never there: the target's snapshot is a RE-READ of
+ * the record field, which uopt common-subexpressions back to the first load,
+ * so the load lands in the CSE temp and the working value is the copy. Both
+ * the plateau's direction (load into the working local, copy into the
+ * snapshot) and its mirror put the load and the copy in the wrong groups, and
+ * no colour reachable from either closes it -- the plateau measured 15 and the
+ * mirror 25.
+ *
+ * Read off an instrumented uopt whose object is byte-identical to the
+ * configured build. On the plateau body the four working webs take v1/t0/t1/s2
+ * at save 20 and the four snapshot webs a1/a2/a3/t2 at save 10, and `remaining`
+ * at save 15 lands between them and steals $a0. Forcing `remaining` to c9 and
+ * the snapshots to c3-c6 is accepted and scores 8, not 0, which is how the
+ * load/copy half was separated from the colour half: the colour was worth 7
+ * and the group membership 8, and only a source change reaches the second.
+ * With the re-read the CSE temp is its own web and both halves fall together.
+ *
+ * The 0x80000000 `lui` and the four direct-write `sb` displacements carry
+ * relocations in the extracted target and literals here; they are masked, and
+ * `promotion-proof` covers the linked identity. */
 void func_overlay_041_F0000124_188745C(s32 amount) {
     Overlay41ColorRecord *record;
     s32 i;
     s32 handle;
-    s32 initialRed;
-    s32 initialGreen;
-    s32 initialBlue;
-    s32 initialAlpha;
     s32 red;
     s32 green;
     s32 blue;
@@ -53,20 +60,16 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
             green = record->green;
             blue = record->blue;
             alpha = record->alpha;
-            initialRed = red;
-            initialGreen = green;
-            initialBlue = blue;
-            initialAlpha = alpha;
             remaining = record->remaining;
             if (amount >= remaining) {
                 record->handle = 0;
             } else {
                 record->remaining = remaining - amount;
                 factor = (record->remaining << 16) / record->duration;
-                red += ((record->targetRed - initialRed) * factor) >> 16;
-                green += ((record->targetGreen - initialGreen) * factor) >> 16;
-                blue += ((record->targetBlue - initialBlue) * factor) >> 16;
-                alpha += ((record->targetAlpha - initialAlpha) * factor) >> 16;
+                red += ((record->targetRed - record->red) * factor) >> 16;
+                green += ((record->targetGreen - record->green) * factor) >> 16;
+                blue += ((record->targetBlue - record->blue) * factor) >> 16;
+                alpha += ((record->targetAlpha - record->alpha) * factor) >> 16;
             }
             if (handle < 0) {
                 overlay41SetColor(handle, red & 0xFF, green & 0xFF, blue & 0xFF);
@@ -82,16 +85,3 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
         record++;
     } while (i--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateColorRecords/func_overlay_041_F0000124_188745C.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:start
- * symbol: func_overlay_041_F0000124_188745C
- * score: 15/98 words
- * frame: 0x30
- * relocations: 4
- * first-mismatch: +0x40
- * summary: Two-window, 79-percent-coherent group-membership residual is not a transferable phase; new allocator evidence is required.
- * PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:end
- */

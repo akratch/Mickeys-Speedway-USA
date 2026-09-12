@@ -1221,10 +1221,9 @@ overlay41EmitStepReloc = 0xf0000000;
 overlay41StepRecordsReloc = 0x00000000;
 
 /* overlay 41: overlay41UpdateColorRecords.c.o */
-D_80000038 = 0x80000038;
-D_80000039 = 0x00000039;
-D_8000003A = 0x0000003a;
-D_8000003B = 0x0000003b;
+gOverlay41ColorRecords = 0x00000000;
+overlay41SetAlpha = 0xf0000000;
+overlay41SetColor = 0xf0000000;
 
 /* overlay 41: overlay41UpdateCurveObject.c.o */
 func_8000FAE0_o041Reloc = 0xf0000000;
