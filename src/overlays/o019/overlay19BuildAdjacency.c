@@ -1,10 +1,9 @@
 #include "overlays/overlay019.h"
 
-/* Guarded candidate: six naming differences at exact size and frame 0x80.
- * Direct record indexing plus removal of the redundant suppression mask
- * recover the loop-head shape. The two outer-loop updates share a physical
- * line so IDO preserves the target's temporary and store order. */
-#ifdef NON_MATCHING
+/* Tier A: the call-site fifth-argument assignment preserves IDO's selector
+ * emission order and the target's 492-byte body. The assignment only names
+ * the argument value; its local is not observed by any other argument.
+ * Keep the two independent outer-loop updates on one physical line. */
 void overlay19BuildAdjacency(
     O19Context *context,
     O19Group *group,
@@ -65,14 +64,13 @@ void overlay19BuildAdjacency(
                             if (nextEdgeIndex >= 3) {
                                 nextEdgeIndex = 0;
                             }
-                            edgeOffset = group->points[itemIndex].selectors[nextEdgeIndex] + vertexBase;
                             adjacentItem = overlay19FindAdjacent(
                                 context,
                                 group,
                                 itemIndex,
                                 group->points[itemIndex].selectors[edgeIndex] +
                                     vertexBase,
-                                edgeOffset);
+                                (edgeOffset = group->points[itemIndex].selectors[nextEdgeIndex] + vertexBase));
                             if (adjacentItem == -1) {
                                 *(u16 *)&output->records[itemIndex]
                                     .edgeNeighbor[edgeIndex] = 0xFFFE;
@@ -93,16 +91,3 @@ void overlay19BuildAdjacency(
         } while (frame.spanIndex < spanCount);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildAdjacency/func_overlay_019_F0000A30_1875C88.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay19BuildAdjacency:start
- * symbol: overlay19BuildAdjacency
- * score: 6/123 words
- * frame: 0x80
- * relocations: 1
- * first-mismatch: +0x10C
- * summary: Exhaustive 103-probe 17-web landscape has no winners; L160 selector-carrier deletion regressed 6 to 62; target temporary pair remains.
- * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
- */

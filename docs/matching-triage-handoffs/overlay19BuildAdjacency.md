@@ -2,11 +2,62 @@
 ### `overlay19BuildAdjacency` plateau handoff
 
 - source: `src/overlays/o019/overlay19BuildAdjacency.c`
-- score: 6/123 words
+- score: 0/123 words
 - frame: 0x80
 - relocations: 1
-- first mismatch: +0x10C
-- summary: Exhaustive 103-probe 17-web landscape has no winners; L160 selector-carrier deletion regressed 6 to 62; target temporary pair remains.
+- first mismatch: none
+- summary: Resolved ROM-exact by placing the existing fifth-argument assignment inside the call; 492 executable bytes, one exact relocation.
+
+### 2026-09-13, lane d1: move the assignment into the call
+
+**Resolved, Tier A:** the canonical linked range at overlay 19 text offset
+0xA30 through 0xC1C is byte-identical to the ROM. Promotion proof passes for
+123 words, frame 0x80, one relocation and static identity. Full `gmake verify`
+prints SHA-1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. The complete TU is now
+ordinary C; its four trailing compiler-alignment bytes are trimmed and receive
+no credit. Exactly 492 previously unmatched executable bytes are recovered.
+
+The authenticated stock baseline is 492 bytes, 123 words, frame 0x80, one
+relocation, and six raw/masked naming differences in the call-setup window.
+The aligned buckets are 117 exact, six naming, zero immediate and zero
+structural, without gaps. The existing exhaustive colour landscape was read;
+no colour sweep or force was repeated.
+
+Move the existing fifth-argument assignment from its own preceding statement
+into the fifth argument expression. The carrier remains declared and assigned;
+only its evaluation context changes. Stock output becomes 123 aligned exact
+words, zero raw/masked differences, no gaps, and the same frame and extent.
+The pre-promotion preflight authenticates the single relocation's offset,
+type and effective overlay identity. The fallback comparator's generated
+callee name differs from the friendly C name, which is not an identity failure.
+
+The draw-census differential is localized: four draws leave the old setup
+line and join the call line, which goes from two to six. All 39 draw-register
+positions remain unchanged. The trace has 200 versus 199 emission records;
+these counts include source-location directives and do not mean a machine
+instruction was deleted. The aligned call window alone improves by six rows.
+Full-TU stock/instrumented text, data, rodata, symbols and relocation fidelity
+passes for baseline and both controls.
+
+A cleanup control removes only the embedded assignment while retaining its
+local declaration. It adds a fortieth draw, changes the ring sequence, and
+reintroduces a displaced load plus naming differences across six windows.
+The exact assignment spelling is restored and retained for cleanup review.
+This refutes a source-level closure of the temporary pair: deleting the carrier
+and moving its definition into an argument are different compiler inputs.
+
+Semantic review of the source change: the assignment's value has the same
+s32 type and value as the previously passed local. No other argument reads or
+writes that local, and its address never escapes. The moved expression only
+reads the point selector and the existing vertex base; there are no intervening
+calls or stores. A u8 selector plus an s16 base fits s32 throughout its domain.
+Call identity, argument values, loop bounds and output stores remain unchanged.
+
+Evidence is retained privately under build/d1/overlay19BuildAdjacency, with
+source snapshots, stock and traced objects, scores, draw profiles, per-window
+maps, fidelity receipts, and preflight reports. Commands include draw_census.py,
+residual_map.py --object/--against, align_symbol.py, wb_compare.sh,
+function_preflight.py, and the ordinary overlay promotion sequence.
 
 ### Exhaustive landscape and retained improvement (2026-09-12, p23-lastmile5)
 

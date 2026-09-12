@@ -321,8 +321,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildOutput.c.o: POSTPROCESS = \
 # trailing-section trimming metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildPlanes.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildAdjacency.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_019_F0000A30_1875C88=overlay19BuildAdjacency $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19FindAdjacent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
