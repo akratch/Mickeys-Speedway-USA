@@ -2,11 +2,11 @@
 ### `overlay17DrawStrip` plateau handoff
 
 - source: `src/overlays/o017/overlay17DrawStrip.c`
-- score: 3/119 words
+- score: 116/119 words
 - frame: 0x38
 - relocations: 1
 - first mismatch: +0x110
-- summary: 14 -> 3 (2026-09-11, lane w3-low), and the recorded structural reading is refuted. The three-row block was never a scheduling fault and the web count was not right: spelled as a test plus a separate decrement, the loop-entry guard and the do-while's own decrement build two cfe temp symbols where the target builds one. Spelling the guard as a post-decrement merges them and the whole prologue colouring lands on the target's, taking all 12 naming rows and both structural rows at once. What is left is one web, the vertex packet's segment-relocated address, coloured one register late; forcing the strip cursor one colour higher is accepted and reproduces the ROM at 119 of 119. The tie-break arithmetic is now fitted rather than guessed: save is totalsave over a divisor, totalsave sums ten to the loop depth over every reference including the defining one, and on this web the divisor is the number of DEFINITIONS -- which is movable at zero size delta while totalsave is not. A second definition halves the save for free; the save the target needs lies strictly between two of the other webs and the first reachable points all cost at least two instructions. So the interval is non-empty and empty at zero size delta.
+- summary: p1:w99=c5 is accepted and exact, but source ladder arithmetic has no zero-size route to that color
 
 #### 2026-09-10 lane `c2-reopen`: frame is not per-declaration here
 
