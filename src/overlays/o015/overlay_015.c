@@ -462,11 +462,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 41/54 words
+ * score: 13/54 words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: One shifted absolute-address lowering remains: the target shares a hi-only base across two loads, a form unavailable to this source.
+ * summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
