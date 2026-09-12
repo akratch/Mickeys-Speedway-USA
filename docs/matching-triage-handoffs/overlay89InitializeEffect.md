@@ -64,4 +64,13 @@ the same force without `CDX_PROC` returns the unforced 21-word object with every
 record at `forced=-2`. Both split paths are accepted rather than declined and
 are far worse -- 165 and 187 words at delta +8 -- so the floor of 17 is a
 measured bound on the colour axis and not an artefact of dropped forces.
+#### 2026-09-12, lane p23-lastmile3: exhaustive colour floor
+
+Fresh residual map: 185 byte-exact, 18 naming, 1 immediate, 0 structural,
+with one candidate-only and one target-only offset. The every-colour footprint
+sampled 88 probes over 11 coloured webs. Its sole winner was web 16 colour 28,
+at 17 masked words; the measured force lattice floor is therefore 17. The
+source question is the evaluation order that makes the conversion operand draw
+before the scale memory operand in one statement.
+
 <!-- plateau-handoff:overlay89InitializeEffect:end -->

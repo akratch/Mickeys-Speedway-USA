@@ -61,4 +61,13 @@ re-packed the declarations one-per-kind onto their own lines, while the
 retained body packs several per line. That sweep measures L59 line packing as
 well as L143 order. Re-run it with the packing held fixed before believing it.
 
+#### 2026-09-12, lane p23-lastmile3: exhaustive colour floor
+
+Fresh residual map: 110 byte-exact, 5 naming, 1 immediate, 1 structural, with
+one candidate-only and one target-only offset. The every-colour footprint
+sampled 104 probes over 17 coloured webs; no accepted force beat 21, so the
+winner list is empty and the lattice floor is 21. The named source question
+remains the caller-saved copy of the helper return before the cached-path
+guard, not a colour or split of the objects web.
+
 <!-- plateau-handoff:overlay3SelectScoredObject:end -->

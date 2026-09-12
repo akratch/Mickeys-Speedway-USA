@@ -148,4 +148,13 @@ measurement remain in private external scratch. Eighteen relocation records
 are retained; no overlay relocation promotion is claimed. Full-ROM proof
 covers the assembly fallback, not these nonexact candidates.
 
+#### 2026-09-12, lane p23-lastmile3: exhaustive colour floor
+
+Fresh residual map: 234 byte-exact, 16 naming, 8 immediate, 7 structural,
+with three candidate-only and three target-only offsets. The every-colour
+footprint sampled 145 probes over 23 coloured webs; no accepted force beat 36,
+so the winner list is empty and the lattice floor is 36. The named source
+question remains removal of one declared scalar without an alias-sensitive
+reload, or creation of two compiler temporaries at the target frame shape.
+
 <!-- plateau-handoff:overlay101DrawPanel:end -->

@@ -205,4 +205,13 @@ free-list phase, and no source form yet found draws a float ring temp at zero
 byte cost. The next instrument is a DKWB-FREELIST float trace read against a
 reconstruction -- specifically to find which construct *does* pop the float ring
 without emitting an instruction, since the obvious family provably does not.
+#### 2026-09-12, lane p23-lastmile3: proc20 exhaustive colour floor
+
+Fresh residual map: 231 byte-exact, 39 naming, 0 immediate, 0 structural.
+The mapped procedure is proc20 with 39 decisions. Its every-colour footprint
+sampled 203 probes, 151 accepted; no accepted force beat 39, so the winner
+list is empty and the lattice floor is 39. The named source question is the
+ugen float free-list phase, with the f4/f6 cycle changing at +0x1f4; global
+colour is not the lever.
+
 <!-- plateau-handoff:func_overlay_008_F0004CF0_1862A48:end -->

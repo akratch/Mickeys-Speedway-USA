@@ -130,4 +130,13 @@ only the first. Do not spend another pass on the struct.
   strict frame or word gain. Preserve the retained source and reopen only
   when a producer trace identifies the missing automatic home or delayed-bound
   carrier directly; do not repeat flags, loop spellings, or broad permutation.
+#### 2026-09-12, lane p23-lastmile3: exhaustive colour floor
+
+Fresh residual map: 117 byte-exact, 6 naming, 0 immediate, 2 structural; one
+window and one a0/v1 cycle. The every-colour footprint sampled 106 accepted
+probes over 13 coloured webs. The only winner was w45=c3 at 4 masked words;
+w51=c2 was not a legal accepted colour. The two-force lattice therefore floors
+at 4 with w45=c3. The source question remains the height web's missing nocs
+merge and the two-word record-copy shape; no source edit was adopted.
+
 <!-- plateau-handoff:overlay34CreateRecord:end -->
