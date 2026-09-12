@@ -286,10 +286,10 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
         if (temp_a0 != 0) {
             ext_o0_5a758(arg0, 0x3C88CE70, temp_f20);
             M2C_FIELD(temp_s0, s16 *, 0x28) = 0x22;
-            M2C_FIELD(temp_s0, s16 *, 0x2C) = 0x24;
+            M2C_FIELD(temp_s0, s16 *, 0x2C) = 0x24; var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
             M2C_FIELD(temp_s0, s16 *, 0x2A) = M2C_FIELD(temp_s0, s16 *, 0x1C);
             M2C_FIELD(temp_s0, s16 *, 0x2E) = M2C_FIELD(temp_s0, s16 *, 0x1C);
-            var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
+            /* Keep the cursor definition on the 0x2C store line for the as1 tie. */
             if (M2C_FIELD(temp_s0, s16 *, 0x24) != 0) {
                 M2C_FIELD(temp_s0, s16 *, 0x26) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x26) + (arg1 << 9));
                 if (M2C_FIELD(temp_s0, u8 *, 0) != 2) {
@@ -538,10 +538,10 @@ loop_52:
 
 /* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
  * symbol: func_overlay_086_F0000474_18D22AC
- * score: 9 differing words
+ * score: 7 differing words
  * frame: 0xA8
  * relocations: 38
- * first-mismatch: +0xA8
- * summary: L160 carrier removal does not close the 7 naming and 2 scheduling rows; the changed-source landscape has no improving equal-size force.
+ * first-mismatch: +0x330
+ * summary: Nonadjacent head line fold closes both schedule rows; seven short-link naming rows remain, unchanged by measured region and line controls.
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */
