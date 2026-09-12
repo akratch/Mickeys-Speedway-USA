@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 20
 - first mismatch: +0xA0
-- summary: All 12 coloured webs scanned; rival single forces score 25 and 27, pair 28. Base-address lifetime and success-store schedule remain.
+- summary: Generated bit nearly clears naming but loses eight bytes; carrier and success-store follow-ups retain the baseline.
 #### 2026-09-12, lane p23-lastmile5: exhaustive colour evidence
 
 The configured baseline is 115 words, 34 masked differences, delta zero,
@@ -38,5 +38,42 @@ PFS array base relative to the controller bound, followed by the success-store
 schedule. Introducing its local pointer does not move that base as required;
 inlining the rumble pointer is commoned back into the existing address range.
 Neither force winner can fix all structural rows on the current shape.
+
+#### 2026-09-12, lane p24-recipe: generated controller bit is informative but short
+
+The stock baseline remains 115 words, delta zero, frame 0x60, twenty
+relocations, 34 raw/masked differences and first mismatch +0xA0. Its aligned
+buckets are 81 exact, 25 naming, zero immediate and nine structural rows.
+The existing authenticated 12-web landscape and rival-force floor 25 were
+reused; no source change was adopted.
+
+Deleting the controller-bit carrier and writing one shifted by controllerIndex
+at its uses yields 113 words, delta minus eight, with 35 positional differences.
+The aligned result is substantially different: 96 exact, one naming, one
+immediate and fifteen paired structural rows, plus two target-only words.
+The naming residual largely disappears, but the loop now computes the bit
+from the index instead of preserving the target's byte-sized recurrence. This
+is a retained structural diagnostic, not a matched or equal-geometry candidate.
+Casting the generated bit to u8 restores 115 words but yields 57 masked and
+41 paired residual rows, with two surplus/missing pairs; it does not restore
+the target recurrence. A word-sized declared bit is eight bytes short at 73.
+
+Deleting the bound carrier scores 76 at delta minus four. Replacing both
+rumble-pointer uses with indexing scores 57 at equal geometry but changes the
+first loop and frame displacements. Keeping a separate reset pointer while
+indexing only the second loop is flat at 34. Reusing ret for the reset counter
+gives 38 at delta zero, changing only four previously agreeing entry rows.
+Preloading the success status through ret, both on separate lines and grouped
+with its stores, is flat at 34; propagation restores the original schedule.
+All sources, objects and aligned per-window deltas live privately under
+build/p24/packInit. One mistyped field in the reset probe was corrected before
+its successful compile; the failed compiler artifact is retained separately.
+
+The final counter and two status-preload forms establish no better residual or
+new target identity, meeting ADR 0018. The named source question is a bit
+recurrence with the target's extra temporary draw and PFS-base materialization,
+followed by interleaved success loads/stores. Deleting the bit explains much of
+the naming symptom, but it also removes the byte-mask recurrence that the
+shipped loop retains. Do not count its improved aligned diagnostic as a match.
 
 <!-- plateau-handoff:packInit:end -->

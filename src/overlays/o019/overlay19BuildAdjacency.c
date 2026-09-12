@@ -1,8 +1,9 @@
 #include "overlays/overlay019.h"
 
-/* Guarded candidate: 36 differing words at exact size, frame 0x80.
- * Naming the fifth argument and removing redundant signed narrowing improve
- * allocation, but a moved load and temporary-register differences remain. */
+/* Guarded candidate: six naming differences at exact size and frame 0x80.
+ * Direct record indexing plus removal of the redundant suppression mask
+ * recover the loop-head shape. The two outer-loop updates share a physical
+ * line so IDO preserves the target's temporary and store order. */
 #ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
@@ -45,16 +46,13 @@ void overlay19BuildAdjacency(
             adjacentItem = span->flags;
             if (itemStart < frame.itemEnd) {
                 adjacentItem &= 0x1080;
-                frame.suppressed = adjacentItem & 0x7FFF; frame.outputOffset = itemIndex << 3;
+                frame.suppressed = adjacentItem; frame.outputOffset = itemIndex << 3;
                 do {
                     if (frame.suppressed != 0) {
                         *(u16 *)((u8 *)output->records + frame.outputOffset) = invalid;
                         edgeIndex = 0;
                         do {
-                            O19AdjacencyRecord *invalidRecords;
-
-                            invalidRecords = output->records;
-                            *(u16 *)&invalidRecords[itemIndex]
+                            *(u16 *)&output->records[itemIndex]
                                 .edgeNeighbor[edgeIndex] = invalid;
                             edgeIndex++;
                         } while (edgeIndex < 3);
@@ -90,8 +88,7 @@ void overlay19BuildAdjacency(
                     frame.outputOffset += 8;
                 } while (itemIndex < frame.itemEnd);
             }
-            frame.spanOffset += sizeof(O19Span);
-            frame.spanIndex++;
+            frame.spanIndex++; frame.spanOffset += sizeof(O19Span);
             spanCount = group->spanCount;
         } while (frame.spanIndex < spanCount);
     }
@@ -102,10 +99,10 @@ void overlay19BuildAdjacency(
 
 /* PLATEAU-HANDOFF:overlay19BuildAdjacency:start
  * symbol: overlay19BuildAdjacency
- * score: 36/123 words
+ * score: 6/123 words
  * frame: 0x80
  * relocations: 1
- * first-mismatch: +0x7C
- * summary: Named fifth argument and redundant-narrowing removal improve 41 to 36. No colour winners remain; ring draws and one moved-load gap need a new source identity.
+ * first-mismatch: +0x10C
+ * summary: Exhaustive 103-probe 17-web landscape has no winners; L160 selector-carrier deletion regressed 6 to 62; target temporary pair remains.
  * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
  */

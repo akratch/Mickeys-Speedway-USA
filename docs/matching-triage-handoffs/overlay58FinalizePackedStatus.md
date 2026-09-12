@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 48
 - first mismatch: +0x18
-- summary: p1-only; 76% coherent. 29 p1 decisions, no p2; candidate homes 24/60/68 versus target 28/36/48/64; probes flat.
+- summary: Exhaustive 178-probe 27-web landscape; best diagnostic w166=c5 reaches 86; player-carrier deletion regressed to 260 and +8 bytes.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`

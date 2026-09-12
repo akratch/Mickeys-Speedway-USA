@@ -6,7 +6,7 @@
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: p1-only; 95% coherent. c1-c12 plus c13 unnamed, c14-c22 s0-s8; t6-t9 are ring temps. Force w225=c3 flips w226=c2: 68->37; source probes flat or regressed.
+- summary: Exhaustive 145-probe 31-web landscape; best diagnostic w225=c3 reaches 37; cursor-carrier deletion regressed to 152 and +56 bytes.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame

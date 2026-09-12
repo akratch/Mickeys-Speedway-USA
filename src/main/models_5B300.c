@@ -898,21 +898,21 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005A7A0:start
  * symbol: func_8005A7A0
- * score: 10/106 words
+ * score: 96/106 words
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: ugen local-block reservation and mixed frame residual remain open
+ * summary: The mixed residual retains the 0x50 versus 0x38 local-block reservation and the unavailable s0 carrier; colour forcing is inapplicable.
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
 /* PLATEAU-HANDOFF:func_8005ABA8:start
  * symbol: func_8005ABA8
- * score: 2/111 words
+ * score: 109/111 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: assembler branch-delay decision remains; no source-reachable suppressor found
+ * summary: All residual rows are structural. The branch-delay decline remains an assembler decision with no source-reachable suppressor.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 

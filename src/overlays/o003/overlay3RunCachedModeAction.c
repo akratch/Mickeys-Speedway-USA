@@ -63,6 +63,6 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x84
- * summary: All nine coloured webs scanned; seven winners, selected lattice floor 25. Shifted angle repairs some shape but boolean transfer remains.
+ * summary: Inlining call-result carriers loses a frame quantum; intermediate-boolean deletion still misses the switch transfer.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

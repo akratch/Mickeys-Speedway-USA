@@ -76,29 +76,10 @@ extern Overlay34Resource *func_80034448(s16 resourceId);
 extern void func_80029FE4(Overlay34Input *input, f32 direction[3]);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
-/* 8/125 differing words, frame exact at 0x30, size delta 0.  The declaration order below is
- * load-bearing: declaring width/height ahead of candidate/index gives the declared block two more
- * carriers, which is what the 8-byte non-save deficit was (30 -> 24, all eight stack-displacement
- * words).  Three edits took 24 -> 8 (lane p9-mid, 2026-09-12), each measured on the instrumented
- * globalcolor records with the identity gate green:
- *
- *   record = current + 1  (rather than record++)  keeps the current copy a separate node, so as1
- *     has a third node in that block and fills the loop's branch delay slot with the index compare
- *     instead of a nop.  This closed the only structural pair (L111).
- *   index |= 0  is an L109 zero-instruction probe inside the loop.  It raises the index web's
- *     totalsave from 31 to 51 at unchanged nocs, so the index web outranks the record web and the
- *     two take v0/v1 in the shipped order.  The probed object is byte-identical to the object a
- *     CDX_FORCE of that same colour pair produces, which is how the mechanism was confirmed.
- *   byte12 = 2 ahead of short16 = height merges the literal-2 web's occurrences into one nocs, so
- *     its save goes 0.5 -> 1.0 and it outranks the gOverlay34ActiveCount address web; the two then
- *     take t1/t2 in the shipped order.
- *
- * Refuted here: the previous note claimed the target reads gOverlay34ActiveCount, gOverlay34Pointers
- * and gOverlay34Count as offsets 0, 4 and 8 of ONE relocated symbol and that the three were members
- * of one struct.  The displacements are real -- the shipped code reads the count at +8 and the
- * pointer table at +4 of a base whose low half is zero -- but writing them as one C struct is eight
- * bytes SHORT, because IDO then reuses the one base register while the shipped code materialises a
- * fresh base for each access.  They are separate symbols that happen to be adjacent. */
+/* The indexed scan lets IDO generate the advancing cursor and removes the
+ * former loop-copy naming residual. Keep the current-record alias and the
+ * dimension declaration order: the configured candidate retains the target
+ * frame. Six words remain; see the symbol's plateau shard. */
 #ifdef NON_MATCHING
 Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     Overlay34Record *record;
@@ -112,16 +93,14 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     if (gOverlay34ActiveCount < gOverlay34Count) {
         if (gOverlay34Count > 0) {
             index = 0;
-            record = gOverlay34Records;
             do {
-                index++;
-                index |= 0;
+                record = &gOverlay34Records[index];
                 current = record;
-                if (record->active == 0) {
+                if (current->active == 0) {
                     candidate = current;
                     break;
                 }
-                record = current + 1;
+                index++;
             } while (index < gOverlay34Count);
         }
         if (candidate != NULL) {
@@ -180,10 +159,10 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
 
 /* PLATEAU-HANDOFF:overlay34CreateRecord:start
  * symbol: overlay34CreateRecord
- * score: 8/125 words
+ * score: 119/125 words
  * frame: 0x30
  * relocations: 12
- * first-mismatch: +0x54
- * summary: colour floor 4; height nocs merge and record-copy shape remain open
+ * first-mismatch: +0x88
+ * summary: Indexed scan removes loop residual; four height/resource naming rows and two store-order rows remain.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

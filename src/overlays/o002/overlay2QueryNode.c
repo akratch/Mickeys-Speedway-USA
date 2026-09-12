@@ -226,6 +226,6 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
  * frame: 0x68
  * relocations: 51
  * first-mismatch: +0x58
- * summary: 20-web landscape has no winners. Corrected +0xC4 SYMBOL-call placeholder; parameter reissue restores geometry at 93 but allocation fails.
+ * summary: Leaf-cursor/count deletion loses geometry; scoped parameter reissue remains. Corrected SYMBOL-call placeholder retained.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

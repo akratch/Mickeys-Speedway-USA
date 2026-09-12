@@ -80,10 +80,10 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
 
 /* PLATEAU-HANDOFF:overlay19BuildSpatialMasks:start
  * symbol: overlay19BuildSpatialMasks
- * score: 164/227 words
+ * score: 63/227 words
  * frame: 0x80
  * relocations: 0
  * first-mismatch: +0x58
- * summary: Fresh V0 is exact-sized at 164/227 words with exact 0x80 frame and zero relocations; the stale 66-word ranking overstates the current 63-word deficit.
+ * summary: Exhaustive 172-probe 29-web landscape; best diagnostic w160=c3 reaches 21; indexed point-carrier form regressed 63 to 119.
  * PLATEAU-HANDOFF:overlay19BuildSpatialMasks:end
  */

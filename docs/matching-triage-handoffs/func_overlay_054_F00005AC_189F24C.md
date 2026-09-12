@@ -2,11 +2,26 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 851/1594 words
+- score: 851 differing words
 - frame: 0x158
-- relocations: 271
+- relocations: 273
 - first mismatch: +0x0
-- summary: Indexed both o54 digit-copy loops from the o52 shape; 1115 to 851 masked and delta -8 to 0. Next: coherent temp ring and frame excess.
+- summary: Exhaustive colour packing reaches 839; most aligned residual lies outside the colour axis.
+
+## 2026-09-12 exhaustive colour landscape
+
+`residual_map.py` re-derived 893 aligned exact words and 687 aligned residual
+rows (494 naming, 86 immediate, 107 structural), plus fourteen candidate-only
+and fourteen target-only words. Their offset spans collectively contribute 136
+position-only words, so the 851 positional score is not a colour count. The
+offsets are candidate-only `+0x114,+0x150,+0x198,+0x214,+0xBFC,+0xC78,+0xC7C,+0xC80,+0xC84,+0x1434,+0x1440,+0x14AC,+0x14B4,+0x14FC` and target-only `+0x128,+0x13C,+0x264,+0x278,+0xBEC,+0xBF4,+0xC84,+0xCB4,+0xCB8,+0xCC4,+0xE30,+0x1464,+0x14C8,+0x14CC`.
+
+All 1,299 legal single forces were measured. The exhaustive winners are
+`w589=c2(845)`, `w815=c17/c18/c20/c21/c22(847)`, `w408=c6(849)`,
+`w39=c3/c5(850)`, and `w44=c29(850)`. The disjoint packing
+`w589=c2,w815=c17,w408=c6` predicted 839 and measured exactly 839. Thus only
+12 of 851 positional words (at most 12 of 687 aligned rows) are reached by the
+colour axis; 839 positional words remain. No source form was adopted.
 Final disposition: reconstruction plateau after five consecutive refinements
 without new matching information. The guarded C is compiled, not object-exact
 or ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM

@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: Exact Group B residual transfer confirms the same p1 phase-and-colour blocker; no source-authentic web evidence yet changes it.
+- summary: Cluster-identical 108-probe 14-web landscape; best diagnostic w58=c8 reaches 19; deleting the vertex cursor carrier makes the pair +56 bytes.
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding

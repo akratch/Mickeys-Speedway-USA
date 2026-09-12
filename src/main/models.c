@@ -1244,8 +1244,8 @@ typedef struct ModelCacheEntry {
 /* PROVENANCE: the authorized audit of JFG upstream efd5abb confirms that its
  * corresponding modSuspendModelTextures remains GLOBAL_ASM, so no donor C
  * body is adopted here. This remains a Mickey-only reconstruction. */
-/* Workbench: structure-mismatch, exact 113 instructions/frame -64; 25 words from +0xC.
- * Levers: explicit byte-scaled indexing is best; declaration/order and pointer-cursor probes did not improve it.
+/* Workbench: structure-mismatch, exact 113 instructions/frame -64; 24 words from +0xC.
+ * Reading the model ID without a declared carrier removes one naming row.
  * Remains: exception-loop shape plus pool slot 1/temp slot 3; asm stays canonical. */
 void func_80020E4C(s16 *exceptions) {
     SuspendedModelTexture *saved;
@@ -1258,16 +1258,15 @@ void func_80020E4C(s16 *exceptions) {
         if (D_80079C08 < 0x7D) {
             do {
                 ModelCacheEntry *cache = (ModelCacheEntry *)((u8 *)D_800CB484 + (modelIndex << 3));
-                s32 modelId = cache->id;
 
-                if (modelId != -1) {
+                if (cache->id != -1) {
                     ObjectModel *model = cache->model;
                     s32 excluded = 0;
                     s32 exceptionIndex = 0;
 
                     if (*exceptions != -1) {
                         do {
-                            if (*(s16 *)((u8 *)exceptions + (exceptionIndex << 1)) == modelId) {
+                            if (*(s16 *)((u8 *)exceptions + (exceptionIndex << 1)) == cache->id) {
                                 excluded = 1;
                             }
                             exceptionIndex++;
@@ -1405,11 +1404,11 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_80020E4C:start
  * symbol: func_80020E4C
- * score: 25/113 words
+ * score: 24/113 words
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: All 16 coloured webs scanned; two rival winners, diagnostic floor 19. Cursor induction still loses the required preheader word.
+ * summary: Deleted model-ID carrier removes one naming row; new 16-web landscape has sole winner at 18. Exception preheader still nonexact.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

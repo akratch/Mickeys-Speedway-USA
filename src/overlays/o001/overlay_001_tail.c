@@ -3511,6 +3511,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Authenticated proc 35: all 15 coloured webs scanned, no winners. Current-index range and parameter byte home remain structural questions.
+ * summary: Deleted index and point carriers lose geometry or extend address lifetimes; parameter byte-home and current-index split remain.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

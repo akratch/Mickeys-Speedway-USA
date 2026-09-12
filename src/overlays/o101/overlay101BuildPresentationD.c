@@ -212,6 +212,6 @@ void overlay101BuildPresentationD(void) {
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: 131 masked words from 151 at delta 0, frame 0x20 and its ladder exact. L59 group fold plus the node-24 text store before the counter bump.
+ * summary: L160 pointer removal is byte-inert. The 21-web landscape packs to 119; the mapped split-base lattice reaches 114, still nonexact.
  * PLATEAU-HANDOFF:overlay101BuildPresentationD:end
  */

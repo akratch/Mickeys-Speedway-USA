@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: Authenticated proc 35: all 15 coloured webs scanned, no winners. Current-index range and parameter byte home remain structural questions.
+- summary: Deleted index and point carriers lose geometry or extend address lifetimes; parameter byte-home and current-index split remain.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 
@@ -185,5 +185,32 @@ parameter-home evidence. The next source question is a current-index range
 that permits the wanted caller-saved register while also moving the byte spill
 into the parameter's own home. The volatile local cannot satisfy that second
 requirement, and these type changes cannot satisfy both together.
+
+#### 2026-09-12, lane p24-recipe: deleted index and point carriers
+
+The configured baseline reproduces 21 raw/masked differences in 107 words,
+delta zero, frame 0x30 and six relocations. Aligned buckets are 86 exact,
+15 naming, one immediate and five structural rows; first mismatch +0xC.
+The authenticated procedure-35 landscape in the preceding shard was reused.
+
+Three deletion probes do not improve it. Using the byte parameter directly
+in place of currentIndex removes one required word, scoring 97 at delta minus
+four. Inlining current-point accesses costs 20 bytes and scores 106. Inlining
+previous-point accesses retains size but scores 66, introduces two unmatched
+pairs and increases the aligned residual by 41 rows. The intermediate objects
+and their per-window deltas are retained under build/p24/overlay1BendPathPoint.
+The current-point form is a source-shape diagnostic only: promotion would also
+need the angle helper's lack of mutation authenticated before substituting
+repeated path reads for the saved pointer.
+
+The recipe fails to preserve both geometry and the byte-home surface here.
+Deleting currentIndex removes a required transfer, while deleting a point
+pointer lengthens the index/address lifetimes instead of recovering the
+wanted short current-index range. None repairs the parameter-home displacement.
+After three non-improving forms without a new target identity, stop under
+ADR 0018 and retain the original guarded candidate. The source question is
+still the parameter-owned byte store together with a current-index lifetime
+that permits the target register; neither an isolated type change nor deleting
+these carriers supplies both.
 
 <!-- plateau-handoff:overlay1BendPathPoint:end -->
