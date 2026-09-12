@@ -6,7 +6,7 @@
 - frame: 0x178
 - relocations: 18
 - first mismatch: +0xB4
-- summary: Frame/home deficit survives. L144 address loads reach 37; new-shape order climbs stall at 37 and 87. Retain 36; no source body change.
+- summary: source question is declared-symbol removal or two extra compiler temporaries
 
 #### 2026-09-11, lane p2-close: the block is SMALLER, not larger, and the older reading inverts
 
