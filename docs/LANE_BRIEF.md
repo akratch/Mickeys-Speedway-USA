@@ -221,6 +221,25 @@ it end to end. The ones that carry most of the weight:
   and solve rather than guess. Frame *size* is a count, not an order. An unused
   `s32` is eliminated before the frame is sized; an unused `f32` or pointer is
   not. `align8(4N)` hides a one-slot change.
+- **L145** — **to put a value in a ring temp, delete the carrier.** A declared
+  local is a symbol and a symbol is *never* handed a ring temp (L130), so no
+  probe, no-op or qualifier placed through a local supplies a ring draw. Writing
+  the uses as the expression itself — the global's own subscript, with no
+  pointer or index local at all — makes the expression on both sides of a call
+  **one IR name** (L131), so it is one range and both occurrences take the one
+  caller-saved register, while the pre-call read lands in a ring temporary.
+  Split and merge are **not symmetric**: a spelling lattice explores only the
+  split side, and on the split shape a force onto the wanted colour is *declined
+  with a forbidden mask* because the two address webs genuinely interfere. Five
+  functions were promoted on this, priced at delta 0: index locals everywhere
+  179, mixed 165, **no locals at all 98**.
+- **L146** — **a statement-order optimum belongs to the shape, not the
+  function.** After any edit that changes the carrier shape, every recorded
+  order sweep on that function is void and must be re-climbed. A 630-order
+  exhaustion naming a unique optimum was overturned the day the shape changed,
+  worth 98 → 26, and a second group then went 26 → 0. Conversely a plateau
+  sitting behind an exhausted order sweep is a strong reopen candidate the
+  moment a shape-changing edit lands.
 - **L144** — `volatile` does *two* things: it makes every read a load from the
   value's home, and it emits scheduling edges pinning those loads in order.
   **Taking the value's address (`*(s32 *)&param`) does only the first.** With no
