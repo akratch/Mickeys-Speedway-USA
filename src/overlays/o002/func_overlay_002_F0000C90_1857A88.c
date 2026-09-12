@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: p1-only; 88% coherent ring. 37 p1 decisions, no p2; target parameter home +0x6c vs candidate +0x64; three frame probes flat.
+ * summary: Exhaustive 171-cell landscape has floor 84 with two additive diagnostics; source still needs target 8-byte frame and includeLinked home.
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */
