@@ -15,9 +15,13 @@
  * by displacement and does not order configurations on its own.
  *
  * The residual is p1 colour, not shape.  Every one of this procedure's 428
- * allocator decisions is phase one, so declaration order, definition position
- * and statement order are the wrong axis (165 earlier forms were flat on the
- * colour for that reason).  The only axis is L100's ratio,
+ * allocator decisions is phase one, so declaration order and definition
+ * position are the wrong axis for a COLOUR (165 earlier forms were flat for
+ * that reason).  **Statement order is not** -- see note 7 below; the phase
+ * census retires L106 and nothing else, and statement order reaches as1's
+ * scheduling and ugen's emission order, which the census does not touch.  It
+ * is worth 733 -> 688 here on its own.  For the colour the axis is L100's
+ * ratio,
  * `save = totalsave / nocs`, and there are two source dials on it:
  *
  *   1. Discarded-expression probes at loop depth 2 (three of them in case 9's
@@ -44,6 +48,26 @@
  * reproduce the target's cached form -- all three measure one word WORSE at
  * unchanged size and frame, and caching `&character[0]` for the +0x3704 site
  * is byte-identical to not doing it.
+ *
+ *  7.  STATEMENT ORDER, 2026-09-12 (lane p11-big).  The claim above that
+ *      statement order is "the wrong axis" is false as stated, and it had
+ *      been closing the largest untried dimension on this function.  A
+ *      move-one hill climb over EVERY run of three or more consecutive
+ *      single-line statements in the body -- 67 such runs, each climbed to a
+ *      local optimum and the whole sweep then re-run twice to a fixed point --
+ *      takes 733 -> 688 masked at size delta 0, byte-exact 3120 -> 3144,
+ *      register naming 379 -> 371, immediate 25 -> 24 and really different
+ *      103 -> 88, with both frame ladders unchanged.  Five orders moved:
+ *      `rowY = rowBase;` to the top of case 1, `i = 0;` after `x = ...` in
+ *      case 1, `columnStep` after `i = 0;` in case 5, `nodes[0].texture` to
+ *      the head of its store group in the portrait loop, `cursor++` after
+ *      `textY += 0x1E;` in case 6, and `nodes[0].y` before `nodes[0].x` in
+ *      case 12.  672 is reachable but only through three moves that are
+ *      SEMANTICALLY WRONG -- two put `nodes[1].texture = 0;` after the
+ *      func_8002F618 call that walks the node list to its NULL terminator,
+ *      and one moves `x = -x;` in front of a call that takes `x + 0xA0` as an
+ *      argument.  They are rejected; 688 is the safe move-one optimum, and
+ *      re-climbing from it finds only those same three moves again.
  *
  * The `if (i != 0);` statements below are discarded-expression probes
  * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
@@ -297,15 +321,12 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     rowBase = D_o058_5C68[D_8007BEF8 - 1];
     switch (D_o058_5E94) {
     case 1:
+        rowY = rowBase;
         fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        /* `i = 0;` ahead of `x`, not after it: one word.  Both spellings put
-         * the def in the loop's own block, so the strength-reduced cursor
-         * bases stay folded either way (L98); only the schedule moves. */
-        i = 0;
         x = D_o058_5E98 + D_o058_5EA8;
-        rowY = rowBase;
+        i = 0;
         if ((s32) D_8007BEF8 > 0) {
             do {
                 x = -x;
@@ -598,9 +619,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
 
-        columnStep = D_o058_5C8C[D_8007BEF8 - 1];
         columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
         i = 0;
+        columnStep = D_o058_5C8C[D_8007BEF8 - 1];
         if ((s32) D_8007BEF8 > 0) {
             do {
                 func_8004B0F8(&D_800D3140, columnX, 0x37, D_o058_5C98[i], 4);
@@ -719,12 +740,12 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
              * row and a shorter shape block. */
             cursor = (void **) D_800D31C8;
             do {
+                nodes[0].texture = (RcpTextureInfo *) cursor[0x51];
                 nodes[0].alternate = NULL;
                 nodes[0].x = portraitX;
                 nodes[0].y = 0x37;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                nodes[0].texture = (RcpTextureInfo *) cursor[0x51];
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
                 cursor++;
@@ -850,8 +871,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
             func_8004B0F8(&D_800D3140, 0xA0 - x, textY, (char *) *cursor, 4);
             i += 1;
-            cursor++;
             textY += 0x1E;
+            cursor++;
             x = -x;
         } while (i < 4);
         D_o058_5EA0 -= arg0 * 0xF;
@@ -1358,8 +1379,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8004B0F8(&D_800D3140, x + 0x28, textY, D_o058_5C98[i], 0);
             }
             nodes[0].alternate = NULL;
-            nodes[0].x = x + 0x58;
             nodes[0].y = textY - 4;
+            nodes[0].x = x + 0x58;
             nodes[0].packedOffset = 0;
             nodes[1].texture = 0;
             nodes[0].texture = D_800D31C8[portraitIndex];
@@ -1418,10 +1439,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 733/3614 words, size delta 0
+ * score: 688/3614 words, size delta 0
  * frame: 0x138
  * relocations: 1266
  * first-mismatch: +0x50
- * summary: 3614 instructions per side; the whole residual is p1 colour, and the axis was L100's save ratio because every one of the procedure's 428 allocator decisions is phase one. The s7-with-s8 transposition three grinds named is closed (0 transposed saved-register slots against 187) by two dials on that ratio: depth-2 discarded-expression probes on the index, and giving two inner loops index carriers of their own. Both dials are now exhausted -- 1,604 carrier x probe-count cells and 288 probe-site cells, no adoption -- and what is left is two web PARTITION problems, the prologue and case 10's `&character[0]` temp (web 978), each force-declined on all nine callee-saved colours
+ * summary: Statement order is NOT the wrong axis here, contrary to the note the phase census left behind: a move-one hill climb over all 67 runs of three or more consecutive single-line statements, re-run to a fixed point, takes 733 -> 688 masked at size delta 0, byte-exact 3120 -> 3144, register naming 379 -> 371, really different 103 -> 88, with both frame ladders unchanged. The phase census retires L106 and nothing else. 672 is reachable but only through three semantically wrong moves, which are rejected. What is left is still two web PARTITION problems, the prologue and case 10's &character[0] temp (web 978), plus 119 words in case 9's grid-loop exit test.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
