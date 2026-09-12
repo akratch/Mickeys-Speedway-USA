@@ -1828,10 +1828,45 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame;
- * 145 words differ from +0x30. Reusing scale after its last original-value use
- * removes the spurious normalization-temp home. The entry trigger carrier and
- * integer/FP allocation webs remain. */
+/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame.
+ *
+ * 2026-09-12, lane p11-mid: 145 -> 111 on the frame, and the two ladders are now
+ * slot-for-slot identical at 0x68.  tools/frame_census.py read the fault as a
+ * uniform four-byte shift from the fifth home down: the target carries ONE MORE
+ * four-byte local between `scale` and `position`, register-resident (it has no
+ * traffic on either side), which is the orientation swap's own temp that an
+ * earlier lane deleted to keep the frame at 0x68.  Reintroducing it alone does
+ * grow the frame to 0x70 as that lane measured -- there is no slack -- but the
+ * frame is a COUNT of declared memory-class locals, so deleting any other one
+ * pays for it: swap temp after `scale` plus `entryIndex` inlined lands 0x68 with
+ * the target's ladder.  Measured on the same base: swap alone 167, entryIndex
+ * alone 145, pointCount alone 145, swap + entryIndex 111, swap + pointCount 111,
+ * swap + both 111 (so the two are interchangeable and neither is homed), swap
+ * before `scale` 117, after `position` 124, after `offset` 142, last 145.
+ * Buckets went byte-exact 163 -> 197, naming 82 -> 94, immediate-only 37 -> 5,
+ * structural 23 -> 8, displacement tax 3 -> 4.
+ *
+ * Then two statement-order sweeps, re-climbed on the new shape per [L146],
+ * took 111 -> 72.  Both are full exhaustions, not samples.  The four statements
+ * guarded by `pointCount != 9` admit twelve orders once `point` is kept ahead of
+ * its own dereference; the floor is pointCount-bump, point, lifetime, scale at
+ * 75, against 111 for the order this file used to carry and 128 for the worst.
+ * The four `point` initialisers admit all 24; the floor is intensityTimer,
+ * colorTimer, colorIndex, intensity at 72, and every order that does not put
+ * intensityTimer first costs four bytes of frame and lands at 254 or worse,
+ * because the later `point->intensityTimer < point->lifetime` test reloads it.
+ *
+ * Buckets now: byte-exact 231, register naming 58, immediate-only 2, structural
+ * 13, displacement tax -1, frame ladders identical.  The naming residual is one
+ * coherent three-cycle t5->t7->t4->t5 at 98% over two windows ([L127]) plus a
+ * float f12->f14 phase.  The one structural fact left is at +0x74: the target
+ * reloads `trigger` from its incoming home 108(sp) in the block BEFORE the
+ * `pointCount != 9` branch and dereferences it after, where we keep no copy and
+ * reload two instructions later, inside the branch's own block -- which is why
+ * the target's home shows four loads to our three.  Both [L144] forms that would
+ * force the reload were measured and both grow the frame, because taking the
+ * parameter's address gives it a declared slot of its own: `*(T **)&trigger` is
+ * 264 words at delta +4 and `(T *)*(s32 *)&trigger` is 299 at delta +8. */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1841,23 +1876,22 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
     ParticleLinePoint *point;
     u32 *colorTable;
     f32 scale;
+    f32 swap;
     ParticleVec3f position;
     ParticleVec3f offset;
     s32 orientation;
     s32 pointCount;
-    u8 entryIndex;
 
     descriptor = D_8007C8AC[trigger->type];
     if ((u32)descriptor->flags >> 28 == 5) {
-        entryIndex = trigger->result;
-        if (entryIndex != 0xFF) {
-            entry = &D_8007C894[entryIndex];
+        if (trigger->result != 0xFF) {
+            entry = &D_8007C894[trigger->result];
             pointCount = entry->pointCount;
             if (pointCount != 9) {
-                point = entry->points[pointCount];
-                scale = descriptor->scale * trigger->config->value50;
                 entry->pointCount = pointCount + 1;
+                point = entry->points[pointCount];
                 point->lifetime = descriptor->lifetime;
+                scale = descriptor->scale * trigger->config->value50;
                 if (descriptor->descriptorWord & 0x400) {
                     colorTable = entry->colorTable;
                     if (colorTable == NULL) {
@@ -1874,8 +1908,8 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     point->blue = descriptor->blue;
                 }
                 point->intensityTimer = descriptor->intensityTimer;
-                point->colorIndex = 0;
                 point->colorTimer = descriptor->colorTimer;
+                point->colorIndex = 0;
                 point->intensity = descriptor->intensity << 8;
                 if (point->intensityTimer < point->lifetime) {
                     point->intensityVelocity =
@@ -1933,14 +1967,14 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     offset.z *= scale;
                     switch (orientation) {
                         case 0:
-                            scale = offset.x;
+                            swap = offset.x;
                             offset.x = -offset.z;
-                            offset.z = scale;
+                            offset.z = swap;
                             break;
                         case 1:
-                            scale = offset.y;
+                            swap = offset.y;
                             offset.y = -offset.z;
-                            offset.z = scale;
+                            offset.z = swap;
                             break;
                     }
                 }
@@ -2575,11 +2609,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80040B88:start
  * symbol: func_80040B88
- * score: 145 differing words
+ * score: 72 differing words
  * frame: 0x68
  * relocations: 12
- * first-mismatch: +0x30
- * summary: the frame size is right but its contents are not: both vector locals sit four bytes above the target's homes, and the three homes above them already agree, so the missing four bytes belong below the scale local. Flat and eliminated: reintroducing the orientation swap's own temp (any of eleven declaration positions) grows the frame to 0x70, and moving the colour table pointer later -- into the block that uses it, to the end of the list, or below scale -- keeps 0x68 but costs six words. The four relocation-symbol mismatches are an ordering fact: the target materializes the line-entry table's address one instruction earlier than we do.
+ * first-mismatch: +0x48
+ * summary: 145 -> 72 this lane in three measured steps, and the frame is now correct rather than merely the right size. The frame fault was a COUNT, not a placement: the target carries one more four-byte register-resident local between scale and position -- the orientation swap's own temp -- and reintroducing it alone does grow the frame to 0x70 as the previous closure said, but deleting any other declared local pays for it, so swap after scale plus entryIndex inlined lands 0x68 with the target's ladder slot for slot. Two statement-order sweeps, void under L146 because the shape had just changed, then took 111 -> 75 -> 72: the twelve legal orders of the pointCount-guarded block floor at pointCount-bump, point, lifetime, scale, and all 24 orders of the point initialisers floor at intensityTimer, colorTimer, colorIndex, intensity, with every order that does not put intensityTimer first costing four bytes of frame. What is left is ONE ugen draw, read off DKWB_UGEN_SCHED plus DKWB_UGEN_TRACE rather than inferred: this procedure's free list is t6 t7 t8 t9 t1 t2 t3 t4 t5 with t0 REMOVEd before the first draw, and it is FIFO; we spend seven draws before the line-entry-table statement and take t4 then t5 there, where the target takes t5 then t7, exactly one position later in the same recycle order. The extra draw is the target's fourth load of the trigger parameter from its incoming home at 108(sp), issued in the block BEFORE the pointCount branch and dereferenced after; we keep no copy and reload two instructions later inside the branch's own block. That one draw is both the only structural difference left and the whole naming residual, which the phase re-colours as one coherent three-cycle t5 to t7 to t4 to t5 at 98%.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 

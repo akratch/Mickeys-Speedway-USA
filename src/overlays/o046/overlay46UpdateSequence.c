@@ -151,6 +151,31 @@ extern s32 func_overlay_046_F0000874_188EC6C();
  * accepted cell ties at 54 and the next is 56.  So the residual is not one globalcolor decision:
  * it needs the web SET to change, not a recolouring, and the next lane should not re-run a force
  * sweep or a colour lattice.
+ *
+ * 2026-09-12, lane p11-mid.  One premise above is wrong and one argument is circular.
+ *
+ * **The a2 denial IS interference.**  Web 51's `intf` records name webs 77 and 111 holding colour 1,
+ * 63 and 103 holding 2, 74 and 159 holding 3, 58 holding 4, 70 holding 5 and 105 holding 6 -- which is
+ * `forbidden0=0x7e000000` exactly, colour for colour.  The arity reading is a second-order description
+ * of the same fact: changing a call's argument count changes which webs are live across it.  Read the
+ * `intf` rows against the `p1color` list before believing any statement about why a colour is denied.
+ *
+ * **"A colour absent from a cost list is not for sale at any ratio" is circular.**  It is absent
+ * BECAUSE the web is decided late, after six colours are taken; a web decided earlier meets fewer.  So
+ * the save axis was never actually retired by that argument.  It is retired now by measurement instead:
+ * the [L109] probe family is inert in this function.  One and three OR-with-zero probes on `matched`
+ * inside the compare loop, in the goto form and in a `while` form, leave all 21 `p1color` assignments
+ * bit-identical and the score at 54.  The save is not settable from source here.
+ *
+ * The arithmetic that remains: globalcolor consumes colours 1..7 for us, and a target whose flag sits on
+ * a2 consumes 1..5, so the web set has to lose TWO colour consumers.  Deleting `expected` is not one of
+ * them -- in that build a2 is still taken and web 51 still lands on t0.
+ *
+ * Flat at 54 or worse, added this pass: the [L149] double-mask family at the tail alpha site, which is
+ * already at its floor (dropping the macro's second mask 56, the first 87, both 85, only the `(u32)`
+ * cast 87 -- the cast is load-bearing); the compare-loop carrier family (deleting `expected` three ways,
+ * 70 / 65 / 65; `expected` as `s32` 54; `current` as `s32` 59; `expected != current` 54); and the
+ * `while` rewrite of the compare, 54 with a bit-identical colouring.
  */
 
 /* Ownership trial note kept from 2026-08-28 is below. */
@@ -311,6 +336,6 @@ compare_name:
  * frame: -0x30
  * relocations: 118
  * first-mismatch: +0x4
- * summary: Exact 317-word geometry and 118 aligned relocation records; the aligner puts all 54 residual words in the register-naming bucket with zero immediate, zero structural and zero displacement tax, so this is purely a colouring residual. Read off the instrumented allocator on 2026-09-12: the procedure is p1-only, globalcolor consumes colours 1 to 7, and colour 7 is taken by exactly one web, the case-5 `matched` flag, which pushes ugen's expression ring from t0 to t1 and re-phases the whole function. That web is forbidden colours 1 to 6 and its own p1cost list starts at colour 7, so the six argument and return registers are never priced for it; forcing the a2 holder off its colour leaves the flag on t1 and costs 90 words, so freeing an incumbent is not the route. Flat at 54: sixteen region placements, five symbol-boundary splits and merges, four flag spellings, an inverted flag, a while-loop compare, a hoisted flag address and 24 declaration orders. Writing the name compare as `expected != current` restores the target's own operand order at that site and is flat today, and is recorded for the lane that lands the ring. The next lever is to shorten the flag's span until it stops crossing a call that loads a2 or a3, or to find a form in which it is not a distinct symbol; raising its save cannot work, because a colour absent from a web's cost list is not for sale at any ratio.
+ * summary: Exact 317-word geometry, 118 aligned relocation records, zero immediate, zero structural and zero displacement tax: all 54 residual words are register naming and the whole of it is one colour, web 51, the case-5 matched flag, which takes t0 where the target takes a2 (tools/register_census.py reads t0 -> a2 five times) and pushes ugen's expression ring one position for the rest of the function. 2026-09-12, lane p11-mid, identity gate passed and the records reproduce web 51 at save 1.5, nocs 4, totalsave 6, forbidden0 0x7e000000, decision=color bestreg=t0. CORRECTION to the closure below: the a2 denial IS interference. Web 51's interference list holds webs 77 and 111 at colour 1, 63 and 103 at 2, 74 and 159 at 3, 58 at 4, 70 at 5 and 105 at 6, which is the mask exactly; the arity reading is a second-order description of the same thing, because argument count changes which webs are live across the call. That in principle reopens the save axis -- a web decided earlier meets fewer taken colours -- and the previous argument against it, that a colour absent from a cost list is not for sale at any ratio, is circular. Closed instead by measurement: the L109 discarded-expression probe family is INERT here. One and three OR-with-zero probes on `matched` inside the compare loop, in both the goto form and a while-loop form, leave all 21 p1color assignments bit-identical and the score at 54, so the save is not settable from source in this function. The arithmetic the next lane needs: our globalcolor consumes colours 1 to 7 and a target whose flag sits at a2 consumes 1 to 5, so the web set has to lose TWO colour consumers, not one. Deleting `expected` is not one of them -- in that build a2 is still taken and web 51 still takes t0.
  * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
  */
