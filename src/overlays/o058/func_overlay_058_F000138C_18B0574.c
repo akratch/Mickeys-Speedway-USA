@@ -88,6 +88,15 @@
  *      closed nine-cycle t1->t5->t2->t6->t7->t8->t3->t4->t9->t1 carrying 150
  *      of the 212 differing register slots after +0x3148, and none before it.
  *
+ *      The statement-order climb was re-run from the new shape (L146: an
+ *      order optimum belongs to the shape) and found 634 -> 623 in two
+ *      moves, both in case 10's node fill: `nodes[0].texture` to the head of
+ *      the store group, and `nodes[0].x` before `nodes[0].y`.  No call sits
+ *      between them and the NULL terminator is still stored before
+ *      func_8002F618.  An opaque zero at each of the other 17 index resets
+ *      x four carriers (69 cells) is inert or worse everywhere: the lever is
+ *      site-specific to this one loop.
+ *
  * The `if (i != 0);` statements below are discarded-expression probes
  * (ido-5.3 L37) -- zero instructions, one web occurrence each.  They were
  * found by a two-pass climb over 11,304 variants and are a local optimum;
@@ -1403,12 +1412,12 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             if (i < 3) {
                 func_8004B0F8(&D_800D3140, x + 0x28, textY, D_o058_5C98[i], 0);
             }
+            nodes[0].texture = D_800D31C8[portraitIndex];
             nodes[0].alternate = NULL;
-            nodes[0].y = textY - 4;
             nodes[0].x = x + 0x58;
+            nodes[0].y = textY - 4;
             nodes[0].packedOffset = 0;
             nodes[1].texture = 0;
-            nodes[0].texture = D_800D31C8[portraitIndex];
             func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             opponent = 0;
             do {
