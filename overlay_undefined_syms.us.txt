@@ -941,6 +941,10 @@ overlay29InterpolateReloc = 0xf0000000;
 
 /* overlay 29: overlay29InitializeObject.c.o */
 D_EE0 = 0x00000ee0;
+func_80010900_o029Reloc = 0xf0000000;
+func_overlay_029_F00010C4_187E374Reloc = 0xf0000000;
+mathOneFloatRPY_o029Reloc = 0xf0000000;
+trackMakePolylist_o029Reloc = 0xf0000000;
 
 /* overlay 29: overlay29ProjectPoint.c.o */
 gOverlay29MinimumYReloc = 0x00000000;
