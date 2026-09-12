@@ -2,11 +2,11 @@
 ### `overlay15DrawScreenStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 96/105 words
+- score: 9/105 words
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Nine structural entry rows remain. The complete 110-probe colour landscape has no winner, and cursor deletion changes geometry.
+- summary: 9 aligned structural rows; zero legal colour winners; setup/preheader probes moved no census lines; retained body is best
 
 #### Historical baseline at assignment 3ccc02a1
 
