@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: All 22 coloured webs sampled: 155 single forces, no winners; source literal-type lattice remains 2; ring release-order question remains.
+- summary: zero winning coloured forces; draw census found no edit that moves the FP ring release order
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
