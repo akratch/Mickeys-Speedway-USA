@@ -3217,8 +3217,21 @@ D_4358 = 0x00004358;
 D_DA4 = 0x00000da4;
 
 /* overlay 101: overlay101TailBA34.c.o */
-D_4630 = 0x00004630;
-D_DB8 = 0x00000db8;
+gO101TailBA34AssetDB8 = 0x00000db8;
+gO101TailBA34FinalObject4630 = 0x00004630;
+gO101TailBA34Inputs = 0x00000000;
+gO101TailBA34Node24Count = 0x000001d0;
+gO101TailBA34Node32Count = 0x000001cc;
+gO101TailBA34Nodes24 = 0x00000540;
+gO101TailBA34Nodes32 = 0x00000340;
+gO101TailBA34OrderCountCall0 = 0x000001c4;
+gO101TailBA34OrderCountCall1 = 0x000001c4;
+gO101TailBA34OrderSlots = 0x000001c0;
+gO101TailBA34Root = 0x00000000;
+o101TailBA34FinalizerReloc = 0xf0000000;
+o101TailBA34NonzeroCreatorReloc = 0xf0000000;
+o101TailBA34RootCreatorReloc = 0xf0000000;
+o101TailBA34ZeroCreatorReloc = 0xf0000000;
 
 /* overlay 101: overlay101TailC144.c.o */
 gO101TailC144AssetDCC = 0x00000dcc;
