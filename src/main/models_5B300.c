@@ -898,21 +898,21 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005A7A0:start
  * symbol: func_8005A7A0
- * score: 10 differing words
+ * score: 10/106 words
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: Mixed residual with no allocator decisions; isolate UGEN local-block reservation.
+ * summary: ugen local-block reservation and mixed frame residual remain open
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
 /* PLATEAU-HANDOFF:func_8005ABA8:start
  * symbol: func_8005ABA8
- * score: 2 differing words
+ * score: 2/111 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: Two structural assembler-scheduling rows; procedure has no allocator decisions.
+ * summary: assembler branch-delay decision remains; no source-reachable suppressor found
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
