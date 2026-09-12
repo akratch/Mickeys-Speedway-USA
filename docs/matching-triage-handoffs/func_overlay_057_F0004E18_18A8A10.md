@@ -6,7 +6,7 @@
 - frame: 0x140
 - relocations: 375
 - first mismatch: +0x34
-- summary: 203 to 132 masked: the choice loop's output cursor carried in i, the target's loop shape, both tail reads named, order re-climbed.
+- summary: Delta -4 is the unsplit tail global-address web; direct spelling and allocator split routes are exhausted.
 
 ## 2026-09-12 (lane `p11-big`): the target's bound is the global's end, read off the object
 
@@ -324,6 +324,25 @@ holds it in s5 across the whole tail -- one `lui` fewer here, and the whole of
 the deficit. Six respellings of those reads and of the loop's own naming of the
 global were measured and none splits that address web. The two compiler temps
 at sp+0x54 and sp+0x58 against the target's sp+0x5C and sp+0x64 are unchanged.
+
+## 2026-09-12 (lane `p23-bigger`): size-deficit map re-proved before colour
+
+The fresh baseline remains 1207 candidate words against 1208 target words,
+delta -4 and 132 positional masked differences. The aligned buckets are 1105
+byte-exact, 53 naming, 14 immediate and 43 really different. The candidate-only
+offsets are +0xDE0, +0xDE4, +0xF80, +0x1158, +0x115C, +0x1164 and +0x12A0;
+the target-only offsets are +0xDD0, +0xDD4, +0xF68, +0x116C, +0x1174, +0x11B0,
++0x1244 and +0x1248. There is no one-word candidate-only/target-only pair that
+would make the positional score a colour shadow, so this pass did not run a
+colour lattice.
+
+The largest aligned window is +0x1000 with 23 naming and 7 structural rows,
+not a new colour lead: it follows the missing global-address materialisation.
+The named source question remains how to split the two tail
+`gO57MiddleChoices[0].tableIndex` address uses into fresh materialisations
+without changing their semantics or code size. The six recorded respellings and
+the allocator split receipt already rule out the available direct spellings, so
+no source candidate was adopted.
 
 Validation: `gmake verify` printed
 507341c0a40ca3e9a7cee969b396ee53facfb548 and `tools/gates.sh --staged` passed

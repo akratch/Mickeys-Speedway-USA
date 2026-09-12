@@ -49,6 +49,16 @@ bytes and disassembly never belong here.
   a focused mechanism probe; keep it only after every function in the shared
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
+- The R4300 multiply scheduler can resolve an adjacent transposition at zero
+  size delta without inserting a hazard nop. A fixed scheduler-priority
+  argument does not close a residual until the relevant assembler flag is
+  tested. In a controlled replay, identical ugen output and symbol metadata
+  produced different schedules solely from as1's `-r4300_mul` option; the
+  flagged replay equalled the stock flagged C object in text and relocations.
+  Test `-Wab,-r4300_mul` before further source-order searches around multiply
+  instructions, even when the size and opcode inventory already agree.
+  Keep the flag local and prove all TU consumers and linked bytes before
+  adoption; a diagnostic replay never supplies matching build output.
 - A per-TU flag adopted mid-iteration can be byte-inert by the time the source
   lever lands, and loop unrolling is the common case. IDO's rotator peels a
   loop head into the preheader when a separate start-value copy keeps the
@@ -2121,6 +2131,21 @@ bytes and disassembly never belong here.
   before applying a phase-specific law. Statement order can still change
   emission and scheduling. Trace output and compiler diagnostics
   remain private; stock output and the normal promotion proofs supply credit.
+
+- **An index type can partition a shared array-address range.** When two
+  regions share a strength-reduced array cursor, changing the subscript to an
+  unsigned expression in just one region can separate their allocation ranges.
+  In a controlled full-TU experiment, that split changed the occurrence-block
+  denominators and lowered each range's save ratio below competing address
+  constants. Giving both regions the same unsigned spelling rejoined the
+  ranges and removed the benefit; several equivalent full-width expressions
+  reproduced it. Inspect the allocator records and prove stock-output fidelity
+  before attributing the change to expression cost or declaration order. The
+  conversion is valid only for a proved index domain, and a smaller positional
+  residual can still worsen aligned naming differences. This is a reproducible
+  diagnostic lever, not an exact-match claim or a universal unsigned-index
+  preference. See the
+  [typed-index partition and retained tradeoff](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md).
 
 ## Adding a learning
 

@@ -903,7 +903,7 @@ void func_80046E00(void) {
  * frame: 0x50
  * relocations: 127
  * first-mismatch: +0x18
- * summary: The residual is a measured ugen integer ring phase; three argument hoists removed three draws and the rest wants one phantom pop at the top.
+ * summary: Exhaustive 137-cell colour landscape has floor 51; source question is one zero-byte leading integer ring draw.
  * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
 

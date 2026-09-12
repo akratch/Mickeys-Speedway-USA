@@ -5788,7 +5788,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x6D4
- * summary: The asset-pointer web partition is closed, by L131 rather than by a carrier: name the ONE site the target colours separately, and delete the named carrier everywhere it does not. 150 -> 99 at size delta 0, naming 92 -> 47, structural 17 -> 12.
+ * summary: Exhaustive proc21 sweep: 299/396 accepted probes; winner lattice floor 95/719, late additive radii only; structural +0x6D4 and +0x7A0 remain.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 

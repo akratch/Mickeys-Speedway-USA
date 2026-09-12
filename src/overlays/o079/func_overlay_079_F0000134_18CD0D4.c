@@ -593,6 +593,6 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
  * frame: 0xB8
  * relocations: 88
  * first-mismatch: +0x7C
- * summary: Two source-order probes: inline dx regressed to 238; dz-before-dx was byte-identical. web346 and one folded FP draw remain.
+ * summary: Exhaustive 39-web colour scan floor is forced 191; source question is tail web45 v0-to-v1.
  * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
  */

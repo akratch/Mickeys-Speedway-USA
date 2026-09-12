@@ -179,7 +179,17 @@ def _isolated_workdir(nr):
         shutil.rmtree(scratch, ignore_errors=True)
 
 
-def measure(symbol: str) -> dict:
+def measure(symbol: str, object_path: pathlib.Path | None = None) -> dict:
+    """Map `symbol`'s residual, from the configured build or a supplied object.
+
+    WHY --object EXISTS. Every map this tool drew came from recompiling the
+    tree, so the only object it could ever read was the one the working
+    directory happens to produce. The overlay 58 force lattice retains 31
+    forced objects, and the question that mattered -- which windows still carry
+    naming rows once the five known forces are applied -- is a map of an object
+    this tool could not open. Reading a retained object costs no compile and
+    keeps the map identical in every other respect.
+    """
     import align_symbol as als
     import nm_ranking as nr
     import permute_batch as pb
@@ -190,11 +200,16 @@ def measure(symbol: str) -> dict:
                          f"queue (already matched, or never queued)")
     item = queue[symbol]
     with _isolated_workdir(nr):
-        commands = nr.configured_compile_commands([item])
-        obj, error = nr.compile_configured_tu(item.rel_c_file,
-                                              commands[item.rel_c_file])
-        if obj is None:
-            raise SystemExit(f"residual_map: {error}")
+        if object_path is None:
+            commands = nr.configured_compile_commands([item])
+            obj, error = nr.compile_configured_tu(item.rel_c_file,
+                                                  commands[item.rel_c_file])
+            if obj is None:
+                raise SystemExit(f"residual_map: {error}")
+        else:
+            obj = pathlib.Path(object_path)
+            if not obj.is_file():
+                raise SystemExit(f"residual_map: no such object {obj}")
         streams, error = nr.word_streams(item, obj)
         if streams is None:
             raise SystemExit(f"residual_map: {error}")
@@ -238,6 +253,7 @@ def measure(symbol: str) -> dict:
         return {
             "symbol": symbol,
             "file": item.rel_c_file,
+            "object": str(object_path) if object_path else "configured build",
             "size_bytes": result.size_bytes,
             "size_delta": result.size_delta,
             "positional_masked": result.relocation_masked_differing_words,
@@ -296,6 +312,59 @@ def render(data: dict, width: int, lo: int, hi: int) -> str:
     return "\n".join(out)
 
 
+def compare(before: dict, after: dict, width: int, lo: int, hi: int) -> str:
+    """Per-window aligned delta between two maps of the same function.
+
+    `tools/force_lattice.py` reports a blast radius over POSITIONAL words,
+    which is what its score counts but which inflates any window bracketed by
+    a one-word insertion: every word after the insertion mismatches by
+    position while aligning perfectly. On overlay 58 two such windows carried
+    81 positional words and 22 aligned rows, and reading the positional number
+    as register residual is what made those windows look like the densest
+    colour problem in the function when they are two extra instructions.
+    This view is aligned, so a window's number moves only when its content does.
+    """
+    def binned(data):
+        out: dict[int, dict[str, int]] = {}
+        for offset, kind in data["rows"]:
+            if not lo <= offset < hi:
+                continue
+            slot = out.setdefault((offset // width) * width,
+                                  {"naming": 0, "immediate": 0, "structural": 0})
+            slot[kind] += 1
+        return out
+
+    a, b = binned(before), binned(after)
+    out = [f"{before['symbol']}",
+           f"  before: {before['object']}",
+           f"  after:  {after['object']}",
+           "",
+           "  offset        nam        imm        str      total",
+           "                a->b       a->b       a->b       delta"]
+    total = 0
+    for start in sorted(set(a) | set(b)):
+        ra = a.get(start, {"naming": 0, "immediate": 0, "structural": 0})
+        rb = b.get(start, {"naming": 0, "immediate": 0, "structural": 0})
+        delta = sum(rb.values()) - sum(ra.values())
+        total += delta
+        cells = "  ".join(f"{ra[k]:>3}->{rb[k]:<3}"
+                          for k in ("naming", "immediate", "structural"))
+        mark = "" if delta else "   unmoved"
+        out.append(f"   +0x{start:05X}  {cells}  {delta:+8d}{mark}")
+    out.append(f"   {'total':<10} {'':<33}{total:+8d}")
+
+    for name, key in (("candidate-only", "insertions"), ("target-only", "deletions")):
+        was = {o for o in before[key] if lo <= o < hi}
+        now = {o for o in after[key] if lo <= o < hi}
+        if was != now:
+            out.append(f"  {name} words changed: "
+                       f"gone {sorted(was - now)}, new {sorted(now - was)}")
+        elif was:
+            out.append(f"  {name} words unchanged at "
+                       + " ".join(f"+0x{o:X}" for o in sorted(was)))
+    return "\n".join(out)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Map a function's residual by address and census its "
@@ -305,8 +374,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--lo", type=lambda v: int(v, 0), default=0)
     parser.add_argument("--hi", type=lambda v: int(v, 0), default=1 << 30)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--object", type=pathlib.Path, default=None,
+                        help="map this object instead of recompiling the tree")
+    parser.add_argument("--against", type=pathlib.Path, default=None,
+                        help="also map this object and print the aligned "
+                             "per-window delta from it to --object/the build")
     args = parser.parse_args(argv)
-    data = measure(args.symbol)
+    data = measure(args.symbol, args.object)
+    if args.against is not None:
+        before = measure(args.symbol, args.against)
+        print(compare(before, data, args.window, args.lo, args.hi))
+        return 0
     if args.json:
         data["rows"] = [{"offset": o, "bucket": k} for o, k in data["rows"]]
         data["pairs"] = [{"offset": o, "ours": a, "theirs": b}

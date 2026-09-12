@@ -122,32 +122,10 @@ extern void overlay101ResetReloc(void *value);
 /* Tier B: initialized data +0x340, distinct from the BSS node pool. */
 extern u8 D_o101ResetData340[];
 
-/*
- * Mickey-local reconstruction. 1,421 masked words -> 2, size delta +8 -> 0,
- * lane p11-o101 2026-09-12, by transferring the shape that closed this
- * overlay's builder family (see func_overlay_101_F00069E8_18E2208.c, which
- * went 613 -> 0 on the same three edits).
- *
- * L145. DELETE EVERY LOCAL THAT HELD AN ELEMENT ADDRESS OR AN ELEMENT INDEX
- *   -- `index`, `orderIndex`, `node20`, `node24`, `node32` are all gone -- and
- *   spell each store through the array subscript of the counter global itself.
- *   A uopt live range is formed per IR name (L131), so the subscript written on
- *   both sides of a call is ONE range spanning the call; the pre-call read then
- *   lands in a ring temporary, which a declared local can never be (L130).
- * L146. The group header wants `mode` FIRST, ahead of the geometry stores,
- *   where the previous shape had `value14` first and `mode` seventh. That order
- *   was measured on the carrier shape and is void on this one.
- * The root is spelled `gOverlay101OrderEntries[1 + group]`, the same expression
- *   the matched siblings and ROM-exact overlay101Cleanup use, rather than a
- *   `D_0.groups[group]` member path: L131 makes the spelling the range.
- *
- * Two words are left, at +0x1194: the target emits the `.text` load of group 9's
- * first text node before the following node's index multiply, and this candidate
- * emits them the other way round. Both sides are otherwise byte-identical --
- * 1,459 of 1,461 words, frame 0x50 on both sides, 199 of 199 relocations. The
- * measured axes are in docs/matching-triage-handoffs/.
- */
-#ifdef NON_MATCHING
+/* Tier A: stock IDO with this TU's R4300 multiply-scheduler flag reproduces
+ * the owned text. Array expressions preserve the builder family's shared
+ * address webs; group mode is initialized before geometry. See the matching
+ * handoff for the compiler-flag control and linked promotion evidence. */
 void func_overlay_101_F0003A58_18DF278(void) {
     s32 length;
     void *handle;
@@ -288,16 +266,3 @@ void func_overlay_101_F0003A58_18DF278(void) {
 #undef INIT_GROUP
 #undef INIT_GROUP0
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0003A58_18DF278/func_overlay_101_F0003A58_18DF278.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_101_F0003A58_18DF278:start
- * symbol: func_overlay_101_F0003A58_18DF278
- * score: 2 masked words of 1461
- * frame: 0x50
- * relocations: 199
- * first-mismatch: +0x1194
- * summary: L145 carrier deletion plus the L146 header order took 1421 to 2 at size delta 0; what is left is one adjacent transposition in as1's post-schedule pass at group 9's text junction, with every pairwise ADD_TEXT swap, every text-store position and every two-macro line split already measured.
- * PLATEAU-HANDOFF:func_overlay_101_F0003A58_18DF278:end
- */

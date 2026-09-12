@@ -332,10 +332,10 @@ compare_name:
 
 /* PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:start
  * symbol: func_overlay_046_F0000120_188E518
- * score: 54 differing words
+ * score: 54/317 words
  * frame: -0x30
  * relocations: 118
  * first-mismatch: +0x4
- * summary: Exact 317-word geometry, 118 aligned relocation records, zero immediate, zero structural and zero displacement tax: all 54 residual words are register naming and the whole of it is one colour, web 51, the case-5 matched flag, which takes t0 where the target takes a2 (tools/register_census.py reads t0 -> a2 five times) and pushes ugen's expression ring one position for the rest of the function. 2026-09-12, lane p11-mid, identity gate passed and the records reproduce web 51 at save 1.5, nocs 4, totalsave 6, forbidden0 0x7e000000, decision=color bestreg=t0. CORRECTION to the closure below: the a2 denial IS interference. Web 51's interference list holds webs 77 and 111 at colour 1, 63 and 103 at 2, 74 and 159 at 3, 58 at 4, 70 at 5 and 105 at 6, which is the mask exactly; the arity reading is a second-order description of the same thing, because argument count changes which webs are live across the call. That in principle reopens the save axis -- a web decided earlier meets fewer taken colours -- and the previous argument against it, that a colour absent from a cost list is not for sale at any ratio, is circular. Closed instead by measurement: the L109 discarded-expression probe family is INERT here. One and three OR-with-zero probes on `matched` inside the compare loop, in both the goto form and a while-loop form, leave all 21 p1color assignments bit-identical and the score at 54, so the save is not settable from source in this function. The arithmetic the next lane needs: our globalcolor consumes colours 1 to 7 and a target whose flag sits at a2 consumes 1 to 5, so the web set has to lose TWO colour consumers, not one. Deleting `expected` is not one of them -- in that build a2 is still taken and web 51 still takes t0.
+ * summary: Exhaustive 180-cell landscape has floor 54; web 51 a2 is absent by interference and needs a zero-size source web partition.
  * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
  */

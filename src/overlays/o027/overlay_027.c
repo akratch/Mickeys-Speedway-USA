@@ -459,7 +459,7 @@ s32 overlay27Activate(O27Object *object) {
  * frame: 0x60
  * relocations: 22
  * first-mismatch: +0x94
- * summary: Real call is float/integer; two-float arity is not adoptable. New carrier and address-load controls do not improve 48. Causal f16 force remains diagnostic.
+ * summary: 195 single forces yield eight FP winners; 71 winner combinations floor at nine diagnostically. Source stays 48; real-ABI no-spill obstacle remains.
  * PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:end
  */
 

@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """Tests for the force-combination search.
 
-The compile-and-score path needs the instrumented toolchain and a built tree,
-so it is exercised by a lane rather than here. What IS tested here is the part
-that decides what gets measured and how a result is read -- which is where the
-reasoning errors live.
+The real compile-and-score path is calibrated by lanes. Fake compiler runs
+here exercise its command, artifact, acceptance and failure contracts without
+requiring a ROM or instrumented compiler.
 """
+import pathlib
+import subprocess
+import sys
+import tempfile
+import time
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 import force_lattice as fl
 
@@ -130,42 +136,275 @@ class RenderTests(unittest.TestCase):
         self.assertIn("+15", text)          # single
         self.assertIn("+15 against the base", text)   # best
 
-class InstrumentedSwapTests(unittest.TestCase):
-    """The compiler is NOT argv[0], and assuming it is poisons every cell.
+    def test_zero_score_still_has_an_interaction(self):
+        forces = ["p1:w1=c1", "p1:w2=c2"]
+        cells = [fl.Cell((forces[0],), 0, True), fl.Cell((forces[1],), 2, True),
+                 fl.Cell(tuple(forces), 0, True)]
+        self.assertIn("ANTAGONISTIC", fl.render(fl.Cell((), 3, True), cells, forces))
 
-    This project's configured command runs the compile through asm-processor,
-    so argv[0] is the wrapper. Swapping argv[0] replaces the wrapper and
-    silently compiles with the STOCK compiler -- every force then reads as
-    declined, which is indistinguishable from a real negative result.
-    """
+    def test_changed_size_does_not_win_or_claim_an_interaction(self):
+        forces = ["p1:w1=c1", "p1:w2=c2"]
+        cells = [fl.Cell((f,), 5, True, size_delta=0) for f in forces]
+        cells.append(fl.Cell(tuple(forces), 0, True, size_delta=-4))
+        report = fl.render(fl.Cell((), 10, True, size_delta=0), cells, forces)
+        self.assertIn("BEST: 5", report)
+        self.assertIn("SIZE-CHANGED", report)
 
-    def test_the_driver_is_found_where_it_actually_sits(self):
-        command = ["python3", "asm_processor.py", "tools/ido/cc", "-c", "x.c"]
-        out = fl._instrumented(command)
-        self.assertTrue(out[2].endswith("ido-instrumented/cc"))
-        self.assertEqual(out[0], "python3")          # wrapper untouched
-        self.assertEqual(out[1], "asm_processor.py")
 
-    def test_only_the_first_driver_is_swapped(self):
-        """The command names the driver twice (asm-processor passes it the
-        compiler as well); swapping both would corrupt the wrapper's argument."""
-        command = ["tools/ido/cc", "--", "tools/ido/cc", "-c"]
-        out = fl._instrumented(command)
-        self.assertTrue(out[0].endswith("ido-instrumented/cc"))
-        self.assertEqual(out[2], "tools/ido/cc")
+def accepted_trace(web=75, colour=16, proc=0, forced=None):
+    forced = colour if forced is None else forced
+    # The proposed bestcolor is deliberately different from the final colour.
+    return (f"[CDX] p1dec phase=p1 proc={proc} web={web} bestcolor=14 "
+            f"decision=color forced={forced}\n"
+            f"[CDX] p1color phase=p1 proc={proc} web={web} color={colour} "
+            f"reg=s2 forced={forced}\n")
 
-    def test_a_command_with_no_driver_refuses_rather_than_guessing(self):
-        """Guessing compiles with the stock compiler and reports declines."""
-        with self.assertRaises(SystemExit) as caught:
-            fl._instrumented(["gcc", "-c", "x.c"])
-        self.assertIn("refusing to guess", str(caught.exception))
 
-    def test_every_other_argument_is_preserved_exactly(self):
-        """A dropped per-file flag makes the forced and configured builds
-        differ for a reason that has nothing to do with the force."""
-        command = ["py", "ap.py", "tools/ido/cc", "-Wab,-r4300_mul", "-O2", "-o", "a.o"]
-        out = fl._instrumented(command)
-        self.assertEqual(out[3:], ["-Wab,-r4300_mul", "-O2", "-o", "a.o"])
+class BlastRadiusTests(unittest.TestCase):
+    def cell(self, forces, score, windows):
+        return fl.Cell(forces, score, True, windows=windows)
+
+    def test_a_force_that_changes_nothing_has_no_radius(self):
+        base = self.cell((), 20, {0: 12, 0x200: 8})
+        same = self.cell(("p1:w1=c2",), 20, {0: 12, 0x200: 8})
+        self.assertEqual(fl.blast_radius(base, same), {})
+
+    def test_the_radius_is_signed_per_window(self):
+        base = self.cell((), 20, {0: 12, 0x200: 8})
+        cell = self.cell(("p1:w1=c2",), 20, {0: 9, 0x200: 11})
+        self.assertEqual(fl.blast_radius(base, cell), {0: -3, 0x200: +3})
+
+    def test_a_window_the_force_cleared_entirely_still_reads(self):
+        base = self.cell((), 20, {0: 12, 0x200: 8})
+        cell = self.cell(("p1:w1=c2",), 8, {0x200: 8})
+        self.assertEqual(fl.blast_radius(base, cell), {0: -12})
+
+    def test_a_window_the_force_introduced_reads_positive(self):
+        base = self.cell((), 12, {0: 12})
+        cell = self.cell(("p1:w1=c2",), 15, {0: 12, 0x400: 3})
+        self.assertEqual(fl.blast_radius(base, cell), {0x400: +3})
+
+    def test_an_unread_radius_is_empty_not_a_claim_of_no_movement(self):
+        base = self.cell((), 20, {})
+        cell = self.cell(("p1:w1=c2",), 8, {0: 8})
+        self.assertEqual(fl.blast_radius(base, cell), {})
+        self.assertEqual(fl.blast_radius(cell, base), {})
+
+    def test_forces_touching_different_windows_do_not_collide(self):
+        base = self.cell((), 20, {0: 10, 0x200: 10})
+        a = self.cell(("p1:w1=c2",), 16, {0: 6, 0x200: 10})
+        b = self.cell(("p1:w2=c3",), 17, {0: 10, 0x200: 7})
+        self.assertEqual(fl.collides(base, a, b), set())
+
+    def test_forces_moving_the_same_window_collide(self):
+        base = self.cell((), 20, {0: 10, 0x200: 10})
+        a = self.cell(("p1:w1=c2",), 16, {0: 6, 0x200: 10})
+        b = self.cell(("p1:w2=c3",), 17, {0: 7, 0x200: 10})
+        self.assertEqual(fl.collides(base, a, b), {0})
+
+    def test_collision_is_about_movement_not_about_residual_being_present(self):
+        # Both forces leave residual in window 0, but neither moved it there.
+        base = self.cell((), 20, {0: 10, 0x200: 10})
+        a = self.cell(("p1:w1=c2",), 16, {0: 10, 0x200: 6})
+        b = self.cell(("p1:w2=c3",), 17, {0: 10, 0x400: 7, 0x200: 10})
+        self.assertEqual(fl.collides(base, a, b), set())
+
+    def test_an_unread_radius_collides_with_nothing(self):
+        base = self.cell((), 20, {0: 10})
+        a = self.cell(("p1:w1=c2",), 16, {0: 6})
+        b = self.cell(("p1:w2=c3",), 17, {})
+        self.assertEqual(fl.collides(base, a, b), set())
+
+
+    def test_a_coarse_window_can_merge_two_radii_that_share_no_word(self):
+        # Measured on the overlay 58 lattice: at 0x200 the two forces nearest
+        # the entry read as contending though every pair measured an
+        # interaction of zero, and at 0x80 they separate. A collision is a
+        # question for a narrower window, not a verdict.
+        coarse_base = self.cell((), 20, {0x000: 20})
+        coarse_a = self.cell(("p1:w27=c17",), 17, {0x000: 17})
+        coarse_b = self.cell(("p1:w75=c16",), 19, {0x000: 19})
+        self.assertEqual(fl.collides(coarse_base, coarse_a, coarse_b), {0})
+        fine_base = self.cell((), 20, {0x00: 10, 0x80: 10})
+        fine_a = self.cell(("p1:w27=c17",), 17, {0x00: 7, 0x80: 10})
+        fine_b = self.cell(("p1:w75=c16",), 19, {0x00: 10, 0x80: 9})
+        self.assertEqual(fl.collides(fine_base, fine_a, fine_b), set())
+
+
+class WindowBinningTests(unittest.TestCase):
+    def bin(self, positions, width=0x200):
+        streams = SimpleNamespace(base_words=[0] * 0x400, target_words=[0] * 0x400,
+                                  base_reloc={}, target_reloc={})
+        item = SimpleNamespace(func="symbol")
+        with mock.patch.dict(sys.modules, {
+            "permute_batch": SimpleNamespace(discover_queue=lambda: [item]),
+            "nm_ranking": SimpleNamespace(
+                word_streams=lambda *a: (streams, None),
+                masked_mismatch_positions=lambda *a: positions),
+        }):
+            return fl.window_residual("symbol", pathlib.Path("x.o"), width)
+
+    def test_positions_land_in_the_window_holding_their_byte_offset(self):
+        # words 0 and 1 are bytes 0,4; word 0x80 is byte 0x200 -- the next window.
+        self.assertEqual(self.bin([0, 1, 0x80]), {0x000: 2, 0x200: 1})
+
+    def test_the_last_word_of_a_window_stays_inside_it(self):
+        self.assertEqual(self.bin([0x7F]), {0x000: 1})
+
+    def test_the_bins_sum_to_the_number_of_residual_words(self):
+        positions = [0, 3, 0x80, 0x81, 0x82, 0x140]
+        self.assertEqual(sum(self.bin(positions).values()), len(positions))
+
+    def test_a_symbol_outside_the_queue_yields_no_histogram(self):
+        with mock.patch.dict(sys.modules, {
+            "permute_batch": SimpleNamespace(discover_queue=lambda: []),
+            "nm_ranking": SimpleNamespace(),
+        }):
+            self.assertEqual(fl.window_residual("absent", pathlib.Path("x.o")), {})
+
+    def test_an_unreadable_object_yields_no_histogram_rather_than_raising(self):
+        def explode(*a, **k):
+            raise OSError("no such object")
+        with mock.patch.dict(sys.modules, {
+            "permute_batch": SimpleNamespace(
+                discover_queue=lambda: [SimpleNamespace(func="symbol")]),
+            "nm_ranking": SimpleNamespace(word_streams=explode),
+        }):
+            self.assertEqual(fl.window_residual("symbol", pathlib.Path("x.o")), {})
+
+
+class RadiusRenderTests(unittest.TestCase):
+    def render(self, a_windows, b_windows, pair_score):
+        base = fl.Cell((), 20, True, windows={0: 10, 0x200: 10})
+        a = fl.Cell(("p1:w1=c2",), 16, True, windows=a_windows)
+        b = fl.Cell(("p1:w2=c3",), 17, True, windows=b_windows)
+        pair = fl.Cell(("p1:w1=c2", "p1:w2=c3"), pair_score, True)
+        return fl.render(base, [a, b, pair], ["p1:w1=c2", "p1:w2=c3"])
+
+    def test_an_additive_pair_on_disjoint_windows_says_so(self):
+        text = self.render({0: 6, 0x200: 10}, {0: 10, 0x200: 7}, 13)
+        self.assertIn("additive", text)
+        self.assertIn("disjoint radii", text)
+
+    def test_a_pair_contending_over_a_window_names_it(self):
+        text = self.render({0: 6, 0x200: 10}, {0: 7, 0x200: 10}, 13)
+        self.assertIn("contend in 0x0000", text)
+        self.assertNotIn("disjoint radii", text)
+
+    def test_an_unread_radius_makes_no_claim_either_way(self):
+        text = self.render({}, {}, 13)
+        self.assertNotIn("disjoint radii", text)
+        self.assertNotIn("contend in", text)
+
+    def test_each_single_reports_the_windows_it_moved(self):
+        text = self.render({0: 6, 0x200: 10}, {0: 10, 0x200: 7}, 13)
+        self.assertIn("blast radius", text)
+        self.assertIn("0x0000-4", text)
+        self.assertIn("0x0200-3", text)
+
+
+class AcceptanceTests(unittest.TestCase):
+    def test_final_assignment_overrides_proposal_and_ignores_unrequested_declines(self):
+        trace = accepted_trace() + accepted_trace(web=80, forced=-2)
+        self.assertIsNone(fl.force_acceptance(trace, 0, ("p1:w75=c16",)))
+
+    def test_legacy_accepted_marker_requires_the_final_colour(self):
+        self.assertIsNone(fl.force_acceptance(accepted_trace(forced=-1), 0, ("p1:w75=c16",)))
+        self.assertIsNotNone(fl.force_acceptance(accepted_trace(colour=15, forced=-1), 0,
+                                               ("p1:w75=c16",)))
+
+    def test_missing_wrong_procedure_declined_and_duplicate_records_fail_closed(self):
+        for trace in ("", accepted_trace(proc=1), accepted_trace(web=76),
+                      accepted_trace(forced=-2), accepted_trace() * 2,
+                      accepted_trace().splitlines()[0]):
+            with self.subTest(trace=trace):
+                self.assertIsNotNone(fl.force_acceptance(trace, 0, ("p1:w75=c16",)))
+
+    def test_every_requested_force_must_apply(self):
+        self.assertIsNotNone(fl.force_acceptance(accepted_trace(), 0,
+                                               ("p1:w75=c16", "p1:w27=c17")))
+
+
+class ExecutionTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.directory = pathlib.Path(self.temp.name) / "cell"
+        self.command = ["python", "tools/asm-processor/build.py", "tools/ido/cc",
+                        "--", "as", "--", "-O2", "-Wab,-r4300_mul", "-o", "old.o", "src/a.c"]
+
+    def run_cell(self, forces=(), **kwargs):
+        return fl.run_cell("symbol", 0, forces, command=self.command,
+                           directory=self.directory, deadline=time.time() + 600,
+                           timeout=120, **kwargs)
+
+    def test_wrapper_and_flags_survive_and_the_exact_new_object_is_scored(self):
+        def compile(actual, **kwargs):
+            self.assertEqual(actual[:2], self.command[:2])
+            self.assertEqual(actual[2], str(fl.INSTRUMENTED / "cc"))
+            self.assertEqual(actual[3:9], self.command[3:9])
+            self.assertEqual(kwargs["env"]["CDX_PROC"], "0")
+            self.assertEqual(kwargs["env"]["CDX_FORCE"], "p1:w75=c16")
+            self.assertEqual(kwargs["timeout"], 120)
+            pathlib.Path(actual[actual.index("-o") + 1]).write_bytes(b"fake object")
+            pathlib.Path(kwargs["env"]["CDX_OUT"]).write_text(accepted_trace())
+            return subprocess.CompletedProcess(actual, 0, "", "")
+        result = SimpleNamespace(relocation_masked_differing_words=212, size_delta=0,
+                                 differing_words=381, relocation_masked_first_mismatch_offset=80)
+        with mock.patch.object(fl.subprocess, "run", side_effect=compile), \
+                mock.patch.object(fl, "window_residual", return_value={0: 212}), \
+                mock.patch.object(fl, "_score", return_value=result) as score:
+            cell = self.run_cell(("p1:w75=c16",))
+        self.assertEqual(cell.score, 212)
+        self.assertEqual(cell.windows, {0: 212})
+        score.assert_called_once_with("symbol", self.directory / "candidate.o")
+        self.assertTrue((self.directory / "result.json").is_file())
+
+    def test_the_compiler_is_found_from_any_working_directory(self):
+        # The tokens are relative to the repository root and run_cell runs them
+        # with cwd=ROOT; resolving them against the caller's cwd made the swap
+        # refuse whenever the tool was invoked from anywhere else.
+        with mock.patch.object(fl.os, "getcwd", return_value="/"):
+            swapped = fl.replace_compiler(self.command, pathlib.Path("/new/cc"))
+        self.assertEqual(swapped[2], "/new/cc")
+        self.assertEqual(swapped[:2], self.command[:2])
+        self.assertEqual(swapped[3:], self.command[3:])
+
+    def test_an_absolute_compiler_token_is_still_recognised(self):
+        command = list(self.command)
+        command[2] = str((fl.ROOT / "tools/ido/cc").resolve())
+        self.assertEqual(
+            fl.replace_compiler(command, pathlib.Path("/new/cc"))[2], "/new/cc")
+
+    def test_missing_trace_does_not_reach_the_scorer(self):
+        def compile(actual, **kwargs):
+            (self.directory / "candidate.o").write_bytes(b"fake object")
+            return subprocess.CompletedProcess(actual, 0, "", "")
+        with mock.patch.object(fl.subprocess, "run", side_effect=compile), \
+                mock.patch.object(fl, "_score") as score:
+            cell = self.run_cell(("p1:w75=c16",))
+        self.assertFalse(cell.accepted)
+        score.assert_not_called()
+
+    def test_base_clears_inherited_force_and_trace_environment(self):
+        def compile(actual, **kwargs):
+            self.assertNotIn("CDX_FORCE", kwargs["env"])
+            self.assertNotIn("DKWB_UGEN_TRACE", kwargs["env"])
+            return subprocess.CompletedProcess(actual, 1, "", "failure")
+        with mock.patch.dict(fl.os.environ, CDX_FORCE="p1:w75=c16", DKWB_UGEN_TRACE="1"), \
+                mock.patch.object(fl.subprocess, "run", side_effect=compile):
+            self.assertFalse(self.run_cell().accepted)
+
+    def test_deadline_refuses_before_starting_a_compile(self):
+        with mock.patch.object(fl.subprocess, "run") as compile:
+            cell = fl.run_cell("symbol", 0, (), command=self.command, directory=self.directory,
+                               deadline=time.time() + 1, timeout=120)
+        self.assertFalse(cell.accepted)
+        compile.assert_not_called()
+
+    def test_timeout_is_not_a_success(self):
+        with mock.patch.object(fl.subprocess, "run", side_effect=subprocess.TimeoutExpired("cc", 120)):
+            self.assertFalse(self.run_cell().accepted)
 
 
 if __name__ == "__main__":

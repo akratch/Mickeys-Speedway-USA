@@ -902,6 +902,6 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x80
  * relocations: 110
  * first-mismatch: +0x328
- * summary: the six words are levelFreeAll's unreachable order term plus its phantom draw; p1 records confirm no phase-two web-number lever
+ * summary: All 371 single-colour forces accepted; none beats six. Mask-type controls are inert; separate ring-mask evaluation remains the source question.
  * PLATEAU-HANDOFF:levelInit:end
  */
