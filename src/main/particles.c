@@ -1846,11 +1846,27 @@ done:
  * Buckets went byte-exact 163 -> 197, naming 82 -> 94, immediate-only 37 -> 5,
  * structural 23 -> 8, displacement tax 3 -> 4.
  *
- * What is left is one integer ring phase -- tools/register_census.py reads a
- * coherent seven-cycle t7->t9->t1->t2->t3->t4->t5->t7 covering 96% of the 94
- * naming sites in three windows -- plus a float four-cycle f4->f10->f4 at 90%,
- * and two one-instruction schedule shifts (ours at +0x2C and +0x134, theirs at
- * +0x74 and +0x140). */
+ * Then two statement-order sweeps, re-climbed on the new shape per [L146],
+ * took 111 -> 72.  Both are full exhaustions, not samples.  The four statements
+ * guarded by `pointCount != 9` admit twelve orders once `point` is kept ahead of
+ * its own dereference; the floor is pointCount-bump, point, lifetime, scale at
+ * 75, against 111 for the order this file used to carry and 128 for the worst.
+ * The four `point` initialisers admit all 24; the floor is intensityTimer,
+ * colorTimer, colorIndex, intensity at 72, and every order that does not put
+ * intensityTimer first costs four bytes of frame and lands at 254 or worse,
+ * because the later `point->intensityTimer < point->lifetime` test reloads it.
+ *
+ * Buckets now: byte-exact 231, register naming 58, immediate-only 2, structural
+ * 13, displacement tax -1, frame ladders identical.  The naming residual is one
+ * coherent three-cycle t5->t7->t4->t5 at 98% over two windows ([L127]) plus a
+ * float f12->f14 phase.  The one structural fact left is at +0x74: the target
+ * reloads `trigger` from its incoming home 108(sp) in the block BEFORE the
+ * `pointCount != 9` branch and dereferences it after, where we keep no copy and
+ * reload two instructions later, inside the branch's own block -- which is why
+ * the target's home shows four loads to our three.  Both [L144] forms that would
+ * force the reload were measured and both grow the frame, because taking the
+ * parameter's address gives it a declared slot of its own: `*(T **)&trigger` is
+ * 264 words at delta +4 and `(T *)*(s32 *)&trigger` is 299 at delta +8. */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1872,10 +1888,10 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
             entry = &D_8007C894[trigger->result];
             pointCount = entry->pointCount;
             if (pointCount != 9) {
-                point = entry->points[pointCount];
-                scale = descriptor->scale * trigger->config->value50;
                 entry->pointCount = pointCount + 1;
+                point = entry->points[pointCount];
                 point->lifetime = descriptor->lifetime;
+                scale = descriptor->scale * trigger->config->value50;
                 if (descriptor->descriptorWord & 0x400) {
                     colorTable = entry->colorTable;
                     if (colorTable == NULL) {
@@ -1892,8 +1908,8 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     point->blue = descriptor->blue;
                 }
                 point->intensityTimer = descriptor->intensityTimer;
-                point->colorIndex = 0;
                 point->colorTimer = descriptor->colorTimer;
+                point->colorIndex = 0;
                 point->intensity = descriptor->intensity << 8;
                 if (point->intensityTimer < point->lifetime) {
                     point->intensityVelocity =
