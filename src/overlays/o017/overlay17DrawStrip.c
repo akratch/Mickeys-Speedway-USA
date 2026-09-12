@@ -102,6 +102,25 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
  * and 30.0 keeps the tie. A fractional save needs the chunk count to move,
  * which no source form measured here does.
  */
+/*
+ * 2026-09-12, lane p10-tight read this procedure's whole colour ladder out of
+ * the instrumented compiler, after gating its object text byte for byte against
+ * the configured build's. Twenty phase-one decisions, no phase-two records, and
+ * the selection order is strictly descending save. The four tied webs all carry
+ * save 30.0 with divisor 1 and total 30, and the lineage capture puts all four
+ * in ONE basic block. Reading the divisor as a count of basic blocks rather
+ * than of definitions therefore does not open this: it is already at its floor
+ * and can only move up, which divides the save below the counter web's 20.6.
+ * With loop-depth-one references weighing ten and depth-zero ones weighing one,
+ * a divisor of 1 admits totals of 30, 21 and 12 for three references, and only
+ * 21 lands inside the open interval -- so the cell is exactly "one of the strip
+ * cursor's three references at loop depth zero, surviving", and the three are
+ * its own definition and the two packet stores, none of which can leave the
+ * loop. The untested prediction the third pass left is also refuted: any web
+ * that forbids the contested colour to the strip cursor must be live in the one
+ * block it occupies, and the address web occupies that same block, so
+ * block-set interference reaches both.
+ */
 #ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
     Pair *pair;
