@@ -210,11 +210,47 @@ def entry_is_valid(symbol: str, source_commit: str, ledger_commit: str | None) -
     return None
 
 
-def write(symbols: list[str], reason: str | None, dry_run: bool) -> int:
+def discover_stale() -> list[str]:
+    """Every queued symbol whose pin has drifted and that already has a reason.
+
+    A pin arms only while its pinned source and handoff commits equal the ones
+    the classifier derives right now. So EVERY lane that edits a handoff and
+    gets merged moves that symbol's handoff commit and invalidates its own pin.
+    The authorization decays as a direct consequence of integration, silently,
+    and a stale pin reads as `already-integrated/exhausted` -- the target simply
+    leaves the queue.
+
+    That cost two dispatched lanes outright on one function: each arrived,
+    found the gate closed, and returned having done nothing, because the pin had
+    died when the PREVIOUS pass on that same function was merged.
+
+    Only symbols that already carry a recorded reason are returned. A drifted
+    pin is a previously-granted authorization that integration invalidated, so
+    renewing it restores a decision already made. Granting a NEW one still
+    requires --reason or --reason-from-class and a human judgement.
+    """
+    import json as _json
+    document = _json.loads(AUTHORIZATIONS.read_text())
+    authorizations = document["authorizations"]
+    rows = ranking()
+    verdicts = classify(list(rows))
+    stale = []
+    for symbol, assignment in verdicts.items():
+        if not str(assignment.get("reason", "")).startswith(
+                "reopen authorization is stale"):
+            continue
+        entry = authorizations.get(symbol) or {}
+        if entry.get("reason"):
+            stale.append(symbol)
+    return sorted(stale)
+
+
+def write(symbols: list[str], reason: str | None, dry_run: bool,
+          keep_existing: bool = False) -> int:
     document = json.loads(AUTHORIZATIONS.read_text())
     authorizations = document["authorizations"]
     verdicts = classify(symbols)
-    rows = ranking() if reason is None else {}
+    rows = ranking() if (reason is None and not keep_existing) else {}
 
     planned: list[tuple[str, str, str | None, str]] = []
     refused: list[tuple[str, str]] = []
@@ -239,7 +275,16 @@ def write(symbols: list[str], reason: str | None, dry_run: bool) -> int:
             else:
                 refused.append((symbol, invalid))
                 continue
-        text = reason if reason is not None else reason_for(symbol, rows)
+        if keep_existing:
+            # Renewing a drifted pin, not granting a new authorization: the
+            # reason was accepted once and integration is what invalidated it.
+            existing = (authorizations.get(symbol) or {}).get("reason")
+            if not existing:
+                refused.append((symbol, "no recorded reason to preserve"))
+                continue
+            text = existing
+        else:
+            text = reason if reason is not None else reason_for(symbol, rows)
         validate(text, symbol)
         planned.append((symbol, source_commit, ledger_commit, text))
 
@@ -304,7 +349,14 @@ def verify(symbols: list[str]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--symbols", required=True, help="comma-separated")
+    parser.add_argument("--symbols", help="comma-separated")
+    parser.add_argument(
+        "--refresh-stale", action="store_true",
+        help="find every queued symbol whose pin drifted and that already has "
+             "a recorded reason, and renew the pins preserving each reason. "
+             "Run this after every land: merging a lane that edited a handoff "
+             "is what invalidates the pin.",
+    )
     parser.add_argument("--reason", help="one reason for every symbol")
     parser.add_argument(
         "--reason-from-class", action="store_true",
@@ -317,6 +369,21 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.refresh_stale:
+        if args.reason or args.reason_from_class:
+            parser.error("--refresh-stale preserves each existing reason; "
+                         "do not pass --reason or --reason-from-class")
+        symbols = [s for s in (t.strip() for t in (args.symbols or "").split(","))
+                   if s] or discover_stale()
+        if not symbols:
+            print("no stale pins to refresh")
+            return 0
+        if args.verify:
+            return verify(symbols)
+        return write(symbols, None, args.dry_run, keep_existing=True)
+
+    if not args.symbols:
+        parser.error("--symbols is required unless --refresh-stale is given")
     symbols = [s for s in (t.strip() for t in args.symbols.split(",")) if s]
     if not symbols:
         parser.error("--symbols is empty")
