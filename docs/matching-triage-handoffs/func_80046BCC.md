@@ -120,4 +120,59 @@ consumption and each window is its own question. And two of the sixteen are pure
 comparison operand order against the two loop-hoisted constants -- the candidate
 puts the character first and the target the constant first at both sites -- which
 is a smaller and separable question from the twelve-word pool rotation.
+
+#### 2026-09-12, lane `p12-tight`: the whole callee-saved bank is swept by force, and nothing reaches 16
+
+Baseline reproduces: 424 bytes, 106 of 106 instructions, delta 0, frame 0x40,
+16 relocation-masked words, first mismatch +0x2C. Aligner: 90 byte-exact, 16
+register naming, 0 immediate only, 0 really different -- a pure allocation
+residual with no structural component at all. No edit adopted.
+
+**The instrumented toolchain's identity gate was taken on this TU first**: its
+text section is byte-identical to the tree's object for `src/main/diCpu.c` at
+the configured flags.
+
+This procedure is globalcolor ordinal 11 and records 18 decisions, all phase
+one, which is the call test reproduced. Its callee-saved ladder is nine coloured
+webs in decreasing save -- 25.78, 11.10, 10.10, 4.56, 3.10, 3.10, 2.50, 1.11,
+1.11 -- followed by six more webs at 1.11 that all split for want of a colour.
+Two of those saves tie, and the tie goes to the lower web number, as recorded.
+
+**135 single forces, none below 16.** Every one of the fifteen webs in that
+ladder was forced against every one of the nine callee-saved colours, with
+`CDX_PROC` set and acceptance read off the record's `forced` field rather than
+off whether the object changed. The diagonal reproduces the incumbent; every
+cell above it is 18 to 56; every cell below it is declined because an
+earlier-decided web already holds the colour. Eight further paired forces,
+including the exact two-cycle `register_census` reports over the first and
+third callee-saved colours, are 18 to 46.
+
+That is a stronger statement than the shard has carried: **the sixteen words are
+not a globalcolor decision at all.** No assignment of this procedure's webs to
+this procedure's colours is closer than the incumbent, so the target does not
+have these webs. It has a different web SET, which is the same conclusion the
+192-form three-variable lattice reached from the source side, now confirmed from
+the allocator side.
+
+**L151 does reach this function, and it does not help.** The 2026-09-12 law that
+a literal's type is part of its IR identity was tested against the named blocker
+-- the working copy being commoned with the character mask. A copy spelled with
+an `unsigned`-typed mask, a cast to `u8`, a 255 written unsigned, and a mask
+cast through `u32` each DO split the web: the size penalty falls from +8 bytes
+to +4 and the structural bucket from 7 to 5. But every one of the eight
+spellings measured stays at 91 or 92 words, against the two-variable 16. So the
+three-variable family is closed under the constant-type axis too, and the axis
+is confirmed live in this compiler rather than merely untried.
+
+`register_census`, re-read: 68 per cent coherence, five source registers, four
+windows opening at +0x78, +0xAC and +0x164, with the first callee-saved colour
+mapping to the first caller-saved one at six sites in one window and to the
+third callee-saved one at six sites in another. A register that corresponds to
+two different target registers in two windows is a live-range SPLIT in the
+target that the candidate does not have, not a colour the candidate got wrong.
+
+**Next instrument, named.** The freelist trace, `DKWB_UGEN_SCHED=1
+DKWB_UGEN_TRACE=1`, stamped per source line (L149). It is the only instrument
+that sees a per-iteration consumption difference, it has never been run on this
+function, and the force sweep above has now eliminated the pass above it.
 <!-- plateau-handoff:func_80046BCC:end -->
