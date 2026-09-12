@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 110
 - first mismatch: +0x328
-- summary: All 371 single-colour forces accepted; none beats six. Mask-type controls are inert; separate ring-mask evaluation remains the source question.
+- summary: Unsigned-remainder mask controls are full-TU byte-inert; separate ring-mask evaluation with unchanged draw count remains open.
 
 #### 2026-09-10, lane c4-resident: 113 to 22, and the ring term closed
 
@@ -424,5 +424,34 @@ credited. The 110 relocation records are a count, not a new linked identity
 proof. Commands: residual_map, frame_census, allocator_trace_receipt,
 web_footprint --every-colour, configured full-TU controls, finalize_plateau,
 and tools/gates.sh. No source body change is adopted.
+
+#### 2026-09-12, lane p24-second-mid: generated remainder masks do not change the order
+
+The base-only assignment gate passes and the configured baseline reproduces
+2064 bytes, zero size delta, six raw and masked differences, first +0x328,
+and 110 relocation sites on each side. The aligned residual is 510 exact,
+six naming, zero immediate and zero structural rows. The prior complete
+single-colour landscape was read and not repeated.
+
+The new source hypothesis was that unsigned power-of-two remainder, reduced
+to a mask by the compiler, might allocate differently from an explicit AND.
+Three controls replace the inner mask, outer mask, and both masks in the table
+index with unsigned remainder by 0x4000. Each preserves the low fourteen-bit
+value and each produces full-TU text identical to the baseline. Aligned
+per-window deltas are zero throughout. The three controls add no improved
+residual, identity or surviving source mechanism; stop on this stall and the
+recorded carrier, probe, and postorder closures. No new colour landscape is
+needed for the restored, byte-identical baseline.
+
+The next source question remains a separate mask evaluation before the
+base-first address computation, in a ring temporary, with the fifth draw
+retained. These controls rule out obtaining it merely by strength-reducing
+unsigned remainder. They do not prove universal source unreachability.
+
+Sources, configured objects, scores, first mismatches and aligned comparisons
+are retained under build/p24/levelInit/. Commands: lane_status, align_symbol,
+configured_compile_commands, residual_map with --object and --against,
+finalize_plateau, and tools/gates.sh. The candidate remains guarded and no
+matching bytes are credited. Relocation counts are not a new identity proof.
 
 <!-- plateau-handoff:levelInit:end -->

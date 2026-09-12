@@ -902,6 +902,6 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x80
  * relocations: 110
  * first-mismatch: +0x328
- * summary: All 371 single-colour forces accepted; none beats six. Mask-type controls are inert; separate ring-mask evaluation remains the source question.
+ * summary: Unsigned-remainder mask controls are full-TU byte-inert; separate ring-mask evaluation with unchanged draw count remains open.
  * PLATEAU-HANDOFF:levelInit:end
  */
