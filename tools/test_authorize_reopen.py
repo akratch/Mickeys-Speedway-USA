@@ -111,5 +111,88 @@ class ClassifyBatchTests(unittest.TestCase):
         self.assertIn("func_B", str(caught.exception))
 
 
+class RefreshStaleTests(unittest.TestCase):
+    """Renewing a drifted pin is not the same act as granting a new one.
+
+    A pin arms only while its pinned commits match what the classifier derives
+    now, so every lane that edits a handoff and gets merged invalidates that
+    symbol's own pin. The authorization decays as a consequence of integration,
+    silently. It cost two dispatched lanes outright on one function: each
+    arrived, found the gate closed, and returned having done nothing.
+
+    Renewing therefore restores a decision already made, and must PRESERVE the
+    reason that was accepted. Overwriting many distinct justifications with one
+    generic line would destroy the record of why each was granted.
+    """
+
+    STALE = "reopen authorization is stale because the pins no longer match"
+
+    def _doc(self, authorizations):
+        return json.dumps({"schema_version": 1,
+                           "authorizations": authorizations})
+
+    def test_discover_returns_a_stale_symbol_that_has_a_reason(self):
+        doc = self._doc({"func_A": {"reason": "ADR 0018 stall rule",
+                                    "source_commit": "a" * 40,
+                                    "ledger_commit": "a" * 40}})
+        with mock.patch.object(type(writer.AUTHORIZATIONS), "read_text",
+                               return_value=doc), \
+             mock.patch.object(writer, "ranking", return_value={"func_A": {}}), \
+             mock.patch.object(writer, "classify", return_value={
+                 "func_A": {"state": "already-integrated/exhausted",
+                            "reason": self.STALE}}):
+            self.assertEqual(writer.discover_stale(), ["func_A"])
+
+    def test_discover_skips_a_stale_symbol_with_no_recorded_reason(self):
+        """Granting a NEW authorization is a human judgement and must not
+        happen as a side effect of a refresh."""
+        doc = self._doc({})
+        with mock.patch.object(type(writer.AUTHORIZATIONS), "read_text",
+                               return_value=doc), \
+             mock.patch.object(writer, "ranking", return_value={"func_A": {}}), \
+             mock.patch.object(writer, "classify", return_value={
+                 "func_A": {"state": "already-integrated/exhausted",
+                            "reason": self.STALE}}):
+            self.assertEqual(writer.discover_stale(), [])
+
+    def test_discover_skips_a_symbol_that_is_not_stale(self):
+        doc = self._doc({"func_A": {"reason": "still good"}})
+        with mock.patch.object(type(writer.AUTHORIZATIONS), "read_text",
+                               return_value=doc), \
+             mock.patch.object(writer, "ranking", return_value={"func_A": {}}), \
+             mock.patch.object(writer, "classify", return_value={
+                 "func_A": {"state": "base-only", "reason": "assignable"}}):
+            self.assertEqual(writer.discover_stale(), [])
+
+    def test_discover_is_sorted_so_a_run_is_reproducible(self):
+        doc = self._doc({"func_B": {"reason": "r"}, "func_A": {"reason": "r"}})
+        with mock.patch.object(type(writer.AUTHORIZATIONS), "read_text",
+                               return_value=doc), \
+             mock.patch.object(writer, "ranking",
+                               return_value={"func_B": {}, "func_A": {}}), \
+             mock.patch.object(writer, "classify", return_value={
+                 "func_B": {"state": "already-integrated/exhausted",
+                            "reason": self.STALE},
+                 "func_A": {"state": "already-integrated/exhausted",
+                            "reason": self.STALE}}):
+            self.assertEqual(writer.discover_stale(), ["func_A", "func_B"])
+
+    def test_refresh_and_an_explicit_reason_are_mutually_exclusive(self):
+        """--refresh-stale preserves reasons; passing one would overwrite the
+        very thing the mode exists to keep."""
+        with mock.patch.object(
+                writer.sys, "argv",
+                ["authorize_reopen.py", "--refresh-stale", "--reason", "x"]):
+            with self.assertRaises(SystemExit):
+                writer.main()
+
+    def test_symbols_is_not_required_with_refresh(self):
+        """The mode discovers its own work; requiring --symbols would put the
+        coordinator back in the business of remembering which pins died."""
+        with mock.patch.object(writer.sys, "argv",
+                               ["authorize_reopen.py", "--refresh-stale"]), \
+             mock.patch.object(writer, "discover_stale", return_value=[]):
+            self.assertEqual(writer.main(), 0)
+
 if __name__ == "__main__":
     unittest.main()
