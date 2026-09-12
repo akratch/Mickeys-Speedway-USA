@@ -2,11 +2,11 @@
 ### `overlay15DrawScreenStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 9/105 words
+- score: 96/105 words
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Authenticated proc 4: 110 legal alternatives, no winner; deleted fade/star carriers grow or reorder the preheader.
+- summary: Nine structural entry rows remain. The complete 110-probe colour landscape has no winner, and cursor deletion changes geometry.
 
 #### Historical baseline at assignment 3ccc02a1
 
