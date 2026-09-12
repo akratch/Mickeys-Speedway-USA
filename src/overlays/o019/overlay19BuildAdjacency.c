@@ -103,6 +103,6 @@ void overlay19BuildAdjacency(
  * frame: 0x80
  * relocations: 1
  * first-mismatch: +0x10C
- * summary: Two deletions and tail order improve 36 to 6; final 17-web landscape has no winners. Two selector temporary pairs remain.
+ * summary: Exhaustive 103-probe 17-web landscape has no winners; L160 selector-carrier deletion regressed 6 to 62; target temporary pair remains.
  * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
  */

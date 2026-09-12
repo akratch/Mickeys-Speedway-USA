@@ -151,6 +151,6 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Exact Group B residual transfer confirms the same p1 phase-and-colour blocker; no source-authentic web evidence yet changes it.
+ * summary: Cluster-identical 108-probe 14-web landscape; best diagnostic w58=c8 reaches 19; deleting the vertex cursor carrier makes the pair +56 bytes.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */

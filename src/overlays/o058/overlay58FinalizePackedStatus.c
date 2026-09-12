@@ -288,6 +288,6 @@ void overlay58FinalizePackedStatus(void) {
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: p1-only; 76% coherent. 29 p1 decisions, no p2; candidate homes 24/60/68 versus target 28/36/48/64; probes flat.
+ * summary: Exhaustive 178-probe 27-web landscape; best diagnostic w166=c5 reaches 86; player-carrier deletion regressed to 260 and +8 bytes.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */
