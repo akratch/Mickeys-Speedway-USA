@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: 109 exact, two assembler branch/delay differences. Existing suppressor proof survives the new allocator laws; inspect the unexplained branch decline.
+ * summary: Two structural assembler-scheduling rows; procedure has no allocator decisions.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
