@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: No legal coloured webs; remaining source decision is pre-colour web creation order.
+- summary: zero legal coloured webs; draw probes changed emissions or ring draws, never the p2 web order
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
