@@ -1156,6 +1156,7 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x10C0, 0x10C8, "overlay1Noop"),
         (0x19B8, 0x1A54, "overlay1InitializeModeState"),
+        (0x1A54, 0x1CA4, "overlay1BuildObjectMappings"),
         (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),
         (0x1D58, 0x1D78, "overlay1CallReset"),
         (

@@ -2187,3 +2187,27 @@ the final operand draw order. The aligned buckets (exact, register naming,
 immediate, structural) change from 65/28/9/21 to 122/0/0/0. Lexical scoping
 alone remains ineffective, but the inherited structural plateau falls. No
 unused padding local, alternate compiler flag, or instruction edit is used.
+
+### Overlay 1 object-mapping closure
+
+Tier A: `overlay1BuildObjectMappings` owns overlay 1 text
+`+0x1A54..+0x1CA4` (592 executable bytes) inside the existing head TU.
+All 148 configured words, the `0x70` frame and thirteen used stack homes
+match. Sixteen relocation offsets, types and identities are proved with
+static evidence, the unchanged runtime table and exact linked ROM. The whole
+US ROM passes `gmake verify`; ORT 1167 and its resident caller establish the
+inbound identity. The TU's configured `r4300_mul` flag is retained.
+
+A counted clearing loop restores the partially unrolled initialization.
+Indexed outer and inner loops let the compiler create the pointer induction
+variables; reusing the data pointer and naming the inner data pointer restore
+the allocation. Declaring the lookup as ten-byte rows supplies address scaling
+instead of an integer multiply whose constant consumed a saved register. The
+aligned buckets (exact, register naming, immediate, structural) change from
+85/37/5/23 to 148/0/0/0. The old source-shape closure therefore falls.
+
+The count is read at the target's later point, after state initialization.
+The source uses overlay-specific data placeholders, and both runtime calls
+into overlay 1 use `Reloc` placeholders so their stored zero addends cannot
+be replaced by a callee's synthetic linked address. No neighboring function
+or padding receives credit.
