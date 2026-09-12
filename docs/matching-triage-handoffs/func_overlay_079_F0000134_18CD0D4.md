@@ -6,7 +6,7 @@
 - frame: 0xB8
 - relocations: 88
 - first mismatch: +0x7C
-- summary: Two source-order probes: inline dx regressed to 238; dz-before-dx was byte-identical. web346 and one folded FP draw remain.
+- summary: Exhaustive 39-web colour scan floor is forced 191; source question is tail web45 v0-to-v1.
 
 Added to the flat list this lane, on the same base:
 
@@ -118,6 +118,29 @@ the target spends exactly one more before that line, in code that is
 byte-identical to ours up to +0x490.
 
 The 0x40 against 0x3C spilltemp home is unchanged and still open.
+
+### 2026-09-12, lane `p23-bigger`: exhaustive same-size colour landscape
+
+`tools/web_footprint.py --every-colour` covered all 39 coloured webs in
+procedure 0: 249 legal same-kind forces, of which 217 were accepted at size
+delta zero. Seven single forces beat the 198-word baseline. The winners were
+`p1:w45=c2` at 194, `p1:w346=c26` at 195, `p1:w346=c27` and `p1:w346=c28` at
+196, and `p1:w54=c26`, `p1:w54=c27`, and `p1:w54=c28` at 197. The duplicate
+colour alternatives above are separate legal force receipts, not source edits.
+
+The exhaustive result changes the source question. `w45=c2` controls only the
+tail at +0xD00 and is the strongest GP diagnostic; the named question is which
+tail expression can make that web choose `v1` rather than its unforced `v0`
+without changing code size. The already named float interferer `w346` controls
++0x300 and +0xB80. `w54` has a subset/rival radius at +0x300, so it cannot be
+added to `w346`.
+
+The three-winner lattice reached a diagnostic floor of 191, seven words below
+baseline, with `p1:w45=c2` plus `p1:w346=c26`. Their radii are disjoint and the
+pair was exactly additive: 194 plus 195 predicts and measures 191. `w45` plus
+`w54` likewise measures 193 exactly as predicted. `w346` plus `w54` declines
+because `w346` is no longer offered, confirming the rival reading. These are
+forced diagnostics only; no source candidate was adopted.
 
 Validation: `gmake verify` printed
 507341c0a40ca3e9a7cee969b396ee53facfb548 and `tools/gates.sh --staged` passed

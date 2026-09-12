@@ -757,6 +757,6 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
  * frame: 0x140
  * relocations: 375
  * first-mismatch: +0x34
- * summary: 203 to 132 masked: the choice loop's output cursor carried in i, the target's loop shape, both tail reads named, order re-climbed.
+ * summary: Delta -4 is the unsplit tail global-address web; direct spelling and allocator split routes are exhausted.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
