@@ -743,6 +743,6 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x4C
- * summary: saved-FPR order needs a source form reversing loads and tied-load web order
+ * summary: saved-FPR ordering requires unreachable source net and load-order changes
  * PLATEAU-HANDOFF:func_overlay_009_F0000540_1866BB8:end
  */
