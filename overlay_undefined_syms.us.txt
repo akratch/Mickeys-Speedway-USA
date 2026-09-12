@@ -710,6 +710,9 @@ overlay16ReleaseReloc = 0xf0000000;
 /* overlay 17: overlay17ReleaseChain.c.o */
 overlay17ReleaseReloc = 0xf0000000;
 
+/* overlay 17: overlay17DrawStrip.c.o */
+overlay17PrepareStripReloc = 0xf0000000;
+
 /* overlay 18: overlay18Load.c.o */
 gOverlay18DisplayCursor = 0x00000000;
 gOverlay18DisplayFlag = 0x00000000;
@@ -2992,6 +2995,12 @@ overlay97BuildBasisReloc = 0xf0000000;
 gOverlay98AcceptedCount = 0x00000084;
 gOverlay98AcceptedEntries = 0x00000088;
 overlay98AcquireContextReloc = 0xf0000000;
+
+/* overlay 98: overlay98CheckObject.c.o */
+overlay98CheckCandidateReloc = 0xf0000000;
+overlay98CheckInitialReloc = 0xf0000000;
+overlay98UniqueCountReloc = 0x00000080;
+overlay98UniqueYReloc = 0x00000308;
 
 /* overlay 99: overlay99GetEntries.c.o */
 gOverlay99Entries = 0x00000000;

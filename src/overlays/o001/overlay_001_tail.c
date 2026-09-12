@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: source baseline remains 2 masked words; p1 records and ugen trace make the ring transposition a structural free-order conflict
+ * summary: All 22 coloured webs sampled: 155 single forces, no winners; source literal-type lattice remains 2; ring release-order question remains.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
+ * summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
@@ -3507,10 +3507,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 86/107 words
+ * score: 21/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: The fifteen index-block words are NOT a colour question, and that overturns this shard's own framing. Records read for the first time on this function, instrumented object cmp-identical to the configured one, proc 36. The four index webs are identified by forcing each to c9 and reading which sites move: web 22 is currentIndex (ours a1, ROM v1), web 25 previousIndex (ours v1, ROM a0), web 99 the path-count carrier (ours a2, ROM a1), web 44 nextIndex (ours v0, ROM a0), and web 2 the reloaded index parameter, whose register a2 already agrees. currentIndex carries forbidden0 0x70000000, c1 c2 c3, so v1 is denied outright and a force onto it reads forced=-2. The decisive experiment: freeing every other web that holds v1 in the same run, webs 79, 49 and 25 forced to t0, t1 and a0, leaves currentIndex's mask bit-for-bit unchanged and the force still declined. So the denial is not interference with a coloured rival and no ratio, spelling, statement order or force reaches the ROM's assignment; currentIndex's live range has to change. A 36-point single force sweep over twelve integer webs against c2, c3 and c4 confirms it from the other side: fifteen were accepted and not one scores below 21, the best alternatives being 24 and 26, and the nearest joint force, previousIndex to a0 with the count to a1 and nextIndex to a0, reaches only 23. Also applied here, L146: the 24-order pointer declaration sweep this shard records as an identity was climbed on the volatile-local shape, so it is void on the address-form shape, and re-climbing it there is flat at 55 to 59 across all 24, with the best two equal to the address form's own 55. The address route does not become competitive under a fresh order climb. Next lever: a structural change to currentIndex's range, not a colour.
+ * summary: Authenticated proc 35: all 15 coloured webs scanned, no winners. Current-index range and parameter byte home remain structural questions.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

@@ -41,7 +41,7 @@ extern f32 D_6C;
 extern u16 D_70;
 extern u16 D_72;
 
-extern s32 overlay2IntersectSegments(f32 x0, f32 y0, f32 x1, f32 y1,
+extern s32 overlay2IntersectSegmentsReloc(f32 x0, f32 y0, f32 x1, f32 y1,
                                      f32 x2, f32 y2, f32 x3, f32 y3,
                                      f32 *outX, f32 *outY);
 extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
@@ -145,7 +145,7 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
         remaining--;
         if (count != 0) {
             do {
-                if (overlay2IntersectSegments(D_40, D_44, D_48, D_4C,
+                if (overlay2IntersectSegmentsReloc(D_40, D_44, D_48, D_4C,
                                               line->x1, line->y1,
                                               line->x2, line->y2,
                                               &hitX, &hitY) != 0) {
@@ -222,10 +222,10 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay2QueryNode:start
  * symbol: overlay2QueryNode
- * score: 214/253 words
+ * score: 39/253 words
  * frame: 0x68
  * relocations: 51
- * first-mismatch: +0x40
- * summary: Not a colouring residue: 168 single-web globalcolor forces leave it at 39 or worse. The shipped short-circuit blocks emit sltu/bnez/move, the signature of a C short-circuit or and not of an if-return-1; the short-circuit spelling reproduces that triple exactly in the object and costs one duplicated node->side load per block, so it lands eight bytes short. The boolean shape and the duplicated load are wanted together and no spelling yet gives both.
+ * first-mismatch: +0x58
+ * summary: 20-web landscape has no winners. Corrected +0xC4 SYMBOL-call placeholder; parameter reissue restores geometry at 93 but allocation fails.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

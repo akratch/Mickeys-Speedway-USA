@@ -1,8 +1,8 @@
 #include "overlays/overlay019.h"
 
-/* Workbench: allocation-mismatch, 41 differing words; 123 instructions/frame 0x80 and opcode order exact.
- * Relocation count and offset/type are exact; one object-only symbol alias remains masked.
- * Remaining differences are register allocation in the temporary web; this candidate is permuter-ready. */
+/* Guarded candidate: 36 differing words at exact size, frame 0x80.
+ * Naming the fifth argument and removing redundant signed narrowing improve
+ * allocation, but a moved load and temporary-register differences remain. */
 #ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
@@ -45,7 +45,7 @@ void overlay19BuildAdjacency(
             adjacentItem = span->flags;
             if (itemStart < frame.itemEnd) {
                 adjacentItem &= 0x1080;
-                frame.suppressed = (s16)adjacentItem & 0x7FFF; frame.outputOffset = itemIndex << 3;
+                frame.suppressed = adjacentItem & 0x7FFF; frame.outputOffset = itemIndex << 3;
                 do {
                     if (frame.suppressed != 0) {
                         *(u16 *)((u8 *)output->records + frame.outputOffset) = invalid;
@@ -67,14 +67,14 @@ void overlay19BuildAdjacency(
                             if (nextEdgeIndex >= 3) {
                                 nextEdgeIndex = 0;
                             }
+                            edgeOffset = group->points[itemIndex].selectors[nextEdgeIndex] + vertexBase;
                             adjacentItem = overlay19FindAdjacent(
                                 context,
                                 group,
                                 itemIndex,
                                 group->points[itemIndex].selectors[edgeIndex] +
                                     vertexBase,
-                                group->points[itemIndex].selectors[nextEdgeIndex] +
-                                    vertexBase);
+                                edgeOffset);
                             if (adjacentItem == -1) {
                                 *(u16 *)&output->records[itemIndex]
                                     .edgeNeighbor[edgeIndex] = 0xFFFE;
@@ -102,10 +102,10 @@ void overlay19BuildAdjacency(
 
 /* PLATEAU-HANDOFF:overlay19BuildAdjacency:start
  * symbol: overlay19BuildAdjacency
- * score: 41/123 words
+ * score: 36/123 words
  * frame: 0x80
  * relocations: 1
  * first-mismatch: +0x7C
- * summary: Residual is one integer ring phase, +2 at row 31 with rows 0-30 byte-identical. The (s16)x & 0x7FFF phantom on frame.suppressed is worth THREE ring pops and the loop head wants two: spelling it adjacentItem & 0x7FFF puts slot 0 on the target t2 and extends prefix-exact 31 to 37, at 48 words because the region after row 36 then wants two pops nobody has found. Named invalidRecords and the comma-joined loop head are both load-bearing; inlining either costs 14 or more.
+ * summary: Named fifth argument and redundant-narrowing removal improve 41 to 36. No colour winners remain; ring draws and one moved-load gap need a new source identity.
  * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
  */

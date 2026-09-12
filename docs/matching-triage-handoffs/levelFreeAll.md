@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: p1 listing and trace reduce the residual to an unreachable mask-table-scale emission order; legal two-operand forms are only two classes
+- summary: All 10 coloured webs sampled: 90 accepted forces, no winners; the mask-table-scale ring emission-order question remains.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -440,5 +440,35 @@ table read as the expression itself at all four test sites is the recorded
 cannot be applied to the value that feeds this arm. The mask itself has one use
 and cannot be given a second without becoming a symbol, which is the same wall
 from the other direction.
+
+#### 2026-09-12, lane p23-lastmile2: exhaustive colour landscape
+
+Fresh configured baseline: 468 bytes, zero size delta, aligned buckets 114
+byte-exact, 3 naming, 0 immediate, 0 structural, first +0x13C; no candidate-only
+or target-only offsets. The substitution census retains the adjacent temporary
+pair exchange. Named Ucode maps procedure 17 of 21; stock and instrumented
+full-TU text compare byte-identically.
+
+The exhaustive same-kind pass samples all 10 coloured webs with 90 accepted
+forces. Sixty-three retain size and 27 change it. The complete improving
+winners list is empty. The empty winner-set packing retains the unforced floor
+of 3; arbitrary combinations of individually regressing forces were not tested.
+The window nomination table confirms that moving a pool web also changes the
+already-correct earlier and later regions rather than isolating the required
+mask/table/scale order.
+
+ADR 0018 stop with zero new source attempts. The authenticated exhaustive
+landscape supplies no colour handle, and the committed expression, carrier,
+comma, redundant-mask and phase receipts already exclude the available source
+families. The successful strip-packet OR-zero reassignment operates on a priced
+cursor web; this function needs a single-use expression to remain in the
+uncoloured temporary ring, so that mechanism does not answer its constraint.
+The named source question remains a separate mask evaluation before the table
+load and scaling, with neither the mask nor the table becoming a pool symbol.
+The source body and original assembly fallback are unchanged; no byte credit.
+
+Evidence is retained under ignored build/p23/levelFreeAll. Commands:
+residual_map.py, allocator_trace_receipt.py --map-only, web_footprint.py
+--every-colour, and finalize_plateau.py.
 
 <!-- plateau-handoff:levelFreeAll:end -->

@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x18
-- summary: Ten source-authentic command, fade-lifetime, and packed-expression forms found no gain; entry scheduling and local-data identity proof remain.
+- summary: Nine structural rows and no colour probes; isolate entry scheduling or local-data identity.
 - assignment base: `3ccc02a1`
 - owned range: overlay 15 `+0x500..+0x6A4`, 420 bytes / 105 words
 - retained evidence: configured full-TU C is 92/105 positional words exact, with 13 relocation-masked differences, 14 raw differences, and the exact target `0x58` frame
@@ -161,4 +161,15 @@ the two-reference form -- or one that raises both depth-one constants above
 6.67 without emitting an instruction. The float bank has no L109 probe (L148),
 so the second half needs a real extra reference that uopt deletes.
 
+#### 2026-09-12, lane `p23-lastmile4`: current structural classification
+
+The configured baseline is now 420 bytes, 105 words, delta 0, frame 0x58,
+ten relocations, and 9 masked words. All nine aligned residual rows are
+structural in the opening window; there are no naming or immediate rows. The
+fresh every-colour footprint has zero legal probes and therefore an empty
+winners list, confirming that allocation cannot explain this residual.
+
+The named source question remains entry scheduling and local-data identity:
+find a source-authentic form that alters the structural setup while preserving
+the exact 105-word geometry and overlay relocation surface.
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->

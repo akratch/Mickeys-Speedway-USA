@@ -6,7 +6,7 @@
 - frame: 0x38
 - relocations: 4
 - first mismatch: +0x28
-- summary: Frame closed and the residual priced to one allocator decision. Declaring i and j first gives the target's 0x38 frame exactly, which retires the 8-byte gap the previous note could not source from an unused local of any type, and takes 13 masked words to 11 with the aligner's immediate-only bucket going 2 to 0 and byte-exact 37 to 39. The 11 that remain are one colour on two webs. An instrumented uopt whose object is byte-identical to the configured build records seven p1 decisions: state 305 to c1 v0, j 155 to c2 v1, the literal 15 at 50 to c7 t0 forbidden c1 through c6, record 40.5 to c3 a0, i 15.5 to c4 a1, count 4.33 to c14 s0, records 0.67 to c8 t1. Forcing record to c4 and i to c5, both recorded accepted, scores 0 masked at delta 0 on this declaration order, so the function is one colour from a match. Decision variable: what puts c3 in record's forbidden mask. Not the ratio, since c3 is on record's offer list at every measured save; not a call denial, since neither call loads a0 alone and a web spanning the config call is forbidden c3 through c6 together as the literal-15 web shows; so it must be interference with a pre-coloured a0, and the only one is the incoming count, whose range ends four instructions in on both sides. Flat at 11 on this base: all 32 if(1) region placements across five sites, four empty trailing compares to keep a web live, L109 probes on i and count, a header pointer aliasing record->state, a kind local for the config call's four zero arguments, an index form, and a trailing record reset. The empty trailing compare idiom that moved func_8003A754 reaches 9 here but by the wrong mechanism: it forbids c1 to state, so state and j each shift up one as well.
+- summary: Accepted force pair reaches zero at delta 0; source mechanism is record a0 interference.
 
 #### 2026-09-11, lane `f9-small`: unused homed locals are inert on this frame
 
@@ -86,4 +86,18 @@ by the wrong mechanism: the records show it puts `0x40000000` in `state`'s
 inner loop goes wrong in two new places. It moves `record` and `i` correctly
 and everything else incorrectly.
 
+#### 2026-09-12, lane `p23-lastmile4`: force combination independently rechecked
+
+The fresh base is 200 bytes, 50 words, delta 0, frame 0x38, four relocations,
+and 11 aligned naming rows. The 59-probe every-colour footprint has three
+winners: w9=c4 scores 3, w12=c5 scores 8, and w22=c3 scores 10. The first two
+are rivals over the same window, so their combination was measured rather than
+assumed.
+
+With an instrumented-object fidelity pass, the accepted pair w9=c4 plus
+w12=c5 scores zero masked words at delta 0. Their signed window effects are
+minus eight and minus three, and the pair is exactly additive. The named source
+question remains what makes the record web’s a0 unavailable while preserving
+the target frame and call geometry; the diagnostic force itself is not a
+shippable source change.
 <!-- plateau-handoff:overlay31CreatePool:end -->

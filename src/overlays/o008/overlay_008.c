@@ -2397,7 +2397,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * frame: -0x90
  * relocations: 15
  * first-mismatch: +0x1C4
- * summary: Every stack home is now exact, the normal aggregate included; the residual is one extra FP pool web at the normal-vector products, and carrier, operand-order, volatile-placement, line-join and statement-group lattices are all flat.
+ * summary: source question is the ugen float free-list phase at the +0x1F4 window
  * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
  */
 
@@ -2407,7 +2407,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * frame: 0xD0
  * relocations: 14
  * first-mismatch: +0xF0
- * summary: The record/base home question was declaration order and the frame ladders are now identical; what is left is one preheader move of the emission count.
+ * summary: source question is the preheader emission-count move and loop strength reduction
  * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
  */
 

@@ -736,6 +736,23 @@ bytes and disassembly never belong here.
   recovered original source. Do not generalize to undefined expressions or
   altered side effects; require exact owned bytes, relocation identities and
   linked ROM. Evidence: the exact cone-drawing closure in `docs/resident.md`.
+- **An algebraic reassignment can change allocation at zero emitted width.**
+  When ordinary self-copies and discarded reads disappear too early, assigning
+  an initialized integer cursor through unsigned OR-zero or XOR-zero can retain
+  extra weighted references and change the allocator's recorded divisor. IDO
+  can then remove the operation before the final instruction stream. Compare
+  fresh allocation records for the actual source, not just a forced colour:
+  addition by zero need not behave like bitwise OR by zero. The exact
+  [strip-drawing closure](matching-triage-handoffs/overlay17DrawStrip.md)
+  demonstrates this after an earlier closure incorrectly excluded a zero-width
+  spelling. Transfer tests on the
+  [overlay renderer](matching-triage-handoffs/func_overlay_071_F0000870_18CA390.md)
+  and [object loader](matching-triage-handoffs/func_80006534.md) did not improve
+  their residuals, so this is a measured lever, not a general ratio-setting
+  recipe. A pointer round trip additionally requires the supported target's
+  pointer-width and integer representation guarantees. Preserve evaluation and
+  memory effects, disclose an inert retained spelling, queue naturalization,
+  and require stock bytes, relocation identities and linked-ROM proof.
 - A source copy can decouple load order from FP coloring when two equal-cost
   webs tie. Load the first value through the local that must receive the first
   color, copy it to its lasting local, then overwrite the first local with the
@@ -2146,6 +2163,18 @@ bytes and disassembly never belong here.
   diagnostic lever, not an exact-match claim or a universal unsigned-index
   preference. See the
   [typed-index partition and retained tradeoff](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md).
+- **Naming an intermediate changes both allocation and the home census.**
+  A named pointer or floating intermediate can replace an expression temporary
+  and restore the target's register use, while also adding a declared stack
+  home. Measure those effects separately: first confirm the local allocation
+  improvement, then use the frame census to place the new home and account for
+  any existing unused workspace. Definition placement can independently change
+  saved-register ranking even when the value stays live across the same calls.
+  The exact [overlay 98 object check](matching-triage-handoffs/overlay98CheckObject.md)
+  required all three effects together. This is not permission to remove live
+  storage or reorder observable operations; check expression widths, floating
+  association and workspace use, and require stock, relocation and linked ROM
+  proof. A colour-force win alone establishes none of those source properties.
 
 ## Adding a learning
 

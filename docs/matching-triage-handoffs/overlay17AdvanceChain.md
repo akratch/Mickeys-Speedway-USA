@@ -2,11 +2,11 @@
 ### `overlay17AdvanceChain` plateau handoff
 
 - source: `src/overlays/o017/overlay17AdvanceChain.c`
-- score: 49 differing words
+- score: 49/147 words
 - frame: 0x70
 - relocations: 1
 - first mismatch: +0x18
-- summary: 49-word pre-call setup residual; exact size/home set; count reassociation and buffer-carrier alternatives stalled.
+- summary: Twelve-web exhaustive scan has five rival winners on one web; diagnostic floor47. Six literal-identity probes fail; pre-call count/copy-buffer setup remains.
 
 Fresh configured evidence on 2026-09-04 re-proves the owned overlay-17
 `+0x668..+0x8B4` range at 147 instructions, frame `0x70`, and 96/147
@@ -66,5 +66,46 @@ Validation: configured stock probes; aligned, register and frame censuses;
 `tools/wb_compare.sh --diagnose overlay17AdvanceChain`; full ROM verification
 through the lane gates with the guarded fallback retained. No new executable
 bytes receive credit.
+
+
+### Exhaustive landscape and literal identities (2026-09-12, p23-lastmile5)
+
+Fresh configured evidence retains 147 words (588 bytes), frame `0x70`,
+one candidate and target ELF relocation, and 49 raw/masked differences,
+first `+0x18`. The aligned split is 110 exact, 21 naming, one immediate and
+twelve paired structural rows. Candidate-only offsets are `+0x3C`, `+0x6C`,
+`+0x84`; target-only offsets are `+0x30`, `+0xD8`, `+0xDC`. The earlier
+18-structural count includes these six gaps. Positional density across those
+gaps must not be mistaken for a colour-only problem.
+
+The exhaustive procedure-zero same-save-kind scan sampled twelve coloured
+webs and 89 accepted alternative forces: 81 retain exact size and eight grow.
+The complete delta-zero winners list is `p1:w52=c5` and `p1:w52=c6` at 48,
+and `p1:w52=c7`, `p1:w52=c8`, `p1:w52=c9` at 47. Every winner controls the
+same web, so they are rivals and cannot be combined. Selecting `p1:w52=c7`
+reproduces the measured diagnostic lattice floor of **47**. Stock and
+instrumented text, data, rodata, symbols and relocations pass fidelity. The
+result is not a bound over other source forms or arbitrary multi-web forces.
+
+Six stock literal-type probes test the remaining count/extent identity.
+Unsigned source subtraction scores 145 with size delta +8. Making only the
+source stride unsigned scores 141 at +4; making only the destination stride
+unsigned does likewise. Making both strides unsigned scores 49 at delta zero;
+unsigned buffer-toggle spelling also scores 49 at delta zero; combining
+unsigned subtraction with the toggle scores 145 at +8. Separating one
+multiplication's literal identity changes geometry, while changing both
+preserves the existing residual. No candidate improves and none is adopted.
+The last three cells provide the closing stall evidence; their objects,
+sources and measurements remain private under
+`build/p23/overlay17AdvanceChain/`.
+
+The next question remains a proved count/copy-buffer producer identity that
+reproduces the pre-call schedule. A literal signedness change alone does not
+supply it. The already exact post-call region and the call identity were
+preserved; no broad declaration or pointer sweep was repeated. Commands:
+`residual_map.py`, `web_footprint.py --every-colour`, `force_lattice.py`,
+configured stock probes, `finalize_plateau.py`, and
+`tools/gates.sh verify cleanroom check-docs`. The guarded fallback remains
+canonical, with no new matching credit.
 
 <!-- plateau-handoff:overlay17AdvanceChain:end -->

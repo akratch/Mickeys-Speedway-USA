@@ -893,7 +893,7 @@ void func_80046E00(void) {
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Ugen trace isolates four draw sites; tab compound assignment is byte-identical.
+ * summary: Complete 12-web colour landscape has no winners; nine conversion/address forms flat. Need a load-to-working-character live-range split.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 

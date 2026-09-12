@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: web 42 is genuinely declined at c1; fresh L154 probes leave web-creation order as the remaining source decision
+- summary: No legal coloured webs; remaining source decision is pre-colour web creation order.
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
@@ -324,4 +324,16 @@ three-sided web-creation-order requirement as the precise remaining decision;
 no further source spelling was found that changes it without paying size or
 altering the loop's other colours.
 
+#### 2026-09-12, lane `p23-lastmile4`: current zero-web landscape
+
+The configured overlay baseline remains 212 bytes, 53 words, delta 0,
+frameless, ten relocations, and 2 masked words. The aligned bucket split is
+two naming rows only, both the same a2-to-v0 substitution in the opening
+window; there are no immediate or structural rows.
+
+The fresh exhaustive footprint reports zero legal coloured-web probes for this
+procedure, so its winners list is empty by construction. This eliminates a
+new single-force colour pass as an action rather than merely repeating a flat
+score. The named source question remains whether a zero-width source form can
+alter the pre-colour web creation order described in the retained L154 work.
 <!-- plateau-handoff:overlay20RemoveEntry:end -->

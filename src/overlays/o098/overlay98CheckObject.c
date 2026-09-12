@@ -37,13 +37,13 @@ extern s16 overlay98UniqueYReloc[];
  * f56d08c746f891f76c4b7bab8e3a2a4332894634, which no longer resolves. All
  * retained measurements were independently derived from Mickey's own source,
  * object, relocation tables, and retail bytes. */
-/* Workbench allocation-mismatch: 31 raw words; 111 instructions, frame 0xA8,
- * and six relocation sites have exact shape after moving scratch[10] before
- * the vector locals. The remaining register/operand allocation is a coherent
- * cycle; the assembly fallback stays canonical. */
-#ifdef NON_MATCHING
+/* Mickey byte identity: named data and float-difference carriers reproduce
+ * allocation; initialize accepted after the height branch and preserve the
+ * target homes with the unused scratch area preceding the vectors. */
 s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
-    s32 scratch[10];
+    O98NodeData *data;
+    f32 difference;
+    s32 scratch[8];
     Vec3f output;
     Vec3f input;
     f32 adjustment;
@@ -51,14 +51,15 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     s32 accepted;
     (void)&scratch;
 
-    accepted = 0;
     if (object->stateTable[object->stateIndex + 0x1E] == 0) {
         O98Node *node = object->nodes[object->nodeIndex];
-        adjustment = (f32)node->data->height * object->scale;
+        data = node->data;
+        adjustment = (f32)data->height * object->scale;
     } else {
         adjustment = 0.0f;
     }
 
+    accepted = 0;
     if ((overlay98CheckInitialReloc(object->x, object->z, result, 0x8000, 0) & 0x8000) &&
         ((*result - 5.0f) < object->y)) {
         accepted = 1;
@@ -70,7 +71,8 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
             do {
                 f32 height = (f32)overlay98UniqueYReloc[index];
 
-                input.y = (height - (object->y - height)) - adjustment;
+                difference = object->y - height;
+                input.y = (height - difference) - adjustment;
                 if (overlay98CheckCandidateReloc(context + 0xC, &input, &output, 0, 0x8000) != 0) {
                     *result = output.z;
                     accepted = 1;
@@ -82,16 +84,3 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     }
     return accepted;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CheckObject/func_overlay_098_F0000848_18D9208.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay98CheckObject:start
- * symbol: overlay98CheckObject
- * score: 80/111 words
- * frame: 0xA8
- * relocations: 6
- * first-mismatch: +0x38
- * summary: 31 differences after declaration-order repair; coherent s7/fp cycle remains
- * PLATEAU-HANDOFF:overlay98CheckObject:end
- */

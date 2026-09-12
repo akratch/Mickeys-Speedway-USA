@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: all three sites are one compiler-created FP temporary; source rewrites and L144 address forms cannot keep the length definition live across sqrtf
+ * summary: All 13 coloured webs sampled, no winning single force; assignment and region boundaries cannot preserve the pre-sqrt value in its saved web.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 

@@ -6,7 +6,7 @@
 - frame: 0x38
 - relocations: 55
 - first mismatch: +0x2C
-- summary: Declaring i before unusedMsg made the frame ladder exact, 48 to 47; the rest is the two loops' register webs
+- summary: 18-web scan and seven-subset lattice reach diagnostic floor 40. Endpoint source probes fail; existing flag/count ownership narrows the next source question.
 #### 2026-09-12 (lane `lane/p7-res2`): the frame ladder is exact; the residual is two loop endpoint symbols
 
 48 to 47, and the stack is now byte-identical in shape. **Declaring `s32 i;`
@@ -58,4 +58,55 @@ five loop-spelling forms including both L97 region openers. Not covered: giving
 this TU the definitions of the four pad/flag arrays so IDO can see the
 adjacency, which is the named next lever and needs a coordinator decision
 because it moves `.bss` ownership.
+
+### Exhaustive landscape and endpoint diagnostics (2026-09-12, p23-lastmile5)
+
+The fresh configured baseline is 159 words (636 bytes), frame `0x38`,
+55 candidate and target ELF relocations, 47 masked and 48 raw positional
+differences, first masked mismatch `+0x2C`. The aligned split is 114 exact,
+40 naming, one immediate and three paired structural rows, with a
+candidate-only word at `+0xE0` and a target-only word at `+0xC8`. The older
+five-structural count includes those two gaps.
+
+The captured Ucode receipt maps this symbol to procedure two of nineteen.
+The exhaustive same-save-kind colour scan sampled 18 coloured webs and
+132 rows: 104 accepted forces at size delta zero, twenty four bytes short,
+two eight bytes long, and six refused forces. The complete delta-zero
+winners list is `p1:w9=c3` at 44, `p1:w81=c4` at 46, and `p1:w82=c5` at 45.
+All seven nonempty winner subsets were measured. The three-force combination
+reaches the diagnostic floor of **40**. The first two forces have a one-word
+favourable interaction; the other two pairs are additive. Stock/instrumented
+text, data, rodata, symbol and relocation fidelity passes. This measured
+winner lattice does not bound arbitrary combinations or source changes.
+
+Four layout-dependent source diagnostics expressed integer-address loop
+bounds using adjacent named objects. The first copy-loop endpoint scores 155
+with size delta -28; the flag-loop endpoint scores 149 at -32; both endpoints
+score 155 at -28; adding the final button-loop endpoint scores 155 at -20.
+These are explicitly discarded diagnostics, not portable pointer-bound
+replacements or improved candidates. They change geometry substantially
+instead of preserving the target endpoint/argument identity. No source body
+was adopted. Their source, object, score and rationale remain private under
+`build/p23/joyRead/`.
+
+The earlier ownership conclusion also needs narrowing: this current TU
+already defines the controller map, enable byte, connected-pad flags and
+connected count (`D_800CF3B0`, `D_800CF3B4`, `D_800CF3B8`, `D_800CF3BC`).
+The pad and button arrays remain external. Thus moving flag/count ownership
+into this TU cannot by itself be the missing change, and the earlier absolute
+claim that no function-local spelling can reach the result is not proved.
+The unresolved source question is the exact endpoint IR identity that also
+serves the following call arguments. Address adjacency and a coincident
+numeric value do not establish that identity.
+
+The endpoint diagnostics exhaust this new bounded mechanism without an
+improved residual; the previously closed declaration and loop-spelling axes
+were not repeated. Resume only with evidence for that shared endpoint web
+or a justified TU-boundary experiment. Validation used `residual_map.py`,
+Ucode capture plus `allocator_trace_receipt.py`,
+`web_footprint.py --every-colour`, all winner subsets in `force_lattice.py`,
+configured stock probes, `finalize_plateau.py` and
+`tools/gates.sh verify cleanroom check-docs`. The guarded 47-word candidate
+and canonical fallback remain; there is no new matching credit.
+
 <!-- plateau-handoff:joyRead:end -->

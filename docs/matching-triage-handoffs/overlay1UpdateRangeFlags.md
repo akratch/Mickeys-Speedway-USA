@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: source baseline remains 2 masked words; p1 records and ugen trace make the ring transposition a structural free-order conflict
+- summary: All 22 coloured webs sampled: 155 single forces, no winners; source literal-type lattice remains 2; ring release-order question remains.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
@@ -434,5 +434,38 @@ Next lever: not another spelling of the arm, and not the carrier. Either a live
 narrow value that can carry a zero-footprint draw between the sum and the
 comparison, or a source form in which the sum's own destination survives a
 no-op placed after it.
+
+#### 2026-09-12, lane p23-lastmile2: exhaustive colour landscape and literal identity
+
+Fresh configured baseline: 480 bytes, zero size delta, aligned buckets 118
+byte-exact, 2 naming, 0 immediate, 0 structural; no unmatched offsets on either
+side. First difference remains +0x190. The named Ucode map authenticates
+procedure 23 of 38; stock and instrumented full-TU text compare byte-identically.
+
+The exhaustive same-kind landscape sampled all 22 coloured webs with 155
+single forces: 147 retained the size and 8 grew by eight bytes. Every force
+was accepted. The complete improving winners list is empty. Consequently the
+winner-set packing is empty and its measured floor is the unforced 2; this is
+not an exhaustive claim about combinations of individually regressing forces.
+The nomination table shows that some forces remove the late pair while adding
+more differences in earlier windows. No source colour question was solved.
+
+A 12-cell source check crossed signed/unsigned shift literals, signed/unsigned
+complement masks and an explicit signed-sixteen-bit angle read. Eight cells
+retain 480 bytes and the same 2 differences. Four cells using the equivalent
+narrow clear mask lose twelve bytes and score 111; that changes instruction
+selection rather than the required reuse order. The retained source is unchanged.
+
+ADR 0018 stop: the exhaustive colour pass and literal-identity check supply no
+route below the retained residual; the prior angle-chain and carrier receipts
+already exclude the available source family. The named source question remains
+how to preserve the angle sum's pool destination while placing one additional
+temporary draw after that sum without changing emitted instructions. No match
+or new byte credit is claimed.
+
+Evidence is retained under ignored build/p23/range and
+build/p23/overlay1UpdateRangeFlags. Commands: residual_map.py,
+allocator_trace_receipt.py --map-only, web_footprint.py --every-colour,
+the configured full-TU source lattice, and finalize_plateau.py.
 
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->
