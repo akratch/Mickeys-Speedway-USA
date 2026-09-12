@@ -3162,6 +3162,8 @@ D_CC8 = 0x00000cc8;
 /* overlay 101: func_overlay_101_F00078F4_18E3114.c.o */
 D_2608 = 0x00002608;
 D_CDC = 0x00000cdc;
+D_INPUT = 0x00000000;
+D_o101_0 = 0x00000000;
 
 /* overlay 101: func_overlay_101_F0008128_18E3948.c.o */
 D_2934 = 0x00002934;
