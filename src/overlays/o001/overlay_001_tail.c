@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: source baseline remains 2 masked words; p1 records and ugen trace make the ring transposition a structural free-order conflict
+ * summary: All 22 coloured webs sampled: 155 single forces, no winners; source literal-type lattice remains 2; ring release-order question remains.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
+ * summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 

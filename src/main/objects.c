@@ -5814,11 +5814,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006534:start
  * symbol: func_80006534
- * score: 17 differing words
+ * score: 188/205 words
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: Region plus independent field-capture order: 188 exact, 15 naming, two schedule rows. Saved-register closure falls; phantom web and local ring remain.
+ * summary: All 22 coloured webs sampled; three rival colours of unused packed-read web 77 reach diagnostic floor 14; source controls retain 17 or add a word.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

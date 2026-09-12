@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: p1 listing and trace reduce the residual to an unreachable mask-table-scale emission order; legal two-operand forms are only two classes
+ * summary: All 10 coloured webs sampled: 90 accepted forces, no winners; the mask-table-scale ring emission-order question remains.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

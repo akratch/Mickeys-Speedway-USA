@@ -63,5 +63,7 @@ not a correctness gap.
 
 | `overlay99BuildHeightGrid` | overlay 99 height grid | empty `unused != 0` test on the second parameter | IDO homes an unreferenced named parameter to its incoming argument slot, which is one instruction the target does not have; the empty test removes the store and its position after the grid null check is load-bearing. Seek a natural use or signature with the same 114 words, frame `0x28`, and 29 relocation records. |
 
+| `overlay17DrawStrip` | overlay 17 strip renderer | unsigned OR-zero reassignment of the initialized strip-packet cursor | Preserves all 32 pointer bits and every store and increment. It lowers the cursor save from 30 to 25 with no emitted instruction. Seek a natural spelling retaining 119 words, frame `0x38`, one relocation, and linked ROM identity. |
+
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.
