@@ -2176,6 +2176,28 @@ bytes and disassembly never belong here.
   association and workspace use, and require stock, relocation and linked ROM
   proof. A colour-force win alone establishes none of those source properties.
 
+- **An indexed scale load can outrank a conversion even when a float cast is
+  inert.** If an inline multiply has the correct operations but evaluates its
+  memory operand too early, compare the indexed access with a scalar struct
+  member at the same proven byte offset and load type. This changes operand
+  weight without introducing a float carrier; a same-type cast need not do so.
+  Verify the data layout, unsigned conversion domain, aligned residual, and
+  linked relocation identities. It is an access-shape lever, not permission to
+  relabel unrelated storage or a universal preference for structs. See the
+  [member-scale source closure](matching-triage-handoffs/overlay89InitializeEffect.md).
+- **A region can cross a caller-versus-callee cost threshold without changing
+  the call set.** When the desired caller register is offered but narrowly
+  loses to the first saved register, inspect both prices before changing save
+  ratios. In a controlled exact source closure, an inert control-flow region
+  raised the first-saved-register toll while leaving caller cost and weighted
+  reference count unchanged; the desired bank then won naturally. The changed
+  component count was not itself the pricing mechanism. An ordinary nested-if
+  spelling was inert, so not every brace or equivalent conditional supplies a
+  region. The lever also cannot raise a toll already at its saturation limit.
+  Any retained inert form still requires independent semantic review,
+  disclosure, cleanup-queue coverage and unmodified-compiler promotion proof.
+  See the [cost-table and source receipt](matching-triage-handoffs/overlay89InitializeEffect.md).
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable

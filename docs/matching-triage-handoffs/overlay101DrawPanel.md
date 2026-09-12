@@ -4,9 +4,9 @@
 - source: `src/overlays/o101/overlay101DrawPanel.c`
 - score: 36 differing words
 - frame: 0x178
-- relocations: 18
+- relocations: 17
 - first mismatch: +0xB4
-- summary: source question is declared-symbol removal or two extra compiler temporaries
+- summary: Typed edge identity can restore the frame only with added instructions; separate-home controls do not beat 36. Retain the guarded baseline.
 
 #### 2026-09-11, lane p2-close: the block is SMALLER, not larger, and the older reading inverts
 
@@ -156,5 +156,45 @@ footprint sampled 145 probes over 23 coloured webs; no accepted force beat 36,
 so the winner list is empty and the lattice floor is 36. The named source
 question remains removal of one declared scalar without an alias-sensitive
 reload, or creation of two compiler temporaries at the target frame shape.
+
+#### 2026-09-12, lane p24-second-mid: split-home and typed-edge controls
+
+The base-only gate passes. Fresh configured baseline: 268 words, zero size
+delta, frame 0x178, 36 raw and masked differences, first +0xB4. Aligned rows
+are 234 exact, sixteen naming, eight immediate, seven paired structural,
+and three candidate-only plus three target-only words. The object and owned
+runtime table both contain seventeen relocation records; the old eighteen
+was stale. This count is not a new identity proof. The prior exhaustive
+colour landscape was read and not repeated.
+
+An external source-path control is full-TU text-identical to the configured
+baseline. Seven source controls then investigate the declared-home deficit.
+Nine separate scalars with a trailing record array and inline edges reproduce
+the expected eight-byte frame deficit: frame 0x170, same executable size,
+105 masked. A region around the definitions keeps frame 0x170 but adds eight
+executable bytes, at 267 masked. A region around record emission falls to
+frame 0x168 and adds sixteen bytes, at 265 masked.
+
+Giving the record edges unsigned arithmetic identity while later calls retain
+the signed form reaches the target frame 0x178, but adds sixteen executable
+bytes and scores 220. Thus that route can create temporary homes, but they
+are not free. Isolating the right edge costs eight bytes at 188; isolating
+the bottom costs four at 215; applying unsigned edge identity to all uses
+costs twelve at 220. Coordinate inputs and dimensions are signed halfwords,
+so the original edge sums fit s32, and the unsigned spellings preserve the
+stored low bits; none is adopted. Each object has an aligned comparison with
+the retained baseline, and the first split-shape controls are also compared
+against their own separate-scalar base. No positional improvement hides a
+local regression.
+
+The last useful finding is that typed identity can repair frame size only
+with extra executable work here. The final three isolating controls neither
+improve the retained residual nor establish a zero-cost temporary route;
+stop on that stall. The next question remains two compiler temporaries
+without extra instructions or alias-sensitive reloads, not another colour
+sweep. Source and object artifacts, frame census, scores and aligned maps
+are retained under build/p24/overlay101DrawPanel/. Commands: lane_status,
+configured compilation, residual_map --object/--against, frame census,
+finalize_plateau and tools/gates.sh. The original guarded body is retained.
 
 <!-- plateau-handoff:overlay101DrawPanel:end -->

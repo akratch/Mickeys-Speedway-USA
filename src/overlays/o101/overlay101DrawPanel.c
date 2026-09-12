@@ -279,8 +279,8 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
  * symbol: overlay101DrawPanel
  * score: 36 differing words
  * frame: 0x178
- * relocations: 18
+ * relocations: 17
  * first-mismatch: +0xB4
- * summary: source question is declared-symbol removal or two extra compiler temporaries
+ * summary: Typed edge identity can restore the frame only with added instructions; separate-home controls do not beat 36. Retain the guarded baseline.
  * PLATEAU-HANDOFF:overlay101DrawPanel:end
  */
