@@ -631,9 +631,16 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     *active-- = 1;
                 }
                 choice = gO57MiddleChoices;
-                source = sourceState;
                 outputIndex = 0;
-                do {
+                /* A `for` over `source`, not a `do`/`while` with the step in
+                 * the body: 205 -> 203 masked at delta 0, byte-exact 1038 ->
+                 * 1040, naming 102 -> 100. Still bounded on sourceState rather
+                 * than on &gO57MiddleChoices[4]; both pointers step together so
+                 * the trip count is the same, and bounding on
+                 * &gO57MiddleChoices[4] measures 249 in this shape. Advancing
+                 * `source` inside the condition is 205 with `<` and 354 with
+                 * `!=`; `source != &sourceState[4]` is 245. */
+                for (source = sourceState; source < &sourceState[4]; source++) {
                     *source = choice->active;
                     if (choice->active != 0) {
                         gO57MiddleOutput[outputIndex].controller =
@@ -642,16 +649,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                         outputIndex++;
                     }
                     choice++;
-                    source++;
-                    /* Bound on sourceState, not on
-                     * &gO57MiddleChoices[4]: naming the global's end
-                     * address here makes it a loop invariant that uopt
-                     * parks in a callee-saved register, and it then
-                     * reaches the two gO57MiddleChoices[0] reads in the
-                     * tail. Both pointers step together, so the trip
-                     * count is the same. Worth the whole size delta:
-                     * 1209 words -> 1208, 272 -> 231 masked. */
-                } while (source < &sourceState[4]);
+                }
                 i = 0;
                 for (outputIndex = gO57MiddlePlayerCount; outputIndex < 6; outputIndex++) {
                     while (activePlayers[i] == 0) {
@@ -722,10 +720,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 205/1208 words
+ * score: 203/1208 words
  * frame: 0x140
  * relocations: 373
  * first-mismatch: +0x100
- * summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. With the target's countdown pointer walk for the activePlayers fill and a statement-order sweep run to a fixed point, 217 -> 205 at delta 0, byte-exact 1028 -> 1038, register naming 112 -> 102. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
+ * summary: Writing the choice loop as a for over source rather than a do-while with the step in the body is 205 -> 203 at delta 0, byte-exact 1038 -> 1040, register naming 102 -> 100, structure unchanged at 68; the loop keyword is the whole of it and six other tail spellings read 205 to 354. The prior packet's named decision variable, which register holds outputIndex, is not reachable from the source: a 1,131-form L115 reuse lattice measures six different locals at exactly 205 for that index, so carrier identity there is inert. Statement order is a move-one fixed point on the new shape at 1,703 compiles; the unguarded climb's 202 is the same two-call swap the prior lane rejected, and it is rejected again. What is left is 68 really-different rows against 100 naming rows, and the census reads per-iteration consumption over seven windows, so structure comes first.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
