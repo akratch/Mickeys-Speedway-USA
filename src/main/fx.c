@@ -2506,11 +2506,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:wakeDraw:start
  * symbol: wakeDraw
- * score: 122 differing words
+ * score: 121/176 words
  * frame: 0x50
  * relocations: 1
- * first-mismatch: 0x0
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new outer-index spill and xStep lifetime evidence.
+ * first-mismatch: +0x0
+ * summary: Independent E7 command field scheduling removes one residual word; frame and outer-index lifetime remain unresolved.
  * PLATEAU-HANDOFF:wakeDraw:end
  */
 
