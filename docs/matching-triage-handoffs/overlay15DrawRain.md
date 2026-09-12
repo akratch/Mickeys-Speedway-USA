@@ -2,11 +2,11 @@
 ### `overlay15DrawRain` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 41/54 words
+- score: 13/54 words
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: One shifted absolute-address lowering remains: the target shares a hi-only base across two loads, a form unavailable to this source.
+- summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 
