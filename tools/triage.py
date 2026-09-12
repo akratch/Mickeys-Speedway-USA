@@ -36,6 +36,8 @@ import json
 import pathlib
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
 UNASSIGNABLE = ROOT / "config" / "unassignable-symbols.us.json"
@@ -45,6 +47,32 @@ WHOLE_PROGRAM = 944344
 BANDS = ((0, 20, "closes often"), (21, 60, "one or two decisions"),
          (61, 150, "a region or two"), (151, 400, "several regions"),
          (401, None, "reduces, rarely closes"))
+
+
+def assignability(names: list[str], base: str = "campaign/unchain") -> dict[str, str]:
+    """Map each symbol to its lane_status assignment state.
+
+    **Only `base-only` may be dispatched.** Every other state is fail-closed by
+    design so stale evidence cannot become duplicate matching work, and the
+    states are not visible in the ranking at all -- a function can sit in the
+    queue at nine masked words and be unassignable because a reopen
+    authorization's pins drifted.
+
+    This is not a nicety. Measured once: 338 queued functions, of which only 68
+    were assignable, and a wave was dispatched at nine targets of which three
+    were. A lane that is handed a non-assignable target correctly refuses it and
+    the slot is wasted. Returns {} if lane_status cannot be consulted, since a
+    degraded triage is better than none.
+    """
+    try:
+        import lane_status as ls
+    except ImportError:
+        return {}
+    try:
+        ctx = ls.AssignmentContext.build(base, names, jobs=8)
+        return {n: ctx.classify(base, n).state for n in names}
+    except Exception:
+        return {}
 
 
 def unassignable() -> dict[str, dict]:
@@ -120,6 +148,20 @@ def report(target_pct: float, top: int) -> dict:
         RANKING.read_text(encoding="utf-8"))["functions"]}
     excluded = [{"name": n, "reason": v["reason"]}
                 for n, v in sorted(unassignable().items()) if n in all_names]
+    states = assignability([r["name"] for r in rows])
+    if states:
+        blocked = [r for r in rows if states.get(r["name"], "base-only") != "base-only"]
+        rows = [r for r in rows if states.get(r["name"], "base-only") == "base-only"]
+        by_state: dict[str, dict] = {}
+        for r in blocked:
+            e = by_state.setdefault(states[r["name"]], {"functions": 0, "bytes": 0})
+            e["functions"] += 1
+            e["bytes"] += r["size_bytes"]
+        blocked_summary = {"functions": len(blocked),
+                           "bytes": sum(r["size_bytes"] for r in blocked),
+                           "by_state": by_state}
+    else:
+        blocked_summary = None
     have = resolved_bytes()
     target = int(WHOLE_PROGRAM * target_pct / 100.0)
     gap = max(target - have, 0)
@@ -149,6 +191,7 @@ def report(target_pct: float, top: int) -> dict:
                      "top": cl[:top]},
         "bands": band_rows,
         "excluded": excluded,
+        "blocked": blocked_summary,
     }
 
 
@@ -162,6 +205,16 @@ def render(r: dict) -> str:
     ]
     for ex in r.get("excluded", []):
         out.append(f"EXCLUDED {ex['name']} -- {ex['reason']} Never assign it.")
+    bl = r.get("blocked")
+    if bl is None:
+        out.append("NOTE lane_status unavailable -- figures below may include "
+                   "targets no lane can accept")
+    elif bl["functions"]:
+        out.append(f"NOT ASSIGNABLE {bl['functions']} fns, {bl['bytes']:,} bytes "
+                   f"-- excluded from everything below")
+        for st, e in sorted(bl["by_state"].items(), key=lambda kv: -kv[1]["bytes"]):
+            out.append(f"    {st:<32} {e['functions']:>4} fns  {e['bytes']:>9,} B")
+        out.append("    repin stale authorizations with tools/authorize_reopen.py")
     out += [
         "",
         "cheapest route (by words per byte):",
