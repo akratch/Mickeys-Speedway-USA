@@ -317,6 +317,17 @@ it end to end. The ones that carry most of the weight:
   though their scores did not, so a collision at a coarse width is a question
   for a narrower one, not a verdict. Use this to stop paying for the
   higher-order cells, and to predict a pair before compiling it.
+  **Confirmed in both directions on a second lattice (2026-09-12).** Seven
+  forces on the same function, 21 pairs, 11 of them measured: nine read
+  disjoint and measured an interaction of exactly zero, and the two that read
+  as contending were the only two antagonistic pairs -- `w75+w950` collided in
+  three windows and measured `+43`, `w379+w963` collided in four and measured
+  `+10`. 11 of 11 predicted from 7 single measurements. The original five were
+  all additive, so "disjoint implies additive" had never been tested against a
+  positive case; it now is. The antagonistic pairs also read as near-duplicate
+  radii -- `w963` moves `0x1700-8 0x1780-2 0x1900-1`, exactly `w379`'s window
+  set -- which is the signature of two webs competing for one slot, so **a
+  radius that is a subset of another force's is a rival, not an addition.**
 - **L157 (2026-09-12)** — **the colours a web can be forced to are its own
   `p1cost` table, not its `available0/1` mask.** The mask is the state at the
   moment that web was decided and a force overrides the decision, so it
