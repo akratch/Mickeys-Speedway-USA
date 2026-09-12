@@ -130,4 +130,72 @@ scratch temp is `t1` where the target's is `t0`, and it draws one extra for the
 commoned `count - 1`. One of the two is the shared temp the structural residual
 creates, so it is downstream of the copy question and not a separate lever; the
 other is a phase offset present before any of it.
+
+#### 2026-09-12, lane `p12-tight`: the CSE half of the residual is REACHED, and the blocker is now one instruction
+
+Baseline reproduces: 160 bytes, 12 relocation-masked words (14 raw), size delta
+0, frameless, first mismatch +0x4. Aligner: 28 byte-exact, 6 register naming, 0
+immediate only, 6 really different. `register_census` reads one coherent
+mapping over one window at 100 per cent, three source registers, no cycle. No
+edit adopted.
+
+**Read from the object rather than described.** The two sides differ in exactly
+one region, the preamble between the range guard and the loop. The target loads
+the count, tests the index against it, and then in the guard's delay slot and
+the instruction after it makes TWO copies of the count; it tests the first copy
+against zero, decrements that copy in place in the next delay slot, and at the
+wrap site recomputes the bound from the loaded value. The candidate tests the
+loaded value directly, computes the bound once into a scratch temporary in the
+guard's delay slot, copies that into the counter, and reuses the same
+temporary at the wrap site. Because its fall-through begins with a branch the
+candidate also needs a branch-likely where the target uses a plain branch. All
+six structural words and the three naming ones are that one region.
+
+**L109's successor is L151, and it works here.** The commoning that the earlier
+records name -- the counter's pre-decrement and the wrap bound become one
+loop-invariant temporary -- is broken by giving the two literal ones DIFFERENT
+TYPES. Writing the wrap bound with an `unsigned` one while the pre-loop
+decrement keeps a plain one (or the reverse) stops the common subexpression
+entirely: the wrap site then recomputes the bound from the loaded value at the
+target's own offset, and the structural bucket falls from 6 to 3. That is the
+first time any pass has produced the target's wrap site.
+
+**What it costs, exactly.** Every form that breaks the commoning loses ONE
+instruction, delta -4, and scores 34. The missing instruction is the SECOND
+count copy -- the wrap-count copy the target emits and never reads. With the
+commoning broken, the candidate folds the counter copy and its decrement into a
+single instruction off the loaded value, so the fall-through has nothing to put
+in the guard's delay slot and the copy pair never materialises.
+
+So the reopen condition is now one instruction rather than an open question:
+**a source form in which the counter's copy of the count is materialised BEFORE
+it is decremented, and the wrap-count copy is emitted although it is dead**,
+while the two literal ones stay differently typed so the wrap site recomputes.
+The target's own object shows both copies surviving copy propagation, so this
+is a real compiler state, not an impossibility.
+
+**Negatives added this pass, all built rather than sampled.**
+
+- 57 cells over three pre-loop decrement spellings, six wrap-bound spellings
+  (plain, unsigned, long, complement-of-negative-zero, cast-through-unsigned,
+  read from the count local) and three loop-tail test spellings. Only the type
+  split moves anything, and it moves it to -4.
+- 32 cells over the source of every count read: the guard, the counter copy,
+  the wrap copy and the wrap bound each taken from the loaded local or from the
+  import directly. The incumbent is the unique floor at 12; the next best is 17.
+- 144 cells over four copy-chain shapes (counter from count, counter from count
+  with the wrap copied from the counter, wrap from count with the counter
+  copied from the wrap, both from count) crossed with three guard subjects,
+  three decrement spellings and four bound spellings. Floor 12; a copy chain is
+  inert, so uopt propagates through two levels as readily as one.
+- 40 cells over the post-decrement guard family -- guard written as a bare
+  post-decrement, as a post-decrement compared with zero, and with the pre-loop
+  decrement removed -- crossed with five bound spellings and two loop-tail
+  spellings. EVERY one of them loses the same single instruction. That is worth
+  stating plainly: the target's guard shape and the target's wrap site are each
+  individually reachable, and each one alone costs the same word.
+- 96 cells over the declared types of the count, counter and wrap locals
+  (signed and unsigned, 32-bit and 16-bit) crossed with three bound spellings.
+  The 32-bit signed and unsigned rows are byte-identical, so a declared type is
+  not a web identity here; only a LITERAL's type is.
 <!-- plateau-handoff:overlay1FindPreviousUsable:end -->

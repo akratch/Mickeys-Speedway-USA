@@ -102,4 +102,36 @@ the extra candidate home at `+0x24`; no exact result was promoted.
   to the front or the back of the block regresses to 19 and 23.
 - **verdict: the closure was correct and remains correct under L90 and L94.**
   Resume only with a form that removes one *cell* without removing a pointer.
+
+#### 2026-09-12, lane `p12-tight`: L145 and L144 both reach this function and neither removes the cell
+
+Baseline reproduces: 384 bytes, 13 relocation-masked words (14 raw), size delta
+0, frame 0x28, first mismatch +0x54. Aligner: 83 byte-exact, 5 register naming,
+4 immediate only, 4 really different. No edit adopted.
+
+The standing reopen condition is "a form that removes one cell without removing
+a pointer". Two laws postdating this shard were tested against it.
+
+**L145 -- delete the carrier -- is refuted here, and the refutation is clean.**
+Writing every use in the chosen block as the global's own subscript, with
+neither the volatile carrier nor the copied scan pointer declared at all, costs
+4 bytes and scores 75, in both the region-opened and bare spellings. L145's
+boundary condition is met (the expression is spelled identically on both sides
+of every call) and the mechanism still does not fire, because the target does
+not want the value in a ring temporary: its object spills a pointer web to a
+home and reloads it around all three calls. A function whose target SPILLS is
+outside L145's territory.
+
+**L144's address form exactly reproduces the volatile carrier here, which is a
+useful negative control.** Declaring the chosen pointer as a plain local and
+reading it through its own address at every use, with the copy into the scan
+pointer kept, is BYTE-IDENTICAL to the retained volatile form: 13 words, delta
+0, same four homes plus the extra one. So on this function `volatile`'s two
+effects are not separable in the way L144 describes -- the scheduling edges buy
+nothing, and dropping them costs nothing. Taking the copy away from either form
+is 64 at delta 0 (address-read spelling) or 71 to 75 at +4 bytes (direct
+spellings), so the copy is load-bearing in every spelling of the carrier.
+
+Six forms measured this pass, none below 13. The reopen condition is unchanged
+and the two cheapest laws that looked like they reached it are now spent.
 <!-- plateau-handoff:overlay14CreateValue:end -->
