@@ -2122,6 +2122,21 @@ bytes and disassembly never belong here.
   emission and scheduling. Trace output and compiler diagnostics
   remain private; stock output and the normal promotion proofs supply credit.
 
+- **An index type can partition a shared array-address range.** When two
+  regions share a strength-reduced array cursor, changing the subscript to an
+  unsigned expression in just one region can separate their allocation ranges.
+  In a controlled full-TU experiment, that split changed the occurrence-block
+  denominators and lowered each range's save ratio below competing address
+  constants. Giving both regions the same unsigned spelling rejoined the
+  ranges and removed the benefit; several equivalent full-width expressions
+  reproduced it. Inspect the allocator records and prove stock-output fidelity
+  before attributing the change to expression cost or declaration order. The
+  conversion is valid only for a proved index domain, and a smaller positional
+  residual can still worsen aligned naming differences. This is a reproducible
+  diagnostic lever, not an exact-match claim or a universal unsigned-index
+  preference. See the
+  [typed-index partition and retained tradeoff](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md).
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
