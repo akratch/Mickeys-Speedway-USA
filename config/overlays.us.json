@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 192880,
-  "nonmatching_overlay_c_bytes": 275740,
+  "matched_overlay_c_bytes": 197440,
+  "nonmatching_overlay_c_bytes": 271180,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -19671,7 +19671,7 @@
      "type": "c",
      "source": "overlays/o101/func_overlay_101_F000512C_18E094C",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x571C",
@@ -19689,7 +19689,7 @@
      "type": "c",
      "source": "overlays/o101/func_overlay_101_F0005E08_18E1628",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x63F8",
@@ -19698,7 +19698,7 @@
      "type": "c",
      "source": "overlays/o101/func_overlay_101_F00063F8_18E1C18",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x69E8",
