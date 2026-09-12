@@ -161,6 +161,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: p2 colours in ascending web number, so the decrement web (v0, web 8) is coloured before the limit (web 42) and forbids it v0; the cursor needs the same three webs the limit must not see, so the cursor-first ordering is self-contradictory and the open axis is the limit's web number
+ * summary: p2:w42=c1 is genuinely declined; L154 and typed-constant probes are flat, leaving the three-sided web-order constraint
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */

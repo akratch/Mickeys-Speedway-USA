@@ -892,16 +892,16 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: 2026-09-11, lane p6-tight re-derived this from the objects and adds three negatives. The four draws are consecutive on both sides, so the phase is already right and only two adjacent draws are transposed -- no phantom draw can fix a transposition. Newly flat at zero size delta: the mask carrier declared register in s32, u32 and int spellings (byte-identical to the plain local, index-first and base-first alike); the carrier hoisted into the enclosing block in front of the arm's own guard (5, no better than inside it); and L109's three identity-op phantoms, or-with-zero, and-with-minus-one and xor-with-zero, on either operand or on the whole sum, which uopt folds before the web builder and which are byte-identical everywhere -- only a redundant AND with the same constant survives, as a copy, and it draws before its own operand subtree. Two identical masks combined with or or and common completely and waste no draw. Ring-index swap only. Exactly two ucode orders are reachable and the target's is neither: shift-first gives mask, scale, table (3) and base-first gives table, mask, scale (5), while the target needs mask, table, scale, which requires the mask as its own surviving statement in front of a base-first address. uopt forward-substitutes a single-assignment local back into the address expression in every arrangement tried -- hoisted to the loop header, separated by an L97 region, assigned in the else-if condition's comma, or assigned in a comma inside the add's own left operand -- so twelve hoisting forms plus nine spelling variants all land on 3 or 5. Two uses (m + m) do produce the target's order but put the mask on a pool colour and turn the shift into an add, and a volatile index is 43 at delta 8.
+ * summary: p1 listing and trace reduce the residual to an unreachable mask-table-scale emission order; legal two-operand forms are only two classes
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
 /* PLATEAU-HANDOFF:levelInit:start
  * symbol: levelInit
- * score: 6 differing words
+ * score: 510/516 words
  * frame: 0x80
  * relocations: 110
  * first-mismatch: +0x328
- * summary: 2026-09-11, lane p6-tight: the remaining 6 are the levelFreeAll order term, re-derived from the objects -- the target draws mask, table, scale, sum then the phantom, this candidate draws the phantom first -- and the three new negatives (register storage class, a carrier hoisted above the arm's guard, and L109's identity-op phantoms, which uopt folds before the web builder) were exercised on the cheaper twin and hold here. 2026-09-11, lane f9-audit: 22 to 6 at delta 0. The 16-word colour term was never a colouring problem. uopt forms one web per SYMBOL (f_intfering is a bit-vector intersection of live BLOCKS, and a symbol's live blocks are the union over all its uses), so carrying the resource id in the existing `shouldPlay` local -- a2 already, decided seventh at save 40, live beside the v0/v1 tune-loop temps -- forbids c1 and c2 for the loop value with no new web and no frame change; the address web falls to a3 behind it exactly as predicted. The earlier closure held the CARRIER IDENTITY fixed while it varied everything around it: a six-cell sweep over the existing locals finds it (shouldPlay 6, tune 17, lvlCount 30, j 31, freeSlot and i move the frame). The remaining 6 words are the levelFreeAll order term (target pops mask, table, scale, sum, then one phantom; candidate pops phantom, mask, scale, table, sum), re-measured flat across 32 spellings on the new base, including index-first pointer adds and named-mask carriers in every existing local.
+ * summary: the six words are levelFreeAll's unreachable order term plus its phantom draw; p1 records confirm no phase-two web-number lever
  * PLATEAU-HANDOFF:levelInit:end
  */
