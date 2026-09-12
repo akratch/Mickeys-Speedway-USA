@@ -2,11 +2,11 @@
 ### `func_overlay_057_F0004E18_18A8A10` plateau handoff
 
 - source: `src/overlays/o057/func_overlay_057_F0004E18_18A8A10.c`
-- score: 217/1208 words
+- score: 205/1208 words
 - frame: 0x140
 - relocations: 373
 - first mismatch: +0x100
-- summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. The activePlayers fill is now the target's countdown pointer walk, which a previous pass rejected at 282 words and +4 bytes and which at the fixed home layout is 217 at delta 0, byte-exact 1028 -> 1029, really different 68 -> 66. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
+- summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. With the target's countdown pointer walk for the activePlayers fill and a statement-order sweep run to a fixed point, 217 -> 205 at delta 0, byte-exact 1028 -> 1038, register naming 112 -> 102. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
 
 ## 2026-09-12 (lane `p11-big`): the target's bound is the global's end, read off the object
 
@@ -56,6 +56,26 @@ fixed home layout it is 217 at delta 0 with byte-exact 1028 -> 1029 and really
 different 68 -> 66, and it is the target's own shape (`li v1,9`, `move v0,v1`,
 `sb`, `addiu a0,a0,-1`, `bnez v1`, `addiu v1,v1,-1`). The split
 `*active = 1; active--;` spelling measures identically.
+
+
+### Statement order, run to a fixed point: 217 -> 205
+
+A move-one hill climb over every run of three or more consecutive single-line
+non-call statements in the body, re-climbed from its own output until it
+reported no move (three passes). 217 -> 205 masked at size delta 0, byte-exact
+1029 -> 1038, register naming 114 -> 102, immediate 10 -> 11, really different
+66 -> 68, frame 0x140 on both sides.
+
+Four orders move: `textureNodes[0].texture` ahead of `.alternate` and `.x`
+ahead of `.y` in the label loop's store group, `gO57MiddleData31A8 = 0;` ahead
+of `gO57MiddleData31B8 = gO57MiddleData31B4;`, and
+`gO57MiddleData31E8 = gO57MiddleCourseIds[...]` after the three stores that
+follow it.
+
+One candidate the sweep offered is worth a further word and was REJECTED:
+swapping `func_80028D24(0);` with `func_80028540(gO57MiddlePlayerCount);`
+reorders two calls. The sweep tool now refuses to move any statement containing
+a call at all.
 
 ### Next lever
 

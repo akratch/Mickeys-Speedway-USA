@@ -277,6 +277,18 @@ extern void func_overlay_084_F0001398_18D1878(void);
  *      different 68 -> 66.  It is adopted above.  The split
  *      `*active = 1; active--;` spelling measures identically.
  *
+ *  7.  STATEMENT ORDER, same lane.  A move-one hill climb over every run of
+ *      three or more consecutive single-line non-call statements in the body,
+ *      re-run to a fixed point (three passes), is worth 217 -> 205 at delta 0,
+ *      byte-exact 1029 -> 1038, register naming 114 -> 102.  Four orders move,
+ *      three of them inside one store group: `textureNodes[0].texture` ahead
+ *      of `.alternate`, `.x` ahead of `.y`, `gO57MiddleData31A8 = 0;` ahead of
+ *      `gO57MiddleData31B8 = ...`, and `gO57MiddleData31E8 = ...` after the
+ *      three stores that follow it.  A fourth candidate the sweep offered --
+ *      swapping `func_80028D24(0);` with `func_80028540(...)` -- is worth one
+ *      more word and is a REORDERING OF TWO CALLS, so it is rejected; the
+ *      sweep tool now refuses to move any statement containing a call.
+ *
  * What is left, measured: two compiler temps (sp+0x54 and sp+0x58 against the
  * target's sp+0x5C and sp+0x64, inside a temp region that is the same size on
  * both sides), and one address materialisation.  The candidate takes
@@ -564,12 +576,12 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                         &gO57MiddleDisplayList, panelX + 0x2E, row,
                         gO57MiddleLabels[i], 0);
                 }
+                textureNodes[0].texture = gO57MiddleGraphics[valueA];
                 textureNodes[0].alternate = NULL;
+                textureNodes[0].x = (s16)stack5C;
                 textureNodes[0].y = (s16)(row - 4);
                 textureNodes[0].packedOffset = 0;
                 textureNodes[1].texture = NULL;
-                textureNodes[0].texture = gO57MiddleGraphics[valueA];
-                textureNodes[0].x = (s16)stack5C;
                 func_8002F618(
                     &gO57MiddleDisplayList, textureNodes, 0, 0,
                     0xFF, 0xFF, 0xFF, 0xFF);
@@ -674,13 +686,13 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 }
                 gO57MiddleData31AC = (u8)((state < 2) ^ 1);
                 gO57MiddleData31A4 = 2;
-                gO57MiddleData31B8 = gO57MiddleData31B4;
                 gO57MiddleData31A8 = 0;
+                gO57MiddleData31B8 = gO57MiddleData31B4;
                 if (gO57MiddleData31E4 > 0) {
-                    gO57MiddleData31E8 = gO57MiddleCourseIds[gO57MiddleSelection];
                     gO57MiddleData31EC = gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex];
                     gO57MiddleData31F0 = 5;
                     gO57MiddleData31F4 = 0;
+                    gO57MiddleData31E8 = gO57MiddleCourseIds[gO57MiddleSelection];
                     func_80028374(0x12, 0, 0, 0xF, 1, 0);
                     func_80028528(1);
                 } else {
@@ -710,10 +722,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 217/1208 words
+ * score: 205/1208 words
  * frame: 0x140
  * relocations: 373
  * first-mismatch: +0x100
- * summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. The activePlayers fill is now the target's countdown pointer walk, which a previous pass rejected at 282 words and +4 bytes and which at the fixed home layout is 217 at delta 0, byte-exact 1028 -> 1029, really different 68 -> 66. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
+ * summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. With the target's countdown pointer walk for the activePlayers fill and a statement-order sweep run to a fixed point, 217 -> 205 at delta 0, byte-exact 1028 -> 1038, register naming 112 -> 102. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
