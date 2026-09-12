@@ -2316,3 +2316,25 @@ forcing before the natural split changes the allocation being investigated.
 Narrow mask types and declaration changes did not solve the manual-command
 shape. The existing SDK macros restore the command-pointer webs and emission
 order together. No forced compiler output or padding receives matching credit.
+
+
+### Overlay 35 grid-mask builder closure (2026-09-12)
+
+`func_overlay_035_F0000770_1882450` is ROM-exact over overlay 35 text
+`+0x770..+0xB40`: 976 executable bytes, all 244 words, the `0x80` frame,
+and an empty relocation table. `gmake verify` prints the expected US ROM hash.
+The aligned buckets (exact/register/immediate/structural) move from
+199/27/10/11 to 244/0/0/0.
+
+The inherited frame warning survives: unconstrained declaration permutations
+can improve a scalar score while growing the frame. Reconstructing useful
+locals, their order, and indexed vertex access first reproduces every home.
+Natural counted loops for the three axes then restore their narrowing and
+branch schedules, invalidating the older order-sweep closure for the previous
+loop shape. The remaining vertex-pointer/mask colour exchange was priced by
+an accepted direct force. A natural counted vertex scan raises the mask's
+block-reference denominator, ties its save ratio with the vertex base, and
+lets the earlier vertex web win the required colour. Initializing the scan
+index before loading the vertex base closes the last scheduling difference.
+Only untouched stock compiler output supplies the match; compiler padding and
+forced diagnostic objects receive no credit.
