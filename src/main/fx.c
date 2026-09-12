@@ -2486,11 +2486,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:fxScreenEffect:start
  * symbol: fxScreenEffect
- * score: 121 differing words
+ * score: 116/143 words
  * frame: 0x30
  * relocations: 10
- * first-mismatch: 0x8
- * summary: 123 to 121 masked on two web-span edits and one store-topology edit, size delta -28 to -16, 143 of 147 words, frame 0x30 on both sides with an identical 14-slot ladder. The decisive instrument was the instruction multiset, not the aligner: at baseline the candidate differed from the target by exactly five register copies, one shift and one store and nothing else; it now reads three copies and one shift. What paid, each measured alone: moving the cursor initialiser inside the guarded block, one word; giving the limit a guard-local carrier, one word; and re-reading the display-list pointer between the two adjacent writebacks so the second is not folded into a dead store, one word. Decision variable reached: the remaining three copies are ugen colour assignments, not authorable symbols -- every value the target copies is already a named symbol here and coalesces, and the target's copies survive because the destination colour differs from the producer temp, which is downstream of allocation. The next lever is an allocator trace on the four preheader webs read against L100 save ratios; this is a p1-only procedure, so declaration order and statement order are not axes. Refuted: the prior note asking for stack-argument preload topology evidence mis-states the gap, because both sides load all five stack arguments and the frames and slot ladders were already identical. Also refuted, the caveat this lane was dispatched with: the geometry did not have to close first, it was already closed. After the edits the register census resolves into one clean four-cycle over t9, t6, t7 and t8 across 34 sites where it previously showed two incoherent cycles, so closing the size deficit surfaced an L127 ring-phase fact underneath. Axes covered are listed in the shard.
+ * first-mismatch: +0x8
+ * summary: Four independent graphics-field and local-store reorderings remove five residual words; t6-t9 ring allocation remains.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
