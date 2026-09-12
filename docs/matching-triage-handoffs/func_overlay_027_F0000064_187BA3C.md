@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 22
 - first mismatch: +0x94
-- summary: 195 single forces yield eight FP winners; 71 winner combinations floor at nine diagnostically. Source stays 48; real-ABI no-spill obstacle remains.
+- summary: Required call-input carrier reuse is byte-inert; fraction reuse adds structural residual. The real-ABI no-spill source obstacle remains.
 #### Region partition (measured at 62, re-measured at 48)
 
 At 62 the 368-word residual partitioned into four independent decisions, not
@@ -522,5 +522,41 @@ force_lattice and its run_cell helper, configured compiler controls,
 finalize_plateau, and tools/gates.sh. C remains guarded; the 22 relocation
 records are counted but do not establish a new complete identity proof.
 No executable matching credit is claimed for this function.
+
+#### 2026-09-12, lane p24-second-mid: the required call input does not retain a scale-web reference
+
+The base-only gate passes. Configured baseline reproduces 368 words, zero
+size delta, frame 0x60, 49 raw and 48 masked differences, first +0x94.
+Aligned rows are 320 exact, 46 naming and two structural, with no insertion
+shadow. The existing exhaustive colour landscape and nine-word diagnostic
+floor were read and not repeated.
+
+This pass tests the named next operation directly: the already-required
+floating call input. Assigning that input to scaleFactor and passing the
+carrier into the unchanged float/integer call is full-TU text-identical to
+the baseline. Thus the source occurrence disappears before it can supply the
+missing live reference; this is not a refused-force result. Reusing the
+carrier for the returned fraction through the required scaleTarget update,
+then restoring its scale value, gives 58 masked at unchanged size. Combining
+input and fraction reuse gives the same 58. Both fraction forms remove three
+naming rows near the call but add five paired structural rows and two
+candidate-only/target-only pairs; the large downstream naming region is
+unchanged. Aligned comparisons expose the regression directly.
+
+All three forms preserve the actual call argument types and call order. The
+input control is byte-inert and the other two reproduce the already-recorded
+carrier/schedule failure class. No available route through these required
+operations supplies the pre-call reference at zero cost, so stop on that
+mechanism evidence. The baseline is retained; a future attempt must identify
+a different operation whose scale reference survives compiler substitution
+without a float spill. No candidate body or ABI change is adopted.
+
+An external-path baseline control is full-TU text-identical before using that
+private compile path. All sources, configured objects, scores, first mismatches
+and aligned per-window comparisons remain under
+build/p24/func_overlay_027_F0000064_187BA3C/. The configured candidate has
+22 text relocation sites; no new complete runtime identity proof is claimed.
+Commands: lane_status, configured compilation, residual_map --object/--against,
+full-TU byte comparison, finalize_plateau and tools/gates.sh.
 
 <!-- plateau-handoff:func_overlay_027_F0000064_187BA3C:end -->
