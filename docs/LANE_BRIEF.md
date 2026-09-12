@@ -228,6 +228,29 @@ it end to end. The ones that carry most of the weight:
   and solve rather than guess. Frame *size* is a count, not an order. An unused
   `s32` is eliminated before the frame is sized; an unused `f32` or pointer is
   not. `align8(4N)` hides a one-slot change.
+- **L150** — **a deleted no-op is not side-effect free.** as1 removes it *by
+  renaming its producer's destination*, so a no-op placed to buy a ring draw
+  also moves whatever produced its operand off the colour it held. That is why
+  this family keeps failing where it looks like it should work: the edit buys
+  the draw and breaks an agreeing register at once. Precondition: the operand's
+  producer must be a value whose destination you are willing to lose. Two facts
+  come with it — **ugen draws a ring register immediately before each
+  instruction it emits, so `cc -S`'s listing order IS the draw order** (read it
+  off the listing, do not infer phase from a census); and **L147 only opens a
+  function whose references are split across blocks** — where they already sit
+  in one block `nocs` is at its floor of 1 and a block reading can only divide
+  the save further.
+- **L149** — **count draws, not registers.** A ugen draw and the instruction
+  consuming it are separable: as1 can fold the operation into a neighbour and
+  delete it while the draw stays spent, so every later row is one position off
+  and nothing in the emitted code shows why. No register census or spelling
+  lattice can see it. Use `DKWB_UGEN_SCHED=1`'s `DKWB-FREELIST …
+  ALLOC_GP_RESULT` records, stamped per source line, and count draws per
+  iteration **before** classifying a per-row phase. The generator to recognise
+  on sight is a redundant mask on a narrow type: reading a `u8` local already
+  emits the `and`, so `(f32)(u32)(x & 0xFF)` masks twice and as1 folds the pair
+  into one `andi`. Removing the second mask emptied a naming bucket 87 → 0 and
+  closed three 1,520-byte siblings.
 - **L145** — **to put a value in a ring temp, delete the carrier.** A declared
   local is a symbol and a symbol is *never* handed a ring temp (L130), so no
   probe, no-op or qualifier placed through a local supplies a ring draw. Writing
