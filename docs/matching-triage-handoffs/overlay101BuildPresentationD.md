@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: 131 masked words from 151 at delta 0, frame 0x20 and its ladder exact. L59 group fold plus the node-24 text store before the counter bump.
+- summary: L160 pointer removal is byte-inert. The 21-web landscape packs to 119; the mapped split-base lattice reaches 114, still nonexact.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -147,5 +147,52 @@ full working is in
   that move a coloured web off its colour AND force another web onto the colour
   it vacated, 2,358 of them accepted in the records, and not one beat 114. The
   interfering-web hypothesis is refuted on this relative as it is on B.
+
+#### 2026-09-12, lane w1-1: zero-size sibling confirms the L160 limit
+
+The exact assignment gate returned base-only. Baseline and retained result:
+206 candidate and target words, delta 0; 132 raw and 131 masked differences,
+first +0x10. Aligned buckets are 82 exact, 103 naming, 1 immediate and 27
+structural. Structural includes 13 paired rows, seven candidate-only words
+and seven target-only words. The paired displacement sites agree with A/B/C,
+but D has no surplus colour materialisation at the trio's +0x31C. Its final
+call has no colour argument. This is why the trio's size question must not
+be transferred as a claimed D deficit.
+
+There are 52 candidate object relocations and 34 in the assembled comparison
+target, with unequal literal symbol identities. These are comparison-object
+measurements, not an authenticated overlay relocation or linked promotion
+proof. No new matching bytes are claimed.
+
+This function's web_footprint --every-colour run covered 21 coloured webs and
+133 accepted same-save-class forces. Of these, 106 stay at delta 0 and 27
+increase size. Fourteen zero-delta cells beat 131; the best single is 123.
+Re-rendering the saved JSON with --report nominates p1:w31=c2 and p1:w81=c8
+as a disjoint packing, predicting 119. The measured pair is exactly 119.
+The report also groups eight identical-radius alternatives as rivals, so
+those alternatives are not additive extra credit.
+
+The split node-20 array-base web is outside the coloured-web census. The
+mapped B roles, with the existing D ordinal for the counter web, give
+p1:w186=c11, p1:w31=c2 and p1:w81=c8. The independent stock/instrumented
+fidelity gate passed. All seven nonempty subsets were accepted; singles
+are 123, 123 and 127, and the three-force diagnostic floor is 114 at delta 0.
+This confirms the existing forced floor, not a source match.
+
+The identical L160 pointer-removal transfer maps B's declaration lines
+179 through 184 to D's 161 through 166, and the node-construction/tail groups
+to lines 170 through 203. All six pointer declarations and assignments are
+removed and their uses become indexed accesses. D has no dimColor local to
+remove. This independent compile returns the identical baseline object, with
+no per-function tuning and no change in any aligned window or displacement
+site. The lead's traced limitation is the implicit node-20 base's unchanged
+save 0.5 against cost 2 after carrier deletion, rather than a hidden declared
+cursor whose deletion supplies the target's colour.
+
+The named next source question is the node-20 base's benefit and the remaining
+header/naming allocation. No zero-scoring force-to-source route was established,
+and copying the trio's colour-argument experiments here would test a feature
+D does not have. The incoming guarded body is retained and the flat transfer
+is banked; the prior order and force sweeps are not repeated.
 
 <!-- plateau-handoff:overlay101BuildPresentationD:end -->
