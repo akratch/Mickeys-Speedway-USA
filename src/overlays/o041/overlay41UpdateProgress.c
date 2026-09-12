@@ -119,6 +119,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0x108
- * summary: source question is the divisor-copy decision that refuses coalescing
+ * summary: divisor-copy coalescing and integer ring phase remain unresolved
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */
