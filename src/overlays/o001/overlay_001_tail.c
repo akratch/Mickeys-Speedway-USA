@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
+ * summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 

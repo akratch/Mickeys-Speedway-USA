@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 43
 - first mismatch: +0xC
-- summary: trig cluster closed by an L97 region after the trig load (19 to 14); the 14 left are the prologue world load, whose memory class every carrier spelling fixes as opaque and every direct spelling fixes as unshared
+- summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned
@@ -338,5 +338,36 @@ The closure therefore stands as p6-mid wrote it, with its evidence requirement
 unchanged: a counterexample to ugen's emission order, not another spelling.
 Both of the two levers that could plausibly have supplied one are now measured
 and negative.
+
+### 2026-09-12, p23-lastmile2: exhaustive colour survey confirms displaced words
+
+The configured baseline remains 996 bytes, 235/249 masked words exact,
+frame 0x80, 43 relocations and first positional mismatch +0xC. The aligned
+split is 244 exact, one naming and two immediate rows, with no paired
+structural rows, but two candidate-only words at +0x34 and +0x40 and two
+target-only words at +0xC and +0x10. Equal total size therefore does not
+establish equal instruction shape. The earlier four structural rows counted
+these unmatched words; positional comparisons also charge the displaced span.
+
+The exhaustive same-kind colour plan covered all 26 coloured webs: 154 plan
+entries, including one with no alternative, and 153 actual force probes.
+150 were accepted and three declined (web 196 colours 5 and 6, web 210 colour
+6). Of the accepted probes, 75 retained size and 75 changed it. The complete
+improving winners list is empty. The measured single-force and empty packing
+floor is 14; this is not a proof about arbitrary combinations of regressing
+forces. No diagnostic force is source or matching evidence.
+
+The named source question remains whether ugen can emit the shared-world
+load with symbolic memory scheduling while retaining shared address materialization.
+The prologue save/load ordering creates the unmatched words; recolouring cannot
+remove them. The prior carrier, region, declaration and physical-line experiments
+already eliminate the available source mechanisms, so no new source sweep was
+justified. The guarded candidate is unchanged apart from plateau metadata.
+
+Private artifacts under build/p23/overlay1UpdateAimedTransient retain the
+configured baseline, trace mapping, aligned map and all force measurements.
+Commands: configured stock/capture compilation, residual_map.py,
+web_footprint.py --every-colour, and finalize_plateau.py. The matching claim
+remains NON_MATCHING; a ROM verify of the guarded fallback gives no new bytes.
 
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->
