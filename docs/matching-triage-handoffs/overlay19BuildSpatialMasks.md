@@ -2,11 +2,11 @@
 ### `overlay19BuildSpatialMasks` plateau handoff
 
 - source: `src/overlays/o019/overlay19BuildSpatialMasks.c`
-- score: 164/227 words
+- score: 63/227 words
 - frame: 0x80
 - relocations: 0
 - first mismatch: +0x58
-- summary: Fresh V0 is exact-sized at 164/227 words with exact 0x80 frame and zero relocations; the stale 66-word ranking overstates the current 63-word deficit.
+- summary: Exhaustive 172-probe 29-web landscape; best diagnostic w160=c3 reaches 21; indexed point-carrier form regressed 63 to 119.
 
 - geometry: Target and configured C are both `0x38C`/908 bytes/227 words with frame `0x80`; the owned Overlay 19 range is `+0xF58..+0x12E4`, ROM `0x18761B0..0x187653C`, followed by separately owned 12-byte assembly padding.
 - relocation proof: Target runtime and candidate static surfaces both contain zero relocation records; count, type, offset, and identity surfaces are therefore vacuously exact, and preflight is complete.
