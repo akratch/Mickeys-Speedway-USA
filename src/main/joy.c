@@ -360,6 +360,6 @@ s32 joyCharVal(void) {
  * frame: 0x38
  * relocations: 55
  * first-mismatch: +0x2C
- * summary: Declaring i before unusedMsg made the frame ladder exact, 48 to 47; the rest is the two loops' register webs
+ * summary: 18-web scan and seven-subset lattice reach diagnostic floor 40. Endpoint source probes fail; existing flag/count ownership narrows the next source question.
  * PLATEAU-HANDOFF:joyRead:end
  */
