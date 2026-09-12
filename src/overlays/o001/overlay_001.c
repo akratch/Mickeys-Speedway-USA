@@ -141,10 +141,10 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
 extern f32 gOverlay1PhaseScale;
 
-/* Plateau (batch 14): diagnostic -Wab,-r4300_mul is exact-size with 10 words, first at +0x08.
- * Dead-array reuse fixed 17 words; start a0/v1 and angle/scale f22/f24 webs remain.
- * Canonical flags are worse; the bounded 40-minute permuter found no zero.
- * Direct func_8000572C naming now proves all six relocation identities. */
+/* Plateau, 2026-09-12: 10 relocation-masked words at the exact 74-word extent
+ * and 0x78 frame. The TU's -Wab,-r4300_mul (see the Makefile block) closes the
+ * whole structural half here; what is left is two allocator decisions, priced
+ * in the handoff below, and forcing both scores 0. */
 #ifdef NON_MATCHING
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
@@ -490,10 +490,10 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
 
 /* PLATEAU-HANDOFF:overlay1FindType47ByAngle:start
  * symbol: overlay1FindType47ByAngle
- * score: 18 differing words
+ * score: 10 differing words
  * frame: 0x78
  * relocations: 6
  * first-mismatch: +0x8
- * summary: Diagnostic r4300_mul reaches 64/74; all six relocation identities are exact, while angle/scale and start allocation webs remain.
+ * summary: Eighteen masked words to ten, and the residual is two named allocator decisions with a price on each. The TU carries -Wab,-r4300_mul as of this lane, adopting the diagnostic the earlier notes recorded: it removes the entire structural half, the really-different bucket goes 5 to 0 and the displacement tax 7 to 0, and the surplus at +0x88 against the missing at +0xA8 is gone. The other two guarded functions in this TU are bit-for-bit unmoved at 3 and 12 and gmake verify passes, which is the safety property the Makefile block states. The structural half was never a source question: cc -S shows ugen already emitting the target's order, mul.s into f12 then mov.s into f14 then the call, and what differed was as1's delay-slot choice, so no statement or physical-line arrangement could reach it. Forcing both remaining colours on the flag build scores 0 masked at delta 0. First the start carrier, web 14, save 1.0, nocs 2, totalsave 2, forbidden c1 c15 c16 c18 all merely taken: it is the last integer decision and takes the lowest free colour c2 v1 where the ROM takes c3 a0, and since c2 is forbidden to nothing here and the ROM never uses v1, what is needed is a web that TAKES c2 first. Second the float pair: scale web 28 has totalsave 11 against angle web 44 at 10, one unit, the weight of scale's out-of-loop definition, so scale is decided first and takes the lower colour while the ROM has angle lower. Flat at 10 on the flag build: all six declaration orders of the three f32 locals and all six of the three s32 locals, nine call line arrangements, a product temporary reusing difference, an indexed cursor, a scale-first cursor line, empty trailing compares keeping angle and start live, and two discarded difference-equals-angle seeds. The seeds are folded by cfe and the records prove it rather than inferring it: angle's totalsave stays 10 and scale's 11 in every seeded form, so L109 supplies no float spelling here.
  * PLATEAU-HANDOFF:overlay1FindType47ByAngle:end
  */

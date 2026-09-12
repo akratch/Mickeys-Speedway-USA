@@ -714,6 +714,16 @@ $(BUILD_DIR)/$(SRC_DIR)/main/fx.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/main/frontend_37D50.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/main/block_506D0.c.o: CFLAGS += -Wab,-r4300_mul
 
+# One overlay TU on the same evidence (2026-09-12, lane p9-tight). The flag
+# buys the same class change here: overlay1FindType47ByAngle goes 18 masked
+# words to 10 at size delta 0, and what it removes is the whole structural
+# residual -- as1 stops hoisting the second float argument out of the
+# unsigned-to-float conversion block, so every instruction lands on the
+# target's offset and only two register decisions are left. The other two
+# guarded functions in the TU are bit-for-bit unmoved at 3 and 12, and
+# `gmake verify` passes, which is the safety property above.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: CFLAGS += -Wab,-r4300_mul
+
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.

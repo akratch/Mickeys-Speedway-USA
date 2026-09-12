@@ -2,11 +2,11 @@
 ### `overlay1FindType47ByAngle` plateau handoff
 
 - source: `src/overlays/o001/overlay_001.c`
-- score: 18 differing words
+- score: 10 differing words
 - frame: 0x78
 - relocations: 6
 - first mismatch: +0x8
-- summary: Diagnostic r4300_mul reaches 64/74; all six relocation identities are exact, while angle/scale and start allocation webs remain.
+- summary: Eighteen masked words to ten, and the residual is two named allocator decisions with a price on each. The TU carries -Wab,-r4300_mul as of this lane, adopting the diagnostic the earlier notes recorded: it removes the entire structural half, the really-different bucket goes 5 to 0 and the displacement tax 7 to 0, and the surplus at +0x88 against the missing at +0xA8 is gone. The other two guarded functions in this TU are bit-for-bit unmoved at 3 and 12 and gmake verify passes, which is the safety property the Makefile block states. The structural half was never a source question: cc -S shows ugen already emitting the target's order, mul.s into f12 then mov.s into f14 then the call, and what differed was as1's delay-slot choice, so no statement or physical-line arrangement could reach it. Forcing both remaining colours on the flag build scores 0 masked at delta 0. First the start carrier, web 14, save 1.0, nocs 2, totalsave 2, forbidden c1 c15 c16 c18 all merely taken: it is the last integer decision and takes the lowest free colour c2 v1 where the ROM takes c3 a0, and since c2 is forbidden to nothing here and the ROM never uses v1, what is needed is a web that TAKES c2 first. Second the float pair: scale web 28 has totalsave 11 against angle web 44 at 10, one unit, the weight of scale's out-of-loop definition, so scale is decided first and takes the lower colour while the ROM has angle lower. Flat at 10 on the flag build: all six declaration orders of the three f32 locals and all six of the three s32 locals, nine call line arrangements, a product temporary reusing difference, an indexed cursor, a scale-first cursor line, empty trailing compares keeping angle and start live, and two discarded difference-equals-angle seeds. The seeds are folded by cfe and the records prove it rather than inferring it: angle's totalsave stays 10 and scale's 11 in every seeded form, so L109 supplies no float spelling here.
 - assignment base: `05cbca2025f87f1b4b670eaa73c6cd181ffd0dc7`
 - owned range: Overlay 1 `+0x1AC..+0x2D4`, ROM `0x184C58C..0x184C6B4`, exactly 296 bytes / 74 instructions with no target padding
 - configured V0: The restored full-TU `-O2 -mips2 -32` body has the exact `0x78` frame and extent, 56/74 positional words, 18 relocation-masked differences, 19 raw differences, ten opcode mismatches, four alignment gaps, and first mismatch `+0x8`.
@@ -72,4 +72,55 @@ edge): reading `angle` through `*(f32 *)&angle` at the call is 64 and a word
 short, `scale` through its address is 68, both together 56 and two words short,
 `volatile f32 angle` is 74, and `volatile f32 scale` is 64. The lever does not
 transfer to this function.
+#### 2026-09-12, lane `p9-tight`: the diagnostic flag is adopted, and the rest is two priced colours
+
+`-Wab,-r4300_mul` is now set on this TU in the Makefile. It takes the function
+from 18 masked words to **10** at size delta 0, and what it removes is the
+*whole* structural half: the aligner's really-different bucket goes 5 to 0, the
+displacement tax 7 to 0, and the surplus instruction at `+0x88` against the
+missing one at `+0xA8` disappears. The safety property is the one the Makefile
+block already states -- the other two guarded functions in this TU are
+bit-for-bit unmoved at 3 and 12 masked words, and `gmake verify` prints the
+expected SHA1 with the flag in place. `tu_flag_impact.py` still fails closed
+here, on `overlay1ActivateObject`'s two GLOBAL_ASM fallbacks, exactly as the
+2026-08 note recorded; the ROM is the evidence instead.
+
+**The structural half was never a source question.** `cc -S` shows ugen already
+emitting the target's order -- `mul.s $f12` , then `mov.s $f14`, then the call.
+What differed was as1's delay-slot choice: without the flag as1 hoists the
+`mov.s $f14` out of the unsigned-to-float conversion block and fills the delay
+slot with the multiply instead. That is why nine call line arrangements, a
+product temporary and every placement of the scale read were flat, and it
+retires "start from the surplus/missing pair" as a *source* lead.
+
+**What is left is exactly two allocator decisions, and forcing both on the flag
+build scores 0 masked words at delta 0** (`p1:w14=c3,p1:w28=c32`, four
+`forced=` acceptances in the records, instrumented object `cmp`-identical to
+the configured one).
+
+- **The start carrier.** Web 14, save 1.0, nocs 2, totalsave 2, `forbidden0`
+  `0x4001a000` = c1, c15, c16, c18 -- all merely taken. It is the last integer
+  decision and takes the lowest free colour, c2 `v1`; the ROM takes c3 `a0`.
+  c2 is not forbidden to any web in this procedure, and the ROM's stream never
+  uses `v1`, so what is needed is a web that *takes* c2 ahead of it.
+- **The float pair.** `scale` (web 28) has totalsave 11 against `angle`'s
+  (web 44) 10 -- one unit, the weight of `scale`'s out-of-loop definition --
+  so `scale` is decided first and takes the lower colour. The ROM has `angle`
+  lower. `angle` needs one more unit of weight, or `scale` one less.
+
+Measured flat at 10 on the flag build, so the next lane need not repeat them:
+all six declaration orders of the three `f32` locals and all six of the three
+`s32` locals; nine call line arrangements including the fully folded form; a
+product temporary reusing `difference` (17 before the flag, 10 after); an
+indexed `&objects[start]` cursor (11); a scale-first cursor line (11); empty
+trailing compares keeping `angle` (13) and `start` (16) live to the exit; an
+`if (angle != angle) { }` probe (19); and two discarded `difference = angle`
+seeds meant to raise `angle`'s weight.
+
+**Those seeds are the useful negative.** They are folded by cfe, and the
+records prove it rather than inferring it: `angle`'s totalsave stays 10 and
+`scale`'s 11 in every seeded form, only the web numbers move. So L109 supplies
+no float spelling here, and the one unit of weight has to come from a real
+reference.
+
 <!-- plateau-handoff:overlay1FindType47ByAngle:end -->
