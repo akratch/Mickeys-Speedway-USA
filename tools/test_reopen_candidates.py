@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """The re-open lister must not overstate what a candidate row means."""
+import json
 import unittest
 from unittest import mock
 
@@ -130,6 +131,81 @@ class SelectionTests(unittest.TestCase):
                              {"func_x": "2026-09-01"})
         self.assertEqual(rows[0]["bytes_per_word"], None)
 
+
+class NewLawConstructTests(unittest.TestCase):
+    """The 2026-09-11/12 laws must recognise the prose a closure actually uses."""
+
+    def law(self, name, text):
+        return bool(rc.LAW_CONSTRUCTS[name].search(text))
+
+    def test_each_new_law_recognises_its_own_construct(self):
+        cases = {
+            "L140 unverified force sweep":
+                "a 522-compile force sweep never beats 25",
+            "L142 call arity offer set":
+                "the p1cost list starts at colour 5 so a1 is not offered",
+            "L144 reload without volatile":
+                "eight volatile qualifications were measured flat",
+            "L139 totalsave against bestcost":
+                "the web carries totalsave 71 against bestcost 20",
+            "L131 range per IR name":
+                "the live range spans both calls",
+        }
+        for name, text in cases.items():
+            with self.subTest(law=name):
+                self.assertTrue(self.law(name, text))
+
+    def test_a_force_sweep_closure_is_tagged_however_it_is_phrased(self):
+        """L140 is the widest tag on the list, because Trap 20 retracts a
+        CLASS of evidence rather than adding a lever: CDX_FORCE is ignored
+        without CDX_PROC, so any sweep that did not record acceptance is
+        unproven rather than negative."""
+        for text in ("CDX_FORCE=p1:w35=c28 was applied",
+                     "forcing web 104 to every colour",
+                     "150 force cells, none better",
+                     "we forced each web in turn"):
+            with self.subTest(text=text):
+                self.assertTrue(self.law("L140 unverified force sweep", text))
+
+    def test_the_new_laws_do_not_fire_on_unrelated_prose(self):
+        text = "The frame is exact and every relocation identity agrees."
+        for name in ("L140 unverified force sweep", "L142 call arity offer set",
+                     "L144 reload without volatile",
+                     "L139 totalsave against bestcost",
+                     "L131 range per IR name"):
+            with self.subTest(law=name):
+                self.assertFalse(self.law(name, text))
+
+
+class BarredSymbolTests(unittest.TestCase):
+    """A proven-unmatchable symbol must never appear as a re-open candidate.
+
+    Candidates are ranked by how closed-yet-cheap they look, which is exactly
+    the shape a proven-unmatchable function has: large, nearly exact, and so
+    top of any list. One sat first in this tool's output while carrying a
+    proof that no legal source reaches it.
+    """
+
+    def test_a_barred_symbol_is_dropped_from_the_queue(self):
+        rows = {"functions": [{"name": "keep", "size_bytes": 100},
+                              {"name": "barred", "size_bytes": 1416}]}
+        with mock.patch.object(rc, "barred",
+                               return_value={"barred": {"reason": "proved"}}), \
+             mock.patch.object(type(rc.RANKING), "read_text",
+                               return_value=json.dumps(rows)):
+            self.assertEqual(sorted(rc.queued()), ["keep"])
+
+    def test_no_bar_file_bars_nothing(self):
+        missing = rc.UNASSIGNABLE.parent / "does-not-exist.json"
+        with mock.patch.object(rc, "UNASSIGNABLE", missing):
+            self.assertEqual(rc.barred(), {})
+
+    def test_the_shipped_bar_covers_the_proven_unmatchable_symbol(self):
+        """A standing project constraint, and this tool surfaced it once."""
+        self.assertIn("overlay57UpdateModeState", rc.barred())
+
+    def test_the_shipped_queue_excludes_it(self):
+        self.assertNotIn("overlay57UpdateModeState", rc.queued())
 
 if __name__ == "__main__":
     unittest.main()

@@ -83,12 +83,52 @@ LAW_CONSTRUCTS = {
         r"colour order|color order|first[- ]definition", re.I),
     "L107 region reassociation": re.compile(
         r"reassociat|region boundary|\bif \(1\)|do\s*\{\s*\}\s*while", re.I),
+    # 2026-09-11/12 laws. L140 is deliberately the widest on this list, and
+    # for a different reason from L106's breadth: it is not a new lever but a
+    # retraction of evidence. CDX_FORCE is silently ignored unless CDX_PROC is
+    # also set (Trap 20), recording forced=-2 and returning a byte-identical
+    # object indistinguishable from a legitimate decline -- so ANY closure
+    # resting on a force sweep that did not record acceptance is unproven
+    # rather than negative. One was re-run and a decision it called
+    # unreachable scored 6 at delta 0. Checking is cheap: re-run one cell with
+    # CDX_PROC and read the forced value.
+    "L140 unverified force sweep": re.compile(
+        r"CDX_FORCE|force sweep|forcing web|forced (?:it|the|each|every)|"
+        r"never beats|force cells|force grid", re.I),
+    "L142 call arity offer set": re.compile(
+        r"p1cost|argument register|\bariti?y\b|spanned call|forbidden0?\b|"
+        r"available0?\b|not offered|never offered", re.I),
+    "L144 reload without volatile": re.compile(
+        r"volatile|reload(?:s|ed|ing)?\b|memory[- ]class|storage class", re.I),
+    "L139 totalsave against bestcost": re.compile(
+        r"totalsave|bestcost|\bsplit the web|web split", re.I),
+    "L131 range per IR name": re.compile(
+        r"live range|common ?subexpression|\bCSE\b|expression temp|"
+        r"same (?:address )?expression", re.I),
 }
+
+
+UNASSIGNABLE = ROOT / "config" / "unassignable-symbols.us.json"
+
+
+def barred() -> dict[str, dict]:
+    """Symbols with a proof that no legal source reaches the target.
+
+    They must never be surfaced here. A reopen candidate is ranked by how
+    closed-yet-cheap it looks, which is exactly the shape a proven-unmatchable
+    function has -- large, nearly exact, and therefore top of any list. One sat
+    first in this tool's output while carrying a proof that it cannot match.
+    """
+    if not UNASSIGNABLE.exists():
+        return {}
+    return json.loads(UNASSIGNABLE.read_text(encoding="utf-8"))["symbols"]
 
 
 def queued() -> dict[str, dict]:
     document = json.loads(RANKING.read_text(encoding="utf-8"))
-    return {row["name"]: row for row in document["functions"]}
+    bars = barred()
+    return {row["name"]: row for row in document["functions"]
+            if row["name"] not in bars}
 
 
 def closure_date(path: pathlib.Path) -> str:
