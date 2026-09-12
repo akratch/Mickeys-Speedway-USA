@@ -341,9 +341,9 @@
       "source_commit": "9477fea633184fa9fbef34cbfec6292d9ffe9851"
     },
     "func_8002057C": {
-      "ledger_commit": "529e8db4b98c4f03a91fb92213d68af19b254ead",
+      "ledger_commit": "693cbfa8c4d89b473040b26353b925440ec0d121",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "4c436e8014c7616b4f9a4892ec781ea8234d01b7"
+      "source_commit": "693cbfa8c4d89b473040b26353b925440ec0d121"
     },
     "func_80020B10": {
       "ledger_commit": "2209cc9f9bcb29e1284c7218a80edf2995317c68",
@@ -1426,9 +1426,9 @@
       "source_commit": "0a8587635a324c4844ecb8345f23efb5d94825d3"
     },
     "overlay20RemoveEntry": {
-      "ledger_commit": "519ed719b6245e55c9f093e902fbf24f49aac4c7",
+      "ledger_commit": "a4d252d4535f8fe6ee8ca804e945d959ee0393f4",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "519ed719b6245e55c9f093e902fbf24f49aac4c7"
+      "source_commit": "a4d252d4535f8fe6ee8ca804e945d959ee0393f4"
     },
     "overlay27UpdateCoordinates": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
