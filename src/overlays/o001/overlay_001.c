@@ -139,23 +139,19 @@ typedef struct Overlay1ScanObject {
 extern void **func_8000572C(s32 *start, s32 *end);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
-extern f32 gOverlay1PhaseScale;
 
-/* Plateau, 2026-09-12: 10 relocation-masked words at the exact 74-word extent
- * and 0x78 frame. The TU's -Wab,-r4300_mul (see the Makefile block) closes the
- * whole structural half here; what is left is two allocator decisions, priced
- * in the handoff below, and forcing both scores 0. */
-#ifdef NON_MATCHING
+/* Indexed access lets IDO generate the cursor and retain the array-base web.
+ * The phase scale is the authenticated rodata literal, not a cached global;
+ * its constant web leaves the incoming angle first in the tied FP priority. */
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
     s32 end;
     Overlay1ScanObject **objects;
-    Overlay1ScanObject **cursor;
+    Overlay1ScanData *data;
     Overlay1ScanObject *object;
     Overlay1ScanObject *best;
     f32 difference;
     f32 bestDifference;
-    f32 scale;
     s32 index;
 
     objects = (Overlay1ScanObject **)func_8000572C(&start, &end);
@@ -163,13 +159,12 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     best = NULL;
     index = start;
     if (start < end) {
-        cursor = (Overlay1ScanObject **)((s32)objects + (start << 2)); scale = gOverlay1PhaseScale;
         do {
-            object = *cursor;
+            object = objects[index];
             if (object->type == 0x2F) {
-                objects = (Overlay1ScanObject **)object->data;
+                data = object->data;
                 difference = overlay1WrapOffset(
-                    (f32)((Overlay1ScanData *)objects)->phase * scale,
+                    (f32)data->phase * 0.1f,
                     angle);
                 if ((difference > 0.0f) && (difference < bestDifference)) {
                     bestDifference = difference;
@@ -177,15 +172,10 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
                 }
             }
             index++;
-            cursor++;
         } while (index < end);
     }
     return best;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001/func_overlay_001_F00001AC_184C58C.s")
-#endif
 
 /* ---- overlay1GetLinkedActive ---- */
 
@@ -486,14 +476,4 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
  * first-mismatch: +0x4
  * summary: structure-mismatch; lever none-known. Raw/masked 14/12, masked first +0x14; attempts 9-13 stalled. Next: fidelity-pinned CFE copy/coalescing trace.
  * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
- */
-
-/* PLATEAU-HANDOFF:overlay1FindType47ByAngle:start
- * symbol: overlay1FindType47ByAngle
- * score: 10 differing words
- * frame: 0x78
- * relocations: 6
- * first-mismatch: +0x8
- * summary: Post-flag footprint has no legal coloured-web probes; retain the two prior source-priority questions.
- * PLATEAU-HANDOFF:overlay1FindType47ByAngle:end
  */

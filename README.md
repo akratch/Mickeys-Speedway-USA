@@ -11,18 +11,18 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ## Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1219_of_1462_(83.38%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-538736_of_944344_(57.05%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1421_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1219_of_1462_(83.38%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-539032_of_944344_(57.08%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1422_adopted-blue)](#progress)
 
 | | Done | Total | |
 | :--- | ---: | ---: | ---: |
-| **Whole program** | 538,736 | 944,344 | **57.05%** |
+| **Whole program** | 539,032 | 944,344 | **57.08%** |
 | Resident C | 303,024 | 475,080 | 63.78% |
 | Verified assembly | 17,184 | 475,080 | 3.62% |
-| Overlay C | 218,528 | 469,264 | 46.57% |
+| Overlay C | 218,824 | 469,264 | 46.63% |
 | Functions matched | 1,219 | 1,462 | 83.38% |
 | Names adopted | 1,314 | 1,462 | 89.88% |
 
-Whole program is resident C plus verified assembly plus overlay C. A function counts only when the ROM rebuilds byte-identically with its C compiled in place of its assembly, so a `NON_MATCHING` body counts as unmatched exactly like extracted assembly. Verified assembly is 84 hand-written functions kept as assembly on purpose. 1,421 symbols are adopted in `symbol_addrs.us.txt`.
+Whole program is resident C plus verified assembly plus overlay C. A function counts only when the ROM rebuilds byte-identically with its C compiled in place of its assembly, so a `NON_MATCHING` body counts as unmatched exactly like extracted assembly. Verified assembly is 84 hand-written functions kept as assembly on purpose. 1,422 symbols are adopted in `symbol_addrs.us.txt`.
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
