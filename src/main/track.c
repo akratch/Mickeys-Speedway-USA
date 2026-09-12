@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: All 13 coloured webs sampled, no winning single force; assignment and region boundaries cannot preserve the pre-sqrt value in its saved web.
+ * summary: zero winning colour forces; scoped lifetime and guard probes did not move the saved FP web
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
