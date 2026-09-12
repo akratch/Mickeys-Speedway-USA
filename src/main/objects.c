@@ -5821,11 +5821,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_800084C4:start
  * symbol: func_800084C4
- * score: 168 differing words
+ * score: 168/343 words
  * frame: 0xB0
  * relocations: 8
  * first-mismatch: +0x2C8
- * summary: Workbench structure-mismatch: structure-buckets. Next: resolve the extra texture-flag argument move and shared physical-address constant.
+ * summary: One candidate-only word at +0x2D4 drives a coherent seven-register ring rotation; explicit cast and signed parameter forms are flat.
  * PLATEAU-HANDOFF:func_800084C4:end
  */
 
