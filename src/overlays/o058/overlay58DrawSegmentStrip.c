@@ -175,6 +175,6 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
  * frame: 0x88
  * relocations: 8
  * first-mismatch: +0xF0
- * summary: Exhaustive 145-probe 31-web landscape; best diagnostic w225=c3 reaches 37; cursor-carrier deletion regressed to 152 and +56 bytes.
+ * summary: 60 naming and 10 structural rows; index-store order and register-cursor probes moved no census lines; retained body is best
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */
