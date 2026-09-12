@@ -2,11 +2,11 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 1115 differing words
+- score: 851/1594 words
 - frame: 0x158
-- relocations: 273
+- relocations: 271
 - first mismatch: +0x0
-- summary: 1592/1594 words, delta -6 to -2. actors[i] not a cursor: loop-bottom IVs now slot-exact. Next: r16 bound rematerialization, frame +32.
+- summary: Indexed both o54 digit-copy loops from the o52 shape; 1115 to 851 masked and delta -8 to 0. Next: coherent temp ring and frame excess.
 Final disposition: reconstruction plateau after five consecutive refinements
 without new matching information. The guarded C is compiled, not object-exact
 or ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM

@@ -645,6 +645,6 @@ hudQuad:
  * frame: 0x110
  * relocations: 315
  * first-mismatch: +0x0
- * summary: Frame gap is 2 extra ugen spill temps, not a declaration defect; declared-local geometry is identical. Next: pool-web divergence at slot 18.
+ * summary: Address partition isolates interpolation temp-ring windows; no safe source adoption.
  * PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:end
  */

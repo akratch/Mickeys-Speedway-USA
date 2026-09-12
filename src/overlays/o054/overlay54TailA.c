@@ -305,21 +305,17 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
         timer[6].metadata = (centiseconds / 10) * 65536;
         timer[7].metadata = (centiseconds % 10) * 65536;
         overlay54GetOffsets(playerIndex, 3, &xOffset, &yOffset);
-        src = o54Data_CC;
-        dst = timer;
-        do {
-            if ((dst->metadata >> 16) == 1) {
-                if (src == o54Data_CC || src == o54Data_FC || src == o54Data_12C) {
-                    dst->x = src->x + xOffset + 1;
+        for (i = 0; i < 8; i++) {
+            if ((timer[i].metadata >> 16) == 1) {
+                if (i == 0 || i == 3 || i == 6) {
+                    timer[i].x = o54Data_CC[i].x + xOffset + 1;
                 } else {
-                    dst->x = src->x + xOffset - 1;
+                    timer[i].x = o54Data_CC[i].x + xOffset - 1;
                 }
             } else {
-                dst->x = src->x + xOffset;
+                timer[i].x = o54Data_CC[i].x + xOffset;
             }
-            src++;
-            dst++;
-        } while ((u32) src < (u32) o54Data_14C);
+        }
         if (player->flags1A8 & 8) {
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc,
                 o54Bss_140[playerIndex], 0, hudY, 255, 255, 255, 255);
@@ -506,21 +502,17 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             o54Bss_0[5].metadata = (seconds % 10) * 65536;
             o54Bss_0[7].metadata = (centiseconds / 10) * 65536;
             o54Bss_0[8].metadata = (centiseconds % 10) * 65536;
-            src = o54Data_1E8;
-            dst = o54Bss_10;
-            do {
-                if ((dst->metadata >> 16) == 1) {
-                    if (src == o54Data_1E8 || src == o54Data_218 || src == o54Data_248) {
-                        dst->x = src->x + 1;
+            for (i = 0; i < 8; i++) {
+                if ((o54Bss_10[i].metadata >> 16) == 1) {
+                    if (i == 0 || i == 3 || i == 6) {
+                        o54Bss_10[i].x = o54Data_1E8[i].x + 1;
                     } else {
-                        dst->x = src->x - 1;
+                        o54Bss_10[i].x = o54Data_1E8[i].x - 1;
                     }
                 } else {
-                    dst->x = src->x;
+                    o54Bss_10[i].x = o54Data_1E8[i].x;
                 }
-                src++;
-                dst++;
-            } while (src != o54Data_268);
+            }
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc, o54Bss_0,
                 o54Bss_640[player->playerIndex] >> 4,
                 o54Bss_648[player->playerIndex] >> 4, 255, 255, 255, 255);
@@ -567,10 +559,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
  * symbol: func_overlay_054_F00005AC_189F24C
- * score: 1115 differing words
+ * score: 851/1594 words
  * frame: 0x158
- * relocations: 273
+ * relocations: 271
  * first-mismatch: +0x0
- * summary: 1592/1594 words, delta -6 to -2. actors[i] not a cursor: loop-bottom IVs now slot-exact. Next: r16 bound rematerialization, frame +32.
+ * summary: Indexed both o54 digit-copy loops from the o52 shape; 1115 to 851 masked and delta -8 to 0. Next: coherent temp ring and frame excess.
  * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
  */

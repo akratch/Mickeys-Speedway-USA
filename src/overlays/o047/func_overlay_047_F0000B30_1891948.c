@@ -689,10 +689,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1580/2168 words
+ * score: 1580 differing words
  * frame: 0x280
  * relocations: 316
  * first-mismatch: +0x4
- * summary: Paired audit: 45 movement, 11 address-web, 3 relocation-form, 2 copies, 2 hazards; six attempts flat; next lever is argument-home reload.
+ * summary: Address partition isolates regional GP ring phases; size-only rate deletion is rejected.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
