@@ -672,8 +672,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[0].y = rowY + 0x12;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                opponent = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                opponent = 0;
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
 
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
@@ -739,8 +739,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 13:
-        i = 0;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        /* Initialize the visible index with the title colour's zero blue. */
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6F], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -799,8 +799,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[0].y = rowY + 0x12;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                opponent = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                opponent = 0;
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
 
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
@@ -1087,8 +1087,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 8:
         x = D_o058_5E98 + D_o058_5EA8;
-        i = 0;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1103,7 +1103,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        /* The visible row index was initialized before the font calls.
+        /* The visible row index starts with the title font call.
          * This separate induction starts beside the loop so uopt can fold
          * both the lap-array address and the row-coordinate stride.
          * Both indices visit zero through two once; `opponent` is otherwise
@@ -1375,8 +1375,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 10:
         x = D_o058_5E98 + D_o058_5EA8;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
-        i = 0;
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1484,10 +1484,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 272/3614 words
+ * score: 249/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 277 to 272: separate case-1 array induction, later row store and same-line visible index; entry allocation repriced on the new shape.
+ * summary: 277 to 249: independent case-1 induction and five local initialization schedules; remaining allocation cycles require fresh prices.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
