@@ -2273,7 +2273,16 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * operand's chain is folded into it and moves the survivor one slot on. That is
  * the same mechanism the note above calls back-coalescing, measured from the
  * other side. Only a zero-footprint draw on some other live narrow value would
- * pay, and nothing narrow is live there. */
+ * pay, and nothing narrow is live there.
+ *
+ * A second corner confirms the reading independently: a redundant byte mask on
+ * the angle-high read, inside the left operand, buys the fifth draw and makes
+ * the switch byte-exact in both arms, with everything from the truncation
+ * onwards exact too. It scores 3 because the draw was spent at the HEAD of the
+ * chain -- as1 deletes the no-op by renaming the byte load's destination, so
+ * the load loses its pool colour, and the chain's survivor moves one slot on,
+ * taking the shift and the sum's first operand with it. The fifth draw has to
+ * be the fifth. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;

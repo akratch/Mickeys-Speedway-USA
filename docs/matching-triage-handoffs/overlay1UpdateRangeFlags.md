@@ -412,6 +412,24 @@ variants crossing the angle's declared width with hoisted and cast left
 operands; 34 phantom-draw placements across the sum, the left operand, the right
 operand, a split assignment and the comparison.
 
+**A second corner confirms the release-order reading independently.** Adding a
+redundant byte mask to the angle-high read inside the left operand -- the value
+is loaded as a byte, so the mask is a no-op the assembler deletes -- gives the
+block its fifth ring draw and the switch comes out byte-exact, both arms, with
+everything from the truncation onwards exact as well. It scores 3, not 0, and
+the three words are exactly the ones the mechanism predicts: the assembler
+deletes the no-op by renaming the byte load's destination, so the load loses the
+pool colour it should keep, and because the draw was spent at the HEAD of the
+left operand's chain the chain's survivor moves one ring slot on, taking the
+shift and the sum's first operand with it.
+
+That pins the remaining constraint to one sentence. The fifth draw has to be the
+fifth, not the first: the left operand must own draws one to three so its
+survivor is the third, the right summand must own the fourth so it dies at the
+sum after the survivor, and the fifth must fall between the sum and the
+truncation. Every no-op placed there is on the sum, and deleting it renames the
+sum. Everything else in the function is byte-exact in that configuration.
+
 Next lever: not another spelling of the arm, and not the carrier. Either a live
 narrow value that can carry a zero-footprint draw between the sum and the
 comparison, or a source form in which the sum's own destination survives a
