@@ -593,6 +593,6 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
  * frame: 0xB8
  * relocations: 88
  * first-mismatch: +0x7C
- * summary: Unmoved at 198. The +0x368 float colour is priced at three words and blocked by one interferer; the fp ring phase reaches no colour 29 or 30.
+ * summary: Two source-order probes: inline dx regressed to 238; dz-before-dx was byte-identical. web346 and one folded FP draw remain.
  * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
  */
