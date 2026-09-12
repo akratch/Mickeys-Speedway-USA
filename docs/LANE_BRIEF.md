@@ -60,6 +60,17 @@ a whole-queue pass is meant to own the tree. So do not start a `--refresh-stale`
 or `--out` pass while a harness is measuring in the same worktree; that is the
 one combination that collides.
 
+  **The isolation is the work directory, not the source file.** A *sweep* --
+  `blockclimb.py`, or any candidate harness -- writes the TU's own `.c` in the
+  tree between compiles, so anything else that measures that TU while it runs
+  reads whichever variant happened to be on disk. This is not the scratch
+  collision the memory note records; the work directories are private and the
+  numbers still come back, plausibly, and wrong. It cost this lane an identity
+  gate that read FAIL with 4 words differing and then PASS byte-identical on the
+  same source once the sweep had finished. **One sweep per TU at a time, and no
+  measurement of that TU beside it.** Different TUs in parallel are fine, and a
+  sweep on one TU beside a measurement of another is fine.
+
 ## Go to the records early, not after the lattice fails
 
 **This is the biggest measured difference in how lanes spend their time.** The
