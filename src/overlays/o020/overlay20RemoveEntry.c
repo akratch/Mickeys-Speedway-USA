@@ -172,6 +172,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: web 42 is genuinely declined at c1; fresh L154 probes leave web-creation order as the remaining source decision
+ * summary: No legal coloured webs; remaining source decision is pre-colour web creation order.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
