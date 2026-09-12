@@ -462,11 +462,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 13/54 words
+ * score: 41/54 words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: The residual is exactly one instruction, and the previous note's decision variable is refuted. Three separate extern f32 scalars reproduce the target byte-for-byte apart from one extra lui at: six words where the ROM spends five, everything else in the block agreeing including the ori at zero 0x8000 placement, the pre-call lwc1 and lw argument scheduling, and all four swc1 orderings. as1 does NOT share a high half. Measured directly: two references to the SAME extern in two basic blocks emit two lui at with identical R_MIPS_HI16 relocations and as1 leaves both, so the ROM's shared high half is not an assembler merge and no C spelling can ask for one. What the ROM spends is a third lowering neither reachable path produces, a hi-only base kept in at with the lo folded into TWO displacements (128 and 132) and a second lui for the third (136). The two paths IDO does take here were confirmed on isolated probes: a symbol referenced once becomes an as1 absolute macro at two words per load, a symbol referenced twice or more makes uopt build a full base register at lui plus addiu plus one word per load. The base-register decision is not splittable from source: an if(1) region, a do-while(0) region and a volatile cast all leave it, and only a real branch splits it, which then yields two separate macros rather than one shared high half. Eighteen further spellings measured flat beyond the previous note's twelve, including all four absolute-literal forms, which prove the ROM's addresses are relocatable symbols rather than assemble-time constants because *(f32 *)0x80 collapses to lwc1 128(zero) with no lui at all at delta -8. Next lane: the variable is uopt's address-constant lowering, shared with overlay15MoveStars in this same TU, and register pressure remains the one untested hypothesis for making uopt decline the base register.
+ * summary: One shifted absolute-address lowering remains: the target shares a hi-only base across two loads, a form unavailable to this source.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
