@@ -2034,7 +2034,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xB0
  * relocations: 55
  * first-mismatch: +0x9C
- * summary: The eight-byte frame excess and the twenty-byte transformed-coordinate home shift were one declaration-order fault; the ladders are now identical slot for slot at 0xB0 and the score is 157 with byte-exact 219, naming 109, immediate-only 1, structural 45. 2026-09-12, lane p11-mid, read off DKWB_UGEN_SCHED plus DKWB_UGEN_TRACE: this procedure's GP free list is t6 t7 t8 t9 t2 t3 t4 t5 -- v0, v1, t0 and t1 are REMOVEd before the first draw -- and it is FIFO. Everything from +0x0 to +0x98 is byte-identical, and the FIRST naming difference at +0x9C is the sprite reload lw 196(sp), which takes t2 for us and t3 for the target: exactly one free-list position later. So the target spends one more GP draw than we do somewhere in the transformed-coordinate block, and because the emitted code up to +0x98 agrees word for word that draw is folded away in its own output -- the L149 case, invisible to any register census. Counting draws, not registers, is therefore the axis here, and no colour lattice can reach it. A second, separable finding REOPENS the rejected frame spelling. We emit move a0,v0 at +0x1CC, copying the divisor the target never copies, and the target emits lh plus andi 0xffff at +0x24C and +0x254 where we emit one lhu. Those are +1 and -1 on the same function, which is why sprite->frame & 0xFFFF measured +4 bytes and 263 words ALONE: it must be paired with whatever removes the divisor copy, and the previous rejection is evidence about the pair, not about the spelling.
+ * summary: All 9 coloured webs and 61 legal forces are flat; next source question is the L149 folded GP draw.
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 
