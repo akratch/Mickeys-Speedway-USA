@@ -105,6 +105,17 @@ extern u32 gOverlay20ActiveBits;
  * the third colour in front of the cursor. The recorded array-base hoist buys
  * only the second and costs three words in the two index shifts.
  */
+/* 2026-09-12, lane p21-two: fresh configured baseline and L154 probes preserve
+ * 51/53 words, frameless, with two coherent colour-only differences. A global
+ * pre-decrement regresses to 52/53 with a four-byte size excess; computing
+ * owner - 1 into new_var before the global store regresses to 34/53 exact;
+ * unsigned-literal and addition-negative-one spellings remain 51/53. The
+ * instrumented compiler's text is byte-identical to stock. With CDX_PROC=0,
+ * forcing web 42 to c1 is declined (forced=-2) and scores 2 directly, while
+ * forcing web 8 to c6 is accepted and scores 6, confirming the promotion
+ * chain. The remaining source decision is web creation order, not a dropped
+ * force or an unpriced register phase.
+ */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
@@ -161,6 +172,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: p2:w42=c1 is genuinely declined; L154 and typed-constant probes are flat, leaving the three-sided web-order constraint
+ * summary: web 42 is genuinely declined at c1; fresh L154 probes leave web-creation order as the remaining source decision
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
