@@ -1156,6 +1156,7 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x10C0, 0x10C8, "overlay1Noop"),
         (0x19B8, 0x1A54, "overlay1InitializeModeState"),
+        (0x1A54, 0x1CA4, "overlay1BuildObjectMappings"),
         (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),
         (0x1D58, 0x1D78, "overlay1CallReset"),
         (
@@ -1223,6 +1224,7 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x63CC, 0x6424, "overlay1UpdateCountdown"),
         (0x6424, 0x64F8, "overlay1ReadSelection"),
+        (0x64F8, 0x6724, "overlay1SolveAngleCandidates"),
         (0x6724, 0x6788, "overlay1UpdateModeSound"),
         (0x6788, 0x67C0, "overlay1CopyBytes"),
         (0x69A0, 0x6A14, "overlay1InitMotion"),
@@ -1273,6 +1275,9 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x7FCC, 0x8008, "overlay1ModeChecks"),
         (0x8008, 0x8048, "overlay1DistanceFromCurrent"),
         (0x8048, 0x80BC, "overlay1DistanceFromSelected"),
+    ],
+    2: [
+        (0x02C4, 0x0400, "overlay2ClassifyBoundary"),
     ],
     4: [
         (0x000, 0x138, "overlay4InitializeObjectMotion"),
@@ -1418,6 +1423,7 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x000, 0x08C, "overlay16BuildGradient"),
         (0x08C, 0x1A8, "overlay16InitializeBuffer"),
         (0x1A8, 0x1E0, "overlay16ReleaseBuffer"),
+        (0x1E0, 0x424, "overlay16ApplyGradient"),
     ],
     25: [
         (
@@ -1433,6 +1439,9 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xB20, 0xB68, "overlay27CanUse"),
         (0xB68, 0xBC0, "overlay27Activate"),
     ],
+    26: [
+        (0x1158, 0x1370, "func_overlay_026_F0001158_187B550"),
+    ],
     28: [
         (0x000, 0x070, "overlay28ResetBuffer"),
         (0x070, 0x1B8, "overlay28UpdateVertices"),
@@ -1441,6 +1450,15 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     49: [
         (0x354, 0x374, "refractOutput"),
+    ],
+    29: [
+        (0x14C8, 0x16CC, "overlay29DrawGroups"),
+    ],
+    31: [
+        (0x02E8, 0x04F8, "func_overlay_031_F00002E8_187F808"),
+    ],
+    35: [
+        (0x0770, 0x0B40, "func_overlay_035_F0000770_1882450"),
     ],
     51: [
         (
@@ -1505,6 +1523,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "overlay56UnpackColor",
             "canonical mixed-TU object and linked bytes exact",
         ),
+    ],
+    63: [
+        (0x77C, 0x928, "overlay63UpdateSequence"),
+    ],
+    68: [
+        (0x1250, 0x1438, "overlay68RebuildSecondaryEntry"),
     ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),

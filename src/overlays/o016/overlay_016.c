@@ -58,13 +58,9 @@ void overlay16ReleaseBuffer(void) {
 }
 
 /* DKR v77/v80 and JFG contain no exact donor for this gradient pass. */
-/* Bounded plateau (2026-08-29): configured full-TU C is exact-sized at
- * 145 words with frame 0x20; 60 register-only words differ, first +0x3C,
- * and all six LOCAL relocation tuples agree. The complete 119-flag lattice
- * was nonexact. One fidelity-clean allocator trace and three natural forms
- * found one strict gain: channel-definition order reduced 64 differences to
- * 60. Chained phase assignment was flat; delayed gradient loads regressed. */
-#ifdef NON_MATCHING
+/* Tier A: exact configured IDO output. Store then read back the phase, keep
+ * the active cursor increment outside the condition, and define input channels
+ * before gradient channels to preserve temporary and local register allocation. */
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                             s32 phaseStep) {
     Overlay16Batch *batch;
@@ -90,13 +86,13 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
     if (gradient == NULL) {
         return;
     }
-    phase = (gOverlay16Phase + phaseStep) & 0xFF;
-    gOverlay16Phase = phase;
+    gOverlay16Phase = (gOverlay16Phase + phaseStep) & 0xFF;
+    phase = gOverlay16Phase;
     batch = context->batches;
     batchIndex = context->batchCount;
     one = 1;
     while (batchIndex--) {
-        if (*activePtr++) {
+        if (*activePtr) {
             source = batch->source;
             if (source) {
                 s16 *block;
@@ -131,10 +127,9 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                         gradientColor += gradientIndex;
                         gradientColor += gradientIndex;
                         inputRed = input[0];
-                        gradientRed = gradientColor[0];
-                        /* This order is the best retained natural allocation. */
                         inputGreen = input[1];
                         inputBlue = input[2];
+                        gradientRed = gradientColor[0];
                         gradientGreen = gradientColor[1];
                         gradientBlue = gradientColor[2];
                         if (gradientRed < inputRed) {
@@ -159,9 +154,7 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
             }
             batch->dirty = 0;
         }
+        activePtr++;
         batch++;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o016/overlay_016/func_overlay_016_F00001E0_1873678.s")
-#endif

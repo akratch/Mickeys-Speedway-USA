@@ -5,7 +5,6 @@ typedef struct Overlay31Behaviour {
     void *colourLoop;
 } Overlay31Behaviour;
 
-extern s32 gOverlay31AssetStateCount;
 extern s32 gOverlay31AssetStates[];
 extern s32 gOverlay31ParticleAssetCount;
 extern u8 *gOverlay31ParticleAssets;
@@ -15,7 +14,7 @@ extern u8 *gOverlay31BehaviourAssets;
 extern Overlay31Behaviour **gOverlay31BehaviourAssetTable;
 
 extern void *overlay31LoadAssetTableReloc(s32 assetId);
-extern void overlay31BuildPalettes(void);
+extern void overlay31BuildPalettesReloc(void);
 extern void *overlay31GetMiscAssetReloc(s32 assetId);
 extern void func_overlay_031_F0000000_187F520(void);
 
@@ -25,19 +24,12 @@ static void *const overlay31RuntimeCarrier =
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
-/* Workbench p7: structure-mismatch; target/candidate 132/133 instructions, -0x30 frame, 123 masked words, first +0xC.
- * Lever: a count-pointer carrier was codegen-identical; prior direct/chained index forms remain eliminated.
- * Remains: retail's early count store/indexed-base schedule and five alignment gaps; GLOBAL_ASM stays canonical. */
-#ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {
     s32 i;
 
-    gOverlay31AssetStateCount = 0;
-    i = gOverlay31AssetStateCount + 1;
-    gOverlay31AssetStates[i + 1] = 0;
-    gOverlay31AssetStates[i + 2] = 0;
-    gOverlay31AssetStates[i + 3] = 0;
-    gOverlay31AssetStates[i] = 0;
+    for (i = 0; i < 5; i++) {
+        gOverlay31AssetStates[i] = 0;
+    }
 
     gOverlay31ParticleAssetTable = overlay31LoadAssetTableReloc(0x33);
     while ((s32)gOverlay31ParticleAssetTable[gOverlay31ParticleAssetCount + 1] != -1) {
@@ -50,7 +42,7 @@ void func_overlay_031_F00002E8_187F808(void) {
             gOverlay31ParticleAssets + (s32)gOverlay31ParticleAssetTable[i];
     }
 
-    overlay31BuildPalettes();
+    overlay31BuildPalettesReloc();
 
     gOverlay31BehaviourAssetTable = overlay31LoadAssetTableReloc(0x35);
     while ((s32)gOverlay31BehaviourAssetTable[gOverlay31BehaviourAssetCount + 1] != -1) {
@@ -71,16 +63,3 @@ void func_overlay_031_F00002E8_187F808(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31InitializeParticleAssets/func_overlay_031_F00002E8_187F808.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_031_F00002E8_187F808:start
- * symbol: func_overlay_031_F00002E8_187F808
- * score: 9/132 words
- * frame: 0x30
- * relocations: 24
- * first-mismatch: +0xC
- * summary: Fresh V0 on 0793a39c confirms the +1-word owner overrun; 24-site identity proof stays closed. Donors unchanged; body untouched.
- * PLATEAU-HANDOFF:func_overlay_031_F00002E8_187F808:end
- */

@@ -39,43 +39,30 @@ extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
 extern s32 overlay68GetBlurEffectReloc(s32 kind);
 extern void overlay68ReleaseReloc(void *resource);
 
-/*
- * Policy-clean configured C plateaus at 17/122 positional words, with 120
- * emitted words, frame 0x38, and first mismatch +0x0. All 19 runtime roles
- * remain represented, but structural drift shifts sites after +0x64. All 119
- * flag configurations were nonexact; the closest debug family still differs
- * in 77 words and has the wrong extent. One codegen-faithful allocator trace
- * supported lexical stack-home scoping, which improved one word but did not
- * restore the target's 122-word/0x40-frame shape. Sentinel operand order was
- * byte-identical, so no batch was authorized. The assembly fallback remains;
- * ORT 1163's sole inbound is func_80004FE0+0x4C8.
- */
-#ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
     s32 amount;
     const Overlay68KindPair *mapping;
-    s32 currentKind;
+    s32 entrySize;
+    Overlay68ResidentEntry *selectedEntry;
+    void *payload;
 
     gOverlay68SecondaryEntry = 0;
     amount = -1;
     mapping = gOverlay68KindMap;
 
-    if (mapping->kind != -1) {
-        currentKind = mapping->kind;
-        do {
-            if (kind == currentKind) {
-                amount = mapping->amount;
-                break;
-            }
-            mapping++;
-            currentKind = mapping->kind;
-        } while (-1 != currentKind);
+    while (mapping->kind != -1) {
+        if (kind == mapping->kind) {
+            amount = mapping->amount;
+            break;
+        }
+        mapping++;
     }
 
     if (amount != -1) {
         Overlay68EntryHeader *entry;
 
-        entry = overlay68AllocReloc(overlay68PayloadLimit(), 0x85);
+        entrySize = overlay68PayloadLimit();
+        entry = overlay68AllocReloc(entrySize, 0x85);
         if (entry != 0) {
             Overlay68Probe *probe;
 
@@ -90,19 +77,17 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
                                              sizeof(*probe));
                 entries = overlay68GetResidentEntriesReloc();
                 index = overlay68GetBlurEffectReloc(kind);
-                threshold = entries[index].thresholdNumerator / 5;
+                selectedEntry = entries;
+                selectedEntry += index;
+                threshold = selectedEntry->thresholdNumerator / 5;
                 if (threshold == 0) {
                     threshold = 0x7080;
                 }
 
                 index = 0;
-                if ((probe->assetSizes[0] != 0) &&
-                    (threshold < probe->values[0])) {
-                    do {
-                        index++;
-                    } while ((index < 4) &&
-                             (probe->assetSizes[index] != 0) &&
-                             (threshold < probe->values[index]));
+                while ((index < 4) && (probe->assetSizes[index] != 0) &&
+                       (threshold < probe->values[index])) {
+                    index++;
                 }
 
                 if (index >= 4) {
@@ -115,7 +100,8 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
                     overlay68RomLoadSectionReloc(0x40, (u32)entry,
                                                  probe->assetOffsets[index],
                                                  probe->assetSizes[index]);
-                    entry->payload = entry + 1;
+                    payload = entry + 1;
+                    entry->payload = payload;
                     gOverlay68SecondaryEntry = entry;
                 }
                 overlay68ReleaseReloc(probe);
@@ -126,16 +112,3 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68RebuildSecondaryEntry/func_overlay_068_F0001250_18C83B0.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay68RebuildSecondaryEntry:start
- * symbol: overlay68RebuildSecondaryEntry
- * score: 17/122 words
- * frame: 0x38
- * relocations: 19
- * first-mismatch: +0x0
- * summary: 120-word scoped C retains 19 roles; target requires 122 words and a 0x40 frame
- * PLATEAU-HANDOFF:overlay68RebuildSecondaryEntry:end
- */

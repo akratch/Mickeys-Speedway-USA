@@ -682,6 +682,7 @@ typedef struct Overlay1BuildObject {
     f32 y;
     u8 pad18[0x4C];
     Overlay1BuildData *data;
+    Overlay1BuildData *innerData;
 } Overlay1BuildObject;
 
 typedef struct Overlay1BuildState {
@@ -702,88 +703,64 @@ typedef struct Overlay1BuildState {
 
 extern Overlay1BuildObject **overlay1GetBuildObjectsReloc(s32 *count);
 extern void overlay1MarkBuildObjectReloc(Overlay1BuildObject *object);
-extern void func_overlay_001_F00004B4_184C894(Overlay1BuildObject *object);
-extern void func_overlay_001_F00019B8_184DD98(s32 value);
+extern void overlay1BuildActivateReloc(Overlay1BuildObject *object);
+extern void overlay1BuildInitializeStateReloc(s32 value);
 extern s32 gOverlay1BuildGate;
 extern u8 gOverlay1RankBase;
 extern u8 gOverlay1RankLimit;
-extern u8 D_8[];
+extern u8 gOverlay1ObjectMappingTable[][10];
+extern void *gOverlay1BuildStateReloc;
 
-/* Plateau reproof (2026-08-31): the complete flag lattice still selects
- * -O2 -mips2. The retained candidate is 0xC bytes short, differs in 88 of
- * 148 words, and first diverges at +0x0; source structure and allocation
- * remain nonexact, and the consolidated relocation identities fail closed. */
-#ifdef NON_MATCHING
 void overlay1BuildObjectMappings(volatile s32 unused) {
     s32 count;
     Overlay1BuildObject **base;
-    Overlay1BuildObject **outerCursor;
     Overlay1BuildObject *object;
     Overlay1BuildData *data;
+    Overlay1BuildData *innerData;
     s32 remaining;
-    s32 innerStart;
     s32 inner;
-    Overlay1BuildObject **innerCursor;
-    Overlay1BuildObject *innerObject;
-    u8 value;
 
     base = overlay1GetBuildObjectsReloc(&count);
     if (gOverlay1BuildGate != 0) {
-        if (count != 0) {
-            remaining = count - 1;
-            outerCursor = base + remaining;
-            do {
-                object = *outerCursor;
-                data = object->data;
-                if (data->rank >= (gOverlay1RankBase - gOverlay1RankLimit)) {
-                    data->flags |= 1;
-                    overlay1MarkBuildObjectReloc(object);
-                } else {
-                    data->flags |= 0x20;
+        remaining = count;
+        while (remaining--) {
+            object = base[remaining];
+            data = object->data;
+            if (data->rank >= (gOverlay1RankBase - gOverlay1RankLimit)) {
+                data->flags |= 1;
+                overlay1MarkBuildObjectReloc(object);
+            } else {
+                data->flags |= 0x20;
+            }
+            overlay1BuildActivateReloc(object);
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->scale = 1.0f;
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->byte381 = 0;
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->byte382 = 0;
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->byte383 = -1;
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->byte384 = 0;
+            ((Overlay1BuildState *)gOverlay1BuildStateReloc)->word400 = 0;
+            *(s16 *)((u8 *)gOverlay1BuildStateReloc + 0x3BA) = 0xFF;
+            *(f32 *)((u8 *)gOverlay1BuildStateReloc + 0x3D0) = object->x;
+            *(f32 *)((u8 *)gOverlay1BuildStateReloc + 0x3D4) = object->y;
+            *(f32 *)((u8 *)gOverlay1BuildStateReloc + 0x3D8) = object->x;
+            *(f32 *)((u8 *)gOverlay1BuildStateReloc + 0x3DC) = object->y;
+            if (gOverlay1BuildGate == 1) {
+                overlay1BuildInitializeStateReloc(0);
+                for (inner = 0; inner < 5; inner++) {
+                    ((s32 *)gOverlay1BuildStateReloc)[0x101 + inner] = 0;
                 }
-                func_overlay_001_F00004B4_184C894(object);
-                ((Overlay1BuildState *)D_1DA0)->scale = 1.0f;
-                ((Overlay1BuildState *)D_1DA0)->byte381 = 0;
-                ((Overlay1BuildState *)D_1DA0)->byte382 = 0;
-                ((Overlay1BuildState *)D_1DA0)->byte383 = -1;
-                ((Overlay1BuildState *)D_1DA0)->byte384 = 0;
-                ((Overlay1BuildState *)D_1DA0)->word400 = 0;
-                *(s16 *)((u8 *)D_1DA0 + 0x3BA) = 0xFF;
-                *(f32 *)((u8 *)D_1DA0 + 0x3D0) = object->x;
-                innerStart = count - 1;
-                *(f32 *)((u8 *)D_1DA0 + 0x3D4) = object->y;
-                *(f32 *)((u8 *)D_1DA0 + 0x3D8) = object->x;
-                *(f32 *)((u8 *)D_1DA0 + 0x3DC) = object->y;
-                if (gOverlay1BuildGate == 1) {
-                    func_overlay_001_F00019B8_184DD98(0);
-                    inner = 1;
-                    ((Overlay1BuildState *)D_1DA0)->word404 = 0;
-                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word404 = 0;
-                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word408 = 0;
-                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word40C = 0;
-                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word410 = 0;
-                }
-                inner = innerStart;
-                if (count != 0) {
-                    innerCursor = base + inner;
-                    do {
-                        innerObject = *innerCursor;
-                        value = D_8[(((((*outerCursor)->data->index << 2) +
-                                     (*outerCursor)->data->index)) << 1) +
-                                    innerObject->data->index];
-                        innerCursor--;
-                        *((u8 *)D_1DA0 + 0x3A8 + inner) = value;
-                    } while (inner--);
-                }
-                outerCursor--;
-            } while (remaining--);
+            }
+            inner = count;
+            while (inner--) {
+                data = base[remaining]->data;
+                innerData = base[inner]->data;
+                *((u8 *)gOverlay1BuildStateReloc + 0x3A8 + inner) =
+                    gOverlay1ObjectMappingTable[data->index][innerData->index];
+            }
         }
     }
 }
 
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0001A54_184DE34.s")
-#endif
 
 /* ---- overlay1ReleaseRecords ---- */
 
@@ -834,15 +811,6 @@ void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
 
-/* PLATEAU-HANDOFF:overlay1BuildObjectMappings:start
- * symbol: overlay1BuildObjectMappings
- * score: 88 differing words
- * frame: 0x78
- * relocations: 16
- * first-mismatch: +0x0
- * summary: 145/148-word size; target frame 0x70; structure/allocation remain after 119 flags, ten forms, and one bounded batch; identities unresolved
- * PLATEAU-HANDOFF:overlay1BuildObjectMappings:end
- */
 
 /* PLATEAU-HANDOFF:overlay1LoadBuildRecords:start
  * symbol: overlay1LoadBuildRecords

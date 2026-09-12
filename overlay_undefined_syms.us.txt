@@ -43,16 +43,24 @@ D_1DCC = 0x00001dcc;
 D_20C = 0x0000020c;
 D_210 = 0x00000210;
 D_5 = 0x00000005;
-D_8 = 0x00000008;
 D_B4 = 0x000000b4;
 D_B8 = 0x000000b8;
 func_8002A8BC_o001Reloc = 0xf0000000;
 func_8002A8C0_o001Reloc = 0xf0000000;
+gOverlay1BuildGate = 0x00000000;
+gOverlay1BuildStateReloc = 0x00001da0;
+gOverlay1ObjectMappingTable = 0x00000008;
+gOverlay1RankBase = 0x00000000;
+gOverlay1RankLimit = 0x00000000;
 gOverlay1ReleaseFinal = 0x00001d58;
 gOverlay1ReleaseRecordCount = 0x00001d80;
 gOverlay1ReleaseRecords = 0x00001ba0;
 gOverlay1ReleaseSecondary = 0x00001d70;
+overlay1BuildActivateReloc = 0xf00004b4;
+overlay1BuildInitializeStateReloc = 0xf00019b8;
 overlay1EvaluateCurve = 0xf0000000;
+overlay1GetBuildObjectsReloc = 0xf0000000;
+overlay1MarkBuildObjectReloc = 0xf0000000;
 overlay1ModeResolverReloc = 0xf0000000;
 overlay1NextPointerReloc = 0xf0000000;
 overlay1ReleaseReloc = 0xf0000000;
@@ -97,6 +105,7 @@ D_218 = 0x00000218;
 D_220 = 0x00000220;
 D_4 = 0x00000004;
 D_6C = 0x0000006c;
+D_8 = 0x00000008;
 D_83E4 = 0x00000000;
 D_8C = 0x0000008c;
 D_D4 = 0x000000d4;
@@ -178,9 +187,6 @@ overlay2AngleReloc = 0xf0000000;
 gOverlay2LineCount = 0x00000020;
 
 /* overlay 2: overlay2ClassifyBoundary.c.o */
-D_34 = 0x00000034;
-
-/* overlay 2: overlay2IntersectBoundary.c.o */
 gOverlay2BoundaryAxis = 0x00000030;
 gOverlay2BoundaryValue = 0x00000034;
 
@@ -671,6 +677,9 @@ overlay14UpdateReloc = 0xf0000498;
 /* overlay 14: overlay14UpdateTransition.c.o */
 D_C0 = 0x000000c0;
 
+/* overlay 14: func_overlay_014_F0001540_1870E18.c.o */
+D_34 = 0x00000034;
+
 /* overlay 14: overlay14ReleaseOwner.c.o */
 gOverlay14Owner = 0x00000100;
 
@@ -890,6 +899,12 @@ func_80029FE4_o026Reloc = 0xf0000000;
 func_8002A910_o026Reloc = 0xf0000000;
 func_8003EDEC_o026Reloc = 0xf0000000;
 
+/* overlay 26: overlay26DrawGroups.c.o */
+o26DrawReloc = 0xf0000000;
+o26FinishReloc = 0xf0000000;
+o26FlushReloc = 0xf0000000;
+o26PrepareNode = 0xf0000000;
+
 /* overlay 27: overlay_027.c.o */
 D_100 = 0x00000100;
 D_110 = 0x00000110;
@@ -956,6 +971,11 @@ overlay29RandomRangeReloc = 0xf0000000;
 overlay29ResetReloc = 0xf0000000;
 overlay29TransformReloc = 0xf0000000;
 
+/* overlay 29: overlay29DrawGroups.c.o */
+camPushModelMtx_o029Reloc = 0xf0000000;
+camRestoreModelMtx_o029Reloc = 0xf0000000;
+func_80034920_o029Reloc = 0xf0000000;
+
 /* overlay 30: overlay30Initialize.c.o */
 gOverlay30Buffer20 = 0x00000000;
 gOverlay30Buffer320 = 0x00000000;
@@ -981,6 +1001,18 @@ overlay30LoadResourceReloc = 0xf0000000;
 overlay30ResetReloc = 0xf0000000;
 overlay30ResourceSizeReloc = 0xf0000000;
 overlay30SetupReloc = 0xf0000000;
+
+/* overlay 31: overlay31InitializeParticleAssets.c.o */
+gOverlay31AssetStates = 0x00000000;
+gOverlay31BehaviourAssetCount = 0x00000000;
+gOverlay31BehaviourAssetTable = 0x00000000;
+gOverlay31BehaviourAssets = 0x00000000;
+gOverlay31ParticleAssetCount = 0x00000000;
+gOverlay31ParticleAssetTable = 0x00000000;
+gOverlay31ParticleAssets = 0x00000000;
+overlay31BuildPalettesReloc = 0xf0000000;
+overlay31GetMiscAssetReloc = 0xf0000000;
+overlay31LoadAssetTableReloc = 0xf0000000;
 
 /* overlay 31: overlay31BuildPalettes.c.o */
 overlay31AllocateReloc = 0xf0000000;
@@ -2501,7 +2533,19 @@ gOverlay63Resource = 0x00000000;
 overlay63ReleaseReloc = 0xf0000000;
 
 /* overlay 63: overlay63UpdateSequence.c.o */
-D_124 = 0x00000124;
+gO63ActiveState = 0x00000134;
+gO63GraphicReloc = 0x00000000;
+gO63PendingStart = 0x0000000c;
+gO63PendingState = 0x0000012c;
+gO63Sequence = 0x00000124;
+gO63SequenceIndex = 0x00000128;
+gO63SequenceStart = 0x00000100;
+gO63Timer = 0x00000130;
+gO63ToggleReloc = 0x00000000;
+gO63TransitionEnabled = 0x000000d0;
+joyGetPressed_o063Reloc = 0xf0000000;
+o63DrawReloc = 0xf0000000;
+o63TransitionReloc = 0xf0000000;
 
 /* overlay 65: overlay65Initialize.c.o */
 gOverlay65Buffers = 0x00002980;
@@ -2585,6 +2629,12 @@ overlay68FinishEntryPromoteReloc = 0xf0000000;
 
 /* overlay 68: overlay68InitializeObject.c.o */
 overlay68ConfigureReloc = 0xf0000000;
+
+/* overlay 68: overlay68RebuildSecondaryEntry.c.o */
+gOverlay68KindMap = 0x00000014;
+overlay68GetBlurEffectReloc = 0xf0000000;
+overlay68GetResidentEntriesReloc = 0xf0000000;
+overlay68RomLoadSectionReloc = 0xf0000000;
 
 /* overlay 70: func_overlay_070_F00000D8_18C92A0.c.o */
 gOverlay70HeightTableReloc = 0x00000000;
@@ -3320,10 +3370,10 @@ func_overlay_001_F0000DF4_184D1D4 = overlay1ResolveMotionPoint;
 func_overlay_001_F0000F84_184D364 = overlay1MeasureCurves;
 func_overlay_001_F00010C0_184D4A0 = overlay1Noop;
 func_overlay_001_F00019B8_184DD98 = overlay1InitializeModeState;
+func_overlay_001_F0001A54_184DE34 = overlay1BuildObjectMappings;
 func_overlay_001_F0001CA4_184E084 = overlay1ReleaseRecords;
 func_overlay_001_F0001D58_184E138 = overlay1CallReset;
 func_overlay_001_F00010C8_184D4A8 = overlay1LoadBuildRecords;
-func_overlay_001_F0001A54_184DE34 = overlay1BuildObjectMappings;
 
 /* overlay 1: overlay_001_middle.c.o */
 func_overlay_001_F0002744_184EB24 = overlay1FindNextAngle;
@@ -3351,6 +3401,7 @@ func_overlay_001_F00061F0_18525D0 = overlay1HandleCachedMode;
 func_overlay_001_F0006270_1852650 = overlay1ChooseModeObject;
 func_overlay_001_F00063CC_18527AC = overlay1UpdateCountdown;
 func_overlay_001_F0006424_1852804 = overlay1ReadSelection;
+func_overlay_001_F00064F8_18528D8 = overlay1SolveAngleCandidates;
 func_overlay_001_F0006724_1852B04 = overlay1UpdateModeSound;
 func_overlay_001_F0006788_1852B68 = overlay1CopyBytes;
 func_overlay_001_F00069A0_1852D80 = overlay1InitMotion;
@@ -3366,7 +3417,6 @@ func_overlay_001_F0007B64_1853F44 = overlay1FindBestRecord;
 func_overlay_001_F0003750_184FB30 = overlay1ChoosePath;
 func_overlay_001_F0003FD8_18503B8 = overlay1TransitionState;
 func_overlay_001_F000438C_185076C = overlay1UpdateObjectPhysics;
-func_overlay_001_F00064F8_18528D8 = overlay1SolveAngleCandidates;
 func_overlay_001_F00067C0_1852BA0 = overlay1UpdateRangeFlags;
 func_overlay_001_F0006A14_1852DF4 = overlay1ConsumeNearbyPending;
 func_overlay_001_F0006D4C_185312C = overlay1UpdateAimedTransient;
