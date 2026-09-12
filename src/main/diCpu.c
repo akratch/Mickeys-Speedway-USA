@@ -517,19 +517,37 @@ void func_8004650C(s32 ticks) {
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from the SDK-style crash-display control flow in JFG
  * src/diCpu.c; Mickey's own m2c control flow, globals, and ABI are authoritative. */
-/* Bounded plateau (2026-08-31): initializing the register-block pointer at
- * declaration fixed its call-crossing lifetime and moved configured full-TU
- * C from 321 to 62 differing words. Target and candidate are both 344 words
- * with frame 0x50; first mismatch is +0x144. All 127 relocation records are
- * present and 125 identities align. The residual diagnoses as two structural,
- * four schedule, and 57 register-class differences. Ten natural source forms
- * covered pointer lifetime, direct field access, context reassignment,
- * declaration order, volatility, control boundaries, and cause-word reuse.
- * The 119-row flag lattice was nonexact; MIPS-I gained one masked word but
- * worsened size to +20 bytes. The only bounded permuter run found no zero and
- * its best mutation changed a return width and injected inert branches, so it
- * was rejected. The nearest five-project skeleton is only 0.077; JFG's
- * same-named peer remains assembly-only and is substantially larger. */
+/* 51/344 differing words, exact 344 words, frame 0x50, size delta 0 (lane p9-mid, 2026-09-12;
+ * was 62).  All 127 relocation records are present and 125 identities align.
+ *
+ * The residual is a ugen integer ring phase, and the ring itself was measured here rather than
+ * inferred.  An instrumented-ugen free-list trace over this TU reports this function as procedure
+ * ordinal 9 with 32 integer allocations, and its draw order is t6, t7, t8, t9, t0, t1, t2, t3, t4,
+ * t5, wrapping -- so a ring draw that emits nothing still advances every later temp by one name.
+ * Each draw is stamped with the source line that consumed it, which is what makes the phase
+ * settable from source.
+ *
+ * Three hoists of a printf argument into the already-present value local, each worth the draw it
+ * removes: the second argument of the exception-address line (62 -> 56), the cause-table lookup
+ * (56 -> 53), and the tick counter on the first line (53 -> 51).  A greedy subset search over
+ * eighteen such hoists -- every single-line cpuXYPrintf in the function with a stack-passed
+ * argument -- converges there.  Buckets went 283 byte-exact / 57 naming / 1 immediate / 4
+ * structural to 293 / 49 / 0 / 2 at an unchanged size, so this is more agreement on every axis, not
+ * a trade.
+ *
+ * One tension worth stating: the last of the three puts the first line's stack argument in value's
+ * own colour where the shipped code uses a ring temp, so it disagrees at three sites it used to
+ * agree on while agreeing at five more.  It wins on every bucket and the schedule does not move,
+ * which is why it is retained, but a form that removes that draw *without* naming the value would
+ * be strictly better.
+ *
+ * The remaining 49 naming words are one fact: the shipped code's first visible ring temp is t7,
+ * one position past the head of the list ugen builds, so it makes one draw this candidate does not
+ * before any instruction is emitted.  A phantom pop at the top of the function is the shape to look
+ * for.  Earlier work, retained: ten natural source forms over pointer lifetime, direct field access,
+ * context reassignment, declaration order, volatility, control boundaries and cause-word reuse; a
+ * 119-row flag lattice, nonexact; a bounded permuter run with no zero; and the JFG revision once
+ * cited as a donor, which changes only README and tooling and supplies no body. */
 void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
     u32 sp4c;
     u32 sp48;
@@ -539,7 +557,8 @@ void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
     u32 *regs = (u32 *)((u8 *)arg0 + 0x20);
 
     func_80046E00();
-    cpuXYPrintf(0x20, 0x18, D_80083B5C, arg0->unk14, D_8007CFD0);
+    value = D_8007CFD0;
+    cpuXYPrintf(0x20, 0x18, D_80083B5C, arg0->unk14, value);
     value = regs[0xFC / 4];
     if (value == 0) {
         cpuXYPrintf(0x20, 0x22, D_80083B78);
@@ -558,11 +577,12 @@ void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
         cpuXYPrintf(0x20, 0x28, D_80083BB8, regs[0xE4 / 4]);
     }
     if (regs[0x100 / 4] == -1U) {
-        cpuXYPrintf(0x20, 0x2E, D_80083BC8, regs[0x1C / 4], regs[0x24 / 4]);
+        value = regs[0x24 / 4];
+        cpuXYPrintf(0x20, 0x2E, D_80083BC8, regs[0x1C / 4], value);
     } else {
         if ((((regs[0x100 / 4]) >> 2) & 0x1F) < 0x10) {
-            cpuXYPrintf(0x20, 0x2E, D_80083BE4,
-                        D_8007CFEC[(regs[0x100 / 4] >> 2) & 0x1F]);
+            value = D_8007CFEC[(regs[0x100 / 4] >> 2) & 0x1F];
+            cpuXYPrintf(0x20, 0x2E, D_80083BE4, value);
         } else {
             cpuXYPrintf(0x20, 0x2E, D_80083BF4, regs[0x100 / 4]);
         }
@@ -879,11 +899,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:render_epc_lock_up_display:start
  * symbol: render_epc_lock_up_display
- * score: 62/344 words
+ * score: 51/344 words
  * frame: 0x50
  * relocations: 127
- * first-mismatch: +0x144
- * summary: Baseline retained; final-report variants regressed and cited JFG revision has no diCpu source
+ * first-mismatch: +0x18
+ * summary: The residual is a measured ugen integer ring phase; three argument hoists removed three draws and the rest wants one phantom pop at the top.
  * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
 

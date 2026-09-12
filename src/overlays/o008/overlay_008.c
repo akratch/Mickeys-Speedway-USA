@@ -1138,24 +1138,44 @@ block_74:
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001294_185EFEC.s")
 #endif
 
-/* Workbench p7 batch 12: structure-mismatch; exact 183 instructions/-0xD0 frame, 62 masked/63 raw words, first non-relocation +0xB8.
- * Levers: constant/stack census and tuning-base placement; inherited baseValue/register/aggregate/order/loop probes remain negative.
- * Remains: retail record/base homes at +0x78/+0xCC and downstream webs; GLOBAL_ASM stays canonical. */
+/* 37/183 differing words, exact 183 instructions, 0xD0 frame, size delta 0 (lane p9-mid, 2026-09-12;
+ * was 62).  The previous closure asked to "resume with the missing pool value first" and recorded
+ * the record/base homes at +0x78 and +0xCC as an open question.  That question is now closed: it
+ * was declaration order, and the frame census -- which nobody had run on this function -- named it
+ * in one command.  Both sides carry 36 slots in a 0xD0 frame, and before these edits the target
+ * homed the record aggregate at +0x78..+0xAB with a four-byte local above it at +0xCC while this
+ * candidate homed the record at the frame top and that local at +0x80.  Declaring baseValue first
+ * and the record tenth puts nine four-byte autos above the aggregate, and **the two ladders are now
+ * slot-for-slot identical**.  62 -> 53.
+ *
+ * Two statement moves follow from the same reading of the object:
+ *   spread before record.magnitude4 in the emission loop, 53 -> 45.  The shipped code interleaves
+ *   the two integer-to-float conversions and issues the spread product first; all 24 permutations
+ *   of the four independent loop-body statements were measured and this is the unique optimum.
+ *   magnitudeScale hoisted above the emission-count guard, 45 -> 37.  Its fourteen other positions
+ *   through the preamble are flat, as are eight positions of record.phase14.
+ *
+ * What is left is one word's worth of cause: the shipped code emits an extra `move` of the emission
+ * count into a scratch register at +0x104, before the loop, which shifts +0x104..+0x150 by one word
+ * and accounts for essentially the whole residual.  That is L113 read backwards -- the shipped
+ * loop's index does not die at strength reduction and this candidate's does.  Ten loop-counter
+ * spellings (post-decrement in the guard, decrement-then-test-negative, four tail conditions, two
+ * guard comparisons, an or-with-zero probe, and a separate counter local) are all 37 or worse. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0002640_1860398(
     O8P2640Anchor *anchor, O8P2640Config *config, s32 orientation,
     s32 randomLow, s32 randomHigh, f32 distanceX, f32 unusedStackFloat,
     f32 distanceZ, s32 emissionCount) {
-    O8P2640Record record;
+    s32 baseValue;
     const O8P2640Tuning *tuning;
     f32 axisA;
     f32 axisB;
     f32 clampedDistance;
     f32 spread;
     f32 magnitudeScale;
-    s32 baseValue;
     s32 randomOffset;
     s32 randomValue;
+    O8P2640Record record;
     s32 magnitudeValue;
     s32 tuningIndex;
 
@@ -1190,21 +1210,20 @@ void func_overlay_008_F0002640_1860398(
     record.packed24 = 0xFF800000;
     record.packed30 = 0xFF000000;
 
+    magnitudeScale = O8P2640_data_19C;
     if (emissionCount == 0) {
         return;
     }
     emissionCount--;
-    magnitudeScale = O8P2640_data_19C;
     do {
         randomOffset = O8P2640_call_27BC(-0xC80, 0xC80);
         randomValue = O8P2640_call_27CC(randomLow, randomHigh);
         magnitudeValue = O8P2640_call_27DC(0x50, 0x78);
         record.value0 = (s16)(baseValue + randomOffset);
         record.value2 = (s16)randomValue;
+        spread = (f32)randomOffset * tuning->spreadScale8;
         record.magnitude4 = (f32)magnitudeValue *
                             clampedDistance * magnitudeScale;
-
-        spread = (f32)randomOffset * tuning->spreadScale8;
         if (orientation == 0) {
             record.coord8 = anchor->coordC - tuning->extent0 * axisB +
                             spread * axisA;
@@ -2384,11 +2403,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:start
  * symbol: func_overlay_008_F0002640_1860398
- * score: 120/183 words
+ * score: 37/183 words
  * frame: 0xD0
  * relocations: 14
- * first-mismatch: +0xB8
- * summary: allocator-only record/base homes remain; relocation-aware score is 121/183 with 9/14 offsets/types and 2/14 identities aligned
+ * first-mismatch: +0xF0
+ * summary: The record/base home question was declaration order and the frame ladders are now identical; what is left is one preheader move of the emission count.
  * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
  */
 
