@@ -1846,17 +1846,16 @@ void *func_8000590C(void *arg0, s32 arg1) {
     object->unk10 = (f32)((Objects0590CPacket *)arg0)->unk6;
     object->unk14 = (f32)((Objects0590CPacket *)arg0)->unk8;
     object->unk2E = func_8000FAE0(object->unkC, object->unk10, object->unk14);
-    asset = object->unk40;
     object->unk2C = selected;
-    object->unk46 = packetId;
     object->unk3C = arg0;
-    object->unk8 = asset->unk0;
+    object->unk46 = packetId;
+    object->unk8 = object->unk40->unk0;
+    object->unk34 = (f32)object->unk40->unk18 * object->unk8;
     object->unk39 = 0xFF;
-    object->unk34 = (f32)asset->unk18 * object->unk8;
-    object->unk8D = asset->unkA7;
+    object->unk8D = object->unk40->unkA7;
     object->unk91 = 0;
     object->unk93 = 0;
-    loadFlags = func_8000A6E8(asset->unk1C);
+    loadFlags = func_8000A6E8(object->unk40->unk1C);
     loadType = loadFlags & 3;
     object->unk40->unk1A += 1;
     object->unk68 = (s32 *)((u8 *)object + 0x94);
@@ -1943,12 +1942,14 @@ void *func_8000590C(void *arg0, s32 arg1) {
         object->unk5C = (s32)cursor;
         aligned = align4(cursor + 0x34);
         ((Objects0590CParticleList *)object->unk5C)->unk30 = (s32)aligned;
-        cursor = aligned + (object->unk40->unk23 * 0x40);
+        cursor = aligned;
+        cursor += object->unk40->unk23 * 0x40;
     }
     if ((object->unk40->unk24 > 0) && (object->unk40->unk24 < 0xA)) {
         aligned = align4(cursor);
         object->unk60 = (s32)aligned;
-        cursor = aligned + (object->unk40->unk24 * 0x14);
+        cursor = aligned;
+        cursor += object->unk40->unk24 * 0x14;
     }
     if (object->unk40->unk25 > 0) {
         cursor += func_80006868((Objects06868Object *)object, cursor);
@@ -1968,7 +1969,8 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (object->unk8D != 0) {
         aligned = align4(cursor);
         object->unk7C = (s32)aligned;
-        cursor = aligned + (object->unk40->unkA7 * 0x24);
+        cursor = aligned;
+        cursor += object->unk40->unkA7 * 0x24;
     }
 
     size = (s32)(cursor - (u8 *)object);
@@ -2102,11 +2104,12 @@ void *func_8000590C(void *arg0, s32 arg1) {
         TrapDanglingJump(object);
     }
     if (object->unk48 != 0) {
-        func_80053550(object, object->unk40->unkBA, object->unk40->unkBB,
-                      object->unk40->unkB4, object->unk40->unkB6,
-                      object->unk40->unkB8, object->unk40->unkBC,
-                      object->unk40->unkC0, object->unk40->unkC4,
-                      object->unk40->unkC8, object->unk40->unkCC, 1);
+        asset = object->unk40;
+        func_80053550(object, asset->unkBA, asset->unkBB,
+                      asset->unkB4, asset->unkB6,
+                      asset->unkB8, asset->unkBC,
+                      asset->unkC0, asset->unkC4,
+                      asset->unkC8, asset->unkCC, 1);
     }
     if (func_80006534((Objects06534Object *)object) != 0) {
         if (D_800C9490 != 0) {
@@ -5778,11 +5781,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 150/719 words
+ * score: 99/719 words
  * frame: 0x90
  * relocations: 99
- * first-mismatch: +0x1B4
- * summary: p1 is the only allocator phase here (74 p1 decisions, zero p2). Six zero-width save probes put `size` ahead of `cursor` and moved cursor into s1, 186 -> 150. The rest is a web-partition problem: the asset-pointer reload is one web here and two in the target.
+ * first-mismatch: +0x6D4
+ * summary: The asset-pointer web partition is closed, by L131 rather than by a carrier: name the ONE site the target colours separately, and delete the named carrier everywhere it does not. 150 -> 99 at size delta 0, naming 92 -> 47, structural 17 -> 12.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
