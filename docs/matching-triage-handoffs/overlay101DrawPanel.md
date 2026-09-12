@@ -6,7 +6,7 @@
 - frame: 0x178
 - relocations: 18
 - first mismatch: +0xB4
-- summary: Frame/home deficit survives. L144 address loads reach 37; new-shape order climbs stall at 37 and 87. Retain 36; no source body change.
+- summary: source question is declared-symbol removal or two extra compiler temporaries
 
 #### 2026-09-11, lane p2-close: the block is SMALLER, not larger, and the older reading inverts
 
@@ -147,5 +147,14 @@ and `tools/gates.sh`. Source variants, objects, records and every climb
 measurement remain in private external scratch. Eighteen relocation records
 are retained; no overlay relocation promotion is claimed. Full-ROM proof
 covers the assembly fallback, not these nonexact candidates.
+
+#### 2026-09-12, lane p23-lastmile3: exhaustive colour floor
+
+Fresh residual map: 234 byte-exact, 16 naming, 8 immediate, 7 structural,
+with three candidate-only and three target-only offsets. The every-colour
+footprint sampled 145 probes over 23 coloured webs; no accepted force beat 36,
+so the winner list is empty and the lattice floor is 36. The named source
+question remains removal of one declared scalar without an alias-sensitive
+reload, or creation of two compiler temporaries at the target frame shape.
 
 <!-- plateau-handoff:overlay101DrawPanel:end -->
