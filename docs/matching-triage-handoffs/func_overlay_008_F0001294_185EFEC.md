@@ -8,6 +8,24 @@
 - first mismatch: +0x0
 - summary: Exhaustive colour packing reaches 565; remaining residual is largely non-colour temp-ring or structural.
 
+## 2026-09-12 exhaustive colour landscape
+
+`residual_map.py` re-derived 711 aligned exact words and 547 aligned residual
+rows (475 naming, 32 immediate, 40 structural). The sole target-only/candidate-only
+bracket is `+0x224 -> +0x468`; it accounts for 88 aligned-exact rows that are
+position-only shadow, so its 636 positional score must not be read as 636 colour rows.
+
+All 910 legal single forces were measured at zero size delta. The 21 winners
+were `w149=c26(614)`, `w625=c6(626)`, `w627=c6(626)`, `w629=c6(626)`,
+`w325=c3(627)`, `w335=c3/c4/c5/c6(627)`, `w406=c26(628)`,
+`w325=c4/c5/c6(629)`, `w239=c3(631)`, `w124=c2(633)`, `w486=c5(633)`,
+`w68=c2(635)`, `w406=c27(635)`, `w431=c4(635)`, and `w523=c4/c5(635)`.
+The packing selected `w149=c26,w625=c6,w239=c3,w124=c2,w68=c2,w406=c27,w523=c4`:
+predicted 593 and measured 565. The 28-word synergy between the two float
+forces is real; the measured colour floor is therefore 71 of 636 positional
+words (and at most 71 of 547 aligned rows), leaving 565 positional words outside
+this one-force colour landscape. No source form was adopted.
+
 ## 2026-09-11 phase census and force-sweep verdict (lane `lane/p9-alloc`)
 
 No source change is adopted. Three measurements that narrow what the naming
