@@ -371,6 +371,6 @@ void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
  * frame: 0x38
  * relocations: 405
  * first-mismatch: +0x0
- * summary: Reconstruction 33 instructions short with the shared temp lane using only t3 to t5 where the candidate spans t1 to t5; the 0x18-trip and 6-trip loops both contain calls so neither unrolls, and replacing the register-resident limit with a literal bound costs 70 words.
+ * summary: Guarded statement order is a fixed point; ring phase dominates from +0x140 and structural tail from +0x580. Unguarded 611 is non-adoptable.
  * PLATEAU-HANDOFF:func_overlay_057_F0001AE8_18A56E0:end
  */
