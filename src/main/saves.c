@@ -1534,6 +1534,6 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x18
- * summary: Late typed identities are removed before phase two; zero-cost colour-7 web remains unreachable.
+ * summary: Exhaustive 12-colour footprint is flat; test an invisible later integer constant.
  * PLATEAU-HANDOFF:func_8002C69C:end
  */
