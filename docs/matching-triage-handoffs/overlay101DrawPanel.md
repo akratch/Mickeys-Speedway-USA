@@ -6,7 +6,7 @@
 - frame: 0x178
 - relocations: 18
 - first mismatch: +0xB4
-- summary: Exact 268 words and 0x178 frame; two uopt region boundaries and one order-only move took 79 masked words to 36. The residue is NOT colouring: 240 single-web globalcolor forces leave it at 36 or worse. 2026-09-11, lane p2-close, measured and it inverts the older reading: the shipped frame's declared block ENDS at +0x64 and is 276 bytes where this candidate's ends at +0x58 and is 288, so the target declares three FEWER homed scalars, not a seventh more, and its compiler-temp pool is eleven cells against this candidate's eight. The eight immediate-only words are exactly the three spill displacements that follow from that, and the t1 census of 4 against 12 is the same fact seen from ugen: globalcolor here holds t0 through t5, leaving a four-register expression ring, while the shipped code spends t1 as an expression temp, so it carries one p1 web fewer. Decision variable: the declared-symbol count. Reopen with a source form that drops one declared scalar without adding a reload; naive inlining costs 48 to 436 bytes because the work struct's address escapes.
+- summary: Frame/home deficit survives. L144 address loads reach 37; new-shape order climbs stall at 37 and 87. Retain 36; no source body change.
 
 #### 2026-09-11, lane p2-close: the block is SMALLER, not larger, and the older reading inverts
 
@@ -104,4 +104,48 @@ not live in the escaping struct and is not re-derived from it. The array length,
 the struct-member carrier, the declaration orders, the qualifier and type
 lattices, the padding declarations, the nested-assignment carrier and the region
 spans are all recorded as measured and negative.
+
+#### 2026-09-12, lane p19-reopen: address reloads and new-shape order tested
+
+Assignment was base-only. The retained baseline remains 268 words, delta zero,
+frame 0x178, first +0xB4, 36 relocation-masked differences. Buckets before
+and after are 234 exact / 16 naming / 8 immediate / 13 really different.
+The alignment includes inserted/deleted rows and displacement tax -1; these
+buckets are not a partition of 268 positional words. No candidate body change is adopted.
+
+The configured full-TU instrument passes byte identity, including an external
+source-path control, and procindex ordinal 0 emits p1 records. The frame
+census reproduces the inherited declared-home versus compiler-temp deficit.
+Forcing web 95 to split is explicitly accepted (forced=-1), adds 12 bytes and
+regresses to 218 masked differences; this is not evidence for a free ring
+slot. The old single-web force closure was not treated as an order proof.
+
+L144 is a distinct axis from deleting volatile. Replacing the dim read with
+an ordinary address-form load gives 37 masked, buckets 238/14/8/12; changing
+dimmer gives 38, buckets 234/16/8/15; changing both gives 37, buckets
+239/14/8/10. All retain size. Thus the old volatile-only negative did not
+retire this lever, but the measured address forms do not improve the retained
+score. A dependency-guarded order climb on the both-address shape evaluates
+39 forms in one pass and remains 37.
+
+Separating width/height from the escaping work struct and inlining the two
+edge values reproduces 87 masked, delta zero, buckets 213/34/4/22. The
+inherited order sweep did not cover this shape: a fresh guarded climb tests
+35 forms in one pass and remains 87. Replacing the record pointer with an
+index gives 217 masked and removes eight bytes; combining that change with
+the split edges removes twelve bytes and still scores 217. Neither is a
+same-size improvement. The final new-shape order and carrier-removal controls
+supply no improved residual or new decision mechanism, so this packet stops.
+
+The declared-home/temporary-pool diagnosis survives. A next packet needs a
+source form removing the redundant homes without alias-sensitive reloads,
+and must re-price the frame and ring on that shape. Existing order results
+only cover their named shapes. Commands: alignment, residual map, register
+and frame censuses, configured stock/instrumented compilation, direct forced
+object scoring, the guarded blockclimb engine, `tools/finalize_plateau.py`
+and `tools/gates.sh`. Source variants, objects, records and every climb
+measurement remain in private external scratch. Eighteen relocation records
+are retained; no overlay relocation promotion is claimed. Full-ROM proof
+covers the assembly fallback, not these nonexact candidates.
+
 <!-- plateau-handoff:overlay101DrawPanel:end -->

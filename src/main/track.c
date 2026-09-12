@@ -2564,7 +2564,8 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
-/* Workbench verdict: allocation-mismatch, 20 differing words, first mismatch +0x1c. */
+/* Configured C: 16 naming differences, first +0x1C. Defining x/z lower
+ * bounds first removes four differences without changing the instruction shape. */
 /* Candidate: target/candidate 62/62 instructions with matching -0x10 frames and exact opcode schedule. */
 /* Shape status: the remaining pool-position/temp-FIFO residual is register-only. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
@@ -2594,8 +2595,8 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
         if (segmentCount > 0) {
             xInt = x;
             do {
-                xUpper = bounds->x2;
                 xLower = bounds->x1;
+                xUpper = bounds->x2;
                 if (xUpper < xInt) {
                     goto block_14;
                 }
@@ -2603,8 +2604,8 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
                     goto block_14;
                 }
                 zInt = z;
-                zUpper = bounds->z2;
                 zLower = bounds->z1;
+                zUpper = bounds->z2;
                 if (zUpper < zInt) {
                     goto block_14;
                 }
@@ -2904,10 +2905,6 @@ s32 func_800103D4(void *object) {
     f32 fadeRange;
     f32 fadeScale;
     f32 fadeRemaining;
-    f32 planeX;
-    f32 planeY;
-    f32 planeZ;
-    f32 planeDistance;
     s16 kind;
     s16 distanceLimit;
     s32 visible;
@@ -3025,6 +3022,11 @@ s32 func_800103D4(void *object) {
         radius = *(f32 *) ((u8 *) object + 0x34);
         plane = D_800C9578;
         do {
+            f32 planeX;
+            f32 planeY;
+            f32 planeZ;
+            f32 planeDistance;
+
             planeX = plane->x;
             planeY = plane->y;
             planeZ = plane->z;
@@ -5679,11 +5681,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000FAE0:start
  * symbol: func_8000FAE0
- * score: 20 differing words
+ * score: 16 differing words
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body.
+ * summary: Lower-bound order closes four words; accepted p2 forces price the count/coordinate swap. Best C: 46 exact, 16 naming. Final boolean-carrier probes stall.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
@@ -5790,11 +5792,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 158 differing words
- * frame: 0x60
+ * score: 158/160 words
+ * frame: 0x50
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Correct Mickey object-kind dispatch retained at 158 differences; frame and relocation deficits remain. Next: saved-FP lifetime evidence.
+ * summary: Scoped plane FP lifetimes lower the candidate frame from 0x60 to 0x50; accepted web 163 force to c32 scores 95 but source route remains unproved.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 

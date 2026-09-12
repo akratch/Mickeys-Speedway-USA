@@ -299,6 +299,6 @@ common_tail:
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x4C
- * summary: Two uopt region boundaries took 124 masked words to 119 at exact size and 0x18 frame. 2026-09-11, lane p2-close, 119 -> 106 with immediate-only words 2 -> 0 and structural 31 -> 26: four L59 group folds, chosen by measuring all 1,024 subsets of the ten foldable assignment groups, plus a no-op `& 0xFF` on the queue copy, which folds away at zero byte cost but still makes ugen allocate one more expression temporary and so moves the caller-saved free list one place. The shard's older claim that the target holds `selector` in a1 and this candidate a2 is stale: both hold it in a1 now, and the visible difference is the queue-byte base, t7 there against a2 here. The residue is 75 register-naming words, and it is p1 colouring in the root-initialisation region.
+ * summary: Accepted three-local displacement prices 19 masked words (106 to 87), diagnostic only. Source and new-shape order controls retain 106; interference remains.
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */
