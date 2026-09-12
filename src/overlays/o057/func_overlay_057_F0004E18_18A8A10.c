@@ -240,14 +240,54 @@ extern void func_overlay_084_F0001398_18D1878(void);
  *      this, because the free parameter was the scalar COUNT between the
  *      arrays, not any array's length.
  *
+ *  6.  READ THE TARGET'S BOUND, 2026-09-12 (lane p11-big).  Note 4 above is
+ *      wrong about what the target does, and the correction matters because
+ *      the whole "next lever" was built on it.  The target's choice loop IS
+ *      bounded on `&gO57MiddleChoices[4]`: it materialises that global address
+ *      into `a3` before the loop and closes with `addiu v0,v0,52; sltu
+ *      at,v0,a3; bnez at` at the BOTTOM.  It is not an invariant parked in a
+ *      callee-saved register there -- `a3` is caller-saved, and the loop makes
+ *      no call.  What the target does with its callee-saved registers instead
+ *      is hold `outputIndex` in s2, which is exactly the register the cached
+ *      `choice->active` form was measured to want.
+ *
+ *      So the `&sourceState[4]` bound adopted in note 4 is a spelling that
+ *      happened to be exact-sized, not the target's shape, and the residual it
+ *      leaves is structural: the candidate advances `source` at the TOP of the
+ *      loop and stores through `-1(source)`, the target advances it at the
+ *      bottom in the branch delay slot; and the candidate loads
+ *      `choice->active` twice where the target loads it once into `v1` and
+ *      uses the same register for the test and the store.
+ *
+ *      Re-measured at THIS frame layout, since note 4's numbers predate the
+ *      home fix in note 5 and L146 voids them: bounding on
+ *      `&gO57MiddleChoices[4]` is 259 at delta +4 (was "the surplus
+ *      instruction"); `!=` on it is 256 at delta -4; caching `choice->active`
+ *      is 516 at delta -8 alone, 552 with the global bound, and identical at
+ *      552 for `choiceActive`, `rank` and `input` as the carrier, so the
+ *      carrier is still not the variable and the register pressure is still
+ *      real.  Spelling the two tail `gO57MiddleChoices[0]` reads as
+ *      `(*gO57MiddleChoices)` or through a reset `choice` cursor is
+ *      byte-identical, so L131 does not split that address web.
+ *
+ *      What DID move: the activePlayers fill is now the target's countdown
+ *      pointer walk (`active = &activePlayers[9]; for (i = 9; i >= 0; i--)
+ *      *active-- = 1;`), which note 4 rejected at 282 words and +4 bytes and
+ *      which at this layout is 217 at delta 0, byte-exact 1028 -> 1029, really
+ *      different 68 -> 66.  It is adopted above.  The split
+ *      `*active = 1; active--;` spelling measures identically.
+ *
  * What is left, measured: two compiler temps (sp+0x54 and sp+0x58 against the
  * target's sp+0x5C and sp+0x64, inside a temp region that is the same size on
  * both sides), and one address materialisation.  The candidate takes
- * &activePlayers three times and &sourceState once plus &sourceState[4] once;
- * the target takes &activePlayers twice and &sourceState twice and never names
- * the end of sourceState.  Same instruction count, so the loop bound is not a
- * size question any more -- the target reaches the same trip count without
- * materialising an end pointer, and finding that spelling is the next lever. */
+ * &activePlayers twice and &sourceState once plus &sourceState[4] once; the
+ * target takes &activePlayers once and &sourceState twice and never names the
+ * end of sourceState, because its bound is the global's end and lives in a3.
+ * The decision variable is which register holds `outputIndex`: the target's s2
+ * against the candidate's a0.  Free a callee-saved register -- the candidate
+ * parks `&gO57MiddleChoices` in s6 and copies it to v0, where the target
+ * materialises it straight into v0 -- and the cached-load form that currently
+ * costs 516 becomes affordable, which is what closes the loop's shape. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -574,8 +614,9 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
         if ((gO57MiddleButtons & 0x9000) && (gO57MiddleTransition == 0)) {
             func_80000F94(0xC, 0);
             if (gO57MiddlePlayerCount >= 2 || gO57MiddleState194 == 1) {
+                active = &activePlayers[9];
                 for (i = 9; i >= 0; i--) {
-                    activePlayers[i] = 1;
+                    *active-- = 1;
                 }
                 choice = gO57MiddleChoices;
                 source = sourceState;
@@ -673,6 +714,6 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
  * frame: 0x140
  * relocations: 373
  * first-mismatch: +0x100
- * summary: The displaced homed block closed on a declaration census. The target's unexplained gaps at 132..143, 168..175 and 216..271 are not gaps and not a bigger array -- they are three, four and eight register-class scalars declared between the homed objects, because every declared local reserves a home in declaration order whether or not it reaches memory. tools/frame_census.py gives both sides' object sizes and offsets, the gaps divide by four exactly, and the list solves to 8 scalars, sourceState, activePlayers, 14 scalars, textureNodes, 1 scalar, stackB0, 2 scalars, renderState, 3 scalars, stack80, stack7C, stack78, 4 scalars -- 35 cells against this candidate's 36, the surplus being activeInit, declared and never used, which still reserved a home under L99. Reordering to it makes the ladder exact from +0x11C down to +0x78 and takes 231 to 217 at size delta 0, byte-exact 1012 -> 1028, really different 96 -> 68. What is left is two compiler temps and one address materialisation: this candidate takes &activePlayers three times plus &sourceState and &sourceState[4] once each, the target takes &activePlayers twice and &sourceState twice and never names the array's end, at the same instruction count. Earlier history: 494 falls to 231 on four edits -- both path-list walks respelled as while loops over *list with no named index or re-read local and a (u8) cast rather than a mask, which is a delta-0 pair worth 36 words where each half alone moves the size, and row = 0x51 moved after func_8004B0A4 so the constant leaves the guard branch delay slot, worth 186; and the choice loop bounded on &sourceState[4] rather than &gO57MiddleChoices[4], which closes the surplus instruction -- the loop bound, not the tail reads, is what anchored the callee-saved address web -- taking the size delta to 0 and the first structural difference from +0x34 to +0xBC4; what is left is 109 register-naming and 96 structural words, led by a displaced homed block that no local array dimension moves.
+ * summary: The target's choice loop IS bounded on &gO57MiddleChoices[4], materialised into a3 and tested at the bottom, which refutes the note that bounding there parks an invariant in a callee-saved register; the &sourceState[4] bound in the source is a spelling that happens to be exact-sized, not the target's shape. The activePlayers fill is now the target's countdown pointer walk, which a previous pass rejected at 282 words and +4 bytes and which at the fixed home layout is 217 at delta 0, byte-exact 1028 -> 1029, really different 68 -> 66. The decision variable is which register holds outputIndex: s2 in the target against a0 here, and freeing one callee-saved register is what makes the cached choice->active load affordable.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
