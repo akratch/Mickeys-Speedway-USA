@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: previous/current/path/next is the declaration order that lands both spilled stack homes (25 words to 21); the rest is the prologue byte spill and the index block's pool colours
+- summary: The fifteen index-block words are NOT a colour question, and that overturns this shard's own framing. Records read for the first time on this function, instrumented object cmp-identical to the configured one, proc 36. The four index webs are identified by forcing each to c9 and reading which sites move: web 22 is currentIndex (ours a1, ROM v1), web 25 previousIndex (ours v1, ROM a0), web 99 the path-count carrier (ours a2, ROM a1), web 44 nextIndex (ours v0, ROM a0), and web 2 the reloaded index parameter, whose register a2 already agrees. currentIndex carries forbidden0 0x70000000, c1 c2 c3, so v1 is denied outright and a force onto it reads forced=-2. The decisive experiment: freeing every other web that holds v1 in the same run, webs 79, 49 and 25 forced to t0, t1 and a0, leaves currentIndex's mask bit-for-bit unchanged and the force still declined. So the denial is not interference with a coloured rival and no ratio, spelling, statement order or force reaches the ROM's assignment; currentIndex's live range has to change. A 36-point single force sweep over twelve integer webs against c2, c3 and c4 confirms it from the other side: fifteen were accepted and not one scores below 21, the best alternatives being 24 and 26, and the nearest joint force, previousIndex to a0 with the count to a1 and nextIndex to a0, reaches only 23. Also applied here, L146: the 24-order pointer declaration sweep this shard records as an identity was climbed on the volatile-local shape, so it is void on the address-form shape, and re-climbing it there is flat at 55 to 59 across all 24, with the best two equal to the address form's own 55. The address route does not become competitive under a fresh order climb. Next lever: a structural change to currentIndex's range, not a colour.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 
@@ -103,4 +103,53 @@ at 55: the two statements folded onto one line in both orders, one and two blank
 lines between them, the store after the call, the store written volatile, and the
 selector argument cast at the call. L59's line-number tie-break is live in this
 unit but does not reach this pair.
+#### 2026-09-12, lane `p9-tight`: the index block is not a colour question
+
+The records were read on this function for the first time (instrumented object
+`cmp`-identical to the configured one; this TU's ordinal is **proc 36**, the
+37th `.ent` in the `cc -S` listing). The four index webs are identified by
+forcing each to c9 and reading which sites move:
+
+- **web 22** is `currentIndex` -- ours `a1`, the ROM's `v1`
+- **web 25** is `previousIndex` -- ours `v1`, the ROM's `a0`
+- **web 99** is the path-count carrier -- ours `a2`, the ROM's `a1`
+- **web 44** is `nextIndex` -- ours `v0`, the ROM's `a0`
+- **web 2** is the reloaded `index` parameter, and its `a2` already agrees
+
+**`currentIndex` is denied `v1` outright.** Its `forbidden0` is `0x70000000` --
+c1, c2, c3 -- and a force onto c2 reads `forced=-2`, never applied. The
+decisive experiment is the one L114 asks for before calling a lever
+unreachable: free the interferer first. Forcing webs 79, 49 and 25, every other
+web holding `v1`, onto `t0`, `t1` and `a0` in the same run leaves
+`currentIndex`'s mask **bit-for-bit unchanged** and the force still declined.
+So the denial is not interference with a coloured rival, and no ratio,
+spelling, statement order or force reaches the ROM's assignment. The live range
+itself has to change.
+
+That overturns this shard's framing. "The index block's pool colours" is not a
+pool-priority question and the three previous records' plan -- reproduce the
+ROM's `v1`/`a0`/`a1` triple by moving the assignments around -- cannot work on
+this shape.
+
+**A 36-point single-force sweep confirms it from the other side.** Twelve
+integer webs against c2, c3 and c4: fifteen forces accepted, twenty-one
+declined, and **not one scores below 21**. The best accepted alternatives are
+24 and 26; `p1:w2=c2` costs 56 and `p1:w76=c4` costs 55 at delta -4. The
+nearest joint force -- `previousIndex` to `a0`, count to `a1`, `nextIndex` to
+`a0` -- reaches only **23**, worse than the retained body, because
+`currentIndex` still refuses `v1`.
+
+**L146 applied to the address-form route.** This shard records the four-pointer
+declaration order as an identity, "the only order that lands both spilled stack
+homes", measured over all 24. That climb was done on the `volatile u8` local
+shape. Under L146 it is void on the address-form shape, which is the
+structurally correct route for the byte spill, so it was re-climbed there: all
+24 orders score **55 to 59**, the best two equal to the address form's own 55.
+The address route does not become competitive under a fresh order climb, and
+the retained hack at 21 keeps the body.
+
+**Next lever:** a structural change to `currentIndex`'s live range, not a
+colour. The mask to watch is web 22's `forbidden0`; anything that does not move
+it cannot reach the ROM.
+
 <!-- plateau-handoff:overlay1BendPathPoint:end -->
