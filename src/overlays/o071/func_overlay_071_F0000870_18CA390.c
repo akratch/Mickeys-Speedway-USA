@@ -193,10 +193,10 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:start
  * symbol: func_overlay_071_F0000870_18CA390
- * score: 9/182 words
+ * score: 173/182 words
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: A shared later flags reload replaces the direct-load shape and regresses to 150 words at delta -4.
+ * summary: Exhaustive singles yield only p1:w57=c5 at 4 words; 98 source lifetime cells retain best 9, with no invisible interferer found.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */
