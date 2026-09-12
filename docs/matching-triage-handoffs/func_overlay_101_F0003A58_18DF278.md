@@ -73,6 +73,17 @@ Closed by measurement, all on the full configured TU:
 - Declaration order of the two remaining locals, `register` on the length local,
   and `D_1D0++` for the increment are all inert at 2.
 
+- The physical-line axis is now exhaustively closed. Writing group 9's two
+  text nodes longhand and sweeping the line boundary across all 33 positions of
+  their 34 concatenated statements leaves `+0x1194` as the first mismatch in
+  every one of them; only the natural boundary at 17 reads 2, its neighbours
+  read 5, 10 and 11, and the rest read 12 or worse. Per-statement longhand is 8.
+- The L149 redundant-mask generator does not apply. `length` is the `s32`
+  return of the length call, so `length & 0xFF` is not already masked: adding a
+  second mask makes as1 emit a second `and` rather than fold the pair, worth 955
+  globally, 218 on group 9's first text alone and 186 on its second. Dropping
+  the mask entirely is 1322 at delta -64.
+
 Next lever, named: the pass that reorders as1's scheduled stream after
 `-Wa,-R` prints it. Nothing in the source axes above reaches it, so the next
 attempt should instrument that pass rather than sweep another spelling.
