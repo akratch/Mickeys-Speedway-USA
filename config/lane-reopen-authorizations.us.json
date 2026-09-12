@@ -66,9 +66,9 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
     },
     "func_8000590C": {
-      "ledger_commit": "85d0d62867375e73a952d770118168b3ddc06e7d",
+      "ledger_commit": "19aedbd35669f5a2181cc95f4ecac631d8fd268a",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "000eee4cc3d9126aba1c77d28a88026381fa97dd"
+      "source_commit": "19aedbd35669f5a2181cc95f4ecac631d8fd268a"
     },
     "func_80006534": {
       "ledger_commit": "3862d8321f14f6e1e1099d7fcb93d9ce22a47e93",
@@ -361,9 +361,9 @@
       "source_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d"
     },
     "func_80022FD4": {
-      "ledger_commit": "60469999eebf7bcd6898c5b2c2f6ccd33824db7e",
+      "ledger_commit": "8ee80bf1d5ef1d42cf6f7205d62dacf07db46cc5",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "d3d9dc72660209aa4d4bfdc8cfe21eaf0c8690cf"
+      "source_commit": "8ee80bf1d5ef1d42cf6f7205d62dacf07db46cc5"
     },
     "func_80023598": {
       "ledger_commit": "473efb87f29361610c29903e16540671387061bf",
@@ -571,9 +571,9 @@
       "source_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46"
     },
     "func_80040B88": {
-      "ledger_commit": "92ae2c1edce407c55890f0768db30813ebae443c",
+      "ledger_commit": "acf5198ed6c2e02b086d0574af7a478ea6b30cae",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5"
+      "source_commit": "acf5198ed6c2e02b086d0574af7a478ea6b30cae"
     },
     "func_80041530": {
       "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
@@ -816,7 +816,7 @@
       "source_commit": "664ad5551fe066443391c35d02455f93eb20279c"
     },
     "func_overlay_002_F0000C90_1857A88": {
-      "ledger_commit": "91fa3742c1bf4a16f0e2e3764c4a7fce99d43b73",
+      "ledger_commit": "96d75b33e9408ba7a150bd276e3bd942c738c8aa",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "18c4dd7bf89eccd3e54916a036ef395acea858c5"
     },
@@ -936,9 +936,9 @@
       "source_commit": "9803ea9f2944b0f8a48748161252f0a90729492a"
     },
     "func_overlay_027_F0000064_187BA3C": {
-      "ledger_commit": "1e034ec429838c0cad0416149cf3e8ad8b921308",
+      "ledger_commit": "ec93b7f8d5154dc32b64a9fda3694f40cc6130b4",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "cef9b4e75f122ec91a36497848cd3a1500215dd0"
+      "source_commit": "ec93b7f8d5154dc32b64a9fda3694f40cc6130b4"
     },
     "func_overlay_029_F000042C_187D6DC": {
       "ledger_commit": "6db3232edcc296cb0b686ff7473e3b8b9421ead3",
@@ -1036,9 +1036,9 @@
       "source_commit": "e36288cf4bc286285c32981048dcca36761ee340"
     },
     "func_overlay_046_F0000120_188E518": {
-      "ledger_commit": "e09e555d9c42c279d0470281be6e441dead2951a",
+      "ledger_commit": "a84d1c48c5e99cbc63ec4288eb0ff21b0972da43",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "54842663b1be7c09d32df61eadfa6c6433b9b6e1"
+      "source_commit": "a84d1c48c5e99cbc63ec4288eb0ff21b0972da43"
     },
     "func_overlay_047_F0000000_1890E18": {
       "ledger_commit": "5cf05869e9af8dd404c469b6812f23969f48f224",
@@ -1091,9 +1091,9 @@
       "source_commit": "e441502f0f9470a2ac3eff706f966bab378f42d7"
     },
     "func_overlay_057_F0004E18_18A8A10": {
-      "ledger_commit": "de2ee45ad291353b082e67bd7ff3c36027bc5439",
+      "ledger_commit": "a40472a5488d55b89f28bf09394c3e148ec058f6",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f"
+      "source_commit": "a40472a5488d55b89f28bf09394c3e148ec058f6"
     },
     "func_overlay_057_F00060F8_18A9CF0": {
       "ledger_commit": "229a07eb5a5a44a59826af45f2638211c3532960",
@@ -1111,9 +1111,9 @@
       "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "10ded4f1de820aa8bc6d7d1848b3b82018c0cd87",
+      "ledger_commit": "0f659bb571c9188da6b800de1a35a29d7e120a63",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "795469aac0cb56103b57721d8ce217944e8de5d8"
+      "source_commit": "37e0e1bfee47ad87cd6dffe1c9cdd1bce43d1e43"
     },
     "func_overlay_060_F0000000_18B9DD8": {
       "ledger_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6",
@@ -1146,9 +1146,9 @@
       "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
     },
     "func_overlay_079_F0000134_18CD0D4": {
-      "ledger_commit": "39c5f50580a3bc07b84911f3ee6b08a266eab929",
+      "ledger_commit": "0354e1a2beb561b8a61be3277f437169faa3c456",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "39c5f50580a3bc07b84911f3ee6b08a266eab929"
+      "source_commit": "0354e1a2beb561b8a61be3277f437169faa3c456"
     },
     "func_overlay_092_F0000068_18D5F88": {
       "ledger_commit": "9d5f2205be121eef7507305c71980130a043a7bb",
@@ -1231,9 +1231,9 @@
       "source_commit": "d44ef051ea8331689b952408388a4d18a6f29425"
     },
     "levelInit": {
-      "ledger_commit": "4480ed89a7e16ba1b1058d33744077aaed23a211",
+      "ledger_commit": "e391e45ade0db4d5c3954f888b2463e4705cf765",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "4480ed89a7e16ba1b1058d33744077aaed23a211"
+      "source_commit": "e391e45ade0db4d5c3954f888b2463e4705cf765"
     },
     "overlay101BuildBorder": {
       "ledger_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc",
@@ -1661,9 +1661,9 @@
       "source_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20"
     },
     "render_epc_lock_up_display": {
-      "ledger_commit": "d5439d2e17bbb1678c8ff9545bb151e579b2b56b",
+      "ledger_commit": "c3e0f38b4c8440b5b94c297fca40d09759f27441",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "6c4a2538e1f9ff2f7a2149c3baa75f2acc763beb"
+      "source_commit": "c3e0f38b4c8440b5b94c297fca40d09759f27441"
     },
     "rumbleTick": {
       "ledger_commit": "0145589961ffa611543420efba08f760374782fd",
