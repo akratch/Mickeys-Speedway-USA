@@ -6,7 +6,7 @@
 - frame: 0xC8
 - relocations: 137
 - first mismatch: +0x0
-- summary: Exact-size structural reconstruction; 24 excess frame bytes and 18 opcode edits remain. Next: scoped allocation/alias analysis, not flags or permutation.
+- summary: Current force reproof reaches 585 at delta 0; source lever is L100 rank of float webs 149 and 406 below web 51.
 
 ## 2026-09-11 phase census and force-sweep verdict (lane `lane/p9-alloc`)
 
