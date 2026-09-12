@@ -3146,6 +3146,10 @@ D_CE0 = 0x00000ce0;
 /* overlay 101: func_overlay_101_F000571C_18E0F3C.c.o */
 D_10EC = 0x000010ec;
 D_C8C = 0x00000c8c;
+D_EA0 = 0x00000ea0;
+D_EA4 = 0x00000ea4;
+D_EA8 = 0x00000ea8;
+D_INPUT = 0x00000000;
 
 /* overlay 101: func_overlay_101_F0005E08_18E1628.c.o */
 D_1514 = 0x00001514;
@@ -3162,7 +3166,6 @@ D_CC8 = 0x00000cc8;
 /* overlay 101: func_overlay_101_F00078F4_18E3114.c.o */
 D_2608 = 0x00002608;
 D_CDC = 0x00000cdc;
-D_INPUT = 0x00000000;
 D_o101_0 = 0x00000000;
 
 /* overlay 101: func_overlay_101_F0008128_18E3948.c.o */
