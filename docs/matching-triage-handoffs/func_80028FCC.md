@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 3
 - first mismatch: +0x1C
-- summary: A two-instruction normalise in the first two or-chain arms reaches the target's 27-instruction three-branch shape at 14; the carrier colour still blocks
+- summary: All 53 incumbent colour probes are flat; retain the structurally exact alternate-body carrier question.
 
 #### Owned pass, 2026-09-10 (lane/o7-small): the shape is known, not a donor
 
@@ -118,4 +118,16 @@ product crossed with the groupings, result forms and reservation webs of the
 2026-09-10 lattice, and an instrumented `p1cost` capture confirming v0's absence
 from the 14-word form's carrier candidate list -- which is now a different web
 from the one that capture would have found in the 25-word form.
+#### 2026-09-12, lane `p23-lastmile4`: exhaustive incumbent colour control
+
+The retained early-return base remains 108 bytes, 27 words, delta 0, and 10
+masked words. Its aligned split is two naming rows and eight structural rows
+in one window. All 53 legal single-colour probes over seven webs retained the
+same score, leaving an empty winners list; no web controls this residual on the
+incumbent body.
+
+The named source question from the 14-word structurally exact alternate body
+therefore remains separate from this result: find a call-result carrier form
+that can reach the target’s per-arm ring temporaries without disturbing the
+27-word control-flow shape.
 <!-- plateau-handoff:func_80028FCC:end -->

@@ -1711,15 +1711,6 @@ void func_800293D0(void) {
     }
 }
 
-/* PLATEAU-HANDOFF:func_80028FCC:start
- * symbol: func_80028FCC
- * score: 10/27 words
- * frame: 0x18
- * relocations: 3
- * first-mismatch: +0x1C
- * summary: A two-instruction normalise in the first two or-chain arms reaches the target's 27-instruction three-branch shape at 14; the carrier colour still blocks
- * PLATEAU-HANDOFF:func_80028FCC:end
- */
 /*
  * 2026-09-10, lane nm-mixed: the target's control flow is now identified and
  * is a short-circuit || chain, not the retained early-return shape. A plain
@@ -1734,6 +1725,16 @@ void func_800293D0(void) {
  * (29 instructions); `register`, u32 casts, a local copy of the argument, an
  * unrolled 3-iteration loop, -Olimit removal, -O1 and -Wo,-nogcse all fail.
  * Next lever is whatever makes v0, not a0, admissible for the merged web.
+ */
+
+/* PLATEAU-HANDOFF:func_80028FCC:start
+ * symbol: func_80028FCC
+ * score: 10/27 words
+ * frame: 0x18
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: All 53 incumbent colour probes are flat; retain the structurally exact alternate-body carrier question.
+ * PLATEAU-HANDOFF:func_80028FCC:end
  */
 
 /* PLATEAU-HANDOFF:func_80029274:start

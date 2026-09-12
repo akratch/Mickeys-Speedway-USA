@@ -142,6 +142,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: Workbench verdict structure-mismatch, lever none-known; five fresh source spellings were byte-flat. Next capture a stock-fidelity UGEN ring/line-order trace.
+ * summary: All 101 legal colour forces are non-improving; isolate the UGEN emission-order identity.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

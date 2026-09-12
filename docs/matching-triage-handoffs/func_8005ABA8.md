@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: 109 exact, two assembler branch/delay differences. Existing suppressor proof survives the new allocator laws; inspect the unexplained branch decline.
+- summary: Two structural assembler-scheduling rows; procedure has no allocator decisions.
 
 #### Owned evidence and result, 2026-09-09
 
@@ -321,4 +321,15 @@ Validation commands for this pass: `tools/align_symbol.py`,
 fallback remain; the full-ROM verification covers that fallback and earns
 zero new matching bytes. Source and handoff are the only files refreshed.
 
+#### 2026-09-12, lane `p23-lastmile4`: current residual classification
+
+The current candidate remains 444 bytes, 111 words, delta 0, frameless, with
+zero relocations and two masked words. Both aligned rows are structural; there
+are no naming or immediate rows. `web_footprint.py --every-colour` correctly
+refuses this procedure because it has no allocator decisions, so the exhaustive
+colour winners list is empty and allocation is not an applicable axis.
+
+The named remaining source question is still the retained as1 branch-decline
+decision: what source-reachable ugen text makes the assembler leave the target
+delay slot unfilled without changing the 111-word geometry.
 <!-- plateau-handoff:func_8005ABA8:end -->

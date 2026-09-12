@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x50
-- summary: Workbench verdict structure-mismatch, lever none-known; five fresh source spellings were byte-flat. Next capture a stock-fidelity UGEN ring/line-order trace.
+- summary: All 101 legal colour forces are non-improving; isolate the UGEN emission-order identity.
 #### 2026-09-11, lane `p6-small`: still ten, and two more mechanisms are closed
 
 Unchanged at ten relocation-masked words, size delta 0, frame 0x48, first
@@ -99,4 +99,15 @@ operation (L135) or reached by a colour force (this pass). What is left is a
 source form in which the element index is a variable at address-lowering time
 and the zero register at allocation time.
 
+#### 2026-09-12, lane `p23-lastmile4`: complete single-force colour control
+
+The current baseline remains 320 bytes, 80 words, delta 0, frame 0x48, nine
+relocations, and 10 masked words. Alignment splits the residual into six
+naming and four structural rows over three windows. The 101 legal single-force
+probes across eleven webs have no winner at delta 0; every changing force is a
+regression or changes geometry.
+
+The named source question remains upstream of allocation: identify the UGEN
+ring or emission-order identity that creates the four structural rows, then
+re-evaluate the naming component on that geometry.
 <!-- plateau-handoff:overlay68CheckKind:end -->
