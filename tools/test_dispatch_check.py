@@ -62,6 +62,65 @@ class Refusals(unittest.TestCase):
         self.assertEqual(problems, [])
 
 
+class TranslationUnitOwnershipTests(unittest.TestCase):
+    """Two lanes editing one TU is the conflict that costs an integration.
+
+    The symbol check does not see it: three overlay 8 functions with distinct
+    names live in one `overlay_008.c`, so splitting them across lanes passes
+    every other check and then conflicts on every merge.
+    """
+
+    def run_check(self, plan, queued):
+        with mock.patch.object(dc, "queued_rows", return_value=queued), \
+             mock.patch.object(dc, "closure_facts", return_value={}), \
+             mock.patch.object(dc, "assignability", return_value={}):
+            return dc.check(plan)
+
+    def queued(self, **by_symbol):
+        return {n: dict(ROW, name=n, file=f) for n, f in by_symbol.items()}
+
+    def test_two_lanes_on_one_file_are_refused(self):
+        problems, _ = self.run_check(
+            {"a": ["f1"], "b": ["f2"]},
+            self.queued(f1="src/overlays/o008/overlay_008.c",
+                        f2="src/overlays/o008/overlay_008.c"))
+        self.assertTrue(any("overlay_008.c is edited by 2 lanes" in p
+                            for p in problems), problems)
+
+    def test_one_lane_owning_the_whole_file_is_fine(self):
+        problems, _ = self.run_check(
+            {"a": ["f1", "f2"]},
+            self.queued(f1="src/overlays/o008/overlay_008.c",
+                        f2="src/overlays/o008/overlay_008.c"))
+        self.assertEqual([p for p in problems if "edited by" in p], [])
+
+    def test_different_files_across_lanes_are_fine(self):
+        problems, _ = self.run_check(
+            {"a": ["f1"], "b": ["f2"]},
+            self.queued(f1="src/main/a.c", f2="src/main/b.c"))
+        self.assertEqual([p for p in problems if "edited by" in p], [])
+
+    def test_the_message_names_which_lane_holds_which_symbol(self):
+        problems, _ = self.run_check(
+            {"a": ["f1"], "b": ["f2"]},
+            self.queued(f1="src/main/shared.c", f2="src/main/shared.c"))
+        message = next(p for p in problems if "edited by" in p)
+        self.assertIn("a has f1", message)
+        self.assertIn("b has f2", message)
+
+    def test_a_row_without_a_file_is_skipped_rather_than_grouped(self):
+        # An unfiled row must not collide with every other unfiled row.
+        queued = {n: dict(ROW, name=n) for n in ("f1", "f2")}
+        problems, _ = self.run_check({"a": ["f1"], "b": ["f2"]}, queued)
+        self.assertEqual([p for p in problems if "edited by" in p], [])
+
+    def test_the_legacy_rel_c_file_key_is_still_read(self):
+        queued = {"f1": dict(ROW, name="f1", rel_c_file="src/main/x.c"),
+                  "f2": dict(ROW, name="f2", rel_c_file="src/main/x.c")}
+        problems, _ = self.run_check({"a": ["f1"], "b": ["f2"]}, queued)
+        self.assertTrue(any("edited by 2 lanes" in p for p in problems))
+
+
 class EmittedFacts(unittest.TestCase):
     def run_check(self, plan, queued, closures=None):
         with mock.patch.object(dc, "queued_rows", return_value=queued), \
