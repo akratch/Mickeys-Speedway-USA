@@ -71,9 +71,9 @@
       "source_commit": "19aedbd35669f5a2181cc95f4ecac631d8fd268a"
     },
     "func_80006534": {
-      "ledger_commit": "3862d8321f14f6e1e1099d7fcb93d9ce22a47e93",
+      "ledger_commit": "d2d2f7277f59ee0f9dd03cb67183e4a7952555b3",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "3862d8321f14f6e1e1099d7fcb93d9ce22a47e93"
+      "source_commit": "d2d2f7277f59ee0f9dd03cb67183e4a7952555b3"
     },
     "func_80007118": {
       "ledger_commit": "4496aad1392932c58c23c28bcb815cc85d04b500",
@@ -181,9 +181,9 @@
       "source_commit": "1736a63e233ee56a2ef42d13510e7185707ca064"
     },
     "func_80010900": {
-      "ledger_commit": "f2d0cc94b583589bad6f0b135617a3a36185da8e",
+      "ledger_commit": "b7a364f5c9947848ec4bd6b53e407dbe809fb7ba",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "f2d0cc94b583589bad6f0b135617a3a36185da8e"
+      "source_commit": "b7a364f5c9947848ec4bd6b53e407dbe809fb7ba"
     },
     "func_80010B4C": {
       "ledger_commit": "ade24e9c6989bcab55c9c637f75d1e21248fd651",
@@ -356,9 +356,9 @@
       "source_commit": "4fe9255a1e3cd2c6b94232648c9a8a5acf625cf7"
     },
     "func_80020E4C": {
-      "ledger_commit": "6698763799cf7d45a64b48bc86eeb1ed21493ea1",
+      "ledger_commit": "136f626cb1f0441b0521da135b3d46b05d1b821f",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "3b971a5c69e65c5951ec58209fc7a7e532f0070d"
+      "source_commit": "136f626cb1f0441b0521da135b3d46b05d1b821f"
     },
     "func_80022FD4": {
       "ledger_commit": "8ee80bf1d5ef1d42cf6f7205d62dacf07db46cc5",
@@ -561,9 +561,9 @@
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "18c0b78cf6b2ef5bfacad1804869b92d6872c0f4",
+      "ledger_commit": "51f1f417083e14bdb3f213a820c3bdf4f8c78777",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2"
+      "source_commit": "51f1f417083e14bdb3f213a820c3bdf4f8c78777"
     },
     "func_8004054C": {
       "ledger_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46",
@@ -596,9 +596,9 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "09924952650e6bdb01463df96506616bd78d34b6",
+      "ledger_commit": "f165e5ec8d6e2243337aed8cf6da054513e3fc86",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "c6b22342ac2666af6d5cb8132327ce34a01c9cef"
+      "source_commit": "f165e5ec8d6e2243337aed8cf6da054513e3fc86"
     },
     "func_80046EC4": {
       "ledger_commit": "3251b2c7a26f904ac582fef616eb8c40fbe0e9a4",
@@ -1136,9 +1136,9 @@
       "source_commit": "d3fcf8ea6f4e562d75f6b0a7e7f97dc8b6482478"
     },
     "func_overlay_071_F0000870_18CA390": {
-      "ledger_commit": "ffc638d4955ed231f71cbd4cc1735b87f86fec12",
+      "ledger_commit": "c8e356642eee9c0647890d8f4623516ab3194a02",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "ffc638d4955ed231f71cbd4cc1735b87f86fec12"
+      "source_commit": "c8e356642eee9c0647890d8f4623516ab3194a02"
     },
     "func_overlay_073_F0000D70_18CB830": {
       "ledger_commit": "12941fed0461b1ec5c79c252b990ed5494467a76",
@@ -1221,14 +1221,14 @@
       "source_commit": "f4e56c1e90f3b9d010509c6944c0552cb920407f"
     },
     "joyRead": {
-      "ledger_commit": "eb3b35d4c727847da49800755a8bd8fefbe2883f",
+      "ledger_commit": "a35d0bdaa2dd7ba44d56687aee8bdd42712f0b9b",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
+      "source_commit": "a35d0bdaa2dd7ba44d56687aee8bdd42712f0b9b"
     },
     "levelFreeAll": {
-      "ledger_commit": "d44ef051ea8331689b952408388a4d18a6f29425",
+      "ledger_commit": "b32025753c70f0bd3f5989187c035c25e8274cd0",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "d44ef051ea8331689b952408388a4d18a6f29425"
+      "source_commit": "b32025753c70f0bd3f5989187c035c25e8274cd0"
     },
     "levelInit": {
       "ledger_commit": "e391e45ade0db4d5c3954f888b2463e4705cf765",
@@ -1286,9 +1286,9 @@
       "source_commit": "cdaec4be6246662091307e6647ccfbf43b12039d"
     },
     "overlay17AdvanceChain": {
-      "ledger_commit": "513506335cac143f7baef88d3aea00db3da88697",
+      "ledger_commit": "50f1714f21c2fe0502acc7cc7ca4a5cb2813b673",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "513506335cac143f7baef88d3aea00db3da88697"
+      "source_commit": "50f1714f21c2fe0502acc7cc7ca4a5cb2813b673"
     },
     "overlay17DrawStrip": {
       "ledger_commit": "e4abe37e7e1ab6f9afade5656e102c4c6cecc19f",
@@ -1296,7 +1296,7 @@
       "source_commit": "e4abe37e7e1ab6f9afade5656e102c4c6cecc19f"
     },
     "overlay19BuildAdjacency": {
-      "ledger_commit": "4ea12102727d11fd3978fa1e3ad7d970161d4494",
+      "ledger_commit": "bb86a0ac3ccc2aaad2f3490823fd40dc583c652e",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "af03cbe7dca43327a81a239c13ace5320869cd8a"
     },
@@ -1331,9 +1331,9 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "5e94e3c45a25c399bfbeeb88621339cb3db5b2d7",
+      "ledger_commit": "9c445b91463505d87ada04e29a34c6a438127062",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+      "source_commit": "9c445b91463505d87ada04e29a34c6a438127062"
     },
     "overlay1BuildObjectMappings": {
       "ledger_commit": "120950dc5a53664763aea335fc8780342e023ad4",
@@ -1416,14 +1416,14 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "18c0b78cf6b2ef5bfacad1804869b92d6872c0f4",
+      "ledger_commit": "91dad432da2bba27b39bc453e834ede1ed6c19a2",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "0e74948e8f5a222060dd6e9b947e7fec5aa7eca1"
+      "source_commit": "91dad432da2bba27b39bc453e834ede1ed6c19a2"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "0a8587635a324c4844ecb8345f23efb5d94825d3",
+      "ledger_commit": "00a2846c31346c7d935ccd97c5a92e9700e4f5f4",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "0a8587635a324c4844ecb8345f23efb5d94825d3"
+      "source_commit": "00a2846c31346c7d935ccd97c5a92e9700e4f5f4"
     },
     "overlay20RemoveEntry": {
       "ledger_commit": "29ccc2a8321b19e0df2eff4a13848e787a34dcf8",
@@ -1446,9 +1446,9 @@
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
-      "ledger_commit": "b1755b64127428829a9db0755ee0fb115d878b7a",
+      "ledger_commit": "6764a26cd461f3706899a1c2e705ce7cfea4eb67",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
+      "source_commit": "6764a26cd461f3706899a1c2e705ce7cfea4eb67"
     },
     "overlay31CreatePool": {
       "ledger_commit": "fe22a3151155a4acda30757c011f8a27375c16a2",
@@ -1486,9 +1486,9 @@
       "source_commit": "2964dfd496bc549532c6b5afe36cb7b769c96b6a"
     },
     "overlay3RunCachedModeAction": {
-      "ledger_commit": "532ed474393cd09f73610cf3ad6d83849087713e",
+      "ledger_commit": "9b3e7b3746dea0992be3767ec3c4161ec2e5acea",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "a723c0fc5526b506555b71da152816b506095e8c"
+      "source_commit": "9b3e7b3746dea0992be3767ec3c4161ec2e5acea"
     },
     "overlay3SelectScoredObject": {
       "ledger_commit": "03474a3945af8adf2d5d942c6ea83a9e9f011dcb",
@@ -1651,9 +1651,9 @@
       "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6"
     },
     "packInit": {
-      "ledger_commit": "7070b12f65466923daff2d05203f7faf86a64ccb",
+      "ledger_commit": "8baad565c2483d24a8ec10d1b5dc0b6718a1fccb",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "7070b12f65466923daff2d05203f7faf86a64ccb"
+      "source_commit": "8baad565c2483d24a8ec10d1b5dc0b6718a1fccb"
     },
     "rain_render_splashes": {
       "ledger_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20",
