@@ -211,12 +211,19 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
 
 /*
  * Plateau (2026-08-30, wave11-o15-stars): configured -O2 -mips2 with
- * -Wab,-r4300_mul remains exact-size at 105 words with the exact 0x58 frame,
- * 13 relocation-masked differences (13 raw), and first mismatch +0x18.
- * Reopened 2026-09-10 under L90 and closed again: the exit test is a countdown
- * against zero, so no bound is hoistable, and fourteen fresh loop, fade and
- * packed-command forms were neutral or worse. The star pointer now uses this
- * TU's pointer-view idiom, which retires the last raw-only difference.
+ * -Wab,-r4300_mul remains exact-size at 105 words with the exact 0x58 frame
+ * and first mismatch +0x18. Reopened 2026-09-10 under L90 and closed again:
+ * the exit test is a countdown against zero, so no bound is hoistable, and
+ * fourteen fresh loop, fade and packed-command forms were neutral or worse.
+ * The star pointer uses this TU's pointer-view idiom, which retires the last
+ * raw-only difference.
+ *
+ * 2026-09-12, lane p10-near: 13 -> 9 on L59. The two shade/rectangle commands
+ * are emitted as one physical source line, which ties every store's line
+ * number and lets as1's ready-list position decide instead -- the same edit
+ * that took func_overlay_071 from 33 to 11. Folding the two pairs separately
+ * is 11 and folding one pair is 11 or 13, so it is the whole group that has
+ * to share a line. The nine that are left are one fact; see the shard.
  */
 #ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
@@ -251,14 +258,7 @@ void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
             if ((screenX >= 0) && (screenY >= 0) &&
                 (screenX < screenWidth) && (screenY < screenHeight)) {
                 shade = 255 - (s32) ((star->z - 8.0f) * fadeScale);
-                command->w0 = 0xFA000000;
-                command->w1 = (shade << 24) | (shade << 16) |
-                              (shade << 8) | 0xFF;
-                command++;
-                command->w0 = 0xF6000000 | ((screenX + 1) << 14) |
-                              ((screenY + 1) << 2);
-                command->w1 = (screenX << 14) | (screenY << 2);
-                command++;
+                command->w0 = 0xFA000000; command->w1 = (shade << 24) | (shade << 16) | (shade << 8) | 0xFF; command++; command->w0 = 0xF6000000 | ((screenX + 1) << 14) | ((screenY + 1) << 2); command->w1 = (screenX << 14) | (screenY << 2); command++;
             }
         }
         star++;
