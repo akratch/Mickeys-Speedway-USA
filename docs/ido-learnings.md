@@ -49,6 +49,16 @@ bytes and disassembly never belong here.
   a focused mechanism probe; keep it only after every function in the shared
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
+- The R4300 multiply scheduler can resolve an adjacent transposition at zero
+  size delta without inserting a hazard nop. A fixed scheduler-priority
+  argument does not close a residual until the relevant assembler flag is
+  tested. In a controlled replay, identical ugen output and symbol metadata
+  produced different schedules solely from as1's `-r4300_mul` option; the
+  flagged replay equalled the stock flagged C object in text and relocations.
+  Test `-Wab,-r4300_mul` before further source-order searches around multiply
+  instructions, even when the size and opcode inventory already agree.
+  Keep the flag local and prove all TU consumers and linked bytes before
+  adoption; a diagnostic replay never supplies matching build output.
 - A per-TU flag adopted mid-iteration can be byte-inert by the time the source
   lever lands, and loop unrolling is the common case. IDO's rotator peels a
   loop head into the preheader when a separate start-value copy keeps the
