@@ -2141,3 +2141,15 @@ and the retained table receives no new code credit. ORT 1471 and five resident
 calls plus Overlay 25 table-1 record 15 authenticate all six inbounds. The
 owned range has no padding; it, the complete overlay, and the full ROM are
 byte-identical.
+
+### Overlay 16 gradient application closure
+
+Tier A: `overlay16ApplyGradient` owns overlay 16 text `+0x1E0..+0x424`
+(580 executable bytes), excluding the following twelve-byte padding. The
+configured stock compiler emits 145 exact words with the target's `0x20`
+frame and all six LOCAL relocation offsets, types, identities, and addends.
+Storing then reading back the phase, separating the active cursor increment
+from its condition, and defining input channels before gradient channels
+restore the temporary and local register allocation. The linked owner and
+full US ROM are exact. This completes the existing overlay-16 C translation
+unit; it does not add credit for its previously matched functions or padding.
