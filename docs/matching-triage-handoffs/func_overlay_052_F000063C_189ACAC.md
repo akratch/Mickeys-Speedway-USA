@@ -6,7 +6,7 @@
 - frame: 0x118
 - relocations: 283
 - first mismatch: +0x130
-- summary: Residual partitioned: 379 displaced, 899 aligned-differing, 60 unplaced. 818 of the 899 are register naming; one global bijection closes 309. Next: the single web-order slip behind the frame-home and temp-ring offsets.
+- summary: Exhaustive colour packing reaches 1184; scoped tail carrier experiment regressed to 1349.
 
 The September 8 decompiler-assisted packet retains attempt 39 as ordinary,
 guarded C. This is a compiled structural plateau, not an object or ROM match.
