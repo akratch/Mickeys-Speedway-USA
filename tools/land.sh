@@ -84,7 +84,14 @@ git push origin master
 #
 # It only renews pins that already carry a recorded reason, so it restores
 # previously-granted authorizations and never grants a new one.
+# ON campaign/unchain, NOT master. land.sh has master checked out at this
+# point, and LANES BRANCH FROM campaign/unchain -- a renewal committed only on
+# master is invisible to every lane created afterwards, which is the entire
+# point of renewing. That happened once: the commit landed on master while the
+# push went to campaign/unchain, leaving master one commit unpushed and the
+# lanes' branch stale.
 echo "== renew reopen pins invalidated by this batch"
+git checkout -q campaign/unchain
 if "${PYTHON:-.venv/bin/python}" tools/authorize_reopen.py --refresh-stale; then
     if [ -n "$(git status --porcelain --untracked-files=no -- config/lane-reopen-authorizations.us.json)" ]; then
         git add config/lane-reopen-authorizations.us.json
@@ -94,7 +101,7 @@ Merging a lane that edited a handoff moves that symbol's handoff commit
 and invalidates its own reopen pin. Renewed with each existing reason
 preserved; no new authorization is granted here."
         git push -q origin campaign/unchain
-        echo "   renewed, committed and pushed"
+        echo "   renewed, committed and pushed on campaign/unchain"
     else
         echo "   no stale pins"
     fi

@@ -349,16 +349,16 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     rowBase = D_o058_5C68[D_8007BEF8 - 1];
     switch (D_o058_5E94) {
     case 1:
-        rowY = rowBase;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         x = D_o058_5E98 + D_o058_5EA8;
-        i = 0;
+        portraitX = 0; rowY = rowBase;
         if ((s32) D_8007BEF8 > 0) {
             do {
                 x = -x;
-                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[i]->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[portraitX]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = x + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -366,23 +366,23 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[D_o058_5EF8[i]], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[i])) {
+                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[D_o058_5EF8[portraitX]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[portraitX])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[i]->character + 0x1A], 0);
+                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[portraitX]->character + 0x1A], 0);
                 if (state->mode == 5) {
                     if (i == 0) {
-                        overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                     } else {
-                        overlay56SplitTime(D_o058_5EC8[0]->value - D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[0]->value - D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                     }
                 } else if (i == 0) {
-                    overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[portraitX]->value, &minutes, &seconds, &centiseconds);
                 } else {
-                    overlay56SplitTime(D_o058_5EC8[i]->value - D_o058_5EC8[0]->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[portraitX]->value - D_o058_5EC8[0]->value, &minutes, &seconds, &centiseconds);
                 }
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 textY = rowY + D_o058_5EAC;
@@ -403,7 +403,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8004B0F8(&D_800D3140, x + 0xFD, textY, D_o058_5D44, 0);
                 sprintf(&text[0], D_o058_5D48, centiseconds);
                 func_8004B0F8(&D_800D3140, x + 0x104, textY, &text[0], 0);
-                i += 1;
+                portraitX += 1; i += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -456,22 +456,22 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 D_o058_5EB4 = 0xF;
                 amSndPlay(0x1BU, NULL);
                 if ((s32) D_8007BEF8 > 0) {
-                    /* This loop's index is a carrier of its own, not `i`.
-                     * The target emits no `move <saved>,zero` in this
-                     * preheader at all, which is what a loop whose index dies
-                     * at strength reduction looks like; `i` does not die there
-                     * because the draw loop below reads it.  Any scalar dead
-                     * in case 2 can carry it (L?: a declared scalar's identity
-                     * is free), but only `savedPosition` keeps the size delta
-                     * at 0 -- every other carrier measured reads -4.  Worth
-                     * 894 -> 755 masked words on its own. */
-                    savedPosition = 0;
+                    /* Reuse the visible index and reset it after the loop.
+                     * Both paths reach the draw loop with i equal to zero.
+                     * The earlier separate scalar left an unnecessary store
+                     * to its stack home here and removed the final i reset.
+                     * With the current source shape, reusing i removes that
+                     * store and retains the target's post-loop definition.
+                     * Other dead carriers still lose a word, so the earlier
+                     * split's conclusion does not survive this paired reset.
+                     * See the current handoff for the controlled comparison. */
+                    i = 0;
                     do {
-                        if (D_o058_5E50[savedPosition] > 0) {
-                            D_o058_5E50[savedPosition] -= 1;
+                        if (D_o058_5E50[i] > 0) {
+                            D_o058_5E50[i] -= 1;
                         }
-                        savedPosition++;
-                    } while (savedPosition < D_8007BEF8);
+                        i++;
+                    } while (i < D_8007BEF8);
                     i = 0;
                 }
             }
@@ -557,7 +557,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xA0, 0x1E, D_8007C0B8->text[0x29], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         savedX = D_o058_5E98;
-        if (i != 0);
+
         savedPosition = D_o058_5E9C;
         i = 0;
         rowY = rowBase;
@@ -672,8 +672,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[0].y = rowY + 0x12;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                opponent = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                opponent = 0;
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
 
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
@@ -739,20 +739,20 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 13:
-        i = 0;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        /* Initialize the visible index with the title colour's zero blue. */
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6F], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
         if (D_8007BEF8 == 4) {
-            columnCount = 4;
+            columnStep = 4;
         } else {
-            columnCount = D_8007BEF8 + 1;
+            columnStep = D_8007BEF8 + 1;
         }
 
         portraitX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
-        columnStep = D_o058_5C8C[columnCount - 1];
-        if (columnCount > 0) {
+        columnCount = D_o058_5C8C[columnStep - 1];
+        if (columnStep > 0) {
             /* Cursor, not `D_800D31C8[0x51 + i]`: an explicit cursor is what
              * lets the index def move to the top of the case.  IDO folds a
              * known-zero index into a strength-reduced cursor base only from
@@ -777,12 +777,12 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
                 cursor++;
-                portraitX += columnStep;
+                portraitX += columnCount;
             /* `!=`, not `<`: with the cursor carrying the subscript, uopt
-             * no longer normalises `i < columnCount` into the target's
+             * no longer normalises `i < columnStep` into the target's
              * `bne`, and the `<` spelling costs an extra slt.  The converse
              * of what the indexed form wanted; see the handoff. */
-            } while (i != columnCount);
+            } while (i != columnStep);
         }
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
@@ -799,18 +799,18 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[0].y = rowY + 0x12;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                opponent = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                opponent = 0;
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
 
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
-                if (columnCount > 0) {
+                if (columnStep > 0) {
                     do {
                         sprintf(&text[0], D_o058_5D70, D_o058_5EE0[i]->flags[opponent]);
                         func_8004B0F8(&D_800D3140, columnX + 8, rowY + 0x16, &text[0], 4);
                         opponent += 1;
-                        columnX += columnStep;
-                    } while (opponent != columnCount);
+                        columnX += columnCount;
+                    } while (opponent != columnStep);
                 }
                 i += 1;
                 rowY += rowHeight;
@@ -1087,8 +1087,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 8:
         x = D_o058_5E98 + D_o058_5EA8;
-        i = 0;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1103,7 +1103,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        /* The visible row index was initialized before the font calls.
+        /* The visible row index starts with the title font call.
          * This separate induction starts beside the loop so uopt can fold
          * both the lap-array address and the row-coordinate stride.
          * Both indices visit zero through two once; `opponent` is otherwise
@@ -1234,22 +1234,22 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     } else {
                         D_800D31C4[D_8007C1B4] = 0x20;
                         D_8007C1B4 -= 1;
-                        i = 0;
+                        columnX = 0;
                         do {
-                            /* The erase scan's column index is carried by
-                             * `columnX`, dead here and first written 70 lines
-                             * below: 620 -> 599 masked, byte-exact
-                             * 3276 -> 3294, naming 233 -> 215. */
-                            columnX = 0;
+                            /* The outer row uses columnX and the inner
+                             * character index uses i, as in the grid below.
+                             * Both counters are reinitialized before each
+                             * scan and retain the original bounds. */
+                            i = 0;
                             do {
-                                if ((u8) D_o058_5C5C[i][columnX] == D_800D31C4[D_8007C1B4]) {
-                                    D_o058_5E78 = i;
-                                    D_o058_5E7C = columnX;
+                                if ((u8) D_o058_5C5C[columnX][i] == D_800D31C4[D_8007C1B4]) {
+                                    D_o058_5E78 = columnX;
+                                    D_o058_5E7C = i;
                                 }
-                                columnX += 1;
-                            } while (columnX != 0xA);
-                            i += 1;
-                        } while (i != 3);
+                                i += 1;
+                            } while (i != 0xA);
+                            columnX += 1;
+                        } while (columnX != 3);
                         amSndPlay(0xDU, NULL);
                     }
                 }
@@ -1302,7 +1302,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
         }
         textY = 0x78;
-        i = 0;
+        columnX = 0;
         do {
             /* Keep the increment opaque to the counted-loop proof.  The
              * discarded product below is defined and zero on every pass;
@@ -1315,38 +1315,34 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
              * the paired shape correction; either end alone misprices the
              * intervening displacement.  See the current handoff for the
              * controlled comparisons and the remaining local residual. */
-            opponent = 0;
+            i = 0;
             x = -x;
-            columnX = 0x34 + x;
+            opponent = 0x34 + x;
             do {
-                /* Four discarded-expression probes at loop depth two.
-                 * They emit no instructions and raise the index web's
-                 * save ratio.  The split case-8 induction raises nocs
-                 * from 66 to 70 at unchanged totalsave 1075, losing its
-                 * priority to the text-buffer address.  The fourth probe
-                 * raises totalsave to 1175 and restores the target order.
-                 * After the case-2 split the index reads 1175/74 and the
-                 * buffer 849/55; four and five probes give one object.
-                 * Six restructure the web and regress.  These numbers
-                 * describe this source shape, not a universal probe count.
-                 * The inert shaping is disclosed in the current handoff. */
-                if (i);
-                if (i);
-                if (i);
-                if (i);
-                sprintf(&text[0], D_o058_5DAC, (u8) D_o058_5C5C[i][opponent]);
-                if ((opponent == D_o058_5E7C) && (i == D_o058_5E78)) {
+                /* The erase scan and this grid share their row induction.
+                 * columnX selects the row, i selects its character, and
+                 * opponent carries the drawing coordinate.  Each role has
+                 * its own initialization and visits the original bounds.
+                 * The matching row carriers retain the shared table cursor.
+                 * Together with the count/stride carrier exchange in case
+                 * 13, this keeps the visible index in its target colour.
+                 * The former four discarded index probes are unnecessary
+                 * on this source shape and have been removed.  The opaque
+                 * unit increment below still prevents the counted rewrite.
+                 */
+                sprintf(&text[0], D_o058_5DAC, (u8) D_o058_5C5C[columnX][i]);
+                if ((i == D_o058_5E7C) && (columnX == D_o058_5E78)) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, columnX, textY, &text[0], 4);
-                opponent += (opponent * 0) + 1;
-                columnX += 0x18;
-            } while (opponent < 0xA);
-            i += 1;
+                func_8004B0F8(&D_800D3140, opponent, textY, &text[0], 4);
+                i += (i * 0) + 1;
+                opponent += 0x18;
+            } while (i < 0xA);
+            columnX += 1;
             textY += 0x1B;
-        } while (i < 3);
+        } while (columnX < 3);
         x = -x;
         if (D_o058_5E78 == 3) {
             fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
@@ -1375,8 +1371,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 10:
         x = D_o058_5E98 + D_o058_5EA8;
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
-        i = 0;
+        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1484,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 277/3614 words
+ * score: 236/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 393 to 277: independent case-2 and case-8 inductions, fourth grid probe and loop-tail order; remaining windows priced and partitioned.
+ * summary: 277 to 236; seven gap pairs and five discarded probes removed. Remaining windows priced; count/stride/index regional sharing is the next lever.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
