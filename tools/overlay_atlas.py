@@ -1274,6 +1274,9 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x8008, 0x8048, "overlay1DistanceFromCurrent"),
         (0x8048, 0x80BC, "overlay1DistanceFromSelected"),
     ],
+    2: [
+        (0x02C4, 0x0400, "overlay2ClassifyBoundary"),
+    ],
     4: [
         (0x000, 0x138, "overlay4InitializeObjectMotion"),
         (0x4D0, 0x52C, "overlay4AttachObject"),

@@ -178,9 +178,6 @@ overlay2AngleReloc = 0xf0000000;
 gOverlay2LineCount = 0x00000020;
 
 /* overlay 2: overlay2ClassifyBoundary.c.o */
-D_34 = 0x00000034;
-
-/* overlay 2: overlay2IntersectBoundary.c.o */
 gOverlay2BoundaryAxis = 0x00000030;
 gOverlay2BoundaryValue = 0x00000034;
 
@@ -670,6 +667,9 @@ overlay14UpdateReloc = 0xf0000498;
 
 /* overlay 14: overlay14UpdateTransition.c.o */
 D_C0 = 0x000000c0;
+
+/* overlay 14: func_overlay_014_F0001540_1870E18.c.o */
+D_34 = 0x00000034;
 
 /* overlay 14: overlay14ReleaseOwner.c.o */
 gOverlay14Owner = 0x00000100;

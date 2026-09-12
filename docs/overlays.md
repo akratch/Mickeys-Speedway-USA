@@ -2153,3 +2153,19 @@ from its condition, and defining input channels before gradient channels
 restore the temporary and local register allocation. The linked owner and
 full US ROM are exact. This completes the existing overlay-16 C translation
 unit; it does not add credit for its previously matched functions or padding.
+
+### Overlay 2 boundary classification closure
+
+Tier A: `overlay2ClassifyBoundary` owns overlay 2 text `+0x2C4..+0x400`
+(316 executable bytes). Its 79 configured words and six relocation offsets,
+types, identities and addends are exact; the linked owner and full US ROM
+match. Direct comparison stores and one shared return remove the boolean
+carriers and restore the target branch layout. The existing overlay-specific
+boundary globals preserve the LOCAL addends without generic-name collisions.
+
+The inherited source-shape closure did not survive this combined change.
+Direct comparison stores alone reduced 61 masked differences to 47; sharing
+the return closed the residual and removed the surplus word. The aligned
+buckets (exact, register naming, immediate, structural) changed from
+32/28/4/18 to 79/0/0/0. A pointer-color force was explicitly declined, which
+did not prove the source shape unavailable.
