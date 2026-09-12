@@ -22,6 +22,6 @@ Measured with tools/align_symbol.py on the integration branch and reproduced ind
 
 Frame 0x48 exact on both sides while the size is 108 bytes over, so the surplus is body rather than layout. Structural and naming are near parity, which is unusual in this overlay.
 
-This procedure issues calls, so by the call test it is p1-only: definition position, declaration order and statement order decide nothing here, and L100's save ratio is the axis.
+This procedure issues calls, so by the call test it is p1-only and L100's save ratio is the axis for colours the web is actually offered. CORRECTED 2026-09-12: the call test retires L106 and nothing else. Statement order still reaches as1's scheduling and ugen's emission order, neither of which the census touches, and it was decisive on every one of seven functions closed in one lane. Do not read this shard as saying statement order is the wrong axis.
 
 <!-- plateau-handoff:func_overlay_101_F000AB4C_18E636C:end -->

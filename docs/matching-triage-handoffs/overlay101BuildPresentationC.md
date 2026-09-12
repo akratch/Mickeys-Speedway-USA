@@ -69,9 +69,12 @@ Refuted here, each with its measurement.
   check. Merging the two node-24 index locals reads 206 at a size delta of +8;
   inlining the node-24 index local reads 148 and the node-32 one 155.
 - `register` on any of the six index locals is inert, and so is every
-  statement order inside a folded group. That is the call test holding: the
-  procedure issues calls, so it is p1-only and definition position, declaration
-  order and statement order decide nothing.
+  statement order inside a folded group. CORRECTED 2026-09-12: the measurement
+  stands, the reason given for it does not. Order inside a folded group is inert
+  because a folded group is one physical line and therefore one `lineno` key
+  (L132), not because of the call test. The call test retires L106 and nothing
+  else; statement order across separate lines still reaches as1's scheduling and
+  ugen's emission order, and was decisive on seven functions closed in one lane.
 
 Next lever, with the decision variable named.
 
