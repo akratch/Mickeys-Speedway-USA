@@ -305,4 +305,38 @@ evidence about ugen's emission order rather than about as1's selection: a
 function anywhere in this tree whose ugen output puts a body instruction between
 two prologue saves. One such example turns this from a contradiction into a
 lever; without one the seven words are the price of the reconstruction.
+#### 2026-09-12, lane `p10-near`: L145 and L59 both tested on the prologue cluster, both flat
+
+Baseline reproduces: 996 bytes, 249 of 249 instructions, delta 0, 14 masked,
+first mismatch +0xC. Aligner: 244 byte-exact, 1 register naming, 2
+immediate-only, 4 really different, displacement tax 7.
+
+Two laws that landed after the previous closure were tested against it, because
+both change what ugen emits rather than how as1 selects, which is what the
+closure asked for.
+
+**L145 -- delete the carrier -- does not reach it.** Writing the shared-world
+dereference as the expression itself at both sites, with no `worldAddress`
+local at all, scores 18 in three spellings (`(u32)&D_1DA0`, `(s32)&D_1DA0`,
+`(u32)(&D_1DA0)`) and 50 with a plain `&D_1DA0`. All are size delta 0 and 249
+instructions, and the aligner shows the structural residual **unchanged**: the
+same two surplus words at +0x34 and +0x40 and the same two missing at +0xC. What
+the deletion does change is the frame: four immediate-only words appear,
+including the frame adjustment itself. So the no-carrier form is a different
+home set with the same schedule, not a different schedule.
+
+**L59 is inert on this block.** Eight physical-line arrangements of the first
+four statements -- all four on one line, each adjacent pair folded, the first
+statement moved onto the last declaration's line, four blank lines inserted
+ahead of them, and the address folded into the declaration as an initialiser --
+are **all byte-identical at 14**. That is consistent with the previous lane's
+node-graph reading: the tie as1 breaks here is between prologue stores and the
+address-low node, and prologue stores carry no source line for `lineno` to
+order.
+
+The closure therefore stands as p6-mid wrote it, with its evidence requirement
+unchanged: a counterexample to ugen's emission order, not another spelling.
+Both of the two levers that could plausibly have supplied one are now measured
+and negative.
+
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->
