@@ -3456,11 +3456,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 235/249 words
+ * score: 14/249 words
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
+ * summary: Correct proc-9 census has 473 draws and 1969 emissions; the closed prologue-load emission-order blocker retains two paired insertion gaps.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
