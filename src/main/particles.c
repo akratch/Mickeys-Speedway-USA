@@ -2613,7 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: Proc29 landscape 134 probes; forced floor 63, but winners only affect late rival webs and cannot reach the +0x74 extra draw.
+ * summary: Inert entry use added no census draw and regressed to 74; pre-entry draw without t7 release remains unresolved.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
-

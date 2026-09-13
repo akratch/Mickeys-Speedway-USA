@@ -288,6 +288,6 @@ void overlay58FinalizePackedStatus(void) {
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: Exhaustive 178-probe 27-web landscape; best diagnostic w166=c5 reaches 86; player-carrier deletion regressed to 260 and +8 bytes.
+ * summary: player carrier move left census unchanged and regressed to 94; stack-home and mask-shift carrier remain.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */
