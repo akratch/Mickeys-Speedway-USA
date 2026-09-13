@@ -486,7 +486,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 16
  * first-mismatch: +0x4
- * summary: Exact-size candidate retains allocator structure and two extra static records; carrier reuse improved 230 to 120 differences.
+ * summary: Fresh proc-2 census confirms 114 draws and exact geometry; p1 save-ratio and carrier residual remain after recorded controls.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
 
