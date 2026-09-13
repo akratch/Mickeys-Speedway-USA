@@ -3507,10 +3507,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 21/107 words
+ * score: 86/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Deleted index and point carriers lose geometry or extend address lifetimes; parameter byte-home and current-index split remain.
+ * summary: No colour winner; aligned residual remains 15 naming, one home displacement, and five structural rows under the recorded parameter-home blocker.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */
