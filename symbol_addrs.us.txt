@@ -2889,3 +2889,5 @@ D_800D60D0 = 0x800D60D0; // type:u8 size:0x4 tier-B fx texture-slot availability
 
 // Overlay 1 identity is scoped by section ownership and ROM location.
 overlay1FindType47ByAngle = 0xF00001AC; // type:func size:0x128 rom:0x184C58C segment:overlay_001 tier-A matched C, 74 linked words and six runtime relocation identities
+
+func_80006448 = 0x80006448; // type:func size:0xEC ROM 0x7048 tier-A matched C src/main/objects.c.o, Mickey-only 59/59 words and four exact relocation tuples, linked ROM exact

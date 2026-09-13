@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 302,
-  "resolved": 302,
+  "queue_size": 301,
+  "resolved": 301,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 302,
-  "relocation_masked_coverage": 302,
+  "source_context_coverage": 301,
+  "relocation_masked_coverage": 301,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -368,21 +368,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "xToN.3lR8.GMsz.iU8s.wn7e.T2ZP.0yjY.Zb1y.-jLB.HEMY.mY4"
-    },
-    {
-      "name": "func_80006448",
-      "file": "src/main/objects.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 236,
-      "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 80,
-      "relocation_masked_differing_words": 9,
-      "relocation_masked_first_mismatch_offset": 80,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "R-xI.mVMw.5QHs.ipY-.DGlA.8FRq.6V7r.sN3q.oKWY.N1SJ.f3M"
     },
     {
       "name": "overlay15DrawScreenStars",
