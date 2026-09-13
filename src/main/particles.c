@@ -2593,7 +2593,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: FP draw census preserved 117 draws; no zero-constant or ring-phase source lever found
+ * summary: Fresh proc-22 FP census confirms the recorded 117-draw schedule; the zero-constant web remains unavailable to source scheduling.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
