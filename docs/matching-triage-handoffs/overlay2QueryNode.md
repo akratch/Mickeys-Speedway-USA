@@ -2,11 +2,11 @@
 ### `overlay2QueryNode` plateau handoff
 
 - source: `src/overlays/o002/overlay2QueryNode.c`
-- score: 214/253 words
+- score: 39 differing words
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x58
-- summary: parameter reload identity and short-circuit argument schedule remain unresolved
+- summary: 223/253 aligned exact at delta 0. Parameter reload restores its reissue only with broad allocation regression; short-circuit schedule remains open.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 

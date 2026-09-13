@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: Proc-35 baseline retains 15 naming, one immediate, and five structural rows; exhausted colour and deletion controls leave the parameter-home blocker open.
+- summary: Correct proc-35 46-draw census confirms the parameter-home/current-index blocker; retained baseline is best.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 

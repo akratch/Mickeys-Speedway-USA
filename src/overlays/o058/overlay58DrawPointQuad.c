@@ -146,6 +146,6 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Physical intermediate and colour-store folding are byte-inert; generated display cursor adds six draws and twelve bytes.
+ * summary: 80/104 aligned exact at delta 0; 34-draw sequence retained. Carrier, generated cursor and physical-line controls cannot repair the address/store schedule.
  * PLATEAU-HANDOFF:overlay58DrawPointQuad:end
  */

@@ -2,11 +2,11 @@
 ### `overlay1AdvancePath` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 81 differing words
+- score: 81/162 words
 - frame: 0x58
 - relocations: 22
 - first mismatch: +0x10
-- summary: Exact size and aligned opcode shape; 81 masked naming differences; initial three-draw deficit proved diagnostically.
+- summary: Correct proc-36 58-draw census confirms the initial draw deficit and mixed later allocation residual; baseline retained.
 
 ### Historical source shape (superseded 2026-09-12)
 

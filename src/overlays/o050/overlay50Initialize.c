@@ -180,10 +180,10 @@ void func_overlay_050_F0000000_1896970(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:start
  * symbol: func_overlay_050_F0000000_1896970
- * score: 81/185 words
+ * score: 104/185 words
  * frame: 0x20
- * relocations: 58
- * first-mismatch: +0x8
- * summary: First substantive mismatch +0x104; p7 exhausted config/value28/fill order, end-pointer, config/copy/flag probes. Need new config-base or copy-schedule evidence.
+ * relocations: 98
+ * first-mismatch: +0xC0
+ * summary: Fresh 35-draw baseline confirms record-copy schedule and saved-flag traffic plateau; line-fold control was byte-flat.
  * PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:end
  */

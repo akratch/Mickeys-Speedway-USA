@@ -1123,11 +1123,11 @@ s32 lightKillGlowingLight(void) {
 
 /* PLATEAU-HANDOFF:func_80018F08:start
  * symbol: func_80018F08
- * score: 74 differing words
+ * score: 74/205 words
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: Proc 12 has 73 draws. Compact frame/slots are exact but alignment regresses; alias and scope controls leave the draw sequence unchanged.
+ * summary: Correct proc-12 73-draw census confirms the mixed allocation/frame plateau; retained baseline.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 

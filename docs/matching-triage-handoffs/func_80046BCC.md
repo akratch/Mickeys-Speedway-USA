@@ -2,11 +2,11 @@
 ### `func_80046BCC` plateau handoff
 
 - source: `src/main/diCpu.c`
-- score: 16/106 words
+- score: 16 differing words
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Draw census and three schedule edits found no movable draw; complete same-kind colour landscape remains flat; live-range split unresolved.
+- summary: 90/106 aligned exact at delta 0; procedure-11 trace has 7 draws. Prior schedule forms and colour landscape do not split the initial character web.
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 

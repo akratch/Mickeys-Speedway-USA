@@ -117,7 +117,7 @@ s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
  * score: 84/222 words
  * frame: 0xC0
  * relocations: 12
- * first-mismatch: +0x58
- * summary: Exact geometry and frame remain; exhaustive flags and source forms leave display-list/x allocator web unresolved.
+ * first-mismatch: +0x64
+ * summary: Fresh 74-draw census confirms the display-list/x schedule plateau; zero-offset control did not move aligned residual.
  * PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:end
  */

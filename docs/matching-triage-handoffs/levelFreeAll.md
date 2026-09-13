@@ -2,11 +2,11 @@
 ### `levelFreeAll` plateau handoff
 
 - source: `src/main/level.c`
-- score: 114/117 words
+- score: 3/117 words
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Fresh 12-draw census confirms prior receipt; existing differential and expression closures leave no new schedule hypothesis.
+- summary: Fresh 12-draw baseline confirms the retained mask-table-scale emission-order blocker; no new source lever.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -537,5 +537,26 @@ load and scale while retaining all four temporary-ring draws.
 Commands: lane_status.py, configured stock compile, draw_census.py profile,
 residual_map.py --object, finalize_plateau.py and tools/gates.sh. This is a
 baseline-confirmation plateau, not a new source-axis exhaustion or byte credit.
+
+#### 2026-09-13, lane h1: authenticated schedule baseline
+
+Fresh configured stock compilation reproduces 117 words, 468 bytes, frame
+0x28, three raw and masked differences, and first mismatch +0x13C. All 36
+static relocation tuples agree. Aligned buckets remain 114 exact, three
+naming, zero immediate and zero structural, with no gaps. The procedure-17
+census reproduces 12 draws and 183 emission records, four draws at the arm.
+Stock and instrumented full-TU text compare identically.
+
+The complete shard was read, including d1's scale-mask differential and f1's
+confirmation. No new source hypothesis survives the recorded expression,
+carrier, comma, free-list and line-key observations. ADR 0018 early evidence
+stop applies with zero new attempts; no colour sweep or known-flat source
+probe was repeated. This confirms the baseline, not a new axis exhaustion.
+The separate-mask-before-base requirement remains unresolved and no bytes
+are credited. Sources, objects, score, frame, static relocation measurements
+and draw profile remain ignored under build/h1/levelFreeAll.
+
+Commands: lane_status.py, align_symbol.py, configured stock compilation,
+draw_census.py, residual_map.py --object, finalize_plateau.py and tools/gates.sh.
 
 <!-- plateau-handoff:levelFreeAll:end -->

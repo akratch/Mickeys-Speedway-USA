@@ -456,17 +456,17 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Procedure-4 census is 40 draws/139 emissions; exact geometry still requires a hoisted fade read with target float priority.
+ * summary: Proc-4 census and exhaustive colour probes leave nine structural rows; fade hoist and float priority remain.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 13 differing words
+ * score: 13/54 words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: Procedure-11 census is 17 draws/214 emissions; shared-high-half lowering remains a structural gap with no reached source lever.
+ * summary: Proc-11 census and source probes leave a shared-high-half lowering gap; no reachable source lever improves 13 masked rows.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
@@ -476,17 +476,17 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0xB8
  * relocations: 15
  * first-mismatch: +0x44
- * summary: Correct proc-7 census captured; exact-size residual retains mixed p2 carrier scheduling and structural rows with no new source lever.
+ * summary: Proc-7 census confirms mixed p2 carrier scheduling; exact-size residual remains after recorded source probes.
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15InitStarsAndPalette:start
  * symbol: overlay15InitStarsAndPalette
- * score: 120 differing words
+ * score: 120/247 words
  * frame: 0x40
  * relocations: 16
  * first-mismatch: +0x4
- * summary: Exact-size 247-word candidate; carrier reuse cut 230 to 120 differences, but allocator structure and two extra static records versus 14 target records remain.
+ * summary: Exact-size candidate retains allocator structure and two extra static records; carrier reuse improved 230 to 120 differences.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
 
@@ -502,10 +502,10 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15MoveStars:start
  * symbol: overlay15MoveStars
- * score: 30/54 words
+ * score: 30/58 words
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: Correct proc-3 carrier probe has 14 draws unchanged and emissions 73->74; order and 30/54 residual stay unchanged, so address lowering remains.
+ * summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

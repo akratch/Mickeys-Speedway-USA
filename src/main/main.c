@@ -1743,7 +1743,7 @@ void func_800293D0(void) {
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: Exhaustive float landscape and source forms leave a coherent FP naming residual; the save-ratio/lifetime mechanism remains unresolved.
+ * summary: Fresh baseline confirms the unresolved procedure/index mapping blocker; no draw attribution or source attempt is admissible.
  * PLATEAU-HANDOFF:func_80029274:end
  */
 

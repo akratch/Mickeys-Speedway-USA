@@ -138,10 +138,10 @@ s32 overlay68CheckKind(s32 kind) {
 
 /* PLATEAU-HANDOFF:overlay68CheckKind:start
  * symbol: overlay68CheckKind
- * score: 10/80 words
+ * score: 10 differing words
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: Changing the zero cursor index signedness preserved 11 draws, 153 emissions, and all ten aligned rows; it does not cross the propagation barrier.
+ * summary: 70/80 aligned exact at delta 0; zero-cursor construction has no draw. Existing propagation controls preserve 11 draws and cannot cross the fold barrier.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

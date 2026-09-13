@@ -299,6 +299,6 @@ common_tail:
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x4C
- * summary: 40 draws remain fixed; three-local interference and root-initialization schedule remain unresolved
+ * summary: Forty-draw proc-0 census remains fixed; three-local interference and root-initialization schedule are unresolved.
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */

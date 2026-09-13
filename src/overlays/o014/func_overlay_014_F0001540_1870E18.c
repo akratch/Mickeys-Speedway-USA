@@ -83,6 +83,6 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
  * frame: 0x80
  * relocations: 26
  * first-mismatch: +0xDC
- * summary: Outer while/generated stride leaves 12 naming rows at exact geometry; remaining pool cycle and relocation identities are unresolved.
+ * summary: Fresh 27-draw baseline confirms exact geometry with one caller-pool cycle; no new colour sweep or source mechanism.
  * PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:end
  */

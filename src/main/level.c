@@ -888,11 +888,11 @@ s32 levelInitRegionFlags(void) {
 
 /* PLATEAU-HANDOFF:levelFreeAll:start
  * symbol: levelFreeAll
- * score: 114/117 words
+ * score: 3/117 words
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Fresh 12-draw census confirms prior receipt; existing differential and expression closures leave no new schedule hypothesis.
+ * summary: Fresh 12-draw baseline confirms the retained mask-table-scale emission-order blocker; no new source lever.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

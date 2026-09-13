@@ -2593,7 +2593,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: FP draw census preserved 117 draws; no zero-constant or ring-phase source lever found
+ * summary: Fresh proc-22 FP census confirms the recorded 117-draw schedule; the zero-constant web remains unavailable to source scheduling.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: draw census and colour landscape leave the pre-entry MOVE_END ring blocker unresolved
+ * summary: Fresh proc-29 census records 126 draws; the pre-entry MOVE_END still blocks the needed free-list phase without a source-safe extra draw.
  * PLATEAU-HANDOFF:func_80040B88:end
  */

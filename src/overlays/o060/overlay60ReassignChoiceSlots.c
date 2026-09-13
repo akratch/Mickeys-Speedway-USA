@@ -55,10 +55,10 @@ void overlay60ReassignChoiceSlots(void) {
 
 /* PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:start
  * symbol: overlay60ReassignChoiceSlots
- * score: 18/53 words
+ * score: 35 differing words
  * frame: 0x20
  * relocations: 8
  * first-mismatch: +0x4
- * summary: Fidelity-clean CDX maps the choice pointer to first p2 web w0; forcing its zero-cost v1 tie cuts 35 to 13 words, proving retail needs earlier web formation, not a priority change.
+ * summary: 19/53 aligned exact at delta 0; nine draws unchanged. Frame-preserving array extent and cursor forms do not create the earlier p2 web set.
  * PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:end
  */

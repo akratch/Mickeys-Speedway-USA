@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Procedure-4 census is 40 draws/139 emissions; exact geometry still requires a hoisted fade read with target float priority.
+- summary: Proc-4 census and exhaustive colour probes leave nine structural rows; fade hoist and float priority remain.
 
 #### Historical baseline at assignment 3ccc02a1
 

@@ -739,10 +739,10 @@ s32 func_800038EC(u16 soundId, AudioVector3 *position,
 
 /* PLATEAU-HANDOFF:func_80003480:start
  * symbol: func_80003480
- * score: 41/94 words
+ * score: 53/94 words
  * frame: 0x48
  * relocations: 5
  * first-mismatch: +0x0
- * summary: Authorized V0 reproduced 41/94 words, frames 0x48/0x30, and 4/5 aligned relocations; donor search lacks a size owner. Body forms stay closed.
+ * summary: Fresh proc-15 census records 16 draws; the authorized baseline retains the 0x48 versus 0x30 frame and closed body forms.
  * PLATEAU-HANDOFF:func_80003480:end
  */

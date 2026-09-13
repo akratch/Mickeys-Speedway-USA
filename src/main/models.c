@@ -1398,7 +1398,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x10
  * relocations: 12
  * first-mismatch: +0xC
- * summary: JFG cursor/type forms reached exact geometry and frame; next lever is source-proven pool/line-order evidence.
+ * summary: Fresh proc-14 census records 37 draws; cursor and type forms retain exact geometry but leave the pool and line-order structure unresolved.
  * PLATEAU-HANDOFF:func_80020B10:end
  */
 
@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Procedure-16 census is 19 draws/171 emissions; exception-cursor preheader strength reduction remains structural and the priced register swap is diagnostic.
+ * summary: Fresh proc-16 census confirms the retained cursor preheader structural deficit; all tested source identities preserve that blocker.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

@@ -288,6 +288,6 @@ void overlay58FinalizePackedStatus(void) {
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: Exhaustive flags, source forms and accepted colour probes leave stack-home and mask-shift carrier allocation unresolved.
+ * summary: Fresh 44-draw baseline confirms the broad stack-home/mask-shift allocation residual; retained candidate.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */

@@ -6,7 +6,7 @@
 - frame: 0x38
 - relocations: 4
 - first mismatch: +0x28
-- summary: Indexed carrier deletion adds 20 bytes and worsens to 46; the proved-zero colour force remains source-unreached.
+- summary: Fresh one-draw baseline confirms the reserved-c3 record-colour/web-order blocker; no source route reached the forced zero.
 
 #### 2026-09-11, lane `f9-small`: unused homed locals are inert on this frame
 

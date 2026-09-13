@@ -119,6 +119,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0x108
- * summary: draw census kept 31 draws fixed; divisor order and region probes did not move the residual
+ * summary: Proc-0 census and exhaustive colour floor leave the divisor-copy coalescing decision unresolved across 14 masked rows.
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */

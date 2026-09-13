@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: Closed colour and draw-order axes; residual requires a fifth ring draw between angle sum and truncation.
+- summary: Fresh baseline and draw census confirm the recorded FIFO ring-release blocker; no new source lever measured.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 

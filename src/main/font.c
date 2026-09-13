@@ -1230,6 +1230,6 @@ u8 func_8004D5C0(s32 font) {
  * frame: 0x70
  * relocations: 9
  * first-mismatch: +0x0
- * summary: V0 is 144/146 words, relocs 9/9 with 6 aligned. Prior flags and natural forms exhausted; next lever is new allocation or saved-header copy scheduling.
+ * summary: Array placement reaches target stack base in a private variant with two more aligned exact rows; all 29 draws stay fixed and copy-unrolling deficit remains.
  * PLATEAU-HANDOFF:func_8004C690:end
  */
