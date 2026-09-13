@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: Declaration-order source probe moved no draw, free, or emission line; the remaining two aligned rows are structural as1 branch-delay behavior.
+- summary: as1 branch-delay residual; draw census confirms source declaration changes do not move the schedule
 
 #### Owned evidence and result, 2026-09-09
 

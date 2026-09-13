@@ -102,10 +102,10 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
 
 /* PLATEAU-HANDOFF:overlay14CreateValue:start
  * symbol: overlay14CreateValue
- * score: 83/96 words
+ * score: 13/96 words
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: 13 masked differences; coherent ring phase remains and extra pointer home at +0x24 blocks exactness
+ * summary: chosen-pointer frame-cell residual remains after exhausted carrier and scheduler controls
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */

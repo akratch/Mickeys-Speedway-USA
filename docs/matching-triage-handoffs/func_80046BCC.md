@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Deleting the load carrier adds a read; deleting text aliases changes only entry allocation. Working-character range still unsplit.
+- summary: working-character live range remains unsplit; colour and carrier deletion controls are closed
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 

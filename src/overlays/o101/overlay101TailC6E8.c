@@ -295,10 +295,10 @@ common_tail:
 
 /* PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:start
  * symbol: func_overlay_101_F000C6E8_18E7F08
- * score: 106 differing words
+ * score: 106/317 words
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x4C
- * summary: Accepted three-local displacement prices 19 masked words (106 to 87), diagnostic only. Source and new-shape order controls retain 106; interference remains.
+ * summary: three-local interference and root-initialization schedule remain unresolved after priced diagnostics
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */
