@@ -542,6 +542,6 @@ loop_52:
  * frame: 0xA8
  * relocations: 38
  * first-mismatch: +0x330
- * summary: 655/662 aligned exact at delta 0; link-expression controls left all 169 draws unchanged and regressed aligned windows. No scheduling lever remains.
+ * summary: 169-draw census and p1 ownership confirm seven naming rows; link-expression controls leave schedule unchanged
  * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
  */

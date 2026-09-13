@@ -166,6 +166,6 @@ void func_overlay_031_F0000000_187F520(void) {
  * frame: 0x40
  * relocations: 10
  * first-mismatch: +0x2C
- * summary: Authorized V0 baseline leaves allocator proxy unresolved at 94 masked rows; donor and exact-sibling evidence add no lever.
+ * summary: seven-draw allocator proxy; pre-loop definition reorder leaves schedule and residual unchanged
  * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
  */
