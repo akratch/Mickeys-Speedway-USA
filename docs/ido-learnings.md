@@ -2370,6 +2370,27 @@ bytes and disassembly never belong here.
   Preserve per-site draw constraints and require stock/instrumented fidelity;
   other split modes and source shapes need their own measurements.
 
+- **A folded argument expression can retain a reset's emission position.**
+  When a reset is already an independent ready instruction but executes
+  before a call's delay slot, inspect its order among the zero-height
+  argument definitions. In the controlled
+  [reset-slot experiment](whale-gap-emission.md#the-reset-reaches-the-slot-lane-wv-i),
+  a discarded comma assignment in the last argument is emitted before the
+  register arguments. Making that argument's value depend on the assignment,
+  as in `255 - (index = 0)`, retains the reset after those definitions even
+  though the arithmetic folds away. Its dependency fields remain unchanged;
+  the new ready-list order leaves it for the slot. A separate small switch-arm
+  fixture reproduces this behavior, while otherwise similar function-entry
+  fixtures do not, with either int or ABI-width long locals. Treat the form as
+  a context-dependent source lever, not an evaluation-order guarantee.
+  Require faithful generator/scheduler evidence and final instruction identity;
+  unchanged draws alone prove neither position nor width. The assignment must
+  initialize a nonescaping local, have no conflicting access in another
+  argument, preserve every argument value, and use defined arithmetic.
+  Duplicating a later definition can still delete the early reset, and a
+  separate induction introduced to retain it can still lose later address
+  reuse. This lever does not solve either of those lifetime constraints.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
