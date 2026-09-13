@@ -2,11 +2,11 @@
 ### `overlay68CheckKind` plateau handoff
 
 - source: `src/overlays/o068/overlay68CheckKind.c`
-- score: 70/80 words
+- score: 10 differing words
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x50
-- summary: All 101 legal colour forces are non-improving; isolate the UGEN emission-order identity.
+- summary: Cursor construction still spends zero scratch draws under measured index, postincrement and cancelling-advance controls; retain ten words.
 #### 2026-09-11, lane `p6-small`: still ten, and two more mechanisms are closed
 
 Unchanged at ten relocation-masked words, size delta 0, frame 0x48, first
@@ -110,4 +110,51 @@ regression or changes geometry.
 The named source question remains upstream of allocation: identify the UGEN
 ring or emission-order identity that creates the four structural rows, then
 re-evaluate the naming component on that geometry.
+#### 2026-09-13, lane e1: the missing cursor draw is measured directly
+
+Configured stock and traced full-TU text agree. Baseline and retained body:
+320 bytes, 80 words, delta zero, 10 masked differences; aligned 70 exact,
+6 naming, zero immediate and 4 structural rows, with no unmatched offsets.
+The first difference remains +0x50. The near-match oracle's closest four-gram
+similarity is only 0.059; no donor material or colour force was used.
+
+The baseline census records 11 draws and 153 emission events. The cursor
+construction at source line 111 has zero draws and one instruction-bearing
+copy event. The target's shift-and-add construction therefore has no matching
+scratch allocation at that line in this source. The five naming rows in the
+last window retain the known one-position scratch-ring deficit.
+
+Four one-change controls were saved with source, stock/traced objects, draw
+profiles and aligned per-window differences:
+
+- Reuse the existing amount sentinel in the loop condition: still 10 words.
+  All per-line draw and emission counts and the draw order stay unchanged;
+  a different register choice at the sentinel does not improve the residual.
+- Generate the value cursor from the preincremented array index: 12 words,
+  delta zero. The loop's three maintenance draws move their source attribution
+  from line 122 to 121, but the construction still has no scratch draw. Its
+  window grows from four to six structural rows; the naming windows do not
+  improve.
+- Keep the zero origin's postincrement live as the loop's initial counter:
+  70 positional differences, delta plus 4. The trace still spends 11 draws in
+  the same order and no draw at the cursor construction. Alignment gives
+  44 exact, 18 naming, 2 immediate, 14 structural, plus three candidate-only
+  and two target-only offsets. Changed loop geometry does not buy the draw.
+- Form the cursor one element ahead, then cancel that advance with the
+  zero-valued index: the baseline text is byte-identical. Census emissions
+  increase by one solely because another source-location directive appears;
+  the cursor still emits just the copy and no scratch allocation.
+
+Stop: the three address-origin controls reproduce the same zero-draw cursor
+fold. Off-site loop changes and source-location events expose no new local
+handle. The earlier exhaustive propagation, region, identity-operation and
+colour results still close the available alternatives, so no further spelling
+sweep is justified. The missing construction must survive constant propagation
+until address lowering; none of these source controls moves that decision.
+
+The unchanged guarded baseline is retained. Evidence is ignored under
+build/e1/o068. Commands: draw_census.py, residual_map.py --object and --against,
+align_symbol.py, skeleton_scan.py similar, configured stock compiler,
+frame_census.py, score_symbol.py and finalize_plateau.py. No byte credit.
+
 <!-- plateau-handoff:overlay68CheckKind:end -->
