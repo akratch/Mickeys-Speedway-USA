@@ -79,11 +79,6 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
 
 /* PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:start
  * symbol: func_overlay_014_F0001540_1870E18
- * score: 12 differing words
- * frame: 0x80
- * relocations: 26
- * first-mismatch: +0xDC
- * summary: While loop and generated stride improve 82 to 12 naming rows with exact geometry. Three final controls preserve the caller-pool swap and draw sequence.
  * score: 12/188 words
  * frame: 0x80
  * relocations: 26
