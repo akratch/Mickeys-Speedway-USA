@@ -2439,7 +2439,7 @@ void func_8004AF68(void) {
  * frame: 0x168
  * relocations: 3
  * first-mismatch: +0x44
- * summary: Independent point-store scheduling swap removes one residual word; coloured global-register cycles remain the allocator blocker.
+ * summary: Resident cone-point function retains exact frame; fixed-bound allocation cycle remains after independent store scheduling.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
