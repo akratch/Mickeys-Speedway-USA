@@ -5691,11 +5691,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000D820:start
  * symbol: func_8000D820
- * score: 65 differing words
+ * score: 65/86 words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: m2c confirms existing identities and CFG; zero new attempts. Next: dirty-flag and shared-count lifetime evidence.
+ * summary: Fresh baseline confirms 84 vs 86 words and a 65-word mixed residual; no new dirty-flag/shared-count lifetime evidence exists.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
