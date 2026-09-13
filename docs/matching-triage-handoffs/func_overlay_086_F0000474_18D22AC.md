@@ -6,7 +6,7 @@
 - frame: 0xA8
 - relocations: 38
 - first mismatch: +0x330
-- summary: 655/662 aligned exact at delta 0; link-expression controls left all 169 draws unchanged and regressed aligned windows. No scheduling lever remains.
+- summary: 169-draw census and p1 ownership confirm seven naming rows; link-expression controls leave schedule unchanged
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 
