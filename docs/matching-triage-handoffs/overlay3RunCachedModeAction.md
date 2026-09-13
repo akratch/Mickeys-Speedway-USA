@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 15
 - first mismatch: +0x84
-- summary: Byte boolean adds three draws; switch-only byte copy adds two consumer draws; separating the call conversion is byte-inert.
+- summary: Procedure-0 boolean width/copy probes already measured added consumer draws or no object change; transfer remains unresolved at exact geometry.
 #### 2026-09-12, lane p23-lastmile5: complete colour landscape and boolean shapes
 
 Fresh baseline: 113 words, delta zero, 34 raw and masked differences, frame
