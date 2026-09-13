@@ -452,11 +452,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 96/105 words
+ * score: 9/105 words
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Conditional-header fade changes draw order but adds 12 bytes; a separate guard changes no draws and also adds 12 bytes.
+ * summary: Procedure-4 census is 40 draws/139 emissions; exact geometry still requires a hoisted fade read with target float priority.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
@@ -466,7 +466,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
+ * summary: Procedure-11 census is 17 draws/214 emissions; shared-high-half lowering remains a structural gap with no reached source lever.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
@@ -476,7 +476,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0xB8
  * relocations: 15
  * first-mismatch: +0x44
- * summary: p2 carrier scheduling basin remains unresolved at exact size
+ * summary: Correct proc-7 census captured; exact-size residual retains mixed p2 carrier scheduling and structural rows with no new source lever.
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
@@ -506,6 +506,6 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: The +16-byte address-lowering mismatch is fully localized; all size-closing BSS partitions regress aligned residuals.
+ * summary: Correct proc-3 carrier probe has 14 draws unchanged and emissions 73->74; order and 30/54 residual stay unchanged, so address lowering remains.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

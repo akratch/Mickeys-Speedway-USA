@@ -107,10 +107,10 @@ void overlay14PrepareInputState(s32 step) {
 
 /* PLATEAU-HANDOFF:overlay14PrepareInputState:start
  * symbol: overlay14PrepareInputState
- * score: 66/131 words
+ * score: 65/131 words
  * frame: 0x20
  * relocations: 29
  * first-mismatch: +0xC
- * summary: Nine owned BSS definitions enable a 29/29 diagnostic identity proof; 65 allocator words remain, with UOPT lifetime tracing as the next lever.
+ * summary: Procedure-0 census is 15 draws/347 emissions; 65 differences are register naming with a four-window lifetime/ring schedule, not a colour residual.
  * PLATEAU-HANDOFF:overlay14PrepareInputState:end
  */

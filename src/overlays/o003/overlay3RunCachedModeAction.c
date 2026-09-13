@@ -63,6 +63,6 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x84
- * summary: Byte boolean adds three draws; switch-only byte copy adds two consumer draws; separating the call conversion is byte-inert.
+ * summary: Procedure-0 boolean width/copy probes already measured added consumer draws or no object change; transfer remains unresolved at exact geometry.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

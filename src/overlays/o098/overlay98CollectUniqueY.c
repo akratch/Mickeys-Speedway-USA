@@ -121,6 +121,6 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
  * frame: 0x10
  * relocations: 8
  * first-mismatch: +0x68
- * summary: Draw census and array-base, pointer, loop and volatile-root probes found no improvement; exact-size baseline retains the array-root CSE blocker.
+ * summary: Procedure-0 census is 21 draws/145 emissions; exact-size array-root CSE schedule remains unresolved after root, pointer, loop and volatile probes.
  * PLATEAU-HANDOFF:overlay98CollectUniqueY:end
  */

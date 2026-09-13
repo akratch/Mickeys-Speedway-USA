@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 25
 - first mismatch: +0x30
-- summary: The +16-byte address-lowering mismatch is fully localized; all size-closing BSS partitions regress aligned residuals.
+- summary: Correct proc-3 carrier probe has 14 draws unchanged and emissions 73->74; order and 30/54 residual stay unchanged, so address lowering remains.
 
 #### 2026-09-11, lane `lane/p4-xfer`: refuted, and the size delta is now fully accounted
 

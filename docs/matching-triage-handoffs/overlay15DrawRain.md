@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
+- summary: Procedure-11 census is 17 draws/214 emissions; shared-high-half lowering remains a structural gap with no reached source lever.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 
