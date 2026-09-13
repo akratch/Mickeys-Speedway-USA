@@ -3466,11 +3466,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1AdvancePath:start
  * symbol: overlay1AdvancePath
- * score: 81 differing words
+ * score: 81/162 words
  * frame: 0x58
  * relocations: 22
  * first-mismatch: +0x10
- * summary: Exact size and aligned opcode shape; 81 masked naming differences; initial three-draw deficit proved diagnostically.
+ * summary: Correct proc-36 58-draw census confirms the initial draw deficit and mixed later allocation residual; baseline retained.
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
 
