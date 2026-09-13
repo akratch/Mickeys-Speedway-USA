@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 91
 - first mismatch: +0x4C
-- summary: three-local interference and root-initialization schedule remain unresolved
+- summary: 40 draws remain fixed; three-local interference and root-initialization schedule remain unresolved
 - assignment base: `23dd98ede1da869df2df0948c80efeeb403caa6e`
 - owned range: overlay 101 `+0xC6E8..+0xCBDC`, 1,268 bytes / 317 words, with no target-size delta
 - baseline: 131 raw and 125 relocation-aware positional differences; normalized distance 117; first raw mismatch `+0x8` and first relocation-masked mismatch `+0x34`
