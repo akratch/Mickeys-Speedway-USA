@@ -2,9 +2,9 @@
 ### `overlay15UpdateMovingStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 19/103 words
+- score: 84/103 words
 - frame: 0x58
 - relocations: 46
 - first mismatch: +0x30
-- summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
+- summary: Fresh proc-8 census confirms 27 draws and exact frame; scalar address relocation surface remains the structural blocker.
 <!-- plateau-handoff:overlay15UpdateMovingStars:end -->

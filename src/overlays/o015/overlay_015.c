@@ -492,11 +492,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15UpdateMovingStars:start
  * symbol: overlay15UpdateMovingStars
- * score: 19/103 words
+ * score: 84/103 words
  * frame: 0x58
  * relocations: 46
  * first-mismatch: +0x30
- * summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
+ * summary: Fresh proc-8 census confirms 27 draws and exact frame; scalar address relocation surface remains the structural blocker.
  * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
  */
 
