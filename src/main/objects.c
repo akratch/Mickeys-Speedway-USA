@@ -5777,7 +5777,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: Destination-flag form changes no draws and adds four bytes; folded capture lines only change attribution, with identical bytes.
+ * summary: Multiply operand reversal leaves line counts fixed but changes later FP draw order and adds nine naming rows; baseline restored.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
