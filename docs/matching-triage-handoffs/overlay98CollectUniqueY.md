@@ -6,5 +6,5 @@
 - frame: 0x10
 - relocations: 8
 - first mismatch: +0x68
-- summary: Procedure-0 census is 21 draws/145 emissions; exact-size array-root CSE schedule remains unresolved after root, pointer, loop and volatile probes.
+- summary: Proc-0 census confirms 21 draws; array-root CSE scheduling remains unresolved after root, pointer, loop and volatile probes.
 <!-- plateau-handoff:overlay98CollectUniqueY:end -->
