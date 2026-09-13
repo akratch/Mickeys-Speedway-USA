@@ -653,6 +653,11 @@ gOverlay14CommandHeader = 0x000000fc;
 D_28 = 0x00000028;
 D_E8 = 0x000000e8;
 
+/* overlay 14: overlay14LoadRelocatedValue.c.o */
+gOverlay14LoadJumpTableReloc = 0x00000038;
+overlay14AllocateReloc = 0xf0000000;
+overlay14LoadReloc = 0xf0000000;
+
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
 gOverlay14State = 0x00000000;
