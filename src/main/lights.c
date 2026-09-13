@@ -1127,7 +1127,7 @@ s32 lightKillGlowingLight(void) {
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: Element-index lowering adds one draw and worsens aligned rows; the 0x58 versus 0x48 frame and release-order blocker remain.
+ * summary: Direction-pointer and carrier probes leave all 73 draws unchanged; the target 0x48 frame and early release-order schedule remain unresolved.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 
