@@ -2589,11 +2589,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003F154:start
  * symbol: func_8003F154
- * score: 13 differing words
+ * score: 13/297 words
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: Draw census prices head-zero, magnitude and tail schedules; extra draws regress, and three final comparison controls are byte-flat.
+ * summary: FP draw census and exhaustive force landscape found no movable colour or schedule; zero-constant occurrence and ring phase remain unresolved.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: Inert entry use added no census draw and regressed to 74; pre-entry draw without t7 release remains unresolved.
+ * summary: Draw census and exhaustive accepted colour lattice leave the pre-entry ring release/MOVE_END blocker unresolved.
  * PLATEAU-HANDOFF:func_80040B88:end
  */

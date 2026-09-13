@@ -893,7 +893,7 @@ void func_80046E00(void) {
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: working-character live range remains unsplit; colour and carrier deletion controls are closed
+ * summary: Draw census and three schedule edits found no movable draw; complete same-kind colour landscape remains flat; live-range split unresolved.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
