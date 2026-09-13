@@ -6,7 +6,7 @@
 - frame: 0x10
 - relocations: 2
 - first mismatch: +0x1C
-- summary: Lower-bound order closes four words; accepted p2 forces price the count/coordinate swap. Best C: 46 exact, 16 naming. Final boolean-carrier probes stall.
+- summary: Unsigned halfword count changes one draw and reduces naming at +12 bytes; word-width control restores the baseline exactly.
 
 - Reopen audit (2026-09-08): the local Jet Force Gemini checkout is exactly
   `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, with an unchanged tracked
@@ -95,5 +95,46 @@ The best guarded source is retained. Source, object, direct-score reports,
 compile commands and force-acceptance logs are preserved in lane-private
 external scratch. Commands include align_symbol, residual_map, register_census,
 frame_census and configured full-TU stock/instrumented comparisons.
+
+#### 2026-09-13, lane f1: coordinate deletion and count-width differential
+
+The fresh configured baseline reproduces 248 bytes, zero delta, 46 exact and
+16 naming rows, no other buckets or gaps, first +0x1C. Named Ucode authenticates
+procedure 29 of 66. Its draw census has seven draws and 124 emission records.
+All tested objects pass full-TU stock/instrumented text identity. Existing p2
+force receipts and prior carrier/induction/boolean closures were read; no
+colour sweep was repeated.
+
+Deleting only the converted-X carrier and using explicit integer conversions
+at its comparisons leaves all seven draws and their sequence unchanged. One
+emission record disappears at the old conversion definition, but naming grows
+from 16 to 21 at unchanged extent. It supplies no draw-order improvement.
+
+Changing the count to unsigned halfword while explicitly interpreting both
+comparisons as signed preserves the original count domain. This adds one draw
+and three emission records at the nonempty guard, changing draw order. The
+aligned paired map improves to four naming, one immediate and one structural
+row, but it also has three new candidate-only words near the entry and is
+12 bytes too large. The 55-word positional residual is mostly displacement
+and is not the reason to reject this geometry.
+
+The corresponding unsigned-word count with signed-word uses removes the
+narrowing conversion. It restores all baseline draws, emission counts, order,
+bytes and aligned rows exactly. Thus the measured count-order improvement is
+coupled to the extra conversion; declared unsignedness by itself does not
+supply it. The 16-word guarded baseline remains the best exact-extent source.
+
+Stop early under ADR 0018 after the width control eliminates the last new
+hypothesis in this family. The previous source closures cover the remaining
+identified condition/induction routes; no broader source impossibility is
+claimed. The next useful evidence must change count/coordinate creation order
+without a surviving width conversion, and separately remove the condition
+carrier while retaining the target's loop shape.
+
+Sources, objects, census differences and aligned maps remain ignored under
+build/f1/func_8000FAE0, with mapping evidence under build/f1/track-map.
+Commands: configured stock/capture compile, allocator_trace_receipt.py
+--map-only, draw_census.py profiles/comparison, residual_map.py --object
+--against, finalize_plateau.py and tools/gates.sh. Zero new byte credit.
 
 <!-- plateau-handoff:func_8000FAE0:end -->

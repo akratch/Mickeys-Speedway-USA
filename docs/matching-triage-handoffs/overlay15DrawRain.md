@@ -2,11 +2,11 @@
 ### `overlay15DrawRain` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 13/54 words
+- score: 13 differing words
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
+- summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 
@@ -64,5 +64,38 @@ the untested hypothesis). Nothing in declarations, groupings, regions,
 qualifiers or argument order moves it. The one axis neither lane has tried is
 raising register pressure in the call's own block so that no allocatable base
 register is free.
+
+#### 2026-09-13, lane f1: call-bias identity differential
+
+The full configured baseline reproduces 216 bytes, delta zero, 18 raw and
+13 masked differences, first masked +0x74. The aligned map has 43 exact and
+ten paired structural rows, with one candidate-only word at +0xBC and one
+target-only word at +0xB4. Named Ucode authenticates procedure 11 of 12;
+the census records 17 draws and 214 emission records. Stock/instrumented
+full-TU text is byte-identical.
+
+A single source probe changes only the camera-angle bias literal from signed
+to unsigned, testing whether its IR identity alters the call-block draw/release
+sequence around the shared address. The camera field is signed halfword and
+adding the bias lies in the nonnegative halfword range in both forms, so the
+value passed to the existing integer parameter is unchanged. Every line's
+draw and emission counts, the draw sequence and the object text are unchanged.
+The retained aligned comparison preserves every row and both gap offsets.
+Thus this literal-identity lever does not move the affected call line or reach
+the shared-base lowering.
+
+The prior declaration, grouping, region and pressure receipts were read.
+Their negatives and this measured no-movement result leave no new identified
+source route in this packet. Stop early under ADR 0018 rather than repeat those
+families. The guarded baseline is restored and no matching bytes are credited.
+The unresolved question remains how to obtain the shared high-half load form
+without a full materialized base or an additional absolute load expansion.
+Sources, both compilers' objects, mapping capture, draw profiles and aligned
+differences remain ignored under build/f1/overlay15DrawRain and build/f1/o015-map.
+
+Commands: configured stock/capture compile, allocator_trace_receipt.py
+--map-only, draw_census.py profiles/comparison, residual_map.py --object
+--against, finalize_plateau.py and tools/gates.sh. The procindex listing was
+captured for mapping only; no colour landscape was repeated.
 
 <!-- plateau-handoff:overlay15DrawRain:end -->

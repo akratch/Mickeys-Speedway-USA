@@ -5685,7 +5685,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Lower-bound order closes four words; accepted p2 forces price the count/coordinate swap. Best C: 46 exact, 16 naming. Final boolean-carrier probes stall.
+ * summary: Unsigned halfword count changes one draw and reduces naming at +12 bytes; word-width control restores the baseline exactly.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: zero winning colour forces; scoped lifetime and guard probes did not move the saved FP web
+ * summary: Deferred Z store removes two draws but regresses; same-value store adds no draw and leaves the separate pre-sqrt web unchanged.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
