@@ -76,14 +76,14 @@
       "source_commit": "25a15368d81a57531735f338d69d8bad165c9def"
     },
     "func_80006534": {
-      "ledger_commit": "ce7e08a6a9cee15bbe5ee2160c8446668510c764",
+      "ledger_commit": "f7fe64fb8567b9f911b712d15ec70f5d3fa2ca7c",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "ce7e08a6a9cee15bbe5ee2160c8446668510c764"
+      "source_commit": "f7fe64fb8567b9f911b712d15ec70f5d3fa2ca7c"
     },
     "func_80007118": {
-      "ledger_commit": "4496aad1392932c58c23c28bcb815cc85d04b500",
+      "ledger_commit": "3639bb146dd3828a3c8cc5bc93deb42a12d4f8e6",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
-      "source_commit": "a83e820e24dcab6eae5f1e9c1e8debe18dfbb256"
+      "source_commit": "3639bb146dd3828a3c8cc5bc93deb42a12d4f8e6"
     },
     "func_8000784C": {
       "ledger_commit": "d37073eaeaf885131e5c31c518ebde420cfd7e36",
@@ -156,9 +156,9 @@
       "source_commit": "3d7c640e48eb6a0c0420add8d07e9c6499ff0f73"
     },
     "func_8000E5EC": {
-      "ledger_commit": "4eaeb4e4fa1ddd695631df532ff479f66ec2bd58",
+      "ledger_commit": "d7fa583e280d428aa9d51ac59c2bdec302838890",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "4eaeb4e4fa1ddd695631df532ff479f66ec2bd58"
+      "source_commit": "d7fa583e280d428aa9d51ac59c2bdec302838890"
     },
     "func_8000E920": {
       "ledger_commit": "c0b83dd640c9598218b072bb555dc5279517775d",
@@ -246,9 +246,9 @@
       "source_commit": "5cafbf70916743b98c06ea2a57da440401dd2a0f"
     },
     "func_80016890": {
-      "ledger_commit": "e7b0099c87139abe8bf0f8af867c3b3765a7b2cb",
+      "ledger_commit": "806368f00ad1c5547a42e908dcef3397085508ec",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "8b4dcb05207206d28a2d803c548c266f4c578c45"
+      "source_commit": "806368f00ad1c5547a42e908dcef3397085508ec"
     },
     "func_80017140": {
       "ledger_commit": "f5b477118c33c085654da8d55580ab5406b35dd7",
@@ -266,14 +266,14 @@
       "source_commit": "377c73a069541a2a34485b63f949923bbce9d886"
     },
     "func_800180B4": {
-      "ledger_commit": "bac11b5adaed1a1a54460f9a9eecf181d6f25965",
+      "ledger_commit": "ec6d1a6e477de14dfb482e2c5ef7b726e5ba70e9",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "bac11b5adaed1a1a54460f9a9eecf181d6f25965"
+      "source_commit": "ec6d1a6e477de14dfb482e2c5ef7b726e5ba70e9"
     },
     "func_80018F08": {
-      "ledger_commit": "58c27bb4aa8cccbada98c00194f581be1fc0ff8b",
+      "ledger_commit": "0ae4386e31a86fa18ad61e4ba5929bc70af101fd",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "58c27bb4aa8cccbada98c00194f581be1fc0ff8b"
+      "source_commit": "0ae4386e31a86fa18ad61e4ba5929bc70af101fd"
     },
     "func_8001953C": {
       "ledger_commit": "d09352cdaa9a476ab208fd6965e169db3d64bdce",
@@ -346,9 +346,9 @@
       "source_commit": "9477fea633184fa9fbef34cbfec6292d9ffe9851"
     },
     "func_8002057C": {
-      "ledger_commit": "693cbfa8c4d89b473040b26353b925440ec0d121",
+      "ledger_commit": "92fb6d1093596e7220265a46202bf31b4fef5aa7",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "693cbfa8c4d89b473040b26353b925440ec0d121"
+      "source_commit": "92fb6d1093596e7220265a46202bf31b4fef5aa7"
     },
     "func_80020B10": {
       "ledger_commit": "1f5cccaae60d690fbfcad4e941709e4a294ae6bc",
@@ -631,9 +631,9 @@
       "source_commit": "ab5325ecb936bb7f49e0b3bd35e08f11d27236b1"
     },
     "func_80045D34": {
-      "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
+      "ledger_commit": "578b7bf129cfb24f6232250be800db6dea6115f2",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
+      "source_commit": "578b7bf129cfb24f6232250be800db6dea6115f2"
     },
     "func_80046BCC": {
       "ledger_commit": "e0f8a713b21d30e68b668b233d99dda0adf41776",
@@ -661,9 +661,9 @@
       "source_commit": "15ce5ff7572d8704c5c7424bdf34bad08bdae74b"
     },
     "func_800479D4": {
-      "ledger_commit": "5f0e7470fdf93e258f247ab66c98e400bc5cff44",
+      "ledger_commit": "6c8d484aa4f1ad9159eed59ed927103b01eb63ef",
       "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
-      "source_commit": "5f0e7470fdf93e258f247ab66c98e400bc5cff44"
+      "source_commit": "6c8d484aa4f1ad9159eed59ed927103b01eb63ef"
     },
     "func_80048080": {
       "ledger_commit": "540726421ebc51feec66a5577cb0e6b341e9768c",
@@ -686,9 +686,9 @@
       "source_commit": "e71d0977dfce6dbb522aed9af75dc3c6589bee0b"
     },
     "func_80049B14": {
-      "ledger_commit": "f8126f9ebcd1a6c6889471f0e00b5cb30cfa3c1f",
+      "ledger_commit": "5a433a0f91d111cd61b4692152dc0e41cbbd88aa",
       "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
-      "source_commit": "f8126f9ebcd1a6c6889471f0e00b5cb30cfa3c1f"
+      "source_commit": "5a433a0f91d111cd61b4692152dc0e41cbbd88aa"
     },
     "func_80049E4C": {
       "ledger_commit": "0124e56849a0eca16f5c657a6649d9fafb2b7d4f",
@@ -1271,9 +1271,9 @@
       "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "652c3dbce457e1319ad7ecdde66ff34b96d58da5",
+      "ledger_commit": "28ef36e88588ff3b564abf32df98cedd65a348d4",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "7755a5cf7320c43fc77872c85629013ed57fe7b4"
+      "source_commit": "28ef36e88588ff3b564abf32df98cedd65a348d4"
     },
     "func_overlay_060_F0000000_18B9DD8": {
       "ledger_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6",
@@ -1471,19 +1471,19 @@
       "source_commit": "191746912fa2fb2c0bd29b374451cefbdb8d20cc"
     },
     "overlay101BuildPresentationA": {
-      "ledger_commit": "6b0c7d1c28a723b2a1e7cdaa8e94b1d1ed1cc4e0",
+      "ledger_commit": "3a8f1de3f620366be048856af0d6bb0e5814849f",
       "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
-      "source_commit": "6b0c7d1c28a723b2a1e7cdaa8e94b1d1ed1cc4e0"
+      "source_commit": "3a8f1de3f620366be048856af0d6bb0e5814849f"
     },
     "overlay101BuildPresentationB": {
-      "ledger_commit": "05ae66892dfc2392426eb6baa4670dad90f4db2a",
+      "ledger_commit": "5517daf56b37ccc0e217c848b8c7732d9d93a5e9",
       "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
-      "source_commit": "05ae66892dfc2392426eb6baa4670dad90f4db2a"
+      "source_commit": "5517daf56b37ccc0e217c848b8c7732d9d93a5e9"
     },
     "overlay101BuildPresentationC": {
-      "ledger_commit": "de0ccc45b3bbfe29bce580f7320de9070e80e1e8",
+      "ledger_commit": "d5780dd94112498a61bf89be9b9738f73d36e922",
       "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
-      "source_commit": "de0ccc45b3bbfe29bce580f7320de9070e80e1e8"
+      "source_commit": "d5780dd94112498a61bf89be9b9738f73d36e922"
     },
     "overlay101BuildPresentationD": {
       "ledger_commit": "f94f8bc7860c936d12ce5fabf328e8f41df01fea",
