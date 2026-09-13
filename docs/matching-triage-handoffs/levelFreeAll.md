@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Draw census is unchanged by scale-mask distribution, which regresses structurally; separate mask/table/scale emission remains blocked.
+- summary: Fresh 12-draw census confirms prior receipt; existing differential and expression closures leave no new schedule hypothesis.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -514,5 +514,28 @@ retained privately under build/d1/levelFreeAll. Commands: align_symbol.py,
 draw_census.py --save/--compare, residual_map.py --object/--against, the
 workbench fidelity gate and finalize_plateau.py. No executable bytes are newly
 credited; the assembly fallback remains canonical.
+
+#### 2026-09-13, lane f1: independent draw-baseline confirmation
+
+A fresh configured compile reproduces 468 bytes at delta zero, three raw and
+masked differences, first +0x13C, and aligned buckets 114 exact, three naming,
+zero immediate and zero structural with no gaps. The procedure-17 draw census
+independently reproduces d1's 12 draws and 183 emission records. Stock and
+instrumented full-TU text compare byte-identically. Retained source, both
+objects, the census and aligned map are under ignored build/f1/levelFreeAll.
+
+The full shard, including d1's scale-mask distribution differential, was read
+before choosing a source probe. That differential already establishes no draw
+or order movement on the newly proposed distribution axis. The earlier records
+also cover every identified expression, carrier, comma, line and phase route.
+No new hypothesis was found that changes a held-fixed decision variable, so
+ADR 0018's early evidence stop applies with zero new source attempts. No colour
+landscape or source lattice was repeated, and the guarded body is unchanged.
+The unresolved requirement remains a separate mask evaluation before the table
+load and scale while retaining all four temporary-ring draws.
+
+Commands: lane_status.py, configured stock compile, draw_census.py profile,
+residual_map.py --object, finalize_plateau.py and tools/gates.sh. This is a
+baseline-confirmation plateau, not a new source-axis exhaustion or byte credit.
 
 <!-- plateau-handoff:levelFreeAll:end -->

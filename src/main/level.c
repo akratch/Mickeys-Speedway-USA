@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Draw census is unchanged by scale-mask distribution, which regresses structurally; separate mask/table/scale emission remains blocked.
+ * summary: Fresh 12-draw census confirms prior receipt; existing differential and expression closures leave no new schedule hypothesis.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
