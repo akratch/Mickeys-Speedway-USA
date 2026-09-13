@@ -302,7 +302,7 @@ s32 func_8004F020(void) {
  * frame: 0x10
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Candidate has an extra saved-register setup; next lever is direct global-address expression shape.
+ * summary: Proc-4 census records nine draws; extra saved-register setup and direct global-address expression shape remain the live structural blocker.
  * PLATEAU-HANDOFF:func_8004EC60:end
  */
 
