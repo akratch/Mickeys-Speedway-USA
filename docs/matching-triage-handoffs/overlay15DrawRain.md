@@ -2,11 +2,11 @@
 ### `overlay15DrawRain` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 13 differing words
+- score: 13/54 words
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: Procedure-11 census is 17 draws/214 emissions; shared-high-half lowering remains a structural gap with no reached source lever.
+- summary: Proc-11 census and source probes leave a shared-high-half lowering gap; no reachable source lever improves 13 masked rows.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 
