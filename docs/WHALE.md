@@ -1,0 +1,191 @@
+# Harpooning `func_overlay_058_F000138C_18B0574`
+
+14,456 bytes, the largest unmatched function in the tree and **63% of the
+remaining distance to 60%**. Nine passes have taken it 733 → 227 → 217 → 187,
+and five consecutive passes have now held at 187. This document is the plan for
+the next phase: what it actually consists of, every lever still available, and
+the tooling that makes each lever readable.
+
+`docs/matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md` remains the
+per-pass log and the source of truth for what has been tried. This is the map.
+
+## What 187 is made of
+
+Measured 2026-09-13 on the retained source, delta zero, frame `0x138`, first
+mismatch `+0x50`, 1,253 relocations.
+
+    positional masked        187
+      aligned rows           155   = 134 naming + 1 immediate + 20 structural
+      insertion shadow        32   from the ONE remaining gap pair
+
+**Three of the four original insertion pairs are closed.** What remains is a
+single pair: target-only `+0x1260` against candidate-only `+0x12F8`. It is worth
+about 32 positional words and nothing else in the function depends on it.
+
+Aligned rows by region (0x400 windows), naming first:
+
+    +0x0000  36 rows  34 naming  2 structural   <- the largest single block
+    +0x0800  21 rows  21 naming
+    +0x1400  20 rows  18 naming  2 structural
+    +0x1C00  13 rows  13 naming
+    +0x0400  12 rows  12 naming
+    +0x1000  14 rows   9 naming  1 imm  4 structural
+    +0x2400   9 rows   7 naming  2 structural
+    +0x3000   6 rows   2 naming  4 structural
+
+The `+0x0000` block is a closed four-cycle over the save ring —
+`s0 → s2 → s3 → s1 → s0` — with 34 naming rows behind it. One rotation explains
+the biggest block in the function.
+
+The ugen census is **720 draws and 5,072 emissions**, with two draws at the
+coordinate line and zero at the capture line.
+
+## The thing to undo first
+
+**Every colour landscape on record was measured against a source that no longer
+exists, and the last five whale briefs told the lane not to re-run it. That was
+my error.**
+
+- The complete 1,875-probe landscape was measured at **227**.
+- A second complete landscape, 1,914 probes across 142 coloured webs, was
+  measured at **207**, and its best disjoint packing measured **162** with six
+  forces (w75→c16, w379→c20, w225→c14, w320→c18, w27→c17, w506→c15).
+- The source is now **187**, and its colour axis has never been measured.
+
+The standing rule is already correct — a landscape is void once the source
+changes — and I contradicted it in five consecutive dispatch briefs on the
+grounds that the axis was "closed and proved". It was closed and proved *for a
+different function body*. A fresh landscape at 187 is the first action of the
+next phase, not a formality: the 207 landscape found a 45-word forced gain, and
+the source has moved twice since.
+
+## The lever nobody has pulled
+
+**The allocator makes 395 recorded decisions on this procedure. 141 are
+`decision=color`. 254 are `decision=split`.** Every force this campaign has
+ever applied — 1,875 probes, then 1,914, then every lattice — has addressed only
+the 141. `CDX_FORCE=p1:wN=cM` sets a colour; it has nothing to say to a web the
+allocator decided to split.
+
+And the blocker is stated in split terms. The last four passes converged on:
+
+> removing a capture range fixes the **first split**, but a **later split** then
+> takes the restore; reuse has to be preserved across **both successive splits**
+> while holding draws and target size.
+
+The split decisions carry the pressure, too: their median `numintf` is 92
+against 24 for coloured webs, and the most congested sit at `numintf=140` with
+`regsleft=6`. The admission bound the passes keep hitting — "admits the row
+entry at 24 interference entries and rejects restoration at 25", "admits
+restoration at 26 against its 26-entry bound" — is this number, and it is
+recorded per web in the `p1dec` rows that nothing currently reads.
+
+**This is 64% of the allocator's decisions on the tree's biggest function, it is
+where the blocker lives, and it has never been measured.**
+
+## The instrument that already exists and is unused
+
+The instrumented `uopt` exposes six knobs: `CDX_LOG`, `CDX_OUT`, `CDX_PROC`,
+`CDX_DETAIL_WEB`, `CDX_FORCE`, and **`CDX_LINEAGE_TABLES`**. The campaign uses
+five. On this function `CDX_LINEAGE_TABLES=all` emits:
+
+    lineage_range    204 rows   proc event table chain type dtype sym exprtable exprchain
+    lineage_member  1514 rows   ... plus bb, line, flags
+
+`event` is a monotonic sequence number, so these rows are the **web creation
+order**, and members carry their **source line**. L154 says a web's number
+follows its type first and its first use second, and that numbering decides
+colouring order — so creation order is the upstream cause of the colour
+questions the landscapes keep measuring downstream. Nothing in `tools/` parses
+these records. One earlier handoff spotted the possibility and said a lineage
+capture would let a lane "screen spellings on the trace instead of the score";
+no lane has.
+
+204 lineage ranges against 254 split decisions is not a coincidence worth
+ignoring.
+
+## Levers, ranked by expected value
+
+1. **Measure the split axis.** What the 254 splits are, where they fall, which
+   two are the "successive splits" in the blocker, and what the interference
+   bound is at each. Needs the lineage reader below. No source change required
+   to get the first real picture.
+2. **Fresh colour landscape at 187**, then the packing, then measure the packed
+   set. The 207 run bought 45 words; assume nothing, measure it.
+3. **Higher-order forces.** Every landscape to date is *single*-force. Two webs
+   forced jointly, and any `p2` force at all, are explicitly outside all of
+   them. The blocker being a *pair* of successive splits is exactly the shape a
+   single-force landscape cannot see.
+4. **The last gap pair**, `+0x1260` / `+0x12F8`, worth about 32 positional
+   words. Read with `draw_census`: an extra instruction is an extra emission at
+   a line.
+5. **The `+0x0000` ring rotation**, 34 naming rows behind one four-cycle
+   `s0 → s2 → s3 → s1 → s0`. The largest single block, and a rotation is the
+   shape L127/L145 are about.
+6. **The interference bound itself** — whether anything in source can lower
+   `numintf` at the restoration site from 25 to 24.
+
+## Tooling: build these three, in this order
+
+### 1. `tools/lineage_census.py` — the split and creation-order reader
+
+Parses `CDX_LINEAGE_TABLES=all` and reports, per procedure:
+
+- **creation order**: every web in `event` order with its source line, so
+  "which of these two values is numbered first" is a lookup rather than an
+  inference. This is the direct readout L154 has been asking for.
+- **the split picture**: every `decision=split` web from `p1dec` joined to its
+  lineage range and members — where it splits, into how many members, and at
+  which lines.
+- **the interference bound**: `numintf`, `regsleft`, and the decoded
+  `forbidden`/`available` masks per web, so "admits at 24, rejects at 25" is a
+  number you can look at rather than a symptom you infer.
+- `--compare before.json after.json`, like `draw_census`, so a source edit is
+  judged by whether it changed the creation order or the split structure.
+
+This is the analogue of `web_footprint` for the phase upstream of colouring, and
+it is the single highest-value tool left to build. It needs no new compiler
+work — the records are already emitted and thrown away.
+
+### 2. Higher-order forces in `tools/force_lattice.py`
+
+`FORCE_RE` accepts `p[12]:wN=cM` and the lattice enumerates subsets of
+*distinct* forces. Two things are missing and both matter here: forcing two webs
+to **one** colour jointly, and any exercise of the `p2` side at all. The
+blocker is a coupled pair; a single-force landscape is structurally unable to
+find a coupled repair. Extend the grammar, then re-run the packing with pairs
+admitted.
+
+### 3. A landscape freshness guard
+
+A landscape is void when the source changes, and nothing enforces that. Record
+the `source_context_sha256` the landscape was measured against — the ranking
+already computes one per function — inside the footprint report, and have
+`web_footprint --report` refuse to present a landscape whose hash no longer
+matches the tree, saying so plainly. That turns the mistake this document opens
+with from a judgement call into an error message.
+
+## What not to spend the next pass on
+
+- **Another variation on the case-12 capture constraint.** Seven attempt
+  families and 27 source cells are recorded against it: capture-carrier,
+  first-loop join, saved-local access, capture-type split, late coordinate
+  roles, restore-exit distribution, nested-sum identity. Each was measured and
+  each added draws or opened a replacement gap. Read them before proposing
+  anything adjacent.
+- **L160 at the case-3 cursor.** Ruled out with evidence: that cursor is already
+  compiler-generated, and forcing its target register costs four bytes through
+  lost transition-address sharing.
+- **Re-deriving the colour landscape at 227 or 207.** Both are complete and on
+  record. The one to run is 187.
+
+## The honest alternative
+
+If the split axis is measured and the coupled repair is still not reachable,
+the right outcome is an argued bar, not another pass. The standard is the one
+`overlay57UpdateModeState` meets: enumerate the space, and show why nothing
+outside the enumeration reaches the target. A plateau, however stubborn and
+however large the function, is not that — and this function has 155 aligned
+rows, so any such argument has to account for all of them, not just the
+transition reuse. Nobody has been close to that argument yet, which is itself a
+reason to think the axis above is worth measuring first.

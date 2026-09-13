@@ -69,6 +69,14 @@ creation order", "the emission-order blocker", "ring release order". It reads
 what OUR source makes the compiler do; the target side still comes from
 `residual_map.py`.
 
+`docs/WHALE.md` is the standing plan for `func_overlay_058_F000138C_18B0574`,
+the tree's largest unmatched function. Read it before any pass on that symbol:
+it carries what the 187 residual is made of, which axes are closed with
+evidence, and the one that is not. **The allocator makes 395 recorded decisions
+on it and 254 of them are `decision=split`, which no `CDX_FORCE` addresses** --
+every landscape ever run on this function measured only the 141 colour
+decisions.
+
 `tools/frame_census.py <symbol>` censuses both sides' stack slots and diffs
 them: each side's ladder from the frame top down, the slots only one side uses,
 and shared slots with different traffic. Run it on any residual with a frame or
