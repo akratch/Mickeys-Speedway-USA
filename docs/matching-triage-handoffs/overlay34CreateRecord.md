@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88
-- summary: Context probes move only source-line attribution; store-pair swap regresses to 15 naming rows; baseline six-word residual retained.
+- summary: No colour winner; fresh census retains the established store-emission ordering and the six-row residual floor.
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
