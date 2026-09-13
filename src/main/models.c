@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Array exception-loop control worsens to 77 and moves no draw or emission line; the retained byte-offset form still lacks the preheader strength reduction.
+ * summary: Correct proc-16 census: array loop form removes two draws at the condition but falls to 77 at delta -4; retained byte-offset form remains the preheader blocker.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
