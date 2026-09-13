@@ -2,11 +2,11 @@
 ### `overlay14CreateValue` plateau handoff
 
 - source: `src/overlays/o014/overlay14CreateValue.c`
-- score: 83/96 words
+- score: 13/96 words
 - frame: 0x28
 - relocations: 15
 - first mismatch: +0x54
-- summary: 13 masked differences; coherent ring phase remains and extra pointer home at +0x24 blocks exactness
+- summary: chosen-pointer frame-cell residual remains after exhausted carrier and scheduler controls
 - base: `3169297845d9e4b3843c03be16cfe6d51358d280`
 - boundary: overlay 14 `+0x6FC..+0x87C`, 384 bytes / 96 words, no
   padding or export; two local callers at `+0x3C0` and `+0x40C`
