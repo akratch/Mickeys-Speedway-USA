@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Deleted model-ID carrier removes one naming row; new 16-web landscape has sole winner at 18. Exception preheader still nonexact.
+ * summary: Exception-index declaration order left census unchanged and regressed to 25; preheader strength reduction remains unresolved.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
