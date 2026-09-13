@@ -429,7 +429,7 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x0
- * summary: Target retains six call results in odd caller-saved FP registers; stock IDO cannot emit this hand-assembly pattern.
+ * summary: Hand-assembly pattern retains odd caller-saved FP results outside stock IDO; retain fallback.
  * PLATEAU-HANDOFF:func_8002AA50:end
  */
 
