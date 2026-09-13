@@ -496,7 +496,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x58
  * relocations: 46
  * first-mismatch: +0x30
- * summary: Fresh proc-8 census confirms 27 draws and exact frame; scalar address relocation surface remains the structural blocker.
+ * summary: Inlining the trailing rate conversion removes only a location emission; 27 draws and the plus-28-byte address deficit remain.
  * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
  */
 
