@@ -76,7 +76,13 @@ WINDOW = 0x80
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INSTRUMENTED = pathlib.Path.home() / "Desktop" / "dev" / "ido-instrumented"
-FORCE_RE = re.compile(r"^p[12]:w\d+=c\d+$")
+# A force is `p1:w27=c17`. A JOINT force is `p1:w27+w75=c17`: two webs driven
+# onto ONE colour in the same compile. The distinction matters because the
+# overlay 58 blocker is a coupled pair -- "removing a capture range fixes the
+# first split, but a later split then takes the restore" -- and a landscape of
+# single forces is structurally unable to find a coupled repair, however many
+# probes it runs.
+FORCE_RE = re.compile(r"^p[12]:w\d+(\+w\d+)*=c\d+$")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -98,6 +104,15 @@ class Cell:
         return "+".join(f.split(":", 1)[1] for f in self.forces) or "(base)"
 
 
+def webs_of(force: str) -> list[int]:
+    """Every web a force drives, so a joint force is not read as one web."""
+    return [int(w.lstrip("w")) for w in force.split(":", 1)[1].split("=", 1)[0].split("+")]
+
+
+def colour_of(force: str) -> int:
+    return int(force.split("=", 1)[1].lstrip("c"))
+
+
 def validate_forces(forces: list[str]) -> None:
     """Refuse a malformed spec before spending a compile on it."""
     for force in forces:
@@ -107,8 +122,17 @@ def validate_forces(forces: list[str]) -> None:
                 f"A malformed spec is silently ignored by the compiler, which "
                 f"reads as a declined force and proves nothing."
             )
-    webs = [f.split("=")[0] for f in forces]
-    duplicated = {w for w in webs if webs.count(w) > 1}
+    # Compare WEBS, not whole specs: a joint force `p1:w27+w75=c17` contains two
+    # of them, and comparing the spec string would miss w27 also appearing in a
+    # single force elsewhere in the same cell.
+    seen: dict[tuple[str, int], str] = {}
+    duplicated = set()
+    for force in forces:
+        phase = force.split(":", 1)[0]
+        for web in webs_of(force):
+            if (phase, web) in seen and seen[(phase, web)] != force:
+                duplicated.add(f"{phase}:w{web}")
+            seen[(phase, web)] = force
     if duplicated:
         raise SystemExit(
             f"web(s) {', '.join(sorted(duplicated))} appear twice with different "
@@ -198,17 +222,26 @@ def force_acceptance(trace: str, proc: int, forces: tuple[str, ...]) -> str | No
                for event, row in rows):
         return f"no allocator decisions for procedure {proc}"
     for force in forces:
-        phase, web, colour = re.fullmatch(r"(p[12]):w(\d+)=c(\d+)", force).groups()
-        found = {kind: [r for event, r in rows if event == phase + kind
-                       and r.get("proc") == str(proc) and r.get("web") == web]
-                 for kind in ("dec", "color")}
-        if any(len(matches) != 1 for matches in found.values()):
-            return f"{force}: expected one decision and one final colour record"
-        # bestcolor is the pre-force proposal. Only the later colour row
-        # records the assignment actually emitted by the instrumented pass.
-        row = found["color"][0]
-        if row.get("forced") not in {colour, "-1"} or row.get("color") != colour:
-            return f"{force}: not applied (forced={row.get('forced', 'missing')})"
+        phase = force.split(":", 1)[0]
+        colour = str(colour_of(force))
+        # Every web a force names must be accepted. A joint force that lands on
+        # one of its two webs is not the intervention that was requested, and
+        # reading its score as the pair's would attribute a single force's
+        # result to a coupling that never happened.
+        for web_number in webs_of(force):
+            web = str(web_number)
+            found = {kind: [r for event, r in rows if event == phase + kind
+                           and r.get("proc") == str(proc) and r.get("web") == web]
+                     for kind in ("dec", "color")}
+            if any(len(matches) != 1 for matches in found.values()):
+                return (f"{force}: expected one decision and one final colour "
+                        f"record for web {web}")
+            # bestcolor is the pre-force proposal. Only the later colour row
+            # records the assignment actually emitted by the instrumented pass.
+            row = found["color"][0]
+            if row.get("forced") not in {colour, "-1"} or row.get("color") != colour:
+                return (f"{force}: not applied to web {web} "
+                        f"(forced={row.get('forced', 'missing')})")
     return None
 
 

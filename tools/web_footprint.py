@@ -76,6 +76,43 @@ import force_lattice as fl  # noqa: E402
 FIELD_RE = re.compile(r"(\w+)=(\S+)")
 
 
+def source_fingerprint(symbol: str) -> str | None:
+    """The ranking's source hash for this function, or None if unavailable.
+
+    A landscape is measured against ONE function body. Change the source and it
+    is void -- the standing rule says so, and it still cost this campaign five
+    consecutive dispatches on the tree's biggest function, each told not to
+    re-run a landscape that had been measured against a body two revisions old.
+    Stamping the hash into the report turns that from a judgement call into a
+    line of output.
+    """
+    try:
+        document = json.loads((fl.ROOT / "config" /
+                               "nonmatching-ranking.us.json").read_text())
+    except (OSError, ValueError):
+        return None
+    for row in document.get("functions", []):
+        if row.get("name") == symbol:
+            return row.get("source_context_sha256")
+    return None
+
+
+def freshness(report: dict) -> str | None:
+    """Say plainly when a saved landscape no longer describes the tree."""
+    stamped = report.get("source_context_sha256")
+    if not stamped:
+        return ("this landscape carries no source fingerprint, so whether it "
+                "still describes the tree cannot be checked -- re-run it")
+    current = source_fingerprint(report.get("symbol", ""))
+    if current is None:
+        return None
+    if current != stamped:
+        return (f"STALE: measured against source {stamped}, tree is now "
+                f"{current}. A source change voids a landscape; re-run it "
+                f"before nominating from it.")
+    return None
+
+
 def parse_trace(text: str, proc: int) -> dict[int, dict]:
     """Collect every web's detail, colour, cost table and availability mask."""
     webs: dict[int, dict] = collections.defaultdict(
@@ -397,9 +434,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.report is not None:
         saved = json.loads(args.report.read_text())
+        warning = freshness(saved)
+        if warning:
+            print(f"!! {warning}\n")
         print(render(saved["rows"], saved.get("window", args.window),
                      saved.get("base_score")))
-        return 0
+        return 1 if warning and warning.startswith("STALE") else 0
 
     command = fl.compile_command(args.symbol)
     args.out.mkdir(parents=True, exist_ok=True)
@@ -493,7 +533,8 @@ def main(argv: list[str] | None = None) -> int:
             break
 
     report = {"symbol": args.symbol, "proc": args.proc, "window": args.window,
-              "base_score": base_cell.score, "rows": rows}
+              "base_score": base_cell.score, "rows": rows,
+              "source_context_sha256": source_fingerprint(args.symbol)}
     (args.out / "footprints.json").write_text(json.dumps(report, indent=2) + "\n")
     print()
     print(json.dumps(report, indent=2) if args.json
