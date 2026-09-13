@@ -64,10 +64,10 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
 
 /* PLATEAU-HANDOFF:overlay3SelectScoredObject:start
  * symbol: overlay3SelectScoredObject
- * score: 21 differing words
+ * score: 21/118 words
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x48
- * summary: Index placement deletes only the surplus word; three later controls preserve all 28 draws and baseline text. Helper-result copy remains.
+ * summary: Proc-0 census and index/cursor controls leave helper-result copy unresolved; colour landscape has no winner below 21.
  * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
  */
