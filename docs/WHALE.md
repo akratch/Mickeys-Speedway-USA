@@ -1,5 +1,24 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
+## Current checkpoint: 172, with the reset-slot mechanism proved
+
+Lane wv-i retains **172 masked / 343 raw differences at delta zero**, down
+from 187. Five already-early index resets move into their target call slots;
+all 15 changed non-relocation words become target-exact, with no other code,
+relocation or draw-order change. See the
+[delay-slot report](whale-gap-emission.md#the-reset-reaches-the-slot-lane-wv-i).
+
+Case 12's reset also reaches its exact target slot in a separate source
+witness, but its independent array induction still costs four bytes and
+later gaps. The retained body keeps that case unchanged and has one gap pair:
+candidate +0x12F8 against target +0x1260. The reset remains at +0x12F8 there.
+No function is promoted.
+
+The sections below describe the **historical 187 baseline**. Its supplied
+landscape and forced 149 are not measurements of the current 172 source.
+Re-measure before interpreting colours on the new body; the current packet
+uses only source scheduling and makes no new colour-floor claim.
+
 14,456 bytes, the largest unmatched function in the tree and **63% of the
 remaining distance to 60%**. Nine passes have taken it 733 → 227 → 217 → 187,
 and five consecutive passes have now held at 187. This document is the plan for
