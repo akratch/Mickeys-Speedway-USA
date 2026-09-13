@@ -938,7 +938,7 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
 
 /* PLATEAU-HANDOFF:func_80030610:start
  * symbol: func_80030610
- * score: 87/192 words
+ * score: 86/192 words
  * frame: 0x90
  * relocations: 13
  * first-mismatch: +0x0
