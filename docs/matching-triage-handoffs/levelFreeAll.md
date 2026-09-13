@@ -2,11 +2,11 @@
 ### `levelFreeAll` plateau handoff
 
 - source: `src/main/level.c`
-- score: 114/117 words
+- score: 3/117 words
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Lane h1 confirms 12 draws and unchanged three-row order residual; prior differential leaves no untested identified schedule lever.
+- summary: Fresh 12-draw baseline confirms the retained mask-table-scale emission-order blocker; no new source lever.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release

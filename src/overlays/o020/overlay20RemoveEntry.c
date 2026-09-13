@@ -168,10 +168,10 @@ void overlay20RemoveEntry(s32 owner) {
 
 /* PLATEAU-HANDOFF:overlay20RemoveEntry:start
  * symbol: overlay20RemoveEntry
- * score: 51/53 words
+ * score: 2/53 words
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: Draw controls: typed bound adds a costly draw; carrier removal and line fold preserve draw order. Two pre-colour naming rows remain.
+ * summary: Fresh 11-draw baseline; one count-update probe changed the draw sequence and regressed, confirming the retained pre-colour web-order plateau.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */

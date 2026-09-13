@@ -180,10 +180,10 @@ void func_overlay_050_F0000000_1896970(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:start
  * symbol: func_overlay_050_F0000000_1896970
- * score: 104 differing words
+ * score: 104/185 words
  * frame: 0x20
  * relocations: 98
  * first-mismatch: +0xC0
- * summary: Folding all record-copy stores onto one line reattributes draws and emissions but leaves every object byte unchanged; baseline retained.
+ * summary: Fresh 35-draw baseline confirms record-copy schedule and saved-flag traffic plateau; line-fold control was byte-flat.
  * PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:end
  */

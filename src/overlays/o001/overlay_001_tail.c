@@ -3436,11 +3436,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:start
  * symbol: overlay1ConsumeNearbyPending
- * score: 31 differing words
- * frame: 0x48
- * relocations: 1
+ * score: 31/69 words
+ * frame: 0x18
+ * relocations: 9
  * first-mismatch: +0x40
- * summary: Retained volatile-counter plateau: force and source controls leave the count read-modify-write web present, with the target ring-temp schedule unreached.
+ * summary: Correct proc-25 23-draw census confirms the counter read-modify-write web; retained volatile plateau remains best.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Closed colour and draw-order axes; residual requires a fifth ring draw between angle sum and truncation.
+ * summary: Fresh baseline and draw census confirm the recorded FIFO ring-release blocker; no new source lever measured.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,17 +3460,17 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: Correct proc-9 census has 473 draws and 1969 emissions; the closed prologue-load emission-order blocker retains two paired insertion gaps.
+ * summary: Correct proc-9 473-draw census confirms the closed prologue-load emission-order blocker; baseline retained.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
 /* PLATEAU-HANDOFF:overlay1AdvancePath:start
  * symbol: overlay1AdvancePath
- * score: 81 differing words
+ * score: 81/162 words
  * frame: 0x58
  * relocations: 22
  * first-mismatch: +0x10
- * summary: Exact size and aligned opcode shape; 81 masked naming differences; initial three-draw deficit proved diagnostically.
+ * summary: Correct proc-36 58-draw census confirms the initial draw deficit and mixed later allocation residual; baseline retained.
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
 
@@ -3511,6 +3511,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Proc-35 baseline retains 15 naming, one immediate, and five structural rows; exhausted colour and deletion controls leave the parameter-home blocker open.
+ * summary: Correct proc-35 46-draw census confirms the parameter-home/current-index blocker; retained baseline is best.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

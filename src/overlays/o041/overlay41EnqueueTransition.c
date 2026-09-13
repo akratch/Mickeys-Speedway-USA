@@ -110,10 +110,10 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
 
 /* PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:start
  * symbol: func_overlay_041_F000195C_1888C94
- * score: 76/105 words
+ * score: 29/105 words
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: leaf cursor advance placement remains unresolved at exact geometry
+ * summary: Fresh 25-draw baseline confirms the leaf cursor-advance placement blocker at exact geometry; retained source.
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */

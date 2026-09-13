@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 48
 - first mismatch: +0x18
-- summary: Exhaustive flags, source forms and accepted colour probes leave stack-home and mask-shift carrier allocation unresolved.
+- summary: Fresh 44-draw baseline confirms the broad stack-home/mask-shift allocation residual; retained candidate.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`

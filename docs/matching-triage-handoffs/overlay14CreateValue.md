@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 15
 - first mismatch: +0x54
-- summary: draw census left 10 draws fixed; frame-cell residual remains after carrier and address-form tests
+- summary: Fresh 10-draw baseline confirms the retained chosen-pointer/frame-cell residual; no new source or colour route.
 - base: `3169297845d9e4b3843c03be16cfe6d51358d280`
 - boundary: overlay 14 `+0x6FC..+0x87C`, 384 bytes / 96 words, no
   padding or export; two local callers at `+0x3C0` and `+0x40C`
