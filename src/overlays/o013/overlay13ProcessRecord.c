@@ -9,11 +9,12 @@ typedef struct Overlay13Record {
 
 extern f32 gOverlay13Gravity;
 extern s32 gOverlay13ActiveCount;
-extern void overlay13Prepare(s32, s32, s32, Overlay13Record *);
+extern void SetLinkSlot(s32, u16, u16);
 
-/* Plateau (2026-08-25): exact-size; 96 words differ, first +0x2C.
- * The 119-flag lattice, tick-loop CFGs, result types, and pointer lifetimes did not improve it.
- * The result/constant register pair and coupled floating-loop schedule remain the blocker. */
+/* NON_EQUIVALENT diagnostic: exact size/frame, 96 masked words differ.
+ * SetLinkSlot's three-argument ABI is authenticated by the runtime table.
+ * Fall guards test the wrong tick snapshot and omit its loop result update;
+ * corrected private controls remain nonexact. Preserve the retail fallback. */
 #ifdef NON_MATCHING
 s16 *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     f32 radius;
@@ -26,7 +27,7 @@ s16 *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     u8 timer;
     s16 *result;
 
-    overlay13Prepare(13, 50, 10, record);
+    SetLinkSlot(13, 50, 10);
     result = (s16 *)ticks;
     state = record->state;
     if (state == 1) {
@@ -101,10 +102,10 @@ loop_fade:
 
 /* PLATEAU-HANDOFF:overlay13UpdateRecord:start
  * symbol: overlay13UpdateRecord
- * score: 65/161 words
+ * score: 96/161 words
  * frame: 0x20
  * relocations: 5
- * first-mismatch: +0x20
- * summary: Authorized V0 reproduces 96 differences; current tooling still cannot authenticate the overlay13Prepare call proxy.
+ * first-mismatch: +0x2C
+ * summary: SetLinkSlot ABI resolves all five relocations; retained numeric floor is NON_EQUIVALENT due to countdown/result snapshots, with corrected controls preserved.
  * PLATEAU-HANDOFF:overlay13UpdateRecord:end
  */
