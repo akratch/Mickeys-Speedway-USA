@@ -2282,6 +2282,24 @@ bytes and disassembly never belong here.
   proof before adopting either edit. A line fold on an unchanged source shape
   can remain inert.
 
+
+- **Test a countdown's snapshot separately from its truth spelling.** When a
+  guarded loop has a surplus boolean instruction or lacks a counter copy,
+  compare the explicit zero comparison, scalar truth, and local postdecrement
+  guard as separate changes. In the
+  [boundary-chooser closure](matching-triage-handoffs/overlay2ChooseBoundary.md),
+  paired guard changes repaired an insertion/deletion pair while leaving the
+  complete draw sequence unchanged. A later countdown guard supplied an extra
+  draw at unchanged instruction extent and repaired the following ring phase.
+  This is why neither final word count nor the number of source operators is
+  a temporary-allocation census. Retain per-line draw differences and aligned
+  object comparisons together. Replacing a memory retest with the captured
+  count requires proof that no intervening operation can change that memory;
+  keep the counter width, iteration count and defined decrement domain. The
+  result does not justify replacing arbitrary loop conditions or adding dummy
+  work, and promotion still requires untouched compiler output, relocation
+  identity and linked-ROM proof.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
