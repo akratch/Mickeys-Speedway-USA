@@ -231,6 +231,6 @@ void overlay101BuildPresentationA(void) {
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: L160 pointer and colour-carrier deletion is byte-inert. All 132 coloured-web forces retain excess size; the mapped lattice floor is 125 at +4.
+ * summary: B store-result transfer adds a byte-mask draw and regresses to 158 at +4; the guarded 143-word baseline is retained.
  * PLATEAU-HANDOFF:overlay101BuildPresentationA:end
  */

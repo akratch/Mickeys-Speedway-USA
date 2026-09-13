@@ -5777,7 +5777,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: ghost-read and mask/load schedule remain after the measured source and colour closures
+ * summary: Bitfield decoding adds a capture draw but loses one word; ghost identity and local mask/load schedule remain at the guarded 17-word baseline.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
@@ -5817,7 +5817,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 71
  * first-mismatch: +0x2C
- * summary: The L101 reading above is refuted: web 110 holds v0 by ordinary interference, forcing the split regresses to 451, and freeing v0 for web 5 measures 123.
+ * summary: Owner interference removal exposes infinite v0 cost for payload; address reads add sixteen words. The 186-word baseline is retained.
  * PLATEAU-HANDOFF:func_80007118:end
  */
 
