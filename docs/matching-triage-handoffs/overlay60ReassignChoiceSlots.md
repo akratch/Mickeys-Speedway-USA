@@ -2,11 +2,11 @@
 ### `overlay60ReassignChoiceSlots` plateau handoff
 
 - source: `src/overlays/o060/overlay60ReassignChoiceSlots.c`
-- score: 18/53 words
+- score: 35 differing words
 - frame: 0x20
 - relocations: 8
 - first mismatch: +0x4
-- summary: Fidelity-clean CDX maps the choice pointer to first p2 web w0; forcing its zero-cost v1 tie cuts 35 to 13 words, proving retail needs earlier web formation, not a priority change.
+- summary: Local array extent control leaves nine draws unchanged and displaces stack addresses; original storage shape and 35-word baseline retained.
 
 #### Epoch 15 allocator-colour pass (2026-09-04)
 
@@ -52,4 +52,34 @@ changing only the carrier type normalized back to the 35-word baseline.
 These tests support the handoff's earlier-web-formation diagnosis but do not
 provide a frame-preserving source form. The accepted `p2:w0=c2` force remains
 diagnostic only at 13 words; the guarded baseline is retained.
+#### 2026-09-13, lane h1: array-extent and stack-address differential
+
+A fresh configured compile reproduces 53 words, 212 bytes, frame 0x20,
+35 raw/masked differences and first +0x4. Paired aligned buckets are 19
+exact and 33 naming, with no immediate or structural paired rows, plus one
+candidate-only and one target-only word. The nine-draw census contains 101
+emission records. Stock and traced full-TU text agree. Static relocations
+are eight candidate and four extracted target records, with no matching
+symbol tuples; this is not a resolved runtime relocation surface.
+
+The earlier indexed-initialization probe grew the frame. One extent control
+tests whether the two bytes above the explicit masked-index domain provide
+frame slack: available has 16 elements instead of 18. All nine draws, their
+sequence, and every line's emission count remain unchanged. The frame also
+stays 0x20, while the array base moves from offset 0xC to 0x10 and its loop
+bound moves from 0x16 to 0x1A. Aligned buckets become 18 exact, 32 naming,
+one immediate and one structural paired row, plus one gap pair. Thus this
+control fails the target stack-address requirement despite the unchanged
+35-word scalar score. The original 18-element array is restored.
+
+The smaller array was diagnostic only; no broader search-bound claim is
+made for the unmasked slot-search loop. The measured frame behavior gives
+no reason to repeat the already-failed indexed initialization on this extent.
+ADR 0018 early stop applies to this frame-slack hypothesis and the recorded
+carrier/initialization controls. Earlier web formation remains unresolved;
+no colour sweep or known-flat cursor lattice was repeated and no bytes count
+as matched. Evidence remains ignored under build/h1/overlay60ReassignChoiceSlots.
+Commands: configured compilation, draw_census.py --save/--compare,
+residual_map.py --object/--against, finalize_plateau.py and tools/gates.sh.
+
 <!-- plateau-handoff:overlay60ReassignChoiceSlots:end -->
