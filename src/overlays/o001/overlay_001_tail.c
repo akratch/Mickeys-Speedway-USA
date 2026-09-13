@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: zero winning coloured forces; draw census found no edit that moves the FP ring release order
+ * summary: Exhaustive colour landscape has no winner; fresh census agrees with the traced FIFO release-order conflict, leaving t5-to-t4 at two aligned rows.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
+ * summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
@@ -3507,10 +3507,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 21/107 words
+ * score: 86/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Deleted index and point carriers lose geometry or extend address lifetimes; parameter byte-home and current-index split remain.
+ * summary: No colour winner; aligned residual remains 15 naming, one home displacement, and five structural rows under the recorded parameter-home blocker.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

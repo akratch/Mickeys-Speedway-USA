@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: zero legal coloured webs; draw probes changed emissions or ring draws, never the p2 web order
+- summary: No colour winner; current census confirms the p2 schedule, while recorded line and lineage probes leave the web-creation-order blocker.
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 

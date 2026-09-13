@@ -2,11 +2,11 @@
 ### `overlay1BendPathPoint` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 21/107 words
+- score: 86/107 words
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: Deleted index and point carriers lose geometry or extend address lifetimes; parameter byte-home and current-index split remain.
+- summary: No colour winner; aligned residual remains 15 naming, one home displacement, and five structural rows under the recorded parameter-home blocker.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 

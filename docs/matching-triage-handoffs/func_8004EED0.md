@@ -2,11 +2,11 @@
 ### `func_8004EED0` plateau handoff
 
 - source: `src/main/block_4F4E0.c`
-- score: 28/84 words
+- score: 56/84 words
 - frame: 0x20
 - relocations: 22
 - first mismatch: +0xA8
-- summary: Pure ring residual; the base-plus-index order is reachable with a u32 cast and costs a word, and the phase is a reordered free list, not a counter
+- summary: No colour winner; all 28 aligned residual rows are naming substitutions from the measured reordered free-list phase.
 
 Fresh evidence on base `1783e591a5a7436c6b9b148171805995c9fb3bde`:
 

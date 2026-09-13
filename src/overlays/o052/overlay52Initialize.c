@@ -220,10 +220,10 @@ void func_overlay_052_F0000000_189A670(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:start
  * symbol: func_overlay_052_F0000000_189A670
- * score: 115/316 words
+ * score: 201/316 words
  * frame: 0x40
  * relocations: 141
  * first-mismatch: +0x20
- * summary: p1-only; 57% incoherent, 58 p1 and no p2; home +3c vs +38; no new CFG/copy lever.
+ * summary: No colour winner; p1-only census retains the home and schedule blocker across 80 naming, three immediate, and 19 structural aligned rows.
  * PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:end
  */

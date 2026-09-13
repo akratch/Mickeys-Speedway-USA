@@ -1510,11 +1510,11 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:packInit:start
  * symbol: packInit
- * score: 34/115 words
+ * score: 81/115 words
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xA0
- * summary: Generated bit nearly clears naming but loses eight bytes; carrier and success-store follow-ups retain the baseline.
+ * summary: No colour winner; current census keeps the two-draw mask-table schedule and the residual is a ten-register ring rotation plus nine structural rows.
  * PLATEAU-HANDOFF:packInit:end
  */
 
