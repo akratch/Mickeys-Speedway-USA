@@ -2516,11 +2516,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049B14:start
  * symbol: func_80049B14
- * score: 154 differing words
+ * score: 154/207 words
  * frame: 0x18
  * relocations: 4
- * first-mismatch: 0x8
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new switch/carry and countdown topology evidence.
+ * first-mismatch: +0x8
+ * summary: Switch/carry declaration probe was byte-flat; target state-machine allocation remains unresolved and the donor supplies no C body.
  * PLATEAU-HANDOFF:func_80049B14:end
  */
 
