@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187: case-3 pair closed; runtime imports corrected and halfword alias proved. Case-12 address reuse and relocation deficits remain.
+ * summary: 187 retained: case-12 capture-type split restores address reuse but adds two draws and a replacement gap; paired constraint remains.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
