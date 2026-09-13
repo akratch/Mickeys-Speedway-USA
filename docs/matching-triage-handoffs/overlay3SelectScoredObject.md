@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 5
 - first mismatch: +0x48
-- summary: Fresh 28-draw census retains helper-result copy blocker: 110 exact rows, five naming, one immediate and a paired one-word shape gap.
+- summary: Refresh confirms 28-draw/166-emission schedule; helper-result caller-saved copy remains unreachable after the current causal controls.
 #### 2026-09-12, lane `p9-tight`: the shape is named and two forces price it
 
 The residual reproduces at 21 masked words, size delta 0, frame 0x80, and it is
