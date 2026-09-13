@@ -197,6 +197,6 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
  * frame: 0x90
  * relocations: 64
  * first-mismatch: +0x5C
- * summary: p1-only; 95% coherent ring. Direct-count rewrite regressed to 260; line self-assignment text-flat at 97.
+ * summary: direct-count branch remains structurally unmatched; declaration and ring probes are flat
  * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
  */
