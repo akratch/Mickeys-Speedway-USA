@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: proc0 census confirms 79 draws; frame home remains eight bytes short and force gains are diagnostic
+ * summary: frame-home remains eight bytes short; winning colour forces are diagnostic only
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */
