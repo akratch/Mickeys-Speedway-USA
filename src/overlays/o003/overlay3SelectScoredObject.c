@@ -68,6 +68,6 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x38
- * summary: caller-saved helper-return copy before cached guard remains unresolved
+ * summary: Cursor alias in cached path left draw order and residual unchanged; helper-return copy remains unresolved.
  * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
  */
