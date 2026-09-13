@@ -942,6 +942,6 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
  * frame: 0x90
  * relocations: 13
  * first-mismatch: +0x0
- * summary: draw census fixed at four draws; temporary-area reservation remains unresolved
+ * summary: Fresh proc-10 census records 24 draws; source forms do not reduce the temporary-area reservation or close the frame and structural deficit.
  * PLATEAU-HANDOFF:func_80030610:end
  */
