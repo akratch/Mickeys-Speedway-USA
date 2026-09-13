@@ -1388,7 +1388,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0xD0
  * relocations: 21
  * first-mismatch: +0x3C
- * summary: Largest +0x200 window: 47 naming, 11 immediate, 44 structural; frame exact, local-home order unresolved.
+ * summary: Proc-12 census confirms declaration-order and physical-line forms do not alter the 125-draw sequence; local-home order remains unresolved.
  * PLATEAU-HANDOFF:func_8002057C:end
  */
 

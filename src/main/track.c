@@ -5842,11 +5842,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000E5EC:start
  * symbol: func_8000E5EC
- * score: 185 differing words
- * frame: 0xe8
+ * score: 185/205 words
+ * frame: 0xE8
  * relocations: 56
  * first-mismatch: +0x0
- * summary: Mickey m2c call, pointer and loop reconstruction does not improve 185 differences. Next: source-attributed stack-home evidence.
+ * summary: Scoped-carrier forms are inert; direct visibility access changes the 31-draw schedule but regresses to 187 words. The 0x10 frame deficit remains.
  * PLATEAU-HANDOFF:func_8000E5EC:end
  */
 
