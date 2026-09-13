@@ -184,6 +184,6 @@ void func_overlay_050_F0000000_1896970(void) {
  * frame: 0x20
  * relocations: 98
  * first-mismatch: +0xC0
- * summary: Fresh 35-draw baseline confirms record-copy schedule and saved-flag traffic plateau; line-fold control was byte-flat.
+ * summary: Fresh proc-0 census: 35 draws/324 emissions. Record-copy schedule and saved-flag traffic remain unresolved; physical-line control is inert.
  * PLATEAU-HANDOFF:func_overlay_050_F0000000_1896970:end
  */
