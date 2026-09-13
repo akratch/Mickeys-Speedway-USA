@@ -5681,11 +5681,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000FAE0:start
  * symbol: func_8000FAE0
- * score: 16 differing words
+ * score: 16/62 words
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Unsigned halfword count changes one draw and reduces naming at +12 bytes; word-width control restores the baseline exactly.
+ * summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
@@ -5721,11 +5721,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 144/147 words
+ * score: 3/147 words
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: Deferred Z store removes two draws but regresses; same-value store adds no draw and leaves the separate pre-sqrt web unchanged.
+ * summary: Fresh proc-39 draw census confirms the recorded dependency route regresses and same-value stores are inert; no new source schedule lever.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 

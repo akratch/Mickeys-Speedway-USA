@@ -192,10 +192,10 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
 
 /* PLATEAU-HANDOFF:overlay83BuildBatch:start
  * symbol: overlay83BuildBatch
- * score: 71/168 words
+ * score: 97/168 words
  * frame: 0x90
  * relocations: 5
  * first-mismatch: +0x0
- * summary: Initializer scope cuts frame 0x98 to 0x90 (target 0x78); count/scale allocation remains; relocs 3/5 offset/type, 0/5 static identity.
+ * summary: Fresh proc-0 census records 51 draws; count and scale temporary lifetimes still leave the target 0x78 frame and relocation identities unresolved.
  * PLATEAU-HANDOFF:overlay83BuildBatch:end
  */

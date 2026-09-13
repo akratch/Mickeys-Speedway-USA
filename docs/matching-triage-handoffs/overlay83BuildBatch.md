@@ -2,11 +2,11 @@
 ### `overlay83BuildBatch` plateau handoff
 
 - source: `src/overlays/o083/overlay83BuildBatch.c`
-- score: 71/168 words
+- score: 97/168 words
 - frame: 0x90
 - relocations: 5
 - first mismatch: +0x0
-- summary: Initializer scope cuts frame 0x98 to 0x90 (target 0x78); count/scale allocation remains; relocs 3/5 offset/type, 0/5 static identity.
+- summary: Fresh proc-0 census records 51 draws; count and scale temporary lifetimes still leave the target 0x78 frame and relocation identities unresolved.
 - baseline: Exact 672-byte size and 168-word body; 71 words align and 97 differ. The original candidate frame was 0x98 against the target 0x78.
 - retained gain: Moving the 24-byte linked initializer into its only conditional lifetime reduces the candidate frame by eight bytes to 0x90 without changing size, word score, or behavior. The assembly fallback remains active.
 - relocation proof: The runtime table and candidate each have five records. Three offsets/types align; all five candidate identities remain unresolved, so `function_preflight.py` correctly fails closed and this is not promotable.

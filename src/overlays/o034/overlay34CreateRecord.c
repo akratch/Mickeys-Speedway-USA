@@ -163,6 +163,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
  * frame: 0x30
  * relocations: 12
  * first-mismatch: +0x88
- * summary: store-order residual; census shows adjacent store swap leaves draw and emission schedule unchanged
+ * summary: Fresh proc-0 census confirms the recorded store-order differential; all named schedule probes are exhausted without an aligned improvement.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

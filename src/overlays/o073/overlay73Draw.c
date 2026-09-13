@@ -87,6 +87,6 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0x1C
- * summary: Colour floor 39 via w43=c4; carrier deletion and qualifier removal worsen size or schedule, leaving opcode-order residual.
+ * summary: Fresh proc-0 census records 28 draws; carrier and qualifier controls leave the remaining opcode-order and temp-schedule residual unresolved.
  * PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:end
  */

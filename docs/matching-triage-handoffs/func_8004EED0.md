@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 22
 - first mismatch: +0xA8
-- summary: draw census kept 10 draws fixed; post-call free-list release order remains unresolved
+- summary: Corrected proc-0 census confirms the 10-draw baseline; the remaining post-call free-list release order has no surviving source lever.
 
 Fresh evidence on base `1783e591a5a7436c6b9b148171805995c9fb3bde`:
 

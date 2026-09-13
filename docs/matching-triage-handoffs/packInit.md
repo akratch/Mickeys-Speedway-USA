@@ -2,11 +2,11 @@
 ### `packInit` plateau handoff
 
 - source: `src/main/saves.c`
-- score: 29 differing words
+- score: 29/115 words
 - frame: 0x60
 - relocations: 20
 - first mismatch: +0xB0
-- summary: Preheader grouping, update order and indexed success status close all structural rows; 29 naming rows are one coherent ring rotation.
+- summary: Fresh proc-29 census confirms 14 draws and a coherent ten-register rotation after all structural rows closed; no source draw lever remains.
 #### 2026-09-12, lane p23-lastmile5: exhaustive colour evidence
 
 The configured baseline is 115 words, 34 masked differences, delta zero,
