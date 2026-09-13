@@ -197,6 +197,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: flag-load ordering needs an unproven invisible interferer; exhaustive colour axis does not yield a source form
+ * summary: A head self-assignment preserved 65 draws and their order, added one emission, and retained all nine naming rows; it cannot create the needed invisible web.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */
