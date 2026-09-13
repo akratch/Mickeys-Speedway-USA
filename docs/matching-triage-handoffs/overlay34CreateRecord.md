@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88
-- summary: store-order residual; census shows adjacent store swap leaves draw and emission schedule unchanged
+- summary: Fresh proc-0 census confirms the recorded store-order differential; all named schedule probes are exhausted without an aligned improvement.
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
