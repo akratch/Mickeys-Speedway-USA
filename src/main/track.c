@@ -5685,7 +5685,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
+ * summary: Fresh proc-29 census: 7 draws/124 emissions. Width control moves the schedule only with excess geometry; baseline allocation residual remains.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
