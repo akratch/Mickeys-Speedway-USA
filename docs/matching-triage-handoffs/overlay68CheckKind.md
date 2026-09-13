@@ -2,11 +2,11 @@
 ### `overlay68CheckKind` plateau handoff
 
 - source: `src/overlays/o068/overlay68CheckKind.c`
-- score: 10 differing words
+- score: 10/80 words
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x50
-- summary: constant-propagation cursor fold; draw census shows 11 draws and no source-line schedule movement
+- summary: Address-taken zero index adds a store and frame quantum but no cursor draw; constant-propagation fold remains.
 #### 2026-09-11, lane `p6-small`: still ten, and two more mechanisms are closed
 
 Unchanged at ten relocation-masked words, size delta 0, frame 0x48, first
@@ -156,5 +156,32 @@ The unchanged guarded baseline is retained. Evidence is ignored under
 build/e1/o068. Commands: draw_census.py, residual_map.py --object and --against,
 align_symbol.py, skeleton_scan.py similar, configured stock compiler,
 frame_census.py, score_symbol.py and finalize_plateau.py. No byte credit.
+
+#### 2026-09-13, lane l1: address-taken zero-index control
+
+Baseline: 320 bytes, delta zero, 70 aligned exact, six naming and four
+structural rows, first +0x50; procedure 0 has eleven draws and 153 emissions.
+The prior exhaustive colour and origin-control receipts were read first.
+
+One new L144 control reads cursorIndex through its s32 address at cursor
+construction. The index is initialized to zero and the read preserves its
+type and value. The compiler adds one emission at that initialization, but
+no draw at the cursor construction: eleven draws in the identical order.
+The frame grows from 0x48 to 0x50. Extent remains 320 bytes, masked differences
+rise to nineteen, and alignment becomes 61 exact, six naming, ten immediate
+and three structural rows. The affected cursor window improves by one aligned
+row while the frame offsets regress in four other windows. It is not adopted.
+Stock and traced full-TU text agree for both source forms.
+
+Stop early under ADR 0018: the address-taken control spends a stack store and
+frame quantum without defeating cursor folding, and the previous origin,
+region, induction and identity controls cover the remaining identified routes.
+This establishes only this addressed-read negative, not source impossibility.
+The original guarded ten-word baseline is restored. Next action requires a
+zero-valued index that retains the shift-and-add draw through address lowering.
+Private source/object pairs, census and aligned deltas remain under
+build/l1/overlay68CheckKind. Commands: configured compilation, draw_census
+profile/compare, residual_map --object/--against, finalize_plateau and
+tools/gates.sh. No new executable-byte credit.
 
 <!-- plateau-handoff:overlay68CheckKind:end -->
