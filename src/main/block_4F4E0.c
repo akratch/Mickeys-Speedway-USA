@@ -312,6 +312,6 @@ s32 func_8004F020(void) {
  * frame: 0x20
  * relocations: 22
  * first-mismatch: +0xA8
- * summary: post-call free-list release order remains unresolved; declaration census is flat
+ * summary: draw census kept 10 draws fixed; post-call free-list release order remains unresolved
  * PLATEAU-HANDOFF:func_8004EED0:end
  */
