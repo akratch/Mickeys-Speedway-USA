@@ -194,6 +194,44 @@ that hash no longer matches the tree. A report written before the stamp existed
 is flagged too, because it cannot be vouched for. The mistake this document
 opens with is now a line of output rather than a judgement call.
 
+## Wave A is done: the blocker has a number (2026-09-13)
+
+`lineage_census` read the split axis and it answers the question the prose
+constraint could not.
+
+**Colouring collapses as interference rises**, measured across all 395 webs:
+
+    numintf   0- 40   149 webs   127 coloured   85%
+    numintf  40- 70    66 webs    11 coloured   16%
+    numintf  70-100    78 webs     2 coloured    2%
+    numintf 100-130    72 webs     1 coloured    1%
+    numintf 130+       30 webs     0 coloured    0%
+
+**The two successive splits are identified**, and both span exactly the
+coordinate and capture sites at source lines 632-665:
+
+- **lineage event 37** -- 70 members became **29 webs, all 29 split**, at
+  `numintf` 131-140, `regsleft` 6-7. Nothing in the 130+ band is ever coloured,
+  so as the source stands those 29 webs have a structurally zero chance.
+- **lineage event 45** -- 53 members became 28 webs, 26 split and **two
+  coloured**: web 1063 at `numintf=7` and web 1065 at `numintf=35`, both in the
+  band where 85% get a register.
+
+That contrast is the finding. Lineage 45 keeps registers because two of its webs
+are cheap; lineage 37 keeps none because all of its are expensive. The bound the
+last six passes kept hitting -- "admits at 24, rejects at 25", "26 against 26" --
+is this pressure, and it was recorded per web the whole time.
+
+**So the objective is now a measurement rather than a prose constraint: reduce
+`numintf` at lines 632-665 toward 40.** `lineage_census --compare` says whether
+an edit moved it, which the score does not -- six passes moved the score by zero
+while the axis went unread.
+
+The lines themselves come from joining each lineage's basic blocks to the
+emission records' `block`/`line` fields; `bb` is positional and the lineage
+`line` field is a constant, so that join is the only way to put a lineage on a
+source line.
+
 ## The campaign: resources are gathered, do not re-derive them
 
 Everything below was measured on 2026-09-13 against the current 187 source and
