@@ -66,7 +66,7 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
     },
     "func_8000590C": {
-      "ledger_commit": "ff1709c525a8ee7cf91f1a6e487bde8b7e6d9b2a",
+      "ledger_commit": "c7c021db5a6303c61d76c7263768833fe680a3e0",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "ff1709c525a8ee7cf91f1a6e487bde8b7e6d9b2a"
     },
@@ -91,7 +91,7 @@
       "source_commit": "3564c8b10e1b2e942f00b31e7889d135bcfc819a"
     },
     "func_80007E40": {
-      "ledger_commit": "64e1446883cd479e4ebd9c8e72b3045f25ceeb8b",
+      "ledger_commit": "2d898fcc8aed787ce39dd98450043c2f691ccdfe",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "64e1446883cd479e4ebd9c8e72b3045f25ceeb8b"
     },
@@ -376,7 +376,7 @@
       "source_commit": "473efb87f29361610c29903e16540671387061bf"
     },
     "func_80024978": {
-      "ledger_commit": "c09b294587a23c2b4ed76f2ca023022852b2592c",
+      "ledger_commit": "c9421ccf0179b31aeb0d2e1870dc035f622c0455",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
       "source_commit": "ecfe80604c2a060c30232d07a05a1bcc4f00933d"
     },
@@ -461,9 +461,9 @@
       "source_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2"
     },
     "func_80030610": {
-      "ledger_commit": "535dfaa4d5a5a2a53d228a13134c8288b5b7e56d",
+      "ledger_commit": "cfbb756f31ac7172a1da0adef61efb317db86af2",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "535dfaa4d5a5a2a53d228a13134c8288b5b7e56d"
+      "source_commit": "cfbb756f31ac7172a1da0adef61efb317db86af2"
     },
     "func_800336A8": {
       "ledger_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980",
@@ -471,9 +471,9 @@
       "source_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980"
     },
     "func_80034448": {
-      "ledger_commit": "ec878e7b5f9df63facdc841ccd6003bdffae07aa",
+      "ledger_commit": "eec826c59c84ac58719615248a5de4872d1e5fcd",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "ec878e7b5f9df63facdc841ccd6003bdffae07aa"
+      "source_commit": "eec826c59c84ac58719615248a5de4872d1e5fcd"
     },
     "func_800347A0": {
       "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
@@ -1316,7 +1316,7 @@
       "source_commit": "d3fcf8ea6f4e562d75f6b0a7e7f97dc8b6482478"
     },
     "func_overlay_071_F0000870_18CA390": {
-      "ledger_commit": "9489a11a55c1acf19768e91c51c9c1853ccb3367",
+      "ledger_commit": "46f08739c32580c5630eb22cfff461527da7e9f9",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "9489a11a55c1acf19768e91c51c9c1853ccb3367"
     },
@@ -1446,9 +1446,9 @@
       "source_commit": "a35d0bdaa2dd7ba44d56687aee8bdd42712f0b9b"
     },
     "levelFreeAll": {
-      "ledger_commit": "b4965055c54e9a7779d2c3342e4ac577dd108651",
+      "ledger_commit": "226eb06ff22542a9b91f4ca00d5634dcca62d476",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "b4965055c54e9a7779d2c3342e4ac577dd108651"
+      "source_commit": "226eb06ff22542a9b91f4ca00d5634dcca62d476"
     },
     "levelGetCounts": {
       "ledger_commit": "ec52595d068bd560579dfe9cd252bb69ac96c7f8",
@@ -1861,7 +1861,7 @@
       "source_commit": "8554caa23a08071ace512f223b67be459208bbb6"
     },
     "overlay48InitializeState": {
-      "ledger_commit": "9e8fbd654a20f9711199839bddcc679f9ba09141",
+      "ledger_commit": "80d31a51e00d9d93ceb20432691b59bcfe797915",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
       "source_commit": "9e8fbd654a20f9711199839bddcc679f9ba09141"
     },
@@ -1896,7 +1896,7 @@
       "source_commit": "b20ed15c35bb17d3f96eeca3856b16971776c0a9"
     },
     "overlay58DrawPointQuad": {
-      "ledger_commit": "1f716668fd8746de77bb9dcec3a44789e2e5e48c",
+      "ledger_commit": "efb26f21426af95777aa47bbe95b1f391a65a901",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "1f716668fd8746de77bb9dcec3a44789e2e5e48c"
     },
@@ -1906,9 +1906,9 @@
       "source_commit": "326692dfe0c5b7ef6f65af446a2565b40be8908c"
     },
     "overlay58FinalizePackedStatus": {
-      "ledger_commit": "7a6791bcae33f39d73c1f88ecea235ff96efde59",
+      "ledger_commit": "b53bbbf41036d5dfacbf4255e768348979733a6f",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "7a6791bcae33f39d73c1f88ecea235ff96efde59"
+      "source_commit": "b53bbbf41036d5dfacbf4255e768348979733a6f"
     },
     "overlay59Advance": {
       "ledger_commit": "09e698ef6b40b1b5a454b6ac2ad5bd36e813eee3",
@@ -1926,7 +1926,7 @@
       "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c"
     },
     "overlay60ReassignChoiceSlots": {
-      "ledger_commit": "5dcdbb4d56fb0ad07e0e47afd16bc1ee100c13b4",
+      "ledger_commit": "5dc155a876a4f58c20bc8e5499ebb99a879acde9",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "5dcdbb4d56fb0ad07e0e47afd16bc1ee100c13b4"
     },
@@ -2011,7 +2011,7 @@
       "source_commit": "fb9a096f575791e53907007f0bdb5aeaf6348437"
     },
     "overlay89UpdateStateAndParticles": {
-      "ledger_commit": "0324280f8b8dffcb9947688fb558b076ac6de409",
+      "ledger_commit": "4eabfe5b39227207357a32c93b48f933fe96f846",
       "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
       "source_commit": "0324280f8b8dffcb9947688fb558b076ac6de409"
     },
