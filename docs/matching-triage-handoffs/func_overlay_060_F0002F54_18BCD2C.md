@@ -6,7 +6,7 @@
 - frame: 0xC0
 - relocations: 12
 - first mismatch: +0x64
-- summary: Fresh 74-draw census confirms the display-list/x schedule plateau; zero-offset control did not move aligned residual.
+- summary: Fresh proc-0 census confirms 74 draws; display-list/x web and p1 save-ratio residual remain at exact geometry.
 #### 2026-09-13, lane h1: redundant offset occurrence differential
 
 Fresh configured baseline: 222 words, 888 bytes, frame 0xC0, 84 raw/masked

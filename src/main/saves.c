@@ -1514,17 +1514,17 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xB0
- * summary: Fresh proc-29 census confirms 14 draws and a coherent ten-register rotation after all structural rows closed; no source draw lever remains.
+ * summary: Fresh proc-29 census confirms 14 draws and one ten-register rotation; structural and colour controls are exhausted.
  * PLATEAU-HANDOFF:packInit:end
  */
 
 /* PLATEAU-HANDOFF:func_8002CF6C:start
  * symbol: func_8002CF6C
- * score: 11/88 words
+ * score: 77/88 words
  * frame: 0x48
  * relocations: 11
  * first-mismatch: +0x8
- * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
+ * summary: Corrected live baseline is 77/88 with a 3-word extent deficit; proc-26 buffer structure remains unresolved.
  * PLATEAU-HANDOFF:func_8002CF6C:end
  */
 

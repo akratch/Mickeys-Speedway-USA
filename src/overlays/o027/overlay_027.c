@@ -449,7 +449,7 @@ s32 overlay27Activate(O27Object *object) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x0
- * summary: Countdown-before-cursor leaves census unchanged and worsens 19 to 28; 19 naming rows remain in the address-order web.
+ * summary: Fresh proc-3 census retains 29 draws and 19 naming rows; countdown/index controls do not reach the address-order residual.
  * PLATEAU-HANDOFF:overlay27UpdateCoordinates:end
  */
 

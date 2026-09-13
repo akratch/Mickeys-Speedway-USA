@@ -83,6 +83,6 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
  * frame: 0x80
  * relocations: 26
  * first-mismatch: +0xDC
- * summary: Fresh 27-draw baseline confirms exact geometry with one caller-pool cycle; no new colour sweep or source mechanism.
+ * summary: Fresh 27-draw baseline retained; entry-carrier probe changed schedule but regressed to 183 words, leaving the caller-pool cycle at exact geometry.
  * PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:end
  */

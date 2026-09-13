@@ -106,6 +106,6 @@ loop_fade:
  * frame: 0x20
  * relocations: 5
  * first-mismatch: +0x2C
- * summary: SetLinkSlot ABI resolves all five relocations; retained numeric floor is NON_EQUIVALENT due to countdown/result snapshots, with corrected controls preserved.
+ * summary: Fresh proc-0 census confirms the NON_EQUIVALENT countdown/result floor; ABI is authenticated but semantics remain incomplete.
  * PLATEAU-HANDOFF:overlay13UpdateRecord:end
  */

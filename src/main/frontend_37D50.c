@@ -679,11 +679,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_800376CC:start
  * symbol: func_800376CC
- * score: 61 differing words
+ * score: 61/120 words
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: 71/120 aligned rows exact; candidate is four bytes long. Move-one schedule controls are fixed; a frame/lifetime or ABI mechanism is still required.
+ * summary: Fresh proc-5 census confirms the 0x20 frame and ABI lifetime residual; move-one schedules and local controls remain closed.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
