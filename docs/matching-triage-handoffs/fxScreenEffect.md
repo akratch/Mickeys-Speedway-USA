@@ -2,11 +2,11 @@
 ### `fxScreenEffect` plateau handoff
 
 - source: `src/main/fx.c`
-- score: 27/143 words
+- score: 116/147 words
 - frame: 0x30
 - relocations: 10
 - first mismatch: +0x8
-- summary: The -16-byte residual is 52 naming plus 39 structural aligned rows; the candidate-only/target-only offsets rule out a colour-only route.
+- summary: Fresh proc-34 census: 33 draws/224 emissions. The -16-byte structural preload deficit rules out a colour-only route; no new donor/lifetime evidence.
 
 
 Reopening audit (2026-09-08), evidence D: PROVENANCE inspection of Jet Force
