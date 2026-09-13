@@ -3436,11 +3436,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:start
  * symbol: overlay1ConsumeNearbyPending
- * score: 31 differing words
- * frame: 0x48
- * relocations: 1
+ * score: 31/69 words
+ * frame: 0x18
+ * relocations: 9
  * first-mismatch: +0x40
- * summary: Retained volatile-counter plateau: force and source controls leave the count read-modify-write web present, with the target ring-temp schedule unreached.
+ * summary: Correct proc-25 23-draw census confirms the counter read-modify-write web; retained volatile plateau remains best.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
