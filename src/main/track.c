@@ -5721,11 +5721,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 144/147 words
+ * score: 3/147 words
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: Deferred Z store removes two draws but regresses; same-value store adds no draw and leaves the separate pre-sqrt web unchanged.
+ * summary: Fresh proc-39 draw census confirms the recorded dependency route regresses and same-value stores are inert; no new source schedule lever.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
