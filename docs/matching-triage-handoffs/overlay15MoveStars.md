@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 25
 - first mismatch: +0x30
-- summary: The +16-byte address-lowering mismatch is fully localized; all size-closing BSS partitions regress aligned residuals.
+- summary: Procedure-7 pointer-carrier probe left 74 draws/250 emissions and sequence unchanged; +16-byte address lowering remains localized.
 
 #### 2026-09-11, lane `lane/p4-xfer`: refuted, and the size delta is now fully accounted
 
