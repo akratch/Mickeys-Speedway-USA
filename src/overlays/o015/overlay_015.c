@@ -466,7 +466,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
+ * summary: Procedure-11 census is 17 draws/214 emissions; shared-high-half lowering remains a structural gap with no reached source lever.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
