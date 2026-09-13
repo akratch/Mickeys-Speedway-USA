@@ -889,11 +889,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 16/106 words
+ * score: 16 differing words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Draw census and three schedule edits found no movable draw; complete same-kind colour landscape remains flat; live-range split unresolved.
+ * summary: 90/106 aligned exact at delta 0; procedure-11 trace has 7 draws. Prior schedule forms and colour landscape do not split the initial character web.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
