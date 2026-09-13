@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: Correct proc-9 census has 473 draws and 1969 emissions; the closed prologue-load emission-order blocker retains two paired insertion gaps.
+ * summary: Correct proc-9 473-draw census confirms the closed prologue-load emission-order blocker; baseline retained.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
