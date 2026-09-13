@@ -5743,11 +5743,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 99/719 words
+ * score: 99 differing words
  * frame: 0x90
  * relocations: 99
- * first-mismatch: +0x6D4
- * summary: Exhaustive proc21 sweep: 299/396 accepted probes; winner lattice floor 95/719, late additive radii only; structural +0x6D4 and +0x7A0 remain.
+ * first-mismatch: +0x6C8
+ * summary: Copy-index guard changes no draws; splitting the tail flag type adds three draws and eight bytes; shared-type control is byte-inert.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
