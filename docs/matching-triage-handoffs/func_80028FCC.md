@@ -2,11 +2,11 @@
 ### `func_80028FCC` plateau handoff
 
 - source: `src/main/main.c`
-- score: 10/27 words
+- score: 10 differing words
 - frame: 0x18
 - relocations: 3
 - first mismatch: +0x1C
-- summary: All 53 incumbent colour probes are flat; retain the structurally exact alternate-body carrier question.
+- summary: Three-draw identity form duplicates normalization and loses scratch names to the return carrier; three follow-up controls are byte-identical.
 
 #### Owned pass, 2026-09-10 (lane/o7-small): the shape is known, not a donor
 
@@ -130,4 +130,72 @@ The named source question from the 14-word structurally exact alternate body
 therefore remains separate from this result: find a call-result carrier form
 that can reach the target’s per-arm ring temporaries without disturbing the
 27-word control-flow shape.
+#### 2026-09-13, lane e1: count the normalization draws before reading the return carrier
+
+Fresh configured baseline: 108 bytes, 27 words, delta zero, 10 raw and masked
+differences. Alignment: 17 exact, 2 naming, zero immediate, 8 structural,
+with no unmatched offsets. First +0x1C, frame 0x18, three call relocations.
+Stock and draw-traced full-TU text agree. The retained body is unchanged.
+No colour sweep or force was run.
+
+The named Ucode stream has 68 procedures and UGEN emits exactly 68 contiguous
+procedure markers. Their authenticated join identifies this function as UGEN
+procedure 42; its source-line events independently name the owned body. The
+allocator-only mapping command refuses because there are only 66 globalcolor
+invocations. That refusal is retained, not treated as a successful allocator
+receipt. The Ucode reader and parse_ugen_procedure_index from
+allocator_trace_receipt.py authenticate the UGEN join directly; each changed
+source is captured and rejoined independently. UOPT and UGEN ordinals must not
+be assumed interchangeable on this TU.
+
+The baseline has **one scratch draw**, at the third call's normalization.
+The target needs three successive normalization temporaries. The first two
+baseline arms branch directly on the raw result and return a constant; there
+is no missing folded draw hiding in their traces.
+
+Measured controls, with sources, objects, profiles and aligned deltas retained:
+
+- The mixed OR alternate reproduces 14 masked words at delta zero, but has
+  **zero draws**. Its aligned result is 15 exact, 5 naming, 6 structural,
+  with a candidate-only offset +0x60 and target-only offset +0x58. The older
+  phrase structurally exact describes its branch topology, not byte alignment.
+- The ordinary OR form has zero draws, 19 positional differences and delta
+  minus 8. Its aligned result is 15 exact, 5 naming and 4 structural, plus
+  one candidate-only and three target-only offsets.
+- A bounded O1 compiler-stage diagnostic bypasses uopt, yet still draws zero
+  scratch registers and emits 112 bytes. It is not a configured candidate;
+  canonical flags are unchanged. Its result does not support removing uopt
+  as a route to the target's three draws.
+- Returning a live normalized local from each early arm gives one draw and
+  delta plus 16; separate block-local results give one draw and delta plus 8.
+  Neither creates the two missing scratch normalizations.
+- Narrow each Boolean operand before OR: six draws, delta plus 16. The
+  conversions survive, and each operand is normalized twice.
+- Apply a zero-valued integer identity to each already normalized operand:
+  **three ordered draws**, but 18 positional differences and delta plus 8.
+  Alignment: 15 exact, 8 naming, 4 structural, plus candidate-only offsets
+  +0x54 and +0x68. The first two scratch results are subsequently renamed onto
+  the shared return carrier, while duplicate normalizations remain. Correct
+  draw count alone does not supply the target's live return-value shape.
+- Move that identity onto the raw call results: all three draws disappear
+  again and the object returns to the ordinary OR result. Thus these draws
+  belong to the second normalization, not a free identity operation.
+
+ADR 0018 stall: right-grouping the three-draw expression, making its zero
+literal signed, and changing OR-with-zero to XOR-with-zero each produce the
+same full-TU text, every per-line draw/emission count, and draw order as the
+three-draw diagnostic. These last three controls open no new schedule handle.
+
+The next requirement has two parts: one normalization scratch per arm without
+normalizing twice, and a return-carrier lifetime that does not cause as1 to
+rename the first two results. The earlier carrier question survives, now with
+a measured distinction between UGEN draws and surviving machine registers.
+The ten-word early-return body remains the best admitted source.
+
+Evidence is ignored under build/e1/r28 and build/e1/map-main. Commands include
+draw_census.py, residual_map.py --object and --against, align_symbol.py,
+frame_census.py, score_symbol.py, configured stock compiler, named Ucode and
+UGEN index authentication, and finalize_plateau.py. Full-ROM gates validate
+the guarded tree, not an exact C promotion of this function.
+
 <!-- plateau-handoff:func_80028FCC:end -->
