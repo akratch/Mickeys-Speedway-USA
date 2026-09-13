@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: zero winning colour forces; scoped lifetime and guard probes did not move the saved FP web
+ * summary: Deferred Z store removes two draws but regresses; same-value store adds no draw and leaves the separate pre-sqrt web unchanged.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
