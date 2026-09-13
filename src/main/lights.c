@@ -1127,7 +1127,7 @@ s32 lightKillGlowingLight(void) {
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: proc12 census confirms 73 draws and mixed frame/allocation residual; tested carrier removals do not change schedule
+ * summary: Element-index lowering adds one draw and worsens aligned rows; the 0x58 versus 0x48 frame and release-order blocker remain.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 
