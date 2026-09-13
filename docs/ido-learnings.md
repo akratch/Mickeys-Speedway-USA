@@ -1835,6 +1835,19 @@ bytes and disassembly never belong here.
   question about that function's own phase input, and the search space never
   includes its neighbours.
 
+- **A cycle in a window's register substitutions does not prove a FIFO
+  phase.** A window can span several basic blocks and unrelated live ranges;
+  choosing each register's most frequent replacement can close a graph cycle
+  even when none of those registers is drawn from the temporary free list.
+  First identify actual pool assignments and the traced temporary-register
+  set, then locate the first divergent draw relative to the first mismatch.
+  A controlled entry experiment moved the FIFO at zero instruction cost while
+  repairing none of the existing naming rows; its first mismatch preceded the
+  first temporary draw. Use a cycle to nominate a hypothesis, not to infer a
+  shared cause or a reachable-word bound. A pool-colour change can still
+  affect downstream FIFO membership, so that interaction must be measured
+  separately. See the [entry-cycle control](whale-entry-phase.md).
+
 - **The `ugen` temporary ring is a FIFO free list.** A temporary pops the head
   of the queue and is pushed back on the tail when it dies, so a short-lived
   temporary that emits **no instruction at all** -- for example the boolean

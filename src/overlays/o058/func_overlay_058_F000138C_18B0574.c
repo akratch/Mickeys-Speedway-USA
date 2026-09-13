@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; banked target-width witness keeps all stack traffic and lowers address interference to 98-119 across 21 splits.
+ * summary: 187 retained; zero-width FIFO probes heal none of 34 entry naming rows; save-register cycle aggregates pool allocations.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

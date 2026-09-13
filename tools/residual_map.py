@@ -36,10 +36,12 @@ WHAT IT PRINTS
   - per window, the (ours -> theirs) register substitutions and any closed
     cycle among them
 
-A closed cycle inside ONE window with no cycle in its neighbours is a ring
-phase with a cause at the window boundary (L127, L149). A cycle that persists
-across every window is a whole-function phase. Scattered substitutions with no
-cycle are per-web colour and the address does not help.
+A closed cycle inside one window nominates a possible ring-phase hypothesis;
+it does not establish one. Windows can span multiple blocks and unrelated
+pool-coloured values. Confirm temporary-free-list membership and draw-order
+evidence before applying L127/L149. A persistent cycle may likewise reflect
+pool allocation rather than a whole-function FIFO phase. The address map
+localizes the evidence; allocator and draw traces identify its mechanism.
 
 Everything above `main` is pure and takes word lists, so the tests need no
 baserom, no toolchain and no build.
