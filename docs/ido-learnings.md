@@ -2264,6 +2264,24 @@ bytes and disassembly never belong here.
   lever, not permission to remove an observable initialization or a claim
   that every guard move improves allocation.
 
+- **Re-measure line scheduling after changing which indexed values have named
+  carriers.** An explicit byte-offset local and an explicit loaded-value local
+  can together preserve an unwanted allocation shape. Replacing both with
+  typed indexed accesses lets the compiler form those values itself; controls
+  that remove only one carrier do not establish the combined form's behavior.
+  In the [indexed-resource source closure](resident.md#2026-09-13-func_80006448-indexed-resource-release-lane-f1),
+  the combined edit repaired the call windows, and joining the loop initializer
+  to the loop's physical source line then repaired the remaining entry order.
+  The draw sequence was unchanged throughout: equal draws do not imply equal
+  allocation or final assembler scheduling. This extends the line-barrier
+  observation above with a stock-compiler source closure; the allocator's
+  internal cause remains unproved. Preserve index bounds, access
+  widths, and observable load/call order when substituting indexed reads;
+  repeated accesses are not interchangeable across volatile reads or mutations.
+  Retain aligned object comparisons and require exact relocation and linked-ROM
+  proof before adopting either edit. A line fold on an unchanged source shape
+  can remain inert.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
