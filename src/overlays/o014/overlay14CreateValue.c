@@ -106,6 +106,6 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: chosen-pointer frame-cell residual remains after exhausted carrier and scheduler controls
+ * summary: Fresh baseline has 10 draws and the retained 13-row frame-cell residual; the shard bars another manual source sweep without new admissible evidence.
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */
