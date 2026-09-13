@@ -1396,9 +1396,9 @@ void func_8002109C(ModelPointOwner *owner) {
  * symbol: func_80020B10
  * score: 102/159 words
  * frame: 0x10
- * relocations: 12
+ * relocations: 34
  * first-mismatch: +0xC
- * summary: proc14 draw census holds 37 draws; cursor setup reorder leaves schedule unchanged and regresses one word
+ * summary: Proc-14 census confirms 37 draws; cursor setup reorder leaves the scheduler unchanged and regresses, so the pool/line-order blocker remains.
  * PLATEAU-HANDOFF:func_80020B10:end
  */
 
