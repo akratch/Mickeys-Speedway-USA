@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: exception cursor remains a preheader strength-reduction blocker; two-draw census and exhaustive source identities add no schedule handle
+ * summary: Array exception-loop control worsens to 77 and moves no draw or emission line; the retained byte-offset form still lacks the preheader strength reduction.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
