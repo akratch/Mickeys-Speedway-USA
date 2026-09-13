@@ -49,8 +49,13 @@ mismatch `+0x50`, 1,253 relocations.
       insertion shadow        32   from the ONE remaining gap pair
 
 **Three of the four original insertion pairs are closed.** What remains is a
-single pair: target-only `+0x1260` against candidate-only `+0x12F8`. It is worth
-about 32 positional words and nothing else in the function depends on it.
+single pair: target-only `+0x1260` against candidate-only `+0x12F8`. It accounts
+for about 32 positional words. Source repairs can affect later address reuse.
+The [wv-h emission report](whale-gap-emission.md) identifies the displaced
+operation as the visible index reset at source line 651: the target puts it
+in the first colour call's delay slot at `+0x1268`. The capture at line 660
+is outside the gap. The report also demonstrates that changed per-line counts
+can leave the entire emission sequence and executable output unchanged.
 
 Aligned rows by region (0x400 windows), naming first:
 
