@@ -6,7 +6,7 @@
 - frame: 0xC8
 - relocations: 137
 - first mismatch: +0x0
-- summary: Exhaustive colour packing reaches 565; remaining residual is largely non-colour temp-ring or structural.
+- summary: Procedure-7 census prices 355 draws; remaining mixed integer and FP ring phases have no target-backed source lever.
 
 ## 2026-09-12 exhaustive colour landscape
 
