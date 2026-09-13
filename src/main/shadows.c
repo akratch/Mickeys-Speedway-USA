@@ -1441,11 +1441,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_800180B4:start
  * symbol: func_800180B4
- * score: 101 differing words
+ * score: 101/206 words
  * frame: 0x90
  * relocations: 8
  * first-mismatch: +0x34
- * summary: 132 of 207 aligned rows exact; target sector-index spill across its call remains unformed.
+ * summary: Measured sector-index materialization: draw/emission schedule unchanged and residual worsened; target spill across getXZCompareMask remains unformed.
  * PLATEAU-HANDOFF:func_800180B4:end
  */
 
