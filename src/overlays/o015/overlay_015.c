@@ -506,6 +506,6 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: Fresh proc-3 census confirms 14 draws; aggregate address lowering reaches exact size only with a worse residual.
+ * summary: Deleting scale removes only a location emission; fourteen draws, object text and shared-address lowering remain unchanged.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

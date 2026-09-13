@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 25
 - first mismatch: +0x30
-- summary: Fresh proc-3 census confirms 14 draws; aggregate address lowering reaches exact size only with a worse residual.
+- summary: Deleting scale removes only a location emission; fourteen draws, object text and shared-address lowering remain unchanged.
 
 #### 2026-09-11, lane `lane/p4-xfer`: refuted, and the size delta is now fully accounted
 
@@ -54,5 +54,31 @@ register costing two. Every spelling reachable from declarations, groupings and
 argument order picks the base register. Register pressure is the obvious
 untested hypothesis and is where the next pass should go; do not spend another
 pass on declarations, groupings or argument order.
+
+#### 2026-09-13, lane l1: generated scale differential
+
+Fresh baseline: 58 candidate words against 54 target words, delta plus sixteen,
+frame 0x40, thirty masked differences. Alignment is 37 exact, four naming,
+three immediate and nine paired structural rows, plus five candidate-only
+and one target-only words. Procedure 3 has fourteen draws and 73 emissions.
+The prior scalar/aggregate and exact-size partition receipts were read first.
+
+One L160 control removes the named float scale and spells the same rate
+conversion at each of its three multiplications. The intended mechanism is
+release of the declared carrier before the bound-load call block. It removes
+one source-location emission at the former definition, but every line's draw
+count and the complete draw sequence stay fixed. Stock text is byte-identical
+and every aligned window and gap remains unchanged. Thus deleting this carrier
+does not change allocation pressure or reach the shared-address lowering.
+Named Ucode mapping and complete stock/capture fidelity pass for both forms.
+
+Retain the original guarded body. Stop early under ADR 0018: this new carrier
+control is byte-inert and the prior grouping/argument-order controls already
+bound the address-lowering problem. Repeating those partitions cannot provide
+new evidence. Next action still requires the target's shared high-half form
+without a full materialized base. Sources, objects, censuses and differences
+are preserved under ignored build/l1/overlay15MoveStars. Commands: configured
+compilation, allocator_trace_receipt mapping, draw_census differences,
+residual_map comparison, finalize_plateau and tools/gates.sh. No byte credit.
 
 <!-- plateau-handoff:overlay15MoveStars:end -->
