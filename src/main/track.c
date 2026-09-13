@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: Fresh proc-39 draw census confirms the recorded dependency route regresses and same-value stores are inert; no new source schedule lever.
+ * summary: Fresh proc-39 census: 34 draws/209 emissions; the dependency route regresses and a same-value store is inert. No schedule lever remains.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
