@@ -7,6 +7,7 @@
 - relocations: 10
 - first mismatch: +0x8
 - summary: Fresh proc-34 census: 33 draws/224 emissions. The -16-byte structural preload deficit rules out a colour-only route; no new donor/lifetime evidence.
+- summary: Minus-16-byte residual has structural aligned rows and no colour-only route; donor audit adds no mechanism.
 
 
 Reopening audit (2026-09-08), evidence D: PROVENANCE inspection of Jet Force

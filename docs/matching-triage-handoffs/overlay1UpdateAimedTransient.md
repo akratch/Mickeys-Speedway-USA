@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 43
 - first mismatch: +0xC
-- summary: Fresh 473-draw census retains the closed prologue-load emission-order blocker: 244 exact aligned rows, one naming and two immediate rows.
+- summary: 473-draw census confirms closed prologue-load emission-order blocker; no source-authentic route below 14.
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned

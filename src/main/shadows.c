@@ -1445,7 +1445,7 @@ void func_800180B4(ShadowQuery *query) {
  * frame: 0x90
  * relocations: 8
  * first-mismatch: +0x34
- * summary: 132/207 aligned rows exact at delta 0. Frame and stack homes agree; the target sector-index spill across its call remains unformed.
+ * summary: 132 of 207 aligned rows exact; target sector-index spill across its call remains unformed.
  * PLATEAU-HANDOFF:func_800180B4:end
  */
 
