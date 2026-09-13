@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 1
 - first mismatch: +0x40
-- summary: a volatile counter with if (count--) and no inner object copy makes the opcode schedule exact (structure-mismatch to allocation-mismatch); the 31 register words are six counter reads uopt webs and the target spends as ring temps
+- summary: Retained volatile-counter plateau: force and source controls leave the count read-modify-write web present, with the target ring-temp schedule unreached.
 
 #### tu2-o1tail: the countdown form is settled and is not the residual
 
