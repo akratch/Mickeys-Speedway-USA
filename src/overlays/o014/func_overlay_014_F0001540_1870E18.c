@@ -16,9 +16,9 @@ extern void overlay14BuildPanel(s32, void *, s32, s32, s32, s32, s32);
 extern s32 overlay14Dispatch();
 extern s32 overlay14ValidateEntry(s16);
 
-/* Workbench structure-mismatch: 188/188 instructions, 82 normalized words;
- * 70 aligned residuals (24 structural, 9 schedule, 33 register), first +0x6C.
- * Source order now reproduces the target temp lane; pool-web, CFG, and relocation residuals remain. */
+/* Workbench naming residual: 188/188 words, 12 differing words, first +0xDC.
+ * Alignment: 176 exact and 12 naming rows; exact frame and no surplus words.
+ * The while loop and generated entry stride retain the target temporary schedule. */
 #ifdef NON_MATCHING
 void func_overlay_014_F0001540_1870E18(s32 context) {
     u8 saved;
@@ -31,7 +31,7 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
     u8 *cursor;
     void *drawArg;
     s32 first;
-    s32 entryOffset;
+
     overlay14BuildPanel(context, &gOverlay14DataBase, 0x5C, 0x14, 0xD0, 0x58,
                         (gOverlay14ValueC0 * 0xA0) >> 8);
     index = 0;
@@ -41,17 +41,17 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
     overlay14Dispatch(0, 0, 0, 0);
     y = ((0x58 - (remaining * cellWidth)) >> 1) + 0x14;
     opacity = (gOverlay14ValueC0 * 0xFF) >> 8;
-    if ((gOverlay14Entries->count > 0) && (remaining > 0)) {
-        entryOffset = index * 0x10;
-loop_entry:
+    while ((index < gOverlay14Entries->count) && (remaining > 0)) {
+
+
         first = 1; x = 0x60;
         if (index == gOverlay14Entries->selected)
             overlay14Dispatch(0xFF, 0xFF, 0xFF, 0xFF, opacity);
         else
             overlay14Dispatch(0, 0xC0, 0xC0, 0xFF, opacity);
-        cursor = ((Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset))->text;
+        cursor = gOverlay14Entries[index].text;
         if (overlay14ValidateEntry(
-                ((Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset))->kind) == 0) cursor = 0;
+                gOverlay14Entries[index].kind) == 0) cursor = 0;
         if ((cursor != 0) && (remaining > 0)) {
             do {
                 cursor = (u8 *)overlay14Dispatch(2, cursor, 0xC8, &drawArg, 0);
@@ -65,8 +65,8 @@ loop_entry:
             } while ((cursor != 0) && (remaining > 0));
         }
         index++;
-        entryOffset += 0x10;
-        if ((index < gOverlay14Entries->count) && (remaining > 0)) goto loop_entry;
+
+
     }
     overlay14Dispatch(0, 0, 0, 0);
     overlay14Dispatch(0xFF, 0xC0, 0, 0xFF, opacity);
@@ -79,10 +79,10 @@ loop_entry:
 
 /* PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:start
  * symbol: func_overlay_014_F0001540_1870E18
- * score: 106/188 words
+ * score: 12 differing words
  * frame: 0x80
  * relocations: 26
- * first-mismatch: +0x6C
- * summary: Natural order gained 6 words and exact temp lane; 18/26 relocation sites align. Next lever: original outer-loop spelling that swaps remaining/y pool webs.
+ * first-mismatch: +0xDC
+ * summary: While loop and generated stride improve 82 to 12 naming rows with exact geometry. Three final controls preserve the caller-pool swap and draw sequence.
  * PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:end
  */
