@@ -194,6 +194,95 @@ that hash no longer matches the tree. A report written before the stamp existed
 is flagged too, because it cannot be vouched for. The mistake this document
 opens with is now a line of output rather than a judgement call.
 
+## The campaign: resources are gathered, do not re-derive them
+
+Everything below was measured on 2026-09-13 against the current 187 source and
+is retained under Git's common directory at **`whale-resources/`** — outside the
+worktree, never tracked, and small enough (7.8 MB) to keep indefinitely:
+
+| file | what it is |
+|---|---|
+| `footprints187.json` | the complete 1,898-probe landscape at 187, with the packing |
+| `landscape187.txt` | its rendered report: winners, rivals, the packed set |
+| `lattice187.txt` | the measured six-force lattice, radii and every interaction |
+| `lineage187.json` | the split census: 395 webs, 254 splits, 204 lineages |
+| `draws187.json` | the ugen census: 720 draws, 5,072 emissions, per line |
+| `residual187.txt` | the aligned residual map by address, with the register census |
+| `allocator187.log` | the raw unforced trace, `CDX_DETAIL_WEB` + `CDX_LINEAGE_TABLES` |
+
+A lane reads these. **Re-running any of them is wasted budget**, and re-running
+the landscape is wasted twice over because it now carries a source fingerprint
+and `web_footprint --report` will say so if it ever goes stale.
+
+### The fresh landscape changed the picture
+
+The re-run that this document opened by demanding has been done. At 187:
+
+    1,898 probes across 141 webs, both save kinds
+    10 forces beat the unforced 187 at delta 0
+    best disjoint packing predicts 149 -- and the lattice MEASURES 149
+
+    p1:w75=c16   172  (+15)      p1:w962=c17  183  (+4)   <- new web
+    p1:w225=c20  177  (+10)      p1:w27=c17   184  (+3)
+    p1:w379=c20  177  (+10)      p1:w498=c15  184  (+3)   <- new web
+    p1:w225=c14  180  (+7)
+
+**The forced diagnostic is 149, not 187**, and two of the productive webs — 962
+and 498 — appear in no earlier landscape, because no earlier landscape was
+measured against this body. The measured best set is five forces:
+
+    w75=c16 + w379=c20 + w225=c14 + w27=c17 + w498=c15  ->  149
+
+Radii, for nominating anything further:
+
+    w75=c16    0x0180 0x0280 0x0300 0x0380 0x0580 0x0880 0x0980 0x0a00 0x0a80 0x0b80
+    w379=c20   0x1280 0x1700 0x1780 0x1900
+    w225=c14   0x0780
+    w27=c17    0x0080
+    w498=c15   0x1c00 0x1c80 0x1d00
+    w962=c17   0x0180 0x0300 0x0480 0x0580 0x0600 0x0680 0x0c00 0x0c80 0x1e00 ...
+
+`w225=c20` and `w379=c20` remain rivals on one radius. `w962` is antagonistic
+with `w75` (+43, contending in `0x0180, 0x0300, 0x0580`), which is why the
+packing takes `w498` instead.
+
+### Wave structure, in order, one lane each
+
+**Wave A — the split axis, no source change.** Read `lineage187.json` and the
+`allocator187.log` it came from. Answer: which two of the 254 splits are the
+"successive splits" in the blocker; what the interference bound is at each; and
+whether the 29-web lineage at event 37 is the live range the whole thing turns
+on. The deliverable is a map, not a match. Nobody has ever looked at this.
+
+**Wave B — the coupled repair, using joint forces.** `force_lattice` now accepts
+`p1:wA+wB=cN`. Take the two webs Wave A names and drive them onto one colour
+together. 3,789 single-force probes could not see a coupled repair; this is the
+first instrument that can. If a joint force reaches a materially better score
+than 149, that names the source question exactly.
+
+**Wave C — the last gap pair.** Target `+0x1260` against candidate `+0x12F8`,
+about 32 of the 187 positional words, and the only one of the original four
+still open. An extra instruction is an extra emission at a line, and
+`draws187.json` is the before-profile: take an after-profile and `--compare`.
+
+**Wave D — the `+0x0000` block.** 34 naming rows behind one closed four-cycle
+`s0 -> s2 -> s3 -> s1 -> s0`, the largest single block in the function, and the
+landscape's `w27=c17` only reaches `0x0080` of it. A ring rotation is the shape
+L127 and L145 are about.
+
+Waves A and B are sequential; C and D are independent of both and of each other,
+so they can run concurrently with A.
+
+### What a whale brief must carry, and what it must not
+
+Carry: the paths above, the measured 149 and its five forces, the radii table,
+and the wave this lane is running. Nothing else — the shard has the rest.
+
+Must not: re-run a landscape, re-derive the residual map, re-try any of the
+seven exhausted case-12 attempt families, or re-try L160 at the case-3 cursor.
+Each is recorded with evidence, and a pass that repeats one has spent its budget
+learning what the shard already says.
+
 ## What not to spend the next pass on
 
 - **Another variation on the case-12 capture constraint.** Seven attempt
