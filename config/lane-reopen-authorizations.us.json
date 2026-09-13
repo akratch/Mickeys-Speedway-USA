@@ -66,9 +66,9 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
     },
     "func_8000590C": {
-      "ledger_commit": "274ca3c5f0c76ec0c7432fc1ce37a0c81897d037",
+      "ledger_commit": "ff1709c525a8ee7cf91f1a6e487bde8b7e6d9b2a",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "274ca3c5f0c76ec0c7432fc1ce37a0c81897d037"
+      "source_commit": "ff1709c525a8ee7cf91f1a6e487bde8b7e6d9b2a"
     },
     "func_80006448": {
       "ledger_commit": "25a15368d81a57531735f338d69d8bad165c9def",
@@ -76,9 +76,9 @@
       "source_commit": "25a15368d81a57531735f338d69d8bad165c9def"
     },
     "func_80006534": {
-      "ledger_commit": "ad9d12117670f8a9adaebb8413930a29851707c4",
+      "ledger_commit": "494aaf7a35b5dadb253efaf07e337428484e2d62",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "ad9d12117670f8a9adaebb8413930a29851707c4"
+      "source_commit": "494aaf7a35b5dadb253efaf07e337428484e2d62"
     },
     "func_80007118": {
       "ledger_commit": "4496aad1392932c58c23c28bcb815cc85d04b500",
@@ -96,9 +96,9 @@
       "source_commit": "64e1446883cd479e4ebd9c8e72b3045f25ceeb8b"
     },
     "func_80008028": {
-      "ledger_commit": "00e2c84043f1a9424f5e405522302c8331fc6e77",
+      "ledger_commit": "990febdf4996356866d03d8b830cd3fe3ec95d95",
       "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "00e2c84043f1a9424f5e405522302c8331fc6e77"
+      "source_commit": "990febdf4996356866d03d8b830cd3fe3ec95d95"
     },
     "func_800084C4": {
       "ledger_commit": "8165ac8f49b34eac800bf6e25337427bb6a6af79",
@@ -806,9 +806,9 @@
       "source_commit": "2fe469bbad868cba383a15c672868048d19f72ae"
     },
     "func_800580F0": {
-      "ledger_commit": "55d992d2de5bfd985a8c81a7b4e17255af18b78f",
+      "ledger_commit": "76be4c82a2758e487a64daa0c34d79191eeda670",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "55d992d2de5bfd985a8c81a7b4e17255af18b78f"
+      "source_commit": "76be4c82a2758e487a64daa0c34d79191eeda670"
     },
     "func_80058250": {
       "ledger_commit": "4bd0ef0597a0443028441f79230ea6f202d6f2de",
@@ -821,9 +821,9 @@
       "source_commit": "8d7572bb186e825ead555edd14c515221aa3d73c"
     },
     "func_8005A7A0": {
-      "ledger_commit": "a4de9355b4dbd2773bbd61f3231e867445a15ec4",
+      "ledger_commit": "aea91e1754ff5e078b983e32ba23ce37dab6b7af",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "a4de9355b4dbd2773bbd61f3231e867445a15ec4"
+      "source_commit": "aea91e1754ff5e078b983e32ba23ce37dab6b7af"
     },
     "func_8005A948": {
       "ledger_commit": "75eec1f945cbff202a77f874beec5983e7f07eab",
@@ -831,9 +831,9 @@
       "source_commit": "75eec1f945cbff202a77f874beec5983e7f07eab"
     },
     "func_8005ABA8": {
-      "ledger_commit": "34075df42af5a0ae4c1d2a0cb70708e34cf69ee6",
+      "ledger_commit": "03278c8e15ad0fb2e497e51a7803aae7949fca4c",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "34075df42af5a0ae4c1d2a0cb70708e34cf69ee6"
+      "source_commit": "03278c8e15ad0fb2e497e51a7803aae7949fca4c"
     },
     "func_8005AF14": {
       "ledger_commit": "5808ba0183a4a84efca3e3461cfb54313aacdfa0",
@@ -1011,9 +1011,9 @@
       "source_commit": "ab6fd14822ae069ee0878ae4f4a8837f12ad2456"
     },
     "func_overlay_022_F0000D30_1878E38": {
-      "ledger_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "ledger_commit": "7f1050096930b1bc98f4ba21ffce2aaea1458841",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656"
+      "source_commit": "7f1050096930b1bc98f4ba21ffce2aaea1458841"
     },
     "func_overlay_026_F00001A0_187A598": {
       "ledger_commit": "30646111e6ecaaf7a3a2796f44709a5fb03e05b0",
@@ -1526,9 +1526,9 @@
       "source_commit": "9e6cbe09a6df3da33bd1cf70704a5660f9cb881f"
     },
     "overlay13UpdateRecord": {
-      "ledger_commit": "d77e9e26220200543f63f59750bb49102a4c4e03",
+      "ledger_commit": "97e57995b16b2748afb006e204199fd51de8d67d",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "d77e9e26220200543f63f59750bb49102a4c4e03"
+      "source_commit": "97e57995b16b2748afb006e204199fd51de8d67d"
     },
     "overlay14CreateValue": {
       "ledger_commit": "a958c61f240ce5aa6dca2efb823ce6271f2d70c6",
@@ -1611,9 +1611,9 @@
       "source_commit": "5ea79b6e4ae7fbb40b9d0042eb2e5d0ef0a5ca32"
     },
     "overlay19BuildSpatialMasks": {
-      "ledger_commit": "143990b937b20491a33ac624cf4c607067765f3a",
+      "ledger_commit": "95ee89f98e0a3079313b0b98146e08a34a043699",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "0e3edf9e8347ce6114dc1a863771dad06546de36"
+      "source_commit": "95ee89f98e0a3079313b0b98146e08a34a043699"
     },
     "overlay19ClassifyEdge": {
       "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
@@ -1831,9 +1831,9 @@
       "source_commit": "5ef33dd090e496c017241f75f1167bef831a8a2f"
     },
     "overlay3RunCachedModeAction": {
-      "ledger_commit": "04ab81074f2d6d6c57af8a34ceba3b94b34effc1",
+      "ledger_commit": "79b770538b687a8393652f9b36e51028ed041d07",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "04ab81074f2d6d6c57af8a34ceba3b94b34effc1"
+      "source_commit": "79b770538b687a8393652f9b36e51028ed041d07"
     },
     "overlay3SelectScoredObject": {
       "ledger_commit": "afe50fb4758092fa62ee1eb50fec60a6ca4305ca",
@@ -1901,9 +1901,9 @@
       "source_commit": "1f716668fd8746de77bb9dcec3a44789e2e5e48c"
     },
     "overlay58DrawSegmentStrip": {
-      "ledger_commit": "4ceda121e8324b149ae2df6b4de1b13730effacd",
+      "ledger_commit": "326692dfe0c5b7ef6f65af446a2565b40be8908c",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "4ceda121e8324b149ae2df6b4de1b13730effacd"
+      "source_commit": "326692dfe0c5b7ef6f65af446a2565b40be8908c"
     },
     "overlay58FinalizePackedStatus": {
       "ledger_commit": "7a6791bcae33f39d73c1f88ecea235ff96efde59",
