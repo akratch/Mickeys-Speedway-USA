@@ -5757,7 +5757,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x18
  * relocations: 0
  * first-mismatch: +0x18
- * summary: Exact extent/frame; allocation and dimension-init schedule remain. Three flat variants; next: trace natural priority and carrier lifetimes.
+ * summary: Dimension-line folding moves attribution and two object words but keeps 39 draws, their sequence and the 92-word residual; baseline retained.
  * PLATEAU-HANDOFF:func_80007E40:end
  */
 
