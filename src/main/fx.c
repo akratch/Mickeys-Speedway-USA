@@ -2490,7 +2490,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 10
  * first-mismatch: +0x8
- * summary: The -16-byte residual is 52 naming plus 39 structural aligned rows; the candidate-only/target-only offsets rule out a colour-only route.
+ * summary: Minus-16-byte residual has structural aligned rows and no colour-only route; donor audit adds no mechanism.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
