@@ -2300,6 +2300,37 @@ bytes and disassembly never belong here.
   work, and promotion still requires untouched compiler output, relocation
   identity and linked-ROM proof.
 
+- **Choose which value is named before tuning its register.** A nested
+  unsigned calculation can consume separate temporary draws even when its
+  final value is already assigned to a local. In the
+  [relocation-value closure](matching-triage-handoffs/overlay14LoadRelocatedValue.md),
+  naming the masked-and-tagged intermediate before adding the base reduced
+  draws. Reading through the advancing cursor while retaining the old pointer
+  only for stores then changed allocation without changing the draw sequence.
+  Separate those experiments: fewer draws and different allocator weights are
+  distinct observations. Preserve unsigned widths, arithmetic association,
+  access identity and read/write order; this does not authorize reassociating
+  floating-point expressions or substituting aliased/volatile accesses.
+  Once only stack displacements remain, revisit declaration homes: coloured
+  locals preceding the deepest spilled local can enlarge the frame, so total
+  local count alone does not predict frame size. Confirm the complete TU,
+  relocations and linked ROM before adopting any spelling.
+
+- **A direct memory retest can remove a named web while adding temporary
+  draws.** In the
+  [timer-update closure](matching-triage-handoffs/overlay14PrepareInputState.md),
+  replacing an assigned scalar snapshot with a direct update and retest added
+  draws on the intended lines without adding emitted instructions. One removal
+  barely changed the residual; removing its paired carrier changed which
+  registers belonged to the temporary ring and repaired earlier windows too.
+  Source-level carrier count, draw count and final instruction count therefore
+  measure different things. Compare each change's line census and aligned
+  windows, then measure the combination rather than inferring independence
+  from two small single-edit scores. This substitution requires no intervening
+  mutation or observable reload, matching access widths and the same defined
+  arithmetic domain. Do not use it for volatile state or across a call. Exact
+  untouched compiler output and runtime relocation identity remain mandatory.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
