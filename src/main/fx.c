@@ -2424,11 +2424,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80046EC4:start
  * symbol: func_80046EC4
- * score: 60/111 words
+ * score: 60/110 words
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x68
- * summary: Address-base reuse remains the blocker after the spelling closure; donor mechanism supplies no new source body.
+ * summary: Fresh +4-byte baseline confirms the address-base CSE blocker; all recorded source spellings remain closed and no schedule draw is exposed.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
