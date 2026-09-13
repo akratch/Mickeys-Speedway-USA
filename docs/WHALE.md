@@ -9,6 +9,16 @@ the tooling that makes each lever readable.
 `docs/matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md` remains the
 per-pass log and the source of truth for what has been tried. This is the map.
 
+## Wave D: target width and reduced pressure coexist
+
+[The wv-d source witness](whale-width-pressure.md) takes the previous attempt
+23 to target width with unchanged stack traffic and address interference
+98–119. It scores 1,446 masked words and changes the draw sequence; the guarded
+187 body and its resource profiles below remain the best retained residual.
+The complete alternative source and proof packet are preserved privately.
+No new executable bytes are matched, and the original address family still
+has no naturally coloured pair.
+
 ## What 187 is made of
 
 Measured 2026-09-13 on the retained source, delta zero, frame `0x138`, first
