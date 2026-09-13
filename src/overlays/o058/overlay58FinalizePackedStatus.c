@@ -288,6 +288,6 @@ void overlay58FinalizePackedStatus(void) {
  * frame: 0x48
  * relocations: 48
  * first-mismatch: +0x18
- * summary: player carrier move left census unchanged and regressed to 94; stack-home and mask-shift carrier remain.
+ * summary: Exhaustive flags, source forms and accepted colour probes leave stack-home and mask-shift carrier allocation unresolved.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */
