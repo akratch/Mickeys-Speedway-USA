@@ -472,11 +472,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15InitStars:start
  * symbol: overlay15InitStars
- * score: 89 differing words
+ * score: 89/190 words
  * frame: 0xB8
  * relocations: 15
  * first-mismatch: +0x44
- * summary: exact-size 190-word candidate; workbench structure-mismatch after carrier scheduling basin, next lever bounded p2 allocator trace/permutation
+ * summary: p2 carrier scheduling basin remains unresolved at exact size
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
