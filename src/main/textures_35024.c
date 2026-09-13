@@ -175,15 +175,15 @@ TextureHeader *func_80034448(s32 textureId) {
     }
     return texture;
 }
-/* PLATEAU-HANDOFF:func_80034448:start
- * symbol: func_80034448
- * score: 118 differing words; normalized distance 58
- * frame: 0x50 (target 0x50)
- * relocations: 53
- * first-mismatch: +0x58
- * summary: DKR/JFG loader structure restores the complete semantic path and exact frame; one aligned-address copy and an upstream temp-ring rotation leave 215 candidate versus 214 target instructions, with 37 relocation sites exact.
- * PLATEAU-HANDOFF:func_80034448:end
- */
+/* Plateau metadata is retained at EOF; blank lines preserve source positions. */
+
+
+
+
+
+
+
+
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_80034448.s")
 #endif
@@ -230,3 +230,13 @@ s32 func_8003484C(void *texture) {
     }
     return -1;
 }
+
+/* PLATEAU-HANDOFF:func_80034448:start
+ * symbol: func_80034448
+ * score: 118/215 words
+ * frame: 0x50
+ * relocations: 53
+ * first-mismatch: +0x58
+ * summary: Loader structure and frame are exact; aligned-address copy and upstream temp-ring rotation remain.
+ * PLATEAU-HANDOFF:func_80034448:end
+ */
