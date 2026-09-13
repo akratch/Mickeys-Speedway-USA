@@ -2,11 +2,11 @@
 ### `func_overlay_101_F000C6E8_18E7F08` plateau handoff
 
 - source: `src/overlays/o101/overlay101TailC6E8.c`
-- score: 106 differing words
+- score: 106/317 words
 - frame: 0x18
 - relocations: 91
 - first mismatch: +0x4C
-- summary: Accepted three-local displacement prices 19 masked words (106 to 87), diagnostic only. Source and new-shape order controls retain 106; interference remains.
+- summary: three-local interference and root-initialization schedule remain unresolved after priced diagnostics
 - assignment base: `23dd98ede1da869df2df0948c80efeeb403caa6e`
 - owned range: overlay 101 `+0xC6E8..+0xCBDC`, 1,268 bytes / 317 words, with no target-size delta
 - baseline: 131 raw and 125 relocation-aware positional differences; normalized distance 117; first raw mismatch `+0x8` and first relocation-masked mismatch `+0x34`
