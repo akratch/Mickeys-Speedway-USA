@@ -757,6 +757,6 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
  * frame: 0x140
  * relocations: 375
  * first-mismatch: +0x34
- * summary: Delta -4 is the unsplit tail global-address web; direct spelling and allocator split routes are exhausted.
+ * summary: Tail pointer probes either fold before output or regress; the target-only tail materialization remains unreachable from measured source forms.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */

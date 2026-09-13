@@ -6,7 +6,7 @@
 - frame: 0xB8
 - relocations: 88
 - first mismatch: +0x7C
-- summary: Exhaustive 39-web colour scan floor is forced 191; source question is tail web45 v0-to-v1.
+- summary: Census confirms the missing FP draw before line 412; existing source families do not reach it or tail web45.
 
 Added to the flat list this lane, on the same base:
 

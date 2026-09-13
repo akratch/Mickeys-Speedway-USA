@@ -2459,6 +2459,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * frame: 0xC8
  * relocations: 137
  * first-mismatch: +0x0
- * summary: Exhaustive colour packing reaches 565; remaining residual is largely non-colour temp-ring or structural.
+ * summary: Procedure-7 census prices 355 draws; remaining mixed integer and FP ring phases have no target-backed source lever.
  * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */
