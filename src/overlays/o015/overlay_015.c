@@ -462,11 +462,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 13/54 words
+ * score: 13 differing words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
+ * summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
