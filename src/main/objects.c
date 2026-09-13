@@ -5773,11 +5773,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006534:start
  * symbol: func_80006534
- * score: 188/205 words
+ * score: 17 differing words
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: All 22 coloured webs sampled: three rival colours of packed-read web 77 reach diagnostic floor 14; source controls retain 17.
+ * summary: Destination-flag form changes no draws and adds four bytes; folded capture lines only change attribution, with identical bytes.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
