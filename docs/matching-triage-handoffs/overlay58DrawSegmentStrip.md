@@ -6,7 +6,7 @@
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: Fresh 86-draw baseline confirms prior carrier/order controls; no new independent schedule hypothesis, guarded baseline retained.
+- summary: Fresh proc-0 census: 86 draws/303 emissions. Recorded carrier and order controls remain closed; no independent schedule lever exists.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
