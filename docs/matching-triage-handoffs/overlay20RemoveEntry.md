@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: Fresh census confirms the retained 11-draw pre-colour web-order plateau; target wants v0 where IDO naturally chooses a2.
+- summary: Draw census unchanged; same-width bound cast stayed at 2 words. Pre-colour web-order blocker remains.
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
