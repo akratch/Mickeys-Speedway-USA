@@ -197,6 +197,6 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
  * frame: 0x90
  * relocations: 64
  * first-mismatch: +0x5C
- * summary: direct-count branch remains structurally unmatched; declaration and ring probes are flat
+ * summary: draw census did not expose a direct-count schedule lever; extra sltu and naming residual remain
  * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
  */
