@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; invariant-address lifetime control reaches numintf 39 and one coloured web; compact forms remain split or change size.
+ * summary: 187 retained; target-size typed-address witness lowers mean interference with unchanged stack traffic; stronger 101-119 witness costs four bytes.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
