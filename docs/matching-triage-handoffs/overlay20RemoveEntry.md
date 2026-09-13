@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x6C
-- summary: No colour winner; current census confirms the p2 schedule, while recorded line and lineage probes leave the web-creation-order blocker.
+- summary: Draw controls: typed bound adds a costly draw; carrier removal and line fold preserve draw order. Two pre-colour naming rows remain.
 
 #### 2026-09-09, lane fin-misc: the tie is between two dead colours
 
@@ -336,4 +336,32 @@ procedure, so its winners list is empty by construction. This eliminates a
 new single-force colour pass as an action rather than merely repeating a flat
 score. The named source question remains whether a zero-width source form can
 alter the pre-colour web creation order described in the retained L154 work.
+#### 2026-09-13, lane g1: draw-difference controls
+
+The base-only assignment and configured baseline reproduce 212 bytes at zero
+size delta, 51 aligned exact words and two naming rows at +0x6C. Stock and
+instrumented full-TU text compare identical. The baseline spends 11 scratch
+draws and 130 emission events. No colour sweep was repeated.
+
+Three source controls were retained independently under ignored
+build/g1/overlay20RemoveEntry with source, object, trace and census evidence.
+Computing the bound as owner minus an unsigned one adds a draw at the guard,
+with no net emission-event increase, but adds an executable word: the aligned
+residual rises to 13 naming, five immediate and two structural rows, plus one
+candidate-only offset. Removing the bound carrier preserves all 11 draws and
+their order while removing two emission events; it regresses from two to six
+naming rows at equal size. Folding the copy and increment onto one source line
+preserves the complete draw order and the two-row residual; six emission events
+change line attribution without changing the object.
+
+The typed expression reaches the draw schedule at an instruction cost; carrier
+removal changes colouring without moving the scratch draws; the line fold does
+not move the allocator. None removes the recorded pre-colour web-order conflict.
+The earlier exhaustive source and lineage evidence still blocks that mechanism,
+so the baseline is retained and the packet stops without another spelling or
+colour sweep. This is a guarded plateau with no new matching credit. Setup
+failures before editing are excluded from the three source controls; the shared
+checkpoint counter remains monotonic. Commands: draw_census.py --save/--compare,
+residual_map.py --object/--against, align_symbol.py and finalize_plateau.py.
+
 <!-- plateau-handoff:overlay20RemoveEntry:end -->
