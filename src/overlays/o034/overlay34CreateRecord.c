@@ -159,10 +159,10 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
 
 /* PLATEAU-HANDOFF:overlay34CreateRecord:start
  * symbol: overlay34CreateRecord
- * score: 119/125 words
+ * score: 6/125 words
  * frame: 0x30
  * relocations: 12
  * first-mismatch: +0x88
- * summary: No colour winner; fresh census retains the established store-emission ordering and the six-row residual floor.
+ * summary: store-order residual; census shows adjacent store swap leaves draw and emission schedule unchanged
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */

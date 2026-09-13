@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Exception-index declaration order left census unchanged and regressed to 25; preheader strength reduction remains unresolved.
+ * summary: Procedure-16 census is 19 draws/171 emissions; exception-cursor preheader strength reduction remains structural and the priced register swap is diagnostic.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

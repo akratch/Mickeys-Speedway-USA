@@ -2,11 +2,11 @@
 ### `overlay1BendPathPoint` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 86/107 words
+- score: 21/107 words
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: No colour winner; aligned residual remains 15 naming, one home displacement, and five structural rows under the recorded parameter-home blocker.
+- summary: Proc-35 baseline retains 15 naming, one immediate, and five structural rows; exhausted colour and deletion controls leave the parameter-home blocker open.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 

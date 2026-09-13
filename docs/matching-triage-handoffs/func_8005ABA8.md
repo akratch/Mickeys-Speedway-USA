@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: as1 branch-delay residual; draw census confirms source declaration changes do not move the schedule
+- summary: as1 branch-delay residual remains; source declaration census is flat
 
 #### Owned evidence and result, 2026-09-09
 

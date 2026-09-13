@@ -220,10 +220,10 @@ void func_overlay_052_F0000000_189A670(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:start
  * symbol: func_overlay_052_F0000000_189A670
- * score: 201/316 words
+ * score: 115/316 words
  * frame: 0x40
  * relocations: 141
  * first-mismatch: +0x20
- * summary: No colour winner; p1-only census retains the home and schedule blocker across 80 naming, three immediate, and 19 structural aligned rows.
+ * summary: Retained p1-only plateau: frame and size hold, but 80 naming, three immediate, and 27 structural rows require new record-copy CFG and relocation evidence.
  * PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:end
  */

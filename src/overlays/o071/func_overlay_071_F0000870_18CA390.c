@@ -197,6 +197,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: flag-load ordering needs an unproven invisible interferer; exhaustive colour axis does not yield a source form
+ * summary: draw census left 65 draws unchanged; missing invisible p1 interferer remains
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */

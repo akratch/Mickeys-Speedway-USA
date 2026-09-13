@@ -3440,27 +3440,27 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x48
  * relocations: 1
  * first-mismatch: +0x40
- * summary: a volatile counter with if (count--) and no inner object copy makes the opcode schedule exact (structure-mismatch to allocation-mismatch); the 31 register words are six counter reads uopt webs and the target spends as ring temps
+ * summary: Retained volatile-counter plateau: force and source controls leave the count read-modify-write web present, with the target ring-temp schedule unreached.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 118/120 words
+ * score: 2/120 words
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Exhaustive colour landscape has no winner; fresh census agrees with the traced FIFO release-order conflict, leaving t5-to-t4 at two aligned rows.
+ * summary: Closed colour and draw-order axes; residual requires a fifth ring draw between angle sum and truncation.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 235/249 words
+ * score: 14/249 words
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
+ * summary: Correct proc-9 census has 473 draws and 1969 emissions; the closed prologue-load emission-order blocker retains two paired insertion gaps.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
@@ -3507,10 +3507,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 86/107 words
+ * score: 21/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: No colour winner; aligned residual remains 15 naming, one home displacement, and five structural rows under the recorded parameter-home blocker.
+ * summary: Proc-35 baseline retains 15 naming, one immediate, and five structural rows; exhausted colour and deletion controls leave the parameter-home blocker open.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

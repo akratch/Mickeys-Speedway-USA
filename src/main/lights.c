@@ -507,7 +507,7 @@ void lightUpdateLights(s32 updateRate) {
         func_80018F08(D_80079498[i], updateRate);
     }
 }
-/* Workbench verdict: structure-mismatch, 75 differing words, first mismatch +0x0. */
+/* Workbench verdict: structure-mismatch, 74 differing words, first mismatch +0x0. */
 /* Candidate: 205/205 instructions with a -0x58 frame versus target -0x48; all seven relocation identities are exact. */
 /* Shape status: exact extent and call surface; a 0x10 non-save-frame and temporary-allocation cascade remains. */
 /* PROVENANCE: JFG's corresponding light-update role supplies the control-flow idiom; all Mickey offsets, globals, and calls below are reconstructed locally. */
@@ -1123,11 +1123,11 @@ s32 lightKillGlowingLight(void) {
 
 /* PLATEAU-HANDOFF:func_80018F08:start
  * symbol: func_80018F08
- * score: 131/205 words
+ * score: 74 differing words
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: No colour winner; census has no ring draws and residual remains the named direction-carrier frame excess across two aligned windows.
+ * summary: Proc 12 has 73 draws. Compact frame/slots are exact but alignment regresses; alias and scope controls leave the draw sequence unchanged.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 

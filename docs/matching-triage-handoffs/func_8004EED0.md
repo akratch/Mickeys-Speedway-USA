@@ -2,11 +2,11 @@
 ### `func_8004EED0` plateau handoff
 
 - source: `src/main/block_4F4E0.c`
-- score: 56/84 words
+- score: 28/84 words
 - frame: 0x20
 - relocations: 22
 - first mismatch: +0xA8
-- summary: No colour winner; all 28 aligned residual rows are naming substitutions from the measured reordered free-list phase.
+- summary: draw census kept 10 draws fixed; post-call free-list release order remains unresolved
 
 Fresh evidence on base `1783e591a5a7436c6b9b148171805995c9fb3bde`:
 

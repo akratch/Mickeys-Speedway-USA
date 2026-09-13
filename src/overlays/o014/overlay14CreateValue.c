@@ -106,6 +106,6 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: chosen-pointer frame-cell residual remains after exhausted carrier and scheduler controls
+ * summary: draw census left 10 draws fixed; frame-cell residual remains after carrier and address-form tests
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */

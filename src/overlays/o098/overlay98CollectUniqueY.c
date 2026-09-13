@@ -117,10 +117,10 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
 
 /* PLATEAU-HANDOFF:overlay98CollectUniqueY:start
  * symbol: overlay98CollectUniqueY
- * score: 49/81 words
+ * score: 32/81 words
  * frame: 0x10
  * relocations: 8
  * first-mismatch: +0x68
- * summary: Array-base reshape exhausted: natural index/scope/carrier forms miss geometry; exact-size baseline still CSEs three target roots into one.
+ * summary: Procedure-0 census is 21 draws/145 emissions; exact-size array-root CSE schedule remains unresolved after root, pointer, loop and volatile probes.
  * PLATEAU-HANDOFF:overlay98CollectUniqueY:end
  */

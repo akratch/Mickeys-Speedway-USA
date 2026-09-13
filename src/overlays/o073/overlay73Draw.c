@@ -83,10 +83,10 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:start
  * symbol: func_overlay_073_F0000D70_18CB830
- * score: 41 differing words
+ * score: 41/78 words
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0x1C
- * summary: Exact 78-instruction 0x30 frame with zero alignment gaps; two opcode-order mismatches and D_80000000 relocation ordering remain.
+ * summary: Colour floor 39 via w43=c4; carrier deletion and qualifier removal worsen size or schedule, leaving opcode-order residual.
  * PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:end
  */

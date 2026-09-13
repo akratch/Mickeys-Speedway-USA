@@ -86,6 +86,6 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x28
- * summary: record web needs an invisible a0 interferer; indexed carriers change geometry or v0 interference
+ * summary: Indexed carrier deletion adds 20 bytes and worsens to 46; the proved-zero colour force remains source-unreached.
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */

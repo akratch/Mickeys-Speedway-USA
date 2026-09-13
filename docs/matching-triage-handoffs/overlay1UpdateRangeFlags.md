@@ -2,11 +2,11 @@
 ### `overlay1UpdateRangeFlags` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 118/120 words
+- score: 2/120 words
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: Exhaustive colour landscape has no winner; fresh census agrees with the traced FIFO release-order conflict, leaving t5-to-t4 at two aligned rows.
+- summary: Closed colour and draw-order axes; residual requires a fifth ring draw between angle sum and truncation.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 

@@ -308,10 +308,10 @@ s32 func_8004F020(void) {
 
 /* PLATEAU-HANDOFF:func_8004EED0:start
  * symbol: func_8004EED0
- * score: 56/84 words
+ * score: 28/84 words
  * frame: 0x20
  * relocations: 22
  * first-mismatch: +0xA8
- * summary: No colour winner; all 28 aligned residual rows are naming substitutions from the measured reordered free-list phase.
+ * summary: draw census kept 10 draws fixed; post-call free-list release order remains unresolved
  * PLATEAU-HANDOFF:func_8004EED0:end
  */

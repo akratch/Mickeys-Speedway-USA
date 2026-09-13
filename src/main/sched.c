@@ -938,10 +938,10 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
 
 /* PLATEAU-HANDOFF:func_80030610:start
  * symbol: func_80030610
- * score: 87 differing words
+ * score: 86/192 words
  * frame: 0x90
  * relocations: 13
  * first-mismatch: +0x0
- * summary: frame = 72 + S + L; target is L=40/S=40, candidate L=24/S=48, so it needs two fewer register temporaries, not four more spills.
+ * summary: draw census fixed at four draws; temporary-area reservation remains unresolved
  * PLATEAU-HANDOFF:func_80030610:end
  */

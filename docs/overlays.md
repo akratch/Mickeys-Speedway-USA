@@ -2342,3 +2342,19 @@ still records 29 first-phase and nine second-phase allocation decisions.
 The inherited shortcut from no calls to second-phase-only allocation therefore
 does not survive this control. Statement order remains a separate emission
 and scheduling lever.
+
+
+### Overlay 2 boundary chooser closure (2026-09-13)
+
+Tier A: `overlay2ChooseBoundary` owns overlay 2 text `+0x6E0..+0xB70`,
+1168 executable bytes / 292 words. Its untouched configured C output has
+an exact 0x90 frame and 64/64 exact relocation identities. The linked owned
+range and full ROM are byte-identical; the proof mode is
+`static-plus-runtime-table-and-linked-rom`.
+
+Direct countdown conditions, counter initialization at the coordinate-branch
+join, and a byte-stride cursor definition on the loop-opener line close the
+residual. The intermediate masked-zero result was not credited until canonical
+linking and runtime-table identity checks passed. The
+[function handoff](matching-triage-handoffs/overlay2ChooseBoundary.md) records
+measured draw differences, controls, semantic limits and promotion evidence.

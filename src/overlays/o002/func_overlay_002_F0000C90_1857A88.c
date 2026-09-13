@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: target frame is 0x68; source frame/home controls and colour diagnostics do not resolve the extra cell
+ * summary: frame-home allocation remains unresolved; colour diagnostics are non-shippable
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */
