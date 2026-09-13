@@ -20,6 +20,7 @@ the properties pinned are the ones a wrong map would get wrong:
 import pathlib
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
@@ -205,6 +206,43 @@ class WinnerTests(unittest.TestCase):
         text = wf.render([self.row(379, 217, probe=20)], 0x80, 227)
         self.assertIn("p1:w379=c20", text)
         self.assertIn("(+10)", text)
+
+
+class FreshnessTests(unittest.TestCase):
+    """A landscape describes one function body, and nothing enforced that.
+
+    Measured cost: five consecutive dispatches on the tree's biggest function
+    were told not to re-run a landscape that had been measured against a body
+    two revisions old, on the grounds that the axis was "closed and proved".
+    It was -- for a different function.
+    """
+
+    def test_a_matching_fingerprint_is_not_flagged(self):
+        with mock.patch.object(wf, "source_fingerprint", return_value="abc"):
+            self.assertIsNone(wf.freshness({"symbol": "f",
+                                            "source_context_sha256": "abc"}))
+
+    def test_a_changed_source_is_called_stale(self):
+        with mock.patch.object(wf, "source_fingerprint", return_value="xyz"):
+            warning = wf.freshness({"symbol": "f",
+                                    "source_context_sha256": "abc"})
+        self.assertIsNotNone(warning)
+        self.assertTrue(warning.startswith("STALE"))
+        self.assertIn("abc", warning)
+        self.assertIn("xyz", warning)
+
+    def test_a_report_with_no_fingerprint_is_flagged_too(self):
+        # Reports written before the stamp existed cannot be vouched for.
+        warning = wf.freshness({"symbol": "f"})
+        self.assertIsNotNone(warning)
+        self.assertIn("no source fingerprint", warning)
+
+    def test_an_unknown_symbol_is_not_called_stale(self):
+        # A function that has left the queue has no row to compare against;
+        # refusing to guess beats inventing a verdict.
+        with mock.patch.object(wf, "source_fingerprint", return_value=None):
+            self.assertIsNone(wf.freshness({"symbol": "gone",
+                                            "source_context_sha256": "abc"}))
 
 
 class PackingTests(unittest.TestCase):

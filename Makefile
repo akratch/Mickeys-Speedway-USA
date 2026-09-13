@@ -340,6 +340,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_force_lattice.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_web_footprint.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_draw_census.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_lineage_census.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_probe.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_progress.py
 	$(PYTHON) $(TOOLS_DIR)/test_raw_asm_census.py

@@ -93,9 +93,8 @@ five. On this function `CDX_LINEAGE_TABLES=all` emits:
     lineage_member  1514 rows   ... plus bb, line, flags
 
 `event` is a monotonic sequence number, so these rows are the **web creation
-order**, and members carry their **source line**. L154 says a web's number
-follows its type first and its first use second, and that numbering decides
-colouring order — so creation order is the upstream cause of the colour
+order**. L154 says a web's number follows its type first and its first use
+second, and that numbering decides colouring order — so creation order is the upstream cause of the colour
 questions the landscapes keep measuring downstream. Nothing in `tools/` parses
 these records. One earlier handoff spotted the possibility and said a lineage
 capture would let a lane "screen spellings on the trace instead of the score";
@@ -103,6 +102,31 @@ no lane has.
 
 204 lineage ranges against 254 split decisions is not a coincidence worth
 ignoring.
+
+## First readings from the new instruments (2026-09-13)
+
+`tools/lineage_census.py` now exists and its first run on this function says:
+
+    395 webs, 395 decisions: 141 coloured, 254 SPLIT
+    204 lineages, 35 of which became more than one web
+    numintf median: coloured 24, split 92
+
+    the five largest lineages, by webs they became:
+      event  members  webs  split/coloured  first basic blocks
+         37       70    29     29 / 0       15,19,21,27,43,44 (+64 more)
+         45       53    28     26 / 2       17,19,21,27,43,44 (+47 more)
+         39       47    21     14 / 7       15,17,57,58,91,93 (+31 more)
+        212       43    20     13 / 7       78,108,110,111,114,129 (+29 more)
+        223       40    20     14 / 6       79,91,95,97,99,105 (+26 more)
+
+**One lineage became twenty-nine webs and every one of them was split.** The
+top five account for 118 of the 395 webs. The most contended webs sit at
+`numintf=140` with `regsleft=6`, all split, and they cluster: webs 1098, 1104,
+1172, 1173, 1181, 1183, 1185, 1186 all carry identical pressure, which is the
+signature of one live range fighting one region rather than eight separate
+problems.
+
+That is the shape of the thing. It was invisible before today.
 
 ## Levers, ranked by expected value
 
@@ -125,15 +149,19 @@ ignoring.
 6. **The interference bound itself** — whether anything in source can lower
    `numintf` at the restoration site from 25 to 24.
 
-## Tooling: build these three, in this order
+## Tooling: all three are built (2026-09-13)
 
-### 1. `tools/lineage_census.py` — the split and creation-order reader
+### 1. `tools/lineage_census.py` — built, 22 tests
 
 Parses `CDX_LINEAGE_TABLES=all` and reports, per procedure:
 
-- **creation order**: every web in `event` order with its source line, so
-  "which of these two values is numbered first" is a lookup rather than an
-  inference. This is the direct readout L154 has been asking for.
+- **creation order**: every lineage in `event` order with the basic blocks it
+  touches, so "which of these two values is numbered first" is a lookup rather
+  than an inference. This is the direct readout L154 has been asking for.
+  **Positionally, use `bb` and not `line`**: the member `line` field reads 8 for
+  all 1,514 rows on this procedure -- a constant -- and `webdetail`'s is -1 for
+  330 of its 395. Anything attributing a lineage to a source line off these
+  records is reading nothing; `draw_census` is where lines come from.
 - **the split picture**: every `decision=split` web from `p1dec` joined to its
   lineage range and members — where it splits, into how many members, and at
   which lines.
@@ -147,23 +175,24 @@ This is the analogue of `web_footprint` for the phase upstream of colouring, and
 it is the single highest-value tool left to build. It needs no new compiler
 work — the records are already emitted and thrown away.
 
-### 2. Higher-order forces in `tools/force_lattice.py`
+### 2. Higher-order forces in `tools/force_lattice.py` — built, 58 tests
 
-`FORCE_RE` accepts `p[12]:wN=cM` and the lattice enumerates subsets of
-*distinct* forces. Two things are missing and both matter here: forcing two webs
-to **one** colour jointly, and any exercise of the `p2` side at all. The
-blocker is a coupled pair; a single-force landscape is structurally unable to
-find a coupled repair. Extend the grammar, then re-run the packing with pairs
-admitted.
+The grammar now accepts a **joint force**, `p1:w27+w75=c17`: two or more webs
+driven onto one colour in the same compile. Validation compares *webs* rather
+than whole spec strings, so a web appearing in both a joint and a single force
+is refused, and acceptance requires every web the force names -- a joint force
+that lands on only one of its two webs is reported as not applied, because
+reading its score as the pair's would attribute a single force's result to a
+coupling that never happened. `p2` was already in the grammar and has still
+never been exercised on this function.
 
-### 3. A landscape freshness guard
+### 3. A landscape freshness guard — built, in `web_footprint`
 
-A landscape is void when the source changes, and nothing enforces that. Record
-the `source_context_sha256` the landscape was measured against — the ranking
-already computes one per function — inside the footprint report, and have
-`web_footprint --report` refuse to present a landscape whose hash no longer
-matches the tree, saying so plainly. That turns the mistake this document opens
-with from a judgement call into an error message.
+A landscape is void when the source changes, and nothing enforces that. `web_footprint` now stamps the ranking's `source_context_sha256` into every
+report it writes, and `--report` prints a `STALE:` line and exits nonzero when
+that hash no longer matches the tree. A report written before the stamp existed
+is flagged too, because it cannot be vouched for. The mistake this document
+opens with is now a line of output rather than a judgement call.
 
 ## What not to spend the next pass on
 

@@ -17,6 +17,21 @@ from unittest import mock
 import force_lattice as fl
 
 
+
+def accepted_row(web, colour, proc=0):
+    return (f"[CDX] p1dec phase=p1 proc={proc} web={web} sym={web} class=1 "
+            f"bestcolor=14 bestreg=s0 decision=color forced={colour}\n"
+            f"[CDX] p1color phase=p1 proc={proc} web={web} sym={web} "
+            f"color={colour} reg=s3 forced={colour}\n")
+
+
+def declined_row(web, proc=0):
+    return (f"[CDX] p1dec phase=p1 proc={proc} web={web} sym={web} class=1 "
+            f"bestcolor=14 bestreg=s0 decision=color forced=-2\n"
+            f"[CDX] p1color phase=p1 proc={proc} web={web} sym={web} "
+            f"color=14 reg=s0 forced=-2\n")
+
+
 class SubsetPlanTests(unittest.TestCase):
     def test_every_non_empty_subset_is_planned(self):
         plan = fl.subsets(["a", "b", "c"])
@@ -63,6 +78,49 @@ class ForceValidationTests(unittest.TestCase):
         """Two webs may legitimately be asked for the same colour; only the
         allocator decides whether that is satisfiable."""
         fl.validate_forces(["p1:w27=c4", "p1:w75=c4"])
+
+
+class JointForceTests(unittest.TestCase):
+    """`p1:w27+w75=c17` drives TWO webs onto one colour in one compile.
+
+    The overlay 58 blocker is a coupled pair -- one split takes the restore the
+    other frees -- and a landscape of single forces cannot find a coupled
+    repair however many probes it runs. 1,875 probes and then 1,914 did not.
+    """
+
+    def test_a_joint_force_is_well_formed(self):
+        fl.validate_forces(["p1:w27+w75=c17"])
+        fl.validate_forces(["p1:w1+w2+w3=c9"])
+
+    def test_its_webs_are_read_out_individually(self):
+        self.assertEqual(fl.webs_of("p1:w27+w75=c17"), [27, 75])
+        self.assertEqual(fl.webs_of("p1:w27=c17"), [27])
+        self.assertEqual(fl.colour_of("p1:w27+w75=c17"), 17)
+
+    def test_a_web_in_both_a_joint_and_a_single_force_is_refused(self):
+        # The spec strings differ, so a comparison of specs would miss this.
+        with self.assertRaises(SystemExit):
+            fl.validate_forces(["p1:w27+w75=c17", "p1:w27=c14"])
+
+    def test_the_same_web_in_two_joint_forces_is_refused(self):
+        with self.assertRaises(SystemExit):
+            fl.validate_forces(["p1:w1+w2=c3", "p1:w2+w4=c5"])
+
+    def test_disjoint_joint_forces_are_allowed(self):
+        fl.validate_forces(["p1:w1+w2=c3", "p1:w4+w5=c6"])
+
+    def test_the_same_web_across_phases_is_not_a_duplicate(self):
+        fl.validate_forces(["p1:w27=c17", "p2:w27=c14"])
+
+    def test_acceptance_requires_every_web_of_the_pair(self):
+        both = (accepted_row(27, 17) + accepted_row(75, 17))
+        self.assertIsNone(fl.force_acceptance(both, 0, ("p1:w27+w75=c17",)))
+
+    def test_a_joint_force_landing_on_only_one_web_is_refused(self):
+        only_one = accepted_row(27, 17) + declined_row(75)
+        error = fl.force_acceptance(only_one, 0, ("p1:w27+w75=c17",))
+        self.assertIsNotNone(error)
+        self.assertIn("75", error)
 
 
 class InteractionTests(unittest.TestCase):
