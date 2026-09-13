@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; 59 compositions give no gain.
+ * summary: 187 retained; gap is the line-651 index reset.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
