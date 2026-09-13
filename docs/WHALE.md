@@ -339,6 +339,61 @@ seven exhausted case-12 attempt families, or re-try L160 at the case-3 cursor.
 Each is recorded with evidence, and a pass that repeats one has spent its budget
 learning what the shard already says.
 
+## Campaign outcome, 2026-09-13: the axis opened, the score did not
+
+Five lanes ran the plan above. **The source is still 187 masked at delta zero.**
+What changed is everything around it, and the honest summary is that the whale
+is now well understood and still uncaught.
+
+**What the campaign established**
+
+- **The split axis is readable.** `lineage_census` exists; 254 of 395 decisions
+  are splits; the two successive splits in the blocker are lineages 37 and 45,
+  both spanning lines 632-665; and colouring collapses above `numintf` 40 (85%
+  coloured below it, 0% above 130).
+- **The split axis is movable.** A source change reached `numintf=39` with a
+  naturally coloured web — the first measurable movement on an axis six earlier
+  passes could not see at all.
+- **Target width and reduced pressure are achievable together.** Lane wv-d's
+  witness holds delta zero, frame 0x138, the same 35 stack homes, and pulls its
+  members to 101-119.
+- **The colour axis is worth 38 words, not zero.** The landscape at the current
+  source measures a five-force packing at **149**, and twelve source controls
+  did get the compiler to take the wanted colours *naturally*.
+- **A standing claim was wrong.** A closed cycle in one window nominates a
+  ring-phase hypothesis; it does not establish one, because a window spans
+  several blocks and unrelated pool-coloured values. `residual_map.py`'s
+  documentation said otherwise and now does not.
+
+**Why none of it landed**
+
+Every improvement was offset, and **the offsets were different every time**:
+address lifetime cost 280 bytes; the interpolation cost stack traffic and
+relocation changes; the width-pressure witness cost gap rows and draw order; the
+natural-colour controls cost naming rows. This is not one wall with a seam in
+it — it is a tightly coupled function in which each axis is paid for out of
+another. That is a finding, and it is the reason to stop treating the next pass
+as "one more attempt".
+
+**What that implies for the next phase**
+
+Two honest options, and the evidence does not yet choose between them:
+
+1. **A whole-shape rewrite rather than local edits.** Every attempt to date
+   holds most of the function fixed and perturbs one site. The couplings are
+   between sites, so the thing that is never varied is the one that would have
+   to change. This is expensive and has never been tried.
+2. **Argue the bar.** The standard is `overlay57UpdateModeState`'s: enumerate
+   the space and show why nothing outside it reaches the target. With ~100
+   measured attempts across five lanes plus two complete colour landscapes,
+   this function is closer to that standard than anything else in the tree --
+   but it is not there, because 155 aligned rows would all have to be accounted
+   for and only the transition reuse and the entry block have been.
+
+**Do not simply dispatch another local-edit lane.** Five have now returned the
+same shape of result, each with a different collateral, and the marginal value
+of a sixth is low. Either option above is a decision worth taking deliberately.
+
 ## What not to spend the next pass on
 
 - **Another variation on the case-12 capture constraint.** Seven attempt
