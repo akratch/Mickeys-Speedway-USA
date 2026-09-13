@@ -105,10 +105,10 @@ void overlay13DrawRecord(
 
 /* PLATEAU-HANDOFF:overlay13DrawRecord:start
  * symbol: overlay13DrawRecord
- * score: 97 differing words
+ * score: 97/192 words
  * frame: 0x38
  * relocations: 18
  * first-mismatch: +0x30
- * summary: 99/192 aligned rows exact at delta 0; frame is solved. Structure/register web and overlay-relative relocation identities need new evidence.
+ * summary: Fresh 64-draw census retains solved frame; forced-colour diagnostics improve but do not close the structural and relocation-bound residual.
  * PLATEAU-HANDOFF:overlay13DrawRecord:end
  */
