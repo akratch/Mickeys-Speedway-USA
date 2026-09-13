@@ -6,7 +6,7 @@
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x58
-- summary: No colour winner; census retains the leaf cursor/count schedule, with 15 naming, two immediate, and ten structural aligned rows.
+- summary: parameter reload identity and short-circuit argument schedule remain unresolved
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
