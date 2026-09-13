@@ -9,6 +9,26 @@ the tooling that makes each lever readable.
 `docs/matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md` remains the
 per-pass log and the source of truth for what has been tried. This is the map.
 
+## Wave G: the banked witnesses have now been composed
+
+[The composition matrix](whale-compositions.md) measures 59 new source
+compositions and ten nested or repeated controls. None beats **187 at delta
+zero**; the best new target-width composition is C19 plus the menu cursor,
+at 615 masked and 349 aligned paired rows. The guarded 187 body is unchanged.
+
+The witnesses are not independent source edits: C19 is contained in C23,
+and C23 is contained in the width-pressure witness. C's address conversions
+are absorbed by B's cached-address spelling. Retaining literal conversions
+instead recovers only 12–20 of B's missing 280 bytes. There is partial
+compensation: C19, C23 and the width-pressure witness absorb the menu cursor's
+earlier naming collateral, leaving four fewer paired residual rows, but the
+menu gap survives. The decrement cursor does not repair the remaining costs.
+
+The whole-shape option discussed later in this document now has this bounded
+composition experiment behind it. Do not repeat the banked unions or infer
+disjoint costs from their lane labels. The matrix does not establish an
+unrestricted impossibility result.
+
 ## Wave D: target width and reduced pressure coexist
 
 [The wv-d source witness](whale-width-pressure.md) takes the previous attempt
