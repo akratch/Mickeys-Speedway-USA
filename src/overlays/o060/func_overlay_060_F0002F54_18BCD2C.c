@@ -118,6 +118,6 @@ s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
  * frame: 0xC0
  * relocations: 12
  * first-mismatch: +0x64
- * summary: Fresh proc-0 census confirms 74 draws; display-list/x web and p1 save-ratio residual remain at exact geometry.
+ * summary: Fresh 74-draw census confirms exact geometry; retained display-list/x web and p1 save-ratio residual remain after closed occurrence controls.
  * PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:end
  */
