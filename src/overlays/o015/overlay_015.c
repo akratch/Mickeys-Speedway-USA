@@ -473,10 +473,10 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 /* PLATEAU-HANDOFF:overlay15InitStars:start
  * symbol: overlay15InitStars
  * score: 89/190 words
- * frame: 0xB8
+ * frame: 0xb8
  * relocations: 15
- * first-mismatch: +0x44
- * summary: Fresh proc-7 census confirms 74 draws and exact geometry; mixed p2 carrier schedule remains after recorded probes.
+ * first-mismatch: +0x7c
+ * summary: Byte-offset normalization and folded setup stores are byte-inert; 74 draws and the existing spill/order residual remain.
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
