@@ -1032,11 +1032,11 @@ void packInit(void) {
     D_8007A2C8 = 0;
     osPfsIsPlug(D_800D21C0, &pakPattern);
 
-    controllerIndex = 0;
-    controllerBit = 1;
-    maxControllers = 4;
-    do {
-        if (pakPattern & controllerBit) {
+    controllerIndex = 0; controllerBit = 1; maxControllers = 4; do { if (pakPattern & controllerBit) {
+    /* Keep the preheader grouped for the PFS-base scheduling tie. */
+
+
+
             rumble = &D_800D2368[controllerIndex];
             ret = osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
                             controllerIndex);
@@ -1052,11 +1052,11 @@ void packInit(void) {
                                    &D_800D21C8[controllerIndex],
                                    controllerIndex) == 0) {
                 D_8007A2E4 |= controllerBit;
-                rumble->status |= 2;
+                D_800D2368[controllerIndex].status |= 2;
             }
         }
-        controllerIndex++;
         controllerBit *= 2;
+        controllerIndex++;
     } while ((0, controllerIndex) != maxControllers);
     func_80058010();
     func_800581BC();
@@ -1510,11 +1510,11 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:packInit:start
  * symbol: packInit
- * score: 81/115 words
+ * score: 29 differing words
  * frame: 0x60
  * relocations: 20
- * first-mismatch: +0xA0
- * summary: No colour winner; current census keeps the two-draw mask-table schedule and the residual is a ten-register ring rotation plus nine structural rows.
+ * first-mismatch: +0xB0
+ * summary: Preheader grouping, update order and indexed success status close all structural rows; 29 naming rows are one coherent ring rotation.
  * PLATEAU-HANDOFF:packInit:end
  */
 
