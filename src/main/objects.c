@@ -5664,7 +5664,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Unsigned per-iteration offset retains 13 draws and their order but adds two instructions; original extent and 28-word baseline retained.
+ * summary: Fresh 13-draw baseline confirms prior offset and loop controls; no new schedule lever, one relocation identity still unresolved.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
