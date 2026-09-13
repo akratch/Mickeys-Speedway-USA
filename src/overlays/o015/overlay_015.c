@@ -502,10 +502,10 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15MoveStars:start
  * symbol: overlay15MoveStars
- * score: 30/58 words
+ * score: 30/54 words
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
+ * summary: Fresh proc-3 census confirms 14 draws; aggregate address lowering reaches exact size only with a worse residual.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

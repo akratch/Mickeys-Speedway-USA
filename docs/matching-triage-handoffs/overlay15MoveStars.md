@@ -2,11 +2,11 @@
 ### `overlay15MoveStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 30/58 words
+- score: 30/54 words
 - frame: 0x40
 - relocations: 25
 - first mismatch: +0x30
-- summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
+- summary: Fresh proc-3 census confirms 14 draws; aggregate address lowering reaches exact size only with a worse residual.
 
 #### 2026-09-11, lane `lane/p4-xfer`: refuted, and the size delta is now fully accounted
 
