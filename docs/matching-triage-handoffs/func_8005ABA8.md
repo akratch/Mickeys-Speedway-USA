@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: as1 branch-delay residual; source declaration census remains flat
+- summary: as1 branch-delay residual remains; source declaration census is flat
 
 #### Owned evidence and result, 2026-09-09
 
