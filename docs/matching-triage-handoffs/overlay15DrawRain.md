@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: Proc-11 census and source probes leave a shared-high-half lowering gap; no reachable source lever improves 13 masked rows.
+- summary: Proc-11 census and prior address-lowering probes retain one structural gap pair; no source route reaches the shared high-half form.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 

@@ -466,7 +466,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: Proc-11 census and source probes leave a shared-high-half lowering gap; no reachable source lever improves 13 masked rows.
+ * summary: Proc-11 census and prior address-lowering probes retain one structural gap pair; no source route reaches the shared high-half form.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
