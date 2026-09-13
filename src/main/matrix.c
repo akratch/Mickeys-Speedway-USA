@@ -449,7 +449,7 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * frame: 0x80
  * relocations: 6
  * first-mismatch: +0x0
- * summary: Target 99w/frame 0x8; 1/6 call identities aligns. Exact JFG donor is hand-written assembly; odd-FP subset is outside stock IDO/MIPSpro.
+ * summary: Hand-written assembly donor uses odd FP results beyond stock IDO; only one call identity aligns.
  * PLATEAU-HANDOFF:func_8002AC84:end
  */
 
