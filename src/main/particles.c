@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: Draw census and exhaustive accepted colour lattice leave the pre-entry ring release/MOVE_END blocker unresolved.
+ * summary: draw census and colour landscape leave the pre-entry MOVE_END ring blocker unresolved
  * PLATEAU-HANDOFF:func_80040B88:end
  */
