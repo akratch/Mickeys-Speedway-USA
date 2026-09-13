@@ -1743,7 +1743,7 @@ void func_800293D0(void) {
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: Every differing word is a float register: one coherent f12/f14 cycle at 93% over 24 sites, so the axis is the float pool's c26/c27, not structure
+ * summary: Exhaustive float landscape and source forms leave a coherent FP naming residual; the save-ratio/lifetime mechanism remains unresolved.
  * PLATEAU-HANDOFF:func_80029274:end
  */
 
