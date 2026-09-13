@@ -2,11 +2,11 @@
 ### `overlay15DrawScreenStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 96/105 words
+- score: 9/105 words
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Conditional-header fade changes draw order but adds 12 bytes; a separate guard changes no draws and also adds 12 bytes.
+- summary: Procedure-4 census is 40 draws/139 emissions; exact geometry still requires a hoisted fade read with target float priority.
 
 #### Historical baseline at assignment 3ccc02a1
 
