@@ -36,7 +36,7 @@ extern Overlay2BoundaryCandidate *gOverlay2BoundaryCandidates;
 extern s32 gOverlay2BoundaryCandidateCount[];
 extern s32 gOverlay2SelectedBoundary;
 
-extern s32 func_overlay_002_F0000000_1856DF8(Overlay2Region *range);
+extern s32 overlay2ValidateRegion(Overlay2Region *range);
 extern s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2,
                                     s32 *side1, s32 *side2);
 extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
@@ -44,7 +44,7 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
 
 #define CANDIDATE_COUNT gOverlay2BoundaryCandidateCount[0]
 
-#ifdef NON_MATCHING
+/* Countdown and source-line scheduling reproduce the owned instruction stream. */
 void overlay2ChooseBoundary(Overlay2Region *region) {
     s32 scanRemaining;
     Overlay2Line *candidateLine;
@@ -67,16 +67,12 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     candidateLine = &gOverlay2Lines[region->start];
     bestScore = 0x7FFFFFFF;
     CANDIDATE_COUNT = 0;
-    if (scanRemaining-- != 0) {
+    if (scanRemaining--) {
         do {
             axis = 1;
             do {
                 endpoint = 1;
                 do {
-                    side0Count = 0;
-                    side1Count = 0;
-                    crossingCount = 0;
-                    rangeResults = 0;
                     gOverlay2BoundaryAxis = axis;
                     if (axis == 0) {
                         if (endpoint != 0) {
@@ -90,10 +86,14 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
                         gOverlay2BoundaryValue = candidateLine->x2;
                     }
 
+                    side0Count = 0;
+                    side1Count = 0;
+                    crossingCount = 0;
+                    rangeResults = 0;
                     lineRemaining = region->count;
                     line = &gOverlay2Lines[region->start];
-                    lineRemaining--;
-                    if (region->count != 0) {
+
+                    if (lineRemaining--) {
                         do {
                             overlay2ClassifyBoundary(line->x1, line->y1,
                                                      line->x2, line->y2,
@@ -118,12 +118,12 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
                     savedLineCount = gOverlay2LineCount;
                     gOverlay2TemporaryMode = 0;
                     overlay2ClipLines(region, &gOverlay2TemporaryRange, 1);
-                    if (func_overlay_002_F0000000_1856DF8(
+                    if (overlay2ValidateRegion(
                             &gOverlay2TemporaryRange) != 0) {
                         rangeResults = 1;
                     }
                     overlay2ClipLines(region, &gOverlay2TemporaryRange, 0);
-                    if (func_overlay_002_F0000000_1856DF8(
+                    if (overlay2ValidateRegion(
                             &gOverlay2TemporaryRange) != 0) {
                         rangeResults++;
                     }
@@ -167,10 +167,10 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     }
 
     scanRemaining = CANDIDATE_COUNT;
-    scanRemaining--;
-    if (CANDIDATE_COUNT != 0) {
-        candidate = &gOverlay2BoundaryCandidates[scanRemaining];
-        do {
+    /* Keep the cursor definition and loop opener on the same physical line. */
+    if (scanRemaining--) {
+        candidate = (Overlay2BoundaryCandidate *)((u8 *)gOverlay2BoundaryCandidates + (scanRemaining << 4)); do {
+
             if (candidate->crossingCount < 0x0FFFFFFF) {
                 gOverlay2SelectedBoundary = scanRemaining;
             }
@@ -187,16 +187,3 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     gOverlay2SelectedBoundary =
         gOverlay2BoundaryCandidates[gOverlay2SelectedBoundary].lineIndex;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ChooseBoundary/func_overlay_002_F00006E0_18574D8.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay2ChooseBoundary:start
- * symbol: overlay2ChooseBoundary
- * score: 97/292 words
- * frame: 0x90
- * relocations: 64
- * first-mismatch: +0x5C
- * summary: direct-count branch remains structurally unmatched; declaration and ring probes are flat
- * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
- */

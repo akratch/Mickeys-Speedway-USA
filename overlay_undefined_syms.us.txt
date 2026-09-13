@@ -193,9 +193,11 @@ gOverlay2BoundaryAxis = 0x00000030;
 gOverlay2BoundaryValue = 0x00000034;
 
 /* overlay 2: overlay2ChooseBoundary.c.o */
-D_1C = 0x0000001c;
-D_28 = 0x00000028;
-D_2C = 0x0000002c;
+gOverlay2BoundaryCandidateCount = 0x00000028;
+gOverlay2BoundaryCandidates = 0x0000001c;
+gOverlay2SelectedBoundary = 0x0000002c;
+gOverlay2TemporaryMode = 0x00000000;
+gOverlay2TemporaryRange = 0x00000008;
 
 /* overlay 2: overlay2SplitRegion.c.o */
 D_24 = 0x00000024;
@@ -559,6 +561,7 @@ overlay12LoadReloc = 0xf0000000;
 /* overlay 12: func_overlay_012_F00000C4_186D344.c.o */
 D_14 = 0x00000014;
 D_18 = 0x00000018;
+D_1C = 0x0000001c;
 overlay12ReleaseResource = 0xf0000000;
 overlay12ReleaseResourceAlt = 0xf0000000;
 
@@ -589,6 +592,9 @@ overlay13LoadResourceReloc = 0xf0000000;
 
 /* overlay 13: overlay13Release.c.o */
 overlay13ReleaseReloc = 0xf0000000;
+
+/* overlay 13: overlay13ProcessRecord.c.o */
+D_2C = 0x0000002c;
 
 /* overlay 13: overlay13ProcessActive.c.o */
 overlay13ProcessRecord = 0xf0000000;
@@ -644,6 +650,7 @@ gOverlay14ValueF8 = 0x000000f8;
 gOverlay14CommandHeader = 0x000000fc;
 
 /* overlay 14: overlay14CreateValue.c.o */
+D_28 = 0x00000028;
 D_E8 = 0x000000e8;
 
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
