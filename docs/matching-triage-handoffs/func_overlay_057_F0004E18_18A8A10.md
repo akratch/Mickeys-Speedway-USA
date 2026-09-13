@@ -6,7 +6,7 @@
 - frame: 0x140
 - relocations: 375
 - first mismatch: +0x34
-- summary: Delta -4 is the unsplit tail global-address web; direct spelling and allocator split routes are exhausted.
+- summary: Tail pointer probes either fold before output or regress; the target-only tail materialization remains unreachable from measured source forms.
 
 ## 2026-09-12 (lane `p11-big`): the target's bound is the global's end, read off the object
 
