@@ -2,11 +2,11 @@
 ### `overlay58DrawLargePointQuad` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawLargePointQuad.c`
-- score: 21 differing words
+- score: 21/104 words
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: Generated vertex load and removed byte cast cancel one draw each, improving 24 to 21 naming rows at equal size and frame.
+- summary: Proc-0 census and compensating draw pair leave 21 naming rows; cursor-address pool and temporary-ring phase lack a source-authentic lever.
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding

@@ -2,11 +2,11 @@
 ### `overlay3SelectScoredObject` plateau handoff
 
 - source: `src/overlays/o003/overlay3SelectScoredObject.c`
-- score: 21 differing words
+- score: 21/118 words
 - frame: 0x80
 - relocations: 5
 - first mismatch: +0x48
-- summary: Index placement deletes only the surplus word; three later controls preserve all 28 draws and baseline text. Helper-result copy remains.
+- summary: Proc-0 census and index/cursor controls leave helper-result copy unresolved; colour landscape has no winner below 21.
 #### 2026-09-12, lane `p9-tight`: the shape is named and two forces price it
 
 The residual reproduces at 21 masked words, size delta 0, frame 0x80, and it is

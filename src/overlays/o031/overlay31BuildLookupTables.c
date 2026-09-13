@@ -162,10 +162,10 @@ void func_overlay_031_F0000000_187F520(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:start
  * symbol: func_overlay_031_F0000000_187F520
- * score: 94 differing words
+ * score: 94/186 words
  * frame: 0x40
  * relocations: 10
  * first-mismatch: +0x2C
- * summary: Authorized V0 reproduced 94 raw diffs; JFG donor is GLOBAL_ASM and exact siblings map the allocator proxy to three targets, leaving no new lever.
+ * summary: Authorized V0 baseline leaves allocator proxy unresolved at 94 masked rows; donor and exact-sibling evidence add no lever.
  * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
  */

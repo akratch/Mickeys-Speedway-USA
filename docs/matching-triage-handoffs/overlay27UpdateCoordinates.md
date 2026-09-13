@@ -2,11 +2,11 @@
 ### `overlay27UpdateCoordinates` plateau handoff
 
 - source: `src/overlays/o027/overlay_027.c`
-- score: 19 differing words
+- score: 19/65 words
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x0
-- summary: X assignment reversal removes one draw at a word cost; index and carrier controls regress. Nineteen naming rows remain.
+- summary: Countdown-before-cursor leaves census unchanged and worsens 19 to 28; 19 naming rows remain in the address-order web.
 
 #### 2026-09-13, lane g1: preheader and carrier draw controls
 

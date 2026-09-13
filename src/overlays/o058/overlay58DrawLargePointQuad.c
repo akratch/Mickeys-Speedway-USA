@@ -147,10 +147,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 21 differing words
+ * score: 21/104 words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Generated vertex load and removed byte cast cancel one draw each, improving 24 to 21 naming rows at equal size and frame.
+ * summary: Proc-0 census and compensating draw pair leave 21 naming rows; cursor-address pool and temporary-ring phase lack a source-authentic lever.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */

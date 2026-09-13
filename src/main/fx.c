@@ -2428,7 +2428,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x68
- * summary: Guarded order climb found only semantically invalid gains; address-base reuse remains the blocker after the spelling closure.
+ * summary: Address-base reuse remains the blocker after the spelling closure; donor mechanism supplies no new source body.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
@@ -2439,7 +2439,7 @@ void func_8004AF68(void) {
  * frame: 0x168
  * relocations: 3
  * first-mismatch: +0x44
- * summary: Independent point-store scheduling swap removes one residual word; coloured global-register cycles remain the allocator blocker.
+ * summary: Resident cone-point function retains exact frame; fixed-bound allocation cycle remains after independent store scheduling.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
