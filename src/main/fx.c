@@ -2439,7 +2439,7 @@ void func_8004AF68(void) {
  * frame: 0x168
  * relocations: 3
  * first-mismatch: +0x44
- * summary: Resident cone-point function retains exact frame; fixed-bound allocation cycle remains after independent store scheduling.
+ * summary: Fresh proc-3 census: 18 draws/203 emissions. Fixed-bound allocation cycle and stack-home blocker remain without new donor/lifetime evidence.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
