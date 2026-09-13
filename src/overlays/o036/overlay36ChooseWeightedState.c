@@ -165,10 +165,10 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
 
 /* PLATEAU-HANDOFF:func_overlay_036_F0000A60_1883F18:start
  * symbol: func_overlay_036_F0000A60_1883F18
- * score: 99/170 words
+ * score: 71/170 words
  * frame: 0x38
  * relocations: 33
  * first-mismatch: +0x3C
- * summary: New FP-term rotation and its explicit-deref combination are flat; explicit deref alone regresses to 169 words/138 residuals; 18/33 sites align.
+ * summary: Exact-size baseline has 71 aligned masked differences; draw schedule and FP-term rotation remain unresolved.
  * PLATEAU-HANDOFF:func_overlay_036_F0000A60_1883F18:end
  */
