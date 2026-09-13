@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained: capture-carrier, first-loop join and saved-local access controls do not restore transition reuse with the required draw census.
+ * summary: 187 retained: extra index interference splits the shared address; remove a range across the header/entry/capture component while keeping draws 2/0.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

@@ -59,10 +59,10 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
 
 /* PLATEAU-HANDOFF:overlay3RunCachedModeAction:start
  * symbol: overlay3RunCachedModeAction
- * score: 34 differing words
+ * score: 34/113 words
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x84
- * summary: Procedure-0 boolean width/copy probes already measured added consumer draws or no object change; transfer remains unresolved at exact geometry.
+ * summary: Addressed valid reads change draw order but add six words; prior width/copy controls remain closed and the guarded baseline is retained.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

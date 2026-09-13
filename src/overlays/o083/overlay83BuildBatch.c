@@ -196,6 +196,6 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
  * frame: 0x90
  * relocations: 5
  * first-mismatch: +0x0
- * summary: Fresh proc-0 census records 51 draws; count and scale temporary lifetimes still leave the target 0x78 frame and relocation identities unresolved.
+ * summary: proc0 census confirms 51 draws; count/scale lifetimes and five relocation identities remain unresolved
  * PLATEAU-HANDOFF:overlay83BuildBatch:end
  */

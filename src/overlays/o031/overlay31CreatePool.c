@@ -82,10 +82,10 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
 
 /* PLATEAU-HANDOFF:overlay31CreatePool:start
  * symbol: overlay31CreatePool
- * score: 11/50 words
+ * score: 11 differing words
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x28
- * summary: Fresh one-draw baseline confirms the reserved-c3 record-colour/web-order blocker; no source route reached the forced zero.
+ * summary: one-draw schedule; declaration order fixes frame, residual is pre-coloured-a0 interference around record web
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */

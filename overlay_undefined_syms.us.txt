@@ -653,6 +653,11 @@ gOverlay14CommandHeader = 0x000000fc;
 D_28 = 0x00000028;
 D_E8 = 0x000000e8;
 
+/* overlay 14: overlay14LoadRelocatedValue.c.o */
+gOverlay14LoadJumpTableReloc = 0x00000038;
+overlay14AllocateReloc = 0xf0000000;
+overlay14LoadReloc = 0xf0000000;
+
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
 gOverlay14State = 0x00000000;
@@ -673,6 +678,20 @@ overlay14ReleasePairReloc = 0xf0000328;
 gOverlay14Reset1C = 0x0000001c;
 gOverlay14Reset20 = 0x00000020;
 gOverlay14ResetCC = 0x000000cc;
+
+/* overlay 14: overlay14PrepareInputState.c.o */
+gOverlay14InputFlag0 = 0x00000000;
+gOverlay14InputFlag4 = 0x00000004;
+gOverlay14InputFlag8 = 0x00000008;
+gOverlay14Pulse10 = 0x00000010;
+gOverlay14Pulse14 = 0x00000014;
+gOverlay14Pulse18 = 0x00000018;
+gOverlay14PulseC = 0x0000000c;
+gOverlay14Timer1C = 0x0000001c;
+gOverlay14Timer20 = 0x00000020;
+joyGetPressed_o014Reloc = 0xf0000000;
+joyGetStickX_o014Reloc = 0xf0000000;
+joyGetStickY_o014Reloc = 0xf0000000;
 
 /* overlay 14: overlay14AdvanceCommand.c.o */
 D_D8 = 0x000000d8;

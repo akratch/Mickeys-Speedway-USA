@@ -142,6 +142,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: 70/80 aligned exact at delta 0; zero-cursor construction has no draw. Existing propagation controls preserve 11 draws and cannot cross the fold barrier.
+ * summary: constant-propagation cursor fold; draw census shows 11 draws and no source-line schedule movement
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

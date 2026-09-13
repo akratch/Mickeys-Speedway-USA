@@ -101,6 +101,6 @@ OSGbpakId *func_80058240(void) {
  * frame: 0x30
  * relocations: 25
  * first-mismatch: +0x44
- * summary: Signed first-address identity restores 51-word extent and reduces masked residual from 32 to 20; one pooled-address spill/reload remains.
+ * summary: Connector and one-past release identities move emissions but regress frame or extent; retained 20-word guarded baseline.
  * PLATEAU-HANDOFF:func_800580F0:end
  */

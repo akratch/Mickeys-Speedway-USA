@@ -2,11 +2,11 @@
 ### `overlay58DrawSegmentStrip` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawSegmentStrip.c`
-- score: 68 differing words
+- score: 68/201 words
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: Direct stripStep tail use leaves all 86 draws, 303 emission records and object bytes unchanged; original guarded baseline retained.
+- summary: Fresh 86-draw baseline confirms prior carrier/order controls; no new independent schedule hypothesis, guarded baseline retained.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
@@ -49,4 +49,28 @@ deltas remain ignored under build/h1/overlay58DrawSegmentStrip. Commands:
 configured compilation, draw_census.py --save/--compare, residual_map.py
 --object/--against, workbench fidelity, finalize_plateau.py and tools/gates.sh.
 
+
+#### 2026-09-13, lane `j1`: current schedule confirmation
+
+The configured baseline independently reproduces 201 words, delta zero,
+frame 0x88, masked 68 and first +0xF0. Alignment has 133 exact, sixty naming,
+zero immediate and ten structural rows including two candidate-only and two
+target-only words. Procedure 0 has 86 draws and 303 emissions; stock/traced
+full-TU text agrees. Static tables contain eight candidate and four extracted
+target records with no matching tuples; runtime binding is a separate proof.
+
+The shard's global-cursor/colour force, floating-point ordering, named-carrier,
+store-line and redundant-step controls were read alongside the source. The
+latest direct stripStep control already measures identical per-line counts,
+sequence and object bytes. No new source hypothesis was identified outside
+those measured inputs. ADR 0018 therefore permits an early evidence stop with
+zero new material attempts, rather than rerunning a closed colour landscape
+or claiming that a fresh baseline itself exhausted another axis.
+
+The guarded source is retained. The global-cursor/colour ordering and floating
+pool schedule remain open; this pass adds authenticated current evidence only.
+Private source, stock/traced objects, census and residual map are preserved.
+Commands: assignment gate, configured compilation, draw_census.py baseline,
+residual_map.py --object, finalize_plateau.py and tools/gates.sh. The full-ROM
+proof covers the assembly fallback and awards no new executable bytes.
 <!-- plateau-handoff:overlay58DrawSegmentStrip:end -->

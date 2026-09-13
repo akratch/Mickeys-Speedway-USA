@@ -87,3 +87,13 @@ void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22RemoveObject/func_overlay_022_F0000D30_1878E38.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_022_F0000D30_1878E38:start
+ * symbol: func_overlay_022_F0000D30_1878E38
+ * score: 43/91 words
+ * frame: 0x28
+ * relocations: 12
+ * first-mismatch: +0x10
+ * summary: Indexed shift-loop controls move draws but regress alignment or add a word; retain the guarded pointer-loop baseline and distinct array identities.
+ * PLATEAU-HANDOFF:func_overlay_022_F0000D30_1878E38:end
+ */

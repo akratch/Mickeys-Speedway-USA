@@ -1398,7 +1398,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x10
  * relocations: 12
  * first-mismatch: +0xC
- * summary: Fresh proc-14 census records 37 draws; cursor and type forms retain exact geometry but leave the pool and line-order structure unresolved.
+ * summary: proc14 draw census holds 37 draws; cursor setup reorder leaves schedule unchanged and regresses one word
  * PLATEAU-HANDOFF:func_80020B10:end
  */
 
@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Fresh proc-16 census confirms the retained cursor preheader structural deficit; all tested source identities preserve that blocker.
+ * summary: exception cursor remains a preheader strength-reduction blocker; two-draw census and exhaustive source identities add no schedule handle
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

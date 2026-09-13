@@ -6,5 +6,5 @@
 - frame: 0xB8
 - relocations: 15
 - first mismatch: +0x44
-- summary: Proc-7 census confirms mixed p2 carrier scheduling; exact-size residual remains after recorded source probes.
+- summary: Fresh proc-7 census confirms 74 draws and exact geometry; mixed p2 carrier schedule remains after recorded probes.
 <!-- plateau-handoff:overlay15InitStars:end -->

@@ -84,6 +84,6 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
  * frame: 0x80
  * relocations: 0
  * first-mismatch: +0x58
- * summary: Retained natural pointer plateau: point-pointer arithmetic was byte-flat with an identical census; point-carrier and mask-table scheduling remain unresolved.
+ * summary: Point deletion moves draws and regresses; partial-offset naming adds spill costs, and deleting its vertex pointer is draw/byte-flat.
  * PLATEAU-HANDOFF:overlay19BuildSpatialMasks:end
  */

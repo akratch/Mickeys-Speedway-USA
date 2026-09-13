@@ -148,6 +148,6 @@ void func_8003C80C(s32 arg0) {
  * frame: 0x38
  * relocations: 21
  * first-mismatch: +0x14
- * summary: Size and instruction census are now exact (118/118, delta 0, frame 0x38): the deficit was the two cursor-initialising moves, restored by spelling the cursors as the table read again instead of as the named temp_t3/temp_t4, which also removed the temp_t4 spill. Aligned structural residual 75 -> 45; the rest is a register rotation in the interpolation loop and the caller-saved set around the call.
+ * summary: five-draw interpolation schedule unchanged; deleting one carrier adds a word and worsens residual
  * PLATEAU-HANDOFF:func_8003C80C:end
  */

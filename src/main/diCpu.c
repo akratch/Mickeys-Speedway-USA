@@ -889,11 +889,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 16 differing words
+ * score: 16/106 words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: 90/106 aligned exact at delta 0; procedure-11 trace has 7 draws. Prior schedule forms and colour landscape do not split the initial character web.
+ * summary: Fresh seven-draw census and aligned map retain the initial-character web split: 90 exact rows and 16 naming rows at delta zero.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 

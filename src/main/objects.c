@@ -5664,7 +5664,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Unsigned per-iteration offset retains 13 draws and their order but adds two instructions; original extent and 28-word baseline retained.
+ * summary: Fresh 13-draw baseline confirms prior offset and loop controls; no new schedule lever, one relocation identity still unresolved.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
@@ -5743,11 +5743,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 99 differing words
+ * score: 99/719 words
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x6C8
- * summary: Fresh 227-draw baseline and 97 matching static relocation tuples confirm prior copy/nested-read/tail differentials; no new identified schedule lever.
+ * summary: Current 227-draw baseline confirms closed copy/nested-read/flag-sharing controls; no new independent schedule hypothesis.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5777,7 +5777,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: Multiply operand reversal leaves line counts fixed but changes later FP draw order and adds nine naming rows; baseline restored.
+ * summary: Fresh 49-draw baseline confirms recorded ghost-read and mask/load controls; no untested causal schedule lever identified.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

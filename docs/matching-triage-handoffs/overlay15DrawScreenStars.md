@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Proc-4 census and exhaustive colour probes leave nine structural rows; fade hoist and float priority remain.
+- summary: Authenticated proc-4 census and prior exhaustive colour/source schedule probes retain nine structural rows; fade preheader ownership remains unresolved.
 
 #### Historical baseline at assignment 3ccc02a1
 

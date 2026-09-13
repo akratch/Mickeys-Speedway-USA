@@ -456,7 +456,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Proc-4 census and exhaustive colour probes leave nine structural rows; fade hoist and float priority remain.
+ * summary: Authenticated proc-4 census and prior exhaustive colour/source schedule probes retain nine structural rows; fade preheader ownership remains unresolved.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
@@ -466,7 +466,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: Proc-11 census and source probes leave a shared-high-half lowering gap; no reachable source lever improves 13 masked rows.
+ * summary: Proc-11 census and prior address-lowering probes retain one structural gap pair; no source route reaches the shared high-half form.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
@@ -476,7 +476,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0xB8
  * relocations: 15
  * first-mismatch: +0x44
- * summary: Proc-7 census confirms mixed p2 carrier scheduling; exact-size residual remains after recorded source probes.
+ * summary: Fresh proc-7 census confirms 74 draws and exact geometry; mixed p2 carrier schedule remains after recorded probes.
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
@@ -486,26 +486,26 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 16
  * first-mismatch: +0x4
- * summary: Exact-size candidate retains allocator structure and two extra static records; carrier reuse improved 230 to 120 differences.
+ * summary: Fresh proc-2 census confirms 114 draws and exact geometry; p1 save-ratio and carrier residual remain after recorded controls.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
 
 /* PLATEAU-HANDOFF:overlay15UpdateMovingStars:start
  * symbol: overlay15UpdateMovingStars
- * score: 19/103 words
+ * score: 84/103 words
  * frame: 0x58
  * relocations: 46
  * first-mismatch: +0x30
- * summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
+ * summary: Fresh proc-8 census confirms 27 draws and exact frame; scalar address relocation surface remains the structural blocker.
  * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15MoveStars:start
  * symbol: overlay15MoveStars
- * score: 30/58 words
+ * score: 30/54 words
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
+ * summary: Fresh proc-3 census confirms 14 draws; aggregate address lowering reaches exact size only with a worse residual.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */

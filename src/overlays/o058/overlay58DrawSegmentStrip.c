@@ -171,10 +171,10 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay58DrawSegmentStrip:start
  * symbol: overlay58DrawSegmentStrip
- * score: 68 differing words
+ * score: 68/201 words
  * frame: 0x88
  * relocations: 8
  * first-mismatch: +0xF0
- * summary: Direct stripStep tail use leaves all 86 draws, 303 emission records and object bytes unchanged; original guarded baseline retained.
+ * summary: Fresh 86-draw baseline confirms prior carrier/order controls; no new independent schedule hypothesis, guarded baseline retained.
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */
