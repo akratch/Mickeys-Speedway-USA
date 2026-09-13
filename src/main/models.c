@@ -1398,7 +1398,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x10
  * relocations: 12
  * first-mismatch: +0xC
- * summary: JFG cursor/type forms reached exact geometry and frame; next lever is source-proven pool/line-order evidence.
+ * summary: Fresh proc-14 census records 37 draws; cursor and type forms retain exact geometry but leave the pool and line-order structure unresolved.
  * PLATEAU-HANDOFF:func_80020B10:end
  */
 
