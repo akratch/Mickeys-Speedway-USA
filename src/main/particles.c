@@ -2593,7 +2593,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: Fresh proc-22 FP census confirms the recorded 117-draw schedule; the zero-constant web remains unavailable to source scheduling.
+ * summary: Fresh proc-22 census: 117 draws/424 emissions. FP constant-web schedule remains unreachable; prior probes give no aligned gain.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
