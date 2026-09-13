@@ -6,5 +6,5 @@
 - frame: 0x90
 - relocations: 14
 - first mismatch: +0x0
-- summary: Candidate is 137 words/frame 0x90 versus target 136/0x88, with 14 candidate versus 12 target text relocations. Preflight closes on the one-word overrun.
+- summary: 29-draw census unchanged; one-word overrun and post-call ring release remain unresolved
 <!-- plateau-handoff:overlay89UpdateStateAndParticles:end -->
