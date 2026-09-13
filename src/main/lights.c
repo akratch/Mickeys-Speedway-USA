@@ -1123,11 +1123,11 @@ s32 lightKillGlowingLight(void) {
 
 /* PLATEAU-HANDOFF:func_80018F08:start
  * symbol: func_80018F08
- * score: 74/205 words
+ * score: 131/205 words
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: value-before-rotation aligns all three s16 homes and improves 75 to 74; named direction carrier still owns the remaining 0x10 frame excess.
+ * summary: No colour winner; census has no ring draws and residual remains the named direction-carrier frame excess across two aligned windows.
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 
