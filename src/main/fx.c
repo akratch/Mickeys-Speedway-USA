@@ -2428,7 +2428,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x68
- * summary: Guarded order climb found only semantically invalid gains; address-base reuse remains the blocker after the spelling closure.
+ * summary: Address-base reuse remains the blocker after the spelling closure; donor mechanism supplies no new source body.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
