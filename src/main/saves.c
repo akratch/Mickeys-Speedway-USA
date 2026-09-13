@@ -1514,7 +1514,7 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xB0
- * summary: Fresh proc-29 census confirms 14 draws and a coherent ten-register rotation after all structural rows closed; no source draw lever remains.
+ * summary: Fresh proc-29 census confirms 14 draws and one ten-register rotation; structural and colour controls are exhausted.
  * PLATEAU-HANDOFF:packInit:end
  */
 
