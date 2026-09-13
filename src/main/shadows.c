@@ -1471,10 +1471,10 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80016890:start
  * symbol: func_80016890
- * score: 563 differing words
+ * score: 563/571 words
  * frame: 0x190
  * relocations: 48
  * first-mismatch: +0x4
- * summary: Re-measured under the corrected R4300 multiply scheduler; the target carries eight FP hazard nops this candidate must now place.
+ * summary: Corrected-scheduler baseline: eight target FP hazard nops remain; no new source mechanism or draw-schedule evidence was found.
  * PLATEAU-HANDOFF:func_80016890:end
  */
