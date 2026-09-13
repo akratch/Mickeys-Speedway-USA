@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Fresh 12-draw baseline confirms the retained mask-table-scale emission-order blocker; no new source lever.
+- summary: Authenticated 12-draw baseline; existing differential and expression receipts leave no new mask-table-scale scheduling hypothesis.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -558,5 +558,27 @@ and draw profile remain ignored under build/h1/levelFreeAll.
 
 Commands: lane_status.py, align_symbol.py, configured stock compilation,
 draw_census.py, residual_map.py --object, finalize_plateau.py and tools/gates.sh.
+
+#### 2026-09-13, lane k1: baseline receipt and early evidence stop
+
+Fresh configured stock C reproduces 468 bytes, 117 words, frame 0x28,
+three raw/masked differences, first +0x13C, and all 36 static relocation
+identities. Aligned buckets are 114 exact, three naming, zero immediate and
+zero structural, without gaps. The procedure-17 census has 12 draws and
+183 emission records; stock and instrumented full-TU text agree.
+
+The complete shard and source annotations were read before proposing a probe.
+The existing distribution differential already leaves this line's draw count
+and sequence unchanged, while the expression, carrier, comma, redundant-mask,
+free-list and line-key receipts cover the identified remaining mechanisms.
+No new held-fixed decision variable was identified. ADR 0018 early evidence
+stop therefore applies with zero source attempts. This is baseline confirmation,
+not another source-axis exhaustion or a general impossibility claim.
+
+The guarded body is unchanged. Source, stock/traced objects, scalar and frame
+measurements, draw profile and aligned map are retained under ignored
+build/k1/levelFreeAll. Commands: lane_status.py, align_symbol.py, configured
+stock compilation, draw_census.py, residual_map.py --object,
+finalize_plateau.py and tools/gates.sh. No matching bytes are credited.
 
 <!-- plateau-handoff:levelFreeAll:end -->

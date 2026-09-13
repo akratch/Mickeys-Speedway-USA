@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Fresh 12-draw baseline confirms the retained mask-table-scale emission-order blocker; no new source lever.
+ * summary: Authenticated 12-draw baseline; existing differential and expression receipts leave no new mask-table-scale scheduling hypothesis.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
