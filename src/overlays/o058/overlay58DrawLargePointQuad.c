@@ -147,10 +147,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 21 differing words
+ * score: 21/104 words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: 34-draw schedule unchanged; all residual is one-window register allocation and store reorder does not move it
+ * summary: 34-draw schedule is stable; register-only residual needs a new source-authentic web and temporary-ring mechanism
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */
