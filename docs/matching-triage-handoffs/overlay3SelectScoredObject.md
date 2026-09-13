@@ -2,11 +2,11 @@
 ### `overlay3SelectScoredObject` plateau handoff
 
 - source: `src/overlays/o003/overlay3SelectScoredObject.c`
-- score: 21/118 words
+- score: 21 differing words
 - frame: 0x80
 - relocations: 5
-- first mismatch: +0x38
-- summary: Cursor alias in cached path left draw order and residual unchanged; helper-return copy remains unresolved.
+- first mismatch: +0x48
+- summary: Index placement deletes only the surplus word; three later controls preserve all 28 draws and baseline text. Helper-result copy remains.
 #### 2026-09-12, lane `p9-tight`: the shape is named and two forces price it
 
 The residual reproduces at 21 masked words, size delta 0, frame 0x80, and it is
@@ -69,5 +69,40 @@ sampled 104 probes over 17 coloured webs; no accepted force beat 21, so the
 winner list is empty and the lattice floor is 21. The named source question
 remains the caller-saved copy of the helper return before the cached-path
 guard, not a colour or split of the objects web.
+
+#### 2026-09-13, lane g1: index and helper-copy schedule controls
+
+The base-only assignment and fresh configured baseline reproduce 472 bytes at
+zero size delta, frame 0x80 and five relocations. The 21 masked positional
+differences align as 110 exact, five naming, one immediate and one structural
+row, plus a candidate-only offset at +0x88 and target-only offset at +0x48.
+Stock and instrumented full-TU text agree. The baseline spends 28 draws and
+166 emission events. The existing no-winning-colour landscape is not repeated.
+
+Moving the index definition inside the count guard removes the candidate-only
+word at +0x88 but leaves the required helper copy at +0x48 missing. Size falls
+by four bytes; the aligned result has 104 exact, five naming and eight
+structural rows, with one target-only word. Every draw and per-line emission
+count stays unchanged: this is a range/scheduling change, not a scratch draw.
+The word deletion does not qualify as an improvement of the retained residual.
+
+The following three controls all preserve the baseline object and draw order:
+seed the existing cursor before the cached-path guard and use it as the loop
+base; initialize the objects declaration from the helper instead of assigning
+it in the body; swap objects/cursor declarations while holding all physical
+line packing fixed. The seed adds one emission event and the initializer moves
+four events to its declaration line; neither is an executable copy or a new
+draw. The packed declaration swap changes no census line at all. This last
+control avoids the earlier declaration sweep's line-packing confound, without
+claiming to exhaust all declaration permutations.
+
+After the informative index control, these three unchanged-output controls
+provide the ADR 0018 stall. The original guarded candidate is restored. The
+missing decision remains a caller-saved helper-result copy that preserves raw
+cached-path use while releasing the return register for the count reloads;
+none of the tested forms creates it. No match or linked candidate proof is
+claimed. Source snapshots, objects, traces, census and aligned maps remain
+ignored under build/g1/overlay3SelectScoredObject. Commands: draw_census.py,
+residual_map.py --object/--against, configured compiler, and finalize_plateau.py.
 
 <!-- plateau-handoff:overlay3SelectScoredObject:end -->
