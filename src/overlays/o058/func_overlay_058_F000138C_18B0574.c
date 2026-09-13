@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; zero-width FIFO probes heal none of 34 entry naming rows; save-register cycle aggregates pool allocations.
+ * summary: 187 retained; natural cursor colours have collateral costs.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
