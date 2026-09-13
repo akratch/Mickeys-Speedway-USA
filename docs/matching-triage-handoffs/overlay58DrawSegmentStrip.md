@@ -6,7 +6,7 @@
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: currentStep placement left draw census and residual unchanged; global cursor/color and FP pool schedule remain.
+- summary: Current-step placement left draw census and residual unchanged; the global cursor/color and FP-pool scheduling blockers remain.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame

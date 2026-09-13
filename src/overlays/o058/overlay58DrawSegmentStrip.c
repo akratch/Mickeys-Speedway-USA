@@ -175,6 +175,6 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
  * frame: 0x88
  * relocations: 8
  * first-mismatch: +0xF0
- * summary: currentStep placement left draw census and residual unchanged; global cursor/color and FP pool schedule remain.
+ * summary: Current-step placement left draw census and residual unchanged; the global cursor/color and FP-pool scheduling blockers remain.
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */
