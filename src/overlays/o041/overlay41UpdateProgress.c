@@ -119,6 +119,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0x108
- * summary: divisor-copy coalescing and ring release order remain unresolved
+ * summary: draw census kept 31 draws fixed; divisor order and region probes did not move the residual
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */
