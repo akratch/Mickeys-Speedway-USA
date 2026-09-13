@@ -1,8 +1,16 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 172, with the reset-slot mechanism proved
+## Current checkpoint: 169, with another call slot repaired
 
-Lane wv-i retains **172 masked / 343 raw differences at delta zero**, down
+Lane wv-j retains **169 masked / 340 raw differences at delta zero**.
+Moving the empty-record portrait assignment after its formatting call repairs
+three words and moves the corresponding format-string relocation. Draw order
+and owned extent are unchanged. The [address-reuse report](whale-address-reuse.md)
+accounts for the case-12 witness's four bytes and preserves a separate control
+with the solved reset, later address reuse and target width, but substantial
+replacement gaps and draw-order costs. That control is not adopted.
+
+Lane wv-i previously retained **172 masked / 343 raw differences at delta zero**, down
 from 187. Five already-early index resets move into their target call slots;
 all 15 changed non-relocation words become target-exact, with no other code,
 relocation or draw-order change. See the
@@ -15,9 +23,9 @@ candidate +0x12F8 against target +0x1260. The reset remains at +0x12F8 there.
 No function is promoted.
 
 The sections below describe the **historical 187 baseline**. Its supplied
-landscape and forced 149 are not measurements of the current 172 source.
-Re-measure before interpreting colours on the new body; the current packet
-uses only source scheduling and makes no new colour-floor claim.
+landscape and forced 149 are not measurements of the current 169 source.
+The wv-j same-kind landscape measured 172 before its source improvement;
+it is historical too. Re-measure before interpreting colours on a new body.
 
 14,456 bytes, the largest unmatched function in the tree and **63% of the
 remaining distance to 60%**. Nine passes have taken it 733 → 227 → 217 → 187,

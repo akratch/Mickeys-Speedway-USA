@@ -1398,8 +1398,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             x = -x;
             overlay56SplitTime(slot->records[opponent].value, &minutes, &seconds, &centiseconds);
             if (slot->records[opponent].value == 0) {
-                portraitIndex = 0x4A;
                 sprintf(&text[0], D_o058_5DB8);
+                portraitIndex = 0x4A;
             } else {
                 letter0 = func_8003A700(slot->records[opponent].name[0]) & 0xFF;
                 letter1 = func_8003A700(slot->records[opponent].name[1]) & 0xFF;
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 172/3614 words
+ * score: 169/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 172 retained; five reset slots fixed, last gap open.
+ * summary: 169 retained; portrait slot fixed, case-12 gap open.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

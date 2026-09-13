@@ -2391,6 +2391,19 @@ bytes and disassembly never belong here.
   separate induction introduced to retain it can still lose later address
   reuse. This lever does not solve either of those lifetime constraints.
 
+- **A local assignment after a call can reach a slot that its before-call
+  spelling misses.** Symptom: an independent constant definition precedes
+  the call's argument setup, while the target puts it in the call slot.
+  Lever: place the assignment immediately after the call when the local's
+  address does not escape, no argument reads it, and no intervening use is
+  crossed. The compiler can move the definition back into the call slot with
+  a different argument order. A controlled full-TU experiment changes only
+  three executable words, all to target values, with identical extent and
+  temporary draw order; an argument relocation moves with its instruction.
+  This is a measured source-order lever, not a universal scheduling promise
+  or authority to move global/volatile assignments across calls. See the
+  [portrait-slot control](whale-address-reuse.md#the-banked-three-word-repair).
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
