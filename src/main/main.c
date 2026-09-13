@@ -1743,7 +1743,7 @@ void func_800293D0(void) {
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: Fresh baseline confirms the unresolved procedure/index mapping blocker; no draw attribution or source attempt is admissible.
+ * summary: instrumented procedure attribution blocked by 68 named procedures versus 66 allocator rows; no draw evidence admissible
  * PLATEAU-HANDOFF:func_80029274:end
  */
 
