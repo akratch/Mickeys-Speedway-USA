@@ -445,11 +445,11 @@ s32 overlay27Activate(O27Object *object) {
 
 /* PLATEAU-HANDOFF:overlay27UpdateCoordinates:start
  * symbol: overlay27UpdateCoordinates
- * score: 19 differing words
+ * score: 19/65 words
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x0
- * summary: X assignment reversal removes one draw at a word cost; index and carrier controls regress. Nineteen naming rows remain.
+ * summary: Countdown-before-cursor leaves census unchanged and worsens 19 to 28; 19 naming rows remain in the address-order web.
  * PLATEAU-HANDOFF:overlay27UpdateCoordinates:end
  */
 
