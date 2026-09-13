@@ -2,11 +2,11 @@
 ### `func_overlay_060_F0002F54_18BCD2C` plateau handoff
 
 - source: `src/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c`
-- score: 84 differing words
+- score: 84/222 words
 - frame: 0xC0
 - relocations: 12
 - first mismatch: +0x64
-- summary: Explicit zero offset leaves all 74 draws fixed but changes three words without improving aligned buckets; baseline retained.
+- summary: Fresh 74-draw census confirms the display-list/x schedule plateau; zero-offset control did not move aligned residual.
 #### 2026-09-13, lane h1: redundant offset occurrence differential
 
 Fresh configured baseline: 222 words, 888 bytes, frame 0xC0, 84 raw/masked

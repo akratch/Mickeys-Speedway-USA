@@ -114,10 +114,10 @@ s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
 
 /* PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:start
  * symbol: func_overlay_060_F0002F54_18BCD2C
- * score: 84 differing words
+ * score: 84/222 words
  * frame: 0xC0
  * relocations: 12
  * first-mismatch: +0x64
- * summary: Explicit zero offset leaves all 74 draws fixed but changes three words without improving aligned buckets; baseline retained.
+ * summary: Fresh 74-draw census confirms the display-list/x schedule plateau; zero-offset control did not move aligned residual.
  * PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:end
  */
