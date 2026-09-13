@@ -3440,7 +3440,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x18
  * relocations: 9
  * first-mismatch: +0x40
- * summary: Correct proc-25 23-draw census confirms the counter read-modify-write web; retained volatile plateau remains best.
+ * summary: Fresh 23-draw census retains the counter read-modify-write web blocker: 38 exact aligned rows and 31 naming rows at zero delta.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
