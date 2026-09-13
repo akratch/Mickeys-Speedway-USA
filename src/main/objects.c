@@ -5660,11 +5660,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80008028:start
  * symbol: func_80008028
- * score: 32/60 words
+ * score: 28 differing words
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Remeasured at 28 words; objectOffset takes a0 where the target takes a1 and the whole shared ring rotates from +0x24.
+ * summary: Unsigned per-iteration offset retains 13 draws and their order but adds two instructions; original extent and 28-word baseline retained.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
@@ -5747,7 +5747,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x6C8
- * summary: Copy-index guard changes no draws; splitting the tail flag type adds three draws and eight bytes; shared-type control is byte-inert.
+ * summary: Fresh 227-draw baseline and 97 matching static relocation tuples confirm prior copy/nested-read/tail differentials; no new identified schedule lever.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5757,7 +5757,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x18
  * relocations: 0
  * first-mismatch: +0x18
- * summary: Exact extent/frame; allocation and dimension-init schedule remain. Three flat variants; next: trace natural priority and carrier lifetimes.
+ * summary: Dimension-line folding moves attribution and two object words but keeps 39 draws, their sequence and the 92-word residual; baseline retained.
  * PLATEAU-HANDOFF:func_80007E40:end
  */
 
@@ -5777,7 +5777,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: Destination-flag form changes no draws and adds four bytes; folded capture lines only change attribution, with identical bytes.
+ * summary: Multiply operand reversal leaves line counts fixed but changes later FP draw order and adds nine naming rows; baseline restored.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

@@ -146,6 +146,6 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Physical intermediate and colour-store folding are byte-inert; generated display cursor adds six draws and twelve bytes.
+ * summary: Deleting x coordinate carriers leaves the 34-draw sequence fixed; one carrier moves naming rows, two regress to 31; baseline retained.
  * PLATEAU-HANDOFF:overlay58DrawPointQuad:end
  */

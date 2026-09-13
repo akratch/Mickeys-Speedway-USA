@@ -2,11 +2,11 @@
 ### `overlay58DrawSegmentStrip` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawSegmentStrip.c`
-- score: 68/201 words
+- score: 68 differing words
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xF0
-- summary: Current-step placement left draw census and residual unchanged; the global cursor/color and FP-pool scheduling blockers remain.
+- summary: Direct stripStep tail use leaves all 86 draws, 303 emission records and object bytes unchanged; original guarded baseline retained.
 - assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
@@ -22,4 +22,31 @@
 - attempts 1 through 5: the L59 store-line fold and named color carrier were flat at 68; pointer and OR-zero ring probes regressed to 128, 107, and 143 masked words. All regressions were reverted.
 - next action: do not reopen the prior ten forms, flag lattice, or these three FP-order probes; require a new source-authentic lever for the global-cursor/color web or whole floating-point pool
 - donor check: no credible JFG use location exists; the nearest cross-title skeleton remains Conker at 0.048, with no exact coddog window or source analogue
+#### 2026-09-13, lane h1: redundant step carrier differential
+
+The fresh configured baseline reproduces 201 words, 804 bytes, frame 0x88,
+68 raw/masked differences and first +0xF0. All 17 observed stack slots and
+their traffic agree. Paired aligned buckets are 133 exact, 60 naming, zero
+immediate and six structural rows, plus two candidate-only and two target-only
+words. Static relocation counts are eight candidate and four extracted target
+records, with no matching symbol tuples; runtime identities remain unresolved.
+The census records 86 draws and 303 emission records. Full-TU stock/traced
+section, symbol and relocation fidelity passes.
+
+The source and shard's carrier, step-placement, order and force receipts were
+read. One source probe uses stripStep directly in the loop tail instead of
+currentStep, whose value is the same unchanged local. It tests whether the
+redundant carrier retains a distinct scheduling or allocation identity.
+Every line's draw/emission counts, the complete draw sequence, owned object
+bytes, and all aligned windows are identical to baseline. The compiler already
+folds this use; direct tail spelling provides no new schedule lever.
+
+Restore the original guarded body and stop early under ADR 0018 with the
+existing carrier/order negatives. This closes the tested redundant-use route,
+not every possible source form. No colour sweep was repeated and no bytes are
+credited. Source/object pairs, census profiles, fidelity receipts and aligned
+deltas remain ignored under build/h1/overlay58DrawSegmentStrip. Commands:
+configured compilation, draw_census.py --save/--compare, residual_map.py
+--object/--against, workbench fidelity, finalize_plateau.py and tools/gates.sh.
+
 <!-- plateau-handoff:overlay58DrawSegmentStrip:end -->

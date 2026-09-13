@@ -58,7 +58,7 @@ void func_800580F0(s32 arg0) {
     u8 status;
 
     if (D_8007F7A4 != 0) {
-        osGbpakGetStatus((OSPfs *)(u32)&D_800D7830, &status);
+        osGbpakGetStatus((OSPfs *)(s32)&D_800D7830, &status);
         if (func_8006AC60(&D_800D7830, 1) == 0) {
             osGbpakCheckConnector((OSPfs *)(u32)&D_800D7830, &status);
             func_8006B020(&D_800D7830, (u16)arg0,
@@ -97,10 +97,10 @@ OSGbpakId *func_80058240(void) {
 
 /* PLATEAU-HANDOFF:func_800580F0:start
  * symbol: func_800580F0
- * score: 32/51 words
+ * score: 20 differing words
  * frame: 0x30
- * relocations: 17
- * first-mismatch: +0x10
- * summary: Alternating pointer-to-u32 address spellings improves to 32 but remains one instruction short; accepted p1 web-22 split reaches 12 forced differences.
+ * relocations: 25
+ * first-mismatch: +0x44
+ * summary: Signed first-address identity restores 51-word extent and reduces masked residual from 32 to 20; one pooled-address spill/reload remains.
  * PLATEAU-HANDOFF:func_800580F0:end
  */
