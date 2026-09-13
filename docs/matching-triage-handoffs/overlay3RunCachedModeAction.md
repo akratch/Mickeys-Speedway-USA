@@ -2,11 +2,11 @@
 ### `overlay3RunCachedModeAction` plateau handoff
 
 - source: `src/overlays/o003/overlay3RunCachedModeAction.c`
-- score: 34 differing words
+- score: 34/113 words
 - frame: 0x58
 - relocations: 15
 - first mismatch: +0x84
-- summary: Procedure-0 boolean width/copy probes already measured added consumer draws or no object change; transfer remains unresolved at exact geometry.
+- summary: Addressed valid reads change draw order but add six words; prior width/copy controls remain closed and the guarded baseline is retained.
 #### 2026-09-12, lane p23-lastmile5: complete colour landscape and boolean shapes
 
 Fresh baseline: 113 words, delta zero, 34 raw and masked differences, frame
@@ -116,4 +116,33 @@ build/f1/overlay3RunCachedModeAction. Commands: configured stock compile,
 draw_census.py profiles/comparison, residual_map.py --object --against,
 finalize_plateau.py and tools/gates.sh. No new executable-byte credit.
 
+
+#### 2026-09-13, lane `j1`: addressed boolean consumers
+
+Baseline reproduces 113 words, delta zero, frame 0x58, masked 34 and first
++0x84. Aligned buckets are 91 exact, eleven naming, zero immediate and
+twelve structural rows including the candidate-only/target-only pair.
+Procedure 0 has seventeen draws and 171 emissions, with stock/traced
+full-TU text identity. Static tables contain fifteen candidate versus eleven
+extracted target relocations; runtime identities remain a separate proof.
+
+The existing width, copy and conversion-placement receipts were read. One
+new test reads valid through its s32 address in the two mode-switch consumers.
+This tests the L144 reload mechanism without adding volatile ordering edges.
+Draw count remains seventeen, but the integer draw sequence changes after
+the path call. Emissions rise to 175, including increases at the switch and
+both consumers. The function grows by 24 bytes and scores 98. Alignment is
+55 exact, 33 naming, six immediate and 25 structural rows, including six
+candidate-only words. The frame remains 0x58. Taking this local's address
+therefore changes its emitted traffic and range, but does not supply the
+wanted single transfer at unchanged geometry.
+
+The baseline is retained. Stop early under ADR 0018: the new addressed-read
+route has a measured width cost, and the prior narrowing/copy controls cover
+the other identified mechanisms. This is no general source-impossibility
+claim. Next action still needs a source-authentic call/comparison-to-switch
+transfer at the original geometry. Private source/object pairs, profiles and
+aligned deltas are retained. Commands: assignment gate, configured stock and
+traced compilation, draw census before/after, residual_map.py comparison,
+finalize_plateau.py and tools/gates.sh. ROM proof covers the fallback only.
 <!-- plateau-handoff:overlay3RunCachedModeAction:end -->

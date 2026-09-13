@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: as1 branch-delay residual remains; source declaration census is flat
+- summary: Mapped proc 7: deleting frame carrier adds three draws and regresses; as1 branch-delay decline remains.
 
 #### Owned evidence and result, 2026-09-09
 
@@ -332,4 +332,39 @@ colour winners list is empty and allocation is not an applicable axis.
 The named remaining source question is still the retained as1 branch-decline
 decision: what source-reachable ugen text makes the assembler leave the target
 delay slot unfilled without changing the 111-word geometry.
+
+#### 2026-09-13, lane `j1`: authenticated draw census and carrier deletion
+
+Baseline recompiled at 111 words, delta zero, masked 2, with alignment
+109 exact, zero naming, zero immediate and two structural rows, first +0x3C.
+The traced full-TU text is byte-identical to the configured stock text.
+`allocator_trace_receipt.py --map-only` maps the retained named Ucode and
+index to procedure 7, not the census default of 0. The prior claim that this
+function has no allocator decisions is withdrawn: procedure 7 has twelve
+decisions; procedure 0 is a different function. No colour sweep was repeated.
+
+The corrected `draw_census.py --proc 7` baseline has 24 draws and 164
+emissions. One source experiment deletes the declared frame pointer and
+inlines its two loop-flag accesses, retaining physical line positions. This
+tests whether eliminating the carrier before the contested branch supplies
+a different emission schedule without extra geometry. Draws rise to 27:
+the frame-null test gains one, and each loop-flag access gains one; the
+transition test itself is unchanged. Emissions remain 164 overall, with
+the carrier assignment's two emissions replaced at the flag reads.
+
+The candidate grows by four bytes and scores 81 masked words. The aligned
+comparison against baseline adds twelve naming, six immediate and one
+structural row, with two new candidate-only positions and one target-only
+position. This is a measured regression, not progress hidden by positional
+shift. The source and object are retained in private lane scratch and the
+original guarded candidate is restored. Attempt count: one.
+
+Stop under ADR 0018: the available carrier-deletion hypothesis is eliminated;
+the extensive prior branch-optimizer closure still blocks the other source
+axes. This does not prove all possible schedules closed. Next action remains
+the as1 decline-condition investigation at the in-function counter-example
+identified above. Commands: assignment gate, aligner, score, retained Ucode
+procedure receipt, draw census before/after, aligned residual comparison,
+`finalize_plateau.py`, and `tools/gates.sh`. ROM verification covers the
+assembly fallback; this pass earns zero new matching bytes.
 <!-- plateau-handoff:func_8005ABA8:end -->

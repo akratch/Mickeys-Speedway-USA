@@ -654,8 +654,24 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14MoveCommandCursor.c.o: POSTPROCES
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CreateValue.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F00006FC_186FFD4=overlay14CreateValue $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x180
+# The seven compiler jump labels agree with the retained table at initialized
+# data +0x158. Runtime LOCAL relocations use base +0x1D60 and addend +0x38.
+# Rebind only metadata and discard the checked duplicate table; no instruction
+# or compiler addend is edited. The source names authenticate both resident calls.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14LoadRelocatedValue.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/externalize_elf_section.py \
+	config/normalizations/overlay14LoadRelocatedValue.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14LoadRelocatedValue.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F000087C_1870154=overlay14LoadRelocatedValue $@ && \
+	$(OBJCOPY) \
+		--redefine-sym func_8002B280=overlay14AllocateReloc \
+		--redefine-sym piRomLoadSection=overlay14LoadReloc \
+		--add-symbol gOverlay14LoadJumpTableReloc=0x38,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14LoadRelocatedValue.rebind.spec && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:27fa18303ce99b4b7e8fc171c369fbb9c388032a82113540a43005cbc3c96e36 && \
+	$(OBJCOPY) --remove-section .rel.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x178
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14UpdateTransition.c.o: \
 	$(TOOLS_DIR)/filter_elf_relocations.py \

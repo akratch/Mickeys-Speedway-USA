@@ -14,22 +14,12 @@ extern u16 joyGetPressed(s32 player);
 extern s8 joyGetStickX(s32 player);
 extern s8 joyGetStickY(s32 player);
 
-/* Plateau (batch 21): exact 0x20C and frame 0x20; 65 words remain, first +0xC.
- * The nine BSS definitions reproduce offsets 0x0..0x20. A diagnostic surface
- * synthesized from this candidate authenticates all 29 relocation identities;
- * the guarded fallback remains fail-closed at 3/29 until the C can be promoted.
- * Generic D-name spellings were flat and direct D definitions collided globally.
- * Batch 20 exhausted branch, pointer, axis, call, load, flag, and permuter forms;
- * allocator lifetime/UOPT tracing is the next untried code-generation lever. */
-#ifdef NON_MATCHING
+/* Tier A source reconstruction: update and retest each timer directly.
+ * No intervening call or volatile access can change the timer. */
 void overlay14PrepareInputState(s32 step) {
     s32 first;
     s32 second;
     s32 vertical;
-    s32 verticalPositive;
-    s32 verticalNegative;
-    s32 secondPositive;
-    s32 secondNegative;
 
     first = joyGetPressed(0);
     second = joyGetStickX(0);
@@ -47,9 +37,8 @@ void overlay14PrepareInputState(s32 step) {
         gOverlay14Timer20 = 0;
     } else if (vertical >= 0x1F) {
         if (gOverlay14Timer20 > 0) {
-            verticalPositive = gOverlay14Timer20 - step;
-            gOverlay14Timer20 = verticalPositive;
-            if (verticalPositive <= 0) {
+            gOverlay14Timer20 -= step;
+            if (gOverlay14Timer20 <= 0) {
                 gOverlay14Timer20 = 0xA;
                 gOverlay14PulseC = 1;
             }
@@ -59,9 +48,8 @@ void overlay14PrepareInputState(s32 step) {
         }
     } else if (vertical < -0x1E) {
         if (gOverlay14Timer20 < 0) {
-            verticalNegative = gOverlay14Timer20 + step;
-            gOverlay14Timer20 = verticalNegative;
-            if (verticalNegative >= 0) {
+            gOverlay14Timer20 += step;
+            if (gOverlay14Timer20 >= 0) {
                 gOverlay14Timer20 = -0xA;
                 gOverlay14Pulse10 = 1;
             }
@@ -76,10 +64,9 @@ void overlay14PrepareInputState(s32 step) {
         return;
     }
     if (second >= 0x1F) {
-        secondPositive = gOverlay14Timer1C - step;
         if (gOverlay14Timer1C > 0) {
-            gOverlay14Timer1C = secondPositive;
-            if (secondPositive <= 0) {
+            gOverlay14Timer1C -= step;
+            if (gOverlay14Timer1C <= 0) {
                 gOverlay14Timer1C = 0xA;
                 gOverlay14Pulse18 = 1;
             }
@@ -88,10 +75,9 @@ void overlay14PrepareInputState(s32 step) {
             gOverlay14Pulse18 = 1;
         }
     } else if (second < -0x1E) {
-        secondNegative = gOverlay14Timer1C + step;
         if (gOverlay14Timer1C < 0) {
-            gOverlay14Timer1C = secondNegative;
-            if (secondNegative <= 0) {
+            gOverlay14Timer1C += step;
+            if (gOverlay14Timer1C <= 0) {
                 gOverlay14Timer1C = -0xA;
                 gOverlay14Pulse14 = 1;
             }
@@ -101,16 +87,3 @@ void overlay14PrepareInputState(s32 step) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14PrepareInputState/func_overlay_014_F0000B5C_1870434.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay14PrepareInputState:start
- * symbol: overlay14PrepareInputState
- * score: 65/131 words
- * frame: 0x20
- * relocations: 29
- * first-mismatch: +0xC
- * summary: Procedure-0 census is 15 draws/347 emissions; 65 differences are register naming with a four-window lifetime/ring schedule, not a colour residual.
- * PLATEAU-HANDOFF:overlay14PrepareInputState:end
- */

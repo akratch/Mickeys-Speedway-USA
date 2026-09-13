@@ -1,27 +1,25 @@
 #include "PR/ultratypes.h"
 
 extern u32 *gOverlay14OffsetsF4;
-extern void *overlay14AllocateReloc(s32 size, s32 tag);
-extern void overlay14LoadReloc(s32 source, void *destination, s32 start, s32 size);
+extern void *func_8002B280(s32 size, s32 tag);
+extern void piRomLoadSection(s32 source, void *destination, s32 start, s32 size);
 
-/* Workbench: allocation-mismatch, 53 raw differing words, first mismatch +0x04.
- * Exact 94-instruction jump-table CFG; target frame is -0x28 versus candidate -0x30.
- * Shape-exact/permuter-ready aside from frame/register scheduling; no CFG gap remains. */
-/* Ownership trial (2026-08-28): fixed the TU's +0x158..+0x174 .rodata range;
- * linked promotion is text-differs with 94 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
-#ifdef NON_MATCHING
+/* Tier A: linked ROM identity with untouched IDO instruction output.
+ * The result carrier keeps both relocation operations in one register.
+ * Read through cursor before advancing it; command retains the store address.
+ * Declare the two spilled offsets first so their homes bound the frame. */
 void *overlay14LoadRelocatedValue(s32 index, s32 source) {
-    u8 *buffer;
-    u8 *cursor;
     s32 start;
     s32 size;
+    u8 *buffer;
+    u8 *cursor;
+    u32 value;
 
     start = gOverlay14OffsetsF4[index];
     size = gOverlay14OffsetsF4[index + 1] - start;
-    buffer = overlay14AllocateReloc(size, 0x85);
+    buffer = func_8002B280(size, 0x85);
     if (buffer != NULL) {
-        overlay14LoadReloc(source, buffer, start, size);
+        piRomLoadSection(source, buffer, start, size);
         cursor = buffer;
         while (*cursor != 0) {
             u8 *command;
@@ -32,27 +30,35 @@ void *overlay14LoadRelocatedValue(s32 index, s32 source) {
                     cursor += 4;
                     break;
                 case 2:
+                    value =
+                        ((*(u32 *)cursor & 0xFFFFFF) | 0x80000000);
                     cursor += 4;
-                    *(u32 *)command =
-                        (u32)buffer + ((*(u32 *)command & 0xFFFFFF) | 0x80000000);
+                    value += (u32)buffer;
+                    *(u32 *)command = value;
                     *command = 2;
                     break;
                 case 3:
+                    value =
+                        ((*(u32 *)cursor & 0xFFFFFF) | 0x80000000);
                     cursor += 4;
-                    *(u32 *)command =
-                        (u32)buffer + ((*(u32 *)command & 0xFFFFFF) | 0x80000000);
+                    value += (u32)buffer;
+                    *(u32 *)command = value;
                     *command = 3;
                     break;
                 case 4:
+                    value =
+                        ((*(u32 *)cursor & 0xFFFFFF) | 0x80000000);
                     cursor += 4;
-                    *(u32 *)command =
-                        (u32)buffer + ((*(u32 *)command & 0xFFFFFF) | 0x80000000);
+                    value += (u32)buffer;
+                    *(u32 *)command = value;
                     *command = 4;
                     break;
                 case 5:
+                    value =
+                        ((*(u32 *)cursor & 0xFFFFFF) | 0x80000000);
                     cursor += 4;
-                    *(u32 *)command =
-                        (u32)buffer + ((*(u32 *)command & 0xFFFFFF) | 0x80000000);
+                    value += (u32)buffer;
+                    *(u32 *)command = value;
                     *command = 5;
                     break;
                 case 6:
@@ -66,16 +72,3 @@ void *overlay14LoadRelocatedValue(s32 index, s32 source) {
     }
     return buffer;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14LoadRelocatedValue/func_overlay_014_F000087C_1870154.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay14LoadRelocatedValue:start
- * symbol: overlay14LoadRelocatedValue
- * score: 52/94 words
- * frame: 0x30
- * relocations: 6
- * first-mismatch: +0x4
- * summary: Procedure-0 census is 21 draws/162 emissions; five slots align except the top home at +0x34 versus target +0x2C, leaving allocation-only residual.
- * PLATEAU-HANDOFF:overlay14LoadRelocatedValue:end
- */
