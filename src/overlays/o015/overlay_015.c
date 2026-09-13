@@ -466,7 +466,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: Proc-11 census and prior address-lowering probes retain one structural gap pair; no source route reaches the shared high-half form.
+ * summary: Current 17-draw census reproduces prior address-lowering plateau; existing differential covers the identified source routes.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 

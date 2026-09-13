@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 17
 - first mismatch: +0x74
-- summary: Proc-11 census and prior address-lowering probes retain one structural gap pair; no source route reaches the shared high-half form.
+- summary: Current 17-draw census reproduces prior address-lowering plateau; existing differential covers the identified source routes.
 
 #### 2026-09-12, lane `p9-tight`: as1 does not share a high half, so the stated decision variable is refuted
 
@@ -97,5 +97,25 @@ Commands: configured stock/capture compile, allocator_trace_receipt.py
 --map-only, draw_census.py profiles/comparison, residual_map.py --object
 --against, finalize_plateau.py and tools/gates.sh. The procindex listing was
 captured for mapping only; no colour landscape was repeated.
+
+#### 2026-09-13, lane l1: current-schedule revalidation
+
+The stock baseline and traced full-TU text agree: 54 words, delta zero,
+frame 0x40, 18 raw and thirteen masked differences, first +0x74. Procedure 11
+reproduces seventeen draws and 214 emissions. Alignment is 43 exact, no naming
+or immediate rows, ten paired structural rows, candidate-only +0xBC and
+target-only +0xB4. The guarded source is unchanged.
+
+Zero new source attempts: the shard already contains the new instrument's
+call-bias differential as well as the address-lowering, grouping, region and
+qualifier controls. No untested source mechanism was identified that supplies
+the shared high-half form. Repeating these recorded controls or the colour
+landscape would not add information; stop early under ADR 0018. This is a
+baseline revalidation, not a newly closed axis or source-impossibility proof.
+Next action remains evidence for shared-high-half lowering without the extra
+full base or separate absolute expansion. Fresh source/object and census
+receipts are ignored under build/l1/overlay15DrawRain. Commands: configured
+compilation, draw_census, residual_map --object, finalize_plateau and
+tools/gates.sh. ROM verification covers the fallback; no new byte credit.
 
 <!-- plateau-handoff:overlay15DrawRain:end -->
