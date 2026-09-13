@@ -2476,11 +2476,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_800479D4:start
  * symbol: func_800479D4
- * score: 167 differing words
+ * score: 167/192 words
  * frame: 0x148
  * relocations: 7
- * first-mismatch: 0x0
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new point-array home and frame-slot topology evidence.
+ * first-mismatch: +0x0
+ * summary: Point-array declaration and capacity probes leave the 0x148 frame and 167-word residual; target point-array home remains unresolved.
  * PLATEAU-HANDOFF:func_800479D4:end
  */
 
@@ -2516,11 +2516,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049B14:start
  * symbol: func_80049B14
- * score: 154 differing words
+ * score: 154/207 words
  * frame: 0x18
  * relocations: 4
- * first-mismatch: 0x8
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new switch/carry and countdown topology evidence.
+ * first-mismatch: +0x8
+ * summary: Switch/carry declaration probe was byte-flat; target state-machine allocation remains unresolved and the donor supplies no C body.
  * PLATEAU-HANDOFF:func_80049B14:end
  */
 
