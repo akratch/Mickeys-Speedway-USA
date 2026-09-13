@@ -902,7 +902,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: Proc 3: register storage is census-flat; inverted size adjustment adds an emission and regresses. Frame reservation remains.
+ * summary: frame and caller-home allocation remain unresolved after the authenticated source and colour closures
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
