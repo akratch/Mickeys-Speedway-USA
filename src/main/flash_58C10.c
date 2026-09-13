@@ -97,10 +97,10 @@ OSGbpakId *func_80058240(void) {
 
 /* PLATEAU-HANDOFF:func_800580F0:start
  * symbol: func_800580F0
- * score: 20 differing words
+ * score: 20/51 words
  * frame: 0x30
  * relocations: 25
  * first-mismatch: +0x44
- * summary: Connector and one-past release identities move emissions but regress frame or extent; retained 20-word guarded baseline.
+ * summary: Final status address-type controls buy no draw and regress alignment or extent; retained pooled-address plateau.
  * PLATEAU-HANDOFF:func_800580F0:end
  */
