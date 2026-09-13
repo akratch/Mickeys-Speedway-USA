@@ -2,11 +2,11 @@
 ### `func_8000FAE0` plateau handoff
 
 - source: `src/main/track.c`
-- score: 16 differing words
+- score: 16/62 words
 - frame: 0x10
 - relocations: 2
 - first mismatch: +0x1C
-- summary: Unsigned halfword count changes one draw and reduces naming at +12 bytes; word-width control restores the baseline exactly.
+- summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
 
 - Reopen audit (2026-09-08): the local Jet Force Gemini checkout is exactly
   `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, with an unchanged tracked

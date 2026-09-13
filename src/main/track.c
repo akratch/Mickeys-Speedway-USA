@@ -5681,11 +5681,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000FAE0:start
  * symbol: func_8000FAE0
- * score: 16 differing words
+ * score: 16/62 words
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Unsigned halfword count changes one draw and reduces naming at +12 bytes; word-width control restores the baseline exactly.
+ * summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
