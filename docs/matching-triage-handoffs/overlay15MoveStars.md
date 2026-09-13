@@ -2,11 +2,11 @@
 ### `overlay15MoveStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 30/54 words
+- score: 30/58 words
 - frame: 0x40
 - relocations: 25
 - first mismatch: +0x30
-- summary: Correct proc-3 carrier probe has 14 draws unchanged and emissions 73->74; order and 30/54 residual stay unchanged, so address lowering remains.
+- summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
 
 #### 2026-09-11, lane `lane/p4-xfer`: refuted, and the size delta is now fully accounted
 

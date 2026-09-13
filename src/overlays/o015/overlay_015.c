@@ -502,10 +502,10 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15MoveStars:start
  * symbol: overlay15MoveStars
- * score: 30/54 words
+ * score: 30/58 words
  * frame: 0x40
  * relocations: 25
  * first-mismatch: +0x30
- * summary: Correct proc-3 carrier probe has 14 draws unchanged and emissions 73->74; order and 30/54 residual stay unchanged, so address lowering remains.
+ * summary: Proc-3 census confirms 14 draws; address lowering remains at +16 bytes after carrier/order probes.
  * PLATEAU-HANDOFF:overlay15MoveStars:end
  */
