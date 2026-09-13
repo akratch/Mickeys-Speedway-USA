@@ -168,6 +168,61 @@ Keep total load under about 12; five to seven concurrent lanes is the practical
 ceiling on this machine, and two OOM kills earlier in the campaign came from
 ignoring it.
 
+## What the sprint's waves actually produced (2026-09-13)
+
+The four waves above were executed end to end, and then repeatedly. Recording
+the outcome so the next scoping is done against measured rates rather than
+hope.
+
+**Wave 0 unlocked 96,152 bytes** and was the single highest-return action in the
+sprint, exactly as scoped: 3 stale pins refreshed, 77 plateaus reopened whose
+shards carried no exhaustive landscape, and 5 more whose landscapes predated
+L159 and L160. The assignable pool went from 175 functions to 265.
+
+**Waves 1-3 delivered eleven matches**, about 11,700 bytes, taking the campaign
+from 57.05% to 57.56%. They came from exactly two routes and nothing else:
+
+- **a proved-zero force plus L160** -- the exhaustive landscape reduces the
+  function to a known colour, then a declared carrier is deleted so IDO
+  generates the value. Six of the eleven.
+- **the draw census** -- `tools/draw_census.py`, built during the sprint, on
+  functions whose colour axis was already closed with no winner. Five of the
+  eleven, including `overlay19BuildAdjacency` (a 103-probe, 17-web landscape
+  with no winners, matched through call-site argument assignment) and
+  `overlay2ChooseBoundary` at 1,168 bytes.
+
+**The rate fell as the pool drained.** Early waves returned two to three matches
+each; the later waves returned about one per five-lane wave. That is the honest
+number to plan the next sprint with: roughly 500 to 1,200 bytes per lane-wave
+once the sub-20-word functions are gone.
+
+**The whale did not close.** Nine passes took it 227 -> 217 -> 187 and then held
+at 187 across five more, each closing a route and sharpening the constraint to
+its current form: preserve address reuse across BOTH successive splits while
+holding draws and target size. Seven attempt families and 27 source cells are
+recorded. At 14,456 bytes it is still 63% of the remaining gap, and it is now
+the best-characterised stall in the tree -- which is the precondition for either
+breaking it or arguing it to the unassignable bar.
+
+### The three things that cost the most time
+
+1. **Pin decay per integration.** Every merge invalidates its own symbols' pins,
+   and `--refresh-stale` takes about eight minutes because
+   `lane_status.AssignmentContext.build` re-derives the whole queue. A wave pays
+   that two or three times. **Caching that classifier is now the highest-value
+   tooling work**, ahead of the forced-floor census.
+2. **The resolver's keep-both fallback on metadata.** It duplicated handoff
+   fields four times and once appended a pre-match `#else / GLOBAL_ASM /
+   #endif` tail on top of a promoted body. The post-merge sweep must check
+   every handoff field and preprocessor balance, not just conflict markers; a
+   repair script now does it, and it must not touch the generated markdown
+   shards, whose header has a required field order.
+3. **A promotion merge needs its rebuild before its gates mean anything.**
+   `verify`, `check-scoreboard` and `check-overlay-syms` all read red against a
+   stale build and green after extract, overlay-syms, build, overlay-syms,
+   build. Regenerating the ranking or scoreboard before that rebuild compares
+   them against the wrong objects.
+
 ## Footguns
 
 Every one of these has cost this campaign real work. The first five cost it on
