@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained: late coordinate roles, restore-exit distribution and nested-sum identity fail to preserve reuse across both splits; three-family stall.
+ * summary: 187 retained; invariant-address lifetime control reaches numintf 39 and one coloured web; compact forms remain split or change size.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
