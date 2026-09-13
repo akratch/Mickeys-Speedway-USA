@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: Six pointer carriers delete byte-inertly; the generated node-20 base still splits at save 0.5 versus cost 2. Forced 125 retains delta +4.
+- summary: Store-result capture moves the intended line but replaces duplicate colour emission with a byte mask; 158 at +4, baseline retained.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -362,4 +362,47 @@ extra instructions; separately, the trio still needs one shared dim-colour
 materialisation across the stores and final call. A colour score alone does
 not answer that extra-instruction question.
 
+#### 2026-09-13, lane c2: per-line colour-store result differential
+
+The fresh configured baseline reproduces 209 candidate words against 208
+target words, 144 raw and 143 masked differences, first +0x10. Alignment is
+79 exact, 104 naming, one immediate and 32 structural rows, including eight
+candidate-only and seven target-only words. Procedure zero has 55 draws and
+374 emission records. Stock and instrumented full-TU text agree. A and C
+independently reproduce every aligned bucket and gap offset. No colour sweep
+was repeated; the existing exhaustive receipts were read first.
+
+Three source probes preserve physical line positions. Splitting the two tail
+chain-capture identities leaves every draw and emission count and draw order
+unchanged, but regresses to 145 masked. Defining dimColor inside the first
+colour store is full-text inert: only its old source-marker emission disappears.
+Capturing the byte-store RESULT into dimColor instead changes the intended
+store line from zero draws to one, and its emissions from two to four. Total
+draws become 56 and emissions 373. The call consumes that result, replacing
+the duplicate constant materialisation with a byte mask; the geometry remains
+209 against 208 words. Alignment becomes 79 exact, 102 naming, one immediate
+and 38 structural, with 158 masked differences. This is a measured emission
+lever, but it does not remove an instruction or improve the retained residual.
+
+The result-capture form was transferred without tuning to the first dim-colour
+store in A and C. Both reproduce B's 158 masked differences and all aligned
+buckets and gap offsets. A uses color1 at that point, while B and C use color0.
+An initial A replacement missed this distinction and left dimColor undefined;
+that preparation is marked INVALID in private evidence and excluded entirely.
+The corrected transfer is separately compiled and retained.
+
+Restore the guarded 143-word body. Stop this packet on the measured result
+capture regression and the prior closed carrier, type, order and colour axes;
+no general source-impossibility claim follows. The remaining question is a
+shared final-call colour value without either a duplicate materialisation or
+the new mask, plus the earlier schedule/allocation residual. The surplus lies
+near the tail and cannot by itself explain all preceding differing rows.
+
+Candidate/assembled-target static relocation counts remain 52/34, with no
+literal tuple identities at matching positions. This is not an authenticated
+overlay relocation proof. Private build/c2 evidence retains source/object
+pairs, complete traces, census profiles and aligned maps. Commands include
+lane_status.py, configured stock compilation, draw_census.py, residual_map.py
+with retained objects and paired deltas, finalize_plateau.py and tools/gates.sh.
+ROM verification covers the assembly fallback and adds no matching credit.
 <!-- plateau-handoff:overlay101BuildPresentationB:end -->

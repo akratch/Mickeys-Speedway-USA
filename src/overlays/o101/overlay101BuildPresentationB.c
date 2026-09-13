@@ -232,6 +232,6 @@ void overlay101BuildPresentationB(void) {
  * frame: 0x20
  * relocations: 52
  * first-mismatch: +0x10
- * summary: Six pointer carriers delete byte-inertly; the generated node-20 base still splits at save 0.5 versus cost 2. Forced 125 retains delta +4.
+ * summary: Store-result capture moves the intended line but replaces duplicate colour emission with a byte mask; 158 at +4, baseline retained.
  * PLATEAU-HANDOFF:overlay101BuildPresentationB:end
  */

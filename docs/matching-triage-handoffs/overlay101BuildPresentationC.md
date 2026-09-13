@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 52
 - first mismatch: +0x10
-- summary: L160 pointer and colour-carrier deletion is byte-inert. All 132 coloured-web forces retain excess size; the mapped lattice floor is 125 at +4.
+- summary: B store-result transfer reproduces 158 at +4 with one extra draw; the guarded 143-word baseline is retained.
 
 Measured 2026-09-11, lane `lane/s1-trio`, on the four-function overlay-101
 presentation-builder cluster. Every number is `tools/align_symbol.py`, whose
@@ -285,4 +285,32 @@ colour materialisation. L160 supplied no improved source or zero-scoring
 force-to-source route. The guarded incoming body is retained; the unsuccessful
 transfer is banked rather than repeating the lead's closed axes.
 
+#### 2026-09-13, lane c2: measured store-result transfer from B
+
+Fresh baseline: 209/208 words, delta +4, 144 raw and 143 masked differences,
+first +0x10; 79 exact, 104 naming, one immediate and 32 structural aligned
+rows. Procedure zero has 55 draws and 374 emission records. Configured
+stock and instrumented full-TU text agree. Every gap offset agrees with B.
+
+B's result-capture diagnosis was transferred to this function's first dim
+store, color0, with no independent tuning. The colour store result becomes
+the final-call argument. Its new byte mask spends one extra draw at the
+intended store line, bringing the total to 56; emissions become 373.
+The independent result is 158 masked at +4, with 79 exact, 102 naming, one
+immediate and 38 structural aligned rows. All resulting gap offsets agree
+with the measured B transfer. No colour sweep was repeated.
+
+The guarded baseline is restored. B's shard records the complete source
+diagnosis, rejected variants and early stopping evidence. The transfer proves
+the common response, but supplies no zero-width route past the surplus word.
+The next source question is a shared colour value without the duplicate
+materialisation or the replacement byte mask. Earlier windows still have a
+separate residual. This is not a proof that all source schedules are closed.
+
+Static comparison relocation counts remain 52 candidate against 34 target,
+with no literal tuple identities at matching positions; no linked overlay
+promotion is claimed. Sources, objects, profiles and aligned maps stay ignored
+under build/c2. Commands include assignment gate, configured stock compilation,
+draw_census.py profiles/comparison, residual_map.py, finalize_plateau.py and
+tools/gates.sh. Full-ROM verification covers the fallback; no new exact bytes.
 <!-- plateau-handoff:overlay101BuildPresentationC:end -->
