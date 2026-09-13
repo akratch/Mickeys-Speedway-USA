@@ -220,41 +220,41 @@ void func_80045CAC(void) {
     func_80045D34(thread);
 }
 #ifdef NON_MATCHING
-/* Mickey-derived draft; JFG's closest peer, src/diCpu.c::func_80067880,
- * remains assembly-only and supplies no body. */
-/* Workbench p4: structure-mismatch; 432 positional/438 raw words differ,
- * 451/459 instructions, first +0x0, frame -176 versus -168. Levers: oldPage
- * volatility and address-take; exact-size variants retained no frame fix. */
+/* PROVENANCE: JFG src/diCpu.c::func_80066EB0_67AB0 (efd5abb) supplies
+ * counterpart context only; that body remains incomplete NON_EQUIVALENT.
+ * This candidate is reconstructed from Mickey's own controller target.
+ * The page-count branch and post-decrement row test preserve the observed
+ * control flow. The redraw flag is dead while it holds the pool base; the
+ * row/column storage is reused for the later digit display and page label.
+ * Their shared storage recovers the frame without inventing stack padding.
+ * The configured candidate remains NON_MATCHING; see its handoff shard. */
 void func_80045D34(s32 arg0) {
-    u32 oldPage;
-    s32 pageCount;
-    s32 moduleOffset;
-    u32 printedValue;
-    s32 selectedRegion;
-    u32 address;
     s32 row;
     s32 *words;
-    s32 *pageLabel;
+    u32 oldPage;
     s32 buttons;
+    s32 pageCount;
     s32 currentPage;
-    s32 redraw;
     s32 nibble;
+    s32 redraw;
     s32 memoryIndex;
+    u32 printedValue;
     s32 pageColumn;
+    s32 moduleOffset;
+    u32 address;
     s32 index;
-    s32 lines;
     s32 limit;
+    s32 selectedRegion;
     s32 tag;
     u32 mask;
     u32 candidate;
-    MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
 
     oldPage = -1U;
     currentPage = 0;
     redraw = 1;
     memoryIndex = 0;
-    pageCount = 25;
+    /* The fallback count belongs to the logging-mode branch. */
     if (D_8007A200 == 0 || D_80000310 != 0x17D9) {
         while (1) {
         }
@@ -264,10 +264,10 @@ void func_80045D34(s32 arg0) {
         if ((D_8007CFE4 % 20) != 0) {
             pageCount++;
         }
-    }
+    } else { pageCount = 25; }
     selectedRegion = 0;
     pageCount += 5;
-    D_8007D02C = viGetVideoMode() != 0;
+    if (viGetVideoMode() != 0) { D_8007D02C = 1; } else { D_8007D02C = 0; }
     address = 0x80100000;
     nibble = 1;
     index = 0;
@@ -375,15 +375,15 @@ void func_80045D34(s32 arg0) {
                 case 4:
                     func_80046E00();
                     pageColumn = 168;
-                    if (currentPage == 1) {
-                        words = (s32 *)(address + 0xA0);
-                    } else if (currentPage == 2) {
-                        words = D_800D5DF0;
-                    } else if (currentPage == 3) {
-                        words = D_800D5E98;
-                    } else {
-                        words = D_800D5F40;
+                    switch (currentPage) {
+                        case 1: words = (s32 *)(address + 0xA0); break;
+                        case 2: words = D_800D5DF0; break;
+                        case 3: words = D_800D5E98; break;
+                        default: words = D_800D5F40; break;
                     }
+
+
+
                     do {
                         row = 20;
                         do {
@@ -393,8 +393,8 @@ void func_80045D34(s32 arg0) {
                             if (currentPage == 1 && row == 1) {
                                 row = 0;
                             }
-                            row--;
-                        } while (row != 0);
+                            /* The exit test uses the old row value. */
+                        } while (row--);
                         pageColumn -= 148;
                     } while (pageColumn != -128);
                     oldPage = currentPage;
@@ -412,14 +412,14 @@ void func_80045D34(s32 arg0) {
                     cpuXYPrintf(152, 32, "SIZE");
                     cpuXYPrintf(224, 32, "ADDRESS");
                     D_8007D030 = 0;
-                    slots = mmGetSlotPtr(selectedRegion);
-                    slot = slots;
+                    redraw = (s32)mmGetSlotPtr(selectedRegion);
+                    slot = (MemoryPoolSlot *)redraw;
                     do {
                         if (slot->flags != 0) {
                             if (index >= memoryIndex &&
                                 index < memoryIndex + 18) {
-                                printedValue = slot->colourTag & 0xFFFFFF;
                                 tag = (slot->colourTag >> 24) & 0xFF;
+                                printedValue = slot->colourTag & 0xFFFFFF;
                                 if (tag == 0xFF) {
                                     cpuXYPrintf(32, row, "Texture %d",
                                                 printedValue);
@@ -437,7 +437,7 @@ void func_80045D34(s32 arg0) {
                             }
                             index++;
                         }
-                        slot = &slots[slot->nextIndex];
+                        slot = &((MemoryPoolSlot *)redraw)[slot->nextIndex];
                     } while (slot->nextIndex != -1);
                     oldPage = currentPage;
                     redraw = 0;
@@ -455,28 +455,28 @@ void func_80045D34(s32 arg0) {
                                 moduleOffset);
                     D_8007D030 = 0;
                 }
-                candidate = address;
-                index = 0;
+                pageColumn = address;
+                row = 0;
                 do {
-                    if (index == nibble) {
+                    if (row == nibble) {
                         D_8007D030 = 1;
                     }
-                    cpuXYPrintf(76 - (index * 8), 32, "%1x", candidate & 0xF);
-                    index++;
+                    cpuXYPrintf(76 - (row * 8), 32, "%1x", pageColumn & 0xF);
+                    row++;
                     D_8007D030 = 0;
-                    candidate = (s32)candidate >> 4;
-                } while (index != 8);
+                    pageColumn = (s32)pageColumn >> 4;
+                } while (row != 8);
             }
             if (D_8007CFE8 == 0) {
-                lines = D_8007CFE4;
+                printedValue = D_8007CFE4;
             } else {
-                lines = 500;
+                printedValue = 500;
             }
-            pageLabel = (s32 *)(currentPage + 1);
-            printedValue = lines;
+            row = currentPage + 1;
+            /* The log count is already in the printed-value home. */
             limit = pageCount + 1;
-            cpuXYPrintf(50, 200, "%d lines logged", lines);
-            cpuXYPrintf(220, 200, "Page %d/%d", pageLabel, limit);
+            cpuXYPrintf(50, 200, "%d lines logged", printedValue);
+            cpuXYPrintf(220, 200, "Page %d/%d", row, limit);
         }
         osWritebackDCacheAll();
     }
@@ -909,10 +909,10 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80045D34:start
  * symbol: func_80045D34
- * score: 439 differing words
- * frame: 0xB0
- * relocations: 89
- * first-mismatch: +0x0
- * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
+ * score: 254/459 words
+ * frame: 0xA8
+ * relocations: 91
+ * first-mismatch: +0xC
+ * summary: Control-flow and lifetime corrections recover 459 words and exact frame/home traffic; 298 aligned exact, with type and emission residuals remaining.
  * PLATEAU-HANDOFF:func_80045D34:end
  */
