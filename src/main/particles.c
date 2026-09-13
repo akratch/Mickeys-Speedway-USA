@@ -2593,7 +2593,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: FP draw census and exhaustive force landscape found no movable colour or schedule; zero-constant occurrence and ring phase remain unresolved.
+ * summary: FP draw census preserved 117 draws; no zero-constant or ring-phase source lever found
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: Draw census and exhaustive accepted colour lattice leave the pre-entry ring release/MOVE_END blocker unresolved.
+ * summary: draw census and colour landscape leave the pre-entry MOVE_END ring blocker unresolved
  * PLATEAU-HANDOFF:func_80040B88:end
  */

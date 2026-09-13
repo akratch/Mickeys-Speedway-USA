@@ -7,6 +7,8 @@
 - relocations: 64
 - first mismatch: none
 - summary: Resolved Tier A: 1168 ROM-exact C bytes, 292 exact words and 64 exact relocation identities from countdown and source-line scheduling.
+- first mismatch: +0x5C
+- summary: draw census did not expose a direct-count schedule lever; extra sltu and naming residual remain
 - baseline: 45/292 words, 0x98 frame, 62 relocations, 247 masked differences
 - attempts: the complete 119-combination flag lattice did not beat canonical O2/mips2; coherent direct-branch and carrier-width forms regressed
 - bounded permutation: a five-minute, gain-gated batch improved its internal score only by inserting an inert empty guard, so the result was rejected and not applied

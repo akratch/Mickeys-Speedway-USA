@@ -187,3 +187,16 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     gOverlay2SelectedBoundary =
         gOverlay2BoundaryCandidates[gOverlay2SelectedBoundary].lineIndex;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ChooseBoundary/func_overlay_002_F00006E0_18574D8.s")
+#endif
+
+/* PLATEAU-HANDOFF:overlay2ChooseBoundary:start
+ * symbol: overlay2ChooseBoundary
+ * score: 97/292 words
+ * frame: 0x90
+ * relocations: 64
+ * first-mismatch: +0x5C
+ * summary: draw census did not expose a direct-count schedule lever; extra sltu and naming residual remain
+ * PLATEAU-HANDOFF:overlay2ChooseBoundary:end
+ */
