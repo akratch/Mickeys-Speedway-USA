@@ -2,11 +2,11 @@
 ### `overlay83DrawStrip` plateau handoff
 
 - source: `src/overlays/o083/overlay83DrawStrip.c`
-- score: 4/77 words
+- score: 73/77 words
 - frame: frameless
 - relocations: 2
 - first mismatch: +0x4
-- summary: Authorized JFG packet-order form regressed from 73 to 74 differences and shifted both relocations; baseline remains best and donor has no C body.
+- summary: Refresh corrects the stale score label: 73 masked differences, 45 draws; source-authentic packet schedule and unique relocation identity remain unavailable.
 
 Authorized donor-pass evidence on layered base
 `99496346799c96eea701dece64f1c0015b3e76aa`:

@@ -5705,7 +5705,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: m2c coordinate types do not close the structure; baseline retained. Next: original FP and integer-coordinate lifetimes.
+ * summary: Current scored baseline remains 98; donor audit and m2c type controls leave only original FP and integer-coordinate lifetime evidence.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
@@ -5751,11 +5751,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000D1B8:start
  * symbol: func_8000D1B8
- * score: 114 differing words
+ * score: 114/128 words
  * frame: 0x28
  * relocations: 8
  * first-mismatch: +0x38
- * summary: Retain unsigned command decoding at 114 differences; structural forms plateau. Next: packed-delta and relative-UV lifetime evidence.
+ * summary: Proc-11 census confirms 27 draws; unsigned command decoding remains best while packed-delta and relative-UV lifetime forms are exhausted.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 

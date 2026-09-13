@@ -106,6 +106,6 @@ loop_fade:
  * frame: 0x20
  * relocations: 5
  * first-mismatch: +0x2C
- * summary: Fresh proc-0 census confirms the NON_EQUIVALENT countdown/result floor; ABI is authenticated but semantics remain incomplete.
+ * summary: Proc-0 census confirms 66 draws; authenticated ABI notwithstanding, the countdown/result candidate remains explicitly NON_EQUIVALENT.
  * PLATEAU-HANDOFF:overlay13UpdateRecord:end
  */

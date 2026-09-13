@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 5
 - first mismatch: +0x2C
-- summary: Fresh proc-0 census confirms the NON_EQUIVALENT countdown/result floor; ABI is authenticated but semantics remain incomplete.
+- summary: Proc-0 census confirms 66 draws; authenticated ABI notwithstanding, the countdown/result candidate remains explicitly NON_EQUIVALENT.
 
 - geometry: Target and configured C remain exact at `0x284`/644 bytes/161 words with `0x20` frame; the owned Overlay 13 range is `+0x284..+0x508`, ROM `0x186ED9C..0x186F020`, followed by `overlay13ProcessActive` with no padding.
 - ABI/flags: The configured candidate is `s16 *overlay13UpdateRecord(Overlay13Record *, s32)` under overlay game-code `-O2 -mips2 -32` and the canonical symbol-redefine/trim postprocess.

@@ -1514,7 +1514,7 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xB0
- * summary: Fresh proc-29 census confirms 14 draws and one ten-register rotation; structural and colour controls are exhausted.
+ * summary: Procedure-29 census confirms 14 draws and the coherent ten-register rotation; the shard’s schedule controls leave no source handle.
  * PLATEAU-HANDOFF:packInit:end
  */
 
@@ -1524,7 +1524,7 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: 0x48
  * relocations: 11
  * first-mismatch: +0x8
- * summary: Corrected live baseline is 77/88 with a 3-word extent deficit; proc-26 buffer structure remains unresolved.
+ * summary: Proc-26 census confirms 10 draws; the 3-word extent deficit and buffer structure remain unresolved without a natural stack-home mechanism.
  * PLATEAU-HANDOFF:func_8002CF6C:end
  */
 

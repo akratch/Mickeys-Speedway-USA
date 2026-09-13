@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 20
 - first mismatch: +0xB0
-- summary: Fresh proc-29 census confirms 14 draws and one ten-register rotation; structural and colour controls are exhausted.
+- summary: Procedure-29 census confirms 14 draws and the coherent ten-register rotation; the shard’s schedule controls leave no source handle.
 #### 2026-09-12, lane p23-lastmile5: exhaustive colour evidence
 
 The configured baseline is 115 words, 34 masked differences, delta zero,

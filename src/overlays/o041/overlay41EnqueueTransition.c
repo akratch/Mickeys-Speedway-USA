@@ -114,6 +114,6 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: Fresh proc-0 census confirms 25 draws; cursor advance placement and reassociation remain closed at exact geometry.
+ * summary: Proc-0 census confirms 25 draws; cursor advance placement is the closed emission-order blocker at exact geometry.
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */

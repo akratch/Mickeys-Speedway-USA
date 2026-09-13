@@ -224,6 +224,6 @@ void func_overlay_052_F0000000_189A670(void) {
  * frame: 0x40
  * relocations: 141
  * first-mismatch: +0x20
- * summary: Fresh proc-0 census confirms 23 draws and incoherent p1 allocation; record-copy CFG and relocation identities remain unresolved.
+ * summary: Proc-0 census confirms 23 draws; incoherent p1 allocation excludes ring transfer while record-copy CFG and relocation identity remain unresolved.
  * PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:end
  */

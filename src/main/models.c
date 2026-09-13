@@ -1396,9 +1396,9 @@ void func_8002109C(ModelPointOwner *owner) {
  * symbol: func_80020B10
  * score: 102/159 words
  * frame: 0x10
- * relocations: 12
+ * relocations: 34
  * first-mismatch: +0xC
- * summary: proc14 draw census holds 37 draws; cursor setup reorder leaves schedule unchanged and regresses one word
+ * summary: Proc-14 census confirms 37 draws; cursor setup reorder leaves the scheduler unchanged and regresses, so the pool/line-order blocker remains.
  * PLATEAU-HANDOFF:func_80020B10:end
  */
 
@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: exception cursor remains a preheader strength-reduction blocker; two-draw census and exhaustive source identities add no schedule handle
+ * summary: Correct proc-16 census: array loop form removes two draws at the condition but falls to 77 at delta -4; retained byte-offset form remains the preheader blocker.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
