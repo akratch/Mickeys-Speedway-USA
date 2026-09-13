@@ -2344,10 +2344,18 @@ bytes and disassembly never belong here.
   entire component before choosing a source lever. Reducing the seed count
   alone did not help: a guarded pointer or fresh index added replacement
   ranges at the next block. Definition placement must remove the relevant
-  overlap across the component, not merely relocate it. This comparison proves
-  the split mechanism, not a successful source recipe or exhaustion of source
-  space. Preserve per-site draw constraints and require stock/instrumented
-  fidelity; other split modes and source shapes need their own measurements.
+  overlap across the component, not merely relocate it. Follow successive
+  splits of the original range too: removing one captured scalar repaired the
+  first component's admissions but made a later unprofitable component admit
+  the same address use. Its source edit preserved the complete draw sequence
+  and frame traffic yet still lost reuse. Uniform interference removal can
+  therefore satisfy one component's bound while violating another's; look for
+  definition placement that changes overlap at the required component only.
+  An arithmetic exclusion using fixed block membership and availability is
+  limited to that measured topology. This comparison proves the split
+  mechanism, not a successful source recipe or exhaustion of source space.
+  Preserve per-site draw constraints and require stock/instrumented fidelity;
+  other split modes and source shapes need their own measurements.
 
 ## Adding a learning
 
