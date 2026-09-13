@@ -193,10 +193,10 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:start
  * symbol: func_overlay_071_F0000870_18CA390
- * score: 9/182 words
+ * score: 9 differing words
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: draw census left 65 draws unchanged; missing invisible p1 interferer remains
+ * summary: 173/182 aligned exact at delta 0; 65-draw schedule retained. Exhaustive source forms did not create the invisible p1 interferer without a new residual.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */
