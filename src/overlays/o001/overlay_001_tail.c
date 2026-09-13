@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Fresh draw census: redundant angle-high mask moved no source-line draws or emissions and regressed to 21 naming rows; FIFO release-order floor remains 2.
+ * summary: Draw census unchanged; mode-carrier probe worsened residual. Ring release-order blocker remains.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 

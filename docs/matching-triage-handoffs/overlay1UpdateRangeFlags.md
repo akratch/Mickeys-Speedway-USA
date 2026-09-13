@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: Fresh draw census: redundant angle-high mask moved no source-line draws or emissions and regressed to 21 naming rows; FIFO release-order floor remains 2.
+- summary: Draw census unchanged; mode-carrier probe worsened residual. Ring release-order blocker remains.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
