@@ -3440,7 +3440,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x18
  * relocations: 9
  * first-mismatch: +0x40
- * summary: Correct proc-25 23-draw census confirms the counter read-modify-write web; retained volatile plateau remains best.
+ * summary: Fresh 23-draw census retains the counter read-modify-write web blocker: 38 exact aligned rows and 31 naming rows at zero delta.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Fresh baseline and draw census confirm the recorded FIFO ring-release blocker; no new source lever measured.
+ * summary: Fresh draw census: redundant angle-high mask moved no source-line draws or emissions and regressed to 21 naming rows; FIFO release-order floor remains 2.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: Correct proc-9 473-draw census confirms the closed prologue-load emission-order blocker; baseline retained.
+ * summary: Fresh 473-draw census retains the closed prologue-load emission-order blocker: 244 exact aligned rows, one naming and two immediate rows.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
@@ -3511,6 +3511,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Correct proc-35 46-draw census confirms the parameter-home/current-index blocker; retained baseline is best.
+ * summary: Fresh 46-draw census retains the parameter-home/current-index blocker: 86 exact rows, 15 naming, one immediate and five structural.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 5
 - first mismatch: +0x48
-- summary: Proc-0 census and index/cursor controls leave helper-result copy unresolved; colour landscape has no winner below 21.
+- summary: Fresh 28-draw census retains helper-result copy blocker: 110 exact rows, five naming, one immediate and a paired one-word shape gap.
 #### 2026-09-12, lane `p9-tight`: the shape is named and two forces price it
 
 The residual reproduces at 21 masked words, size delta 0, frame 0x80, and it is
