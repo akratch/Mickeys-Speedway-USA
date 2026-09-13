@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: Deleting x coordinate carriers leaves the 34-draw sequence fixed; one carrier moves naming rows, two regress to 31; baseline retained.
+- summary: 80/104 aligned exact at delta 0; 34-draw sequence retained. Carrier, generated cursor and physical-line controls cannot repair the address/store schedule.
 #### 2026-09-13, lane f1: address carriers and colour-store line census
 
 The configured baseline reproduces 416 bytes at delta zero, 80 exact and

@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 8
 - first mismatch: +0x4
-- summary: Local array extent control leaves nine draws unchanged and displaces stack addresses; original storage shape and 35-word baseline retained.
+- summary: 19/53 aligned exact at delta 0; nine draws unchanged. Frame-preserving array extent and cursor forms do not create the earlier p2 web set.
 
 #### Epoch 15 allocator-colour pass (2026-09-04)
 

@@ -220,10 +220,10 @@ void func_overlay_052_F0000000_189A670(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:start
  * symbol: func_overlay_052_F0000000_189A670
- * score: 115/316 words
+ * score: 115 differing words
  * frame: 0x40
  * relocations: 141
  * first-mismatch: +0x20
- * summary: Retained p1-only plateau: frame and size hold, but 80 naming, three immediate, and 27 structural rows require new record-copy CFG and relocation evidence.
+ * summary: 210/320 aligned rows exact at delta 0. p1 record-copy CFG and relocation identities remain unresolved; the observed cycles are incoherent, not a ring lever.
  * PLATEAU-HANDOFF:func_overlay_052_F0000000_189A670:end
  */

@@ -679,11 +679,11 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 
 /* PLATEAU-HANDOFF:func_800376CC:start
  * symbol: func_800376CC
- * score: 61/119 words
+ * score: 61 differing words
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: Move-one climb is a fixed point; the remaining frame and ra-versus-s0 carrier mismatch needs a lifetime or ABI lever.
+ * summary: 71/120 aligned rows exact; candidate is four bytes long. Move-one schedule controls are fixed; a frame/lifetime or ABI mechanism is still required.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
