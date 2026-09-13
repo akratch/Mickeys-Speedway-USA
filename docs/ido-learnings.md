@@ -2249,6 +2249,20 @@ bytes and disassembly never belong here.
   operations. Use retained aligned object deltas and stock/relocation/ROM proof.
   See the [call-site assignment closure](matching-triage-handoffs/overlay19BuildAdjacency.md)
   and the [constructor context controls](matching-triage-handoffs/overlay34CreateRecord.md).
+- **Guard membership can repair a generated cursor's temporary-allocation
+  tradeoff without changing stack homes.** When a source form reaches the
+  wanted cursor allocation but loses a cached local load and a later shared
+  global address, inspect the local initialization's position relative to the
+  existing nonempty-loop guard. Moving a local assignment into that block can
+  change the first-use allocation and remove the extra temporary draw while
+  preserving the frame and transition-address reuse. Prove that the local is
+  unused on the skipped path, then compare source-line draw counts, aligned
+  rows and stock output in the complete TU. In the controlled
+  [guarded-row and cursor-sharing experiment](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md),
+  the move was inert on earlier cursor shapes, and named transition values
+  did not substitute for it. This is a context-dependent definition-placement
+  lever, not permission to remove an observable initialization or a claim
+  that every guard move improves allocation.
 
 ## Adding a learning
 
