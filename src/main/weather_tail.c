@@ -144,10 +144,10 @@ void func_8003C80C(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_8003C80C:start
  * symbol: func_8003C80C
- * score: 104 differing words
+ * score: 104/118 words
  * frame: 0x38
  * relocations: 21
  * first-mismatch: +0x14
- * summary: five-draw interpolation schedule unchanged; deleting one carrier adds a word and worsens residual
+ * summary: Moving the sp20 declaration leaves all five draws and emissions unchanged while worsening frame-home agreement; baseline restored.
  * PLATEAU-HANDOFF:func_8003C80C:end
  */
