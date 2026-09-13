@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 43
 - first mismatch: +0xC
-- summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
+- summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned

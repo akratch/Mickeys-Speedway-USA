@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: All 26 coloured webs sampled without a winner; aligned candidate/target-only words expose the prologue load-order deficit at equal size.
+ * summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
