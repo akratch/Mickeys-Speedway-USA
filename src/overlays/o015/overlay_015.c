@@ -476,7 +476,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0xB8
  * relocations: 15
  * first-mismatch: +0x44
- * summary: p2 carrier scheduling basin remains unresolved at exact size
+ * summary: Correct proc-7 census captured; exact-size residual retains mixed p2 carrier scheduling and structural rows with no new source lever.
  * PLATEAU-HANDOFF:overlay15InitStars:end
  */
 
