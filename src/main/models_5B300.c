@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: Mapped proc 7: deleting frame carrier adds three draws and regresses; as1 branch-delay decline remains.
+ * summary: as1 branch-delay decision remains; source-side C and phase replay are closed
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
