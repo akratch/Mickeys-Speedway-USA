@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: Fresh 473-draw census retains the closed prologue-load emission-order blocker: 244 exact aligned rows, one naming and two immediate rows.
+ * summary: 473-draw census confirms closed prologue-load emission-order blocker; no source-authentic route below 14.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
