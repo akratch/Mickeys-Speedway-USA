@@ -1739,11 +1739,11 @@ void func_800293D0(void) {
 
 /* PLATEAU-HANDOFF:func_80029274:start
  * symbol: func_80029274
- * score: 39/87 words
+ * score: 39 differing words
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: Exhaustive float landscape and source forms leave a coherent FP naming residual; the save-ratio/lifetime mechanism remains unresolved.
+ * summary: Configured baseline retained; named Ucode has 68 procedures versus 66 allocator index rows, so procedure mapping fails closed before a draw experiment.
  * PLATEAU-HANDOFF:func_80029274:end
  */
 
