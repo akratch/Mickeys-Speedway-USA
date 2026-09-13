@@ -5660,11 +5660,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80008028:start
  * symbol: func_80008028
- * score: 32/60 words
+ * score: 28 differing words
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Remeasured at 28 words; objectOffset takes a0 where the target takes a1 and the whole shared ring rotates from +0x24.
+ * summary: Unsigned per-iteration offset retains 13 draws and their order but adds two instructions; original extent and 28-word baseline retained.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
