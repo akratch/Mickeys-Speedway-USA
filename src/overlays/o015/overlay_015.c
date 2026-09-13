@@ -452,11 +452,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 9/105 words
+ * score: 96/105 words
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: 9 aligned structural rows; zero legal colour winners; setup/preheader probes moved no census lines; retained body is best
+ * summary: Conditional-header fade changes draw order but adds 12 bytes; a separate guard changes no draws and also adds 12 bytes.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
