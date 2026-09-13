@@ -65,13 +65,13 @@ void func_80034434(s32 value)
 /* PROVENANCE: control flow is adapted from the public Diddy Kong Racing
  * src/textures_sprites.c::load_texture and compared with Jet Force Gemini's
  * public texLoadTexture object. Mickey's globals, layouts, helpers, and
- * compiled bytes remain authoritative. The retained configured candidate has
- * the exact 0x50 frame and reconstructs the complete cache, asset, allocation,
- * decompression, and overflow paths. It is 215 instructions against 214,
- * differs at 118 positional words (normalized distance 58), and first differs
- * at +0x58. All 53 relocation identities resolve and 37 align exactly. Ten
- * bounded structure, type, declaration, and expression forms leave a one-word
- * aligned-address copy plus an upstream ugen temporary-ring rotation. */
+ * compiled bytes remain authoritative. The guarded candidate reconstructs
+ * the complete cache, asset, allocation, decompression, and overflow paths.
+ * Reusing the consumed loadSize carrier for the aligned DMA address removes
+ * the surplus word: both extents are 214 words, with 54 masked differences.
+ * The frame is 0x48 against 0x50; first mismatch is +0x0. Of 53 static
+ * relocation records on each side, 46 offset/type/identity tuples agree.
+ * Remaining frame, temporary-home and schedule differences are nonexact. */
 TextureHeader *func_80034448(s32 textureId) {
     s32 i;
     TextureHeader *texture;
@@ -143,13 +143,13 @@ TextureHeader *func_80034448(s32 textureId) {
         }
         piRomLoadSection(
             assetSection,
-            (((s32)texture + loadSize) - assetSize) -
+            loadSize = (((s32)texture + loadSize) - assetSize) -
                 ((((s32)texture + loadSize) - assetSize) % 16),
             assetOffset, assetSize);
         func_8004D7E0(
-            (void *)(((((s32)texture + loadSize) - assetSize) -
-                      ((((s32)texture + loadSize) - assetSize) % 16)) +
-                     0x20),
+            (void *)(loadSize + 0x20),
+
+
             texture);
         assetSize = uncompressedSize;
     }
@@ -233,10 +233,10 @@ s32 func_8003484C(void *texture) {
 
 /* PLATEAU-HANDOFF:func_80034448:start
  * symbol: func_80034448
- * score: 118/215 words
- * frame: 0x50
+ * score: 54 differing words
+ * frame: 0x48
  * relocations: 53
- * first-mismatch: +0x58
- * summary: Loader structure and frame are exact; aligned-address copy and upstream temp-ring rotation remain.
+ * first-mismatch: 0x0
+ * summary: Consumed loadSize carrier removes surplus word; 54 masked differences remain with frame/home and schedule deficits.
  * PLATEAU-HANDOFF:func_80034448:end
  */
