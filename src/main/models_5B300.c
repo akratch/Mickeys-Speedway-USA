@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: Declaration-order source probe moved no draw, free, or emission line; the remaining two aligned rows are structural as1 branch-delay behavior.
+ * summary: as1 branch-delay residual; draw census confirms source declaration changes do not move the schedule
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
