@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: Inert entry use added no census draw and regressed to 74; pre-entry draw without t7 release remains unresolved.
+ * summary: Draw census and exhaustive accepted colour lattice leave the pre-entry ring release/MOVE_END blocker unresolved.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
