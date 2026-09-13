@@ -124,3 +124,145 @@ Private evidence is preserved as
 directory. It includes both controls, the faithful baseline, prepared input,
 stock listing, preflight, commands and comparison reports. All instruction
 listings, objects and raw traces remain private.
+
+## The reset reaches the slot: lane wv-i
+
+Lane `wv-i`, 2026-09-13. **Retained: 172 masked / 343 raw differences,
+14,456 bytes, delta zero, frame 0x138, first masked mismatch +0x50.** Five
+already-early index definitions now occupy their target call slots. Exactly
+15 non-relocation instruction words change, and all 15 become target-exact;
+no other executable word changes. The complete relocation surface and all
+720 temporary draws retain their original order. No function is promoted.
+
+**Case 12's reset is also source-reachable at its exact target slot,
++0x1268.** That separate witness remains four bytes too long and introduces
+later gaps. The retained 172 body therefore keeps case 12 unchanged: its
+reset remains at +0x12F8, and its complete gap list is candidate +0x12F8
+against target +0x1260. This is an improvement and a scheduling mechanism,
+not the requested zero-gap result at target width.
+
+### Availability was only the first barrier
+
+The faithful stock `-Wa,-R` trace identifies the original slot occupant as
+the fourth colour argument, a3 = 255. In the inherited 187 body, the first
+colour call's scheduling block has seven instruction nodes: five argument
+definitions, the outgoing fifth-argument store and the call. The reset is
+absent; its producer follows three calls. The candidate call is at +0x1260
+and its fourth-argument setup occupies +0x1264.
+
+In the inherited postincrement control, the reset **is available and
+independent**: it is an initial ready node with zero predecessors,
+aftercycles and latency, and no successors. The fourth-argument definition
+has the same recorded properties. as1 selects the reset at block-relative
++0x10, then the third argument at +0x14, the call at +0x18 and the fourth
+argument at +0x1C. The reset ends at +0x125C; a3 occupies +0x1268.
+No dependency edge makes that early reset unavailable. Its ready-list order
+makes it execute before the eventual slot filler.
+
+The fifth-argument constant/store chain is scheduled first, followed by the
+zero-height definitions. Neither first-call trace hides a deleted no-op in
+the slot: every produced instruction survives in the final block. A hidden
+temporary draw or consumed no-op slot is not this call's explanation.
+
+### The source lever is a value-producing argument
+
+Attempt 1 put `(i = 0, 0xFF)` in the fifth argument and gave the first title
+array an independent `portraitX` induction next to the loop. The hypothesis
+was that the last argument would emit the reset last. It does the opposite:
+the compiler emits the discarded comma assignment before all five argument
+definitions. The reset is at +0x1254 and a3 still occupies +0x1268.
+
+Attempt 2 changes only that argument to `0xFF - (i = 0)`. The value-producing
+expression retains the reset after the four register-argument definitions,
+even though the subtraction folds to the same constant. The reset still has
+zero predecessors, aftercycles and latency in as1's graph; the changed
+ready-list order now leaves it for the delay slot at **+0x1268**. Compared
+with attempt 1, only five executable words change, all in this first call
+block, with identical width and relocation records. The complete later output
+is identical. This is a local scheduling repair, not a pressure intervention.
+
+Both forms initialize the visible index early and retain a base-only title
+cursor. Both indices advance once per iteration and have the original
+bounded domain. The local's address does not escape, no other call argument
+reads it, and every call value/order is preserved. The subtraction is defined
+and evaluates to 255; it introduces no runtime arithmetic instruction.
+
+Attempt 3 tests the new expression with the original late reset and shared
+array induction still present. The early definition is deleted and the
+complete output reproduces 187, including the late reset and gap. The new
+argument spelling does not bypass the previously proved dead-definition and
+induction-initial-value barriers.
+
+Attempt 4 applies the successful last-argument spelling only at the five
+sites whose visible indices were already initialized in the opening colour
+call: cases 1, 3, 13, 8 and 10, in source order. Their array inductions and
+all later lifetimes remain unchanged. Each call repairs three instruction
+words, giving **172 at delta zero**. The reset slots are respectively
++0x140, +0xD64, +0x16A0, +0x25B0 and +0x3350. Every changed word is outside
+the relocation surface and equals the corresponding target word directly.
+The retained source uses:
+
+```c
+fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
+```
+
+### Complete measurements
+
+Scores are differing words; structural counts exclude unpaired gap words.
+All cells preserve the baseline draw count and complete draw order.
+
+| Cell | Masked / raw | Owned bytes | Exact / naming / immediate / structural | Gaps C/T | Emissions |
+| --- | ---: | ---: | --- | --- | ---: |
+| Baseline | 187 / 358 | 14,456 | 3458 / 134 / 1 / 20 | 1/1 | 5,072 |
+| 1: discarded fifth-argument reset | 2375 / 2451 | 14,460 | 2876 / 196 / 230 / 308 | 5/4 | 5,068 |
+| 2: value-producing fifth argument | 2370 / 2446 | 14,460 | 2878 / 196 / 230 / 307 | 4/3 | 5,068 |
+| 3: retain original late definition | 187 / 358 | 14,456 | 3458 / 134 / 1 / 20 | 1/1 | 5,072 |
+| 4: five existing early definitions | 172 / 343 | 14,456 | 3473 / 129 / 1 / 10 | 1/1 | 5,072 |
+
+Attempt 1's complete gaps are candidate +0x1254, +0x1514, +0x15C0,
++0x15C4, +0x1C84 against target +0x1260, +0x1508, +0x152C, +0x1C78.
+Attempt 2 removes only the first pair: candidate +0x1514, +0x15C0,
++0x15C4, +0x1C84 against target +0x1508, +0x152C, +0x1C78 remain. Both
+have 1,255 candidate relocations. Baseline, attempt 3 and retained attempt 4
+have 1,253 relocations and the single +0x12F8/+0x1260 pair.
+
+An independent small C switch-arm experiment reproduces the comma versus
+value-producing argument distinction. Otherwise identical function-entry
+experiments do not, using either int or ABI-width long locals. The source
+recipe therefore has measured context limits; it is not a universal promise
+that assignment-expression syntax controls a slot.
+
+### Preservation and resumption condition
+
+The scheduling question is answered and the reusable gains are banked.
+This is an early stop at the packet's remaining scope boundary, not a
+three-attempt stall or a universal impossibility claim. Case 12's independent
+induction still carries the known four-byte later-address-reuse cost.
+The new spelling changes none of that later output. The supplied pressure
+and composition witnesses introduce their own additional gaps and do not
+provide an already-proved zero-gap source to receive this local repair;
+their excluded searches are not repeated.
+
+A further case-12 packet can start from attempt 2, where actual slot
+placement is solved, and must retain it while recovering later address reuse
+and removing every replacement gap at target width. Merely making the reset
+available, moving it to another argument through a comma, or adding a second
+late reset is no longer an open hypothesis. Recompute any colour landscape
+on the chosen source: the supplied 187 resources are historical after the
+retained body changes to 172; no forced floor for 172 is claimed.
+
+The assignment gate returned base-only. Configured, private-copy and
+instrumented objects pass content, relocation and symbol fidelity. The stock
+scheduler captures used here pass that same gate. The actual prepared
+baseline input passes self-context comparison; the source attempts preserve
+its declaration context. Analysis-only preflight has partial relocation
+evidence, not an exact-identity or promotion proof. ROM verification uses the
+assembly fallback and does not promote the nonexact C.
+
+`finalize_plateau.py` keeps the candidate guarded and updates its handoff.
+The complete private packet is
+`matching-evidence/wv-i-delay-slot-20260913.tar.gz` under Git's common
+directory. It retains every source/object, complete gaps, scheduler and draw
+traces, context/fidelity receipts, standalone controls and gate logs. A manual
+listing-reassembly experiment failed fidelity and remains failed diagnostic
+evidence; no conclusion depends on it.
