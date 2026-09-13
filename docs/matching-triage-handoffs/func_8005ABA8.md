@@ -6,7 +6,7 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: Mapped proc 7: deleting frame carrier adds three draws and regresses; as1 branch-delay decline remains.
+- summary: as1 branch-delay decision remains; source-side C and phase replay are closed
 
 #### Owned evidence and result, 2026-09-09
 

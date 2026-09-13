@@ -83,6 +83,6 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
  * frame: 0x80
  * relocations: 26
  * first-mismatch: +0xDC
- * summary: Fresh 27-draw baseline retained; entry-carrier probe changed schedule but regressed to 183 words, leaving the caller-pool cycle at exact geometry.
+ * summary: exact geometry remains; caller-pool ring is unchanged by source-order probes and needs a new zero-width web mechanism
  * PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:end
  */

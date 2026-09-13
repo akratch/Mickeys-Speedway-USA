@@ -5660,11 +5660,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80008028:start
  * symbol: func_80008028
- * score: 28 differing words
+ * score: 28/60 words
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Fresh 13-draw baseline confirms prior offset and loop controls; no new schedule lever, one relocation identity still unresolved.
+ * summary: outer offset/interference schedule remains; indexed-loop and typed-offset families are closed
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
@@ -5773,11 +5773,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006534:start
  * symbol: func_80006534
- * score: 17 differing words
+ * score: 17/205 words
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: Fresh 49-draw baseline confirms recorded ghost-read and mask/load controls; no untested causal schedule lever identified.
+ * summary: ghost-read and mask/load schedule remain after the measured source and colour closures
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

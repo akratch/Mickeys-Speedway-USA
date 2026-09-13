@@ -2,11 +2,11 @@
 ### `overlay58DrawLargePointQuad` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawLargePointQuad.c`
-- score: 21 differing words
+- score: 21/104 words
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: 34-draw schedule unchanged; all residual is one-window register allocation and store reorder does not move it
+- summary: 34-draw schedule is stable; register-only residual needs a new source-authentic web and temporary-ring mechanism
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding

@@ -2614,5 +2614,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * relocations: 12
  * first-mismatch: +0x48
  * summary: Fresh proc-29 census: 126 draws/387 emissions. Pre-entry MOVE_END still blocks a source-safe extra draw and free-list phase change.
+ * summary: pre-entry MOVE_END blocks the needed ring phase; source-safe extra draw remains unproved
  * PLATEAU-HANDOFF:func_80040B88:end
  */

@@ -104,10 +104,10 @@ void overlay40BuildFrame(void *displayList, s32 x, s32 y, s32 width,
 
 /* PLATEAU-HANDOFF:overlay40BuildFrame:start
  * symbol: overlay40BuildFrame
- * score: 6/81 words
+ * score: 75/81 words
  * frame: 0xB0
  * relocations: 1
  * first-mismatch: +0x4
- * summary: Exact 324-byte geometry; resident call identity repaired, but 75 structural/register words remain; natural array is 3 words short; next lever is carrier layout.
+ * summary: exact geometry remains; record-carrier layout and store schedule are unresolved
  * PLATEAU-HANDOFF:overlay40BuildFrame:end
  */

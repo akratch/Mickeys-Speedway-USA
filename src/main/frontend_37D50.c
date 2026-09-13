@@ -683,7 +683,7 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: Fresh proc-5 census confirms the 0x20 frame and ABI lifetime residual; move-one schedules and local controls remain closed.
+ * summary: size-mismatch and ABI lifetime residual remain; move-one schedule controls are closed
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 
