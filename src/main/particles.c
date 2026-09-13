@@ -2613,6 +2613,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x48
- * summary: draw census and colour landscape leave the pre-entry MOVE_END ring blocker unresolved
+ * summary: Fresh proc-29 census records 126 draws; the pre-entry MOVE_END still blocks the needed free-list phase without a source-safe extra draw.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
