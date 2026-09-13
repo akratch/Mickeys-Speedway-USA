@@ -482,11 +482,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15InitStarsAndPalette:start
  * symbol: overlay15InitStarsAndPalette
- * score: 120 differing words
+ * score: 120/247 words
  * frame: 0x40
  * relocations: 16
  * first-mismatch: +0x4
- * summary: Exact-size 247-word candidate; carrier reuse cut 230 to 120 differences, but allocator structure and two extra static records versus 14 target records remain.
+ * summary: Exact-size candidate retains allocator structure and two extra static records; carrier reuse improved 230 to 120 differences.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
 
