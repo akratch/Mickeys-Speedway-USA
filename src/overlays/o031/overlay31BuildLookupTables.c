@@ -166,6 +166,6 @@ void func_overlay_031_F0000000_187F520(void) {
  * frame: 0x40
  * relocations: 10
  * first-mismatch: +0x2C
- * summary: seven-draw allocator proxy; pre-loop definition reorder leaves schedule and residual unchanged
+ * summary: Seven-draw allocator proxy: pre-loop definition reorder leaves schedule and residual unchanged.
  * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
  */
