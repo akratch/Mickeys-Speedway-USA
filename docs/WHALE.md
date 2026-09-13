@@ -43,9 +43,12 @@ Aligned rows by region (0x400 windows), naming first:
     +0x2400   9 rows   7 naming  2 structural
     +0x3000   6 rows   2 naming  4 structural
 
-The `+0x0000` block is a closed four-cycle over the save ring —
-`s0 → s2 → s3 → s1 → s0` — with 34 naming rows behind it. One rotation explains
-the biggest block in the function.
+The `+0x0000` window has 34 naming rows and a dominant saved-register
+substitution cycle. It spans several basic blocks and is **not a temporary
+FIFO phase**: the supplied draw sequence never draws those saved registers.
+The [wv-e entry experiment](whale-entry-phase.md) changes FIFO phase twice at
+zero byte cost and repairs none of the original entry naming rows. The
+retained score remains 187; the first masked mismatch remains +0x50.
 
 The ugen census is **720 draws and 5,072 emissions**, with two draws at the
 coordinate line and zero at the capture line.
@@ -153,9 +156,10 @@ That is the shape of the thing. It was invisible before today.
 4. **The last gap pair**, `+0x1260` / `+0x12F8`, worth about 32 positional
    words. Read with `draw_census`: an extra instruction is an extra emission at
    a line.
-5. **The `+0x0000` ring rotation**, 34 naming rows behind one four-cycle
-   `s0 → s2 → s3 → s1 → s0`. The largest single block, and a rotation is the
-   shape L127/L145 are about.
+5. **The `+0x0000` pool-allocation residual**, 34 naming rows across several
+   basic blocks. The wv-e experiment rules out treating its aggregate cycle
+   as a FIFO-phase diagnosis. Read its entry-web partition and the supplied
+   w75/w27/w962 force footprints before proposing another source lever.
 6. **The interference bound itself** — whether anything in source can lower
    `numintf` at the restoration site from 25 to 24.
 
@@ -313,10 +317,14 @@ about 32 of the 187 positional words, and the only one of the original four
 still open. An extra instruction is an extra emission at a line, and
 `draws187.json` is the before-profile: take an after-profile and `--compare`.
 
-**Wave D — the `+0x0000` block.** 34 naming rows behind one closed four-cycle
-`s0 -> s2 -> s3 -> s1 -> s0`, the largest single block in the function, and the
-landscape's `w27=c17` only reaches `0x0080` of it. A ring rotation is the shape
-L127 and L145 are about.
+**Entry wave — measured by wv-e.** The `+0x0000` window contains 34 naming
+rows, but its aggregate cycle is not one temporary-ring rotation. The first
+mismatch is a pool-coloured switch load before the first temporary draw.
+Two zero-width FIFO interventions and eight carrier/type/pointer controls
+supply no admissible entry repair. The unchanged-source landscape also has
+w75 and w962 winners touching this window; w27 is not its only colour handle.
+See the [entry-phase report](whale-entry-phase.md) for the measured boundaries,
+draw orders, category-migration trap and source-attempt stop evidence.
 
 Waves A and B are sequential; C and D are independent of both and of each other,
 so they can run concurrently with A.
