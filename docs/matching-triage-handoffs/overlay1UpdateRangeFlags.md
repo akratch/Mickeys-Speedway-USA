@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: Angle reassociation left 15 draws/122 emissions unchanged and worsened the aligned residual to 19 naming rows; the FIFO release point is unreached.
+- summary: Closed colour and draw-order axes; residual requires a fifth ring draw between angle sum and truncation.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
