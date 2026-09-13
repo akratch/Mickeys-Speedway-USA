@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: as1 branch-delay residual; draw census confirms source declaration changes do not move the schedule
+ * summary: as1 branch-delay residual; source declaration census remains flat
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 
