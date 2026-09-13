@@ -413,7 +413,7 @@ units remain distinct.
 | 117 | `src/overlays/o100/overlay100DrawMotion.c` | `overlay100DrawMotion` | `o100` | `other` | 972 | 161 | 161 | 0 | 0 | 0 | — |
 | 118 | `src/overlays/o057/overlay57UpdateSelection.c` | `overlay57UpdateSelection` | `o057` | `other` | 1,132 | 166 | 162 | 48 | 76 | 0 | — |
 | 119 | `src/main/track.c` | `func_8001398C` | `main` | `other` | 1,320 | 163 | 163 | 96 | 96 | 0 | — |
-| 120 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `other` | 14,456 | 343 | 172 | 80 | 80 | 0 | — |
+| 120 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `other` | 14,456 | 340 | 169 | 80 | 80 | 0 | — |
 | 121 | `src/main/track.c` | `func_8000F198` | `main` | `other` | 996 | 185 | 185 | 0 | 0 | 0 | — |
 | 122 | `src/main/objects.c` | `func_80007118` | `main` | `other` | 1,836 | 186 | 186 | 44 | 44 | 0 | — |
 | 123 | `src/main/track.c` | `func_800140CC` | `main` | `other` | 868 | 187 | 187 | 0 | 0 | 0 | — |
