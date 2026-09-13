@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: zero winning coloured forces; draw census found no edit that moves the FP ring release order
+ * summary: Exhaustive colour landscape has no winner; fresh census agrees with the traced FIFO release-order conflict, leaving t5-to-t4 at two aligned rows.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
