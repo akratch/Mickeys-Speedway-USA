@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 299,
-  "resolved": 299,
+  "queue_size": 298,
+  "resolved": 298,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 299,
-  "relocation_masked_coverage": 299,
+  "source_context_coverage": 298,
+  "relocation_masked_coverage": 298,
   "functions": [
     {
       "name": "overlay1UpdateRangeFlags",
@@ -1058,21 +1058,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "S_ha.nMiP.ZxcV.UTwx.gTpn.Dxxb.a4iT.GVWh.FJaA.PYcP.osY"
-    },
-    {
-      "name": "overlay14PrepareInputState",
-      "file": "src/overlays/o014/overlay14PrepareInputState.c",
-      "overlay": 14,
-      "tu": "overlays/o014",
-      "size_bytes": 524,
-      "objdiff_match_pct": null,
-      "differing_words": 67,
-      "first_mismatch_offset": 52,
-      "relocation_masked_differing_words": 65,
-      "relocation_masked_first_mismatch_offset": 52,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "MLsk.swpV.-Aa4.65X8.xRRj.lrIf.fOy1.PV_B._RvZ.hmSR.Dx0"
     },
     {
       "name": "overlay58DrawSegmentStrip",
