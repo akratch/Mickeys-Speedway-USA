@@ -439,7 +439,7 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x0
- * summary: Unique JFG hand-assembly donor; six call results live in odd caller-saved FP registers, which stock IDO cannot emit; retain fallback.
+ * summary: Hand-assembly donor requires odd caller-saved FP results that stock IDO cannot emit; retain fallback.
  * PLATEAU-HANDOFF:func_8002AB78:end
  */
 
