@@ -5685,17 +5685,17 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
+ * summary: Fresh proc-29 census: 7 draws/124 emissions. Width control moves the schedule only with excess geometry; baseline allocation residual remains.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
 /* PLATEAU-HANDOFF:func_8000D820:start
  * symbol: func_8000D820
- * score: 65 differing words
+ * score: 65/86 words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: m2c confirms existing identities and CFG; zero new attempts. Next: dirty-flag and shared-count lifetime evidence.
+ * summary: Fresh baseline confirms 84 vs 86 words and a 65-word mixed residual; no new dirty-flag/shared-count lifetime evidence exists.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
@@ -5705,7 +5705,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: m2c coordinate types do not close the structure; baseline retained. Next: original FP and integer-coordinate lifetimes.
+ * summary: Current scored baseline remains 98; donor audit and m2c type controls leave only original FP and integer-coordinate lifetime evidence.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
@@ -5725,7 +5725,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0xBC
- * summary: Fresh proc-39 draw census confirms the recorded dependency route regresses and same-value stores are inert; no new source schedule lever.
+ * summary: Fresh proc-39 census: 34 draws/209 emissions; the dependency route regresses and a same-value store is inert. No schedule lever remains.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
@@ -5751,11 +5751,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000D1B8:start
  * symbol: func_8000D1B8
- * score: 114 differing words
+ * score: 114/128 words
  * frame: 0x28
  * relocations: 8
  * first-mismatch: +0x38
- * summary: Retain unsigned command decoding at 114 differences; structural forms plateau. Next: packed-delta and relative-UV lifetime evidence.
+ * summary: Proc-11 census confirms 27 draws; unsigned command decoding remains best while packed-delta and relative-UV lifetime forms are exhausted.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 

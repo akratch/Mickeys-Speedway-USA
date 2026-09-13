@@ -84,6 +84,6 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
  * frame: 0x80
  * relocations: 0
  * first-mismatch: +0x58
- * summary: Point deletion moves draws and regresses; partial-offset naming adds spill costs, and deleting its vertex pointer is draw/byte-flat.
+ * summary: Unsigned scale normalization leaves all 63 draws and stock text unchanged; the mask-table emission-order blocker remains.
  * PLATEAU-HANDOFF:overlay19BuildSpatialMasks:end
  */

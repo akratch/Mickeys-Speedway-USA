@@ -6,7 +6,7 @@
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x2C
-- summary: Fresh seven-draw census and aligned map retain the initial-character web split: 90 exact rows and 16 naming rows at delta zero.
+- summary: Seven-draw census confirms four-window live-range split; exhausted source and colour routes remain at 16.
 
 #### 2026-09-09: the ninth callee-saved web is the working copy
 

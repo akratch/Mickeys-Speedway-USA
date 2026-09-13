@@ -3440,7 +3440,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x18
  * relocations: 9
  * first-mismatch: +0x40
- * summary: Fresh 23-draw census retains the counter read-modify-write web blocker: 38 exact aligned rows and 31 naming rows at zero delta.
+ * summary: 23-draw census retains counter read-modify-write web blocker; no admissible route below 31.
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
@@ -3450,7 +3450,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Fresh draw census: redundant angle-high mask moved no source-line draws or emissions and regressed to 21 naming rows; FIFO release-order floor remains 2.
+ * summary: Proc-23 census: 33 draws/174 emissions; mode probe worsened residual. Ring release-order remains.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
@@ -3460,7 +3460,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: Fresh 473-draw census retains the closed prologue-load emission-order blocker: 244 exact aligned rows, one naming and two immediate rows.
+ * summary: 473-draw census confirms closed prologue-load emission-order blocker; no source-authentic route below 14.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
@@ -3470,7 +3470,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x58
  * relocations: 22
  * first-mismatch: +0x10
- * summary: Correct proc-36 58-draw census confirms the initial draw deficit and mixed later allocation residual; baseline retained.
+ * summary: Proc-36 58-draw census confirms initial draw deficit and mixed later allocation residual; baseline retained.
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
 
@@ -3511,6 +3511,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: Fresh 46-draw census retains the parameter-home/current-index blocker: 86 exact rows, 15 naming, one immediate and five structural.
+ * summary: 46-draw census confirms parameter-home/current-index live-range blocker; exhausted source and colour routes remain at 21.
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

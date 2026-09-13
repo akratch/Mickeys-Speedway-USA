@@ -295,12 +295,12 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch; 192/192 instructions, target/candidate frames
+/* Historical baseline (2026-09-09): 192/192 instructions, target/candidate frames
  * -0x98/-0x90, 87 raw differences. The size closed by spelling the first of
  * the three 0x80000000 sites as the same `(u32) D_80000000` the other two use:
  * the target materializes that symbol's high half into a saved register twice
  * and folds the low half into a later load, which a literal constant cannot
- * reproduce. The frame and the `message` home remain.
+ * reproduce. See the EOF handoff and function shard for current measurements.
  *
  * 2026-09-09, the frame is an equation with two unknowns and both are now
  * measured. Every frame in this function is
@@ -353,7 +353,7 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
     s8 *commandStart;
     s8 *printStart;
     u32 nestedStart;
-    u32 midpoint;
+
     u32 nestedCommand;
     u32 address;
 
@@ -419,10 +419,10 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                 } else {
                     commandIndex = commandCount / 2;
                 }
-                midpoint = nestedStart + commandIndex * 8;
-                address = midpoint;
-                if (midpoint < 0x80000000U) {
-                    address = midpoint + (u32) D_80000000;
+                address = nestedStart + commandIndex * 8;
+
+                if (address < 0x80000000U) {
+                    address = address + (u32) D_80000000;
                 }
                 displayList = (SchedGfx *) address;
                 diRcpPrintDL((SchedGfx *) nestedStart, displayList, 0xA0);
@@ -938,10 +938,10 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
 
 /* PLATEAU-HANDOFF:func_80030610:start
  * symbol: func_80030610
- * score: 86/192 words
+ * score: 85 differing words
  * frame: 0x90
  * relocations: 13
- * first-mismatch: +0x0
- * summary: Fresh proc-10 census records 24 draws; source forms do not reduce the temporary-area reservation or close the frame and structural deficit.
+ * first-mismatch: 0x0
+ * summary: Midpoint-carrier merge improves 86 to 85 masked; 24 draws unchanged. Other carrier and layout controls move reservation but regress.
  * PLATEAU-HANDOFF:func_80030610:end
  */

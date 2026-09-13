@@ -165,7 +165,7 @@ void overlay89UpdateStateAndParticles(Overlay89Object *object,
  * score: 98 differing words
  * frame: 0x90
  * relocations: 14
- * first-mismatch: +0x0
- * summary: 29-draw census unchanged; one-word overrun and post-call ring release remain unresolved
+ * first-mismatch: 0x0
+ * summary: Parameter-home and guarded-count controls are byte-flat; early z is 97 positional but worse aligned; retained 98 and frame 0x90.
  * PLATEAU-HANDOFF:overlay89UpdateStateAndParticles:end
  */

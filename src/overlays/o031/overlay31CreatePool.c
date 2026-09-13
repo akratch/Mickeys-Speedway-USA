@@ -82,10 +82,10 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
 
 /* PLATEAU-HANDOFF:overlay31CreatePool:start
  * symbol: overlay31CreatePool
- * score: 11 differing words
+ * score: 11/50 words
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x28
- * summary: one-draw schedule; declaration order fixes frame, residual is pre-coloured-a0 interference around record web
+ * summary: Outer less-than test leaves every draw and emission unchanged; record still lacks the required pre-coloured a0 interference.
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */

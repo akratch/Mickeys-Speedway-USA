@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88
-- summary: Fresh proc-0 census confirms the recorded store-order differential; all named schedule probes are exhausted without an aligned improvement.
+- summary: Fresh proc-0 census: 28 draws/213 emissions. Existing store-order probes remain exhausted; no aligned improvement or new schedule lever.
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 

@@ -6,7 +6,7 @@
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: Fresh 46-draw census retains the parameter-home/current-index blocker: 86 exact rows, 15 naming, one immediate and five structural.
+- summary: 46-draw census confirms parameter-home/current-index live-range blocker; exhausted source and colour routes remain at 21.
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 

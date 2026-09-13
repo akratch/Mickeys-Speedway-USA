@@ -138,10 +138,10 @@ s32 overlay68CheckKind(s32 kind) {
 
 /* PLATEAU-HANDOFF:overlay68CheckKind:start
  * symbol: overlay68CheckKind
- * score: 10 differing words
+ * score: 10/80 words
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: constant-propagation cursor fold; draw census shows 11 draws and no source-line schedule movement
+ * summary: Address-taken zero index adds a store and frame quantum but no cursor draw; constant-propagation fold remains.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

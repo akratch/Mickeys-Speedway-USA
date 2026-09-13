@@ -58,7 +58,7 @@ void overlay60ReassignChoiceSlots(void) {
  * score: 35 differing words
  * frame: 0x20
  * relocations: 8
- * first-mismatch: +0x4
- * summary: 19/53 aligned exact at delta 0; nine draws unchanged. Frame-preserving array extent and cursor forms do not create the earlier p2 web set.
+ * first-mismatch: 0x4
+ * summary: Authenticated nine-draw baseline; prior cursor/type/extent differentials leave the earlier p2 web-creation requirement unresolved.
  * PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:end
  */

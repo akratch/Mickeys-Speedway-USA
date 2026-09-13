@@ -299,6 +299,6 @@ common_tail:
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x4C
- * summary: Forty-draw proc-0 census remains fixed; three-local interference and root-initialization schedule are unresolved.
+ * summary: Proc-0 census confirms 40 draws; named three-local interference and root-initialization schedule remain unavailable at exact geometry.
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */

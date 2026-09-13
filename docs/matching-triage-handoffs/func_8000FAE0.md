@@ -6,7 +6,7 @@
 - frame: 0x10
 - relocations: 2
 - first mismatch: +0x1C
-- summary: Fresh proc-29 census confirms the width-control differential: only a widening conversion moves the schedule, and it loses target geometry.
+- summary: Fresh proc-29 census: 7 draws/124 emissions. Width control moves the schedule only with excess geometry; baseline allocation residual remains.
 
 - Reopen audit (2026-09-08): the local Jet Force Gemini checkout is exactly
   `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, with an unchanged tracked

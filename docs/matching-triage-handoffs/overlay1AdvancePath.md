@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 22
 - first mismatch: +0x10
-- summary: Correct proc-36 58-draw census confirms the initial draw deficit and mixed later allocation residual; baseline retained.
+- summary: Proc-36 58-draw census confirms initial draw deficit and mixed later allocation residual; baseline retained.
 
 ### Historical source shape (superseded 2026-09-12)
 

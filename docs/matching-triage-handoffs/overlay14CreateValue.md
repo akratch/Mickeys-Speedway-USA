@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 15
 - first mismatch: +0x54
-- summary: Fresh 10-draw baseline retains the chosen-pointer extra-cell residual; L145/L144 probes and colour controls remain closed.
+- summary: Fresh 10-draw baseline confirms the extra +0x24 pointer home; declaration-order probe moved no draw or emission line and was restored.
 - base: `3169297845d9e4b3843c03be16cfe6d51358d280`
 - boundary: overlay 14 `+0x6FC..+0x87C`, 384 bytes / 96 words, no
   padding or export; two local callers at `+0x3C0` and `+0x40C`

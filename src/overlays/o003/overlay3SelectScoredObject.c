@@ -68,6 +68,6 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
  * frame: 0x80
  * relocations: 5
  * first-mismatch: +0x48
- * summary: Fresh 28-draw census retains helper-result copy blocker: 110 exact rows, five naming, one immediate and a paired one-word shape gap.
+ * summary: Refresh confirms 28-draw/166-emission schedule; helper-result caller-saved copy remains unreachable after the current causal controls.
  * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
  */
