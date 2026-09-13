@@ -65,8 +65,8 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     Overlay15InitBounds *bounds;
     u16 *palette;
     s32 starIndex;
-    s32 paletteIndex0;
-    s32 paletteIndex1;
+    /* Reuse the completed star-loop counters for the first two palette indices. */
+
     s32 paletteIndex2;
     s32 paletteIndex3;
     s32 startR;
@@ -87,12 +87,12 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     gOverlay15StarPalette = (u16 *) ((u8 *) *starsAddress + starIndex);
 
     bounds = &gOverlay15InitBounds;
-    countAddress = &gOverlay15StarCount;
+    countAddress = (s32 *)(s32)&gOverlay15StarCount;
     bounds->xRange = (f32) xRange;
     bounds->xMin = bounds->xRange * -0.5f;
+    bounds->yRange = (f32) yRange;
     xRange <<= 7;
     bounds->xMax = bounds->xRange * 0.5f;
-    bounds->yRange = (f32) yRange;
     bounds->yMin = bounds->yRange * -0.5f;
     yRange <<= 7;
     bounds->yMax = bounds->yRange * 0.5f;
@@ -100,12 +100,12 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     zRange = (zRange + 1) << 8;
     *countAddress = starCount;
     bounds->zero = 0;
-    bounds->colorDivisor = (f32) colorDivisor;
     bounds->zMax = bounds->zRange + 1.0f;
+    bounds->colorDivisor = (f32) colorDivisor;
     bounds->zMin = 1.0f;
     bounds->colorStep = 255.0f / bounds->colorDivisor;
 
-    starIndex = 1;
+    previousStarIndex = 0; starIndex = 1;
     if (starCount > 0) {
         do {
             stars->x = (f32) overlay15RandomRange(-xRange, xRange) *
@@ -118,9 +118,9 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
             starIndex++;
             stars++;
         } while (previousStarIndex < *countAddress);
+        previousStarIndex = 0;
     }
 
-    paletteIndex0 = 0;
     startR = (startColor >> 24) & 0xFF;
     startG = (startColor >> 16) & 0xFF;
     startB = (startColor >> 8) & 0xFF;
@@ -129,19 +129,19 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     deltaB = ((endColor >> 8) & 0xFF) - startB;
 
     palette = gOverlay15StarPalette;
-    paletteIndex0 = 0;
-    paletteIndex1 = 1;
+
+    starIndex = 1;
     paletteIndex2 = 2;
     paletteIndex3 = 3;
     do {
         *palette++ =
-            (((((deltaR * paletteIndex0) >> 8) + startR) & 0xF8) << 8) |
-            (((((deltaG * paletteIndex0) >> 8) + startG) & 0xF8) << 3) |
-            (((((deltaB * paletteIndex0) >> 8) + startB) & 0xF8) >> 2) | 1;
+            (((((deltaR * previousStarIndex) >> 8) + startR) & 0xF8) << 8) |
+            (((((deltaG * previousStarIndex) >> 8) + startG) & 0xF8) << 3) |
+            (((((deltaB * previousStarIndex) >> 8) + startB) & 0xF8) >> 2) | 1;
         *palette++ =
-            (((((deltaR * paletteIndex1) >> 8) + startR) & 0xF8) << 8) |
-            (((((deltaG * paletteIndex1) >> 8) + startG) & 0xF8) << 3) |
-            (((((deltaB * paletteIndex1) >> 8) + startB) & 0xF8) >> 2) | 1;
+            (((((deltaR * starIndex) >> 8) + startR) & 0xF8) << 8) |
+            (((((deltaG * starIndex) >> 8) + startG) & 0xF8) << 3) |
+            (((((deltaB * starIndex) >> 8) + startB) & 0xF8) >> 2) | 1;
         *palette++ =
             (((((deltaR * paletteIndex2) >> 8) + startR) & 0xF8) << 8) |
             (((((deltaG * paletteIndex2) >> 8) + startG) & 0xF8) << 3) |
@@ -150,11 +150,11 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
             (((((deltaR * paletteIndex3) >> 8) + startR) & 0xF8) << 8) |
             (((((deltaG * paletteIndex3) >> 8) + startG) & 0xF8) << 3) |
             (((((deltaB * paletteIndex3) >> 8) + startB) & 0xF8) >> 2) | 1;
-        paletteIndex0 += 4;
-        paletteIndex1 += 4;
+        previousStarIndex += 4;
+        starIndex += 4;
         paletteIndex2 += 4;
         paletteIndex3 += 4;
-    } while (paletteIndex0 != 0x100);
+    } while (previousStarIndex != 0x100);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F000004C_18723E4.s")
@@ -482,11 +482,11 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15InitStarsAndPalette:start
  * symbol: overlay15InitStarsAndPalette
- * score: 120/247 words
+ * score: 70/247 words
  * frame: 0x40
- * relocations: 16
+ * relocations: 14
  * first-mismatch: +0x4
- * summary: Fresh proc-2 census confirms 114 draws and exact geometry; p1 save-ratio and carrier residual remain after recorded controls.
+ * summary: Counter reuse and measured store moves reach 198 aligned exact words; 70 masked remain at exact size/frame, with adjacent scheduling controls stalled.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
 
