@@ -114,6 +114,6 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: No colour winner; census retains the leaf cursor schedule and aligned residual has 12 naming, two immediate, and nine structural rows.
+ * summary: leaf cursor advance placement remains unresolved at exact geometry
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */

@@ -299,6 +299,6 @@ common_tail:
  * frame: 0x18
  * relocations: 91
  * first-mismatch: +0x4C
- * summary: three-local interference and root-initialization schedule remain unresolved after priced diagnostics
+ * summary: three-local interference and root-initialization schedule remain unresolved
  * PLATEAU-HANDOFF:func_overlay_101_F000C6E8_18E7F08:end
  */

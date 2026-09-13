@@ -2,11 +2,11 @@
 ### `overlay34CreateRecord` plateau handoff
 
 - source: `src/overlays/o034/overlay34CreateRecord.c`
-- score: 119/125 words
+- score: 6/125 words
 - frame: 0x30
 - relocations: 12
 - first mismatch: +0x88
-- summary: No colour winner; fresh census retains the established store-emission ordering and the six-row residual floor.
+- summary: store-order residual; census shows adjacent store swap leaves draw and emission schedule unchanged
 
 #### 2026-09-12, lane p9-mid: 24 -> 8 on the globalcolor records
 
