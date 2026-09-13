@@ -2,11 +2,11 @@
 ### `overlay31CreatePool` plateau handoff
 
 - source: `src/overlays/o031/overlay31CreatePool.c`
-- score: 11 differing words
+- score: 11/50 words
 - frame: 0x38
 - relocations: 4
 - first mismatch: +0x28
-- summary: one-draw schedule; declaration order fixes frame, residual is pre-coloured-a0 interference around record web
+- summary: Outer less-than test leaves every draw and emission unchanged; record still lacks the required pre-coloured a0 interference.
 
 #### 2026-09-11, lane `f9-small`: unused homed locals are inert on this frame
 
@@ -182,4 +182,30 @@ coupling at zero instruction cost. Do not repeat the index/carrier forms or
 literal spellings listed here. The successful angle-scan recipe is committed
 separately; its extra array-base web wins a low-priority tie, whereas this
 record web has save 40.5 and is decided much earlier.
+#### 2026-09-13, lane l1: isolated outer-test differential
+
+Configured baseline: 200 bytes, delta zero, frame 0x38, 39 aligned exact
+and eleven naming rows, no structural/immediate rows or gaps, first +0x28.
+Procedure 0 has one draw and 95 emissions. The existing proved-zero force
+and L160 carrier-deletion/literal-coupling receipts were read without repeating
+the colour sweep.
+
+One source control changes only the outer continuation from inequality to
+less-than. With the existing positive-count guard and monotonically increasing
+index, the iteration count and evaluation order are unchanged. Unlike the
+prior nested-index rewrites, the inner cursor and shared bound/multiplier
+literal remain fixed. Every source-line draw/emission count and the draw order
+remain identical, as does the stock object text and every aligned window.
+Stock/traced full-TU text identity passes on both forms. This outer-test spelling
+therefore supplies neither a new draw nor the missing pre-coloured interference.
+
+Retain the original guarded baseline. Stop early under ADR 0018: this isolated
+control is normalized away, and the prior carrier, loop, call-denial and literal
+receipts already cover the remaining identified routes. The next requirement
+is still reservation of a0 from the record web without disturbing the inner
+counter/state or the shared multiplier geometry. Sources, objects, censuses and
+aligned comparisons are ignored under build/l1/overlay31CreatePool. Commands:
+configured compilation, draw_census profile/compare, residual_map comparison,
+finalize_plateau and tools/gates.sh. No new matched bytes.
+
 <!-- plateau-handoff:overlay31CreatePool:end -->
