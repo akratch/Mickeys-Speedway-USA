@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; target-size typed-address witness lowers mean interference with unchanged stack traffic; stronger 101-119 witness costs four bytes.
+ * summary: 187 retained; banked target-width witness keeps all stack traffic and lowers address interference to 98-119 across 21 splits.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
