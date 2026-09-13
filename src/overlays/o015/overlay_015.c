@@ -452,21 +452,21 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 96/105 words
+ * score: 9/105 words
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Nine structural entry rows remain. The complete 110-probe colour landscape has no winner, and cursor deletion changes geometry.
+ * summary: 9 aligned structural rows; zero legal colour winners; setup/preheader probes moved no census lines; retained body is best
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 41/54 words
+ * score: 13/54 words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: One shifted absolute-address lowering remains: the target shares a hi-only base across two loads, a form unavailable to this source.
+ * summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 

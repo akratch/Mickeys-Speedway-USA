@@ -5691,11 +5691,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006448:start
  * symbol: func_80006448
- * score: 50/59 words
+ * score: 9/59 words
  * frame: 0x28
  * relocations: 4
  * first-mismatch: +0x50
- * summary: Nine residual words remain; exhaustive colour evidence proves the resource web cannot reach target v0 in this call procedure.
+ * summary: L160 direct and indexed forms changed emissions but preserved the 10-draw order; resource remains a0 although p1:w19=c1 forces zero.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 

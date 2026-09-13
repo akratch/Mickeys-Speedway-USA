@@ -908,11 +908,11 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005ABA8:start
  * symbol: func_8005ABA8
- * score: 109/111 words
+ * score: 2/111 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: All residual rows are structural. The branch-delay decline remains an assembler decision with no source-reachable suppressor.
+ * summary: Declaration-order source probe moved no draw, free, or emission line; the remaining two aligned rows are structural as1 branch-delay behavior.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 

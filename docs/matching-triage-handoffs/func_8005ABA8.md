@@ -2,11 +2,11 @@
 ### `func_8005ABA8` plateau handoff
 
 - source: `src/main/models_5B300.c`
-- score: 109/111 words
+- score: 2/111 words
 - frame: frameless
 - relocations: 0
 - first mismatch: +0x3C
-- summary: All residual rows are structural. The branch-delay decline remains an assembler decision with no source-reachable suppressor.
+- summary: Declaration-order source probe moved no draw, free, or emission line; the remaining two aligned rows are structural as1 branch-delay behavior.
 
 #### Owned evidence and result, 2026-09-09
 

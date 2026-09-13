@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: L160 direct indexed accesses after deleting the flags carrier are byte-identical; the t4/t5 cycle remains the mask-table-scale emission-order blocker.
+ * summary: Draw census is unchanged by scale-mask distribution, which regresses structurally; separate mask/table/scale emission remains blocked.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 

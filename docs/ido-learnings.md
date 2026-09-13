@@ -2234,6 +2234,36 @@ bytes and disassembly never belong here.
   disclosure, cleanup-queue coverage and unmodified-compiler promotion proof.
   See the [cost-table and source receipt](matching-triage-handoffs/overlay89InitializeEffect.md).
 
+- **Move a definition into its consumer before assuming its carrier must be
+  deleted.** A selector argument computed in a preceding statement and the
+  same assignment embedded in its call argument can retain the named value
+  while changing the order of temporary subtrees. In an exact closure, moving
+  the assignment preserved the draw-register sequence and fixed the call
+  window; replacing it with a plain argument instead added a draw and changed
+  the ring. A comma expression that only moved a dimension's source attribution
+  was byte-inert on a separate constructor, so grouping alone is not the lever.
+  Require no intervening observable operations, no unsequenced accesses to the
+  assigned local, and unchanged argument types and values. Census totals also
+  include source-location directives: fewer emission records need not mean
+  fewer machine instructions, and equal per-line counts can hide exchanged
+  operations. Use retained aligned object deltas and stock/relocation/ROM proof.
+  See the [call-site assignment closure](matching-triage-handoffs/overlay19BuildAdjacency.md)
+  and the [constructor context controls](matching-triage-handoffs/overlay34CreateRecord.md).
+- **Guard membership can repair a generated cursor's temporary-allocation
+  tradeoff without changing stack homes.** When a source form reaches the
+  wanted cursor allocation but loses a cached local load and a later shared
+  global address, inspect the local initialization's position relative to the
+  existing nonempty-loop guard. Moving a local assignment into that block can
+  change the first-use allocation and remove the extra temporary draw while
+  preserving the frame and transition-address reuse. Prove that the local is
+  unused on the skipped path, then compare source-line draw counts, aligned
+  rows and stock output in the complete TU. In the controlled
+  [guarded-row and cursor-sharing experiment](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md),
+  the move was inert on earlier cursor shapes, and named transition values
+  did not substitute for it. This is a context-dependent definition-placement
+  lever, not permission to remove an observable initialization or a claim
+  that every guard move improves allocation.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable

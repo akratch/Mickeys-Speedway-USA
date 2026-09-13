@@ -2034,7 +2034,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xB0
  * relocations: 55
  * first-mismatch: +0x9C
- * summary: All 9 coloured webs and 61 legal forces are flat; next source question is the L149 folded GP draw.
+ * summary: first +0x9C remains the folded GP-draw schedule; field-access probes moved no census lines; retained body is best
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 

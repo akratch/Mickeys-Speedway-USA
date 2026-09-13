@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: Exhaustive 171-cell landscape has floor 84 with two additive diagnostics; source still needs target 8-byte frame and includeLinked home.
+ * summary: frame remains 0x60 versus target 0x68; unused f32, pointer, and volatile-f32 declarations left frame and draw census unchanged
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */

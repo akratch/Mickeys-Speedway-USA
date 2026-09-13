@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: L160 direct indexed accesses after deleting the flags carrier are byte-identical; the t4/t5 cycle remains the mask-table-scale emission-order blocker.
+- summary: Draw census is unchanged by scale-mask distribution, which regresses structurally; separate mask/table/scale emission remains blocked.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -470,5 +470,49 @@ The source body and original assembly fallback are unchanged; no byte credit.
 Evidence is retained under ignored build/p23/levelFreeAll. Commands:
 residual_map.py, allocator_trace_receipt.py --map-only, web_footprint.py
 --every-colour, and finalize_plateau.py.
+
+#### 2026-09-13, lane d1: per-line draw differential
+
+The configured baseline remains 468 bytes, 117 words, frame 0x28, three
+raw/masked differences, first +0x13C. Aligned buckets are 114 exact, three
+naming, zero immediate and zero structural, with no gaps. The existing
+exhaustive colour landscape and expression/free-list closures were read;
+no colour sweep was repeated.
+
+The procedure-17 census records 12 draws and 183 emission records. The
+world-index arm contributes four draws and ten emission records, with the
+same whole-procedure ring sequence documented by the previous raw trace.
+Full-TU stock/instrumented text, data, rodata, symbols and relocations pass
+the fidelity gate.
+
+One source probe distributes the doubling through the mask: double the entry
+value before applying the doubled mask, retaining the index-first address
+form. The arm's guard ensures a positive signed-halfword entry on this path,
+so this probe does not shift a negative value. The census differential reports
+no moved source line: all draw and emission counts and the draw-register
+sequence stay unchanged. It therefore does not supply the required draw-order
+lever. The aligned result regresses to 113 exact, two naming and two structural
+rows at the same extent, four raw/masked differences. The original guarded
+candidate is restored.
+
+Equal census counts do not establish instruction identity: this probe changes
+the mask/scale operations while preserving their counts. The retained aligned
+object delta, rather than the census's unchanged-count footer, establishes
+that regression. Likewise, emission records include source-location directives;
+their total is not a count of machine instructions.
+
+Stop early under ADR 0018. This measured expression-axis probe supplies no
+better residual, and the committed comma, carrier, free-list, phase and line-key
+receipts already exclude the remaining available variants of this mechanism.
+Repeating those lattices would not test a new explanation. The open requirement
+remains a separately emitted mask before the base-first address without moving
+the mask or base into the coloured pool. No source-axis impossibility beyond
+the recorded compiler observations is claimed.
+
+Sources, stock and traced objects, scores, census profiles and aligned maps are
+retained privately under build/d1/levelFreeAll. Commands: align_symbol.py,
+draw_census.py --save/--compare, residual_map.py --object/--against, the
+workbench fidelity gate and finalize_plateau.py. No executable bytes are newly
+credited; the assembly fallback remains canonical.
 
 <!-- plateau-handoff:levelFreeAll:end -->
