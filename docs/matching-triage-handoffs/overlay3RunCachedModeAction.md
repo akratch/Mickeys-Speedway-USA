@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 15
 - first mismatch: +0x84
-- summary: Addressed valid reads change draw order but add six words; prior width/copy controls remain closed and the guarded baseline is retained.
+- summary: Boundary inversion buys the intended draw but costs eight bytes; distributed polarity leaves the missing transfer.
 #### 2026-09-12, lane p23-lastmile5: complete colour landscape and boolean shapes
 
 Fresh baseline: 113 words, delta zero, 34 raw and masked differences, frame
@@ -145,4 +145,38 @@ transfer at the original geometry. Private source/object pairs, profiles and
 aligned deltas are retained. Commands: assignment gate, configured stock and
 traced compilation, draw census before/after, residual_map.py comparison,
 finalize_plateau.py and tools/gates.sh. ROM proof covers the fallback only.
+#### 2026-09-13, lane l1: boolean-polarity and boundary controls
+
+Baseline: 113 words, delta zero, frame 0x58, 34 masked differences, first
++0x84. Alignment has 91 exact, eleven naming and ten paired structural rows,
+with one gap pair. Procedure 0 records seventeen draws and 171 emissions.
+The earlier width, addressed-read and carrier-deletion controls were read.
+Every new source/object pair passes named Ucode mapping and full stock/capture
+section, symbol and relocation fidelity.
+
+Inverting all three boolean definitions and their consumers preserves branch
+truth conditions and call order. It leaves all per-line counts and the draw
+sequence unchanged, and still scores 34 at exact geometry/frame. However,
+alignment has 93 exact, five naming and thirteen paired structural rows, with
+two gap pairs. The missing switch-transfer word remains. The extra structural
+differences reject this trade of naming rows for a different boolean shape.
+
+Moving the inversion to the switch boundary instead leaves the original
+comparison/call definitions intact. It adds one draw and three emissions at
+that exact line: eighteen draws and 174 emissions, with a changed sequence.
+It costs eight bytes and scores 81; alignment is 72 exact, twenty naming,
+three immediate and eighteen paired structural rows, plus two candidate-only
+words. The target-only transfer disappears, but the new draw does not provide
+it at the target geometry. The frame remains 0x58.
+
+Retain the original guarded baseline. Stop early under ADR 0018: distributed
+polarity retains the missing transfer, while a dedicated boundary inversion
+has a measured instruction cost; the prior width/copy/address controls cover
+the other identified routes. No general source-impossibility claim. Next action
+still needs a source-authentic comparison/call-to-switch transfer at exact
+geometry. All private sources, objects, profiles and aligned deltas remain
+under build/l1/overlay3RunCachedModeAction. Commands: configured compilation,
+allocator_trace_receipt, draw_census differences, residual_map comparison,
+finalize_plateau and tools/gates.sh. No new matching-byte credit.
+
 <!-- plateau-handoff:overlay3RunCachedModeAction:end -->

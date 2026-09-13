@@ -63,6 +63,6 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x84
- * summary: Addressed valid reads change draw order but add six words; prior width/copy controls remain closed and the guarded baseline is retained.
+ * summary: Boundary inversion buys the intended draw but costs eight bytes; distributed polarity leaves the missing transfer.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */
