@@ -67,7 +67,7 @@ extern void func_overlay_058_F0000000_18AF1E8(
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     Overlay58LargePointGfx *gfx;
     Overlay58LargePointVertex *vertices;
-    u32 physicalVertices;
+    /* Physical vertex address is generated at its use. */
     s32 physicalBase;
     s32 xPlus;
     s32 xMinus;
@@ -79,14 +79,14 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
         &gOverlay58LargePointVertexCursorReloc,
         gOverlay58LargePointRenderStateReloc.resource, 5, 0);
     gfx = gOverlay58LargePointDisplayListReloc++;
-    vertices = gOverlay58LargePointVertexCursorReloc;
+    /* Generate the first cursor load directly. */
     physicalBase = 0x80000000U;
-    physicalVertices = (u32)vertices + physicalBase;
+    /* No declared intermediate. */
     gfx->w0 = 0x04000000U |
-              ((((u8)((physicalVertices & 6U) | 0x20U)) & 0xFFU) << 16) |
+              ((((((u32)gOverlay58LargePointVertexCursorReloc + physicalBase) & 6U) | 0x20U) & 0xFFU) << 16) |
               0x30U;
     gfx->w1 = (u32)gOverlay58LargePointVertexCursorReloc + physicalBase;
-    if (vertices != 0);
+    if (gOverlay58LargePointVertexCursorReloc != 0);
 
     gfx = gOverlay58LargePointDisplayListReloc++;
     /* One physical line, deliberately: as1's scheduling tie-break reads source
@@ -147,10 +147,10 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawLargePointQuad:start
  * symbol: overlay58DrawLargePointQuad
- * score: 24/104 words
+ * score: 21 differing words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Minus-coordinate reorder left draw order unchanged and regressed to 34; cursor-address and temporary-queue phases remain.
+ * summary: Generated vertex load and removed byte cast cancel one draw each, improving 24 to 21 naming rows at equal size and frame.
  * PLATEAU-HANDOFF:overlay58DrawLargePointQuad:end
  */

@@ -2,11 +2,11 @@
 ### `overlay58DrawLargePointQuad` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawLargePointQuad.c`
-- score: 24/104 words
+- score: 21 differing words
 - frame: 0x18
 - relocations: 11
 - first mismatch: +0x14
-- summary: Minus-coordinate reorder left draw order unchanged and regressed to 34; cursor-address and temporary-queue phases remain.
+- summary: Generated vertex load and removed byte cast cancel one draw each, improving 24 to 21 naming rows at equal size and frame.
 - base commit: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - verdict: bounded plateau; zero exact bytes gained
 - boundary: overlay 58 text `+0x50C8..+0x5268`, exactly 416 owned bytes with no target padding
@@ -25,4 +25,52 @@
 - permutation: the retained 40-minute bounded run found only a synthetic do/while coalescing form; it is rejected and was not repeated
 - validation: `tools/function_preflight.py overlay58DrawLargePointQuad --json`; `tools/wb_compare.sh --diagnose --no-build overlay58DrawLargePointQuad`; `tools/function_preflight.py overlay58DrawPointQuad --json`; `tools/skeleton_scan.py similar --target 58:+0x50C8`
 - next lever: obtain new fidelity-clean allocator evidence that explains both the long-lived cursor-address pool position and the temporary-queue phase, then test only its source-authentic web-existence form; do not repeat flags, generic permutation, or forced colors
+
+#### 2026-09-13, lane g1: a measured compensating draw pair improves 24 to 21
+
+Fresh base-only assignment and stock/traced full-TU identity pass. The incoming
+104-word candidate has 80 aligned exact and 24 naming rows, no structural or
+immediate residual, and no surplus/missing offsets. Its 0x18 frame and four
+used stack offsets agree with the target. It spends 34 draws and 188 emission
+events; the older 70-word prose above is historical. No colour sweep is rerun.
+
+The retained source generates the first vertex-cursor load inside the command
+expression and removes that expression's redundant byte cast. Measured one
+change at a time: removing only the physical-address declaration is byte-flat;
+generating the vertex load then adds one draw at the command line (eight to
+nine), giving 35 total draws and a 62-word positional residual. Removing the
+byte cast on that shape removes exactly one draw at the same line (nine to
+eight), restoring the original draw sequence. The result is 21 raw/masked
+words, 83 aligned exact and 21 naming, with zero immediate/structural rows,
+no unique offsets and unchanged 416-byte ownership. The +0x0 window loses
+three naming rows; every later aligned window is unchanged.
+
+The source equivalence is narrow: the deleted cast follows a mask and OR whose
+result is at most 0x26, and the explicit byte mask remains. There is no write
+between the original cursor load and its new use; discarded pointer tests have
+no observable effect. The removed declared intermediate is unused elsewhere.
+The retained function remains NON_MATCHING. This is an improved compiled
+candidate, not object-exact or ROM-exact C, and adds no matching credit.
+
+Other individually preserved controls: generated modular bias spellings retain
+all draws but add a word; reusing the spent command carrier for the color stores
+keeps 34 draws but regresses to 24 naming rows. Generating positive X reaches
+its requested register but merely transfers three naming rows to positive Z,
+so it ties 21 with a worse later window. Generating positive Z on that shape,
+or moving its declared definition after the existing boundaries, adds a
+register to the scratch ring without changing the total draw count; they give
+64 and 65 positional differences with structural rows and paired offsets.
+These last coordinate controls supply no better residual or new route to the
+remaining address/coordinate allocation, ending the packet under ADR 0018.
+The first 21-word source is retained rather than the equal-score local tradeoff.
+
+Stock align_symbol.py, score_symbol.py and frame_census.py reprove the retained
+candidate: 104/104 words, frame 0x18, first naming difference +0x14. The relocation
+count remains eleven; exact runtime relocation identities have not been newly
+proved. Evidence under ignored build/g1/overlay58DrawLargePointQuad includes
+source snapshots, stock/traced objects, census pairs, raw logs and aligned
+per-window maps. Commands include draw_census.py --save/--compare,
+residual_map.py --object/--against, allocator_trace_receipt.py, the configured
+compiler and finalize_plateau.py. Full ROM gates validate the fallback tree.
+
 <!-- plateau-handoff:overlay58DrawLargePointQuad:end -->

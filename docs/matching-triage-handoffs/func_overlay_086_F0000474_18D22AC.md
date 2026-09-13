@@ -6,7 +6,7 @@
 - frame: 0xA8
 - relocations: 38
 - first mismatch: +0x330
-- summary: Nonadjacent head line fold closes both schedule rows; seven short-link naming rows remain, unchanged by measured region and line controls.
+- summary: Three link expression controls preserve all 169 draws and regress aligned windows; seven short-link naming rows remain.
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 
@@ -382,5 +382,36 @@ every attempt. Commands include draw_census.py, residual_map.py --object and
 --against, align_symbol.py, frame_census.py, score_symbol.py, the configured
 compiler with its assembler trace, and finalize_plateau.py. Full-ROM gates
 validate the guarded tree; they do not establish these seven candidate words.
+
+#### 2026-09-13, lane g1: link expression controls do not move draws
+
+The base-only assignment is valid. The incoming source already contains e1's
+head-line improvement: the fresh baseline is seven masked words at zero size
+delta, with 655 aligned exact and seven naming rows, first +0x330. The 662-word
+owner retains frame 0xA8 and 38 relocations. Stock and traced full-TU text are
+identical. The nine-word dispatch measurement predates this retained source.
+
+Three individually retained controls target the case-0 link-load identity:
+generate the nested pointer with an unsigned address offset, generate it using
+integer address arithmetic, and use an assignment expression through the dead
+command cursor. The first two produce the same 42-row aligned residual
+(36 naming, six structural); the third produces 38 (32 naming, six structural).
+All remain equal-sized. All preserve every one of the baseline's 169 draws and
+their complete order, including the two draws at the intended link-use line.
+The discarded definition removes two emission events and the generated use
+adds one; that is line attribution and expression ownership, not a moved draw.
+The per-window comparison also shows broad head allocation regressions rather
+than a local repair at +0x330.
+
+No control improves the retained seven rows or opens a schedule lever. Together
+with the recorded carrier and region exhaustion, these three unchanged-draw
+controls end this packet under ADR 0018. The baseline source is restored. The
+remaining decision is a short link-load identity preserving the shared head
+allocation; the tested address spellings do not create it. No colour sweep,
+force, source adoption or matching credit is claimed. Evidence is ignored under
+build/g1/func_overlay_086_F0000474_18D22AC: source snapshots, stock and traced
+objects, raw traces, census profiles, aligned maps and per-window deltas.
+Commands include draw_census.py, residual_map.py --object/--against and
+finalize_plateau.py. ROM verification covers only the guarded fallback tree.
 
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

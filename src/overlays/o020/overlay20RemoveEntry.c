@@ -172,6 +172,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: No colour winner; current census confirms the p2 schedule, while recorded line and lineage probes leave the web-creation-order blocker.
+ * summary: Draw controls: typed bound adds a costly draw; carrier removal and line fold preserve draw order. Two pre-colour naming rows remain.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */

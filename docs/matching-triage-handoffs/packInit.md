@@ -2,11 +2,11 @@
 ### `packInit` plateau handoff
 
 - source: `src/main/saves.c`
-- score: 81/115 words
+- score: 29 differing words
 - frame: 0x60
 - relocations: 20
-- first mismatch: +0xA0
-- summary: No colour winner; current census keeps the two-draw mask-table schedule and the residual is a ten-register ring rotation plus nine structural rows.
+- first mismatch: +0xB0
+- summary: Preheader grouping, update order and indexed success status close all structural rows; 29 naming rows are one coherent ring rotation.
 #### 2026-09-12, lane p23-lastmile5: exhaustive colour evidence
 
 The configured baseline is 115 words, 34 masked differences, delta zero,
@@ -75,5 +75,64 @@ recurrence with the target's extra temporary draw and PFS-base materialization,
 followed by interleaved success loads/stores. Deleting the bit explains much of
 the naming symptom, but it also removes the byte-mask recurrence that the
 shipped loop retains. Do not count its improved aligned diagnostic as a match.
+
+#### 2026-09-13, lane g1: all structural rows close, leaving one coherent ring phase
+
+The assignment gate returns base-only. Fresh named Ucode maps packInit to
+procedure 29 of 42; stock and traced full-TU text agree. Baseline: 115 words,
+zero size delta, frame 0x60, twenty relocations, 34 masked differences, aligned
+81 exact, 25 naming and nine structural rows. The census has fourteen total
+draws, including two at the bit predicate. The earlier two-draw description
+refers to that line, not the complete procedure. The recorded rival-force
+landscape is reused, with no new colour sweep.
+
+The retained source makes three changes, each measured separately:
+
+- Fold the index, bit and bound initializations together with the loop/guard
+  opening onto one physical line. This preserves the fourteen draws and their
+  order, closes the PFS-base completion window, and improves 34 to 30 masked
+  words: 85 exact, 24 naming, six structural. Fifteen emission events move to
+  the common source line; no scratch draw is added.
+- Place the independent bit recurrence before the index increment. This
+  preserves the draw sequence and improves to 29: 86 exact, 25 naming, four
+  structural rows. The byte-mask scheduling pair in the loop tail closes.
+- Generate the final motor-success status address from the indexed rumble array
+  instead of the declared pointer. This ties 29 while closing every structural
+  row: 86 exact, 29 naming, zero immediate/structural, no unique offsets. The
+  same two draws remain at that update; eight emission events are added. This
+  changes address identity and permits the desired load/store interleaving.
+
+The last form is retained over the equal-score form with four structural rows.
+All 29 differences now follow one ten-register rotation, at 100 percent mapping
+coherence in one window. First mismatch moves from +0xA0 to +0xB0. The target's
+first predicate load is one draw ahead; the source question is now a folded
+draw before that load, with no added instruction or changed agreeing producer.
+The old PFS-base and success-store blockers are resolved on this source shape.
+
+Individually retained controls delimit that question. Shift spelling for the
+byte recurrence, folding just the two success stores, and deriving the initial
+bit from the known-zero index are byte-flat on the incoming source. Explicit
+byte projection of the predicate adds one draw and one executable word; byte
+projection plus an explicit mask on the bit adds two draws and one word. These
+are structural diagnostics, not improvements or candidates for adoption.
+Reversing the success stores ties 29 but leaves six structural rows.
+
+After the structure-exact form, three controls preserve its complete object:
+project the byte load through an unsigned arithmetic identity, cast the reset
+loop's postdecrement result to unsigned, and reuse the reset pointer as the PFS
+base while generating the rumble status addresses. The last form avoids the
+older experiment's extra frame home but still adds no draw. All fourteen draws
+and their order remain unchanged. Those three controls meet the ADR 0018 stall;
+the natural three-change candidate is restored, with no diagnostic identity
+expression retained.
+
+Fresh stock align_symbol.py, score_symbol.py, register_census.py and
+frame_census.py confirm 115/115 words, 0x60 on both sides and all eleven used
+stack offsets equal. No new relocation-identity proof or exact C credit is
+claimed. The source remains guarded NON_MATCHING. Evidence under ignored
+build/g1/packInit includes every source/object pair, raw trace, Ucode map,
+census comparison and aligned per-window residual. Commands include
+draw_census.py, residual_map.py --object/--against, allocator_trace_receipt.py,
+tools/gates.sh and finalize_plateau.py. ROM gates validate the guarded tree.
 
 <!-- plateau-handoff:packInit:end -->
