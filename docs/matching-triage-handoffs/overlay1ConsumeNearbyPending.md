@@ -6,7 +6,7 @@
 - frame: 0x18
 - relocations: 9
 - first mismatch: +0x40
-- summary: Fresh 23-draw census retains the counter read-modify-write web blocker: 38 exact aligned rows and 31 naming rows at zero delta.
+- summary: 23-draw census retains counter read-modify-write web blocker; no admissible route below 31.
 
 #### tu2-o1tail: the countdown form is settled and is not the residual
 
