@@ -6,7 +6,7 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0x190
-- summary: Draw census unchanged; mode-carrier probe worsened residual. Ring release-order blocker remains.
+- summary: Proc-23 census: 33 draws/174 emissions; mode probe worsened residual. Ring release-order remains.
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
