@@ -1127,7 +1127,7 @@ s32 lightKillGlowingLight(void) {
  * frame: 0x58
  * relocations: 7
  * first-mismatch: +0x0
- * summary: Correct proc-12 73-draw census confirms the mixed allocation/frame plateau; retained baseline.
+ * summary: proc12 census confirms 73 draws and mixed frame/allocation residual; tested carrier removals do not change schedule
  * PLATEAU-HANDOFF:func_80018F08:end
  */
 
