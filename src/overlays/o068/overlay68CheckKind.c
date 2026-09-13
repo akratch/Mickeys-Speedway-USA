@@ -138,10 +138,10 @@ s32 overlay68CheckKind(s32 kind) {
 
 /* PLATEAU-HANDOFF:overlay68CheckKind:start
  * symbol: overlay68CheckKind
- * score: 10 differing words
+ * score: 10/80 words
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: Cursor construction still spends zero scratch draws under measured index, postincrement and cancelling-advance controls; retain ten words.
+ * summary: Changing the zero cursor index signedness preserved 11 draws, 153 emissions, and all ten aligned rows; it does not cross the propagation barrier.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

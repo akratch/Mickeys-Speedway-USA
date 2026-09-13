@@ -2,11 +2,11 @@
 ### `overlay1UpdateAimedTransient` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 235/249 words
+- score: 14/249 words
 - frame: 0x80
 - relocations: 43
 - first mismatch: +0xC
-- summary: No colour winner; current aligned residual has three rows plus two paired insertion gaps, retaining the prologue load-order blocker.
+- summary: Correct proc-9 census has 473 draws and 1969 emissions; the closed prologue-load emission-order blocker retains two paired insertion gaps.
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned

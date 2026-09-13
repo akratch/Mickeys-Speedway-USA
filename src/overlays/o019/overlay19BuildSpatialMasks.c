@@ -84,6 +84,6 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
  * frame: 0x80
  * relocations: 0
  * first-mismatch: +0x58
- * summary: Natural point-pointer arithmetic was byte-flat with identical census; point-carrier and mask-table schedule remain.
+ * summary: Retained natural pointer plateau: point-pointer arithmetic was byte-flat with an identical census; point-carrier and mask-table scheduling remain unresolved.
  * PLATEAU-HANDOFF:overlay19BuildSpatialMasks:end
  */

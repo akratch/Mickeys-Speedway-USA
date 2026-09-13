@@ -1408,7 +1408,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Exception-index declaration order left census unchanged and regressed to 25; preheader strength reduction remains unresolved.
+ * summary: Retained plateau: exception-index declaration order left the census unchanged and regressed; the preheader strength-reduction blocker remains.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 

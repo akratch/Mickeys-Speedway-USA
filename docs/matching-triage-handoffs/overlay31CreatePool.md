@@ -6,7 +6,7 @@
 - frame: 0x38
 - relocations: 4
 - first mismatch: +0x28
-- summary: record web needs an invisible a0 interferer; indexed carriers change geometry or v0 interference
+- summary: Changing the bounded inner counter to unsigned preserved one draw but removed one emission, shrank code eight bytes, and worsened the residual to 22 rows.
 
 #### 2026-09-11, lane `f9-small`: unused homed locals are inert on this frame
 

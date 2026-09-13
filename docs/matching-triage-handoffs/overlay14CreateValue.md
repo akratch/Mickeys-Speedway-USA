@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 15
 - first mismatch: +0x54
-- summary: chosen-pointer frame-cell residual remains after exhausted carrier and scheduler controls
+- summary: Fresh baseline has 10 draws and the retained 13-row frame-cell residual; the shard bars another manual source sweep without new admissible evidence.
 - base: `3169297845d9e4b3843c03be16cfe6d51358d280`
 - boundary: overlay 14 `+0x6FC..+0x87C`, 384 bytes / 96 words, no
   padding or export; two local callers at `+0x3C0` and `+0x40C`
