@@ -892,7 +892,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Fresh 12-draw census confirms prior receipt; existing differential and expression closures leave no new schedule hypothesis.
+ * summary: Lane h1 confirms 12 draws and unchanged three-row order residual; prior differential leaves no untested identified schedule lever.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
