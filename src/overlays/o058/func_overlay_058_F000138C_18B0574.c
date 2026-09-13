@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained: case-12 capture-type split restores address reuse but adds two draws and a replacement gap; paired constraint remains.
+ * summary: 187 retained: 253-word diagnostic keeps 720 draws but moves one from coordinate to capture; per-site reuse constraint remains.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
