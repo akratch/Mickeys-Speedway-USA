@@ -76,9 +76,9 @@
       "source_commit": "25a15368d81a57531735f338d69d8bad165c9def"
     },
     "func_80006534": {
-      "ledger_commit": "494aaf7a35b5dadb253efaf07e337428484e2d62",
+      "ledger_commit": "ce7e08a6a9cee15bbe5ee2160c8446668510c764",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "494aaf7a35b5dadb253efaf07e337428484e2d62"
+      "source_commit": "ce7e08a6a9cee15bbe5ee2160c8446668510c764"
     },
     "func_80007118": {
       "ledger_commit": "4496aad1392932c58c23c28bcb815cc85d04b500",
@@ -96,9 +96,9 @@
       "source_commit": "64e1446883cd479e4ebd9c8e72b3045f25ceeb8b"
     },
     "func_80008028": {
-      "ledger_commit": "990febdf4996356866d03d8b830cd3fe3ec95d95",
+      "ledger_commit": "637520c752e90df12674a046443a98fa73348591",
       "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "990febdf4996356866d03d8b830cd3fe3ec95d95"
+      "source_commit": "637520c752e90df12674a046443a98fa73348591"
     },
     "func_800084C4": {
       "ledger_commit": "8165ac8f49b34eac800bf6e25337427bb6a6af79",
@@ -131,9 +131,9 @@
       "source_commit": "1ac4ce096402051df01ff721968235046df1e373"
     },
     "func_8000D1B8": {
-      "ledger_commit": "3ea7a57f67109912f54510840083468a417e80c0",
+      "ledger_commit": "789dada09760be082b2167a9364af1e7a8d5d2a9",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "3ea7a57f67109912f54510840083468a417e80c0"
+      "source_commit": "789dada09760be082b2167a9364af1e7a8d5d2a9"
     },
     "func_8000D3B8": {
       "ledger_commit": "d81bf4c93bce5a7947ec30abca8ef78a8b250f16",
@@ -141,9 +141,9 @@
       "source_commit": "d81bf4c93bce5a7947ec30abca8ef78a8b250f16"
     },
     "func_8000D820": {
-      "ledger_commit": "9a511eb6488f53d7b757b02761425ec9e6f5c3db",
+      "ledger_commit": "9e63b31895ccafc8512f242e4a5e8eecb536743d",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "16ad20bff6f3793b6e510a6996a524198762459b"
+      "source_commit": "9e63b31895ccafc8512f242e4a5e8eecb536743d"
     },
     "func_8000DB34": {
       "ledger_commit": "10d8b05833906ffaf310114c36cfe417bbc5a6d6",
@@ -171,9 +171,9 @@
       "source_commit": "60bc156a0b56adb0eb67380e01363e413b58fcc7"
     },
     "func_8000FAE0": {
-      "ledger_commit": "d3a01f13c5156f6d4d77a27f3f73c43ce67f734c",
+      "ledger_commit": "eb25e2d873163b1962ebba45ebe66e165bc548a5",
       "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
-      "source_commit": "d3a01f13c5156f6d4d77a27f3f73c43ce67f734c"
+      "source_commit": "eb25e2d873163b1962ebba45ebe66e165bc548a5"
     },
     "func_800103D4": {
       "ledger_commit": "ae3ca05774314ba3962e97a639f0cd4faae2d19d",
@@ -186,9 +186,9 @@
       "source_commit": "1736a63e233ee56a2ef42d13510e7185707ca064"
     },
     "func_80010900": {
-      "ledger_commit": "99a878114f40ad814182435cf7635ee27f2a7213",
+      "ledger_commit": "08645095b49d832e7dd597bc4b3db223176f85c6",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "99a878114f40ad814182435cf7635ee27f2a7213"
+      "source_commit": "08645095b49d832e7dd597bc4b3db223176f85c6"
     },
     "func_80010B4C": {
       "ledger_commit": "ade24e9c6989bcab55c9c637f75d1e21248fd651",
@@ -226,9 +226,9 @@
       "source_commit": "6550b428aaa6dc3649c72db2821c3b66eb1a01e8"
     },
     "func_800133FC": {
-      "ledger_commit": "0c899d5a718703461d0531cf95d005c43e51fe00",
+      "ledger_commit": "92b83a6002d3b6b293c607ca89a653e33501fde0",
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
-      "source_commit": "0c899d5a718703461d0531cf95d005c43e51fe00"
+      "source_commit": "92b83a6002d3b6b293c607ca89a653e33501fde0"
     },
     "func_8001357C": {
       "ledger_commit": "5f98aed5f03558d611527d17f4c38c67c1040c43",
@@ -266,9 +266,9 @@
       "source_commit": "377c73a069541a2a34485b63f949923bbce9d886"
     },
     "func_800180B4": {
-      "ledger_commit": "ced913030814150bb1fdd92952a521aa1f212a54",
+      "ledger_commit": "bac11b5adaed1a1a54460f9a9eecf181d6f25965",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "ced913030814150bb1fdd92952a521aa1f212a54"
+      "source_commit": "bac11b5adaed1a1a54460f9a9eecf181d6f25965"
     },
     "func_80018F08": {
       "ledger_commit": "54cb8850ec482649134eed7333050bb1e3463528",
@@ -351,9 +351,9 @@
       "source_commit": "693cbfa8c4d89b473040b26353b925440ec0d121"
     },
     "func_80020B10": {
-      "ledger_commit": "13bc435627349e96bb128f001f4f389040dc2738",
+      "ledger_commit": "1f5cccaae60d690fbfcad4e941709e4a294ae6bc",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "13bc435627349e96bb128f001f4f389040dc2738"
+      "source_commit": "1f5cccaae60d690fbfcad4e941709e4a294ae6bc"
     },
     "func_80020D8C": {
       "ledger_commit": "3d804832151f4c57ddc16d7b0e1e3c383b44b877",
@@ -361,9 +361,9 @@
       "source_commit": "4fe9255a1e3cd2c6b94232648c9a8a5acf625cf7"
     },
     "func_80020E4C": {
-      "ledger_commit": "4cb0a870caa25c4ae770c32321d58e71a4a9e609",
+      "ledger_commit": "f6c3e67c3d71800e746b7c3a87f52c8b9c42e646",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "4cb0a870caa25c4ae770c32321d58e71a4a9e609"
+      "source_commit": "f6c3e67c3d71800e746b7c3a87f52c8b9c42e646"
     },
     "func_80022FD4": {
       "ledger_commit": "73c94c3c84d9def6aff1017f0ba6cf27378b42da",
@@ -396,24 +396,24 @@
       "source_commit": "8c84e2ead99d842359f6a1a3de41bd76b4690151"
     },
     "func_80029274": {
-      "ledger_commit": "38f10cbd7d8ba47d4328eb28d2d2c7646efec6f9",
+      "ledger_commit": "51cb0987182f14d492adfb269b5ea63a5f0201c1",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "38f10cbd7d8ba47d4328eb28d2d2c7646efec6f9"
+      "source_commit": "51cb0987182f14d492adfb269b5ea63a5f0201c1"
     },
     "func_8002AA50": {
-      "ledger_commit": "c9e79071d475b512debc38f7e02bcc8682733f66",
+      "ledger_commit": "15473abc9e04fead9c896bf9d173cbf2f96f378f",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "c9e79071d475b512debc38f7e02bcc8682733f66"
+      "source_commit": "15473abc9e04fead9c896bf9d173cbf2f96f378f"
     },
     "func_8002AB78": {
-      "ledger_commit": "3453bd5c488d590c05050d15ec2f7a5db0658c51",
+      "ledger_commit": "7878b45cbe78ec98790857fdbc649a9dc82c6d5d",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "3453bd5c488d590c05050d15ec2f7a5db0658c51"
+      "source_commit": "7878b45cbe78ec98790857fdbc649a9dc82c6d5d"
     },
     "func_8002AC84": {
-      "ledger_commit": "36127faa26a7d96f6a3ecc53b59e4728f05e0fbb",
+      "ledger_commit": "440b094c7b53812847f3b3935c2753bef0fcdeee",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "36127faa26a7d96f6a3ecc53b59e4728f05e0fbb"
+      "source_commit": "440b094c7b53812847f3b3935c2753bef0fcdeee"
     },
     "func_8002AE10": {
       "ledger_commit": "6091b1a01df312435a7fd6ecae778481fb795ce4",
@@ -441,9 +441,9 @@
       "source_commit": "0af40ba10fb3711caa178fe4de27170b84a23854"
     },
     "func_8002CF6C": {
-      "ledger_commit": "10fc3699d100338002454466d4991894a0e6b2bc",
+      "ledger_commit": "ed16f01afa36d94df73bf504ddbdb05b2adeacfa",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "10fc3699d100338002454466d4991894a0e6b2bc"
+      "source_commit": "ed16f01afa36d94df73bf504ddbdb05b2adeacfa"
     },
     "func_8002EBE0": {
       "ledger_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3",
@@ -521,9 +521,9 @@
       "source_commit": "c28230116e74ff270c66e3a3593e08c7ae8f31ba"
     },
     "func_800376CC": {
-      "ledger_commit": "9ed96b150c3fded40d4e424dc9abac090d3cebcf",
+      "ledger_commit": "1fceaee54b69af574b73c23d43063a14c686e6e8",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "9ed96b150c3fded40d4e424dc9abac090d3cebcf"
+      "source_commit": "1fceaee54b69af574b73c23d43063a14c686e6e8"
     },
     "func_800378A4": {
       "ledger_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2",
@@ -581,7 +581,7 @@
       "source_commit": "d761f310ac67783655771b8e27248a85663e086b"
     },
     "func_8003C80C": {
-      "ledger_commit": "101f3e6bc0dc788c5c0831bf5a5736ceb9c8087c",
+      "ledger_commit": "1e9885d6cf047fd085db4bf243c73e0e6842e207",
       "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
       "source_commit": "101f3e6bc0dc788c5c0831bf5a5736ceb9c8087c"
     },
@@ -601,9 +601,9 @@
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "36c0eb2af1f227f6758b49329bb645079275c12e",
+      "ledger_commit": "627a31ce80d4f644b7fa9981fdc986c8707b9763",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "36c0eb2af1f227f6758b49329bb645079275c12e"
+      "source_commit": "627a31ce80d4f644b7fa9981fdc986c8707b9763"
     },
     "func_8004054C": {
       "ledger_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46",
@@ -611,9 +611,9 @@
       "source_commit": "e12c163fc1b55b57589ccc264ecfdbf5b8e14e46"
     },
     "func_80040B88": {
-      "ledger_commit": "fc97cfd052e10d83ca8550bf4abae41fefcc2d84",
+      "ledger_commit": "7116728917d802d07a781862993f0b015caa066f",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "fc97cfd052e10d83ca8550bf4abae41fefcc2d84"
+      "source_commit": "b701ad529fe7bf151ddcab76827ed1c4b84ceb70"
     },
     "func_80041530": {
       "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
@@ -636,19 +636,19 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "959f3aff8a215bbc9e76708c99ca3f76cd058b11",
+      "ledger_commit": "e0f8a713b21d30e68b668b233d99dda0adf41776",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "959f3aff8a215bbc9e76708c99ca3f76cd058b11"
+      "source_commit": "e0f8a713b21d30e68b668b233d99dda0adf41776"
     },
     "func_80046EC4": {
-      "ledger_commit": "adb1030b92e0715d21daac5e8c47d5729bd4c1cb",
+      "ledger_commit": "8faec7401bd3276bb958a26cc5c7417fb27ab3ae",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "adb1030b92e0715d21daac5e8c47d5729bd4c1cb"
+      "source_commit": "8faec7401bd3276bb958a26cc5c7417fb27ab3ae"
     },
     "func_800470B0": {
-      "ledger_commit": "73c90d096c106dfa21355927c7a71a7a26bb6486",
+      "ledger_commit": "23281b639e40eb3e5c0b5598ef252f5053ac3a2b",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 90 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "73c90d096c106dfa21355927c7a71a7a26bb6486"
+      "source_commit": "23281b639e40eb3e5c0b5598ef252f5053ac3a2b"
     },
     "func_80047304": {
       "ledger_commit": "4d8130631551a8cc9d3eb2f0b6710048d769afdc",
@@ -726,9 +726,9 @@
       "source_commit": "9fa2314ec43c033254eb19b67d3494a2c67df7c9"
     },
     "func_8004C690": {
-      "ledger_commit": "275a13d125d39c860cd2d15b01d5427276598636",
+      "ledger_commit": "b0e8083df03e4cb05bf7465d847b892d51a013c3",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "275a13d125d39c860cd2d15b01d5427276598636"
+      "source_commit": "b0e8083df03e4cb05bf7465d847b892d51a013c3"
     },
     "func_8004E8E0": {
       "ledger_commit": "e14634a8533b583479f9dcd4d8091e87625675c8",
@@ -736,14 +736,14 @@
       "source_commit": "e14634a8533b583479f9dcd4d8091e87625675c8"
     },
     "func_8004EC60": {
-      "ledger_commit": "12c776d675898d64b004af926cf110cedc6460ca",
+      "ledger_commit": "7eb566167dad1256ca800553b3a26fe28befb3cb",
       "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
-      "source_commit": "12c776d675898d64b004af926cf110cedc6460ca"
+      "source_commit": "7eb566167dad1256ca800553b3a26fe28befb3cb"
     },
     "func_8004EED0": {
-      "ledger_commit": "2f4c4e9bb3c8789ebc17880c4a3f96eeffe8f6c4",
+      "ledger_commit": "c2c8c91bcba6d42123cfb1fca98f33e202129df1",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "2f4c4e9bb3c8789ebc17880c4a3f96eeffe8f6c4"
+      "source_commit": "c2c8c91bcba6d42123cfb1fca98f33e202129df1"
     },
     "func_8004FAD0": {
       "ledger_commit": "838f8ff7d18ce66f00c1ab7470b30bee06dbf5b5",
@@ -821,9 +821,9 @@
       "source_commit": "8d7572bb186e825ead555edd14c515221aa3d73c"
     },
     "func_8005A7A0": {
-      "ledger_commit": "aea91e1754ff5e078b983e32ba23ce37dab6b7af",
+      "ledger_commit": "dc17781ce7dc9f000e7c4df1eca52ad2d9ce35db",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "aea91e1754ff5e078b983e32ba23ce37dab6b7af"
+      "source_commit": "dc17781ce7dc9f000e7c4df1eca52ad2d9ce35db"
     },
     "func_8005A948": {
       "ledger_commit": "75eec1f945cbff202a77f874beec5983e7f07eab",
@@ -831,9 +831,9 @@
       "source_commit": "75eec1f945cbff202a77f874beec5983e7f07eab"
     },
     "func_8005ABA8": {
-      "ledger_commit": "03278c8e15ad0fb2e497e51a7803aae7949fca4c",
+      "ledger_commit": "c83b2645e2a2bc3525574543255a6919f8df2d22",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
-      "source_commit": "03278c8e15ad0fb2e497e51a7803aae7949fca4c"
+      "source_commit": "c83b2645e2a2bc3525574543255a6919f8df2d22"
     },
     "func_8005AF14": {
       "ledger_commit": "5808ba0183a4a84efca3e3461cfb54313aacdfa0",
@@ -871,7 +871,7 @@
       "source_commit": "664ad5551fe066443391c35d02455f93eb20279c"
     },
     "func_overlay_002_F0000C90_1857A88": {
-      "ledger_commit": "cd354b2ae2ec4c5ef038f904f79a3c1155e4d82a",
+      "ledger_commit": "0529a46305388d625c10ebd40d7c0888aa6e5c6a",
       "reason": "Closed before L131/L139/L140/L142/L144. L142 retires a save-ratio argument where the register was never offered; L144 retires a swept volatile axis; L140 retires a force sweep run without CDX_PROC.",
       "source_commit": "aa4b385dc34d592224caab8582a956f378d0f668"
     },
@@ -986,9 +986,9 @@
       "source_commit": "7ab4dd5231d6d43fd82ed5943962ea5dcfe8aabb"
     },
     "func_overlay_014_F0001540_1870E18": {
-      "ledger_commit": "e661c4309032e307d0d20f49aeebcb8e266e0e43",
+      "ledger_commit": "1f5bc9322f4c637ed149ff269f11b75686550d98",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "e661c4309032e307d0d20f49aeebcb8e266e0e43"
+      "source_commit": "1f5bc9322f4c637ed149ff269f11b75686550d98"
     },
     "func_overlay_020_F000038C_1876964": {
       "ledger_commit": "b0707769d25676576150e02d365a01a1090b17c0",
@@ -1011,7 +1011,7 @@
       "source_commit": "ab6fd14822ae069ee0878ae4f4a8837f12ad2456"
     },
     "func_overlay_022_F0000D30_1878E38": {
-      "ledger_commit": "7f1050096930b1bc98f4ba21ffce2aaea1458841",
+      "ledger_commit": "2040eccb4a35a30ee65c29a4616a5dffdd9a96ad",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "7f1050096930b1bc98f4ba21ffce2aaea1458841"
     },
@@ -1066,7 +1066,7 @@
       "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
     },
     "func_overlay_031_F0000000_187F520": {
-      "ledger_commit": "c4850aac933d8131dd90d9ec981f952f0def2aaa",
+      "ledger_commit": "633d74378a30596e44e50ca64f2936fdd6c986b3",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "45044dc2d4c7e52ae695dbac22d570050606a363"
     },
@@ -1096,7 +1096,7 @@
       "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393"
     },
     "func_overlay_036_F0000A60_1883F18": {
-      "ledger_commit": "abb9199fdf976e0b2f318e2de1755100586c1c6e",
+      "ledger_commit": "8c67b5d1374237971d5f3b6c0b68fb66c25acea4",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "743e8def99e49b26ad7e7019a09814333a9161b6"
     },
@@ -1116,12 +1116,12 @@
       "source_commit": "013aa261826e59e639f6ba02d27e99f5d5c8dde4"
     },
     "func_overlay_041_F0001298_18885D0": {
-      "ledger_commit": "935edffa473c5398fb0b877c1d7a931a331bab81",
+      "ledger_commit": "9ee4846bba2cb91f03c7c3c6dc07cc193905b906",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "9686978cb9216949009aed803795c15cef1a6eeb"
     },
     "func_overlay_041_F0001464_188879C": {
-      "ledger_commit": "390d37a8df119655b154c8b61ca97a55543dc1d0",
+      "ledger_commit": "e4b21198fdcfd9ca0cb69232fa3b6a7163cc98c7",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "390d37a8df119655b154c8b61ca97a55543dc1d0"
     },
@@ -1131,7 +1131,7 @@
       "source_commit": "79eadb56bf372c8eb59f7c05db01e04d6b8cd7e4"
     },
     "func_overlay_041_F000195C_1888C94": {
-      "ledger_commit": "a75cbaeb073c1ec87350f8fcf2dc1f9993e10f35",
+      "ledger_commit": "96959c8b768cd1fc98b976fbb6cf185958d7bb4f",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "f2a57211f95e24d1764c8af4ecba9bf243cd69f5"
     },
@@ -1186,7 +1186,7 @@
       "source_commit": "8829b55c0709e84bf5881439eadb32ba1758be5e"
     },
     "func_overlay_050_F0000000_1896970": {
-      "ledger_commit": "621856489f76cd205a7edb4280fe7a3ac14c1212",
+      "ledger_commit": "9eeee4ce415459b8988df486b8172c1267f88a49",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "cec7bee4f0ee60b03bf25ea9e7c08f3b2c993d5a"
     },
@@ -1196,7 +1196,7 @@
       "source_commit": "c434329718cdd8e0614f19db4a68b5d9114d0b00"
     },
     "func_overlay_052_F0000000_189A670": {
-      "ledger_commit": "f87a794d0622eecb4de077003239601533345778",
+      "ledger_commit": "2dbabd3db2a82849d5ebdd7a54a82a678280525d",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "9eda1eb006b12e3dc3e49b43227b3ddfd2e2d7e6"
     },
@@ -1271,7 +1271,7 @@
       "source_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "7755a5cf7320c43fc77872c85629013ed57fe7b4",
+      "ledger_commit": "652c3dbce457e1319ad7ecdde66ff34b96d58da5",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "7755a5cf7320c43fc77872c85629013ed57fe7b4"
     },
@@ -1286,7 +1286,7 @@
       "source_commit": "0534f43aa472bdab7482d80d0c86a305fada2335"
     },
     "func_overlay_060_F0002F54_18BCD2C": {
-      "ledger_commit": "0c4a2c037c42cca639e0554776e16d72c85e4a9c",
+      "ledger_commit": "ff944c96f29eb3023a75946a165c4831a15fc11a",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "9f3a4f4cf640599f4f0099a3868a58bcb887b926"
     },
@@ -1326,7 +1326,7 @@
       "source_commit": "6d9e8c8cd742c2492028f23c3fe036bb29b76c27"
     },
     "func_overlay_073_F0000D70_18CB830": {
-      "ledger_commit": "44819833de8400ed7ecb815a95f9c9f11423571a",
+      "ledger_commit": "83a9c46d4180cfae43fdea1ab1bff37a62914409",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "44819833de8400ed7ecb815a95f9c9f11423571a"
     },
@@ -1346,7 +1346,7 @@
       "source_commit": "930c2122a519bbb3fa6554d341e3271509717efc"
     },
     "func_overlay_086_F0000474_18D22AC": {
-      "ledger_commit": "88c39e31c6539eaff98cc3e6c617e306ccede456",
+      "ledger_commit": "cb0850cb5826c79a77a845b614a96dabfd55897a",
       "reason": "Landscape predates L159 and L160: winners were picked by score, not packed by blast radius, and the force-to-source route did not exist. Re-select with web_footprint.py --report, then apply L160.",
       "source_commit": "cc3ee4903f55cf2070d629c7b48c9db7bd9cae98"
     },
@@ -1426,7 +1426,7 @@
       "source_commit": "6325184f3d93badc43608628f23edaa3a6af49bf"
     },
     "func_overlay_101_F000C6E8_18E7F08": {
-      "ledger_commit": "bf7382b58ba50f1be49a9e1ceed6288aba0492d5",
+      "ledger_commit": "c1a29e1517d6f5147c1adb4e2af5375a7bed792e",
       "reason": "Closed before L142/L144/L131/L139 existed. L142: a call-spanning web is denied exactly the argument registers those calls load, so arity is the lever not the ratio. L144: address-taking forces the reload without volatile edges.",
       "source_commit": "57c954db03b3d369013665c972bc73acaae8a76f"
     },
@@ -1436,9 +1436,9 @@
       "source_commit": "987f5a0507f7619a8578aeafe2e6d281ef1999b5"
     },
     "fxScreenEffect": {
-      "ledger_commit": "6464b4abd6367875d8135831b132386f7e38f632",
+      "ledger_commit": "0c4f29b001dc3a59f5ab92bbbcd049b7ade2cf70",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "6464b4abd6367875d8135831b132386f7e38f632"
+      "source_commit": "4dbf7368beb7c22981501aebaf006d2544cb3211"
     },
     "joyRead": {
       "ledger_commit": "a35d0bdaa2dd7ba44d56687aee8bdd42712f0b9b",
@@ -1521,17 +1521,17 @@
       "source_commit": "2201d63875c6fad362505a6710cebe0f816d9237"
     },
     "overlay13DrawRecord": {
-      "ledger_commit": "9e6cbe09a6df3da33bd1cf70704a5660f9cb881f",
+      "ledger_commit": "df7e436ae810f6b0cac7e9f6d72df6c3a1fa6d37",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "9e6cbe09a6df3da33bd1cf70704a5660f9cb881f"
     },
     "overlay13UpdateRecord": {
-      "ledger_commit": "b5e41b6a52b02368a8e9c7983c3f761c315512f1",
+      "ledger_commit": "203227fa005d0d12a3d2622be9a881e88b57ca5a",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "b5e41b6a52b02368a8e9c7983c3f761c315512f1"
     },
     "overlay14CreateValue": {
-      "ledger_commit": "392f33d72b70b556cda15eff3fa50fa482d613f0",
+      "ledger_commit": "1f55a5e678388c6d982aa8efe2e09d16d0648d31",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "392f33d72b70b556cda15eff3fa50fa482d613f0"
     },
@@ -1626,9 +1626,9 @@
       "source_commit": "cb961a7f6f13985a560586d292f281d721900c16"
     },
     "overlay1AdvancePath": {
-      "ledger_commit": "3cccac0ed82cbcad14551ce12937238caf1d2a77",
+      "ledger_commit": "c01998a18d35a4ecfb5ecadfbf38bc72d0455a53",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "3cccac0ed82cbcad14551ce12937238caf1d2a77"
+      "source_commit": "c01998a18d35a4ecfb5ecadfbf38bc72d0455a53"
     },
     "overlay1AllocateRecord": {
       "ledger_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894",
@@ -1646,9 +1646,9 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "0b95073ce48c24918e60ac4623c67d2dac8d7ee8",
+      "ledger_commit": "4465476ea7cb83c7a31f69b2048fa17ad260c4b4",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "0b95073ce48c24918e60ac4623c67d2dac8d7ee8"
+      "source_commit": "4465476ea7cb83c7a31f69b2048fa17ad260c4b4"
     },
     "overlay1BuildObjectMappings": {
       "ledger_commit": "120950dc5a53664763aea335fc8780342e023ad4",
@@ -1656,9 +1656,9 @@
       "source_commit": "120950dc5a53664763aea335fc8780342e023ad4"
     },
     "overlay1ConsumeNearbyPending": {
-      "ledger_commit": "e3542f787722f0c562892ca79df1ad2705a1d4d2",
+      "ledger_commit": "e8221f3b79dc2c9bf566aabbbaa6f711ab576500",
       "reason": "Trap 20: CDX_FORCE is silently ignored without CDX_PROC, so a closure resting on a force sweep is unproven, not negative -- one re-run scored 6 at delta 0 where it read unreachable. Also new laws L139, L141, L142, L144 (2026-09-12).",
-      "source_commit": "e3542f787722f0c562892ca79df1ad2705a1d4d2"
+      "source_commit": "e8221f3b79dc2c9bf566aabbbaa6f711ab576500"
     },
     "overlay1DispatchMode": {
       "ledger_commit": "68bbd51e4e8e3e77960d2901a283d137c824ec0f",
@@ -1736,19 +1736,19 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "2fb7f74f16e9117c4ada16872be56b018db917e9",
+      "ledger_commit": "ed1e730b0017226ca6c9cb70a78dfc91988b1e5d",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "2fb7f74f16e9117c4ada16872be56b018db917e9"
+      "source_commit": "ed1e730b0017226ca6c9cb70a78dfc91988b1e5d"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "e90b598a310912713b133dfc7ea68b7c1e63a452",
+      "ledger_commit": "f5a5580140f16735122c7d2367c0d897b30fd527",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "e90b598a310912713b133dfc7ea68b7c1e63a452"
+      "source_commit": "c019d912157bee8c8954ee6319f91f939be34750"
     },
     "overlay20RemoveEntry": {
-      "ledger_commit": "d4acb8955f5ebad000464c92088c22fcc380d500",
+      "ledger_commit": "f1a802801c6ca535de1939a8107d0f1af428b459",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "d4acb8955f5ebad000464c92088c22fcc380d500"
+      "source_commit": "f1a802801c6ca535de1939a8107d0f1af428b459"
     },
     "overlay25UpdateEffect": {
       "ledger_commit": "25ed877e2ceb660ad1e76664569e101452565665",
@@ -1756,7 +1756,7 @@
       "source_commit": "25ed877e2ceb660ad1e76664569e101452565665"
     },
     "overlay27UpdateCoordinates": {
-      "ledger_commit": "e9701e3cfde92400cdc92e76d540a5b1c667906b",
+      "ledger_commit": "6f39884151705e43af48622cce877d456fd5dc18",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "e9701e3cfde92400cdc92e76d540a5b1c667906b"
     },
@@ -1776,7 +1776,7 @@
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
-      "ledger_commit": "3f4feff2e565e4639a6d3863910ce4985e210d6e",
+      "ledger_commit": "9ac85c17fd1589bf0cb6fb8dd2b53be6e0225e91",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
       "source_commit": "3f4feff2e565e4639a6d3863910ce4985e210d6e"
     },
@@ -1801,9 +1801,9 @@
       "source_commit": "78918981a33b340f7d55cee244c71b6cb861626c"
     },
     "overlay34CreateRecord": {
-      "ledger_commit": "2301046c13126eccfda2f32b2cec15d7dc68ef6a",
+      "ledger_commit": "1099cae0d02415f2829512ad2210fd9982899f43",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "2301046c13126eccfda2f32b2cec15d7dc68ef6a"
+      "source_commit": "1099cae0d02415f2829512ad2210fd9982899f43"
     },
     "overlay34InitStorage": {
       "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
@@ -1836,12 +1836,12 @@
       "source_commit": "79b770538b687a8393652f9b36e51028ed041d07"
     },
     "overlay3SelectScoredObject": {
-      "ledger_commit": "02010d29ee81f5ca2ecb6611c52db9b53f92de43",
+      "ledger_commit": "63241f7ed95f2160fef3e84e44676ac5aeadafad",
       "reason": "Laws L145-L154 banked 2026-09-12 reach these: delete-the-carrier for a ring temp, count draws not registers, order sweeps are shape-local, as1 picks largest aftercycles, constant type is IR identity, web number follows type.",
-      "source_commit": "02010d29ee81f5ca2ecb6611c52db9b53f92de43"
+      "source_commit": "63241f7ed95f2160fef3e84e44676ac5aeadafad"
     },
     "overlay40BuildFrame": {
-      "ledger_commit": "c177a5a72e139cfc17c79e8b2ba50107f86a3b21",
+      "ledger_commit": "ba213213dbfdc5050e62e8de7b18d6c733bb74b9",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "c177a5a72e139cfc17c79e8b2ba50107f86a3b21"
     },
@@ -1891,7 +1891,7 @@
       "source_commit": "a67fa6ae8347ec95c173bbe8e85ccb495f2729c7"
     },
     "overlay58DrawLargePointQuad": {
-      "ledger_commit": "b20ed15c35bb17d3f96eeca3856b16971776c0a9",
+      "ledger_commit": "89c2df08707e55f2c3b70a32c4f19b5d5802cbc5",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "b20ed15c35bb17d3f96eeca3856b16971776c0a9"
     },
@@ -1901,9 +1901,9 @@
       "source_commit": "1f716668fd8746de77bb9dcec3a44789e2e5e48c"
     },
     "overlay58DrawSegmentStrip": {
-      "ledger_commit": "326692dfe0c5b7ef6f65af446a2565b40be8908c",
+      "ledger_commit": "8746ae7c862fd77c569ddfca748666c2b00e73da",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
-      "source_commit": "326692dfe0c5b7ef6f65af446a2565b40be8908c"
+      "source_commit": "8746ae7c862fd77c569ddfca748666c2b00e73da"
     },
     "overlay58FinalizePackedStatus": {
       "ledger_commit": "b53bbbf41036d5dfacbf4255e768348979733a6f",
@@ -1996,12 +1996,12 @@
       "source_commit": "39c0ce8086fac7882de2abf4584364ca4333bfee"
     },
     "overlay83BuildBatch": {
-      "ledger_commit": "9897c70199b38f0aa9a3064f9a83cc71938ddec3",
+      "ledger_commit": "9e7ca314e6f60a66362e702df4ba8f2a3cfb81ae",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "9897c70199b38f0aa9a3064f9a83cc71938ddec3"
     },
     "overlay83DrawStrip": {
-      "ledger_commit": "f4355da50d5e3929fee866f69eac5a887c4cd351",
+      "ledger_commit": "17b71829ed0133bc9367239d28e369d3940d87c6",
       "reason": "No exhaustive colour landscape in this shard; that measurement did not exist when the plateau was banked. Run tools/web_footprint.py --every-colour first, then L159 packing and L160. Three matched this way 2026-09-12.",
       "source_commit": "f4355da50d5e3929fee866f69eac5a887c4cd351"
     },
@@ -2036,9 +2036,9 @@
       "source_commit": "4133a7bb91343e729143a9fb6ee789346782d6b5"
     },
     "overlay98CollectUniqueY": {
-      "ledger_commit": "c450b7deae4b2364e1b5cd89b0cc8b30ec9d5311",
+      "ledger_commit": "153408d840f84f44c0ba7c155784a45a38e9c1f5",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "c450b7deae4b2364e1b5cd89b0cc8b30ec9d5311"
+      "source_commit": "153408d840f84f44c0ba7c155784a45a38e9c1f5"
     },
     "overlay98RenderReflections": {
       "ledger_commit": "4100d1b96b29e9fd23198a99472b593b138a0e22",
@@ -2061,9 +2061,9 @@
       "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6"
     },
     "packInit": {
-      "ledger_commit": "f76d5f3540a82a1f1bc9d0ec5906a6c982e429cf",
+      "ledger_commit": "a6b36ef53e00d3421dec82342b756c7a16b9b226",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
-      "source_commit": "f76d5f3540a82a1f1bc9d0ec5906a6c982e429cf"
+      "source_commit": "a6b36ef53e00d3421dec82342b756c7a16b9b226"
     },
     "rain_render_splashes": {
       "ledger_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20",
