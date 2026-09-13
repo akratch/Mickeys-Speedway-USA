@@ -2043,8 +2043,8 @@ f32 D_80079F54 = 0.0f;
  * score: 66 differing words
  * frame: 0x30
  * relocations: 13
- * first-mismatch: +0x8
- * summary: JFG efd5abb body is unchanged from exhausted 24d61fe; next lever is Mickey-authenticated original matrix declaration/layout evidence.
+ * first-mismatch: 0x8
+ * summary: Authenticated 26-draw baseline; surplus coefficient address producer and unrolled cursor bias require new declaration/layout evidence.
  * PLATEAU-HANDOFF:func_80024978:end
  */
 

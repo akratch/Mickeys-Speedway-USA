@@ -5,8 +5,8 @@
 - score: 24 differing words
 - frame: 0x18
 - relocations: 11
-- first mismatch: +0x14
-- summary: 80/104 aligned exact at delta 0; 34-draw sequence retained. Carrier, generated cursor and physical-line controls cannot repair the address/store schedule.
+- first mismatch: 0x14
+- summary: Selective base-carrier removal leaves all 34 draws, source-line counts and object bytes unchanged; address/store schedule remains.
 #### 2026-09-13, lane f1: address carriers and colour-store line census
 
 The configured baseline reproduces 416 bytes at delta zero, 80 exact and
@@ -70,5 +70,42 @@ repeated, and no byte credit is earned. Source/object pairs, profiles and
 aligned per-window deltas remain ignored under build/h1/overlay58DrawPointQuad.
 Commands: configured compilation, draw_census.py --save/--compare,
 residual_map.py --object/--against, finalize_plateau.py and tools/gates.sh.
+
+#### 2026-09-13, lane k1: authenticated draw-census follow-up
+
+Fresh configured stock compilation reproduces 416 target bytes,
+size delta 0, 24 raw and
+24 masked differences, first +0x14.
+Candidate frame is 0x18; the procedure-0 census records
+34 draws and 188 emission records. Stock and traced full-TU text
+compare identically. Static relocation counts are 11 candidate and
+3 extracted target, with 3 identical offset/type/symbol tuples.
+These are static measurements; overlay runtime identity proof remains separate.
+
+Aligned baseline buckets are 80 exact and 24 naming, with no immediate,
+structural or gap rows. One selective-carrier probe replaces only the second
+address store's physicalBase use with the equivalent unsigned literal, keeping
+the first address chain and all physical lines. It tests whether sharing this
+carrier across the two sites controls the second address's emission order;
+the previous physicalVertices removal and wholesale inlining do not isolate
+that use. Address values and observable access order are unchanged.
+
+The differential records 34 to 34 draws and 188 to 188 emission records,
+with no changed line and unchanged draw order. Full-TU text and static
+relocation tables are identical to baseline; the per-window aligned map is
+also unchanged. The targeted store did not move. Fresh named-Ucode mapping
+and full-TU fidelity pass for the probe. Its source/object pair is preserved.
+
+ADR 0018 early evidence stop applies after this one new negative, together
+with the existing display-cursor, vertex-cursor, coordinate-carrier and
+store-line controls. No colour sweep was repeated. This selective-sharing
+control is inert; no general source-axis impossibility is claimed.
+
+The original guarded body and assembly fallback are retained. Sources, stock
+and traced objects, frame and scalar measurements, draw profiles and aligned
+maps remain ignored under build/k1/overlay58DrawPointQuad.
+Commands: lane_status.py, configured stock compilation, draw_census.py,
+residual_map.py --object/--against where compared, finalize_plateau.py and
+tools/gates.sh. No executable bytes are newly credited.
 
 <!-- plateau-handoff:overlay58DrawPointQuad:end -->

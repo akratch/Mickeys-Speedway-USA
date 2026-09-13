@@ -145,7 +145,7 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
  * score: 24 differing words
  * frame: 0x18
  * relocations: 11
- * first-mismatch: +0x14
- * summary: 80/104 aligned exact at delta 0; 34-draw sequence retained. Carrier, generated cursor and physical-line controls cannot repair the address/store schedule.
+ * first-mismatch: 0x14
+ * summary: Selective base-carrier removal leaves all 34 draws, source-line counts and object bytes unchanged; address/store schedule remains.
  * PLATEAU-HANDOFF:overlay58DrawPointQuad:end
  */

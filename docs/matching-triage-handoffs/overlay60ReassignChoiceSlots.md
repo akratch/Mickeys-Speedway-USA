@@ -5,8 +5,8 @@
 - score: 35 differing words
 - frame: 0x20
 - relocations: 8
-- first mismatch: +0x4
-- summary: 19/53 aligned exact at delta 0; nine draws unchanged. Frame-preserving array extent and cursor forms do not create the earlier p2 web set.
+- first mismatch: 0x4
+- summary: Authenticated nine-draw baseline; prior cursor/type/extent differentials leave the earlier p2 web-creation requirement unresolved.
 
 #### Epoch 15 allocator-colour pass (2026-09-04)
 
@@ -81,5 +81,38 @@ no colour sweep or known-flat cursor lattice was repeated and no bytes count
 as matched. Evidence remains ignored under build/h1/overlay60ReassignChoiceSlots.
 Commands: configured compilation, draw_census.py --save/--compare,
 residual_map.py --object/--against, finalize_plateau.py and tools/gates.sh.
+
+#### 2026-09-13, lane k1: authenticated draw-census follow-up
+
+Fresh configured stock compilation reproduces 212 target bytes,
+size delta 0, 35 raw and
+35 masked differences, first +0x4.
+Candidate frame is 0x20; the procedure-0 census records
+9 draws and 101 emission records. Stock and traced full-TU text
+compare identically. Static relocation counts are 8 candidate and
+4 extracted target, with 0 identical offset/type/symbol tuples.
+These are static measurements; overlay runtime identity proof remains separate.
+
+Paired aligned buckets are 19 exact and 33 naming, with no paired immediate
+or structural rows and one candidate-only/target-only gap pair. All observed
+stack offsets agree, while the target takes the array base twice and the
+candidate once. The first p2 web still reaches a free lowest colour; this is
+the recorded earlier-web-formation question, not a ring-phase explanation.
+
+The complete shard and source were reviewed, including the indexed initializer,
+separate cursor, carrier-type and 16-element frame-slack controls. The latter
+already measures unchanged draws despite different array-base traffic and no
+frame reduction. No new frame-preserving source hypothesis was identified
+outside those controls. ADR 0018 early evidence stop applies with zero new
+source attempts. The nine-draw baseline is independently reproduced; no colour
+sweep or known-flat cursor/extent probe was repeated. This is confirmation of
+the open pre-colour web-creation requirement, not a new exhaustion claim.
+
+The original guarded body and assembly fallback are retained. Sources, stock
+and traced objects, frame and scalar measurements, draw profiles and aligned
+maps remain ignored under build/k1/overlay60ReassignChoiceSlots.
+Commands: lane_status.py, configured stock compilation, draw_census.py,
+residual_map.py --object/--against where compared, finalize_plateau.py and
+tools/gates.sh. No executable bytes are newly credited.
 
 <!-- plateau-handoff:overlay60ReassignChoiceSlots:end -->

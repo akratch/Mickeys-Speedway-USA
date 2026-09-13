@@ -110,3 +110,13 @@ void overlay48InitializeState(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o048/overlay48InitializeState/func_overlay_048_F0000060_1895468.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay48InitializeState:start
+ * symbol: overlay48InitializeState
+ * score: 47 differing words
+ * frame: 0x18
+ * relocations: 24
+ * first-mismatch: 0x0
+ * summary: Current 47-word residual and six-draw census expose retained-index setup and store schedule; declaration/TU evidence remains missing.
+ * PLATEAU-HANDOFF:overlay48InitializeState:end
+ */

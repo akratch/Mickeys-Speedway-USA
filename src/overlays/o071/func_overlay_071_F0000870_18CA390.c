@@ -196,7 +196,7 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * score: 9 differing words
  * frame: 0x30
  * relocations: 13
- * first-mismatch: +0x5C
- * summary: 173/182 aligned exact at delta 0; 65-draw schedule retained. Exhaustive source forms did not create the invisible p1 interferer without a new residual.
+ * first-mismatch: 0x5c
+ * summary: Authenticated 65-draw baseline; existing invisible-interferer controls provide no new scheduling hypothesis.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */

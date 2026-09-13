@@ -5743,11 +5743,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 99/719 words
+ * score: 99 differing words
  * frame: 0x90
  * relocations: 99
- * first-mismatch: +0x6C8
- * summary: Current 227-draw baseline confirms closed copy/nested-read/flag-sharing controls; no new independent schedule hypothesis.
+ * first-mismatch: 0x6c8
+ * summary: Authenticated 227-draw baseline; corrected copy, nested-read and flag-sharing controls cover identified source levers; no new hypothesis.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5756,8 +5756,8 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * score: 92 differing words
  * frame: 0x18
  * relocations: 0
- * first-mismatch: +0x18
- * summary: Dimension-line folding moves attribution and two object words but keeps 39 draws, their sequence and the 92-word residual; baseline retained.
+ * first-mismatch: 0x18
+ * summary: Generated outer-model index controls leave 39 draws and the model-load line unchanged; both regress to 95 masked; retained 92.
  * PLATEAU-HANDOFF:func_80007E40:end
  */
 

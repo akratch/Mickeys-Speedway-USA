@@ -284,10 +284,10 @@ void overlay58FinalizePackedStatus(void) {
 
 /* PLATEAU-HANDOFF:overlay58FinalizePackedStatus:start
  * symbol: overlay58FinalizePackedStatus
- * score: 88/304 words
+ * score: 88 differing words
  * frame: 0x48
  * relocations: 48
- * first-mismatch: +0x18
- * summary: Fresh 44-draw baseline confirms the broad stack-home/mask-shift allocation residual; retained candidate.
+ * first-mismatch: 0x18
+ * summary: Authenticated 44-draw baseline; resident-set and mask/shift allocation remain; existing count/records controls supply no new source hypothesis.
  * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
  */
