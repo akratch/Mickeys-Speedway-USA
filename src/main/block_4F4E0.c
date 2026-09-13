@@ -308,10 +308,10 @@ s32 func_8004F020(void) {
 
 /* PLATEAU-HANDOFF:func_8004EED0:start
  * symbol: func_8004EED0
- * score: 28/84 words
+ * score: 56/84 words
  * frame: 0x20
  * relocations: 22
  * first-mismatch: +0xA8
- * summary: Pure ring residual; the base-plus-index order is reachable with a u32 cast and costs a word, and the phase is a reordered free list, not a counter
+ * summary: No colour winner; all 28 aligned residual rows are naming substitutions from the measured reordered free-list phase.
  * PLATEAU-HANDOFF:func_8004EED0:end
  */
