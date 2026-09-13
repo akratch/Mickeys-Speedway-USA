@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained: 253-word diagnostic keeps 720 draws but moves one from coordinate to capture; per-site reuse constraint remains.
+ * summary: 187 retained: capture-carrier, first-loop join and saved-local access controls do not restore transition reuse with the required draw census.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
