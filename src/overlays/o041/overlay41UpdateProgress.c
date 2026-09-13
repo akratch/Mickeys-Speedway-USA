@@ -119,6 +119,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0x108
- * summary: Proc-0 census and exhaustive colour floor leave the divisor-copy coalescing decision unresolved across 14 masked rows.
+ * summary: Fresh 31-draw census: divisor = limit + 0 is text-identical and moves no schedule line; copy coalescing remains unresolved.
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */

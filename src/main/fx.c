@@ -2424,11 +2424,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80046EC4:start
  * symbol: func_80046EC4
- * score: 60/111 words
+ * score: 60/110 words
  * frame: 0x48
  * relocations: 6
  * first-mismatch: +0x68
- * summary: Address-base reuse remains the blocker after the spelling closure; donor mechanism supplies no new source body.
+ * summary: Fresh +4-byte baseline confirms the address-base CSE blocker; all recorded source spellings remain closed and no schedule draw is exposed.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
@@ -2439,7 +2439,7 @@ void func_8004AF68(void) {
  * frame: 0x168
  * relocations: 3
  * first-mismatch: +0x44
- * summary: Resident cone-point function retains exact frame; fixed-bound allocation cycle remains after independent store scheduling.
+ * summary: Fresh proc-3 census: 18 draws/203 emissions. Fixed-bound allocation cycle and stack-home blocker remain without new donor/lifetime evidence.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
@@ -2486,11 +2486,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:fxScreenEffect:start
  * symbol: fxScreenEffect
- * score: 27/143 words
+ * score: 116/147 words
  * frame: 0x30
  * relocations: 10
  * first-mismatch: +0x8
- * summary: The -16-byte residual is 52 naming plus 39 structural aligned rows; the candidate-only/target-only offsets rule out a colour-only route.
+ * summary: Fresh proc-34 census: 33 draws/224 emissions. The -16-byte structural preload deficit rules out a colour-only route; no new donor/lifetime evidence.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 

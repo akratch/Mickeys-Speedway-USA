@@ -1226,10 +1226,10 @@ u8 func_8004D5C0(s32 font) {
 
 /* PLATEAU-HANDOFF:func_8004C690:start
  * symbol: func_8004C690
- * score: 105 differing words
+ * score: 105/146 words
  * frame: 0x70
  * relocations: 9
  * first-mismatch: +0x0
- * summary: Array placement reaches target stack base in a private variant with two more aligned exact rows; all 29 draws stay fixed and copy-unrolling deficit remains.
+ * summary: Fresh proc-24 census: 29 draws/253 emissions. Saved-header placement improves two aligned rows only; copy-unrolling deficit remains.
  * PLATEAU-HANDOFF:func_8004C690:end
  */

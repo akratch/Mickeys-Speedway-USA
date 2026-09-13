@@ -312,6 +312,6 @@ s32 func_8004F020(void) {
  * frame: 0x20
  * relocations: 22
  * first-mismatch: +0xA8
- * summary: Corrected proc-0 census confirms the 10-draw baseline; the remaining post-call free-list release order has no surviving source lever.
+ * summary: Fresh proc-0 census: 10 draws/67 emissions. Post-call free-list release ordering has no surviving source lever.
  * PLATEAU-HANDOFF:func_8004EED0:end
  */
