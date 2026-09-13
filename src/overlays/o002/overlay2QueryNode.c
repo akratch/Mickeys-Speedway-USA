@@ -222,10 +222,10 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay2QueryNode:start
  * symbol: overlay2QueryNode
- * score: 39/253 words
+ * score: 214/253 words
  * frame: 0x68
  * relocations: 51
  * first-mismatch: +0x58
- * summary: Leaf-cursor/count deletion loses geometry; scoped parameter reissue remains. Corrected SYMBOL-call placeholder retained.
+ * summary: No colour winner; census retains the leaf cursor/count schedule, with 15 naming, two immediate, and ten structural aligned rows.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

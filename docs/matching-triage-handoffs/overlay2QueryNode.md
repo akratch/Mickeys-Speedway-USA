@@ -2,11 +2,11 @@
 ### `overlay2QueryNode` plateau handoff
 
 - source: `src/overlays/o002/overlay2QueryNode.c`
-- score: 39/253 words
+- score: 214/253 words
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x58
-- summary: Leaf-cursor/count deletion loses geometry; scoped parameter reissue remains. Corrected SYMBOL-call placeholder retained.
+- summary: No colour winner; census retains the leaf cursor/count schedule, with 15 naming, two immediate, and ten structural aligned rows.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
