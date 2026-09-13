@@ -172,6 +172,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: zero legal coloured webs; draw probes changed emissions or ring draws, never the p2 web order
+ * summary: No colour winner; current census confirms the p2 schedule, while recorded line and lineage probes leave the web-creation-order blocker.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
