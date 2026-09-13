@@ -2300,6 +2300,25 @@ bytes and disassembly never belong here.
   work, and promotion still requires untouched compiler output, relocation
   identity and linked-ROM proof.
 
+- **Trace split admission when address formation and draw counts agree.** A
+  shared address can lose reuse even when its initial range has identical
+  membership, uses and savings. In the
+  [controlled address-splitting comparison](matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md),
+  an additional induction carrier changes which adjacent blocks enter a greedy
+  split. In the observed split mode, admission tests both new shared
+  interference against the old available-register count and combined
+  interference against twice the new available-register count. Rejecting one
+  block restores its tentative forbidden-register changes; that can make a
+  later block admissible and strand an address use in an unprofitable fragment.
+  Trace membership, interference and available-register counts through the
+  entire component before choosing a source lever. Reducing the seed count
+  alone did not help: a guarded pointer or fresh index added replacement
+  ranges at the next block. Definition placement must remove the relevant
+  overlap across the component, not merely relocate it. This comparison proves
+  the split mechanism, not a successful source recipe or exhaustion of source
+  space. Preserve per-site draw constraints and require stock/instrumented
+  fidelity; other split modes and source shapes need their own measurements.
+
 ## Adding a learning
 
 Add a short entry only after the result is reproducible. Cite the durable
