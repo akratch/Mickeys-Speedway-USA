@@ -902,7 +902,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: frame and carrier allocation remain unresolved; colour axis has no applicable winning force
+ * summary: frame reservation and carrier allocation remain unresolved; no colour axis
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
