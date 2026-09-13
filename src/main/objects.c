@@ -2139,64 +2139,32 @@ void *func_8000590C(void *arg0, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
 #endif
-/* Workbench verdict: register-permutation; 9 differing words (50/59). */
-/* First mismatch: +0x50; size, frame, CFG and all four relocations are exact. */
-/* Residual: one web, v0->a0, at six sites. The loaded resource is the sole
- * argument of each free call, so it coalesces into a0, which is free here
- * because arg0 was already copied to s0; the target keeps it in v0 and pays a
- * `move a0, v0` in each jal delay slot. a0's availability is the whole
- * question -- measured on probes, a value whose only uses are a null test and
- * a one-argument call takes a0 whenever a0 is free, and only falls to v0/a1
- * when a0 is occupied by a live parameter. Nothing reachable from this source
- * occupies a0 across the loop body.
- * Falsified (each measured, all still 9 words): expression CSE instead of a
- * local; three separate locals; one local shared with `type`; block-scoped
- * declarations; s32/void* typing of the carrier; bare-truth, inverted and
- * explicit null tests; an extra copy before the call; K&R declarations for the
- * three callees; do/for/while loop forms; nested vs else-if dispatch; all 32
- * arrow/deref spellings of the two chained member accesses. Regressions:
- * advancing the table base in place (24), a `void **slot` cursor (23),
- * switch (45), hoisting the object pointer to a local (62).
- * Also falsified: shortening `type`'s v0 web so v0 is provably free before
- * every branch body (the nested-dispatch form does exactly that) still yields
- * a0 -- v0 availability is not the lever, a0's is.
- * The permuter converged to the same nine words in 12 minutes at -j 4. */
-#ifdef NON_MATCHING
+/* Mickey-only reconstruction. Indexed accesses let IDO create the offset and
+ * resource webs; the initializer shares the loop line to retain entry order. */
 void func_80006448(void *arg0) {
-    s32 offset;
     s32 index;
-    void *resource;
     s8 type;
 
     if (((Objects06448Arg *)arg0)->unk40->unk22 > 0) {
-        offset = 0;
-        index = 0;
-        do {
+        index = 0; do {
             type = func_800058C0((Objects58C0Arg *)arg0, index);
             if (type == 0) {
-                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
-                if (resource != 0) {
-                    modFreeModel(resource);
+                if (((Objects06448Arg *)arg0)->unk68[index] != 0) {
+                    modFreeModel(((Objects06448Arg *)arg0)->unk68[index]);
                 }
             } else if (type == 2) {
-                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
-                if (resource != 0) {
-                    func_800347A0(resource);
+                if (((Objects06448Arg *)arg0)->unk68[index] != 0) {
+                    func_800347A0(((Objects06448Arg *)arg0)->unk68[index]);
                 }
             } else {
-                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
-                if (resource != 0) {
-                    func_800359D4(resource);
+                if (((Objects06448Arg *)arg0)->unk68[index] != 0) {
+                    func_800359D4(((Objects06448Arg *)arg0)->unk68[index]);
                 }
             }
             index += 1;
-            offset += 4;
         } while (index < ((Objects06448Arg *)arg0)->unk40->unk22);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
-#endif
 /* Configured C: 17 differences (188/205 exact), first +0x11C.
  * The region before the flag store raises the sprite web above the list cursor
  * without emitting instructions; the retained body remains NON_MATCHING. */
@@ -5689,15 +5657,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_80006EE4:end
  */
 
-/* PLATEAU-HANDOFF:func_80006448:start
- * symbol: func_80006448
- * score: 9/59 words
- * frame: 0x28
- * relocations: 4
- * first-mismatch: +0x50
- * summary: L160 direct and indexed forms changed emissions but preserved the 10-draw order; resource remains a0 although p1:w19=c1 forces zero.
- * PLATEAU-HANDOFF:func_80006448:end
- */
 
 /* PLATEAU-HANDOFF:func_80008028:start
  * symbol: func_80008028
@@ -5784,11 +5743,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000590C:start
  * symbol: func_8000590C
- * score: 99/719 words
+ * score: 99 differing words
  * frame: 0x90
  * relocations: 99
- * first-mismatch: +0x6D4
- * summary: Exhaustive proc21 sweep: 299/396 accepted probes; winner lattice floor 95/719, late additive radii only; structural +0x6D4 and +0x7A0 remain.
+ * first-mismatch: +0x6C8
+ * summary: Copy-index guard changes no draws; splitting the tail flag type adds three draws and eight bytes; shared-type control is byte-inert.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5814,11 +5773,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006534:start
  * symbol: func_80006534
- * score: 188/205 words
+ * score: 17 differing words
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x11C
- * summary: All 22 coloured webs sampled: three rival colours of packed-read web 77 reach diagnostic floor 14; source controls retain 17.
+ * summary: Destination-flag form changes no draws and adds four bytes; folded capture lines only change attribution, with identical bytes.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 

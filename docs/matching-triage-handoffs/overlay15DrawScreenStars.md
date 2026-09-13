@@ -2,11 +2,11 @@
 ### `overlay15DrawScreenStars` plateau handoff
 
 - source: `src/overlays/o015/overlay_015.c`
-- score: 9/105 words
+- score: 96/105 words
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: 9 aligned structural rows; zero legal colour winners; setup/preheader probes moved no census lines; retained body is best
+- summary: Conditional-header fade changes draw order but adds 12 bytes; a separate guard changes no draws and also adds 12 bytes.
 
 #### Historical baseline at assignment 3ccc02a1
 
@@ -207,5 +207,40 @@ no better residual or target identity. Stop under ADR 0018. The named source
 question remains a fade load in the synthesized preheader with the target's
 constant/fade priority and unchanged frame; the corrected landscape lives
 under build/p24/stars-landscape, with the Ucode receipt under build/p24/capture.
+
+#### 2026-09-13, lane f1: conditional fade emission differential
+
+Fresh baseline: 420 bytes, delta zero, 96 aligned exact and nine structural
+rows, no naming/immediate rows or gaps, first +0x38. The authenticated
+procedure-4 trace records 40 draws and 139 emission records. Every probe has
+stock/instrumented full-TU text identity. The corrected 110-force landscape
+was read, with no repeated colour sweep.
+
+Moving the fade assignment into the countdown condition through a sequenced
+comma tests whether a header definition supplies the desired preheader. It
+keeps 40 draws but changes their sequence; emissions rise to 143, moving the
+old fade line, loop header and tail. It adds 12 bytes. The aligned map gains
+31 naming and one immediate row while retaining nine structural rows, with
+five candidate-only and two target-only words. This is a regression independent
+of the positional score of 87.
+
+Guarding only the fade assignment with remaining != 0 preserves all draws and
+their sequence, but adds five emission records at the guard line. It also
+adds 12 bytes. Its aligned map has three naming and seven structural rows,
+plus five candidate-only and two target-only words; the positional score is
+93. The extra source guard was not absorbed into the synthetic loop guard.
+
+Neither placement supplies the required preheader at exact geometry. Both
+source/object pairs and census differentials remain under ignored
+build/f1/overlay15DrawScreenStars. The guarded baseline is restored. Stop early
+under ADR 0018: the two explicit conditional-definition hypotheses regress,
+and the prior pointer-view, region, line, cursor and colour receipts cover
+the other identified routes. No broader source-impossibility claim is made.
+The remaining requirement is still a hoisted fade read with the target's
+constant priority and unchanged frame.
+
+Commands: configured stock compile, draw_census.py profiles/comparison,
+residual_map.py --object --against, finalize_plateau.py and tools/gates.sh.
+Zero executable bytes are newly credited.
 
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->

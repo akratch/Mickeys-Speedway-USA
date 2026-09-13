@@ -110,10 +110,10 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
 
 /* PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:start
  * symbol: func_overlay_041_F000195C_1888C94
- * score: 29/105 words
+ * score: 76/105 words
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: Leaf cursor-definition placement regressed to 30 words; exact relocation identity leaves only an authentic cursor-lifetime decision.
+ * summary: No colour winner; census retains the leaf cursor schedule and aligned residual has 12 naming, two immediate, and nine structural rows.
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */

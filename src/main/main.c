@@ -1729,11 +1729,11 @@ void func_800293D0(void) {
 
 /* PLATEAU-HANDOFF:func_80028FCC:start
  * symbol: func_80028FCC
- * score: 10/27 words
+ * score: 10 differing words
  * frame: 0x18
  * relocations: 3
  * first-mismatch: +0x1C
- * summary: All 53 incumbent colour probes are flat; retain the structurally exact alternate-body carrier question.
+ * summary: Three-draw identity form duplicates normalization and loses scratch names to the return carrier; three follow-up controls are byte-identical.
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
 

@@ -2,11 +2,11 @@
 ### `overlay3RunCachedModeAction` plateau handoff
 
 - source: `src/overlays/o003/overlay3RunCachedModeAction.c`
-- score: 34/113 words
+- score: 34 differing words
 - frame: 0x58
 - relocations: 15
 - first mismatch: +0x84
-- summary: Inlining call-result carriers loses a frame quantum; intermediate-boolean deletion still misses the switch transfer.
+- summary: Byte boolean adds three draws; switch-only byte copy adds two consumer draws; separating the call conversion is byte-inert.
 #### 2026-09-12, lane p23-lastmile5: complete colour landscape and boolean shapes
 
 Fresh baseline: 113 words, delta zero, 34 raw and masked differences, frame
@@ -76,5 +76,44 @@ boolean reaches the mode-switch carrier without losing a frame quantum or
 adding the target's missing transfer as an extra instruction. Sources, objects,
 scores and aligned per-window comparisons are preserved privately under
 build/p24/overlay3RunCachedModeAction. No new bytes are counted as matched.
+
+#### 2026-09-13, lane f1: boolean width and conversion placement
+
+The baseline reproduces 452 bytes, delta zero, 34 raw/masked differences,
+first +0x84. The aligned map is 91 exact, eleven naming and ten structural
+paired rows, with the candidate-only +0x98 and target-only +0xE0 words.
+The single-procedure census has 17 draws and 171 emission records; each probe
+passes full-TU stock/instrumented text identity. The prior nine-web landscape,
+selected lattice and carrier-deletion receipts were read; no sweep was repeated.
+
+Making valid an unsigned byte is semantically defined because every assignment
+is a comparison yielding zero or one. It adds one draw at each of the three
+boolean definitions, 20 total, and four emission records. The missing target
+transfer disappears from alignment, but the function grows 24 bytes. Its
+paired map is 23 naming, four immediate and eighteen structural rows, with
+five candidate-only words. This is a measured width cost, not a near match.
+
+Separating the path-call result from its equality-to-zero assignment preserves
+all 17 draws and their sequence. One emission record is added overall, with
+attribution moving from the call line onto the comparison line. Object text
+and the entire aligned residual, including both gap offsets, are unchanged.
+
+Keeping valid as a word and copying it into a separate byte only for the
+switch produces two extra draws at the mode-three and mode-four tests, not a
+single shared transfer at the copy. It grows eight bytes and yields seventeen
+naming, three immediate and seventeen structural paired rows, with one
+candidate-only word. Thus narrowing sinks to the consumers and does not
+provide the wanted zero-cost mode-switch carrier.
+
+The baseline is restored. Stop early under ADR 0018: both narrowing routes
+have measured width costs, the split conversion is byte-inert, and the prior
+boolean and existing-carrier controls cover the remaining identified forms.
+The open requirement is still the call/comparison-to-switch transfer at the
+original frame and geometry. No general source-impossibility claim is made.
+
+Sources, objects, profiles and aligned deltas are retained in ignored
+build/f1/overlay3RunCachedModeAction. Commands: configured stock compile,
+draw_census.py profiles/comparison, residual_map.py --object --against,
+finalize_plateau.py and tools/gates.sh. No new executable-byte credit.
 
 <!-- plateau-handoff:overlay3RunCachedModeAction:end -->

@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187: case-3 pair closed; runtime imports corrected and halfword alias proved. Case-12 address reuse and relocation deficits remain.
+ * summary: 187 retained: 253-word diagnostic keeps 720 draws but moves one from coordinate to capture; per-site reuse constraint remains.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

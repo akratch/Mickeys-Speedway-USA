@@ -59,10 +59,10 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
 
 /* PLATEAU-HANDOFF:overlay3RunCachedModeAction:start
  * symbol: overlay3RunCachedModeAction
- * score: 34/113 words
+ * score: 34 differing words
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x84
- * summary: Inlining call-result carriers loses a frame quantum; intermediate-boolean deletion still misses the switch transfer.
+ * summary: Byte boolean adds three draws; switch-only byte copy adds two consumer draws; separating the call conversion is byte-inert.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

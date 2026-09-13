@@ -193,10 +193,10 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:start
  * symbol: func_overlay_071_F0000870_18CA390
- * score: 173/182 words
+ * score: 9/182 words
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x5C
- * summary: Exhaustive 82-cell colour landscape has one 4-word force but no source form creates the required invisible interferer; baseline remains 9.
+ * summary: flag-load ordering needs an unproven invisible interferer; exhaustive colour axis does not yield a source form
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */

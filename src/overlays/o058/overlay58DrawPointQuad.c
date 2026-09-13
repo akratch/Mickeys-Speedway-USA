@@ -142,10 +142,10 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
 
 /* PLATEAU-HANDOFF:overlay58DrawPointQuad:start
  * symbol: overlay58DrawPointQuad
- * score: 24/104 words
+ * score: 24 differing words
  * frame: 0x18
  * relocations: 11
  * first-mismatch: +0x14
- * summary: Exhaustive 108-probe 14-web landscape; best diagnostic w58=c8 reaches 19; deleting the vertex cursor carrier makes the pair +56 bytes.
+ * summary: Physical intermediate and colour-store folding are byte-inert; generated display cursor adds six draws and twelve bytes.
  * PLATEAU-HANDOFF:overlay58DrawPointQuad:end
  */

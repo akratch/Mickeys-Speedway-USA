@@ -6,5 +6,5 @@
 - frame: frameless
 - relocations: 10
 - first mismatch: +0x0
-- summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
+- summary: Grouped X-before-Y order left census unchanged and regressed aligned residual to 38; a1/a2 web and LO16 schedule remain.
 <!-- plateau-handoff:overlay27UpdateCoordinates:end -->

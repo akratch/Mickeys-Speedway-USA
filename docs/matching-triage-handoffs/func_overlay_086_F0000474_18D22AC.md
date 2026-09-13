@@ -2,11 +2,11 @@
 ### `func_overlay_086_F0000474_18D22AC` plateau handoff
 
 - source: `src/overlays/o086/func_overlay_086_F0000474_18D22AC.c`
-- score: 9 differing words
+- score: 7 differing words
 - frame: 0xA8
 - relocations: 38
-- first mismatch: +0xA8
-- summary: L160 carrier removal does not close the 7 naming and 2 scheduling rows; the changed-source landscape has no improving equal-size force.
+- first mismatch: +0x330
+- summary: Nonadjacent head line fold closes both schedule rows; seven short-link naming rows remain, unchanged by measured region and line controls.
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 
@@ -317,5 +317,70 @@ source lever; this packet stops on that stall instead of repeating the old
 colour, order or spelling sweeps. The next source question is how to obtain a
 short generated link-load web without changing the shared head expression
 allocation. No zero-scoring force-to-source route was established.
+
+#### 2026-09-13, lane e1: the nonadjacent line fold closes the head schedule
+
+Fresh configured baseline: 662 words, 2648 bytes, delta zero, 9 raw and
+masked differences. Alignment gives 653 exact, 7 naming, zero immediate and
+2 structural rows. Stock and draw-traced full-TU text compare byte-identically.
+The near-match oracle has no useful close sibling (best masked four-gram
+similarity 0.063); no donor material was adopted and no colour sweep was run.
+
+Attempt 8 puts the cursor definition on the same physical line as the
+nonadjacent 0x2C store, preserving store-before-definition token order. The
+retained candidate is **7 raw and masked differences**, with 655 aligned exact,
+7 naming, zero immediate and zero structural rows. No insertions or deletions;
+first mismatch +0x330. The +0x80 window loses its two structural rows and every
+other window is unchanged. Both frames remain 0xA8, all 21 used stack offsets
+agree, and the candidate has 38 relocation records. This remains guarded
+NON_MATCHING C, not an object-exact or linked promotion.
+
+This corrects the earlier source-order closure narrowly: its adjacent-pair
+folds did not retire this nonadjacent tie. A measured pointer/store swap
+(attempt 6) also scores 9, but moves the structural pair from +0xA8 to +0x9C;
+it is not byte-identical. The assembler trace shows the address producer and
+its copy moving together under that swap. The fold closes both pairs at once.
+
+The draw census records 169 draws and 948 emission events before and after
+adoption, with identical draw order. The definition's three emission events
+move from line 292 to line 289, without another scratch draw. This is a
+source-line scheduling result, not a ring-phase or colour result.
+
+Other individually retained source controls:
+
+- Unsigned generated case-0 address: 43 words, delta zero, 169 unchanged draws.
+  Its link remains a coloured value and agreeing head windows regress.
+- A same-slot union link view: byte-identical to the incoming 9-word body.
+- A register-qualified block-local link: 54 words at equal instruction count,
+  with frame-home displacements; all 169 draws stay unchanged.
+- Splitting the head address into two steps: byte-identical at 9. The extra
+  census emission is a source-location directive, not an instruction.
+- A head constant carried through spA0 adds a draw, but changes a still-live
+  accumulator on one path. It is rejected as non-equivalent evidence and is
+  not a candidate for adoption.
+- A generated volatile case-0 link: 39 words, delta zero, unchanged draw order.
+- Staging the head address through the integer carrier folds back to the
+  original 9-word schedule.
+- Taking the integer carrier's address at the case-0 use adds 15 draws across
+  the whole procedure, including the intended link site. It de-enregisters
+  shared uses, giving 546 positional differences and delta minus 4; aligned
+  394 exact, 186 naming, 9 immediate, 68 structural, with four candidate-only
+  and five target-only offsets. The address-home lever is broad, not local.
+
+ADR 0018 stall after the last informative address-home control: attempts 11,
+12 and 13 put the link load/use in a region, put its definition alone in a
+region, and fold its definition/use onto one line. Each retains the exact
+seven-word candidate text, all 169 draws and their order. Region controls add
+only location markers; the fold reattributes the same two existing draws.
+None creates the desired short link web or removes a remaining aligned row.
+The remaining question is still a short generated link-load identity that
+preserves the shared head allocation; these schedule controls do not supply it.
+
+Evidence stays ignored under build/e1/o086: source snapshots, stock/traced
+objects, draw profiles, raw traces, aligned maps and per-window deltas for
+every attempt. Commands include draw_census.py, residual_map.py --object and
+--against, align_symbol.py, frame_census.py, score_symbol.py, the configured
+compiler with its assembler trace, and finalize_plateau.py. Full-ROM gates
+validate the guarded tree; they do not establish these seven candidate words.
 
 <!-- plateau-handoff:func_overlay_086_F0000474_18D22AC:end -->

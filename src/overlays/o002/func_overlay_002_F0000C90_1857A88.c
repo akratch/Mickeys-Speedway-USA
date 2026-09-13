@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: frame remains 0x60 versus target 0x68; unused f32, pointer, and volatile-f32 declarations left frame and draw census unchanged
+ * summary: target frame is 0x68; source frame/home controls and colour diagnostics do not resolve the extra cell
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */

@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 5
 - first mismatch: +0x38
-- summary: caller-saved helper-return copy before cached guard remains unresolved
+- summary: Cursor alias in cached path left draw order and residual unchanged; helper-return copy remains unresolved.
 #### 2026-09-12, lane `p9-tight`: the shape is named and two forces price it
 
 The residual reproduces at 21 masked words, size delta 0, frame 0x80, and it is

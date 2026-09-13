@@ -3475,3 +3475,28 @@ is a register-lifetime edit disguised as a spelling choice, and a residual that
 is a pure two-register exchange with an exact frame and exact relocations
 should be read as a liveness question about the statement *before* the first
 divergence, not as an allocator contest at it.
+
+### 2026-09-13: func_80006448 indexed resource release (lane f1)
+
+Tier A byte identity: the existing placeholder at ROM 0x7048..0x7134,
+VRAM 0x80006448..0x80006534, is now canonical C in src/main/objects.c.
+All 236 executable bytes (59 words), the 0x28 frame, and four relocation
+offset/type/symbol tuples match. The full linked ROM rebuild passes
+`tools/gates.sh verify` at the expected US SHA1.
+
+Deleting the resource carrier together with the declared byte-offset carrier
+lets IDO generate the indexed address and load value. The residual falls from
+nine words to two: aligned buckets change from 50 exact, six naming and three
+structural to 57 exact and two naming. Joining the index initializer and do
+statement onto one physical line resolves the final entry initialization swap,
+yielding 59 exact with no remaining rows or gaps. The draw sequence stays at
+ten throughout; the final edit moves two emission records onto the loop line.
+Thus equal draw counts do not rule out an assembler scheduling improvement.
+
+The three release paths, dispatch call, iteration domain and access widths
+are preserved. No compiler force, flag change or post-compile instruction edit
+is used. Stock/instrumented full-TU text identity and the exact fallback
+relocation surface were checked before promotion; linked owned bytes and the
+full ROM were compared after extraction and the canonical rebuild. Diagnostic
+sources, objects and census differences remain ignored under
+build/f1/func_80006448. The old plateau shard is retired in Git history.

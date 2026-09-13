@@ -452,21 +452,21 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 
 /* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
  * symbol: overlay15DrawScreenStars
- * score: 9/105 words
+ * score: 96/105 words
  * frame: 0x58
  * relocations: 10
  * first-mismatch: +0x38
- * summary: 9 aligned structural rows; zero legal colour winners; setup/preheader probes moved no census lines; retained body is best
+ * summary: Conditional-header fade changes draw order but adds 12 bytes; a separate guard changes no draws and also adds 12 bytes.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
 
 /* PLATEAU-HANDOFF:overlay15DrawRain:start
  * symbol: overlay15DrawRain
- * score: 13/54 words
+ * score: 13 differing words
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: FP and integer call-block pressure changed draws and emissions but added structural rows; neither reached the shared-base lowering.
+ * summary: The call-bias literal type moves no draw, emission or byte; the shared-high-half lowering remains unresolved.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 

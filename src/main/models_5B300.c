@@ -898,11 +898,11 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005A7A0:start
  * symbol: func_8005A7A0
- * score: 96/106 words
+ * score: 10/106 words
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: The mixed residual retains the 0x50 versus 0x38 local-block reservation and the unavailable s0 carrier; colour forcing is inapplicable.
+ * summary: frame and carrier allocation remain unresolved; colour axis has no applicable winning force
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
@@ -912,7 +912,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x3C
- * summary: Declaration-order source probe moved no draw, free, or emission line; the remaining two aligned rows are structural as1 branch-delay behavior.
+ * summary: as1 branch-delay residual; draw census confirms source declaration changes do not move the schedule
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 

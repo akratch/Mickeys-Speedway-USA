@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 48
 - first mismatch: +0x18
-- summary: Exhaustive 178-probe 27-web landscape; best diagnostic w166=c5 reaches 86; player-carrier deletion regressed to 260 and +8 bytes.
+- summary: player carrier move left census unchanged and regressed to 94; stack-home and mask-shift carrier remain.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`
