@@ -942,6 +942,6 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
  * frame: 0x90
  * relocations: 13
  * first-mismatch: +0x0
- * summary: Declaration census fixes local block but S remains 48 versus target 40; no tested source shape reduces register temporaries.
+ * summary: draw census fixed at four draws; temporary-area reservation remains unresolved
  * PLATEAU-HANDOFF:func_80030610:end
  */
