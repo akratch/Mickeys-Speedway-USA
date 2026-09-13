@@ -3446,11 +3446,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 118/120 words
+ * score: 2/120 words
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x190
- * summary: Exhaustive colour landscape has no winner; fresh census agrees with the traced FIFO release-order conflict, leaving t5-to-t4 at two aligned rows.
+ * summary: Angle reassociation left 15 draws/122 emissions unchanged and worsened the aligned residual to 19 naming rows; the FIFO release point is unreached.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
