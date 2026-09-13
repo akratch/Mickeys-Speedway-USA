@@ -6,7 +6,7 @@
 - frame: 0x80
 - relocations: 0
 - first mismatch: +0x58
-- summary: Point deletion moves draws and regresses; partial-offset naming adds spill costs, and deleting its vertex pointer is draw/byte-flat.
+- summary: Unsigned scale normalization leaves all 63 draws and stock text unchanged; the mask-table emission-order blocker remains.
 
 - geometry: Target and configured C are both `0x38C`/908 bytes/227 words with frame `0x80`; the owned Overlay 19 range is `+0xF58..+0x12E4`, ROM `0x18761B0..0x187653C`, followed by separately owned 12-byte assembly padding.
 - relocation proof: Target runtime and candidate static surfaces both contain zero relocation records; count, type, offset, and identity surfaces are therefore vacuously exact, and preflight is complete.
@@ -46,4 +46,30 @@ stock/traced full-TU identity, censuses and aligned deltas are retained.
 Commands: assignment gate, configured compilation, draw_census.py before/after,
 residual_map.py --object --against, finalize_plateau.py and tools/gates.sh.
 The verified ROM uses the fallback; no new matching bytes are credited.
+
+#### 2026-09-13, lane l1: measured schedule controls
+
+Fresh procedure-0 baseline is 227 words at delta zero, frame 0x80, with
+63 masked differences from plus 0x58 and no relocations. Alignment is 164 exact,
+61 naming and two structural rows without gaps. The census has 63 draws and
+417 emissions. The existing exhaustive colour and point/offset controls were
+read before making a source change.
+
+Changing the mask-table scale literal from signed ten to unsigned ten, while
+retaining the unsigned product and all carriers, tests the scale's Ucode type
+normalization. Every line's draw/emission count, the complete draw sequence,
+and the full stock text remain identical. The scale expression does not move
+under this edit; every aligned window is unchanged. Restore the original.
+Stop early because this normalization adds no reachable scheduling mechanism
+to the previously closed point/offset controls. The remaining question is the
+scale-emission order itself; obtain a trace witness for a different expression
+structure before reopening that source axis.
+
+Named Ucode mapping and full stock/capture fidelity pass for the baseline and
+each retained experiment. Sources, stock objects, scores, frame/relocation
+censuses and aligned deltas remain under ignored build/l1/overlay19BuildSpatialMasks. Commands:
+configured compilation, allocator_trace_receipt mapping, draw_census profile
+and comparison, residual_map object comparison, finalize_plateau, and
+tools/gates.sh verify cleanroom check-docs. No matching credit is claimed.
+
 <!-- plateau-handoff:overlay19BuildSpatialMasks:end -->

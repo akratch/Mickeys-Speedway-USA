@@ -743,6 +743,6 @@ s32 func_800038EC(u16 soundId, AudioVector3 *position,
  * frame: 0x48
  * relocations: 5
  * first-mismatch: +0x0
- * summary: Fresh proc-15 census records 16 draws; the authorized baseline retains the 0x48 versus 0x30 frame and closed body forms.
+ * summary: Final-cursor controls leave the 0x48 frame unchanged; named proc-15 draw evidence still does not reach the target 0x30 frame.
  * PLATEAU-HANDOFF:func_80003480:end
  */

@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 10
 - first mismatch: +0x38
-- summary: Authenticated proc-4 census and prior exhaustive colour/source schedule probes retain nine structural rows; fade preheader ownership remains unresolved.
+- summary: Aggregate fade carrier changes no draws or emissions; preheader ownership and constant priority remain the blocker.
 
 #### Historical baseline at assignment 3ccc02a1
 
@@ -242,5 +242,30 @@ constant priority and unchanged frame.
 Commands: configured stock compile, draw_census.py profiles/comparison,
 residual_map.py --object --against, finalize_plateau.py and tools/gates.sh.
 Zero executable bytes are newly credited.
+
+#### 2026-09-13, lane l1: aggregate-carrier differential
+
+The configured baseline reproduces 420 bytes, delta zero, 96 aligned exact
+and nine structural rows, no naming or immediate rows, first difference
++0x38. Procedure 4 records 40 draws and 139 emissions. Stock and traced
+full-TU text are identical on both measurements.
+
+One new source-class control replaces the scalar fade carrier with a one-field
+aggregate, preserving physical source lines and all computations. The predicted
+lever was memory-class ownership of the fade read. The emitted text is identical:
+no line changes its draw or emission count, and the entire draw sequence is
+unchanged. The fade load's two emission records stay on the entry assignment.
+Every aligned window is unchanged. This aggregate spelling therefore does not
+reach the preheader decision.
+
+The original guarded source is retained. Stop early under ADR 0018 after this
+negative: the existing pointer, conditional-definition, region, priority and
+line-order receipts cover the other identified mechanisms. No repeated colour
+sweep and no broader impossibility claim. The next required evidence remains a
+fade load hoisted below the synthetic guard with the original constant priority.
+Source, stock/traced objects, census and aligned differences are preserved in
+ignored build/l1/overlay15DrawScreenStars. Commands: configured compilation,
+draw_census profile/compare, residual_map --object/--against, finalize_plateau
+and tools/gates.sh. No new executable-byte credit.
 
 <!-- plateau-handoff:overlay15DrawScreenStars:end -->
