@@ -1510,11 +1510,11 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:packInit:start
  * symbol: packInit
- * score: 29 differing words
+ * score: 29/115 words
  * frame: 0x60
  * relocations: 20
  * first-mismatch: +0xB0
- * summary: Preheader grouping, update order and indexed success status close all structural rows; 29 naming rows are one coherent ring rotation.
+ * summary: Fresh proc-29 census confirms 14 draws and a coherent ten-register rotation after all structural rows closed; no source draw lever remains.
  * PLATEAU-HANDOFF:packInit:end
  */
 
