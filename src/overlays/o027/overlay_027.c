@@ -449,7 +449,7 @@ s32 overlay27Activate(O27Object *object) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x0
- * summary: Fresh proc-3 census retains 29 draws and 19 naming rows; countdown/index controls do not reach the address-order residual.
+ * summary: Explicit proc-3 census confirms 29 draws; swapping record/countdown preheader initializers moved neither draws nor emissions and was restored.
  * PLATEAU-HANDOFF:overlay27UpdateCoordinates:end
  */
 

@@ -2,11 +2,11 @@
 ### `overlay13DrawRecord` plateau handoff
 
 - source: `src/overlays/o013/overlay13DrawRecord.c`
-- score: 97 differing words
+- score: 97/192 words
 - frame: 0x38
 - relocations: 18
 - first mismatch: +0x30
-- summary: 99/192 aligned rows exact at delta 0; frame is solved. Structure/register web and overlay-relative relocation identities need new evidence.
+- summary: Fresh 64-draw census retains solved frame; forced-colour diagnostics improve but do not close the structural and relocation-bound residual.
 - assignment base: `6ce89d6b`
 - owned range: overlay 13 `+0x580..+0x874`, 756 bytes / 189 words
 - baseline: 108 differing positional words, `0x40` frame, first mismatch `+0x0`

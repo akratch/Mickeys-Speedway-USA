@@ -6,7 +6,7 @@
 - frame: 0xA8
 - relocations: 38
 - first mismatch: +0x330
-- summary: 169-draw census and p1 ownership confirm seven naming rows; link-expression controls leave schedule unchanged
+- summary: Fresh 169-draw census confirms the inherited unchanged-draw link-expression controls; colour, carrier and source-order axes remain closed.
 
 #### 2026-09-10, lane w8-bigclose: p1 owns all of it, and the probe route is closed
 

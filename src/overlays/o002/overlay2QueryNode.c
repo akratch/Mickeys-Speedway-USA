@@ -222,10 +222,10 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay2QueryNode:start
  * symbol: overlay2QueryNode
- * score: 39 differing words
+ * score: 39/253 words
  * frame: 0x68
  * relocations: 51
  * first-mismatch: +0x58
- * summary: 223/253 aligned exact at delta 0. Parameter reload restores its reissue only with broad allocation regression; short-circuit schedule remains open.
+ * summary: Fresh 48-draw census retains the schedule; parameter-reload probes restore reissue only with broad allocation regression.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

@@ -94,6 +94,6 @@ void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
  * frame: 0x28
  * relocations: 12
  * first-mismatch: +0x10
- * summary: Indexed shift-loop controls move draws but regress alignment or add a word; retain the guarded pointer-loop baseline and distinct array identities.
+ * summary: Pointer-initializer order moves one draw and emission between lines but retains the 43-word floor; guarded pointer loop restored.
  * PLATEAU-HANDOFF:func_overlay_022_F0000D30_1878E38:end
  */
