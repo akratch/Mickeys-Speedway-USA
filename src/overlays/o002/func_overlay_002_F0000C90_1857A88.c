@@ -262,6 +262,6 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
  * frame: 0x60
  * relocations: 65
  * first-mismatch: +0x0
- * summary: Fresh proc-0 census records 79 draws; includeLinked home allocation remains eight bytes short of the target frame and force gains are diagnostic.
+ * summary: proc0 census confirms 79 draws; frame home remains eight bytes short and force gains are diagnostic
  * PLATEAU-HANDOFF:func_overlay_002_F0000C90_1857A88:end
  */
