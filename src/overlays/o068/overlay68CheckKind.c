@@ -138,10 +138,10 @@ s32 overlay68CheckKind(s32 kind) {
 
 /* PLATEAU-HANDOFF:overlay68CheckKind:start
  * symbol: overlay68CheckKind
- * score: 70/80 words
+ * score: 10 differing words
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: All 101 legal colour forces are non-improving; isolate the UGEN emission-order identity.
+ * summary: Cursor construction still spends zero scratch draws under measured index, postincrement and cancelling-advance controls; retain ten words.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

@@ -2589,11 +2589,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003F154:start
  * symbol: func_8003F154
- * score: 284/297 words
+ * score: 13 differing words
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x21C
- * summary: All 21 coloured webs sampled: no winner; twelve redundant comparison forms leave the source at 13 or the inlined sum at 19.
+ * summary: Draw census prices head-zero, magnitude and tail schedules; extra draws regress, and three final comparison controls are byte-flat.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
