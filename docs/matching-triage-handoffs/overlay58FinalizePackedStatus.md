@@ -2,11 +2,11 @@
 ### `overlay58FinalizePackedStatus` plateau handoff
 
 - source: `src/overlays/o058/overlay58FinalizePackedStatus.c`
-- score: 88/304 words
+- score: 88 differing words
 - frame: 0x48
 - relocations: 48
-- first mismatch: +0x18
-- summary: Fresh 44-draw baseline confirms the broad stack-home/mask-shift allocation residual; retained candidate.
+- first mismatch: 0x18
+- summary: Authenticated 44-draw baseline; resident-set and mask/shift allocation remain; existing count/records controls supply no new source hypothesis.
 - assignment base: `ccbd4a78b29afb17ad817dd9228f774012b7d9ac`
 - owned range: overlay 58 `+0x5554..+0x5A14`, 1,216 bytes / 304 words; the following `+0x5A14..+0x5A20` range is separately owned padding
 - baseline: exact 304-word geometry and `0x48` frame, with 178 raw differences, 177 relocation-masked differences, first raw mismatch `+0x8`, and first masked mismatch `+0x18`
@@ -47,5 +47,40 @@ both remained exactly 88/304 with identical buckets and were reverted.
 Forcing candidate p1 count/current webs to split regressed to 100--272 masked
 words, so those controls do not identify the target path. Candidate source and
 trace evidence is now preserved; no exact source spelling was proved.
+
+#### 2026-09-13, lane k1: authenticated draw-census follow-up
+
+Fresh configured stock compilation reproduces 1216 target bytes,
+size delta 0, 89 raw and
+88 masked differences, first +0x18.
+Candidate frame is 0x48; the procedure-0 census records
+44 draws and 574 emission records. Stock and traced full-TU text
+compare identically. Static relocation counts are 48 candidate and
+24 extracted target, with 0 identical offset/type/symbol tuples.
+These are static measurements; overlay runtime identity proof remains separate.
+
+Paired alignment has 227 exact, 41 naming, 14 immediate and 18 structural
+rows, plus four candidate-only and four target-only words. Both frames are
+0x48, but the resident home sets differ. The existing source probes already
+control save ratios, and the shard's joined records identify candidate homes
+rather than a simple home-order permutation.
+
+The recorded count/current split forces, post-increment count, early records
+carrier, loop conditions, captured-player reuse and home-order attempts were
+reviewed. No new source-supported way to select the target's resident set was
+identified outside those controls. ADR 0018 early evidence stop applies with
+zero new source attempts. No colour sweep or known-flat count/records probe
+was repeated; this is baseline confirmation, not another exhaustion claim.
+The first-loop discarded selectedPlayer0 read precedes its initialization in
+the retained source. That existing source-level issue also needs a defined
+replacement before any semantic promotion; it was not introduced or used as
+a new diagnostic in this pass. Runtime relocation identities remain unproved.
+
+The retained C remains guarded by its original assembly fallback. Sources, stock
+and traced objects, frame and scalar measurements, draw profiles and aligned
+maps remain ignored under build/k1/overlay58FinalizePackedStatus.
+Commands: lane_status.py, configured stock compilation, draw_census.py,
+residual_map.py --object/--against where compared, finalize_plateau.py and
+tools/gates.sh. No executable bytes are newly credited.
 
 <!-- plateau-handoff:overlay58FinalizePackedStatus:end -->
