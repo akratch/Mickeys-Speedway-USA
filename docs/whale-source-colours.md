@@ -1,4 +1,122 @@
-# Natural source colours: lane wv-f, 2026-09-13
+# Natural source colours
+
+## Lane wv-n, 2026-09-14
+
+**Retained: 165 masked / 336 raw differing words, 14,456 bytes, delta zero,
+frame 0x138, first mismatch +0x50.** The menu text cursor now takes s1
+naturally. Its indexed Y coordinate takes s0 and the constant 160 takes s2;
+all nine naming rows in the three menu windows disappear. No executable
+bytes are promoted: this remains guarded NON_MATCHING C.
+
+The baseline was 169 / 340, with aligned buckets **3476 exact, 128 naming,
+one immediate, eight structural**. The retained source measures **3483 exact,
+119 naming, one immediate, nine structural**. Paired residual rows fall from
+137 to 129. The menu argument-load gap reopens, so the net positional gain is
+four words. The original candidate +0x12F8 / target +0x1260 gap remains;
+the additional menu pair is candidate +0x1CDC / target +0x1CE8. Every other
+aligned window is unchanged. The complete 720-draw sequence, frame and 1,253
+owned text relocations are preserved. No source in cases 3 or 12 changes.
+
+### Reproduction before source work
+
+The assignment gate returns base-only. The configured build, private-source
+baseline and instrumented outputs pass section, relocation and symbol fidelity;
+the actual baseline self-comparison is function-exact. Named Ucode captures
+map every source attempt to procedure zero, with separate capture fidelity.
+The oracle remains JFG frontKeyboard at 0.081; no donor material is adopted.
+
+A local exhaustive landscape reproduces **all 1,898 supplied rows exactly**,
+including the ten winners and the predicted five-force packing at 131.
+The run is split across two bounded calls; every call-cap deferral is completed.
+The earlier 187 and current 169 baselines also have identical 395 allocator
+decision records. This does not imply source controls are invariant: all twelve
+controls from the earlier report below are compiled again at 169.
+
+The report freshness check reads the ranking's saved fingerprint, which differs
+from the live file after EOF metadata updates. The private packet therefore
+also pins the actual source bytes and retains the fresh complete measurements;
+the report-only freshness check is not used as standalone source proof.
+
+### What changed
+
+The successful source is attempt 32. The menu retains its independent row
+index, uses the existing text-pointer cell, and computes Y directly as
+`0x50 + rowBase * 0x1E`. This removes the menu's named `textY` recurrence.
+Both forms draw at 80, 110, 140 and 170, visit the same four text slots, and
+make the same calls in order. No pointed-to value is loaded across a call.
+This is an ordinary indexed-coordinate spelling, not an added inert probe.
+
+The predecessor that assigned that expression back into `textY` retained the
+720-draw order but cost eight bytes. Removing the named carrier lets strength
+reduction generate the coordinate and eliminates that width cost. Thus L160
+works here on the coordinate carrier; the old text-array cursor was already
+compiler-generated.
+
+A focused neighbor capture explains the earlier pointer witness's six naming
+regressions. Its constant-seven web keeps saving 1/7, but loses interference
+with the s2 scalar web belonging to `rowBase`; its interference count falls
+from 17 to 16, and seven takes s2 instead of s5. Reintroducing an indexed
+coordinate retains that scalar relationship, while removing `textY` lets the
+menu's three values take their target colours. The retained source's seven
+is back at s5 with the original 17-entry decision count. Raw neighbor records
+remain private.
+
+### Bounded controls
+
+The earlier twelve controls, in their original order, now score:
+
+    paired unsigned entry subscripts       169 / 340, delta 0
+    visible index for entry accesses       3472 / 3483, delta +16
+    shared byte-offset induction          3518 / 3522, delta +20
+    explicit entry cursor                 3467 / 3475, delta -8
+    count loaded then incremented         2259 / 2343, delta -8
+    unsigned count with shared stride      268 / 440, delta 0
+    conditional count expression           169 / 340, delta 0
+    explicit decrement cursor             1317 / 1407, delta 0
+    copy input in existing cursor          442 / 613, delta 0
+    menu in existing cursor                176 / 347, delta 0
+    menu in fresh local cursor             187 / 358, delta 0
+    menu address in original scalar        191 / 362, delta 0
+
+New entry controls cover a one-based index, an entry-only byte expression,
+and a declared competing name cursor. None improves the baseline; the first
+changes row classification without gaining exact rows, the second reproduces
+the full baseline, and the third changes width and draws.
+
+Count controls cover unsigned equality operands, reuse of the tested count on
+the equal-four branch, and a boolean increment producer. The first is inert.
+The second leaves the separate count at 124/6 behind the visible index at
+1534/71. The third moves the count ahead, but loses twelve bytes and changes
+draw order. It is not a count-colour repair at target width.
+
+Decrement controls remove the explicit cursor's independent counter through
+endpoint, pointer-difference and named-array forms. All change width. The
+named-array form restores the relocation count but still adds twelve bytes
+and changes draws. Copy-input controls use the existing path, saves and slot
+pointer cells; all retain the wrong 0x130 frame and broad displacement costs.
+
+Menu follow-ups cover pointer-difference and unsigned byte-difference array
+indices, the seven constant's equality type, an indexed pointer at the loop
+head or tail, an independent row-bound counter, and a row-derived coordinate.
+The loop-head pointer restores seven's interference but returns the text
+cursor to s0 and keeps the load-order gap. The bound and named-coordinate
+forms both add eight bytes. Deleting the coordinate carrier supplies the
+retained improvement; no failed control is adopted.
+
+### Preservation
+
+Every meaningful source, stock object, score, first mismatch, aligned delta,
+draw census, allocator trace and fidelity receipt is retained in the private
+wv-n packet. The function is guarded and banked through
+`tools/finalize_plateau.py`. Gate verdicts and commits accompany the handoff;
+canonical ROM verification proves the assembly fallback, not this nonexact C.
+The next local question is the menu text load's alias/scheduling constraint.
+
+Earlier context: [width pressure](whale-width-pressure.md),
+[entry phase](whale-entry-phase.md), [compositions](whale-compositions.md),
+and [gap emission](whale-gap-emission.md).
+
+## Lane wv-f, 2026-09-13
 
 **Retained source unchanged: 187 masked / 358 raw differing words, 14,456
 bytes, delta zero, frame 0x138, first masked mismatch +0x50.** No executable

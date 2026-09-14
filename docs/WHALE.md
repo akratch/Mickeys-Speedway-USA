@@ -1,6 +1,17 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 169, with another call slot repaired
+## Current checkpoint: 165, with natural menu colours
+
+Lane wv-n banks **165 at delta zero**, down from 169. An indexed menu Y
+coordinate removes its named carrier, while retaining the row index and
+explicit text cursor. All nine menu naming rows disappear, the complete
+720-draw sequence survives, and every other aligned window is unchanged.
+The menu load-order gap reopens, leaving a net four-word improvement. The
+[source-colour report](whale-source-colours.md#lane-wv-n-2026-09-14) records
+the source proof, all twelve earlier controls remeasured at 169, and the
+freshly reproduced 1,898-probe landscape. The C remains NON_MATCHING.
+
+## Previous checkpoint: 169, with another call slot repaired
 
 Lane wv-m retains **169 at delta zero**. Fifteen source controls and a fresh
 cross-kind landscape do not recover the target's early offset rematerialization.
