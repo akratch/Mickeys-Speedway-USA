@@ -2,6 +2,13 @@
 
 ## Current checkpoint: 169, with another call slot repaired
 
+Lane wv-l retains **169 at delta zero**. Its [attempt-21 accounting](whale-attempt21.md)
+attributes the twelve-byte deficit to three missing early offset-address
+instructions. Exchanging the restoration stores recovers the complete original
+draw order and retains position-address reuse at delta -4, but the early sharing
+is still missing. Thirteen source controls give no adoption; the full per-line
+accounting and the new order witness are preserved for the next packet.
+
 Lane wv-k retains the same **169 at delta zero**. Its
 [load-sharing controls](whale-load-sharing.md) recover both redundant tail
 reloads while preserving the case-12 reset and position-address reuse, but
