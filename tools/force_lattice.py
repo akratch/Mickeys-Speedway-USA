@@ -82,7 +82,15 @@ INSTRUMENTED = pathlib.Path.home() / "Desktop" / "dev" / "ido-instrumented"
 # first split, but a later split then takes the restore" -- and a landscape of
 # single forces is structurally unable to find a coupled repair, however many
 # probes it runs.
-FORCE_RE = re.compile(r"^p[12]:w\d+(\+w\d+)*=c\d+$")
+# `=cN` forces a colour; `=s` forces the SPLIT path, the compiler's own grammar
+# (its refusal message names both). A split receipt is one `p1dec` row with
+# `forced=-1` and NO `p1color` row for that web (a split may leave several
+# decision rows for one web number): the web went to memory.
+# The joint form `wA+wB=cN` is accepted here for the lattice's bookkeeping but
+# the instrumented uopt refuses it outright ("not a phase-qualified force
+# control", exit 55) -- measured on overlay 58, lane wv-p. Two webs driven
+# together are two single forces in one cell, nothing else.
+FORCE_RE = re.compile(r"^p[12]:w\d+(\+w\d+)*=(c\d+|s)$")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -109,7 +117,14 @@ def webs_of(force: str) -> list[int]:
     return [int(w.lstrip("w")) for w in force.split(":", 1)[1].split("=", 1)[0].split("+")]
 
 
+def is_split(force: str) -> bool:
+    """A `=s` force asks the allocator to split the web instead of colouring it."""
+    return force.split("=", 1)[1] == "s"
+
+
 def colour_of(force: str) -> int:
+    if is_split(force):
+        raise ValueError(f"{force} is a split force and names no colour")
     return int(force.split("=", 1)[1].lstrip("c"))
 
 
@@ -223,6 +238,22 @@ def force_acceptance(trace: str, proc: int, forces: tuple[str, ...]) -> str | No
         return f"no allocator decisions for procedure {proc}"
     for force in forces:
         phase = force.split(":", 1)[0]
+        if is_split(force):
+            for web_number in webs_of(force):
+                web = str(web_number)
+                decs = [r for event, r in rows if event == phase + "dec"
+                        and r.get("proc") == str(proc) and r.get("web") == web]
+                cols = [r for event, r in rows if event == phase + "color"
+                        and r.get("proc") == str(proc) and r.get("web") == web]
+                # A split can leave one decision row or several (the
+                # fragments keep the web number); every one must say -1.
+                if not decs:
+                    return f"{force}: no decision record for web {web}"
+                if any(r.get("forced") != "-1" for r in decs) or cols:
+                    return (f"{force}: not applied to web {web} "
+                            f"(forced={[r.get('forced', 'missing') for r in decs]}, "
+                            f"colour rows={len(cols)})")
+            continue
         colour = str(colour_of(force))
         # Every web a force names must be accepted. A joint force that lands on
         # one of its two webs is not the intervention that was requested, and

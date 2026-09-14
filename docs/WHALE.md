@@ -1,6 +1,22 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 160, with natural menu colours
+## Current checkpoint: 157, with the case-6 walker generated
+
+Lane wv-p banks **157 at delta zero**, down from 160. Case 6's node X is
+written as an indexed expression and strength reduction generates the
+walker, as the target's temporary shows; nine rows heal there and
+`countdownX` takes s0. The cost is arithmetic: `portraitX`'s scalar web
+loses its case-6 member, falls from 16.5 to 11.67, and case 13's first loop
+swaps s0/s1 with its cursor (15.5). The [save-order report](whale-save-order.md)
+records the decision-order proof (descending `save` among coloured webs),
+the web identifications behind every remaining swap, the case-12/13
+inner-index arithmetic (164 against 79.5), and the fourteen cycles. Two
+dispatch levers are shown not to exist here: `p2` forces (zero p2 records)
+and the joint-force grammar (refused by `uopt`); the compiler's own
+`p1:wN=s` split force does work and needs a receipt parser. The 160 and 157
+instrument sets are banked at `whale-resources/`.
+
+## Previous checkpoint: 160, with natural menu colours
 
 Lane wv-n banks **160 at delta zero**, down from 169. Indexed menu Y and
 text accesses let strength reduction generate both carriers. All nine menu
