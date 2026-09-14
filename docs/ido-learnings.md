@@ -53,6 +53,21 @@ bytes and disassembly never belong here.
   parameter can precede the later-numbered constant web. A small stored addend
   alone is not a data address, and a plausible numeric value is not proof that
   a mutable global may be replaced by a literal.
+- **Symptom:** an array cursor is already compiler-generated, yet an explicit
+  pointer reaches its desired colour only with regressions elsewhere.
+  **Mechanism:** a different named induction variable can determine the
+  cursor's allocation order. Removing an independent array index can also
+  remove interference with an apparently unrelated constant, even when that
+  constant's saving priority is unchanged. **Lever:** express a bounded
+  coordinate recurrence directly as base plus index times stride, then let
+  indexed array access generate the cursor too. Retain any independent index
+  needed by the existing control flow. In the
+  [menu source controls](whale-source-colours.md#lane-wv-n-2026-09-14), generating
+  the coordinate repaired colours; removing the compensating explicit pointer
+  then restored load ordering. Check both steps separately: an explicit pointer
+  and a named-array subscript can schedule differently. This applies only when
+  the arithmetic is defined and the base and stride remain stable across the
+  loop; it does not justify caching mutable global loads across calls.
 - **Validation and limits:** isolate the changed decisions with retained source
   and trace evidence, then compare aligned residual windows, frames and
   instruction geometry.
@@ -61,7 +76,7 @@ bytes and disassembly never belong here.
   experiments on the old shape do not close the new shape. Any emitted
   literal pool must be proved against retained data, with only declared
   metadata rebinding and ordinary linking; the compiler's instruction bytes
-  must remain untouched. Neither lever is a universal instruction to delete
+  must remain untouched. These levers are not universal instructions to delete
   locals or replace globals. Evidence: the ROM-exact recipe in
   [the angle-scan handoff](matching-triage-handoffs/overlay1FindType47ByAngle.md).
 
