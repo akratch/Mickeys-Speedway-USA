@@ -2,6 +2,12 @@
 
 ## Current checkpoint: 169, with another call slot repaired
 
+Lane wv-k retains the same **169 at delta zero**. Its
+[load-sharing controls](whale-load-sharing.md) recover both redundant tail
+reloads while preserving the case-12 reset and position-address reuse, but
+leave a twelve-byte deficit and changed draw order. Thirty source cells,
+including the remaining independent two-statement orders, yield no adoption.
+
 Lane wv-j retains **169 masked / 340 raw differences at delta zero**.
 Moving the empty-record portrait assignment after its formatting call repairs
 three words and moves the corresponding format-string relocation. Draw order
