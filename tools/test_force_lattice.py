@@ -465,5 +465,29 @@ class ExecutionTests(unittest.TestCase):
             self.assertFalse(self.run_cell().accepted)
 
 
+class SplitForceReceipt(unittest.TestCase):
+    """`p1:wN=s` is honoured by the compiler as one p1dec row with forced=-1
+    and no p1color row (measured: web 22 on overlay 58 went to sp+304)."""
+
+    DEC = "[CDX] p1dec phase=p1 proc=0 web=22 sym=22 class=1 save=1.0 nocs=1 decision=color forced={forced}\n"
+    COL = "[CDX] p1color phase=p1 proc=0 web=22 sym=22 color=14 reg=s0 forced=-1\n"
+
+    def test_grammar(self):
+        fl.validate_forces(["p1:w22=s", "p1:w75=c16"])
+        self.assertTrue(fl.is_split("p1:w22=s"))
+        self.assertFalse(fl.is_split("p1:w22=c14"))
+        with self.assertRaises(ValueError):
+            fl.colour_of("p1:w22=s")
+
+    def test_receipt(self):
+        self.assertIsNone(fl.force_acceptance(self.DEC.format(forced=-1), 0, ("p1:w22=s",)))
+        self.assertIsNotNone(fl.force_acceptance(self.DEC.format(forced=-2), 0, ("p1:w22=s",)))
+        self.assertIsNotNone(fl.force_acceptance(self.DEC.format(forced=-1) + self.COL, 0, ("p1:w22=s",)))
+        self.assertIsNotNone(fl.force_acceptance("", 0, ("p1:w22=s",)))
+        two = self.DEC.format(forced=-1) * 2
+        self.assertIsNone(fl.force_acceptance(two, 0, ("p1:w22=s",)))
+
+
+
 if __name__ == "__main__":
     unittest.main()

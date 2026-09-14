@@ -1048,16 +1048,16 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             D_o058_5EA8 = -D_o058_5EA8;
 
             if ((s32) state->countdown > 0) {
-                portraitX = countdownX + D_o058_5EA8;
+                /* Indexed X: strength reduction generates the walker (L160). */
                 /* Adjacent index def; see the note in case 7/11. */
                 i = 0;
                 do {
                     nodes[i].texture = (RcpTextureInfo *) D_800D31C8_o058Reloc[0x51 + state->entries[0].character];
                     nodes[i].alternate = 0;
-                    nodes[i].x = portraitX;
+                    nodes[i].x = countdownX + D_o058_5EA8 + i * 0x28;
                     nodes[i].y = 0xAA;
                     nodes[i].packedOffset = 0;
-                    portraitX += 0x28;
+                    /* No declared walker: it kept portraitX out of s0 here. */
                     i += 1;
                 } while (i < (s32) state->countdown);
             }
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 160/3614 words
+ * score: 157/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 160 retained; entry and rowBase can share s2, but captured-base witnesses still fail width and draw guards.
+ * summary: 157 retained; case-6 node X generated from i (L160) heals 9 rows, but portraitX then falls below the case-13 cursor's 15.5 and that pair swaps (+6).
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
