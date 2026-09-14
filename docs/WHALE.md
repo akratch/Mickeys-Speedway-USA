@@ -1,6 +1,27 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 147, with case 2's rank difference in a shared carrier
+## Current checkpoint: 48, with roles given to the carriers that hold their colours
+
+Lane wv-r banks **48 at delta zero**, down from 147. Five source changes,
+each measured alone and then composed: the entry store, case 2's decrement
+and case 2's draw loop read `D_o058_5E50` through one name (`portraitX`,
+with `i` counted beside it in the decrement loop so the target's post-loop
+reset survives), which spans the draw loop's calls and takes s0 on its own
+(147 to 85); the probe between `savedX` and `savedOffset` goes (83); case 8's
+`textY` sum is reordered (82); `opponent` and `columnX` exchange roles in
+cases 12/13 -- the target's column X is its s0 variable and its inner index
+its s1 variable, and both keep their colours (63); case 9's `columnX = 0;
+do {` shares a physical line (60); and case 13 keeps the stride in
+`columnStep` and the count in `columnCount` with one depth-1 probe on each
+so the decision order is stride, count, `i` (48). Aligned buckets 3597 /
+11 / 1 / 8; 720 draws in the identical order; the gap pair is unchanged and
+is now the first mismatch. The first-order landscape at 48 (140 probes)
+finds **no single same-kind winner**. The [role-carriers
+report](whale-role-carriers.md) records the cursor-init mechanism that made
+every earlier `[i]` spelling cost width, the two role swaps, the ratio
+arithmetic behind the count/stride probes, and the eighteen cycles.
+
+## Previous checkpoint: 147, with case 2's rank difference in a shared carrier
 
 Lane wv-q banks **147 at delta zero**, down from 157. Case 2's rank
 difference is carried by `columnX` rather than `textY`: uopt colours a symbol
