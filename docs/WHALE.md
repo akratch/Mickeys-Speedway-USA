@@ -1,5 +1,53 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
+## Current checkpoint: 169, with another call slot repaired
+
+Lane wv-m retains **169 at delta zero**. Fifteen source controls and a fresh
+cross-kind landscape do not recover the target's early offset rematerialization.
+A new composition shares both addresses and restores every per-line draw count
+as well as the complete 720-draw sequence, but is sixteen bytes short. Forcing
+its offset pointer into the target temporary register adds stack traffic rather
+than constant rematerialization. The [rematerialization report](whale-offset-rematerialization.md)
+distinguishes this result from a general incompatibility claim.
+
+Lane wv-l retains **169 at delta zero**. Its [attempt-21 accounting](whale-attempt21.md)
+attributes the twelve-byte deficit to three missing early offset-address
+instructions. Exchanging the restoration stores recovers the complete original
+draw order and retains position-address reuse at delta -4, but the early sharing
+is still missing. Thirteen source controls give no adoption; the full per-line
+accounting and the new order witness are preserved for the next packet.
+
+Lane wv-k retains the same **169 at delta zero**. Its
+[load-sharing controls](whale-load-sharing.md) recover both redundant tail
+reloads while preserving the case-12 reset and position-address reuse, but
+leave a twelve-byte deficit and changed draw order. Thirty source cells,
+including the remaining independent two-statement orders, yield no adoption.
+
+Lane wv-j retains **169 masked / 340 raw differences at delta zero**.
+Moving the empty-record portrait assignment after its formatting call repairs
+three words and moves the corresponding format-string relocation. Draw order
+and owned extent are unchanged. The [address-reuse report](whale-address-reuse.md)
+accounts for the case-12 witness's four bytes and preserves a separate control
+with the solved reset, later address reuse and target width, but substantial
+replacement gaps and draw-order costs. That control is not adopted.
+
+Lane wv-i previously retained **172 masked / 343 raw differences at delta zero**, down
+from 187. Five already-early index resets move into their target call slots;
+all 15 changed non-relocation words become target-exact, with no other code,
+relocation or draw-order change. See the
+[delay-slot report](whale-gap-emission.md#the-reset-reaches-the-slot-lane-wv-i).
+
+Case 12's reset also reaches its exact target slot in a separate source
+witness, but its independent array induction still costs four bytes and
+later gaps. The retained body keeps that case unchanged and has one gap pair:
+candidate +0x12F8 against target +0x1260. The reset remains at +0x12F8 there.
+No function is promoted.
+
+The sections below describe the **historical 187 baseline**. Its supplied
+landscape and forced 149 are not measurements of the current 169 source.
+The wv-j same-kind landscape measured 172 before its source improvement;
+it is historical too. Re-measure before interpreting colours on a new body.
+
 14,456 bytes, the largest unmatched function in the tree and **63% of the
 remaining distance to 60%**. Nine passes have taken it 733 → 227 → 217 → 187,
 and five consecutive passes have now held at 187. This document is the plan for
@@ -8,6 +56,26 @@ the tooling that makes each lever readable.
 
 `docs/matching-triage-handoffs/func_overlay_058_F000138C_18B0574.md` remains the
 per-pass log and the source of truth for what has been tried. This is the map.
+
+## Wave G: the banked witnesses have now been composed
+
+[The composition matrix](whale-compositions.md) measures 59 new source
+compositions and ten nested or repeated controls. None beats **187 at delta
+zero**; the best new target-width composition is C19 plus the menu cursor,
+at 615 masked and 349 aligned paired rows. The guarded 187 body is unchanged.
+
+The witnesses are not independent source edits: C19 is contained in C23,
+and C23 is contained in the width-pressure witness. C's address conversions
+are absorbed by B's cached-address spelling. Retaining literal conversions
+instead recovers only 12–20 of B's missing 280 bytes. There is partial
+compensation: C19, C23 and the width-pressure witness absorb the menu cursor's
+earlier naming collateral, leaving four fewer paired residual rows, but the
+menu gap survives. The decrement cursor does not repair the remaining costs.
+
+The whole-shape option discussed later in this document now has this bounded
+composition experiment behind it. Do not repeat the banked unions or infer
+disjoint costs from their lane labels. The matrix does not establish an
+unrestricted impossibility result.
 
 ## Wave D: target width and reduced pressure coexist
 
@@ -29,8 +97,13 @@ mismatch `+0x50`, 1,253 relocations.
       insertion shadow        32   from the ONE remaining gap pair
 
 **Three of the four original insertion pairs are closed.** What remains is a
-single pair: target-only `+0x1260` against candidate-only `+0x12F8`. It is worth
-about 32 positional words and nothing else in the function depends on it.
+single pair: target-only `+0x1260` against candidate-only `+0x12F8`. It accounts
+for about 32 positional words. Source repairs can affect later address reuse.
+The [wv-h emission report](whale-gap-emission.md) identifies the displaced
+operation as the visible index reset at source line 651: the target puts it
+in the first colour call's delay slot at `+0x1268`. The capture at line 660
+is outside the gap. The report also demonstrates that changed per-line counts
+can leave the entire emission sequence and executable output unchanged.
 
 Aligned rows by region (0x400 windows), naming first:
 

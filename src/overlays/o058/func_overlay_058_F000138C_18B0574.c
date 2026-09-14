@@ -349,7 +349,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     rowBase = D_o058_5C68[D_8007BEF8 - 1];
     switch (D_o058_5E94) {
     case 1:
-        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0))); /* Keep reset in the last argument value. */
 
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -553,7 +553,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 3:
-        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xA0, 0x1E, D_8007C0B8->text[0x29], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         savedX = D_o058_5E98;
@@ -739,8 +739,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 13:
-        /* Initialize the visible index with the title colour's zero blue. */
-        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+        /* Initialize the visible index through the last title-colour argument. */
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
         func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6F], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -1088,7 +1088,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
     case 8:
         x = D_o058_5E98 + D_o058_5EA8;
 
-        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E_o058Reloc), 4);
         x = -x;
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -1371,7 +1371,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 10:
         x = D_o058_5E98 + D_o058_5EA8;
-        fontColour(0xFF, 0x80, (i = 0), 0xFF, 0xFF);
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
 
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E_o058Reloc), 4);
         x = -x;
@@ -1398,8 +1398,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             x = -x;
             overlay56SplitTime(slot->records[opponent].value, &minutes, &seconds, &centiseconds);
             if (slot->records[opponent].value == 0) {
-                portraitIndex = 0x4A;
                 sprintf(&text[0], D_o058_5DB8);
+                portraitIndex = 0x4A;
             } else {
                 letter0 = func_8003A700(slot->records[opponent].name[0]) & 0xFF;
                 letter1 = func_8003A700(slot->records[opponent].name[1]) & 0xFF;
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 187/3614 words
+ * score: 169/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 187 retained; natural cursor colours have collateral costs.
+ * summary: 169 retained; offset rematerialization open.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
