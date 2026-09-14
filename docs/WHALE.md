@@ -10,7 +10,9 @@ The first 165 checkpoint in `df18e628` retained an explicit text cursor;
 removing it then restored the target load order. The
 [source-colour report](whale-source-colours.md#lane-wv-n-2026-09-14) records
 the source proof, all twelve earlier controls remeasured at 169, and the
-freshly reproduced 1,898-probe landscape. The C remains NON_MATCHING.
+freshly reproduced 1,898-probe baseline landscape. At 160, a fresh scan of
+1,915 legal forces and the complete four-force lattice measure 125 as a
+diagnostic reference; the retained C remains NON_MATCHING at 160.
 
 ## Previous checkpoint: 169, with another call slot repaired
 

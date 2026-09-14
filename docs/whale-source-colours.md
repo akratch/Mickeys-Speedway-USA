@@ -109,6 +109,68 @@ cursor to s0 and keeps the load-order gap. The bound and named-coordinate
 forms both add eight bytes. Deleting the coordinate carrier supplies the
 retained improvement; no failed control is adopted.
 
+### Entry and count controls after 160
+
+Attempts 34–38 test the coordinate lesson against the remaining larger source
+questions. Removing the named entry-loop Y recurrence gives **3382 / 3395,
+delta +8** in case 1, **3527 / 3532, delta -16** in case 2, and **3520 / 3521,
+delta -36** when both regions change. Their draw counts are 718, 719 and 714;
+none preserves draw order. Deriving the case-2 coordinate from visible i
+instead of the independent array index restores width but measures
+**2211 / 2267**, with 722 draws and broad aligned regressions.
+
+The case-2 control does put the unchanged entry-address identity at s2: its
+saving remains 152/16, but interference rises from 47 to 50. This is a natural
+colour witness, not a width-preserving repair. The original `rowBase` scalar
+retains saving 7/13, but its interference rises from 51 to 55, closes its last
+saved colour and triggers a split. The draw changes therefore begin at the
+initial base load and affect unchanged cases too. Retaining the original
+preheader base copy does not avoid that tradeoff: attempts 39–41 measure
+3532 / 3536 at delta -16, 3524 / 3526 at delta -40, and 3399 / 3410 at
+delta +4 for case 2, both cases, and case 1 respectively. Their draw counts
+repeat 719, 714 and 718. These three consecutive controls add no improvement,
+new identity or allocator lever beyond the established width/draw tradeoff;
+they close this coordinate family at the ADR 0018 stall.
+
+The count control represents the stride-table index directly and derives
+both loop bounds as index plus one. It measures **2226 / 2312, delta +16**,
+with 725 draws and two extra text relocations. It does not repair the shared
+count colour at the required geometry. Attempt 42 instead increments the
+table-index carrier in the table access. It preserves all 720 draws but
+measures 2275 / 2357 at delta +4. Its count priority is 237/10, repeating the
+previously rejected loaded-then-incremented producer, still at s5. All these
+controls retain frame 0x138, remain private and leave the 160 source untouched.
+
+Attempts 43 and 44 remeasure the decrement and copy pointer witnesses at 160
+before closing them. Decrement gives 1309 / 1399, delta zero, 718 reordered
+draws and 1,255 text relocations. Copy gives 433 / 604, delta zero and the
+original draw order, but still shrinks the frame to 0x130 and first mismatches
+at +0x0. The menu change therefore does not remove either acceptance blocker.
+
+### Fresh landscape at the retained source
+
+The complete 160 scan covers **1,915 distinct legal single forces**: 520
+accepted at target width, 1,146 with different width, and 249 declined for
+missing required decision/final-colour records. There are no deadline deferrals
+or omitted legal pairs. Same-kind and cross-kind passes share an actual source
+pin; their stock baseline is faithful to the retained source.
+
+Nine single forces improve 160. The old menu nomination is gone. All fifteen
+nonempty subsets of the remaining disjoint quartet are measured, and every
+pair is additive:
+
+    entry address    p1:w75=c16     145   saves 15
+    count/stride     p1:w379=c20    150   saves 10
+    decrement        p1:w225=c14    153   saves 7
+    copy input       p1:w27=c17     157   saves 3
+    all four                       125   saves 35
+
+These are diagnostics only. The forced 125 object's own aligned map has
+**3518 exact, 86 naming, one immediate and eight structural** rows, with the
+original gap pair. No forced object is adopted. The next source packet should
+start from the private source-pinned 160 landscape and its 125 residual,
+not the older 169 or 187 nomination maps.
+
 ### Preservation
 
 Every meaningful source, stock object, score, first mismatch, aligned delta,
@@ -116,8 +178,19 @@ draw census, allocator trace and fidelity receipt is retained in the private
 wv-n packet. The function is guarded and banked through
 `tools/finalize_plateau.py`. Gate verdicts and commits accompany the handoff;
 canonical ROM verification proves the assembly fallback, not this nonexact C.
-The menu question is closed locally. The next questions are the remaining
-entry, count, decrement and copy-input source colours.
+The menu question is closed locally. Entry needs a source form that retains
+its new colour without forcing the base scalar to split; count needs a new
+producer or interference mechanism, not another 237/10 spelling. The measured
+decrement draw/relocation and copy-frame defects still block their witnesses.
+This is a plateau of the tested source mechanisms, not an impossibility claim.
+
+The source checkpoints are `df18e628` (165) and `5d626f3d` (160); `cc6a0df6`
+records the generic mechanism. Both source checkpoints pass
+`tools/gates.sh verify cleanroom check-docs check-scoreboard check-overlay-syms
+check-nonmatching-builds`, followed by staged clean-room checks and enabled
+commit hooks. Every source probe uses the configured stock full-TU command,
+with separate detailed and named-Ucode capture fidelity. The handoff's final
+documentation checks and private archive receipt accompany the packet.
 
 Earlier context: [width pressure](whale-width-pressure.md),
 [entry phase](whale-entry-phase.md), [compositions](whale-compositions.md),
