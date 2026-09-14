@@ -1484,6 +1484,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 169 retained; portrait slot fixed, case-12 gap open.
+ * summary: 169 retained; load-sharing repair loses width/order.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
