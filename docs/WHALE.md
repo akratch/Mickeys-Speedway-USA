@@ -14,6 +14,15 @@ freshly reproduced 1,898-probe baseline landscape. At 160, a fresh scan of
 1,915 legal forces and the complete four-force lattice measure 125 as a
 diagnostic reference; the retained C remains NON_MATCHING at 160.
 
+Lane wv-o retains **160 at delta zero**. Its
+[neighbour comparison](whale-rowbase-colour.md)
+identifies the added entry edge that closes rowBase's sole saved colour.
+An array-base capture removes that edge and lets both values take s2 naturally,
+but costs coordinate draws, width and relocations. Nine source controls supply
+no adoption; the final three repairs stall. The complete 1,915-force landscape
+reproduces wv-n's results exactly. The next constraint is to retain the absent
+edge without the memory-coordinate cost, not merely to lower interference.
+
 ## Previous checkpoint: 169, with another call slot repaired
 
 Lane wv-m retains **169 at delta zero**. Fifteen source controls and a fresh
