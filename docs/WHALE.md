@@ -2,6 +2,14 @@
 
 ## Current checkpoint: 169, with another call slot repaired
 
+Lane wv-m retains **169 at delta zero**. Fifteen source controls and a fresh
+cross-kind landscape do not recover the target's early offset rematerialization.
+A new composition shares both addresses and restores every per-line draw count
+as well as the complete 720-draw sequence, but is sixteen bytes short. Forcing
+its offset pointer into the target temporary register adds stack traffic rather
+than constant rematerialization. The [rematerialization report](whale-offset-rematerialization.md)
+distinguishes this result from a general incompatibility claim.
+
 Lane wv-l retains **169 at delta zero**. Its [attempt-21 accounting](whale-attempt21.md)
 attributes the twelve-byte deficit to three missing early offset-address
 instructions. Exchanging the restoration stores recovers the complete original
