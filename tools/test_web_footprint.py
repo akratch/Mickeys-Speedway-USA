@@ -15,7 +15,11 @@ the properties pinned are the ones a wrong map would get wrong:
      positional difference this tool takes is only valid while both objects
      place the same words at the same offsets;
   4. the window index inverts the map -- that table is the whole deliverable,
-     and a web missing from it is a force nobody will nominate.
+     and a web missing from it is a force nobody will nominate;
+  5. a held set of forces is carried into every probe cell and never probed
+     itself -- the second-order landscape measures the other webs against
+     the held premise, and a cell that dropped or re-coloured a held web
+     would be measuring a different premise under the same name.
 """
 import pathlib
 import sys
@@ -325,6 +329,82 @@ class RivalTests(unittest.TestCase):
         self.assertIn("--force p1:w75=c16", text)
         self.assertIn("--force p1:w27=c17", text)
         self.assertIn("predicted 209", text)
+
+
+class HoldTests(unittest.TestCase):
+    """The second-order landscape: every other web, with a packing held.
+
+    Every landscape on overlay 58 was first-order -- each web against an
+    unforced baseline -- and the five forces it nominated all had a named
+    variable behind them. What the other 138 webs do once those five are
+    right had never been asked, because nothing could hold them.
+    """
+
+    HOLD = ["p1:w75=c16", "p1:w379=c20", "p1:w225=c14"]
+
+    def webs(self):
+        return {w: {"color": 14, "costs": {14: 0.0, 16: 1.0}, "reg": "s0",
+                    "kinds": {14: "callee", 16: "callee"}, "detail": {},
+                    "available": 0, "forbidden": 0}
+                for w in (27, 75, 225, 379, 435)}
+
+    def test_the_held_webs_are_the_webs_the_forces_name(self):
+        self.assertEqual(wf.held_webs(self.HOLD), {75, 225, 379})
+
+    def test_a_held_web_is_never_planned(self):
+        plan = wf.plan_probes(self.webs(), [27, 75, 225, 379, 435],
+                              hold=self.HOLD)
+        self.assertEqual([w for w, _ in plan], [27, 435])
+
+    def test_with_nothing_held_every_wanted_web_is_planned(self):
+        plan = wf.plan_probes(self.webs(), [27, 75, 435])
+        self.assertEqual([w for w, _ in plan], [27, 75, 435])
+
+    def test_a_held_web_is_skipped_under_every_colour_too(self):
+        plan = wf.plan_probes(self.webs(), [75, 435], every=True,
+                              hold=self.HOLD)
+        self.assertEqual({w for w, _ in plan}, {435})
+
+    def test_a_wanted_web_with_no_records_is_still_reported(self):
+        plan = wf.plan_probes(self.webs(), [999], hold=self.HOLD)
+        self.assertEqual(plan, [(999, None)])
+
+    def test_every_cell_carries_the_held_set_before_its_own_probe(self):
+        # Order matters for the receipt: force_acceptance checks each force
+        # in turn, and a reader of command.json should see the premise first.
+        self.assertEqual(wf.cell_forces(self.HOLD, 435, 15),
+                         ("p1:w75=c16", "p1:w379=c20", "p1:w225=c14",
+                          "p1:w435=c15"))
+
+    def test_with_nothing_held_a_cell_is_just_its_probe(self):
+        self.assertEqual(wf.cell_forces([], 435, 15), ("p1:w435=c15",))
+
+    def test_the_render_names_the_held_set_and_calls_the_baseline_held(self):
+        rows = [{"web": 435, "reg": "s0", "probe": 15, "score": 110,
+                 "footprint": {0x1700: -6}, "status": "ok"}]
+        text = wf.render(rows, 0x80, 116, self.HOLD)
+        self.assertIn("HELD in every cell", text)
+        for force in self.HOLD:
+            self.assertIn(f"--force {force}", text)
+        self.assertIn("beating the held 116", text)
+        self.assertIn("p1:w435=c15", text)
+
+    def test_the_render_without_a_hold_still_says_unforced(self):
+        text = wf.render([], 0x80, 157)
+        self.assertNotIn("HELD", text)
+        self.assertIn("beating the unforced 157", text)
+
+    def test_a_trace_cannot_be_supplied_alongside_a_hold(self):
+        # The held colours change what the other webs are offered, so the
+        # plan must be read from the held baseline's own trace.
+        with self.assertRaises(SystemExit) as caught:
+            wf.main(["sym", "--out", "x", "--hold", "p1:w75=c16",
+                     "--trace", "somewhere.log"])
+        self.assertIn("--trace", str(caught.exception))
+
+    def test_a_malformed_hold_is_refused_before_any_compile(self):
+        with self.assertRaises(SystemExit):
+            wf.main(["sym", "--out", "x", "--hold", "w75=16"])
 
 
 class RenderTests(unittest.TestCase):

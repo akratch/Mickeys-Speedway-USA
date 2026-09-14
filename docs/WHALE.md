@@ -1,6 +1,22 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 157, with the case-6 walker generated
+## Current checkpoint: 147, with case 2's rank difference in a shared carrier
+
+Lane wv-q banks **147 at delta zero**, down from 157. Case 2's rank
+difference is carried by `columnX` rather than `textY`: uopt colours a symbol
+as one web across every case, `textY` spans five cases and takes s4 early,
+and the target's value there has the colours of a late-decided web. Ten
+naming rows heal in case 2; draws, emissions, relocations and the gap pair
+are unchanged. The [second-order report](whale-second-order.md) records the
+new instrument (`web_footprint.py --hold`), the second-order landscape at the
+packed five (116 to a measured **90** with `w101=c17` and `w26=c4`, both
+invisible at first order), the third-order landscape at 90 (no single
+same-kind winner), the per-case cursor webs the forces hide, and the
+entry/decrement cursor mechanism (one shared `D_o058_5E50[i]` web, 86 under
+force, callee-save on its own only when it also shares the draw loop's name,
+at +4). On the 147 body the seven forces measure 85. Fourteen cycles.
+
+## Previous checkpoint: 157, with the case-6 walker generated
 
 Lane wv-p banks **157 at delta zero**, down from 160. Case 6's node X is
 written as an indexed expression and strength reduction generates the

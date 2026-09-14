@@ -4,6 +4,7 @@
     tools/web_footprint.py <symbol> --out DIR [--trace <allocator.log>]
                            [--proc N] [--every-colour] [--cross-kind]
                            [--webs 7,44,101] [--limit N] [--window 0x80]
+                           [--hold p1:w75=c16 ...]
                            [--list-procs] [--timeout S] [--minutes M]
 
 WHY THIS EXISTS
@@ -38,6 +39,20 @@ target, so an insertion's positional shadow is identical in both and cancels
 in the difference. A force that changes the function's size shifts that shadow
 instead of cancelling it, so those cells are reported and excluded rather than
 mapped.
+
+HOLDING A SET OF FORCES: THE SECOND-ORDER LANDSCAPE
+
+Every landscape above probes each web against the UNFORCED baseline. Once a
+packing of forces is known to be right -- on overlay 58, five forces whose
+every member has a named variable and a measured reason -- the question that
+remains is what the OTHER webs do once those five are held. `--hold` takes a
+list of forces (repeatable), compiles the baseline with them applied, reads
+the probe plan from that baseline's own trace (the held colours change which
+colours the other webs are offered, so an unforced trace would plan against
+the wrong tables), skips the held webs, and adds the held set to every probe
+cell. The scores, footprints, winners and packing are then relative to the
+held baseline, and a winner is a force to ADD to the held set. A `--trace`
+given alongside `--hold` is refused for that reason.
 
 CHOOSING THE PROBE COLOUR
 
@@ -191,6 +206,44 @@ def every_colour(entry: dict, same_kind: bool = True) -> list[int]:
     return sorted(legal, key=lambda c: (abs(c - taken), c))
 
 
+def held_webs(hold: list[str]) -> set[int]:
+    """The webs a held force pins; probing one of them would contradict the hold."""
+    return {w for force in hold for w in fl.webs_of(force)}
+
+
+def plan_probes(webs: dict[int, dict], wanted: list[int], *,
+                every: bool = False, cross_kind: bool = False,
+                hold: list[str] = ()) -> list[tuple[int, int | None]]:
+    """The (web, colour) cells to compile, in order.
+
+    A held web is not planned at all: its colour is the premise of the
+    landscape, and a probe on it would measure a different premise. It is
+    reported as such rather than dropped silently, so a hold that names a
+    web the trace does not colour is visible.
+    """
+    pinned = held_webs(list(hold))
+    plan: list[tuple[int, int | None]] = []
+    for web in wanted:
+        entry = webs.get(web)
+        if web in pinned:
+            continue
+        if entry is None:
+            plan.append((web, None))
+        elif every:
+            colours = every_colour(entry, same_kind=not cross_kind)
+            plan.extend((web, c) for c in colours)
+            if not colours:
+                plan.append((web, None))
+        else:
+            plan.append((web, probe_colour(entry)))
+    return plan
+
+
+def cell_forces(hold: list[str], web: int, colour: int) -> tuple[str, ...]:
+    """The held set first, then the probe, as one cell's force list."""
+    return tuple(hold) + (f"p1:w{web}=c{colour}",)
+
+
 class Reader:
     """Read candidate objects against one assembled target, assembled once.
 
@@ -326,11 +379,21 @@ def rivals(rows: list[dict], base_score: int) -> list[list[dict]]:
             for g in groups.values() if len(g) > 1]
 
 
-def render(rows: list[dict], width: int, base_score: int | None = None) -> str:
+def render(rows: list[dict], width: int, base_score: int | None = None,
+           hold: list[str] | None = None) -> str:
     out = [f"web footprints (windows of {width:#x} bytes, signed words)", ""]
+    hold = list(hold or [])
+    if hold:
+        out.append("  HELD in every cell (second-order landscape; scores, "
+                   "footprints and the packing are relative to this set, and a "
+                   "winner is a force to ADD to it):")
+        for force in hold:
+            out.append(f"    --force {force}")
+        out.append("")
     if base_score is not None:
         beat = winners(rows, base_score)
-        out.append(f"  probes beating the unforced {base_score} at delta 0: "
+        baseline = "held" if hold else "unforced"
+        out.append(f"  probes beating the {baseline} {base_score} at delta 0: "
                    f"{len(beat)}")
         for r in beat:
             out.append(f"    p1:w{r['web']}=c{r['probe']:<4} {r['reg'] or '?':<4} "
@@ -430,7 +493,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--report", type=pathlib.Path, default=None,
                         help="re-render a saved footprints.json and stop; no "
                              "compile, and the packing is recomputed")
+    parser.add_argument("--hold", action="append", default=[],
+                        help="a force (p1:wN=cM) kept applied in the baseline "
+                             "and in every probe; repeatable. This is the "
+                             "second-order landscape: what every other web "
+                             "does once the held set is right")
     args = parser.parse_args(argv)
+    if args.hold:
+        fl.validate_forces(args.hold)
+        if args.trace is not None:
+            raise SystemExit("web_footprint: --trace cannot be combined with "
+                             "--hold; the held baseline's own trace is the "
+                             "one whose cost tables the probes are planned "
+                             "from")
 
     if args.report is not None:
         saved = json.loads(args.report.read_text())
@@ -438,19 +513,19 @@ def main(argv: list[str] | None = None) -> int:
         if warning:
             print(f"!! {warning}\n")
         print(render(saved["rows"], saved.get("window", args.window),
-                     saved.get("base_score")))
+                     saved.get("base_score"), saved.get("hold")))
         return 1 if warning and warning.startswith("STALE") else 0
 
     command = fl.compile_command(args.symbol)
     args.out.mkdir(parents=True, exist_ok=True)
     deadline = time.time() + args.minutes * 60
 
-    base_cell = fl.run_cell(args.symbol, args.proc, (), command=command,
-                            directory=args.out / "base", deadline=deadline,
-                            timeout=args.timeout)
+    base_cell = fl.run_cell(args.symbol, args.proc, tuple(args.hold),
+                            command=command, directory=args.out / "base",
+                            deadline=deadline, timeout=args.timeout)
     if not base_cell.accepted:
-        raise SystemExit(f"web_footprint: unforced baseline failed: "
-                         f"{base_cell.note}")
+        raise SystemExit(f"web_footprint: {'held' if args.hold else 'unforced'}"
+                         f" baseline failed: {base_cell.note}")
     captured = args.out / "base" / "allocator.log"
     trace_path = args.trace if args.trace is not None else captured
     trace_text = trace_path.read_text() if trace_path.is_file() else ""
@@ -476,18 +551,8 @@ def main(argv: list[str] | None = None) -> int:
             "and check the capture carried CDX_DETAIL_WEB=all")
     wanted = ([int(w) for w in args.webs.split(",") if w.strip()]
               if args.webs else colourable(webs))
-    plan: list[tuple[int, int | None]] = []
-    for web in wanted:
-        entry = webs.get(web)
-        if entry is None:
-            plan.append((web, None))
-        elif args.every_colour:
-            colours = every_colour(entry, same_kind=not args.cross_kind)
-            plan.extend((web, c) for c in colours)
-            if not colours:
-                plan.append((web, None))
-        else:
-            plan.append((web, probe_colour(entry)))
+    plan = plan_probes(webs, wanted, every=args.every_colour,
+                       cross_kind=args.cross_kind, hold=args.hold)
     if args.limit:
         plan = plan[:args.limit]
 
@@ -495,7 +560,8 @@ def main(argv: list[str] | None = None) -> int:
     base_hist = histogram(reader.positions(args.out / "base" / "candidate.o"),
                           args.window)
     print(f"base {base_cell.score} masked words over {len(base_hist)} "
-          f"windows; {len(plan)} probes over {len({w for w, _ in plan})} webs",
+          f"windows; {len(plan)} probes over {len({w for w, _ in plan})} webs"
+          + (f"; holding {' '.join(args.hold)}" if args.hold else ""),
           flush=True)
 
     rows: list[dict] = []
@@ -508,7 +574,8 @@ def main(argv: list[str] | None = None) -> int:
                              else "no records for this web")
             rows.append(row)
             continue
-        cell = fl.run_cell(args.symbol, args.proc, (f"p1:w{web}=c{colour}",),
+        cell = fl.run_cell(args.symbol, args.proc,
+                           cell_forces(args.hold, web, colour),
                            command=command,
                            directory=args.out / f"web-{web}-c{colour}",
                            deadline=deadline, timeout=args.timeout)
@@ -533,12 +600,13 @@ def main(argv: list[str] | None = None) -> int:
             break
 
     report = {"symbol": args.symbol, "proc": args.proc, "window": args.window,
-              "base_score": base_cell.score, "rows": rows,
+              "base_score": base_cell.score, "hold": list(args.hold),
+              "rows": rows,
               "source_context_sha256": source_fingerprint(args.symbol)}
     (args.out / "footprints.json").write_text(json.dumps(report, indent=2) + "\n")
     print()
     print(json.dumps(report, indent=2) if args.json
-          else render(rows, args.window, base_cell.score))
+          else render(rows, args.window, base_cell.score, args.hold))
     return 0
 
 

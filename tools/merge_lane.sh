@@ -20,7 +20,20 @@ case "$build_jobs" in ''|*[!0-9]*|0) echo "invalid MICKEY_BUILD_JOBS: $build_job
 case "$build_nice" in ''|*[!0-9]*) echo "invalid MICKEY_BUILD_NICE: $build_nice" >&2; exit 2 ;; esac
 low_gmake() { nice -n "$build_nice" gmake -j"$build_jobs" "$@"; }
 .venv/bin/python tools/merge_transaction.py clean
-tools/cleanroom_check.sh --range "HEAD..$tip" 2>&1 | tail -1
+# Never pipe a gate.  `| tail -1` reports tail's status, which is always 0, so
+# a failing scan read as a pass here and its findings scrolled away, leaving one
+# line of remediation advice with no finding above it.  Capture the output,
+# branch on the real status, and print everything when it fails.
+scan=$(mktemp -t mickey-merge-cleanroom)
+if tools/cleanroom_check.sh --range "HEAD..$tip" >"$scan" 2>&1; then
+	tail -1 "$scan"
+	rm -f "$scan"
+else
+	cat "$scan" >&2
+	rm -f "$scan"
+	echo "merge_lane: clean-room range scan failed; $branch not merged" >&2
+	exit 1
+fi
 # Advisory only. A superseded lane still merges if the caller wants its
 # documentation, but each attempt costs a full build and gate cycle, and
 # the resulting tree usually fails several gates later for reasons that
