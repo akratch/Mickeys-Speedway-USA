@@ -2,20 +2,19 @@
 
 ## Lane wv-n, 2026-09-14
 
-**Retained: 165 masked / 336 raw differing words, 14,456 bytes, delta zero,
+**Retained: 160 masked / 331 raw differing words, 14,456 bytes, delta zero,
 frame 0x138, first mismatch +0x50.** The menu text cursor now takes s1
 naturally. Its indexed Y coordinate takes s0 and the constant 160 takes s2;
 all nine naming rows in the three menu windows disappear. No executable
 bytes are promoted: this remains guarded NON_MATCHING C.
 
 The baseline was 169 / 340, with aligned buckets **3476 exact, 128 naming,
-one immediate, eight structural**. The retained source measures **3483 exact,
-119 naming, one immediate, nine structural**. Paired residual rows fall from
-137 to 129. The menu argument-load gap reopens, so the net positional gain is
-four words. The original candidate +0x12F8 / target +0x1260 gap remains;
-the additional menu pair is candidate +0x1CDC / target +0x1CE8. Every other
-aligned window is unchanged. The complete 720-draw sequence, frame and 1,253
-owned text relocations are preserved. No source in cases 3 or 12 changes.
+one immediate, eight structural**. The retained source measures **3485 exact,
+119 naming, one immediate, eight structural**. Paired residual rows fall from
+137 to 128. Only the original candidate +0x12F8 / target +0x1260 gap remains.
+Every other aligned window is unchanged. The complete 720-draw sequence,
+frame and 1,253 owned text relocations are preserved. No source in cases 3
+or 12 changes.
 
 ### Reproduction before source work
 
@@ -39,8 +38,9 @@ the report-only freshness check is not used as standalone source proof.
 
 ### What changed
 
-The successful source is attempt 32. The menu retains its independent row
-index, uses the existing text-pointer cell, and computes Y directly as
+Attempt 32 first reached 165 / 336 and was banked in `df18e628`. The menu
+retained its independent row index, used the existing text-pointer cell,
+and computed Y directly as
 `0x50 + rowBase * 0x1E`. This removes the menu's named `textY` recurrence.
 Both forms draw at 80, 110, 140 and 170, visit the same four text slots, and
 make the same calls in order. No pointed-to value is loaded across a call.
@@ -51,6 +51,12 @@ The predecessor that assigned that expression back into `textY` retained the
 reduction generate the coordinate and eliminates that width cost. Thus L160
 works here on the coordinate carrier; the old text-array cursor was already
 compiler-generated.
+
+Attempt 33 then removes the explicit text cursor and restores the indexed
+`D_o058_5E68[rowBase]` access. With Y also generated, both carriers keep their
+target colours and the named-array access restores the target load order.
+The temporary menu gap disappears, taking the score from 165 to 160. This
+retained form repairs nine naming rows without adding structural rows or gaps.
 
 A focused neighbor capture explains the earlier pointer witness's six naming
 regressions. Its constant-seven web keeps saving 1/7, but loses interference
@@ -110,7 +116,8 @@ draw census, allocator trace and fidelity receipt is retained in the private
 wv-n packet. The function is guarded and banked through
 `tools/finalize_plateau.py`. Gate verdicts and commits accompany the handoff;
 canonical ROM verification proves the assembly fallback, not this nonexact C.
-The next local question is the menu text load's alias/scheduling constraint.
+The menu question is closed locally. The next questions are the remaining
+entry, count, decrement and copy-input source colours.
 
 Earlier context: [width pressure](whale-width-pressure.md),
 [entry phase](whale-entry-phase.md), [compositions](whale-compositions.md),

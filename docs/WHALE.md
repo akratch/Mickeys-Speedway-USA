@@ -1,12 +1,13 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 165, with natural menu colours
+## Current checkpoint: 160, with natural menu colours
 
-Lane wv-n banks **165 at delta zero**, down from 169. An indexed menu Y
-coordinate removes its named carrier, while retaining the row index and
-explicit text cursor. All nine menu naming rows disappear, the complete
-720-draw sequence survives, and every other aligned window is unchanged.
-The menu load-order gap reopens, leaving a net four-word improvement. The
+Lane wv-n banks **160 at delta zero**, down from 169. Indexed menu Y and
+text accesses let strength reduction generate both carriers. All nine menu
+naming rows disappear, the complete 720-draw sequence survives, and every
+other aligned window is unchanged. No structural rows or gaps are added.
+The first 165 checkpoint in `df18e628` retained an explicit text cursor;
+removing it then restored the target load order. The
 [source-colour report](whale-source-colours.md#lane-wv-n-2026-09-14) records
 the source proof, all twelve earlier controls remeasured at 169, and the
 freshly reproduced 1,898-probe landscape. The C remains NON_MATCHING.

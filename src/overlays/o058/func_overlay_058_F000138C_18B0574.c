@@ -887,9 +887,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         } else {
             func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
-        /* Indexed Y lets strength reduction supply the coordinate carrier.
-         * Keep the text cursor independent and the visible index early. */
-        rowBase = 0; cursor = (void **)D_o058_5E68;
+        /* Indexed Y and text let strength reduction supply both carriers.
+         * Preserve the early visible index across the menu input calls. */
+        rowBase = 0;
 
         do {
             if (i == D_o058_5F28) {
@@ -897,10 +897,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            func_8004B0F8(&D_800D3140, 0xA0 - x, 0x50 + rowBase * 0x1E, (*(char **)cursor), 4);
+            func_8004B0F8(&D_800D3140, 0xA0 - x, 0x50 + rowBase * 0x1E, D_o058_5E68[rowBase], 4);
             i += 1;
             rowBase++;
-            cursor++;
+
             x = -x;
         } while (i < 4);
         D_o058_5EA0 -= arg0 * 0xF;
@@ -1480,10 +1480,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 165/3614 words
+ * score: 160/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 165; natural menu colours, load gap open.
+ * summary: 160; menu colours and load order fixed.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
