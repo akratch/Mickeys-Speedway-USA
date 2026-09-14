@@ -504,9 +504,15 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[portraitX]->character + 0x1A], 0);
-                textY = D_o058_5EC8[portraitX]->rank - D_o058_5E50[portraitX];
+                /* `columnX`, not `textY`: uopt colours a symbol as ONE web across
+                 * every case (textY is 29 blocks over cases 1/2/8/9/10 and takes
+                 * s4 early), and the target's rank difference here sits in s1 with
+                 * the format-string address in s4 -- the colours of a web decided
+                 * late, i.e. the variable that also carries column X in cases 9/12/13.
+                 * Fourteen other carriers measured 151-3209; this one is -10 at delta 0. */
+                columnX = D_o058_5EC8[portraitX]->rank - D_o058_5E50[portraitX];
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
-                sprintf(&text[0], D_o058_5D50, textY);
+                sprintf(&text[0], D_o058_5D50, columnX);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xBE, rowY, &text[0], 0);
                 sprintf(&text[0], D_o058_5D54, D_o058_5E50[portraitX]);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xEB, rowY, &text[0], 0);
@@ -1480,10 +1486,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 157/3614 words
+ * score: 147/3614 words
  * frame: 0x138
  * relocations: 1253
  * first-mismatch: +0x50
- * summary: 157 retained; case-6 node X generated from i (L160) heals 9 rows, but portraitX then falls below the case-13 cursor's 15.5 and that pair swaps (+6).
+ * summary: 147 retained; case 2's rank difference carried by columnX (a late-decided web, s1) heals 10 naming rows in case 2. The second-order landscape (five held) measures 90 with w101=c17 and w26=c4 added, and the third-order landscape at 90 has no single same-kind winner.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
