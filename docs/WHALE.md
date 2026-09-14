@@ -1,6 +1,29 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 169, with another call slot repaired
+## Current checkpoint: 160, with natural menu colours
+
+Lane wv-n banks **160 at delta zero**, down from 169. Indexed menu Y and
+text accesses let strength reduction generate both carriers. All nine menu
+naming rows disappear, the complete 720-draw sequence survives, and every
+other aligned window is unchanged. No structural rows or gaps are added.
+The first 165 checkpoint in `df18e628` retained an explicit text cursor;
+removing it then restored the target load order. The
+[source-colour report](whale-source-colours.md#lane-wv-n-2026-09-14) records
+the source proof, all twelve earlier controls remeasured at 169, and the
+freshly reproduced 1,898-probe baseline landscape. At 160, a fresh scan of
+1,915 legal forces and the complete four-force lattice measure 125 as a
+diagnostic reference; the retained C remains NON_MATCHING at 160.
+
+Lane wv-o retains **160 at delta zero**. Its
+[neighbour comparison](whale-rowbase-colour.md)
+identifies the added entry edge that closes rowBase's sole saved colour.
+An array-base capture removes that edge and lets both values take s2 naturally,
+but costs coordinate draws, width and relocations. Nine source controls supply
+no adoption; the final three repairs stall. The complete 1,915-force landscape
+reproduces wv-n's results exactly. The next constraint is to retain the absent
+edge without the memory-coordinate cost, not merely to lower interference.
+
+## Previous checkpoint: 169, with another call slot repaired
 
 Lane wv-m retains **169 at delta zero**. Fifteen source controls and a fresh
 cross-kind landscape do not recover the target's early offset rematerialization.
