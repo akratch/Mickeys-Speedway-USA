@@ -1,6 +1,26 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 18, with the gap closed on a split rather than a colour
+## Current checkpoint: 18, with case 13 closed under one colour (forced)
+
+Lane wv-u retains **18 at delta zero**; no unforced cell measured below it
+and the source is unchanged. It itemised wv-t's growth identity from the
+banked neighbour captures -- the two case-12 pieces share every window
+interferer but W's own lineage remainder, and their held colours differ by
+`v1`/`a0`/`a1` timing only, so no dead-carrier body passes both tests and
+the target is the 48 configuration on the allocator side -- and measured
+every zero-width handle for the one lever inside it (w40's order against
+the `&D_o058_5E9C` remainder) closed: head probes insert blocks, aliasing
+splits a value web or poisons alias analysis, bare expressions vanish. On
+case 13 it derived the target's roles from the ladder (only `opponent` can
+beat the cursor's 15.5) and found the zero-width shape that keeps the `a2`
+piece at 28: loop 1 indexed by portraitX, reset folded at 235. On that body
+portraitX's web is seven folded resets and takes `a0`; **forced to `a3`,
+`t0` or `s4` the body measures 11 at delta zero** (3603 / 11 / 0 / 0: W's
+nine rows and the two slot rows). The [split-order report](whale-split-order.md)
+carries the itemisation, the seventeen cycles, and the constraint set the
+harmless colouring must satisfy.
+
+## Previous checkpoint: 18, with the gap closed on a split rather than a colour
 
 Lane wv-s banks **18 at delta zero**, down from 48, and the last gap pair
 (candidate +0x12F8 against target +0x1260) is gone with its 30-word
