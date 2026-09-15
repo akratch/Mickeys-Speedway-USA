@@ -76,6 +76,11 @@ gone and five new rows in case 10 or case 6. `savedPosition` (+12) and
      4   cases 1/2 on columnStep / columnCount / columnStep+probe / portraitX; cases 3/13 on textY   4 cells: 3050 (-4) / 3566 (+24) / 3064 (-4) / **16 at delta 0** (cascade healed but +0x0's five rows)
      5   cases 1/2 on savedPosition / highlighted / portraitIndex / letter0 / erase / countdownX    6 cells: +12 / 16 (no merge) / 15 / 15 / +92 / 15 (s0 carriers flip their own case)
      6   cases 1/2 on letter1                                                            1 cell: **11 at delta 0**, unforced; adopted
+     7   force w40 off v1 (a0) on the 11 body, W read                                   1 cell: w251 takes v1 instead; W's growth byte-identical, still a2 (forced 69)
+     8   case 12's title and row loops on the unused carrier, row reset inside the guard / at 190 / title only / with (u32)   4 cells: all one object, 2282 delta +4: W t0 (accepts 185), the 5E9C piece steals 202 (wv-t's k body)
+     9   drop the unused `s32 portraitX;` declaration                                      1 cell: 284 at delta 0 -- the symbol order moves every later web number and its tie-breaks; keep it
+    10   slot address: `saves + f()`, `[(u32) f()]`, byte arithmetic, `f()*32 + saves`, `saves + f()*32`, `&(*saves) + f()`, index through a dead local   7 cells: all byte-identical to 11
+    11   neighbour captures (`CDX_DETAIL_WEB`) for W and the 5E9C piece on the 11 body     2 captures: itemised below
 
 Cycle 0 (uncounted): the harness re-pointed at this worktree reproduced
 wv-u's 120 on `c15.c` with `.text` identity, and the decision ladder,
@@ -84,20 +89,60 @@ wv-u's 120 on `c15.c` with `.text` identity, and the decision ladder,
 
 ## W, on the 11 body
 
-The identity reads exactly as wv-u itemised it, with the numbers moved by
-nothing: the `&D_o058_5E9C` piece seeded at 183 splits at idx 127 (3.60 =
-126/35) and accepts 185 with `left 16->12, numintf 24` (margin 0), then
-rejects 191 and 202 by one; `w40` (the `n*2` temp at 13/183, 6/2 = 3.0)
-takes `v1` at 136; W's remainder splits at idx 178 (2.26 = 95/42) and
-rejects 185 with `left 14->11, numintf 23` (margin -1). Both need
-`L = 12` at the 185 step, and they differ by precisely the `v1` taken
-between them. The one ordering that satisfies both is **`w40` decided
-after W's split**, i.e. `save(w40) < 2.26` or the `&D_o058_5EA0` remainder
-above 3.0 at its 183 seed; neither is a dead-def or probe question (a
-third `n*2` block gives 9/2 = 4.5, which puts `w40` before the *piece* and
-fails W the other way), and the 5EA0 remainder's save at 183 is diluted by
-its case-2/8 references, which the seed order (case 13, then 12, then 11
-... 1) carves after case 12. See the handoff for what that leaves.
+The identity reads exactly as wv-u itemised it, and the neighbour captures
+(`allocator-cell-c6a-detail-w1091-piece.log`, `...-w1130-W.log`) make it
+arithmetic with named members. In the window {183, 184, 185, 190, 191, 202}
+the `&D_o058_5E9C` piece (idx 127, 3.60) and W (idx 178, 2.26) each see 26
+neighbours: the same 24 plus, for the piece, the `&D_o058_5EA0` remainder
+and `&D_8007BEF8`'s remainder (`w922`), and for W the `&D_o058_5E9C`
+remainder (`w1097`, at 191/202 only, so it counts only past 185) and
+`w922`'s renumbered remainder. Coloured before the piece: `v0` (w19), `s0`
+(opponent), `s1` (the title cursor, 184-185), `s4` (textY at 183; the row
+loop's SR temp at 191), `s5` (columnStep), `s7` (i): 17 colours left at
+the seed. Coloured between the two: `v1` (w40, idx 136) and `a0` (w251,
+idx 171): W has 15. Growth: the piece accepts 184 (s1 folds, 16), 190
+(16), 185 (a0-a3 fold, 12: 24 >= 24), rejects 191 and 202 by one; W accepts
+184 (14), 190 (14), rejects 185 (a1-a3 fold, 11: 22 < 23), accepts 191 and
+202 and colours `a2`. The `a0` between does not matter (the 185 fold takes
+it either way); the `v1` is the whole margin.
+
+What the next lane must not repeat, each measured here:
+
+- **Freeing `v1` by moving w40 does nothing** (cycle 7): w251 (2.33, idx
+  171) takes `v1` in its place, and W's growth is byte-identical.
+- **A late carrier for case 12, live at 191 as well** (cycle 8): the
+  target-looking configuration (W accepts 185 and takes `t0`, exactly the
+  48 body's growth) but the 5E9C piece, with 18 colours at its seed, folds
+  `a0`-`a3` to 13, rejects 191 by one (`2*12 < 24+1`, the s4 fold at 191
+  never happens) and then takes 202 with 13: +4, wv-t's `k` result. A
+  carrier at 191 is not "new" there (it is counted at the seed), so it
+  does not change the 191 test.
+- The arithmetic in one line: with any carrier web at 183 the piece needs
+  17 colours at its seed and W needs 16, and the only colour that can
+  separate them is `v1` -- **w40 (3.0) must be decided after W's split
+  (2.26), not before the piece (3.60)**. Before the piece (a third `n*2`
+  block, 4.5) costs the piece its 185 fold and it swallows 202. After W
+  means `save(w40) < 2.26`, and `nocs = f(reference blocks + live-in
+  blocks)` gives a two-block temp 6/2 whatever is added to it; or the
+  `&D_o058_5EA0` remainder above 3.0 at its 183 seed, where it is 95/42
+  because the seed walk carves case 13 (seeds 229, 234, 243, 245, 275:
+  90 of its 185) before case 12. Neither has a zero-width handle in the
+  source this lane can see.
+
+## Two more closures
+
+- **The unused `s32 portraitX;` declaration is load-bearing** (cycle 9):
+  deleting it measures 284 at delta zero, first mismatch +0x0. An unused
+  `s32` costs no frame, but its symbol number orders every later symbol's
+  web number, and web number is the tie-break among equal saves (L100).
+  Leave dead declarations where they are on this function.
+- **The slot-address operand order is not spelled** (cycle 10): seven more
+  forms at both sites -- pointer arithmetic, a `(u32)` index, byte
+  arithmetic with `sizeof`, the explicitly reversed `f() * 32 + saves`, and
+  the index through a dead local -- compile to the same object as
+  `&saves[f()]`. uopt canonicalises the sum before ugen orders the
+  operands; whatever puts `saves` first in the target is not the
+  expression, and wv-r's fourteen plus these seven cover the expression.
 
 ## Reproduction
 
@@ -109,7 +154,9 @@ Scores from `nm_ranking.process_item` on the stock object; the adopted
 body re-scored with `tools/score_symbol.py` and `tools/align_symbol.py`
 on the tree. Banked under `whale-resources/cells-wv-v/` in Git's common
 directory: every cell's source, `result-*.json` and `allocator-cell-*.log`,
-the 16 / 15 / 11 objects (`c4d-16.o`, `c5c-15.o`, `unforced11.o`), and
+the 16 / 15 / 11 objects (`c4d-16.o`, `c5c-15.o`, `unforced11.o`), the
+cycle-8 W-t0 object (`c8a-2282-Wt0.o`), the w40 force trace, the two
+neighbour captures, the adopted source (`tree-adopted-11.c`), and
 the readers `readsym.py` (a symbol's `p1dec`/`p1cost`/`p1color`/blocks by
 sym), `early.py` (coloured webs decided before an index that touch a
 block set), `mkcarrier.py` (the two-carrier body generator) and

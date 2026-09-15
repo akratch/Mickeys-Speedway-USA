@@ -15,9 +15,11 @@ cases 3/13, `letter1` (`s1`) for cases 1/2 (two carriers, because the
 `D_o058_5EF8` address web ties the entry loop to both draw loops and
 `textY` is case 1's y). That closes case 13's seven rows and the `+0x0`
 cascade together. What remains is W (nine rows) and the two slot rows; on
-this body W's identity is unchanged and its lever is `w40`'s order against
-W's own split (after it, not before the 5E9C piece). Six cycles; the
-[index-carriers report](whale-index-carriers.md) has the ledger.
+this body W's identity is unchanged and itemised from neighbour captures,
+and its lever is `w40`'s `v1` decided after W's own split (not before the
+5E9C piece): freeing `v1` by force, a late carrier live at 191, and the
+unused-declaration and slot-spelling axes are measured closed. Eleven
+cycles; the [index-carriers report](whale-index-carriers.md) has the ledger.
 
 ## Previous checkpoint: 18, with case 13 closed under one colour (forced)
 

@@ -53,19 +53,34 @@ Both readings stand.
 
 ## The next cycle, named by wv-v
 
-**Put `w40`'s decision after W's split**, so that W and the 5E9C piece see
-the same colour set at 185 (`L1 = L2 = 12`: the piece keeps accepting 185
-and rejecting 191/202, W accepts 185 and takes `t0`). Two handles, both
-zero-width by requirement: `save(w40) < 2.26` (its two occurrence blocks
-give 6/2; more blocks raise it; only live-in blocks lower it, which means
-keeping the 13 value live to a later use the target also keeps), or the
-`&D_o058_5EA0` remainder above 3.0 at its 183 seed (95/42 there because
-its case-2/8 references are carved after case 12 in seed order). Do not
-push `w40` *before* the piece (a third `n*2` block gives 4.5): that takes
-`v1` from both, the piece rejects 185, and W still fails. Everything
-wv-u closed for this lever (head probes insert blocks, aliasing
-`D_o058_5E9C` through `&D_o058_5E98` splits a value web or poisons alias
-analysis, bare expressions are dropped) still holds.
+**Put `w40`'s decision after W's split.** With any carrier web at 183 the
+`&D_o058_5E9C` piece needs 17 colours at its seed and W needs 16, and the
+only colour that separates them is the `v1` w40 (3.0, idx 136) takes
+between the piece's split (127, 3.60) and W's (178, 2.26); with it free
+for W, W accepts 185 and colours `t0` with the target's extent, and the
+piece is unchanged. The neighbour captures under `cells-wv-v/` name every
+member. Three things are measured closed on the 11 body: moving w40 off
+`v1` (w251 takes it instead; cycle 7); a carrier decided after both, even
+one live at 191 (the piece keeps 13 colours through 185, rejects 191 by
+one and takes 202: +4, wv-t's `k` again; cycle 8); and pushing w40
+*before* the piece (wv-u: the piece loses its 185 fold and swallows 202).
+What is left is either `save(w40) < 2.26` -- impossible by occurrence
+count, since `nocs = f(reference blocks + live-in blocks)` keeps a
+two-block temp at 6/2 whatever is added, and only a live-in span the
+target also has could lower it -- or the `&D_o058_5EA0` remainder above
+3.0 at its 183 seed (95/42 now, because the seed walk carves case 13's
+229/234/243/245/275 pieces, 90 of its 185, before case 12's). That second
+handle is a seed-order or weight question on the 5EA0 lineage, and the
+aliasing route to it (`(&D_o058_5E9C)[1]`) changes which register a load
+uses wherever the two lineages hold different pieces, so it is not
+zero-width where it would count. Everything wv-u closed for this lever
+still holds. If a lane takes this, read `cells-wv-v/allocator-cell-c6a-detail-*.log`
+with `intfdiff.py` first and price the seed order before any cell.
+
+The two slot rows are below the expression: wv-r's fourteen and wv-v's
+seven spellings, including the explicitly reversed sum and an index
+through a dead local, are one object. Whatever orders `saves` first in the
+target is not the source of the sum.
 
 ## The cycle wv-u named (done)
 
@@ -145,6 +160,10 @@ Do not re-dispatch against any of these.
 | a dead-def web pushed later | `nocs = f(reference blocks)`, so n dead defs give n/(((n-2)>>2)+2) >= 2.33 and the web is always decided before `w222`, `w9` and the `a2` piece; only its symbol decides its colour |
 | one carrier for all seven resets | the `D_o058_5EF8` address web spans the entry loop and both draw loops (splitting it moves the entry cursor `s3` -> `s2`), and `textY` is live in case 1's draw loop: two carriers are required |
 | `s0` locals as the cases-1/2 carrier | `letter0`, `portraitIndex`, `countdownX` find `s0` held at 9/85, take `s1`, and flip their own case: 15 |
+| freeing `v1` for W by moving w40 | w251 (2.33) takes `v1` instead; W's growth byte-identical (wv-v cycle 7) |
+| a late case-12 carrier, also live at 191 | W t0 but the 5E9C piece keeps 13 colours, rejects 191 by one and takes 202: +4 (wv-v cycle 8, wv-t's k) |
+| deleting the unused `s32 portraitX;` | 284 at delta 0: an unused declaration's symbol number orders later web numbers and their tie-breaks |
+| the slot-address sum's spelling | wv-r's 14 and wv-v's 7 (pointer arithmetic, `(u32)`, byte arithmetic, reversed order, dead-local index) are one object |
 
 `p1:wN=s` split forces **are** honoured and `force_lattice.py` parses the
 receipt, but every split measured so far costs width.
