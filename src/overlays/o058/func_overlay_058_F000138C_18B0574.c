@@ -654,7 +654,14 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         break;
     case 12:
-        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        /* The visible index is reset through the last title-colour argument
+         * (the value-producing spelling wv-i found: the reset then lands in
+         * the call's delay slot), as case 13 already does.  The title loop
+         * below subscripts by a dead carrier, not by `i`, so the reset can
+         * live here: with `D_o058_5C98[i]` uopt folds the known-zero index
+         * into the cursor's constant init only from the loop's own block.
+         * See docs/whale-split-tokens.md. */
+        fontColour(0xFF, 0x80, 0, 0xFF, (0xFF - (i = 0)));
         func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6E], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -664,12 +671,17 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
          * s1 here and in case 13.  So `opponent` carries column X and
          * `columnX` the inner index; neither web changes colour (wv-r). */
         opponent = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
-        i = 0;
+        /* `textY` is the dead title-array induction: its reset folds into
+         * the generated cursor's constant init and is deleted, and its web
+         * (s4, decided early) is the one carrier of sixteen that leaves the
+         * `&D_o058_5E9C` address fragments intact.  A fresh scalar or any
+         * late-decided carrier costs the restore's `v1` fragment (+4). */
+        textY = 0;
         columnStep = D_o058_5C8C[D_8007BEF8 - 1];
         if ((s32) D_8007BEF8 > 0) {
             do {
-                func_8004B0F8(&D_800D3140, opponent, 0x37, D_o058_5C98[i], 4);
-                i += 1;
+                func_8004B0F8(&D_800D3140, opponent, 0x37, D_o058_5C98[textY], 4);
+                i += 1; textY += 1;
                 opponent += columnStep;
                 if (columnStep != 0); /* +10 to the stride web: decided before the count (see case 13). */
             } while (i < (s32) D_8007BEF8);
@@ -711,6 +723,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
         D_o058_5EA0 -= arg0 * 0xF;
         if (D_o058_5EA0 < 0) {
+            /* Interference token, zero width: a discarded read of a local
+             * that is dead here keeps the `&D_o058_5EA0` fragment from
+             * adjoining this block, so the zero store below goes through
+             * `at` as the target's does instead of sharing the fragment's
+             * register (-4).  `columnCount` and `erase` both work; a live
+             * local or a fresh declaration does not. */
+            if (columnCount != 0);
             D_o058_5EA0 = 0;
             if (D_o058_5EB0 == 0) {
                 if (D_800D31B8_o058Reloc & 0x9000) {
