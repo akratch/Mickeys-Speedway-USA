@@ -17,8 +17,16 @@ is `docs/WHALE.md` and the lane reports it links.
     first mismatch    +0x12E4, the &D_o058_5EA0 fragment's head piece
 
 Verified with `tools/score_symbol.py` and `tools/align_symbol.py`. The C
-remains guarded `NON_MATCHING`; nothing is promoted. Committed on
-`lane/wv-s`; not merged.
+remains guarded `NON_MATCHING`; nothing is promoted. Source unchanged since
+`lane/wv-s`; the instrument and its report are on `lane/wv-t`.
+
+Lane `wv-t` (2026-09-15) held at 18 and built the instrument this file asked
+for; read [whale-split-growth.md](whale-split-growth.md) before anything
+else. The split is now a readable growth test (`lineage_census.py --web`),
+and its verdicts explain all three fragments -- with an identity that rules
+out every dead-carrier body for case 12. Its ledger and cycle 13 are in the
+report; the section below is wv-s's reading and stays correct as far as it
+goes.
 
 ## What remains: 18 aligned rows, all naming, three address-constant fragments
 
@@ -37,7 +45,21 @@ remains guarded `NON_MATCHING`; nothing is promoted. Committed on
    carrier (deleting `saves` costs 10-18 rows) and not the expression
    (wv-r's fourteen spellings).
 
-## The next cycle, named by wv-s
+## The next cycle, named by wv-t
+
+**A web living in blocks 183/184/185/190 that is coloured `v1` before the
+`&D_o058_5E9C` remainder splits at save 3.60** (trace line ~21041 on the 18
+body). That is the only lever the growth identity leaves: it takes the
+dropped 183-piece's `left` at its 202 step from 13 to 12 without touching
+W's, because W loses `v1` to `w40` anyway. Candidates: raise `w40`'s own save
+above 3.6 (it is `n*2` at blocks 13 and 183, two weight-1 occurrences), or a
+carrier whose loop-weighted occurrence survives dead-code elimination without
+living across a call. Read `left_after` at the 202 step of the piece seeded
+at 183 -- it must be 12 -- before believing a score.
+
+The next paragraph is wv-s's cycle; it is done, and its readings are above.
+
+## The cycle wv-s named (done)
 
 **Extend the instrumented uopt to dump each web's block set** (the
 `webdetail` rows carry `bb=-1`). Both fragment questions become readings:
@@ -120,8 +142,11 @@ receipt, but every split measured so far costs width.
 `.git/whale-resources/`, outside every worktree, never tracked. Complete
 instrument sets at **18, 48, 147, 157, 160, 169, 187** (footprints, landscape,
 lattice, lineage, draws, residual, allocator), plus the held landscapes
-`157hold5`, `157hold7`, `147hold7` and wv-r's cell tables under
-`cells-wv-r/`. **Re-running a banked measurement is wasted budget**, and the
+`157hold5`, `157hold7`, `147hold7`, wv-r's cell tables under `cells-wv-r/`,
+and wv-t's growth-profile traces: `allocator18-growth.log`,
+`allocator48-growth.log`, the `allocator18-cell-*.log`/`cell18-*.c` pairs,
+three `allocator18-detail-w*.log` neighbour captures, `uoptlist18.txt`, and
+`cells-wv-t/` (every wv-t cell with its source and the scratch harness). **Re-running a banked measurement is wasted budget**, and the
 freshness guard will say so if a landscape has gone stale.
 
 ## Two repository faults fixed, worth remembering

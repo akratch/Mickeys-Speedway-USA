@@ -160,6 +160,99 @@ class ForbiddenDecodeTests(unittest.TestCase):
         self.assertEqual(lc.taken_colours({"forbidden0": "0x0"}), [])
 
 
+def blocks(web, bbs, aux, lr="0x10001000", proc=0):
+    return (f"[CDX] webblocks phase=p1 proc={proc} role=target web={web} "
+            f"sym={web} lr={lr} bbs={bbs} aux={aux}")
+
+
+def grow(lr, bb, new, before, after, numintf, accepted, proc=0):
+    return (f"[CDX] grow proc={proc} lr={lr} bb={bb} new={new} "
+            f"left_before={before} left_after={after} numintf={numintf} "
+            f"strict=1\n"
+            f"[CDX] growv proc={proc} lr={lr} bb={bb} accepted={accepted}")
+
+
+class BlockSetTests(unittest.TestCase):
+    """The per-web block sets and the split growth, read off the new rows.
+
+    A web number is shared by the parent range and the piece carved from it,
+    so the reader must take the LAST webblocks row as the decided piece and
+    join the growth rows through that row's live-range pointer -- reading the
+    first row attributes the piece's decision to the parent's span.
+    """
+
+    def build(self, *rows):
+        return lc.parse("\n".join(rows), 0)
+
+    def test_refs_are_the_span_minus_the_pass_through_blocks(self):
+        p = self.build(blocks(9, "183,184,190,191,202", "184,191"))
+        b = lc.blocks_of(p, 9)
+        self.assertEqual(b["refs"], [183, 190, 202])
+        self.assertEqual(b["livein"], [184, 191])
+        self.assertEqual(b["span"], [183, 184, 190, 191, 202])
+
+    def test_an_empty_set_is_spelled_with_a_dash(self):
+        p = self.build(blocks(9, "192", "-"))
+        self.assertEqual(lc.blocks_of(p, 9), {
+            "web": 9, "lr": "0x10001000", "span": [192], "livein": [],
+            "refs": [192], "decisions": 1})
+
+    def test_the_last_row_is_the_decided_piece_not_the_parent(self):
+        p = self.build(blocks(9, "91,92,93,183,184", "92", lr="0x10001000"),
+                       blocks(9, "183,184", "184", lr="0x10002000"))
+        b = lc.blocks_of(p, 9)
+        self.assertEqual(b["refs"], [183])
+        self.assertEqual(b["lr"], "0x10002000")
+        self.assertEqual(b["decisions"], 2)
+
+    def test_growth_is_joined_through_the_pieces_pointer(self):
+        p = self.build(blocks(9, "91,183", "-", lr="0x10001000"),
+                       "[CDX] seed proc=0 lr=0x10002000 bb=183",
+                       grow("0x10002000", 184, 1, 15, 14, 20, 1),
+                       grow("0x10002000", 185, 0, 14, 11, 23, 0),
+                       grow("0x10001000", 5, 1, 9, 9, 3, 1),
+                       blocks(9, "183,184", "184", lr="0x10002000"))
+        rows = lc.growth_of(p, 9)
+        self.assertEqual([r["event"] for r in rows],
+                         ["seed", "grow", "growv", "grow", "growv"])
+        self.assertEqual([r["bb"] for r in rows if r["event"] == "grow"],
+                         ["184", "185"])
+
+    def test_a_web_without_the_profile_reads_as_missing_not_empty(self):
+        p = self.build(detail(9, 1, 0))
+        self.assertIsNone(lc.blocks_of(p, 9))
+        self.assertEqual(lc.growth_of(p, 9), [])
+        self.assertIn("no webblocks row", lc.render_growth(p, 9))
+
+    def test_the_rendering_states_the_test_and_its_margin(self):
+        p = self.build(dec(9, numintf=25, regsleft=13), colour(9, 5, "a2"),
+                       "[CDX] seed proc=0 lr=0x10002000 bb=183",
+                       grow("0x10002000", 185, 0, 14, 11, 23, 0),
+                       blocks(9, "183,184", "184", lr="0x10002000"))
+        text = lc.render_growth(p, 9)
+        self.assertIn("2*left_after >= numintf + new", text)
+        self.assertIn("bb= 185 new=0 left 14->11 numintf=23 margin=-1  reject", text)
+        self.assertIn("colour=a2", text)
+
+    def test_seedcand_rows_are_kept_out_of_the_growth_listing(self):
+        p = self.build("[CDX] seedcand proc=0 lr=0x10002000 pass=1 bb=95 "
+                       "f16=0 f18=0 f19=0 f20=0 maskdiff=1",
+                       "[CDX] seed proc=0 lr=0x10002000 bb=183",
+                       blocks(9, "183", "-", lr="0x10002000"))
+        self.assertEqual([r["event"] for r in lc.growth_of(p, 9)], ["seed"])
+
+    def test_pressure_rows_carry_the_block_sets_when_captured(self):
+        p = self.build(detail(9, 1, 0), dec(9), colour(9),
+                       blocks(9, "183,184", "184"))
+        row = lc.pressure(p)[0]
+        self.assertEqual(row["refs"], [183])
+        self.assertEqual(row["livein"], [184])
+
+    def test_another_procedures_block_rows_are_not_mixed_in(self):
+        p = self.build(blocks(9, "1,2", "-", proc=1))
+        self.assertIsNone(lc.blocks_of(p, 9))
+
+
 class ComparisonTests(unittest.TestCase):
     def census(self, webs=4, split=2, order=(0, 2), lineages=None):
         lin = lineages if lineages is not None else [

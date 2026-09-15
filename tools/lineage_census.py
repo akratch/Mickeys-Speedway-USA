@@ -46,6 +46,37 @@ webs across 204 lineages, and every one of the 146 `(table, chain)` keys that
 `CDX_DETAIL_WEB=all` and `CDX_LINEAGE_TABLES=all`; with only the latter there is
 no `webdetail` to join to and the census can say nothing about decisions.
 
+PER-WEB BLOCK SETS AND THE SPLIT GROWTH (2026-09-15)
+
+`webdetail` carries `bb=-1` for every address-constant web -- exactly the webs
+whose splits make the overlay 58 residual -- so the instrumented uopt now
+emits, per decided web, the live range's own block bitvectors:
+
+    webblocks  phase proc role web sym lr bbs=<span> aux=<pass-through>
+
+`bbs` is the +0x14 vector (every block the range is live in), `aux` the +0xc
+vector (blocks it passes through with no reference), so `bbs - aux` is the set
+of reference blocks: for a split piece these include the blocks where the
+piece begins and ends. `lr` is the live-range object; it joins the growth rows:
+
+    seed      proc lr bb                        the piece's first block
+    seedcand  proc lr pass bb f16 f18 f19 f20 maskdiff   the liveblocks split() walked
+    grow      proc lr bb new left_before left_after numintf strict
+    growv     proc lr bb accepted              the verdict of the test
+    livbb     proc op lr bb refs               a liveblock moved or a marker made
+
+split() grows a piece breadth-first from its seed over the parent's blocks and
+accepts a successor block only while
+
+    new < left_before   and   2 * left_after >= numintf + new
+
+where `new` is the interferences the block adds, `left_*` the colours the piece
+could still take (the block's held colours and a call block's argument
+registers are folded in first), and `numintf` the piece's count so far. A call
+block is accepted but never expanded. `strict` is the uopt flag at 0x1001eb10
+and reads 1 on this profile. Every remaining fragment on the whale was a
+verdict of this test, off by one: `blocks_of()` and `growth_of()` read it.
+
 WHAT TO DO WITH IT
 
 Take a census, change one thing, and `--compare`. A source edit that leaves the
@@ -82,6 +113,11 @@ def parse(text: str, proc: int) -> dict:
     colour: dict[int, dict] = {}
     ranges: list[dict] = []
     members: list[dict] = []
+    # A web number is reused: the parent range is decided (split) under it
+    # and the piece carved from it is decided under the same number later.
+    # Keep every webblocks row in order; the LAST is the decided piece.
+    blocks: dict[int, list[dict]] = collections.defaultdict(list)
+    growth: dict[str, list[dict]] = collections.defaultdict(list)
     for raw in text.splitlines():
         if not raw.startswith("[CDX] "):
             continue
@@ -101,8 +137,81 @@ def parse(text: str, proc: int) -> dict:
             ranges.append(fields)
         elif event == "lineage_member":
             members.append(fields)
+        elif event == "webblocks" and fields.get("role") == "target":
+            blocks[int(fields["web"])].append({
+                "lr": fields.get("lr", "?"),
+                "span": _block_list(fields.get("bbs", "-")),
+                "livein": _block_list(fields.get("aux", "-"))})
+        elif event in ("seed", "seedcand", "grow", "growv", "livbb"):
+            fields["event"] = event
+            growth[fields.get("lr", "?")].append(fields)
     return {"detail": detail, "decision": decision, "colour": colour,
-            "ranges": ranges, "members": members}
+            "ranges": ranges, "members": members,
+            "blocks": dict(blocks), "growth": dict(growth)}
+
+
+def _block_list(text: str) -> list[int]:
+    return [] if text == "-" else [int(x) for x in text.split(",")]
+
+
+def blocks_of(parsed: dict, web: int) -> dict | None:
+    """The decided piece's block sets for a web, or None when not captured.
+
+    `refs` is the reference set (span minus pass-through); for a split piece
+    it holds the blocks where the piece starts and ends as well as the
+    original references. Needs a capture made with the block-set profile.
+    """
+    rows = parsed.get("blocks", {}).get(web)
+    if not rows:
+        return None
+    last = rows[-1]
+    span, livein = set(last["span"]), set(last["livein"])
+    return {"web": web, "lr": last["lr"], "span": sorted(span),
+            "livein": sorted(livein), "refs": sorted(span - livein),
+            "decisions": len(rows)}
+
+
+def growth_of(parsed: dict, web: int) -> list[dict]:
+    """The split-growth rows (seed, grow, growv, livbb) of the web's piece.
+
+    Joined through the live-range pointer of the web's LAST webblocks row,
+    since the number is shared with the parent it was carved from. Each grow
+    row carries the test's inputs; the growv row after it carries the verdict.
+    """
+    b = blocks_of(parsed, web)
+    if b is None:
+        return []
+    return [r for r in parsed.get("growth", {}).get(b["lr"], [])
+            if r["event"] != "seedcand"]
+
+
+def render_growth(parsed: dict, web: int) -> str:
+    b = blocks_of(parsed, web)
+    if b is None:
+        return (f"web {web}: no webblocks row -- capture with the block-set "
+                "profile (CDX_DETAIL_WEB=all on the 2026-09-15 uopt)")
+    d = parsed["decision"].get(web, {})
+    c = parsed["colour"].get(web)
+    out = [f"web {web}  lr={b['lr']}  decision={d.get('decision', '?')} "
+           f"numintf={d.get('numintf', '?')} regsleft={d.get('regsleft', '?')} "
+           f"colour={c['reg'] if c else '-'}",
+           f"  refs    {b['refs']}",
+           f"  livein  {b['livein']}",
+           "  growth  (accept iff new < left_before and "
+           "2*left_after >= numintf + new)"]
+    for r in growth_of(parsed, web):
+        if r["event"] == "seed":
+            out.append(f"    seed bb={r['bb']}")
+        elif r["event"] == "grow":
+            margin = 2 * int(r["left_after"]) - int(r["numintf"]) - int(r["new"])
+            out.append(f"    bb={r['bb']:>4} new={r['new']} left {r['left_before']}"
+                       f"->{r['left_after']} numintf={r['numintf']} "
+                       f"margin={margin:+d}")
+        elif r["event"] == "growv":
+            out[-1] += "  ACCEPT" if r["accepted"] == "1" else "  reject"
+        elif r["event"] == "livbb":
+            out.append(f"    livbb {r['op']} bb={r['bb']} refs={r['refs']}")
+    return "\n".join(out)
 
 
 def key_of(row: dict) -> tuple[str, str]:
@@ -153,6 +262,7 @@ def pressure(parsed: dict) -> list[dict]:
     for web, d in parsed["decision"].items():
         det = parsed["detail"].get(web, {})
         col = parsed["colour"].get(web)
+        b = blocks_of(parsed, web)
         out.append({
             "web": web,
             "decision": d.get("decision"),
@@ -162,6 +272,8 @@ def pressure(parsed: dict) -> list[dict]:
             "reg": col.get("reg") if col else None,
             "bb": int(det.get("bb", -1)) if det else -1,
             "type": det.get("type"),
+            "refs": b["refs"] if b else None,
+            "livein": b["livein"] if b else None,
         })
     return sorted(out, key=lambda r: (-r["numintf"], r["web"]))
 
@@ -303,7 +415,26 @@ def main(argv: list[str] | None = None) -> int:
                         metavar=("BEFORE", "AFTER"))
     parser.add_argument("--top", type=int, default=20)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--web", type=int, action="append", default=None,
+                        help="print this web's block sets and split growth "
+                             "(repeatable); with --log, read a saved trace")
+    parser.add_argument("--log", type=pathlib.Path, default=None,
+                        help="a saved allocator trace to read instead of "
+                             "compiling")
     args = parser.parse_args(argv)
+
+    if args.web:
+        if args.log:
+            parsed = parse(args.log.read_text(), args.proc)
+        else:
+            if not args.symbol:
+                parser.error("--web needs a symbol to compile or --log")
+            work = args.keep or pathlib.Path(tempfile.mkdtemp())
+            census(args.symbol, args.proc, work)
+            parsed = parse((work / "lineage.log").read_text(), args.proc)
+        for w in args.web:
+            print(render_growth(parsed, w))
+        return 0
 
     if args.compare:
         before, after = (json.loads(p.read_text()) for p in args.compare)
