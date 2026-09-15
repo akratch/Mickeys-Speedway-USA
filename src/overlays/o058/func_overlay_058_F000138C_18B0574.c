@@ -1522,10 +1522,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 48/3614 words
+ * score: 18/3614 words
  * frame: 0x138
  * relocations: 1253
- * first-mismatch: +0x1260
- * summary: 48 retained: one D_o058_5E50 web across three loops, opponent/columnX roles swapped in cases 12/13, stride/count probes in case 13; no landscape winner.
+ * first-mismatch: +0x12E4
+ * summary: 18 retained: case-12 reset in the delay slot via a dead title induction and one interference token; gap closed; three address-constant fragments remain.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */

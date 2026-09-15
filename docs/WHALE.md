@@ -1,6 +1,29 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 48, with roles given to the carriers that hold their colours
+## Current checkpoint: 18, with the gap closed on a split rather than a colour
+
+Lane wv-s banks **18 at delta zero**, down from 48, and the last gap pair
+(candidate +0x12F8 against target +0x1260) is gone with its 30-word
+displacement tax. Three edits in case 12: the visible index is reset through
+the first title-colour call's last argument (wv-i's value-producing
+spelling, which lands it in the delay slot), the title loop subscripts by a
+*dead* carrier (`textY`) so the reset can leave the loop's block while the
+generated cursor still folds a constant init, and a discarded read of a
+local that is dead on case 12's path sits in the transition's zero-store
+block so the `&D_o058_5EA0` fragment does not adjoin it. Aligned buckets
+**3596 / 18 / 0 / 0**. Every cost wv-i paid was an address-constant lineage
+re-split, and so is everything that remains: that fragment coloured `a2`
+where the target has `t0` (nine rows; `a2` is offered once its `numintf`
+reaches 25, base is 22), case 13's coordinate/cursor pair (seven rows;
+`opponent` as the coordinate lands both colours and sheds one piece of the
+`&D_o058_5E9C` fragment, one word), and the two slot-address operand orders.
+The records give interference *counts* and not members, so the next
+instrument is a per-web block-set dump. The [split-tokens
+report](whale-split-tokens.md) records the mechanism, the fourteen cycles,
+and the corrections: `forced=<colour>` is acceptance, and "twice the
+available registers" is not a colouring bound.
+
+## Previous checkpoint: 48, with roles given to the carriers that hold their colours
 
 Lane wv-r banks **48 at delta zero**, down from 147. Five source changes,
 each measured alone and then composed: the entry store, case 2's decrement
