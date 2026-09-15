@@ -590,3 +590,39 @@ however large the function, is not that — and this function has 155 aligned
 rows, so any such argument has to account for all of them, not just the
 transition reuse. Nobody has been close to that argument yet, which is itself a
 reason to think the axis above is worth measuring first.
+
+## Checkpoint 2026-09-15 (lane `wv-t`): the split axis is now readable, and it is a growth test
+
+Still 18 masked at delta zero. What changed is that the 254 `decision=split`
+records this file said were unmeasured are now measured to the block: the
+instrumented uopt emits every decided web's block sets and the whole of
+`split()` -- the seed, each candidate block with `new`, `left_before`,
+`left_after`, `numintf`, the verdict, and every liveblock that moves.
+`tools/lineage_census.py --web N` prints a web's growth with the margin of
+each step. Full account in [whale-split-growth.md](whale-split-growth.md).
+
+- A piece grows breadth-first from its seed and accepts a block only while
+  `new < left_before` and `2*left_after >= numintf + new`; a call block is
+  accepted but never expanded. All three remaining fragments are one such
+  verdict, off by one.
+- W (`&D_o058_5EA0`) is `a2` because its piece rejects the title loop's call
+  block (22 < 23); with it, the call's `a2`/`a3` are forbidden and it takes
+  `t0`, as it does on the 48 body. The `&D_o058_5E9C` 202-piece exists only
+  because a dropped 183-seeded piece rejects 202 (24 < 25). Both margins are
+  paid by the dead carrier `textY`: one interferer and one colour (`s4`).
+- **The two are coupled by an identity**: with any dead-carrier web at 183,
+  W needs `left >= 12` at its 185 step while the 202-piece needs `left <= 12`
+  at its 202 step, and the two lefts differ by exactly one (`w40` takes `v1`
+  between them). No such body can satisfy both; `textY` fails W, a fresh
+  carrier fails 5E9C (+4), both measured. The target has no carrier web at
+  183, and the 48 shape cannot reach the delay-slot reset under the shard's
+  laws (re-measured).
+- The explicit-pointer exit costs one interferer at 184 (its init is a
+  reference of the `&D_o058_5C98` lineage, where the strength-reduced cursor
+  init is not), which is the same one off.
+- Case 13: `opponent` as coordinate fails the `a2` piece's 254 step by one
+  (30 < 31) because `portraitX`'s web still sits at 241 for its reset; the
+  probe route to a higher `portraitX` save converges on 10, under the cursor
+  temp's 15.5.
+- Twelve cycles, listed in the report; cycle 13 named there: a web in W's
+  blocks coloured `v1` before the 5E9C remainder splits at save 3.60.
