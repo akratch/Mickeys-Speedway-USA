@@ -1,6 +1,27 @@
 # Harpooning `func_overlay_058_F000138C_18B0574`
 
-## Current checkpoint: 18, with case 13 closed under one colour (forced)
+## Current checkpoint: 11, with the reset web coloured by its symbol
+
+Lane wv-v retains **11 at delta zero, unforced** (3603 / 11 / 0 / 0, frame
+0x138, 1,253 relocations, first mismatch +0x12E4): wv-u's forced witness
+reached from source. The seven folded loop-index resets are dead defs that
+uopt colours as one web per symbol, and on a symbol of their own they take
+`a0` -- nothing decided before them holds `a0`-`a2` at any preheader, no
+preheader has a call, and a dead-def web's save (n / (((n-2)>>2)+2), from
+L29) never falls below the webs it would have to follow. So the resets are
+written on locals that are dead where the loops run and already coloured
+harmlessly elsewhere, and they inherit those colours: `textY` (`s4`) for
+cases 3/13, `letter1` (`s1`) for cases 1/2 (two carriers, because the
+`D_o058_5EF8` address web ties the entry loop to both draw loops and
+`textY` is case 1's y). That closes case 13's seven rows and the `+0x0`
+cascade together. What remains is W (nine rows) and the two slot rows; on
+this body W's identity is unchanged and itemised from neighbour captures,
+and its lever is `w40`'s `v1` decided after W's own split (not before the
+5E9C piece): freeing `v1` by force, a late carrier live at 191, and the
+unused-declaration and slot-spelling axes are measured closed. Eleven
+cycles; the [index-carriers report](whale-index-carriers.md) has the ledger.
+
+## Previous checkpoint: 18, with case 13 closed under one colour (forced)
 
 Lane wv-u retains **18 at delta zero**; no unforced cell measured below it
 and the source is unchanged. It itemised wv-t's growth identity from the
