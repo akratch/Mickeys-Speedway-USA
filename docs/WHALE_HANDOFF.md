@@ -1,46 +1,51 @@
-# Whale handoff — 2026-09-14, at 48 words
+# Whale handoff — 2026-09-15, at 18 words
 
 `func_overlay_058_F000138C_18B0574`, 14,456 bytes, the largest unmatched
-function in the tree. This session took it **187 → 48 masked words at delta
-zero** across four bounded lanes. This file is the resumption point; the
-standing plan is `docs/WHALE.md` and the four lane reports it links.
+function in the tree. Five bounded lanes have taken it **187 → 18 masked
+words at delta zero**. This file is the resumption point; the standing plan
+is `docs/WHALE.md` and the lane reports it links.
 
 ## State
 
-    masked                48 / 3,614 words   (98.7% of words byte-exact)
-    raw                  221
+    masked                18 / 3,614 words   (99.5% of words byte-exact)
+    raw                  195
     delta                  0
     frame              0x138
     relocations        1,253
-    draws                720, original register sequence, 5,076 emissions
-    buckets      3597 exact / 11 naming / 1 immediate / 8 structural
-    first mismatch    the gap pair, candidate +0x12F8 / target +0x1260
+    buckets      3596 exact / 18 naming / 0 immediate / 0 structural
+    displacement tax       0  (the gap pair is closed)
+    first mismatch    +0x12E4, the &D_o058_5EA0 fragment's head piece
 
-Verified with `tools/score_symbol.py`, which uses the same comparator the
-ranking uses. `config/nonmatching-ranking.us.json` reports `stale=0` over
-298 of 298 rows. The C remains guarded `NON_MATCHING`; nothing is promoted.
+Verified with `tools/score_symbol.py` and `tools/align_symbol.py`. The C
+remains guarded `NON_MATCHING`; nothing is promoted. Committed on
+`lane/wv-s`; not merged.
 
-Landed at `e05e53ee` on `master`. Tree clean, both branches pushed.
+## What remains: 18 aligned rows, all naming, three address-constant fragments
 
-## What remains: 16 aligned rows in three named clusters
+1. **`&D_o058_5EA0`'s fragment W in case 12** (9 rows, +0x1200/+0x1400):
+   `a2` where the target has `t0`. W's extent is the target's; `a2` is
+   *offered* because W's `numintf` is 25 on this body against 22 in base,
+   and `c5` beats `c7` at equal cost. Forcing `t0` costs +64 (it is a ring
+   temporary here). The three extra interferers are the dead carrier's web
+   and two pieces of a neighbouring lineage; the records count them and do
+   not name them.
+2. **The case-13 first-loop pair** (7 rows, +0x1600). `opponent` as the
+   coordinate lands both colours (the cursor takes `s1` on its own) and
+   costs exactly one word: the `&D_o058_5E9C` fragment sheds its loop-1
+   head piece. 27 cells of spelling, placement and tokens do not move it.
+3. **`saves + index*32` operand order in cases 9/10** (2 rows). Not the
+   carrier (deleting `saves` costs 10-18 rows) and not the expression
+   (wv-r's fourteen spellings).
 
-1. **The case-12 gap pair** (7 rows) — candidate `+0x12F8` against target
-   `+0x1260`. Worth roughly 32 *positional* words under L155: a one-word
-   insertion makes every following word mismatch positionally while aligning
-   perfectly. Three lanes have now failed to reach it; lane wv-r's cycle 9
-   closed it at a cost of 120 colour rows, so it is reachable and expensive.
-2. **The case-13 first-loop s0/s1 pair** (7 rows).
-3. **`saves + index*32` operand order in cases 9/10** (2 rows).
+## The next cycle, named by wv-s
 
-## The next cycle, named by wv-r
-
-The case-13 first-loop pair, by the same principle that won 63 and 48. The
-residual of `coord-countdownX` names `+0x17CC`/`+0x17E4` as target-only and
-`+0x199C`/`+0x1A40` as candidate-only: the coordinate's increment leaves the
-loop tail and the row loop gains two words whenever the coordinate is not
-`portraitX`. The question is which live role `portraitX` plays that the
-target's coordinate variable also plays — and giving that role's *neighbour*
-to the variable rather than swapping the coordinate.
+**Extend the instrumented uopt to dump each web's block set** (the
+`webdetail` rows carry `bb=-1`). Both fragment questions become readings:
+which two webs beside `textY` interfere with W on the 18 body, and which
+carve detaches `&D_o058_5E9C`'s head piece when the coordinate is
+`opponent`. Each is then one zero-width edit. Without the instrument, the
+source-side cycle is a `p1:wN=s` split force on W to read whether the
+remainder's `numintf` drops below 24.
 
 ## The governing principle, and why this session moved
 
@@ -82,6 +87,11 @@ Do not re-dispatch against any of these.
 | compiler flags | settled at `-O2 -mips2 -32` on the nop/branch-likely census |
 | case-12 capture constraint | 7 attempt families, 27 source cells |
 | L160 at the case-3 cursor | already compiler-generated; forcing its register costs 4 bytes through lost transition-address sharing |
+| the case-12 reset's placement | closed at 18: any dead carrier lands it in the delay slot; the residue is fragment splits, not the reset |
+| interference tokens as a lever | zero-width in the zero-store block only; a load elsewhere, and a declared token costs nine rows unread |
+| declared pointer cursors for case 12 | fresh, dead-role or shared: exact loop head, paid through `&D_o058_5E9C` or `rowBase` |
+| case-13 coordinate spellings with `opponent` | 17 head/row-preheader spellings, guarded reset, nine tokens: the head piece stays shed |
+| `saves` carrier deletion (cases 9/10) | 28-36; the operand order is below the records |
 
 `p1:wN=s` split forces **are** honoured and `force_lattice.py` parses the
 receipt, but every split measured so far costs width.
@@ -108,7 +118,7 @@ receipt, but every split measured so far costs width.
 ## Banked resources
 
 `.git/whale-resources/`, outside every worktree, never tracked. Complete
-instrument sets at **48, 147, 157, 160, 169, 187** (footprints, landscape,
+instrument sets at **18, 48, 147, 157, 160, 169, 187** (footprints, landscape,
 lattice, lineage, draws, residual, allocator), plus the held landscapes
 `157hold5`, `157hold7`, `147hold7` and wv-r's cell tables under
 `cells-wv-r/`. **Re-running a banked measurement is wasted budget**, and the
