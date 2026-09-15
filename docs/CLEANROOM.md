@@ -45,6 +45,13 @@ dp64's own naming is not covered by this exception.
   is a starting point to be matched against this game's bytes, never an
   authority over them. `src/main/runlink.c` is the worked example, and
   `docs/modules.md` section 1.3 states how the disclosure is written.
+  A **decomp.me scratch** for one of these five games counts as the same
+  source under the same two conditions, whether or not it has landed on
+  the project's main branch: it is the same retail-derived matching work
+  by the same community, only earlier. The `PROVENANCE` note then names
+  the game, the scratch slug and its author instead of a file, and
+  condition (b) applies unchanged -- a scratch's decomp.me score, and in
+  particular a `match_override`, says nothing about Mickey's bytes.
 - Official Nintendo 64 SDK documentation, headers, and library source as
   distributed in existing public decomp projects
 - Emulator tracing/debugging of retail ROMs
