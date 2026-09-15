@@ -1,8 +1,8 @@
-# Whale handoff — 2026-09-15, at 18 words
+# Whale handoff — 2026-09-15 (wv-u), at 18 words, with an 11 forced witness
 
 `func_overlay_058_F000138C_18B0574`, 14,456 bytes, the largest unmatched
-function in the tree. Five bounded lanes have taken it **187 → 18 masked
-words at delta zero**. This file is the resumption point; the standing plan
+function in the tree. Six bounded lanes have taken it **187 → 18 masked
+words at delta zero**, and the sixth holds a forced witness at 11. This file is the resumption point; the standing plan
 is `docs/WHALE.md` and the lane reports it links.
 
 ## State
@@ -18,7 +18,22 @@ is `docs/WHALE.md` and the lane reports it links.
 
 Verified with `tools/score_symbol.py` and `tools/align_symbol.py`. The C
 remains guarded `NON_MATCHING`; nothing is promoted. Source unchanged since
-`lane/wv-s`; the instrument and its report are on `lane/wv-t`.
+`lane/wv-s`; the instrument and its report are on `lane/wv-t`, and lane
+wv-u's readings and reader scripts are in
+[whale-split-order.md](whale-split-order.md) and `cells-wv-u/`.
+
+Lane `wv-u` (2026-09-15) held at 18 and changed what the 18 is made of:
+**a forced witness measures 11 at delta zero** (`cells-wv-u/forced11-w22a3.o`,
+aligned 3603 / 11 / 0 / 0: W's nine rows and the two slot rows). Its body
+(`cells-wv-u/c15.c`) has `opponent` as case 13's coordinate and loop 1
+indexed by portraitX with the reset folded in the preheader, which keeps the
+`a2` piece at 28 interferers and closes all seven case-13 rows; the force
+is on portraitX's web of seven folded index resets, which the allocator
+colours `a0` on its own (120) and which is harmless at `a3`, `t0` or `s4`.
+Read the split-order report before anything else: it itemises the case-12
+identity from the neighbour captures (no transient interferer exists; the
+lever is w40's order and it has no zero-width handle) and derives the
+case-13 roles from the ladder.
 
 Lane `wv-t` (2026-09-15) held at 18 and built the instrument this file asked
 for; read [whale-split-growth.md](whale-split-growth.md) before anything
@@ -45,29 +60,39 @@ goes.
    carrier (deleting `saves` costs 10-18 rows) and not the expression
    (wv-r's fourteen spellings).
 
-## The next cycle, named by wv-t
+## The next cycle, named by wv-u
+
+**Colour the seven-reset web harmlessly without a force.** On
+`cells-wv-u/c15.c` portraitX's web is {9, 17, 85, 93, 136, 235, 241}, all
+folded resets (ugen emits the `move`s, as1 deletes them, on both sides),
+7/3 = 2.33, decided at ~150, coloured `a0`; `a0` collides with `w9`
+(`D_o058_5E94`, blocks 3-13, decided 304), `a1` with `w222` and the case-2/3
+value webs, `a2` with the `a2` piece (328). Every natural route measured so
+far needs the web decided after a web it cannot get under (the `a2` piece
+at 0.5; `rowBase` at 0.54 for the callee route, `s3` being refused by the
+entry loop's cursor), and dead-def webs have save >= 1.0 with no weight-0
+occurrence available (probes after a reset are not folded; bare expressions
+are dropped). The routes left: a byte-free call span for the index variable
+(callee-only cost table; then `s4`, measured harmless, needs `s1` and `s2`
+held first), a source form whose index resets are not defs at colouring
+time, or a carrier whose existing web already holds `a3`/`t0`/`s4`. Read
+`w22`'s `p1color` row (`reg=`, `forced=-2`) before the score.
+
+## The cycle wv-t named (done)
 
 **A web living in blocks 183/184/185/190 that is coloured `v1` before the
-`&D_o058_5E9C` remainder splits at save 3.60** (trace line ~21041 on the 18
-body). That is the only lever the growth identity leaves: it takes the
-dropped 183-piece's `left` at its 202 step from 13 to 12 without touching
-W's, because W loses `v1` to `w40` anyway. Candidates: raise `w40`'s own save
-above 3.6 (it is `n*2` at blocks 13 and 183, two weight-1 occurrences), or a
-carrier whose loop-weighted occurrence survives dead-code elimination without
-living across a call. Read `left_after` at the 202 step of the piece seeded
-at 183 -- it must be 12 -- before believing a score.
-
-The next paragraph is wv-s's cycle; it is done, and its readings are above.
+`&D_o058_5E9C` remainder splits at save 3.60.** wv-u found the flip is
+real (two head probes take w40 to 4.0 and the piece rejects 202 with
+`left 12`) and that no zero-width occurrence exists to produce it: probes
+insert blocks that the target's interleaved block 183 forbids, aliasing
+through `&D_o058_5E98` splits the `D_o058_5E9C` value web or poisons alias
+analysis, and bare expression statements are dropped by cfe.
 
 ## The cycle wv-s named (done)
 
-**Extend the instrumented uopt to dump each web's block set** (the
-`webdetail` rows carry `bb=-1`). Both fragment questions become readings:
-which two webs beside `textY` interfere with W on the 18 body, and which
-carve detaches `&D_o058_5E9C`'s head piece when the coordinate is
-`opponent`. Each is then one zero-width edit. Without the instrument, the
-source-side cycle is a `p1:wN=s` split force on W to read whether the
-remainder's `numintf` drops below 24.
+The per-web block-set dump and the growth records, built by wv-t
+(`webblocks`, `seed`, `grow`, `growv`, `livbb`; `lineage_census.py --web`);
+see [whale-split-growth.md](whale-split-growth.md).
 
 ## The governing principle, and why this session moved
 
@@ -115,6 +140,13 @@ Do not re-dispatch against any of these.
 | case-13 coordinate spellings with `opponent` | 17 head/row-preheader spellings, guarded reset, nine tokens: the head piece stays shed |
 | `saves` carrier deletion (cases 9/10) | 28-36; the operand order is below the records |
 
+| a dead carrier web at 183 | the itemised identity: the two pieces share every window interferer but W's own remainder, colours differ by `v1`/`a0`/`a1` timing only; no such body passes both tests |
+| zero-width occurrences | `if` probes insert two blocks each and every web live across them gains `nocs`; probes after a reset are not folded; bare expression statements are dropped by cfe |
+| aliasing `D_o058_5E9C` through `&D_o058_5E98` | case 2/3 loops: 3.20 and 39 rows or a -16 fold; the head read: splits the `a0` value web (+4); the row-loop negate: alias analysis poisoned |
+| pointer walks in cases 1/2 | +24..+56 and the frame moves; the frame census is identical on both sides |
+| the case-13 coordinate as any web but `opponent` | a real def counts an occurrence, so no coordinate beats the cursor's 31/2; portraitX can never be `s0` (`w26` holds it at blocks 9 and 85) |
+| the case-13 row loop on `i` | exact locally (36 at delta 0) but splits the `D_o058_5EE0[portraitX]` SR temp shared with case 3: 20 rows there |
+
 `p1:wN=s` split forces **are** honoured and `force_lattice.py` parses the
 receipt, but every split measured so far costs width.
 
@@ -146,7 +178,12 @@ lattice, lineage, draws, residual, allocator), plus the held landscapes
 and wv-t's growth-profile traces: `allocator18-growth.log`,
 `allocator48-growth.log`, the `allocator18-cell-*.log`/`cell18-*.c` pairs,
 three `allocator18-detail-w*.log` neighbour captures, `uoptlist18.txt`, and
-`cells-wv-t/` (every wv-t cell with its source and the scratch harness). **Re-running a banked measurement is wasted budget**, and the
+`cells-wv-t/` (every wv-t cell with its source and the scratch harness).
+Lane wv-u adds `cells-wv-u/`: every cell's source, result and trace, the
+reader scripts (`readW.py`, `intfdiff.py`, `peels.py`, `colourdiff.py`,
+`case13.py`), the neighbour captures on the pointer and opponent bodies, the
+case-13-exact 36 object, and the forced 11 objects `forced11-w22a3.o` /
+`forced11-w22s4.o` with their unforced twin `c15-unforced120.o`. **Re-running a banked measurement is wasted budget**, and the
 freshness guard will say so if a landscape has gone stale.
 
 ## Two repository faults fixed, worth remembering
